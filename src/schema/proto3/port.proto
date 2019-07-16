@@ -3,7 +3,7 @@ syntax = "proto3";
 package aliothcontroller;
 
 option java_package = "com.futurewei.alioth.controller.schema";
-option java_outer_classname = "portstate";
+option java_outer_classname = "Port";
 
 import "common.proto";
 

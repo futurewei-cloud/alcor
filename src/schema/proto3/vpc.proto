@@ -3,7 +3,7 @@ syntax = "proto3";
 package aliothcontroller;
 
 option java_package = "com.futurewei.alioth.controller.schema";
-option java_outer_classname = "vpcstate";
+option java_outer_classname = "Vpc";
 
 import "common.proto";
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 package aliothcontroller;
 
 option java_package = "com.futurewei.alioth.controller.schema";
-option java_outer_classname = "common";
+option java_outer_classname = "Common";
 
 enum OperationType {
     CREATE = 0;

@@ -3,7 +3,7 @@ syntax = "proto3";
 package aliothcontroller;
 
 option java_package = "com.futurewei.alioth.controller.schema";
-option java_outer_classname = "securitygroupstate";
+option java_outer_classname = "SecurityGroup";
 
 import "common.proto";
 
@@ -34,13 +34,6 @@ message SecurityGroupConfiguration {
 }
 
 message SecurityGroupState {
-  enum OperationType {
-    CREATE = 0;
-    UPDATE = 1;
-    GET = 2; 
-    DELETE = 3;
-  }
-
   OperationType operation_type = 1;
   SecurityGroupConfiguration configuration = 2;
 }
