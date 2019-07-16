@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller";
+option java_outer_classname = "portstate";
+
+import "common.proto";
+
+message PortConfiguration {
+  string project_id = 1;
+  string network_id = 2;
+  string id = 3;
+  string name = 4;
+  bool admin_state_up = 5;
+  
+  message FixedIp {
+    string subnet_id = 1;
+    string ip_address = 2;
+  }  
+
+  repeated FixedIp fixed_ips = 6;
+  
+  message SecurityGroupId {
+    string id = 1;
+  }
+
+  repeated SecurityGroupId security_group_ids = 7;
+
+  message AllowAddressPair {
+     string ip_address = 1;
+     string mac_address = 2;
+  }
+
+  repeated AllowAddressPair allow_address_pairs = 8;
+
+  message ExtraDhcpOption {
+     string name = 1;
+     string value = 2;
+  }
+
+  repeated ExtraDhcpOption extra_dhcp_options = 9;
+}
+
+message PortState {
+  OperationType operation_type = 1;
+  PortConfiguration configuration = 2;
+}

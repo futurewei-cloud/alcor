@@ -5,6 +5,8 @@ package aliothcontroller;
 option java_package = "com.futurewei.alioth.controller";
 option java_outer_classname = "vpcstate";
 
+import "common.proto";
+
 message VpcConfiguration {
   string project_id = 1;
   string id  = 2;
@@ -25,13 +27,6 @@ message VpcConfiguration {
 }
 
 message VpcState {
-  enum OperationType {
-    CREATE = 0;
-    UPDATE = 1;
-    GET = 2; 
-    DELETE = 3;
-  }
-
   OperationType operation_type = 1;
   VpcConfiguration configuration =  2;
 }

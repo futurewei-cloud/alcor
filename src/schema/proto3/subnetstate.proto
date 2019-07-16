@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller";
+option java_outer_classname = "subnetstate";
+
+import "common.proto";
+
+message SubnetConfiguration {
+  string project_id = 1;
+  string vpc_id = 2;
+  string id = 3;
+  string name = 4;
+  string cidr = 5;
+  
+  string gateway_ip = 6;
+  bool dhcp_enable = 7;
+  string primary_dns = 8;
+  string secondary_dns = 9;
+ 
+  message DnsEntry {
+    string entry = 1;
+  }  
+
+  repeated DnsEntry dns_list = 10;
+  string availability_zone = 11;
+
+  message SecurityGroupId {
+    string id = 1;
+  }
+
+  SecurityGroupId security_group_ids = 12;
+}
+message SubnetState {
+  OperationType operation_type = 1;
+  SubnetConfiguration configuration = 2;
+}

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller";
+option java_outer_classname = "securitygroupstate";
+
+import "common.proto";
+
+message SecurityGroupConfiguration {
+  string project_id = 1;
+  string vpc_id = 2;
+  string name = 3;
+
+  enum Direction {
+    EGRESS = 0;
+    INGRESS = 1;
+  }
+
+  message SecurityGroupRule {
+    string security_group_id = 1;
+    string id = 2;
+    Direction direction = 3;
+    EtherType ethertype = 4;
+    Protocol protocol = 5;
+
+    int32 port_range_min = 6;
+    int32 port_range_max = 7;
+    string remote_ip_prefix = 8;
+    string remote_group_id = 9;
+  }
+ 
+  repeated SecurityGroupRule security_group_rules = 4;
+}
+
+message SecurityGroupState {
+  enum OperationType {
+    CREATE = 0;
+    UPDATE = 1;
+    GET = 2; 
+    DELETE = 3;
+  }
+
+  OperationType operation_type = 1;
+  SecurityGroupConfiguration configuration = 2;
+}
