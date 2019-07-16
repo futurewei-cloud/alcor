@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Common";
+
+enum OperationType {
+    CREATE = 0;
+    UPDATE = 1;
+    GET = 2;
+    DELETE = 3;
+}
+
+enum EtherType {
+    IPV4 = 0;
+    IPV6 = 1;
+}
+
+enum Protocol {
+    TCP = 0;
+    UDP = 1;
+    ICMP = 2;
+}

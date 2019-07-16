@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcConfiguration {
+  string project_id = 1;
+  string id  = 2;
+  string name = 3;
+  string cidr = 4;
+  
+  message SubnetId {
+    string id = 1;
+  }
+
+  message Route {
+    string destination = 1;
+    string next_hop = 2;
+  }
+ 
+  repeated SubnetId subnet_ids = 5;
+  repeated Route routes = 6;
+}
+
+message VpcState {
+  OperationType operation_type = 1;
+  VpcConfiguration configuration =  2;
+}
