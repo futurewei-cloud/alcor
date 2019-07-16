@@ -2815,13 +2815,13 @@ public final class vpcstate {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+     * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
      */
     int getOperationTypeValue();
     /**
-     * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+     * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
      */
-    com.futurewei.alioth.controller.vpcstate.VpcState.OperationType getOperationType();
+    com.futurewei.alioth.controller.common.OperationType getOperationType();
 
     /**
      * <code>optional .aliothcontroller.VpcConfiguration configuration = 2;</code>
@@ -2918,136 +2918,20 @@ public final class vpcstate {
               com.futurewei.alioth.controller.vpcstate.VpcState.class, com.futurewei.alioth.controller.vpcstate.VpcState.Builder.class);
     }
 
-    /**
-     * Protobuf enum {@code aliothcontroller.VpcState.OperationType}
-     */
-    public enum OperationType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>CREATE = 0;</code>
-       */
-      CREATE(0),
-      /**
-       * <code>UPDATE = 1;</code>
-       */
-      UPDATE(1),
-      /**
-       * <code>GET = 2;</code>
-       */
-      GET(2),
-      /**
-       * <code>DELETE = 3;</code>
-       */
-      DELETE(3),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <code>CREATE = 0;</code>
-       */
-      public static final int CREATE_VALUE = 0;
-      /**
-       * <code>UPDATE = 1;</code>
-       */
-      public static final int UPDATE_VALUE = 1;
-      /**
-       * <code>GET = 2;</code>
-       */
-      public static final int GET_VALUE = 2;
-      /**
-       * <code>DELETE = 3;</code>
-       */
-      public static final int DELETE_VALUE = 3;
-
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static OperationType valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static OperationType forNumber(int value) {
-        switch (value) {
-          case 0: return CREATE;
-          case 1: return UPDATE;
-          case 2: return GET;
-          case 3: return DELETE;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<OperationType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          OperationType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<OperationType>() {
-              public OperationType findValueByNumber(int number) {
-                return OperationType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return com.futurewei.alioth.controller.vpcstate.VpcState.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final OperationType[] VALUES = values();
-
-      public static OperationType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private OperationType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:aliothcontroller.VpcState.OperationType)
-    }
-
     public static final int OPERATION_TYPE_FIELD_NUMBER = 1;
     private int operationType_;
     /**
-     * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+     * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
      */
     public int getOperationTypeValue() {
       return operationType_;
     }
     /**
-     * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+     * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
      */
-    public com.futurewei.alioth.controller.vpcstate.VpcState.OperationType getOperationType() {
-      com.futurewei.alioth.controller.vpcstate.VpcState.OperationType result = com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.valueOf(operationType_);
-      return result == null ? com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.UNRECOGNIZED : result;
+    public com.futurewei.alioth.controller.common.OperationType getOperationType() {
+      com.futurewei.alioth.controller.common.OperationType result = com.futurewei.alioth.controller.common.OperationType.valueOf(operationType_);
+      return result == null ? com.futurewei.alioth.controller.common.OperationType.UNRECOGNIZED : result;
     }
 
     public static final int CONFIGURATION_FIELD_NUMBER = 2;
@@ -3083,7 +2967,7 @@ public final class vpcstate {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (operationType_ != com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.CREATE.getNumber()) {
+      if (operationType_ != com.futurewei.alioth.controller.common.OperationType.CREATE.getNumber()) {
         output.writeEnum(1, operationType_);
       }
       if (configuration_ != null) {
@@ -3096,7 +2980,7 @@ public final class vpcstate {
       if (size != -1) return size;
 
       size = 0;
-      if (operationType_ != com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.CREATE.getNumber()) {
+      if (operationType_ != com.futurewei.alioth.controller.common.OperationType.CREATE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, operationType_);
       }
@@ -3371,13 +3255,13 @@ public final class vpcstate {
 
       private int operationType_ = 0;
       /**
-       * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+       * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
        */
       public int getOperationTypeValue() {
         return operationType_;
       }
       /**
-       * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+       * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
        */
       public Builder setOperationTypeValue(int value) {
         operationType_ = value;
@@ -3385,16 +3269,16 @@ public final class vpcstate {
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+       * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
        */
-      public com.futurewei.alioth.controller.vpcstate.VpcState.OperationType getOperationType() {
-        com.futurewei.alioth.controller.vpcstate.VpcState.OperationType result = com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.valueOf(operationType_);
-        return result == null ? com.futurewei.alioth.controller.vpcstate.VpcState.OperationType.UNRECOGNIZED : result;
+      public com.futurewei.alioth.controller.common.OperationType getOperationType() {
+        com.futurewei.alioth.controller.common.OperationType result = com.futurewei.alioth.controller.common.OperationType.valueOf(operationType_);
+        return result == null ? com.futurewei.alioth.controller.common.OperationType.UNRECOGNIZED : result;
       }
       /**
-       * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+       * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
        */
-      public Builder setOperationType(com.futurewei.alioth.controller.vpcstate.VpcState.OperationType value) {
+      public Builder setOperationType(com.futurewei.alioth.controller.common.OperationType value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -3404,7 +3288,7 @@ public final class vpcstate {
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.VpcState.OperationType operation_type = 1;</code>
+       * <code>optional .aliothcontroller.OperationType operation_type = 1;</code>
        */
       public Builder clearOperationType() {
         
@@ -3607,21 +3491,19 @@ public final class vpcstate {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016vpcstate.proto\022\020aliothcontroller\"\221\002\n\020V" +
-      "pcConfiguration\022\022\n\nproject_id\030\001 \001(\t\022\n\n\002i" +
-      "d\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\014\n\004cidr\030\004 \001(\t\022?\n\ns" +
-      "ubnet_ids\030\005 \003(\0132+.aliothcontroller.VpcCo" +
-      "nfiguration.SubnetId\0228\n\006routes\030\006 \003(\0132(.a" +
-      "liothcontroller.VpcConfiguration.Route\032\026" +
-      "\n\010SubnetId\022\n\n\002id\030\001 \001(\t\032.\n\005Route\022\023\n\013desti" +
-      "nation\030\001 \001(\t\022\020\n\010next_hop\030\002 \001(\t\"\305\001\n\010VpcSt" +
-      "ate\022@\n\016operation_type\030\001 \001(\0162(.aliothcont" +
-      "roller.VpcState.OperationType\0229\n\rconfigu",
-      "ration\030\002 \001(\0132\".aliothcontroller.VpcConfi" +
-      "guration\"<\n\rOperationType\022\n\n\006CREATE\020\000\022\n\n" +
-      "\006UPDATE\020\001\022\007\n\003GET\020\002\022\n\n\006DELETE\020\003B+\n\037com.fu" +
-      "turewei.alioth.controllerB\010vpcstateb\006pro" +
-      "to3"
+      "\n\016vpcstate.proto\022\020aliothcontroller\032\014comm" +
+      "on.proto\"\221\002\n\020VpcConfiguration\022\022\n\nproject" +
+      "_id\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\014\n\004c" +
+      "idr\030\004 \001(\t\022?\n\nsubnet_ids\030\005 \003(\0132+.aliothco" +
+      "ntroller.VpcConfiguration.SubnetId\0228\n\006ro" +
+      "utes\030\006 \003(\0132(.aliothcontroller.VpcConfigu" +
+      "ration.Route\032\026\n\010SubnetId\022\n\n\002id\030\001 \001(\t\032.\n\005" +
+      "Route\022\023\n\013destination\030\001 \001(\t\022\020\n\010next_hop\030\002" +
+      " \001(\t\"~\n\010VpcState\0227\n\016operation_type\030\001 \001(\016" +
+      "2\037.aliothcontroller.OperationType\0229\n\rcon",
+      "figuration\030\002 \001(\0132\".aliothcontroller.VpcC" +
+      "onfigurationB+\n\037com.futurewei.alioth.con" +
+      "trollerB\010vpcstateb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3634,6 +3516,7 @@ public final class vpcstate {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.futurewei.alioth.controller.common.getDescriptor(),
         }, assigner);
     internal_static_aliothcontroller_VpcConfiguration_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -3659,6 +3542,7 @@ public final class vpcstate {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_VpcState_descriptor,
         new java.lang.String[] { "OperationType", "Configuration", });
+    com.futurewei.alioth.controller.common.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
