@@ -6,21 +6,21 @@ option java_package = "com.futurewei.alioth.controller";
 option java_outer_classname = "vpcstate";
 
 message VpcConfiguration {
-  required string project_id = 1;
-  required string id  = 2;
-  optional string name = 3;
-  required string cidr = 4;
+  string project_id = 1;
+  string id  = 2;
+  string name = 3;
+  string cidr = 4;
   
   message SubnetId {
-    required string id = 1;
+    string id = 1;
   }
 
   message Route {
-    required string destination = 1;
-    required string next_hop = 2;
+    string destination = 1;
+    string next_hop = 2;
   }
  
-  repeated Subnet subnet_ids = 5;
+  repeated SubnetId subnet_ids = 5;
   repeated Route routes = 6;
 }
 
@@ -32,6 +32,6 @@ message VpcState {
     DELETE = 3;
   }
 
-  required OperationType operation_type = 1;
-  required VpcConfiguration = 2;
+  OperationType operation_type = 1;
+  VpcConfiguration configuration =  2;
 }
