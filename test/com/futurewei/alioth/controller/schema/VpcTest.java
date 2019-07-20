@@ -1,5 +1,7 @@
 package com.futurewei.alioth.controller.schema;
 
+import com.futurewei.alioth.controller.schema.Vpc.VpcState;
+import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Assert;
@@ -8,7 +10,7 @@ import org.junit.Test;
 public class VpcTest {
     @Test
     public void basicSerializationVerification() {
-        final Vpc.VpcState state = TestUtil.CreateVpcState(Common.OperationType.CREATE,
+        final VpcState state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
@@ -17,7 +19,7 @@ public class VpcTest {
         final byte[] binaryState = state.toByteArray();
 
         try {
-            final Vpc.VpcState deserializedObject = Vpc.VpcState.parseFrom(binaryState);
+            final VpcState deserializedObject = VpcState.parseFrom(binaryState);
 
             TestUtil.AssertVpcStates(state, deserializedObject);
         } catch(InvalidProtocolBufferException bf_exp) {
@@ -27,7 +29,7 @@ public class VpcTest {
 
     @Test
     public void stringSerializationVerification() {
-        final Vpc.VpcState state = TestUtil.CreateVpcState(Common.OperationType.DELETE,
+        final VpcState state = GoalStateUtil.CreateVpcState(Common.OperationType.DELETE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
@@ -36,7 +38,7 @@ public class VpcTest {
         final ByteString byteStringState = state.toByteString();
 
         try {
-            final Vpc.VpcState deserializedObject = Vpc.VpcState.parseFrom(byteStringState);
+            final VpcState deserializedObject = VpcState.parseFrom(byteStringState);
 
             TestUtil.AssertVpcStates(state, deserializedObject);
         } catch (InvalidProtocolBufferException bf_exp) {
