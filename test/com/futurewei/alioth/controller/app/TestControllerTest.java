@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(TestController.class)
-//@SpringBootTest
 @AutoConfigureRestDocs(outputDir = "target/snippets")
 public class TestControllerTest {
 
@@ -31,7 +30,7 @@ public class TestControllerTest {
         this.mvc.perform(get("/"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Greetings from Alioth")))
+                .andExpect(content().string(equalTo("Greetings from Alioth!")))
                 .andDo(document("home"));
     }
 }
