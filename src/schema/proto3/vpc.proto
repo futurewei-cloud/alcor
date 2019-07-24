@@ -21,9 +21,15 @@ message VpcConfiguration {
     string destination = 1;
     string next_hop = 2;
   }
- 
+
+  message TransitRouterIp {
+    string vpc_id = 1;
+    string ip_address = 2;
+  }
+
   repeated SubnetId subnet_ids = 5;
   repeated Route routes = 6;
+  repeated TransitRouterIp transit_router_ips = 7;
 }
 
 message VpcState {
