@@ -1,5 +1,6 @@
-package com.futurewei.alioth.controller.app;
+package com.futurewei.alioth.controller.web;
 
+import com.futurewei.alioth.controller.web.TestController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
