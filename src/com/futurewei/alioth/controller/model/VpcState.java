@@ -5,15 +5,15 @@ import lombok.Data;
 @Data
 public class VpcState {
 
-    private String project_id;
+    private String projectId;
     private String id;
     private String name;
     private String cidr;
 
     VpcState() {}
 
-    VpcState(String project_id, String id, String name, String cidr){
-        this.project_id = project_id;
+    VpcState(String projectId, String id, String name, String cidr){
+        this.projectId = projectId;
         this.id = id;
         this.name = name;
         this.cidr = cidr;

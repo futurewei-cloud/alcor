@@ -1,4 +1,4 @@
-package com.futurewei.alioth.controller.app;
+package com.futurewei.alioth.controller.web;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;

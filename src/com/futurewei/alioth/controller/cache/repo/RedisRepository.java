@@ -4,13 +4,13 @@ import com.futurewei.alioth.controller.model.VpcState;
 
 import java.util.Map;
 
-public interface RedisRepository {
+public interface RedisRepository<T> {
 
-    VpcState findVpc(String id);
+    T findItem(String id);
 
-    Map<String, VpcState> findAllVpcs();
+    Map<String, T> findAllItems();
 
-    void add(VpcState vpcState);
+    void addItem(T newItem);
 
-    void delete(String id);
+    void deleteItem(String id);
 }
