@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.futurewei.alioth.controller.web")
 public class AliothControllerApp {
     public static void main(String[] args) {
         System.out.println("Hello Alioth Controller!");

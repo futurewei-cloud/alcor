@@ -10,9 +10,9 @@ public class VpcState {
     private String name;
     private String cidr;
 
-    VpcState() {}
+    public VpcState() {}
 
-    VpcState(String projectId, String id, String name, String cidr){
+    public VpcState(String projectId, String id, String name, String cidr){
         this.projectId = projectId;
         this.id = id;
         this.name = name;
