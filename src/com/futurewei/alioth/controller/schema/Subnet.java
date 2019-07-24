@@ -84,71 +84,106 @@ public final class Subnet {
     boolean getDhcpEnable();
 
     /**
-     * <code>optional string primary_dns = 8;</code>
-     */
-    java.lang.String getPrimaryDns();
-    /**
-     * <code>optional string primary_dns = 8;</code>
-     */
-    com.google.protobuf.ByteString
-        getPrimaryDnsBytes();
-
-    /**
-     * <code>optional string secondary_dns = 9;</code>
-     */
-    java.lang.String getSecondaryDns();
-    /**
-     * <code>optional string secondary_dns = 9;</code>
-     */
-    com.google.protobuf.ByteString
-        getSecondaryDnsBytes();
-
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> 
-        getDnsListList();
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry getDnsList(int index);
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    int getDnsListCount();
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> 
-        getDnsListOrBuilderList();
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder getDnsListOrBuilder(
-        int index);
-
-    /**
-     * <code>optional string availability_zone = 11;</code>
+     * <code>optional string availability_zone = 8;</code>
      */
     java.lang.String getAvailabilityZone();
     /**
-     * <code>optional string availability_zone = 11;</code>
+     * <code>optional string availability_zone = 8;</code>
      */
     com.google.protobuf.ByteString
         getAvailabilityZoneBytes();
 
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>optional string primary_dns = 9;</code>
      */
-    boolean hasSecurityGroupIds();
+    java.lang.String getPrimaryDns();
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>optional string primary_dns = 9;</code>
      */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds();
+    com.google.protobuf.ByteString
+        getPrimaryDnsBytes();
+
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>optional string secondary_dns = 10;</code>
      */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder();
+    java.lang.String getSecondaryDns();
+    /**
+     * <code>optional string secondary_dns = 10;</code>
+     */
+    com.google.protobuf.ByteString
+        getSecondaryDnsBytes();
+
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> 
+        getDnsListList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry getDnsList(int index);
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    int getDnsListCount();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> 
+        getDnsListOrBuilderList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder getDnsListOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> 
+        getSecurityGroupIdsList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds(int index);
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    int getSecurityGroupIdsCount();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder> 
+        getSecurityGroupIdsOrBuilderList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> 
+        getTransitSwitchIpsList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index);
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    int getTransitSwitchIpsCount();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
+        getTransitSwitchIpsOrBuilderList();
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code aliothcontroller.SubnetConfiguration}
@@ -169,10 +204,12 @@ public final class Subnet {
       cidr_ = "";
       gatewayIp_ = "";
       dhcpEnable_ = false;
+      availabilityZone_ = "";
       primaryDns_ = "";
       secondaryDns_ = "";
       dnsList_ = java.util.Collections.emptyList();
-      availabilityZone_ = "";
+      securityGroupIds_ = java.util.Collections.emptyList();
+      transitSwitchIps_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -244,41 +281,46 @@ public final class Subnet {
             case 66: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              primaryDns_ = s;
+              availabilityZone_ = s;
               break;
             }
             case 74: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              secondaryDns_ = s;
+              primaryDns_ = s;
               break;
             }
             case 82: {
-              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              secondaryDns_ = s;
+              break;
+            }
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
                 dnsList_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry>();
-                mutable_bitField0_ |= 0x00000200;
+                mutable_bitField0_ |= 0x00000400;
               }
               dnsList_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.parser(), extensionRegistry));
               break;
             }
-            case 90: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              availabilityZone_ = s;
+            case 98: {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+                securityGroupIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId>();
+                mutable_bitField0_ |= 0x00000800;
+              }
+              securityGroupIds_.add(
+                  input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.parser(), extensionRegistry));
               break;
             }
-            case 98: {
-              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder subBuilder = null;
-              if (securityGroupIds_ != null) {
-                subBuilder = securityGroupIds_.toBuilder();
+            case 106: {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+                transitSwitchIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp>();
+                mutable_bitField0_ |= 0x00001000;
               }
-              securityGroupIds_ = input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(securityGroupIds_);
-                securityGroupIds_ = subBuilder.buildPartial();
-              }
-
+              transitSwitchIps_.add(
+                  input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.parser(), extensionRegistry));
               break;
             }
           }
@@ -289,8 +331,14 @@ public final class Subnet {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           dnsList_ = java.util.Collections.unmodifiableList(dnsList_);
+        }
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+          securityGroupIds_ = java.util.Collections.unmodifiableList(securityGroupIds_);
+        }
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+          transitSwitchIps_ = java.util.Collections.unmodifiableList(transitSwitchIps_);
         }
         makeExtensionsImmutable();
       }
@@ -1313,6 +1361,783 @@ public final class Subnet {
 
     }
 
+    public interface TransitSwitchIpOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string vpc_id = 1;</code>
+       */
+      java.lang.String getVpcId();
+      /**
+       * <code>optional string vpc_id = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getVpcIdBytes();
+
+      /**
+       * <code>optional string subnet_id = 2;</code>
+       */
+      java.lang.String getSubnetId();
+      /**
+       * <code>optional string subnet_id = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getSubnetIdBytes();
+
+      /**
+       * <code>optional string ip_address = 3;</code>
+       */
+      java.lang.String getIpAddress();
+      /**
+       * <code>optional string ip_address = 3;</code>
+       */
+      com.google.protobuf.ByteString
+          getIpAddressBytes();
+    }
+    /**
+     * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitchIp}
+     */
+    public  static final class TransitSwitchIp extends
+        com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+        TransitSwitchIpOrBuilder {
+      // Use TransitSwitchIp.newBuilder() to construct.
+      private TransitSwitchIp(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        super(builder);
+      }
+      private TransitSwitchIp() {
+        vpcId_ = "";
+        subnetId_ = "";
+        ipAddress_ = "";
+      }
+
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+      getUnknownFields() {
+        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+      }
+      private TransitSwitchIp(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        this();
+        int mutable_bitField0_ = 0;
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!input.skipField(tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                vpcId_ = s;
+                break;
+              }
+              case 18: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                subnetId_ = s;
+                break;
+              }
+              case 26: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                ipAddress_ = s;
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e).setUnfinishedMessage(this);
+        } finally {
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder.class);
+      }
+
+      public static final int VPC_ID_FIELD_NUMBER = 1;
+      private volatile java.lang.Object vpcId_;
+      /**
+       * <code>optional string vpc_id = 1;</code>
+       */
+      public java.lang.String getVpcId() {
+        java.lang.Object ref = vpcId_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          vpcId_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string vpc_id = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getVpcIdBytes() {
+        java.lang.Object ref = vpcId_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          vpcId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int SUBNET_ID_FIELD_NUMBER = 2;
+      private volatile java.lang.Object subnetId_;
+      /**
+       * <code>optional string subnet_id = 2;</code>
+       */
+      public java.lang.String getSubnetId() {
+        java.lang.Object ref = subnetId_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          subnetId_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string subnet_id = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSubnetIdBytes() {
+        java.lang.Object ref = subnetId_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          subnetId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int IP_ADDRESS_FIELD_NUMBER = 3;
+      private volatile java.lang.Object ipAddress_;
+      /**
+       * <code>optional string ip_address = 3;</code>
+       */
+      public java.lang.String getIpAddress() {
+        java.lang.Object ref = ipAddress_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          ipAddress_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string ip_address = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIpAddressBytes() {
+        java.lang.Object ref = ipAddress_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ipAddress_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        if (!getVpcIdBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 1, vpcId_);
+        }
+        if (!getSubnetIdBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 2, subnetId_);
+        }
+        if (!getIpAddressBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 3, ipAddress_);
+        }
+      }
+
+      public int getSerializedSize() {
+        int size = memoizedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (!getVpcIdBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, vpcId_);
+        }
+        if (!getSubnetIdBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, subnetId_);
+        }
+        if (!getIpAddressBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, ipAddress_);
+        }
+        memoizedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+         return true;
+        }
+        if (!(obj instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp)) {
+          return super.equals(obj);
+        }
+        com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp other = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) obj;
+
+        boolean result = true;
+        result = result && getVpcId()
+            .equals(other.getVpcId());
+        result = result && getSubnetId()
+            .equals(other.getSubnetId());
+        result = result && getIpAddress()
+            .equals(other.getIpAddress());
+        return result;
+      }
+
+      @java.lang.Override
+      public int hashCode() {
+        if (memoizedHashCode != 0) {
+          return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptorForType().hashCode();
+        hash = (37 * hash) + VPC_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getVpcId().hashCode();
+        hash = (37 * hash) + SUBNET_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getSubnetId().hashCode();
+        hash = (37 * hash) + IP_ADDRESS_FIELD_NUMBER;
+        hash = (53 * hash) + getIpAddress().hashCode();
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+      }
+
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
+      }
+      public static Builder newBuilder(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitchIp}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder.class);
+        }
+
+        // Construct using com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessageV3
+                  .alwaysUseFieldBuilders) {
+          }
+        }
+        public Builder clear() {
+          super.clear();
+          vpcId_ = "";
+
+          subnetId_ = "";
+
+          ipAddress_ = "";
+
+          return this;
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+        }
+
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstanceForType() {
+          return com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance();
+        }
+
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp build() {
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp buildPartial() {
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp result = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp(this);
+          result.vpcId_ = vpcId_;
+          result.subnetId_ = subnetId_;
+          result.ipAddress_ = ipAddress_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder clone() {
+          return (Builder) super.clone();
+        }
+        public Builder setField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.setField(field, value);
+        }
+        public Builder clearField(
+            com.google.protobuf.Descriptors.FieldDescriptor field) {
+          return (Builder) super.clearField(field);
+        }
+        public Builder clearOneof(
+            com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          return (Builder) super.clearOneof(oneof);
+        }
+        public Builder setRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            int index, Object value) {
+          return (Builder) super.setRepeatedField(field, index, value);
+        }
+        public Builder addRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.addRepeatedField(field, value);
+        }
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) {
+            return mergeFrom((com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp other) {
+          if (other == com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance()) return this;
+          if (!other.getVpcId().isEmpty()) {
+            vpcId_ = other.vpcId_;
+            onChanged();
+          }
+          if (!other.getSubnetId().isEmpty()) {
+            subnetId_ = other.subnetId_;
+            onChanged();
+          }
+          if (!other.getIpAddress().isEmpty()) {
+            ipAddress_ = other.ipAddress_;
+            onChanged();
+          }
+          onChanged();
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) e.getUnfinishedMessage();
+            throw e.unwrapIOException();
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+
+        private java.lang.Object vpcId_ = "";
+        /**
+         * <code>optional string vpc_id = 1;</code>
+         */
+        public java.lang.String getVpcId() {
+          java.lang.Object ref = vpcId_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            vpcId_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string vpc_id = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getVpcIdBytes() {
+          java.lang.Object ref = vpcId_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            vpcId_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string vpc_id = 1;</code>
+         */
+        public Builder setVpcId(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          vpcId_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string vpc_id = 1;</code>
+         */
+        public Builder clearVpcId() {
+          
+          vpcId_ = getDefaultInstance().getVpcId();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string vpc_id = 1;</code>
+         */
+        public Builder setVpcIdBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          vpcId_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object subnetId_ = "";
+        /**
+         * <code>optional string subnet_id = 2;</code>
+         */
+        public java.lang.String getSubnetId() {
+          java.lang.Object ref = subnetId_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            subnetId_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string subnet_id = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getSubnetIdBytes() {
+          java.lang.Object ref = subnetId_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            subnetId_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string subnet_id = 2;</code>
+         */
+        public Builder setSubnetId(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          subnetId_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string subnet_id = 2;</code>
+         */
+        public Builder clearSubnetId() {
+          
+          subnetId_ = getDefaultInstance().getSubnetId();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string subnet_id = 2;</code>
+         */
+        public Builder setSubnetIdBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          subnetId_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object ipAddress_ = "";
+        /**
+         * <code>optional string ip_address = 3;</code>
+         */
+        public java.lang.String getIpAddress() {
+          java.lang.Object ref = ipAddress_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            ipAddress_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string ip_address = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getIpAddressBytes() {
+          java.lang.Object ref = ipAddress_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            ipAddress_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string ip_address = 3;</code>
+         */
+        public Builder setIpAddress(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          ipAddress_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string ip_address = 3;</code>
+         */
+        public Builder clearIpAddress() {
+          
+          ipAddress_ = getDefaultInstance().getIpAddress();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string ip_address = 3;</code>
+         */
+        public Builder setIpAddressBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          ipAddress_ = value;
+          onChanged();
+          return this;
+        }
+        public final Builder setUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+        public final Builder mergeUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+
+        // @@protoc_insertion_point(builder_scope:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+      }
+
+      // @@protoc_insertion_point(class_scope:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+      private static final com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp DEFAULT_INSTANCE;
+      static {
+        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp();
+      }
+
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      private static final com.google.protobuf.Parser<TransitSwitchIp>
+          PARSER = new com.google.protobuf.AbstractParser<TransitSwitchIp>() {
+        public TransitSwitchIp parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return new TransitSwitchIp(input, extensionRegistry);
+        }
+      };
+
+      public static com.google.protobuf.Parser<TransitSwitchIp> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<TransitSwitchIp> getParserForType() {
+        return PARSER;
+      }
+
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
+    }
+
     private int bitField0_;
     public static final int PROJECT_ID_FIELD_NUMBER = 1;
     private volatile java.lang.Object projectId_;
@@ -1527,113 +2352,10 @@ public final class Subnet {
       return dhcpEnable_;
     }
 
-    public static final int PRIMARY_DNS_FIELD_NUMBER = 8;
-    private volatile java.lang.Object primaryDns_;
-    /**
-     * <code>optional string primary_dns = 8;</code>
-     */
-    public java.lang.String getPrimaryDns() {
-      java.lang.Object ref = primaryDns_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        primaryDns_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>optional string primary_dns = 8;</code>
-     */
-    public com.google.protobuf.ByteString
-        getPrimaryDnsBytes() {
-      java.lang.Object ref = primaryDns_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        primaryDns_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int SECONDARY_DNS_FIELD_NUMBER = 9;
-    private volatile java.lang.Object secondaryDns_;
-    /**
-     * <code>optional string secondary_dns = 9;</code>
-     */
-    public java.lang.String getSecondaryDns() {
-      java.lang.Object ref = secondaryDns_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        secondaryDns_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>optional string secondary_dns = 9;</code>
-     */
-    public com.google.protobuf.ByteString
-        getSecondaryDnsBytes() {
-      java.lang.Object ref = secondaryDns_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        secondaryDns_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int DNS_LIST_FIELD_NUMBER = 10;
-    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> dnsList_;
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> getDnsListList() {
-      return dnsList_;
-    }
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> 
-        getDnsListOrBuilderList() {
-      return dnsList_;
-    }
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    public int getDnsListCount() {
-      return dnsList_.size();
-    }
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry getDnsList(int index) {
-      return dnsList_.get(index);
-    }
-    /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
-     */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder getDnsListOrBuilder(
-        int index) {
-      return dnsList_.get(index);
-    }
-
-    public static final int AVAILABILITY_ZONE_FIELD_NUMBER = 11;
+    public static final int AVAILABILITY_ZONE_FIELD_NUMBER = 8;
     private volatile java.lang.Object availabilityZone_;
     /**
-     * <code>optional string availability_zone = 11;</code>
+     * <code>optional string availability_zone = 8;</code>
      */
     public java.lang.String getAvailabilityZone() {
       java.lang.Object ref = availabilityZone_;
@@ -1648,7 +2370,7 @@ public final class Subnet {
       }
     }
     /**
-     * <code>optional string availability_zone = 11;</code>
+     * <code>optional string availability_zone = 8;</code>
      */
     public com.google.protobuf.ByteString
         getAvailabilityZoneBytes() {
@@ -1664,25 +2386,177 @@ public final class Subnet {
       }
     }
 
+    public static final int PRIMARY_DNS_FIELD_NUMBER = 9;
+    private volatile java.lang.Object primaryDns_;
+    /**
+     * <code>optional string primary_dns = 9;</code>
+     */
+    public java.lang.String getPrimaryDns() {
+      java.lang.Object ref = primaryDns_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        primaryDns_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string primary_dns = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getPrimaryDnsBytes() {
+      java.lang.Object ref = primaryDns_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        primaryDns_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SECONDARY_DNS_FIELD_NUMBER = 10;
+    private volatile java.lang.Object secondaryDns_;
+    /**
+     * <code>optional string secondary_dns = 10;</code>
+     */
+    public java.lang.String getSecondaryDns() {
+      java.lang.Object ref = secondaryDns_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        secondaryDns_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string secondary_dns = 10;</code>
+     */
+    public com.google.protobuf.ByteString
+        getSecondaryDnsBytes() {
+      java.lang.Object ref = secondaryDns_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        secondaryDns_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DNS_LIST_FIELD_NUMBER = 11;
+    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> dnsList_;
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> getDnsListList() {
+      return dnsList_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> 
+        getDnsListOrBuilderList() {
+      return dnsList_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    public int getDnsListCount() {
+      return dnsList_.size();
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry getDnsList(int index) {
+      return dnsList_.get(index);
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder getDnsListOrBuilder(
+        int index) {
+      return dnsList_.get(index);
+    }
+
     public static final int SECURITY_GROUP_IDS_FIELD_NUMBER = 12;
-    private com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId securityGroupIds_;
+    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> securityGroupIds_;
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
      */
-    public boolean hasSecurityGroupIds() {
-      return securityGroupIds_ != null;
+    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> getSecurityGroupIdsList() {
+      return securityGroupIds_;
     }
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
      */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds() {
-      return securityGroupIds_ == null ? com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.getDefaultInstance() : securityGroupIds_;
+    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder> 
+        getSecurityGroupIdsOrBuilderList() {
+      return securityGroupIds_;
     }
     /**
-     * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
      */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder() {
-      return getSecurityGroupIds();
+    public int getSecurityGroupIdsCount() {
+      return securityGroupIds_.size();
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds(int index) {
+      return securityGroupIds_.get(index);
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
+        int index) {
+      return securityGroupIds_.get(index);
+    }
+
+    public static final int TRANSIT_SWITCH_IPS_FIELD_NUMBER = 13;
+    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> transitSwitchIps_;
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> getTransitSwitchIpsList() {
+      return transitSwitchIps_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
+        getTransitSwitchIpsOrBuilderList() {
+      return transitSwitchIps_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    public int getTransitSwitchIpsCount() {
+      return transitSwitchIps_.size();
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index) {
+      return transitSwitchIps_.get(index);
+    }
+    /**
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+     */
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+        int index) {
+      return transitSwitchIps_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -1718,20 +2592,23 @@ public final class Subnet {
       if (dhcpEnable_ != false) {
         output.writeBool(7, dhcpEnable_);
       }
+      if (!getAvailabilityZoneBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, availabilityZone_);
+      }
       if (!getPrimaryDnsBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, primaryDns_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, primaryDns_);
       }
       if (!getSecondaryDnsBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, secondaryDns_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 10, secondaryDns_);
       }
       for (int i = 0; i < dnsList_.size(); i++) {
-        output.writeMessage(10, dnsList_.get(i));
+        output.writeMessage(11, dnsList_.get(i));
       }
-      if (!getAvailabilityZoneBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 11, availabilityZone_);
+      for (int i = 0; i < securityGroupIds_.size(); i++) {
+        output.writeMessage(12, securityGroupIds_.get(i));
       }
-      if (securityGroupIds_ != null) {
-        output.writeMessage(12, getSecurityGroupIds());
+      for (int i = 0; i < transitSwitchIps_.size(); i++) {
+        output.writeMessage(13, transitSwitchIps_.get(i));
       }
     }
 
@@ -1762,22 +2639,26 @@ public final class Subnet {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, dhcpEnable_);
       }
+      if (!getAvailabilityZoneBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, availabilityZone_);
+      }
       if (!getPrimaryDnsBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, primaryDns_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, primaryDns_);
       }
       if (!getSecondaryDnsBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, secondaryDns_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, secondaryDns_);
       }
       for (int i = 0; i < dnsList_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, dnsList_.get(i));
+          .computeMessageSize(11, dnsList_.get(i));
       }
-      if (!getAvailabilityZoneBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, availabilityZone_);
-      }
-      if (securityGroupIds_ != null) {
+      for (int i = 0; i < securityGroupIds_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(12, getSecurityGroupIds());
+          .computeMessageSize(12, securityGroupIds_.get(i));
+      }
+      for (int i = 0; i < transitSwitchIps_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(13, transitSwitchIps_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -1809,19 +2690,18 @@ public final class Subnet {
           .equals(other.getGatewayIp());
       result = result && (getDhcpEnable()
           == other.getDhcpEnable());
+      result = result && getAvailabilityZone()
+          .equals(other.getAvailabilityZone());
       result = result && getPrimaryDns()
           .equals(other.getPrimaryDns());
       result = result && getSecondaryDns()
           .equals(other.getSecondaryDns());
       result = result && getDnsListList()
           .equals(other.getDnsListList());
-      result = result && getAvailabilityZone()
-          .equals(other.getAvailabilityZone());
-      result = result && (hasSecurityGroupIds() == other.hasSecurityGroupIds());
-      if (hasSecurityGroupIds()) {
-        result = result && getSecurityGroupIds()
-            .equals(other.getSecurityGroupIds());
-      }
+      result = result && getSecurityGroupIdsList()
+          .equals(other.getSecurityGroupIdsList());
+      result = result && getTransitSwitchIpsList()
+          .equals(other.getTransitSwitchIpsList());
       return result;
     }
 
@@ -1847,6 +2727,8 @@ public final class Subnet {
       hash = (37 * hash) + DHCP_ENABLE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getDhcpEnable());
+      hash = (37 * hash) + AVAILABILITY_ZONE_FIELD_NUMBER;
+      hash = (53 * hash) + getAvailabilityZone().hashCode();
       hash = (37 * hash) + PRIMARY_DNS_FIELD_NUMBER;
       hash = (53 * hash) + getPrimaryDns().hashCode();
       hash = (37 * hash) + SECONDARY_DNS_FIELD_NUMBER;
@@ -1855,11 +2737,13 @@ public final class Subnet {
         hash = (37 * hash) + DNS_LIST_FIELD_NUMBER;
         hash = (53 * hash) + getDnsListList().hashCode();
       }
-      hash = (37 * hash) + AVAILABILITY_ZONE_FIELD_NUMBER;
-      hash = (53 * hash) + getAvailabilityZone().hashCode();
-      if (hasSecurityGroupIds()) {
+      if (getSecurityGroupIdsCount() > 0) {
         hash = (37 * hash) + SECURITY_GROUP_IDS_FIELD_NUMBER;
-        hash = (53 * hash) + getSecurityGroupIds().hashCode();
+        hash = (53 * hash) + getSecurityGroupIdsList().hashCode();
+      }
+      if (getTransitSwitchIpsCount() > 0) {
+        hash = (37 * hash) + TRANSIT_SWITCH_IPS_FIELD_NUMBER;
+        hash = (53 * hash) + getTransitSwitchIpsList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1976,6 +2860,8 @@ public final class Subnet {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
           getDnsListFieldBuilder();
+          getSecurityGroupIdsFieldBuilder();
+          getTransitSwitchIpsFieldBuilder();
         }
       }
       public Builder clear() {
@@ -1994,23 +2880,29 @@ public final class Subnet {
 
         dhcpEnable_ = false;
 
+        availabilityZone_ = "";
+
         primaryDns_ = "";
 
         secondaryDns_ = "";
 
         if (dnsListBuilder_ == null) {
           dnsList_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
         } else {
           dnsListBuilder_.clear();
         }
-        availabilityZone_ = "";
-
         if (securityGroupIdsBuilder_ == null) {
-          securityGroupIds_ = null;
+          securityGroupIds_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000800);
         } else {
-          securityGroupIds_ = null;
-          securityGroupIdsBuilder_ = null;
+          securityGroupIdsBuilder_.clear();
+        }
+        if (transitSwitchIpsBuilder_ == null) {
+          transitSwitchIps_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+        } else {
+          transitSwitchIpsBuilder_.clear();
         }
         return this;
       }
@@ -2043,22 +2935,35 @@ public final class Subnet {
         result.cidr_ = cidr_;
         result.gatewayIp_ = gatewayIp_;
         result.dhcpEnable_ = dhcpEnable_;
+        result.availabilityZone_ = availabilityZone_;
         result.primaryDns_ = primaryDns_;
         result.secondaryDns_ = secondaryDns_;
         if (dnsListBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          if (((bitField0_ & 0x00000400) == 0x00000400)) {
             dnsList_ = java.util.Collections.unmodifiableList(dnsList_);
-            bitField0_ = (bitField0_ & ~0x00000200);
+            bitField0_ = (bitField0_ & ~0x00000400);
           }
           result.dnsList_ = dnsList_;
         } else {
           result.dnsList_ = dnsListBuilder_.build();
         }
-        result.availabilityZone_ = availabilityZone_;
         if (securityGroupIdsBuilder_ == null) {
+          if (((bitField0_ & 0x00000800) == 0x00000800)) {
+            securityGroupIds_ = java.util.Collections.unmodifiableList(securityGroupIds_);
+            bitField0_ = (bitField0_ & ~0x00000800);
+          }
           result.securityGroupIds_ = securityGroupIds_;
         } else {
           result.securityGroupIds_ = securityGroupIdsBuilder_.build();
+        }
+        if (transitSwitchIpsBuilder_ == null) {
+          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+            transitSwitchIps_ = java.util.Collections.unmodifiableList(transitSwitchIps_);
+            bitField0_ = (bitField0_ & ~0x00001000);
+          }
+          result.transitSwitchIps_ = transitSwitchIps_;
+        } else {
+          result.transitSwitchIps_ = transitSwitchIpsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -2129,6 +3034,10 @@ public final class Subnet {
         if (other.getDhcpEnable() != false) {
           setDhcpEnable(other.getDhcpEnable());
         }
+        if (!other.getAvailabilityZone().isEmpty()) {
+          availabilityZone_ = other.availabilityZone_;
+          onChanged();
+        }
         if (!other.getPrimaryDns().isEmpty()) {
           primaryDns_ = other.primaryDns_;
           onChanged();
@@ -2141,7 +3050,7 @@ public final class Subnet {
           if (!other.dnsList_.isEmpty()) {
             if (dnsList_.isEmpty()) {
               dnsList_ = other.dnsList_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
             } else {
               ensureDnsListIsMutable();
               dnsList_.addAll(other.dnsList_);
@@ -2154,7 +3063,7 @@ public final class Subnet {
               dnsListBuilder_.dispose();
               dnsListBuilder_ = null;
               dnsList_ = other.dnsList_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
               dnsListBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getDnsListFieldBuilder() : null;
@@ -2163,12 +3072,57 @@ public final class Subnet {
             }
           }
         }
-        if (!other.getAvailabilityZone().isEmpty()) {
-          availabilityZone_ = other.availabilityZone_;
-          onChanged();
+        if (securityGroupIdsBuilder_ == null) {
+          if (!other.securityGroupIds_.isEmpty()) {
+            if (securityGroupIds_.isEmpty()) {
+              securityGroupIds_ = other.securityGroupIds_;
+              bitField0_ = (bitField0_ & ~0x00000800);
+            } else {
+              ensureSecurityGroupIdsIsMutable();
+              securityGroupIds_.addAll(other.securityGroupIds_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.securityGroupIds_.isEmpty()) {
+            if (securityGroupIdsBuilder_.isEmpty()) {
+              securityGroupIdsBuilder_.dispose();
+              securityGroupIdsBuilder_ = null;
+              securityGroupIds_ = other.securityGroupIds_;
+              bitField0_ = (bitField0_ & ~0x00000800);
+              securityGroupIdsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getSecurityGroupIdsFieldBuilder() : null;
+            } else {
+              securityGroupIdsBuilder_.addAllMessages(other.securityGroupIds_);
+            }
+          }
         }
-        if (other.hasSecurityGroupIds()) {
-          mergeSecurityGroupIds(other.getSecurityGroupIds());
+        if (transitSwitchIpsBuilder_ == null) {
+          if (!other.transitSwitchIps_.isEmpty()) {
+            if (transitSwitchIps_.isEmpty()) {
+              transitSwitchIps_ = other.transitSwitchIps_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+            } else {
+              ensureTransitSwitchIpsIsMutable();
+              transitSwitchIps_.addAll(other.transitSwitchIps_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.transitSwitchIps_.isEmpty()) {
+            if (transitSwitchIpsBuilder_.isEmpty()) {
+              transitSwitchIpsBuilder_.dispose();
+              transitSwitchIpsBuilder_ = null;
+              transitSwitchIps_ = other.transitSwitchIps_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+              transitSwitchIpsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getTransitSwitchIpsFieldBuilder() : null;
+            } else {
+              transitSwitchIpsBuilder_.addAllMessages(other.transitSwitchIps_);
+            }
+          }
         }
         onChanged();
         return this;
@@ -2637,9 +3591,78 @@ public final class Subnet {
         return this;
       }
 
+      private java.lang.Object availabilityZone_ = "";
+      /**
+       * <code>optional string availability_zone = 8;</code>
+       */
+      public java.lang.String getAvailabilityZone() {
+        java.lang.Object ref = availabilityZone_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          availabilityZone_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string availability_zone = 8;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAvailabilityZoneBytes() {
+        java.lang.Object ref = availabilityZone_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          availabilityZone_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string availability_zone = 8;</code>
+       */
+      public Builder setAvailabilityZone(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        availabilityZone_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string availability_zone = 8;</code>
+       */
+      public Builder clearAvailabilityZone() {
+        
+        availabilityZone_ = getDefaultInstance().getAvailabilityZone();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string availability_zone = 8;</code>
+       */
+      public Builder setAvailabilityZoneBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        availabilityZone_ = value;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object primaryDns_ = "";
       /**
-       * <code>optional string primary_dns = 8;</code>
+       * <code>optional string primary_dns = 9;</code>
        */
       public java.lang.String getPrimaryDns() {
         java.lang.Object ref = primaryDns_;
@@ -2654,7 +3677,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>optional string primary_dns = 8;</code>
+       * <code>optional string primary_dns = 9;</code>
        */
       public com.google.protobuf.ByteString
           getPrimaryDnsBytes() {
@@ -2670,7 +3693,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>optional string primary_dns = 8;</code>
+       * <code>optional string primary_dns = 9;</code>
        */
       public Builder setPrimaryDns(
           java.lang.String value) {
@@ -2683,7 +3706,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>optional string primary_dns = 8;</code>
+       * <code>optional string primary_dns = 9;</code>
        */
       public Builder clearPrimaryDns() {
         
@@ -2692,7 +3715,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>optional string primary_dns = 8;</code>
+       * <code>optional string primary_dns = 9;</code>
        */
       public Builder setPrimaryDnsBytes(
           com.google.protobuf.ByteString value) {
@@ -2708,7 +3731,7 @@ public final class Subnet {
 
       private java.lang.Object secondaryDns_ = "";
       /**
-       * <code>optional string secondary_dns = 9;</code>
+       * <code>optional string secondary_dns = 10;</code>
        */
       public java.lang.String getSecondaryDns() {
         java.lang.Object ref = secondaryDns_;
@@ -2723,7 +3746,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>optional string secondary_dns = 9;</code>
+       * <code>optional string secondary_dns = 10;</code>
        */
       public com.google.protobuf.ByteString
           getSecondaryDnsBytes() {
@@ -2739,7 +3762,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>optional string secondary_dns = 9;</code>
+       * <code>optional string secondary_dns = 10;</code>
        */
       public Builder setSecondaryDns(
           java.lang.String value) {
@@ -2752,7 +3775,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>optional string secondary_dns = 9;</code>
+       * <code>optional string secondary_dns = 10;</code>
        */
       public Builder clearSecondaryDns() {
         
@@ -2761,7 +3784,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>optional string secondary_dns = 9;</code>
+       * <code>optional string secondary_dns = 10;</code>
        */
       public Builder setSecondaryDnsBytes(
           com.google.protobuf.ByteString value) {
@@ -2778,9 +3801,9 @@ public final class Subnet {
       private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> dnsList_ =
         java.util.Collections.emptyList();
       private void ensureDnsListIsMutable() {
-        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
           dnsList_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry>(dnsList_);
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000400;
          }
       }
 
@@ -2788,7 +3811,7 @@ public final class Subnet {
           com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> dnsListBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> getDnsListList() {
         if (dnsListBuilder_ == null) {
@@ -2798,7 +3821,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public int getDnsListCount() {
         if (dnsListBuilder_ == null) {
@@ -2808,7 +3831,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry getDnsList(int index) {
         if (dnsListBuilder_ == null) {
@@ -2818,7 +3841,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder setDnsList(
           int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry value) {
@@ -2835,7 +3858,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder setDnsList(
           int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder builderForValue) {
@@ -2849,7 +3872,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder addDnsList(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry value) {
         if (dnsListBuilder_ == null) {
@@ -2865,7 +3888,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder addDnsList(
           int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry value) {
@@ -2882,7 +3905,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder addDnsList(
           com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder builderForValue) {
@@ -2896,7 +3919,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder addDnsList(
           int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder builderForValue) {
@@ -2910,7 +3933,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder addAllDnsList(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry> values) {
@@ -2925,12 +3948,12 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder clearDnsList() {
         if (dnsListBuilder_ == null) {
           dnsList_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
           onChanged();
         } else {
           dnsListBuilder_.clear();
@@ -2938,7 +3961,7 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public Builder removeDnsList(int index) {
         if (dnsListBuilder_ == null) {
@@ -2951,14 +3974,14 @@ public final class Subnet {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder getDnsListBuilder(
           int index) {
         return getDnsListFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder getDnsListOrBuilder(
           int index) {
@@ -2968,7 +3991,7 @@ public final class Subnet {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder> 
            getDnsListOrBuilderList() {
@@ -2979,14 +4002,14 @@ public final class Subnet {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder addDnsListBuilder() {
         return getDnsListFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder addDnsListBuilder(
           int index) {
@@ -2994,7 +4017,7 @@ public final class Subnet {
             index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 10;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.DnsEntry dns_list = 11;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder> 
            getDnsListBuilderList() {
@@ -3007,7 +4030,7 @@ public final class Subnet {
           dnsListBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntry.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.DnsEntryOrBuilder>(
                   dnsList_,
-                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  ((bitField0_ & 0x00000400) == 0x00000400),
                   getParentForChildren(),
                   isClean());
           dnsList_ = null;
@@ -3015,190 +4038,484 @@ public final class Subnet {
         return dnsListBuilder_;
       }
 
-      private java.lang.Object availabilityZone_ = "";
-      /**
-       * <code>optional string availability_zone = 11;</code>
-       */
-      public java.lang.String getAvailabilityZone() {
-        java.lang.Object ref = availabilityZone_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          availabilityZone_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string availability_zone = 11;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAvailabilityZoneBytes() {
-        java.lang.Object ref = availabilityZone_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          availabilityZone_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string availability_zone = 11;</code>
-       */
-      public Builder setAvailabilityZone(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        availabilityZone_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string availability_zone = 11;</code>
-       */
-      public Builder clearAvailabilityZone() {
-        
-        availabilityZone_ = getDefaultInstance().getAvailabilityZone();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string availability_zone = 11;</code>
-       */
-      public Builder setAvailabilityZoneBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        availabilityZone_ = value;
-        onChanged();
-        return this;
+      private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> securityGroupIds_ =
+        java.util.Collections.emptyList();
+      private void ensureSecurityGroupIdsIsMutable() {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
+          securityGroupIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId>(securityGroupIds_);
+          bitField0_ |= 0x00000800;
+         }
       }
 
-      private com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId securityGroupIds_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder> securityGroupIdsBuilder_;
+
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      public boolean hasSecurityGroupIds() {
-        return securityGroupIdsBuilder_ != null || securityGroupIds_ != null;
-      }
-      /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
-       */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds() {
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> getSecurityGroupIdsList() {
         if (securityGroupIdsBuilder_ == null) {
-          return securityGroupIds_ == null ? com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.getDefaultInstance() : securityGroupIds_;
+          return java.util.Collections.unmodifiableList(securityGroupIds_);
         } else {
-          return securityGroupIdsBuilder_.getMessage();
+          return securityGroupIdsBuilder_.getMessageList();
         }
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      public Builder setSecurityGroupIds(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId value) {
+      public int getSecurityGroupIdsCount() {
+        if (securityGroupIdsBuilder_ == null) {
+          return securityGroupIds_.size();
+        } else {
+          return securityGroupIdsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId getSecurityGroupIds(int index) {
+        if (securityGroupIdsBuilder_ == null) {
+          return securityGroupIds_.get(index);
+        } else {
+          return securityGroupIdsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public Builder setSecurityGroupIds(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId value) {
         if (securityGroupIdsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          securityGroupIds_ = value;
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.set(index, value);
           onChanged();
         } else {
-          securityGroupIdsBuilder_.setMessage(value);
+          securityGroupIdsBuilder_.setMessage(index, value);
         }
-
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
       public Builder setSecurityGroupIds(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder builderForValue) {
+        if (securityGroupIdsBuilder_ == null) {
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          securityGroupIdsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public Builder addSecurityGroupIds(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId value) {
+        if (securityGroupIdsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.add(value);
+          onChanged();
+        } else {
+          securityGroupIdsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public Builder addSecurityGroupIds(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId value) {
+        if (securityGroupIdsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.add(index, value);
+          onChanged();
+        } else {
+          securityGroupIdsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public Builder addSecurityGroupIds(
           com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder builderForValue) {
         if (securityGroupIdsBuilder_ == null) {
-          securityGroupIds_ = builderForValue.build();
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.add(builderForValue.build());
           onChanged();
         } else {
-          securityGroupIdsBuilder_.setMessage(builderForValue.build());
+          securityGroupIdsBuilder_.addMessage(builderForValue.build());
         }
-
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      public Builder mergeSecurityGroupIds(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId value) {
+      public Builder addSecurityGroupIds(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder builderForValue) {
         if (securityGroupIdsBuilder_ == null) {
-          if (securityGroupIds_ != null) {
-            securityGroupIds_ =
-              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.newBuilder(securityGroupIds_).mergeFrom(value).buildPartial();
-          } else {
-            securityGroupIds_ = value;
-          }
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.add(index, builderForValue.build());
           onChanged();
         } else {
-          securityGroupIdsBuilder_.mergeFrom(value);
+          securityGroupIdsBuilder_.addMessage(index, builderForValue.build());
         }
-
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public Builder addAllSecurityGroupIds(
+          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId> values) {
+        if (securityGroupIdsBuilder_ == null) {
+          ensureSecurityGroupIdsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, securityGroupIds_);
+          onChanged();
+        } else {
+          securityGroupIdsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
       public Builder clearSecurityGroupIds() {
         if (securityGroupIdsBuilder_ == null) {
-          securityGroupIds_ = null;
+          securityGroupIds_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
-          securityGroupIds_ = null;
-          securityGroupIdsBuilder_ = null;
+          securityGroupIdsBuilder_.clear();
         }
-
         return this;
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder getSecurityGroupIdsBuilder() {
-        
-        onChanged();
-        return getSecurityGroupIdsFieldBuilder().getBuilder();
+      public Builder removeSecurityGroupIds(int index) {
+        if (securityGroupIdsBuilder_ == null) {
+          ensureSecurityGroupIdsIsMutable();
+          securityGroupIds_.remove(index);
+          onChanged();
+        } else {
+          securityGroupIdsBuilder_.remove(index);
+        }
+        return this;
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder() {
-        if (securityGroupIdsBuilder_ != null) {
-          return securityGroupIdsBuilder_.getMessageOrBuilder();
-        } else {
-          return securityGroupIds_ == null ?
-              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.getDefaultInstance() : securityGroupIds_;
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder getSecurityGroupIdsBuilder(
+          int index) {
+        return getSecurityGroupIdsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
+          int index) {
+        if (securityGroupIdsBuilder_ == null) {
+          return securityGroupIds_.get(index);  } else {
+          return securityGroupIdsBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>optional .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
        */
-      private com.google.protobuf.SingleFieldBuilderV3<
+      public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder> 
+           getSecurityGroupIdsOrBuilderList() {
+        if (securityGroupIdsBuilder_ != null) {
+          return securityGroupIdsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(securityGroupIds_);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder addSecurityGroupIdsBuilder() {
+        return getSecurityGroupIdsFieldBuilder().addBuilder(
+            com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder addSecurityGroupIdsBuilder(
+          int index) {
+        return getSecurityGroupIdsFieldBuilder().addBuilder(
+            index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.SecurityGroupId security_group_ids = 12;</code>
+       */
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder> 
+           getSecurityGroupIdsBuilderList() {
+        return getSecurityGroupIdsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder> 
           getSecurityGroupIdsFieldBuilder() {
         if (securityGroupIdsBuilder_ == null) {
-          securityGroupIdsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+          securityGroupIdsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupId.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.SecurityGroupIdOrBuilder>(
-                  getSecurityGroupIds(),
+                  securityGroupIds_,
+                  ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
           securityGroupIds_ = null;
         }
         return securityGroupIdsBuilder_;
+      }
+
+      private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> transitSwitchIps_ =
+        java.util.Collections.emptyList();
+      private void ensureTransitSwitchIpsIsMutable() {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+          transitSwitchIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp>(transitSwitchIps_);
+          bitField0_ |= 0x00001000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> transitSwitchIpsBuilder_;
+
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> getTransitSwitchIpsList() {
+        if (transitSwitchIpsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(transitSwitchIps_);
+        } else {
+          return transitSwitchIpsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public int getTransitSwitchIpsCount() {
+        if (transitSwitchIpsBuilder_ == null) {
+          return transitSwitchIps_.size();
+        } else {
+          return transitSwitchIpsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index) {
+        if (transitSwitchIpsBuilder_ == null) {
+          return transitSwitchIps_.get(index);
+        } else {
+          return transitSwitchIpsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder setTransitSwitchIps(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
+        if (transitSwitchIpsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.set(index, value);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder setTransitSwitchIps(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
+        if (transitSwitchIpsBuilder_ == null) {
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder addTransitSwitchIps(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
+        if (transitSwitchIpsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.add(value);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder addTransitSwitchIps(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
+        if (transitSwitchIpsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.add(index, value);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder addTransitSwitchIps(
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
+        if (transitSwitchIpsBuilder_ == null) {
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.add(builderForValue.build());
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder addTransitSwitchIps(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
+        if (transitSwitchIpsBuilder_ == null) {
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder addAllTransitSwitchIps(
+          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> values) {
+        if (transitSwitchIpsBuilder_ == null) {
+          ensureTransitSwitchIpsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, transitSwitchIps_);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder clearTransitSwitchIps() {
+        if (transitSwitchIpsBuilder_ == null) {
+          transitSwitchIps_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public Builder removeTransitSwitchIps(int index) {
+        if (transitSwitchIpsBuilder_ == null) {
+          ensureTransitSwitchIpsIsMutable();
+          transitSwitchIps_.remove(index);
+          onChanged();
+        } else {
+          transitSwitchIpsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder getTransitSwitchIpsBuilder(
+          int index) {
+        return getTransitSwitchIpsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+          int index) {
+        if (transitSwitchIpsBuilder_ == null) {
+          return transitSwitchIps_.get(index);  } else {
+          return transitSwitchIpsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
+           getTransitSwitchIpsOrBuilderList() {
+        if (transitSwitchIpsBuilder_ != null) {
+          return transitSwitchIpsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(transitSwitchIps_);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder addTransitSwitchIpsBuilder() {
+        return getTransitSwitchIpsFieldBuilder().addBuilder(
+            com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder addTransitSwitchIpsBuilder(
+          int index) {
+        return getTransitSwitchIpsFieldBuilder().addBuilder(
+            index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 13;</code>
+       */
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder> 
+           getTransitSwitchIpsBuilderList() {
+        return getTransitSwitchIpsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
+          getTransitSwitchIpsFieldBuilder() {
+        if (transitSwitchIpsBuilder_ == null) {
+          transitSwitchIpsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder>(
+                  transitSwitchIps_,
+                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  getParentForChildren(),
+                  isClean());
+          transitSwitchIps_ = null;
+        }
+        return transitSwitchIpsBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -3917,6 +5234,11 @@ public final class Subnet {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aliothcontroller_SubnetConfiguration_SecurityGroupId_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aliothcontroller_SubnetState_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -3931,22 +5253,26 @@ public final class Subnet {
   static {
     java.lang.String[] descriptorData = {
       "\n\014subnet.proto\022\020aliothcontroller\032\014common" +
-      ".proto\"\240\003\n\023SubnetConfiguration\022\022\n\nprojec" +
+      ".proto\"\275\004\n\023SubnetConfiguration\022\022\n\nprojec" +
       "t_id\030\001 \001(\t\022\016\n\006vpc_id\030\002 \001(\t\022\n\n\002id\030\003 \001(\t\022\014" +
       "\n\004name\030\004 \001(\t\022\014\n\004cidr\030\005 \001(\t\022\022\n\ngateway_ip" +
-      "\030\006 \001(\t\022\023\n\013dhcp_enable\030\007 \001(\010\022\023\n\013primary_d" +
-      "ns\030\010 \001(\t\022\025\n\rsecondary_dns\030\t \001(\t\022@\n\010dns_l" +
-      "ist\030\n \003(\0132..aliothcontroller.SubnetConfi" +
-      "guration.DnsEntry\022\031\n\021availability_zone\030\013" +
-      " \001(\t\022Q\n\022security_group_ids\030\014 \001(\01325.aliot" +
+      "\030\006 \001(\t\022\023\n\013dhcp_enable\030\007 \001(\010\022\031\n\021availabil" +
+      "ity_zone\030\010 \001(\t\022\023\n\013primary_dns\030\t \001(\t\022\025\n\rs" +
+      "econdary_dns\030\n \001(\t\022@\n\010dns_list\030\013 \003(\0132..a" +
+      "liothcontroller.SubnetConfiguration.DnsE" +
+      "ntry\022Q\n\022security_group_ids\030\014 \003(\01325.aliot" +
       "hcontroller.SubnetConfiguration.Security",
-      "GroupId\032\031\n\010DnsEntry\022\r\n\005entry\030\001 \001(\t\032\035\n\017Se" +
-      "curityGroupId\022\n\n\002id\030\001 \001(\t\"\204\001\n\013SubnetStat" +
-      "e\0227\n\016operation_type\030\001 \001(\0162\037.aliothcontro" +
-      "ller.OperationType\022<\n\rconfiguration\030\002 \001(" +
-      "\0132%.aliothcontroller.SubnetConfiguration" +
-      "B0\n&com.futurewei.alioth.controller.sche" +
-      "maB\006Subnetb\006proto3"
+      "GroupId\022Q\n\022transit_switch_ips\030\r \003(\01325.al" +
+      "iothcontroller.SubnetConfiguration.Trans" +
+      "itSwitchIp\032\031\n\010DnsEntry\022\r\n\005entry\030\001 \001(\t\032\035\n" +
+      "\017SecurityGroupId\022\n\n\002id\030\001 \001(\t\032H\n\017TransitS" +
+      "witchIp\022\016\n\006vpc_id\030\001 \001(\t\022\021\n\tsubnet_id\030\002 \001" +
+      "(\t\022\022\n\nip_address\030\003 \001(\t\"\204\001\n\013SubnetState\0227" +
+      "\n\016operation_type\030\001 \001(\0162\037.aliothcontrolle" +
+      "r.OperationType\022<\n\rconfiguration\030\002 \001(\0132%" +
+      ".aliothcontroller.SubnetConfigurationB0\n" +
+      "&com.futurewei.alioth.controller.schemaB",
+      "\006Subnetb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3966,7 +5292,7 @@ public final class Subnet {
     internal_static_aliothcontroller_SubnetConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_SubnetConfiguration_descriptor,
-        new java.lang.String[] { "ProjectId", "VpcId", "Id", "Name", "Cidr", "GatewayIp", "DhcpEnable", "PrimaryDns", "SecondaryDns", "DnsList", "AvailabilityZone", "SecurityGroupIds", });
+        new java.lang.String[] { "ProjectId", "VpcId", "Id", "Name", "Cidr", "GatewayIp", "DhcpEnable", "AvailabilityZone", "PrimaryDns", "SecondaryDns", "DnsList", "SecurityGroupIds", "TransitSwitchIps", });
     internal_static_aliothcontroller_SubnetConfiguration_DnsEntry_descriptor =
       internal_static_aliothcontroller_SubnetConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_SubnetConfiguration_DnsEntry_fieldAccessorTable = new
@@ -3979,6 +5305,12 @@ public final class Subnet {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_SubnetConfiguration_SecurityGroupId_descriptor,
         new java.lang.String[] { "Id", });
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor =
+      internal_static_aliothcontroller_SubnetConfiguration_descriptor.getNestedTypes().get(2);
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor,
+        new java.lang.String[] { "VpcId", "SubnetId", "IpAddress", });
     internal_static_aliothcontroller_SubnetState_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_aliothcontroller_SubnetState_fieldAccessorTable = new
