@@ -2,16 +2,20 @@ package com.futurewei.alioth.controller.app;
 
 import java.util.Arrays;
 
+import com.futurewei.alioth.controller.cache.config.RedisConfiguration;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
-@SpringBootApplication(scanBasePackages = "com.futurewei.alioth.controller.web")
+@SpringBootApplication(scanBasePackages = "com.futurewei.alioth.controller")
+@Import({ RedisConfiguration.class})
 public class AliothControllerApp {
     public static void main(String[] args) {
         System.out.println("Hello Alioth Controller!");
+        //Class<?>[] sources = {AliothControllerApp.class, RedisConfiguration.class};
         SpringApplication.run(AliothControllerApp.class, args);
         System.out.println("Bye from Alioth Controller!");
     }

@@ -1,10 +1,8 @@
 package com.futurewei.alioth.controller.cache.repo;
 
-import com.futurewei.alioth.controller.model.VpcState;
-
 import java.util.Map;
 
-public interface RedisRepository<T> {
+public interface ICacheRepository<T> {
 
     T findItem(String id);
 

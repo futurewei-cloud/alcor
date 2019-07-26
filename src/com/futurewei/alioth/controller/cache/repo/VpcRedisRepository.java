@@ -4,12 +4,13 @@ import com.futurewei.alioth.controller.model.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.Map;
 
-public class VpcRedisRepository implements RedisRepository<VpcState> {
+@Repository
+public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     private static final String KEY = "VpcState";
 
@@ -39,6 +40,7 @@ public class VpcRedisRepository implements RedisRepository<VpcState> {
 
     @Override
     public void addItem(VpcState newItem) {
+        System.out.println("Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

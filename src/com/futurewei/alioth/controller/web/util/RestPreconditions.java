@@ -9,6 +9,15 @@ public class RestPreconditions {
         return resource;
     }
 
-    public static void checkNotNull(VpcState resource) {
+    public static void checkNotNull(VpcState resource) throws Exception {
+        System.out.println("Let's inspect resource:");
+        System.out.println("Id: " + resource.getId());
+        System.out.println("ProjectId: " + resource.getProjectId());
+        System.out.println("Name: " + resource.getName());
+        System.out.println("Cidr: " + resource.getCidr());
+
+        if(resource.getId() == null || resource.getId() == ""){
+            throw new Exception("Empty resource id");
+        }
     }
 }

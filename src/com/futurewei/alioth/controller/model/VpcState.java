@@ -19,6 +19,13 @@ public class VpcState {
         this.cidr = cidr;
     }
 
+    public VpcState(VpcState state){
+        this.projectId = state.projectId;
+        this.id = state.id;
+        this.name = state.name;
+        this.cidr = state.cidr;
+    }
+
 }
 
 

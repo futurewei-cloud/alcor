@@ -96,4 +96,9 @@ public class MessageClient {
     public void runProducer(String topic, Object message) {
         this.runProducer(topic, message, 1);
     }
+
+    // TODO: Determine topic format
+    public static String getGoalStateTopic(String topic){
+        return topic;
+    }
 }

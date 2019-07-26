@@ -7,8 +7,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.sql.rowset.spi.TransactionalWriter;
-
 public class VpcTest {
 
     @Test
@@ -55,7 +53,7 @@ public class VpcTest {
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
-                "192.168.0.0/24",
+                "10.0.0.0/24",
                 "10.0.0.1",
                 "10.0.0.3");
 
