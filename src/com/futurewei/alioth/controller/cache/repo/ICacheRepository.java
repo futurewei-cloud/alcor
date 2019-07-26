@@ -1,7 +1,5 @@
 package com.futurewei.alioth.controller.cache.repo;
 
-import com.futurewei.alioth.controller.model.VpcState;
-
 import java.util.Map;
 
 public interface ICacheRepository<T> {

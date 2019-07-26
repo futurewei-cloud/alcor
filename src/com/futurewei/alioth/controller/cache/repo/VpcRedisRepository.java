@@ -2,7 +2,6 @@ package com.futurewei.alioth.controller.cache.repo;
 
 import com.futurewei.alioth.controller.model.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,19 +9,19 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
-//@Repository
+@Repository
 public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     private static final String KEY = "VpcState";
 
-    private RedisTemplate<String, VpcState> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     private HashOperations hashOperations;
 
-//    @Autowired
-//    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate){
-//        this.redisTemplate = redisTemplate;
-//    }
+    @Autowired
+    public VpcRedisRepository(RedisTemplate<String, Object> redisTemplate){
+        this.redisTemplate = redisTemplate;
+    }
 
     @PostConstruct
     private void init(){
@@ -41,6 +40,7 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     @Override
     public void addItem(VpcState newItem) {
+        System.out.println("Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

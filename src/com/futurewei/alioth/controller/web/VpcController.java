@@ -25,33 +25,33 @@ public class VpcController {
     private final AtomicLong counter = new AtomicLong();
     private final VpcState defaultVpc = new VpcState("AwesomeProject", "ComplicatedId", "AwesomeVpc", "172.0.0.1/24");
 
-//    @Autowired
-//    private VpcRedisRepository vpcRedisRepository;
+    @Autowired
+    private VpcRedisRepository vpcRedisRepository;
 
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/vpc/{vpcid}")
     public VpcState getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) {
-//        VpcState vpcState = vpcRedisRepository.findItem(vpcid);
-//        if(vpcState == null){
-//            return defaultVpc;
-//        }
-//        return vpcState;
-        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
-                projectid,
-                vpcid,
-                "SuperVpc",
-                "192.168.0.0/24");
-
-        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
-                .addVpcStates(vpc_state)
-                .build();
-
-        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-        String topic = "hostid-fb06a9ea-db99-4a48-8143-58c74fa6ef43";
-        client.runProducer(topic, goalstate);
-
-        return new VpcState(projectid, vpcid, "SuperVpc", "192.168.0.0/24");
+        VpcState vpcState = vpcRedisRepository.findItem(vpcid);
+        if(vpcState == null){
+            return defaultVpc;
+        }
+        return vpcState;
+//        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+//                projectid,
+//                vpcid,
+//                "SuperVpc",
+//                "192.168.0.0/24");
+//
+//        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
+//                .addVpcStates(vpc_state)
+//                .build();
+//
+//        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+//        String topic = "hostid-fb06a9ea-db99-4a48-8143-58c74fa6ef43";
+//        client.runProducer(topic, goalstate);
+//
+//        return new VpcState(projectid, vpcid, "SuperVpc", "192.168.0.0/24");
     }
 
     @RequestMapping(
@@ -65,9 +65,9 @@ public class VpcController {
             method = POST,
             value = "/project/{projectid}/vpc")
     @ResponseStatus(HttpStatus.CREATED)
-    public VpcState createVpcState(@RequestBody VpcState resource) {
+    public VpcState createVpcState(@RequestBody VpcState resource) throws Exception {
         RestPreconditions.checkNotNull(resource);
-//        vpcRedisRepository.addItem(resource);
+        vpcRedisRepository.addItem(resource);
         return new VpcState(resource);
     }
 
