@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class MessageSubscriber implements MessageListener {
+public class RedisListener implements MessageListener {
 
     public static List<String> messageList = new ArrayList<String>();
 
-    public MessageSubscriber(){
+    public RedisListener(){
 
     }
 

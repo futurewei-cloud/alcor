@@ -2,14 +2,16 @@ package com.futurewei.alioth.controller.cache.repo;
 
 import com.futurewei.alioth.controller.model.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.Map;
 
-public class VpcRedisRepository implements RedisRepository<VpcState> {
+//@Repository
+public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     private static final String KEY = "VpcState";
 
@@ -17,10 +19,10 @@ public class VpcRedisRepository implements RedisRepository<VpcState> {
 
     private HashOperations hashOperations;
 
-    @Autowired
-    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate){
-        this.redisTemplate = redisTemplate;
-    }
+//    @Autowired
+//    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate){
+//        this.redisTemplate = redisTemplate;
+//    }
 
     @PostConstruct
     private void init(){
