@@ -6,10 +6,10 @@ import com.futurewei.alioth.controller.cache.repo.VpcRedisRepository;
 import com.futurewei.alioth.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alioth.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
+import com.futurewei.alioth.controller.model.HostInfo;
 import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate;
-import com.futurewei.alioth.controller.schema.Vpc;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 import com.futurewei.alioth.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class VpcController {
 
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
-    private final VpcState defaultVpc = new VpcState("AwesomeProject", "ComplicatedId", "AwesomeVpc", "172.0.0.1/24");
+    private final VpcState defaultVpc = new VpcState("DefaultProject", "DefaultId", "DefaultVpc", "100.0.0.1/24");
 
     @Autowired
     private VpcRedisRepository vpcRedisRepository;
@@ -36,22 +36,8 @@ public class VpcController {
         if(vpcState == null){
             return defaultVpc;
         }
+
         return vpcState;
-//        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
-//                projectid,
-//                vpcid,
-//                "SuperVpc",
-//                "192.168.0.0/24");
-//
-//        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
-//                .addVpcStates(vpc_state)
-//                .build();
-//
-//        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-//        String topic = "hostid-fb06a9ea-db99-4a48-8143-58c74fa6ef43";
-//        client.runProducer(topic, goalstate);
-//
-//        return new VpcState(projectid, vpcid, "SuperVpc", "192.168.0.0/24");
     }
 
     @RequestMapping(
@@ -68,6 +54,21 @@ public class VpcController {
     public VpcState createVpcState(@RequestBody VpcState resource) throws Exception {
         RestPreconditions.checkNotNull(resource);
         vpcRedisRepository.addItem(resource);
+
+        //TODO: Algorithm to determine the hosts
+        HostInfo host1 = new HostInfo("hostid_1", "host1", new byte[]{10,0,0,1});
+        HostInfo host2 = new HostInfo("hostid_1", "host1", new byte[]{10,0,0,2});
+
+        Goalstate.GoalState goalstate = GoalStateUtil.CreateGoalState(
+                Common.OperationType.CREATE,
+                resource,
+                host1.getIpAddress(),
+                host2.getIpAddress());
+
+        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        String topic = MessageClient.getGoalStateTopic(host1.getId());
+        client.runProducer(topic, goalstate);
+
         return new VpcState(resource);
     }
 

@@ -14,12 +14,12 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     private static final String KEY = "VpcState";
 
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, VpcState> redisTemplate;
 
     private HashOperations hashOperations;
 
     @Autowired
-    public VpcRedisRepository(RedisTemplate<String, Object> redisTemplate){
+    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate){
         this.redisTemplate = redisTemplate;
     }
 

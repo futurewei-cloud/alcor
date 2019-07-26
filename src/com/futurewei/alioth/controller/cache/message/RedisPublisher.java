@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.cache.message;
 
+import com.futurewei.alioth.controller.model.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class RedisPublisher implements ICachePublisher {
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, VpcState> redisTemplate;
 
     @Autowired
     private ChannelTopic topic;
@@ -17,7 +18,7 @@ public class RedisPublisher implements ICachePublisher {
     public RedisPublisher() {
     }
 
-    public RedisPublisher(final RedisTemplate<String, Object> redisTemplate, final ChannelTopic topic) {
+    public RedisPublisher(final RedisTemplate<String, VpcState> redisTemplate, final ChannelTopic topic) {
         this.redisTemplate = redisTemplate;
         this.topic = topic;
     }
