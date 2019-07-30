@@ -8,11 +8,13 @@ option java_outer_classname = "Vpc";
 import "common.proto";
 
 message VpcConfiguration {
-  string project_id = 1;
-  string id  = 2;
-  string name = 3;
-  string cidr = 4;
-  int64 tunnel_id = 5;
+  int32 version = 1;
+
+  string project_id = 2;
+  string id  = 3;
+  string name = 4;
+  string cidr = 5;
+  int64 tunnel_id = 6;
 
   message SubnetId {
     string id = 1;
@@ -28,9 +30,9 @@ message VpcConfiguration {
     string ip_address = 2;
   }
 
-  repeated SubnetId subnet_ids = 6;
-  repeated Route routes = 7;
-  repeated TransitRouterIp transit_router_ips = 8;
+  repeated SubnetId subnet_ids = 7;
+  repeated Route routes = 8;
+  repeated TransitRouterIp transit_router_ips = 9;
 }
 
 message VpcState {
