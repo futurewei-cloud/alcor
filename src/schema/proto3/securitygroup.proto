@@ -8,9 +8,11 @@ option java_outer_classname = "SecurityGroup";
 import "common.proto";
 
 message SecurityGroupConfiguration {
-  string project_id = 1;
-  string vpc_id = 2;
-  string name = 3;
+  int32 version = 1;
+
+  string project_id = 2;
+  string vpc_id = 3;
+  string name = 4;
 
   enum Direction {
     EGRESS = 0;
@@ -30,7 +32,7 @@ message SecurityGroupConfiguration {
     string remote_group_id = 9;
   }
  
-  repeated SecurityGroupRule security_group_rules = 4;
+  repeated SecurityGroupRule security_group_rules = 5;
 }
 
 message SecurityGroupState {

@@ -19,55 +19,60 @@ public final class SecurityGroup {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string project_id = 1;</code>
+     * <code>optional int32 version = 1;</code>
+     */
+    int getVersion();
+
+    /**
+     * <code>optional string project_id = 2;</code>
      */
     java.lang.String getProjectId();
     /**
-     * <code>optional string project_id = 1;</code>
+     * <code>optional string project_id = 2;</code>
      */
     com.google.protobuf.ByteString
         getProjectIdBytes();
 
     /**
-     * <code>optional string vpc_id = 2;</code>
+     * <code>optional string vpc_id = 3;</code>
      */
     java.lang.String getVpcId();
     /**
-     * <code>optional string vpc_id = 2;</code>
+     * <code>optional string vpc_id = 3;</code>
      */
     com.google.protobuf.ByteString
         getVpcIdBytes();
 
     /**
-     * <code>optional string name = 3;</code>
+     * <code>optional string name = 4;</code>
      */
     java.lang.String getName();
     /**
-     * <code>optional string name = 3;</code>
+     * <code>optional string name = 4;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
 
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> 
         getSecurityGroupRulesList();
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule getSecurityGroupRules(int index);
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     int getSecurityGroupRulesCount();
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder> 
         getSecurityGroupRulesOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder getSecurityGroupRulesOrBuilder(
         int index);
@@ -84,6 +89,7 @@ public final class SecurityGroup {
       super(builder);
     }
     private SecurityGroupConfiguration() {
+      version_ = 0;
       projectId_ = "";
       vpcId_ = "";
       name_ = "";
@@ -115,28 +121,33 @@ public final class SecurityGroup {
               }
               break;
             }
-            case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
+            case 8: {
 
-              projectId_ = s;
+              version_ = input.readInt32();
               break;
             }
             case 18: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              vpcId_ = s;
+              projectId_ = s;
               break;
             }
             case 26: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              name_ = s;
+              vpcId_ = s;
               break;
             }
             case 34: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 42: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
                 securityGroupRules_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule>();
-                mutable_bitField0_ |= 0x00000008;
+                mutable_bitField0_ |= 0x00000010;
               }
               securityGroupRules_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.parser(), extensionRegistry));
@@ -150,7 +161,7 @@ public final class SecurityGroup {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
           securityGroupRules_ = java.util.Collections.unmodifiableList(securityGroupRules_);
         }
         makeExtensionsImmutable();
@@ -1583,10 +1594,19 @@ public final class SecurityGroup {
     }
 
     private int bitField0_;
-    public static final int PROJECT_ID_FIELD_NUMBER = 1;
+    public static final int VERSION_FIELD_NUMBER = 1;
+    private int version_;
+    /**
+     * <code>optional int32 version = 1;</code>
+     */
+    public int getVersion() {
+      return version_;
+    }
+
+    public static final int PROJECT_ID_FIELD_NUMBER = 2;
     private volatile java.lang.Object projectId_;
     /**
-     * <code>optional string project_id = 1;</code>
+     * <code>optional string project_id = 2;</code>
      */
     public java.lang.String getProjectId() {
       java.lang.Object ref = projectId_;
@@ -1601,7 +1621,7 @@ public final class SecurityGroup {
       }
     }
     /**
-     * <code>optional string project_id = 1;</code>
+     * <code>optional string project_id = 2;</code>
      */
     public com.google.protobuf.ByteString
         getProjectIdBytes() {
@@ -1617,10 +1637,10 @@ public final class SecurityGroup {
       }
     }
 
-    public static final int VPC_ID_FIELD_NUMBER = 2;
+    public static final int VPC_ID_FIELD_NUMBER = 3;
     private volatile java.lang.Object vpcId_;
     /**
-     * <code>optional string vpc_id = 2;</code>
+     * <code>optional string vpc_id = 3;</code>
      */
     public java.lang.String getVpcId() {
       java.lang.Object ref = vpcId_;
@@ -1635,7 +1655,7 @@ public final class SecurityGroup {
       }
     }
     /**
-     * <code>optional string vpc_id = 2;</code>
+     * <code>optional string vpc_id = 3;</code>
      */
     public com.google.protobuf.ByteString
         getVpcIdBytes() {
@@ -1651,10 +1671,10 @@ public final class SecurityGroup {
       }
     }
 
-    public static final int NAME_FIELD_NUMBER = 3;
+    public static final int NAME_FIELD_NUMBER = 4;
     private volatile java.lang.Object name_;
     /**
-     * <code>optional string name = 3;</code>
+     * <code>optional string name = 4;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -1669,7 +1689,7 @@ public final class SecurityGroup {
       }
     }
     /**
-     * <code>optional string name = 3;</code>
+     * <code>optional string name = 4;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -1685,35 +1705,35 @@ public final class SecurityGroup {
       }
     }
 
-    public static final int SECURITY_GROUP_RULES_FIELD_NUMBER = 4;
+    public static final int SECURITY_GROUP_RULES_FIELD_NUMBER = 5;
     private java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> securityGroupRules_;
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> getSecurityGroupRulesList() {
       return securityGroupRules_;
     }
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder> 
         getSecurityGroupRulesOrBuilderList() {
       return securityGroupRules_;
     }
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     public int getSecurityGroupRulesCount() {
       return securityGroupRules_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule getSecurityGroupRules(int index) {
       return securityGroupRules_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+     * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
      */
     public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder getSecurityGroupRulesOrBuilder(
         int index) {
@@ -1732,17 +1752,20 @@ public final class SecurityGroup {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (version_ != 0) {
+        output.writeInt32(1, version_);
+      }
       if (!getProjectIdBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, projectId_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, projectId_);
       }
       if (!getVpcIdBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, vpcId_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, vpcId_);
       }
       if (!getNameBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, name_);
       }
       for (int i = 0; i < securityGroupRules_.size(); i++) {
-        output.writeMessage(4, securityGroupRules_.get(i));
+        output.writeMessage(5, securityGroupRules_.get(i));
       }
     }
 
@@ -1751,18 +1774,22 @@ public final class SecurityGroup {
       if (size != -1) return size;
 
       size = 0;
+      if (version_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, version_);
+      }
       if (!getProjectIdBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, projectId_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, projectId_);
       }
       if (!getVpcIdBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, vpcId_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, vpcId_);
       }
       if (!getNameBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, name_);
       }
       for (int i = 0; i < securityGroupRules_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, securityGroupRules_.get(i));
+          .computeMessageSize(5, securityGroupRules_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -1780,6 +1807,8 @@ public final class SecurityGroup {
       com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration other = (com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration) obj;
 
       boolean result = true;
+      result = result && (getVersion()
+          == other.getVersion());
       result = result && getProjectId()
           .equals(other.getProjectId());
       result = result && getVpcId()
@@ -1798,6 +1827,8 @@ public final class SecurityGroup {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + VERSION_FIELD_NUMBER;
+      hash = (53 * hash) + getVersion();
       hash = (37 * hash) + PROJECT_ID_FIELD_NUMBER;
       hash = (53 * hash) + getProjectId().hashCode();
       hash = (37 * hash) + VPC_ID_FIELD_NUMBER;
@@ -1927,6 +1958,8 @@ public final class SecurityGroup {
       }
       public Builder clear() {
         super.clear();
+        version_ = 0;
+
         projectId_ = "";
 
         vpcId_ = "";
@@ -1935,7 +1968,7 @@ public final class SecurityGroup {
 
         if (securityGroupRulesBuilder_ == null) {
           securityGroupRules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
+          bitField0_ = (bitField0_ & ~0x00000010);
         } else {
           securityGroupRulesBuilder_.clear();
         }
@@ -1963,13 +1996,14 @@ public final class SecurityGroup {
         com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration result = new com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
+        result.version_ = version_;
         result.projectId_ = projectId_;
         result.vpcId_ = vpcId_;
         result.name_ = name_;
         if (securityGroupRulesBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          if (((bitField0_ & 0x00000010) == 0x00000010)) {
             securityGroupRules_ = java.util.Collections.unmodifiableList(securityGroupRules_);
-            bitField0_ = (bitField0_ & ~0x00000008);
+            bitField0_ = (bitField0_ & ~0x00000010);
           }
           result.securityGroupRules_ = securityGroupRules_;
         } else {
@@ -2017,6 +2051,9 @@ public final class SecurityGroup {
 
       public Builder mergeFrom(com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration other) {
         if (other == com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.getDefaultInstance()) return this;
+        if (other.getVersion() != 0) {
+          setVersion(other.getVersion());
+        }
         if (!other.getProjectId().isEmpty()) {
           projectId_ = other.projectId_;
           onChanged();
@@ -2033,7 +2070,7 @@ public final class SecurityGroup {
           if (!other.securityGroupRules_.isEmpty()) {
             if (securityGroupRules_.isEmpty()) {
               securityGroupRules_ = other.securityGroupRules_;
-              bitField0_ = (bitField0_ & ~0x00000008);
+              bitField0_ = (bitField0_ & ~0x00000010);
             } else {
               ensureSecurityGroupRulesIsMutable();
               securityGroupRules_.addAll(other.securityGroupRules_);
@@ -2046,7 +2083,7 @@ public final class SecurityGroup {
               securityGroupRulesBuilder_.dispose();
               securityGroupRulesBuilder_ = null;
               securityGroupRules_ = other.securityGroupRules_;
-              bitField0_ = (bitField0_ & ~0x00000008);
+              bitField0_ = (bitField0_ & ~0x00000010);
               securityGroupRulesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getSecurityGroupRulesFieldBuilder() : null;
@@ -2082,9 +2119,35 @@ public final class SecurityGroup {
       }
       private int bitField0_;
 
+      private int version_ ;
+      /**
+       * <code>optional int32 version = 1;</code>
+       */
+      public int getVersion() {
+        return version_;
+      }
+      /**
+       * <code>optional int32 version = 1;</code>
+       */
+      public Builder setVersion(int value) {
+        
+        version_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 version = 1;</code>
+       */
+      public Builder clearVersion() {
+        
+        version_ = 0;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object projectId_ = "";
       /**
-       * <code>optional string project_id = 1;</code>
+       * <code>optional string project_id = 2;</code>
        */
       public java.lang.String getProjectId() {
         java.lang.Object ref = projectId_;
@@ -2099,7 +2162,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string project_id = 1;</code>
+       * <code>optional string project_id = 2;</code>
        */
       public com.google.protobuf.ByteString
           getProjectIdBytes() {
@@ -2115,7 +2178,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string project_id = 1;</code>
+       * <code>optional string project_id = 2;</code>
        */
       public Builder setProjectId(
           java.lang.String value) {
@@ -2128,7 +2191,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string project_id = 1;</code>
+       * <code>optional string project_id = 2;</code>
        */
       public Builder clearProjectId() {
         
@@ -2137,7 +2200,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string project_id = 1;</code>
+       * <code>optional string project_id = 2;</code>
        */
       public Builder setProjectIdBytes(
           com.google.protobuf.ByteString value) {
@@ -2153,7 +2216,7 @@ public final class SecurityGroup {
 
       private java.lang.Object vpcId_ = "";
       /**
-       * <code>optional string vpc_id = 2;</code>
+       * <code>optional string vpc_id = 3;</code>
        */
       public java.lang.String getVpcId() {
         java.lang.Object ref = vpcId_;
@@ -2168,7 +2231,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string vpc_id = 2;</code>
+       * <code>optional string vpc_id = 3;</code>
        */
       public com.google.protobuf.ByteString
           getVpcIdBytes() {
@@ -2184,7 +2247,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string vpc_id = 2;</code>
+       * <code>optional string vpc_id = 3;</code>
        */
       public Builder setVpcId(
           java.lang.String value) {
@@ -2197,7 +2260,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string vpc_id = 2;</code>
+       * <code>optional string vpc_id = 3;</code>
        */
       public Builder clearVpcId() {
         
@@ -2206,7 +2269,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string vpc_id = 2;</code>
+       * <code>optional string vpc_id = 3;</code>
        */
       public Builder setVpcIdBytes(
           com.google.protobuf.ByteString value) {
@@ -2222,7 +2285,7 @@ public final class SecurityGroup {
 
       private java.lang.Object name_ = "";
       /**
-       * <code>optional string name = 3;</code>
+       * <code>optional string name = 4;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -2237,7 +2300,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string name = 3;</code>
+       * <code>optional string name = 4;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -2253,7 +2316,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>optional string name = 3;</code>
+       * <code>optional string name = 4;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -2266,7 +2329,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string name = 3;</code>
+       * <code>optional string name = 4;</code>
        */
       public Builder clearName() {
         
@@ -2275,7 +2338,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>optional string name = 3;</code>
+       * <code>optional string name = 4;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -2292,9 +2355,9 @@ public final class SecurityGroup {
       private java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> securityGroupRules_ =
         java.util.Collections.emptyList();
       private void ensureSecurityGroupRulesIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
           securityGroupRules_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule>(securityGroupRules_);
-          bitField0_ |= 0x00000008;
+          bitField0_ |= 0x00000010;
          }
       }
 
@@ -2302,7 +2365,7 @@ public final class SecurityGroup {
           com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder> securityGroupRulesBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> getSecurityGroupRulesList() {
         if (securityGroupRulesBuilder_ == null) {
@@ -2312,7 +2375,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public int getSecurityGroupRulesCount() {
         if (securityGroupRulesBuilder_ == null) {
@@ -2322,7 +2385,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule getSecurityGroupRules(int index) {
         if (securityGroupRulesBuilder_ == null) {
@@ -2332,7 +2395,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder setSecurityGroupRules(
           int index, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule value) {
@@ -2349,7 +2412,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder setSecurityGroupRules(
           int index, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder builderForValue) {
@@ -2363,7 +2426,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder addSecurityGroupRules(com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule value) {
         if (securityGroupRulesBuilder_ == null) {
@@ -2379,7 +2442,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder addSecurityGroupRules(
           int index, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule value) {
@@ -2396,7 +2459,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder addSecurityGroupRules(
           com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder builderForValue) {
@@ -2410,7 +2473,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder addSecurityGroupRules(
           int index, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder builderForValue) {
@@ -2424,7 +2487,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder addAllSecurityGroupRules(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule> values) {
@@ -2439,12 +2502,12 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder clearSecurityGroupRules() {
         if (securityGroupRulesBuilder_ == null) {
           securityGroupRules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
+          bitField0_ = (bitField0_ & ~0x00000010);
           onChanged();
         } else {
           securityGroupRulesBuilder_.clear();
@@ -2452,7 +2515,7 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public Builder removeSecurityGroupRules(int index) {
         if (securityGroupRulesBuilder_ == null) {
@@ -2465,14 +2528,14 @@ public final class SecurityGroup {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder getSecurityGroupRulesBuilder(
           int index) {
         return getSecurityGroupRulesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder getSecurityGroupRulesOrBuilder(
           int index) {
@@ -2482,7 +2545,7 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder> 
            getSecurityGroupRulesOrBuilderList() {
@@ -2493,14 +2556,14 @@ public final class SecurityGroup {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder addSecurityGroupRulesBuilder() {
         return getSecurityGroupRulesFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder addSecurityGroupRulesBuilder(
           int index) {
@@ -2508,7 +2571,7 @@ public final class SecurityGroup {
             index, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 4;</code>
+       * <code>repeated .aliothcontroller.SecurityGroupConfiguration.SecurityGroupRule security_group_rules = 5;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder> 
            getSecurityGroupRulesBuilderList() {
@@ -2521,7 +2584,7 @@ public final class SecurityGroup {
           securityGroupRulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder, com.futurewei.alioth.controller.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRuleOrBuilder>(
                   securityGroupRules_,
-                  ((bitField0_ & 0x00000008) == 0x00000008),
+                  ((bitField0_ & 0x00000010) == 0x00000010),
                   getParentForChildren(),
                   isClean());
           securityGroupRules_ = null;
@@ -3254,26 +3317,26 @@ public final class SecurityGroup {
   static {
     java.lang.String[] descriptorData = {
       "\n\023securitygroup.proto\022\020aliothcontroller\032" +
-      "\014common.proto\"\233\004\n\032SecurityGroupConfigura" +
-      "tion\022\022\n\nproject_id\030\001 \001(\t\022\016\n\006vpc_id\030\002 \001(\t" +
-      "\022\014\n\004name\030\003 \001(\t\022\\\n\024security_group_rules\030\004" +
-      " \003(\0132>.aliothcontroller.SecurityGroupCon" +
-      "figuration.SecurityGroupRule\032\306\002\n\021Securit" +
-      "yGroupRule\022\031\n\021security_group_id\030\001 \001(\t\022\n\n" +
-      "\002id\030\002 \001(\t\022I\n\tdirection\030\003 \001(\01626.aliothcon" +
-      "troller.SecurityGroupConfiguration.Direc" +
-      "tion\022.\n\tethertype\030\004 \001(\0162\033.aliothcontroll",
-      "er.EtherType\022,\n\010protocol\030\005 \001(\0162\032.aliothc" +
-      "ontroller.Protocol\022\026\n\016port_range_min\030\006 \001" +
-      "(\005\022\026\n\016port_range_max\030\007 \001(\005\022\030\n\020remote_ip_" +
-      "prefix\030\010 \001(\t\022\027\n\017remote_group_id\030\t \001(\t\"$\n" +
-      "\tDirection\022\n\n\006EGRESS\020\000\022\013\n\007INGRESS\020\001\"\222\001\n\022" +
-      "SecurityGroupState\0227\n\016operation_type\030\001 \001" +
-      "(\0162\037.aliothcontroller.OperationType\022C\n\rc" +
-      "onfiguration\030\002 \001(\0132,.aliothcontroller.Se" +
-      "curityGroupConfigurationB7\n&com.futurewe" +
-      "i.alioth.controller.schemaB\rSecurityGrou",
-      "pb\006proto3"
+      "\014common.proto\"\254\004\n\032SecurityGroupConfigura" +
+      "tion\022\017\n\007version\030\001 \001(\005\022\022\n\nproject_id\030\002 \001(" +
+      "\t\022\016\n\006vpc_id\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\022\\\n\024secur" +
+      "ity_group_rules\030\005 \003(\0132>.aliothcontroller" +
+      ".SecurityGroupConfiguration.SecurityGrou" +
+      "pRule\032\306\002\n\021SecurityGroupRule\022\031\n\021security_" +
+      "group_id\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022I\n\tdirection\030" +
+      "\003 \001(\01626.aliothcontroller.SecurityGroupCo" +
+      "nfiguration.Direction\022.\n\tethertype\030\004 \001(\016",
+      "2\033.aliothcontroller.EtherType\022,\n\010protoco" +
+      "l\030\005 \001(\0162\032.aliothcontroller.Protocol\022\026\n\016p" +
+      "ort_range_min\030\006 \001(\005\022\026\n\016port_range_max\030\007 " +
+      "\001(\005\022\030\n\020remote_ip_prefix\030\010 \001(\t\022\027\n\017remote_" +
+      "group_id\030\t \001(\t\"$\n\tDirection\022\n\n\006EGRESS\020\000\022" +
+      "\013\n\007INGRESS\020\001\"\222\001\n\022SecurityGroupState\0227\n\016o" +
+      "peration_type\030\001 \001(\0162\037.aliothcontroller.O" +
+      "perationType\022C\n\rconfiguration\030\002 \001(\0132,.al" +
+      "iothcontroller.SecurityGroupConfiguratio" +
+      "nB7\n&com.futurewei.alioth.controller.sch",
+      "emaB\rSecurityGroupb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3293,7 +3356,7 @@ public final class SecurityGroup {
     internal_static_aliothcontroller_SecurityGroupConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_SecurityGroupConfiguration_descriptor,
-        new java.lang.String[] { "ProjectId", "VpcId", "Name", "SecurityGroupRules", });
+        new java.lang.String[] { "Version", "ProjectId", "VpcId", "Name", "SecurityGroupRules", });
     internal_static_aliothcontroller_SecurityGroupConfiguration_SecurityGroupRule_descriptor =
       internal_static_aliothcontroller_SecurityGroupConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_SecurityGroupConfiguration_SecurityGroupRule_fieldAccessorTable = new

@@ -8,12 +8,16 @@ option java_outer_classname = "Port";
 import "common.proto";
 
 message PortConfiguration {
-  string project_id = 1;
-  string network_id = 2;
-  string id = 3;
-  string name = 4;
-  bool admin_state_up = 5;
-  
+  int32 version = 1;
+
+  string project_id = 2;
+  string network_id = 3;
+  string id = 4;
+  string name = 5;
+  bool admin_state_up = 6;
+  string mac_address = 7;
+  string veth_name = 8;
+
   message FixedIp {
     string subnet_id = 1;
     string ip_address = 2;
@@ -33,10 +37,10 @@ message PortConfiguration {
     string value = 2;
   }
 
-  repeated FixedIp fixed_ips = 6;
-  repeated SecurityGroupId security_group_ids = 7;
-  repeated AllowAddressPair allow_address_pairs = 8;
-  repeated ExtraDhcpOption extra_dhcp_options = 9;
+  repeated FixedIp fixed_ips = 9;
+  repeated SecurityGroupId security_group_ids = 10;
+  repeated AllowAddressPair allow_address_pairs = 11;
+  repeated ExtraDhcpOption extra_dhcp_options = 12;
 }
 
 message PortState {
