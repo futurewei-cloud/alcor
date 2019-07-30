@@ -10,6 +10,7 @@ enum OperationType {
     UPDATE = 1;
     GET = 2;
     DELETE = 3;
+    INFO = 4;
 }
 
 enum EtherType {
@@ -21,4 +22,6 @@ enum Protocol {
     TCP = 0;
     UDP = 1;
     ICMP = 2;
+    HTTP = 3;
+    ARP = 4;
 }
