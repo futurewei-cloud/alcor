@@ -13,12 +13,13 @@ message SubnetConfiguration {
   string id = 3;
   string name = 4;
   string cidr = 5;
-  
-  string gateway_ip = 6;
-  bool dhcp_enable = 7;
-  string availability_zone = 8;
-  string primary_dns = 9;
-  string secondary_dns = 10;
+  int64 tunnel_id = 6;
+
+  string gateway_ip = 7;
+  bool dhcp_enable = 8;
+  string availability_zone = 9;
+  string primary_dns = 10;
+  string secondary_dns = 11;
 
   message DnsEntry {
     string entry = 1;
@@ -34,9 +35,9 @@ message SubnetConfiguration {
     string ip_address = 3;
   }
 
-  repeated DnsEntry dns_list = 11;
-  repeated SecurityGroupId security_group_ids = 12;
-  repeated TransitSwitchIp transit_switch_ips = 13;
+  repeated DnsEntry dns_list = 12;
+  repeated SecurityGroupId security_group_ids = 13;
+  repeated TransitSwitchIp transit_switch_ips = 14;
 }
 message SubnetState {
   OperationType operation_type = 1;

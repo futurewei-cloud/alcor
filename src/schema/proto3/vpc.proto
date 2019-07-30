@@ -12,7 +12,8 @@ message VpcConfiguration {
   string id  = 2;
   string name = 3;
   string cidr = 4;
-  
+  int64 tunnel_id = 5;
+
   message SubnetId {
     string id = 1;
   }
@@ -27,9 +28,9 @@ message VpcConfiguration {
     string ip_address = 2;
   }
 
-  repeated SubnetId subnet_ids = 5;
-  repeated Route routes = 6;
-  repeated TransitRouterIp transit_router_ips = 7;
+  repeated SubnetId subnet_ids = 6;
+  repeated Route routes = 7;
+  repeated TransitRouterIp transit_router_ips = 8;
 }
 
 message VpcState {

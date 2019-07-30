@@ -59,73 +59,78 @@ public final class Vpc {
         getCidrBytes();
 
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>optional int64 tunnel_id = 5;</code>
+     */
+    long getTunnelId();
+
+    /**
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> 
         getSubnetIdsList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId getSubnetIds(int index);
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     int getSubnetIdsCount();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder> 
         getSubnetIdsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder getSubnetIdsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> 
         getRoutesList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route getRoutes(int index);
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     int getRoutesCount();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder> 
         getRoutesOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder getRoutesOrBuilder(
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> 
         getTransitRouterIpsList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index);
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     int getTransitRouterIpsCount();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
         getTransitRouterIpsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
         int index);
@@ -146,6 +151,7 @@ public final class Vpc {
       id_ = "";
       name_ = "";
       cidr_ = "";
+      tunnelId_ = 0L;
       subnetIds_ = java.util.Collections.emptyList();
       routes_ = java.util.Collections.emptyList();
       transitRouterIps_ = java.util.Collections.emptyList();
@@ -200,28 +206,33 @@ public final class Vpc {
               cidr_ = s;
               break;
             }
-            case 42: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+            case 40: {
+
+              tunnelId_ = input.readInt64();
+              break;
+            }
+            case 50: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
                 subnetIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId>();
-                mutable_bitField0_ |= 0x00000010;
+                mutable_bitField0_ |= 0x00000020;
               }
               subnetIds_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.parser(), extensionRegistry));
               break;
             }
-            case 50: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+            case 58: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 routes_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route>();
-                mutable_bitField0_ |= 0x00000020;
+                mutable_bitField0_ |= 0x00000040;
               }
               routes_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.parser(), extensionRegistry));
               break;
             }
-            case 58: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+            case 66: {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 transitRouterIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               transitRouterIps_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.parser(), extensionRegistry));
@@ -235,13 +246,13 @@ public final class Vpc {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           subnetIds_ = java.util.Collections.unmodifiableList(subnetIds_);
         }
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           routes_ = java.util.Collections.unmodifiableList(routes_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           transitRouterIps_ = java.util.Collections.unmodifiableList(transitRouterIps_);
         }
         makeExtensionsImmutable();
@@ -2179,105 +2190,114 @@ public final class Vpc {
       }
     }
 
-    public static final int SUBNET_IDS_FIELD_NUMBER = 5;
+    public static final int TUNNEL_ID_FIELD_NUMBER = 5;
+    private long tunnelId_;
+    /**
+     * <code>optional int64 tunnel_id = 5;</code>
+     */
+    public long getTunnelId() {
+      return tunnelId_;
+    }
+
+    public static final int SUBNET_IDS_FIELD_NUMBER = 6;
     private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> subnetIds_;
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> getSubnetIdsList() {
       return subnetIds_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder> 
         getSubnetIdsOrBuilderList() {
       return subnetIds_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     public int getSubnetIdsCount() {
       return subnetIds_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId getSubnetIds(int index) {
       return subnetIds_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder getSubnetIdsOrBuilder(
         int index) {
       return subnetIds_.get(index);
     }
 
-    public static final int ROUTES_FIELD_NUMBER = 6;
+    public static final int ROUTES_FIELD_NUMBER = 7;
     private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> routes_;
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> getRoutesList() {
       return routes_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder> 
         getRoutesOrBuilderList() {
       return routes_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     public int getRoutesCount() {
       return routes_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route getRoutes(int index) {
       return routes_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder getRoutesOrBuilder(
         int index) {
       return routes_.get(index);
     }
 
-    public static final int TRANSIT_ROUTER_IPS_FIELD_NUMBER = 7;
+    public static final int TRANSIT_ROUTER_IPS_FIELD_NUMBER = 8;
     private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> transitRouterIps_;
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> getTransitRouterIpsList() {
       return transitRouterIps_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
         getTransitRouterIpsOrBuilderList() {
       return transitRouterIps_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     public int getTransitRouterIpsCount() {
       return transitRouterIps_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index) {
       return transitRouterIps_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
      */
     public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
         int index) {
@@ -2308,14 +2328,17 @@ public final class Vpc {
       if (!getCidrBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 4, cidr_);
       }
+      if (tunnelId_ != 0L) {
+        output.writeInt64(5, tunnelId_);
+      }
       for (int i = 0; i < subnetIds_.size(); i++) {
-        output.writeMessage(5, subnetIds_.get(i));
+        output.writeMessage(6, subnetIds_.get(i));
       }
       for (int i = 0; i < routes_.size(); i++) {
-        output.writeMessage(6, routes_.get(i));
+        output.writeMessage(7, routes_.get(i));
       }
       for (int i = 0; i < transitRouterIps_.size(); i++) {
-        output.writeMessage(7, transitRouterIps_.get(i));
+        output.writeMessage(8, transitRouterIps_.get(i));
       }
     }
 
@@ -2336,17 +2359,21 @@ public final class Vpc {
       if (!getCidrBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, cidr_);
       }
+      if (tunnelId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(5, tunnelId_);
+      }
       for (int i = 0; i < subnetIds_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, subnetIds_.get(i));
+          .computeMessageSize(6, subnetIds_.get(i));
       }
       for (int i = 0; i < routes_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(6, routes_.get(i));
+          .computeMessageSize(7, routes_.get(i));
       }
       for (int i = 0; i < transitRouterIps_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, transitRouterIps_.get(i));
+          .computeMessageSize(8, transitRouterIps_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -2372,6 +2399,8 @@ public final class Vpc {
           .equals(other.getName());
       result = result && getCidr()
           .equals(other.getCidr());
+      result = result && (getTunnelId()
+          == other.getTunnelId());
       result = result && getSubnetIdsList()
           .equals(other.getSubnetIdsList());
       result = result && getRoutesList()
@@ -2396,6 +2425,9 @@ public final class Vpc {
       hash = (53 * hash) + getName().hashCode();
       hash = (37 * hash) + CIDR_FIELD_NUMBER;
       hash = (53 * hash) + getCidr().hashCode();
+      hash = (37 * hash) + TUNNEL_ID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTunnelId());
       if (getSubnetIdsCount() > 0) {
         hash = (37 * hash) + SUBNET_IDS_FIELD_NUMBER;
         hash = (53 * hash) + getSubnetIdsList().hashCode();
@@ -2537,21 +2569,23 @@ public final class Vpc {
 
         cidr_ = "";
 
+        tunnelId_ = 0L;
+
         if (subnetIdsBuilder_ == null) {
           subnetIds_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000020);
         } else {
           subnetIdsBuilder_.clear();
         }
         if (routesBuilder_ == null) {
           routes_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000040);
         } else {
           routesBuilder_.clear();
         }
         if (transitRouterIpsBuilder_ == null) {
           transitRouterIps_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
         } else {
           transitRouterIpsBuilder_.clear();
         }
@@ -2583,28 +2617,29 @@ public final class Vpc {
         result.id_ = id_;
         result.name_ = name_;
         result.cidr_ = cidr_;
+        result.tunnelId_ = tunnelId_;
         if (subnetIdsBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          if (((bitField0_ & 0x00000020) == 0x00000020)) {
             subnetIds_ = java.util.Collections.unmodifiableList(subnetIds_);
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000020);
           }
           result.subnetIds_ = subnetIds_;
         } else {
           result.subnetIds_ = subnetIdsBuilder_.build();
         }
         if (routesBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
             routes_ = java.util.Collections.unmodifiableList(routes_);
-            bitField0_ = (bitField0_ & ~0x00000020);
+            bitField0_ = (bitField0_ & ~0x00000040);
           }
           result.routes_ = routes_;
         } else {
           result.routes_ = routesBuilder_.build();
         }
         if (transitRouterIpsBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          if (((bitField0_ & 0x00000080) == 0x00000080)) {
             transitRouterIps_ = java.util.Collections.unmodifiableList(transitRouterIps_);
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000080);
           }
           result.transitRouterIps_ = transitRouterIps_;
         } else {
@@ -2668,11 +2703,14 @@ public final class Vpc {
           cidr_ = other.cidr_;
           onChanged();
         }
+        if (other.getTunnelId() != 0L) {
+          setTunnelId(other.getTunnelId());
+        }
         if (subnetIdsBuilder_ == null) {
           if (!other.subnetIds_.isEmpty()) {
             if (subnetIds_.isEmpty()) {
               subnetIds_ = other.subnetIds_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000020);
             } else {
               ensureSubnetIdsIsMutable();
               subnetIds_.addAll(other.subnetIds_);
@@ -2685,7 +2723,7 @@ public final class Vpc {
               subnetIdsBuilder_.dispose();
               subnetIdsBuilder_ = null;
               subnetIds_ = other.subnetIds_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000020);
               subnetIdsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getSubnetIdsFieldBuilder() : null;
@@ -2698,7 +2736,7 @@ public final class Vpc {
           if (!other.routes_.isEmpty()) {
             if (routes_.isEmpty()) {
               routes_ = other.routes_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000040);
             } else {
               ensureRoutesIsMutable();
               routes_.addAll(other.routes_);
@@ -2711,7 +2749,7 @@ public final class Vpc {
               routesBuilder_.dispose();
               routesBuilder_ = null;
               routes_ = other.routes_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000040);
               routesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getRoutesFieldBuilder() : null;
@@ -2724,7 +2762,7 @@ public final class Vpc {
           if (!other.transitRouterIps_.isEmpty()) {
             if (transitRouterIps_.isEmpty()) {
               transitRouterIps_ = other.transitRouterIps_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000080);
             } else {
               ensureTransitRouterIpsIsMutable();
               transitRouterIps_.addAll(other.transitRouterIps_);
@@ -2737,7 +2775,7 @@ public final class Vpc {
               transitRouterIpsBuilder_.dispose();
               transitRouterIpsBuilder_ = null;
               transitRouterIps_ = other.transitRouterIps_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000080);
               transitRouterIpsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getTransitRouterIpsFieldBuilder() : null;
@@ -3049,12 +3087,38 @@ public final class Vpc {
         return this;
       }
 
+      private long tunnelId_ ;
+      /**
+       * <code>optional int64 tunnel_id = 5;</code>
+       */
+      public long getTunnelId() {
+        return tunnelId_;
+      }
+      /**
+       * <code>optional int64 tunnel_id = 5;</code>
+       */
+      public Builder setTunnelId(long value) {
+        
+        tunnelId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 tunnel_id = 5;</code>
+       */
+      public Builder clearTunnelId() {
+        
+        tunnelId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> subnetIds_ =
         java.util.Collections.emptyList();
       private void ensureSubnetIdsIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
           subnetIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId>(subnetIds_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000020;
          }
       }
 
@@ -3062,7 +3126,7 @@ public final class Vpc {
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder> subnetIdsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> getSubnetIdsList() {
         if (subnetIdsBuilder_ == null) {
@@ -3072,7 +3136,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public int getSubnetIdsCount() {
         if (subnetIdsBuilder_ == null) {
@@ -3082,7 +3146,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId getSubnetIds(int index) {
         if (subnetIdsBuilder_ == null) {
@@ -3092,7 +3156,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder setSubnetIds(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId value) {
@@ -3109,7 +3173,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder setSubnetIds(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder builderForValue) {
@@ -3123,7 +3187,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder addSubnetIds(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId value) {
         if (subnetIdsBuilder_ == null) {
@@ -3139,7 +3203,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder addSubnetIds(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId value) {
@@ -3156,7 +3220,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder addSubnetIds(
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder builderForValue) {
@@ -3170,7 +3234,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder addSubnetIds(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder builderForValue) {
@@ -3184,7 +3248,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder addAllSubnetIds(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId> values) {
@@ -3199,12 +3263,12 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder clearSubnetIds() {
         if (subnetIdsBuilder_ == null) {
           subnetIds_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
           subnetIdsBuilder_.clear();
@@ -3212,7 +3276,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public Builder removeSubnetIds(int index) {
         if (subnetIdsBuilder_ == null) {
@@ -3225,14 +3289,14 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder getSubnetIdsBuilder(
           int index) {
         return getSubnetIdsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder getSubnetIdsOrBuilder(
           int index) {
@@ -3242,7 +3306,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder> 
            getSubnetIdsOrBuilderList() {
@@ -3253,14 +3317,14 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder addSubnetIdsBuilder() {
         return getSubnetIdsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder addSubnetIdsBuilder(
           int index) {
@@ -3268,7 +3332,7 @@ public final class Vpc {
             index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 5;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.SubnetId subnet_ids = 6;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder> 
            getSubnetIdsBuilderList() {
@@ -3281,7 +3345,7 @@ public final class Vpc {
           subnetIdsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetId.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.SubnetIdOrBuilder>(
                   subnetIds_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  ((bitField0_ & 0x00000020) == 0x00000020),
                   getParentForChildren(),
                   isClean());
           subnetIds_ = null;
@@ -3292,9 +3356,9 @@ public final class Vpc {
       private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> routes_ =
         java.util.Collections.emptyList();
       private void ensureRoutesIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           routes_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route>(routes_);
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000040;
          }
       }
 
@@ -3302,7 +3366,7 @@ public final class Vpc {
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder> routesBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> getRoutesList() {
         if (routesBuilder_ == null) {
@@ -3312,7 +3376,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public int getRoutesCount() {
         if (routesBuilder_ == null) {
@@ -3322,7 +3386,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route getRoutes(int index) {
         if (routesBuilder_ == null) {
@@ -3332,7 +3396,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder setRoutes(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route value) {
@@ -3349,7 +3413,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder setRoutes(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder builderForValue) {
@@ -3363,7 +3427,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder addRoutes(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route value) {
         if (routesBuilder_ == null) {
@@ -3379,7 +3443,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder addRoutes(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route value) {
@@ -3396,7 +3460,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder addRoutes(
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder builderForValue) {
@@ -3410,7 +3474,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder addRoutes(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder builderForValue) {
@@ -3424,7 +3488,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder addAllRoutes(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route> values) {
@@ -3439,12 +3503,12 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder clearRoutes() {
         if (routesBuilder_ == null) {
           routes_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000040);
           onChanged();
         } else {
           routesBuilder_.clear();
@@ -3452,7 +3516,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public Builder removeRoutes(int index) {
         if (routesBuilder_ == null) {
@@ -3465,14 +3529,14 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder getRoutesBuilder(
           int index) {
         return getRoutesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder getRoutesOrBuilder(
           int index) {
@@ -3482,7 +3546,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder> 
            getRoutesOrBuilderList() {
@@ -3493,14 +3557,14 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder addRoutesBuilder() {
         return getRoutesFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder addRoutesBuilder(
           int index) {
@@ -3508,7 +3572,7 @@ public final class Vpc {
             index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 6;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.Route routes = 7;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder> 
            getRoutesBuilderList() {
@@ -3521,7 +3585,7 @@ public final class Vpc {
           routesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.Route.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.RouteOrBuilder>(
                   routes_,
-                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  ((bitField0_ & 0x00000040) == 0x00000040),
                   getParentForChildren(),
                   isClean());
           routes_ = null;
@@ -3532,9 +3596,9 @@ public final class Vpc {
       private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> transitRouterIps_ =
         java.util.Collections.emptyList();
       private void ensureTransitRouterIpsIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           transitRouterIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp>(transitRouterIps_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
          }
       }
 
@@ -3542,7 +3606,7 @@ public final class Vpc {
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> transitRouterIpsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> getTransitRouterIpsList() {
         if (transitRouterIpsBuilder_ == null) {
@@ -3552,7 +3616,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public int getTransitRouterIpsCount() {
         if (transitRouterIpsBuilder_ == null) {
@@ -3562,7 +3626,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index) {
         if (transitRouterIpsBuilder_ == null) {
@@ -3572,7 +3636,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder setTransitRouterIps(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
@@ -3589,7 +3653,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder setTransitRouterIps(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
@@ -3603,7 +3667,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder addTransitRouterIps(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
         if (transitRouterIpsBuilder_ == null) {
@@ -3619,7 +3683,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder addTransitRouterIps(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
@@ -3636,7 +3700,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder addTransitRouterIps(
           com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
@@ -3650,7 +3714,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder addTransitRouterIps(
           int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
@@ -3664,7 +3728,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder addAllTransitRouterIps(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> values) {
@@ -3679,12 +3743,12 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder clearTransitRouterIps() {
         if (transitRouterIpsBuilder_ == null) {
           transitRouterIps_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
           onChanged();
         } else {
           transitRouterIpsBuilder_.clear();
@@ -3692,7 +3756,7 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public Builder removeTransitRouterIps(int index) {
         if (transitRouterIpsBuilder_ == null) {
@@ -3705,14 +3769,14 @@ public final class Vpc {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder getTransitRouterIpsBuilder(
           int index) {
         return getTransitRouterIpsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
           int index) {
@@ -3722,7 +3786,7 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
            getTransitRouterIpsOrBuilderList() {
@@ -3733,14 +3797,14 @@ public final class Vpc {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder addTransitRouterIpsBuilder() {
         return getTransitRouterIpsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder addTransitRouterIpsBuilder(
           int index) {
@@ -3748,7 +3812,7 @@ public final class Vpc {
             index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 7;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 8;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder> 
            getTransitRouterIpsBuilderList() {
@@ -3761,7 +3825,7 @@ public final class Vpc {
           transitRouterIpsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder>(
                   transitRouterIps_,
-                  ((bitField0_ & 0x00000040) == 0x00000040),
+                  ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
                   isClean());
           transitRouterIps_ = null;
@@ -4504,21 +4568,22 @@ public final class Vpc {
   static {
     java.lang.String[] descriptorData = {
       "\n\tvpc.proto\022\020aliothcontroller\032\014common.pr" +
-      "oto\"\230\003\n\020VpcConfiguration\022\022\n\nproject_id\030\001" +
+      "oto\"\253\003\n\020VpcConfiguration\022\022\n\nproject_id\030\001" +
       " \001(\t\022\n\n\002id\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\014\n\004cidr\030\004" +
-      " \001(\t\022?\n\nsubnet_ids\030\005 \003(\0132+.aliothcontrol" +
-      "ler.VpcConfiguration.SubnetId\0228\n\006routes\030" +
-      "\006 \003(\0132(.aliothcontroller.VpcConfiguratio" +
-      "n.Route\022N\n\022transit_router_ips\030\007 \003(\01322.al" +
-      "iothcontroller.VpcConfiguration.TransitR" +
-      "outerIp\032\026\n\010SubnetId\022\n\n\002id\030\001 \001(\t\032.\n\005Route" +
-      "\022\023\n\013destination\030\001 \001(\t\022\020\n\010next_hop\030\002 \001(\t\032",
-      "5\n\017TransitRouterIp\022\016\n\006vpc_id\030\001 \001(\t\022\022\n\nip" +
-      "_address\030\002 \001(\t\"~\n\010VpcState\0227\n\016operation_" +
-      "type\030\001 \001(\0162\037.aliothcontroller.OperationT" +
-      "ype\0229\n\rconfiguration\030\002 \001(\0132\".aliothcontr" +
-      "oller.VpcConfigurationB-\n&com.futurewei." +
-      "alioth.controller.schemaB\003Vpcb\006proto3"
+      " \001(\t\022\021\n\ttunnel_id\030\005 \001(\003\022?\n\nsubnet_ids\030\006 " +
+      "\003(\0132+.aliothcontroller.VpcConfiguration." +
+      "SubnetId\0228\n\006routes\030\007 \003(\0132(.aliothcontrol" +
+      "ler.VpcConfiguration.Route\022N\n\022transit_ro" +
+      "uter_ips\030\010 \003(\01322.aliothcontroller.VpcCon" +
+      "figuration.TransitRouterIp\032\026\n\010SubnetId\022\n" +
+      "\n\002id\030\001 \001(\t\032.\n\005Route\022\023\n\013destination\030\001 \001(\t",
+      "\022\020\n\010next_hop\030\002 \001(\t\0325\n\017TransitRouterIp\022\016\n" +
+      "\006vpc_id\030\001 \001(\t\022\022\n\nip_address\030\002 \001(\t\"~\n\010Vpc" +
+      "State\0227\n\016operation_type\030\001 \001(\0162\037.aliothco" +
+      "ntroller.OperationType\0229\n\rconfiguration\030" +
+      "\002 \001(\0132\".aliothcontroller.VpcConfiguratio" +
+      "nB-\n&com.futurewei.alioth.controller.sch" +
+      "emaB\003Vpcb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4538,7 +4603,7 @@ public final class Vpc {
     internal_static_aliothcontroller_VpcConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_VpcConfiguration_descriptor,
-        new java.lang.String[] { "ProjectId", "Id", "Name", "Cidr", "SubnetIds", "Routes", "TransitRouterIps", });
+        new java.lang.String[] { "ProjectId", "Id", "Name", "Cidr", "TunnelId", "SubnetIds", "Routes", "TransitRouterIps", });
     internal_static_aliothcontroller_VpcConfiguration_SubnetId_descriptor =
       internal_static_aliothcontroller_VpcConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_VpcConfiguration_SubnetId_fieldAccessorTable = new
