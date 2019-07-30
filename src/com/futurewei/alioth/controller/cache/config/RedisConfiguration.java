@@ -4,7 +4,7 @@ import com.futurewei.alioth.controller.cache.message.RedisPublisher;
 import com.futurewei.alioth.controller.cache.message.RedisListener;
 import com.futurewei.alioth.controller.cache.message.ICachePublisher;
 
-import com.futurewei.alioth.controller.model.VpcState;
+import com.futurewei.alioth.controller.model.*;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,7 +14,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 @Configuration
@@ -33,12 +32,22 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, VpcState> redisTemplate() {
+    public RedisTemplate<String, VpcState> redisVpcTemplate() {
         final RedisTemplate<String, VpcState> template = new RedisTemplate<String, VpcState>();
         template.setConnectionFactory(lettuceConnectionFactory());
         template.setKeySerializer( new StringRedisSerializer() );
         template.setHashValueSerializer( new Jackson2JsonRedisSerializer < VpcState >( VpcState.class ) );
         template.setValueSerializer(new Jackson2JsonRedisSerializer<VpcState>(VpcState.class));
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, SubnetState> redisSubnetTemplate() {
+        final RedisTemplate<String, SubnetState> template = new RedisTemplate<String, SubnetState>();
+        template.setConnectionFactory(lettuceConnectionFactory());
+        template.setKeySerializer( new StringRedisSerializer() );
+        template.setHashValueSerializer( new Jackson2JsonRedisSerializer < SubnetState >( SubnetState.class ) );
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<SubnetState>(SubnetState.class));
         return template;
     }
 
@@ -56,9 +65,14 @@ public class RedisConfiguration {
     }
 
     @Bean
-    ICachePublisher redisPublisherInstance() {
-        return new RedisPublisher(redisTemplate(), topic());
+    ICachePublisher redisVpcPublisherInstance() {
+        return new RedisPublisher(redisVpcTemplate(), topic());
     }
+
+//    @Bean
+//    ICachePublisher redisSubnetPublisherInstance() {
+//        return new RedisPublisher(redisSubnetTemplate(), topic());
+//    }
 
     @Bean
     ChannelTopic topic() {
