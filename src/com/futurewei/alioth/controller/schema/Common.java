@@ -43,6 +43,14 @@ public final class Common {
      * <code>FINALIZE = 5;</code>
      */
     FINALIZE(5),
+    /**
+     * <code>CREATE_UPDATE_SWITCH = 6;</code>
+     */
+    CREATE_UPDATE_SWITCH(6),
+    /**
+     * <code>CREATE_UPDATE_ROUTER = 7;</code>
+     */
+    CREATE_UPDATE_ROUTER(7),
     UNRECOGNIZED(-1),
     ;
 
@@ -70,6 +78,14 @@ public final class Common {
      * <code>FINALIZE = 5;</code>
      */
     public static final int FINALIZE_VALUE = 5;
+    /**
+     * <code>CREATE_UPDATE_SWITCH = 6;</code>
+     */
+    public static final int CREATE_UPDATE_SWITCH_VALUE = 6;
+    /**
+     * <code>CREATE_UPDATE_ROUTER = 7;</code>
+     */
+    public static final int CREATE_UPDATE_ROUTER_VALUE = 7;
 
 
     public final int getNumber() {
@@ -96,6 +112,8 @@ public final class Common {
         case 3: return DELETE;
         case 4: return INFO;
         case 5: return FINALIZE;
+        case 6: return CREATE_UPDATE_SWITCH;
+        case 7: return CREATE_UPDATE_ROUTER;
         default: return null;
       }
     }
@@ -380,13 +398,15 @@ public final class Common {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014common.proto\022\020aliothcontroller*T\n\rOper" +
-      "ationType\022\n\n\006CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GET" +
-      "\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005*\037" +
-      "\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Proto" +
-      "col\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020" +
-      "\003\022\007\n\003ARP\020\004B0\n&com.futurewei.alioth.contr" +
-      "oller.schemaB\006Commonb\006proto3"
+      "\n\014common.proto\022\020aliothcontroller*\210\001\n\rOpe" +
+      "rationType\022\n\n\006CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GE" +
+      "T\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005\022" +
+      "\030\n\024CREATE_UPDATE_SWITCH\020\006\022\030\n\024CREATE_UPDA" +
+      "TE_ROUTER\020\007*\037\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IP" +
+      "V6\020\001*9\n\010Protocol\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004IC" +
+      "MP\020\002\022\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0\n&com.futurewei" +
+      ".alioth.controller.schemaB\006Commonb\006proto" +
+      "3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
