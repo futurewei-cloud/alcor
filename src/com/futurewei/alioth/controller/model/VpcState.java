@@ -3,13 +3,9 @@ package com.futurewei.alioth.controller.model;
 import lombok.Data;
 
 @Data
-public class VpcState {
+public class VpcState extends CustomerResource {
 
-    private String projectId;
-    private String id;
-    private String name;
     private String cidr;
-    private String description;
 
     public VpcState() {}
 
@@ -18,15 +14,13 @@ public class VpcState {
     }
 
     public VpcState(VpcState state){
-        this(state.projectId, state.id, state.name, state.cidr, state.description);
+        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription());
     }
 
     public VpcState(String projectId, String id, String name, String cidr, String description){
-        this.projectId = projectId;
-        this.id = id;
-        this.name = name;
+
+        super(projectId, id, name, description);
         this.cidr = cidr;
-        this.description = description;
     }
 
 }

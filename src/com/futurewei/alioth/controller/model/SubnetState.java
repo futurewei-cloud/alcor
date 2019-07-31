@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class SubnetState {
-    private String projectId;
+public class SubnetState extends CustomerResource {
+
     private String vpcId;
-    private String id;
-    private String name;
     private String cidr;
-    private String description;
+
     private String availabilityZone;
     private String gatewayIp;
     private Boolean dhcpEnable;
@@ -22,21 +20,22 @@ public class SubnetState {
 
     public SubnetState() {}
 
-    public SubnetState(String projectId, String id, String name, String cidr){
-        this(projectId, id, name, cidr, null, null, null, false, null, null, null);
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr){
+        this(projectId, vpcId, id, name, cidr,null, null, null, false, null, null, null);
     }
 
     public SubnetState(SubnetState state){
-        this(state.projectId, state.id, state.name, state.cidr, state.description, state.availabilityZone, state.gatewayIp, state.dhcpEnable, state.primaryDns, state.secondaryDns, state.dnsList);
+        this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
+                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getDnsList());
     }
 
-    public SubnetState(String projectId, String id, String name, String cidr, String description, String availabilityZone,
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String description, String availabilityZone,
                   String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<String> dnsList){
-        this.projectId = projectId;
-        this.id = id;
-        this.name = name;
+
+        super(projectId, id, name, description);
+
+        this.vpcId = vpcId;
         this.cidr = cidr;
-        this.description = description;
         this.availabilityZone = availabilityZone;
         this.gatewayIp = gatewayIp;
         this.dhcpEnable = dhcpEnable;
