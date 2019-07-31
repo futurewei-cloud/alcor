@@ -12,6 +12,8 @@ enum OperationType {
     DELETE = 3;
     INFO = 4;
     FINALIZE = 5;
+    CREATE_UPDATE_SWITCH = 6;
+    CREATE_UPDATE_ROUTER = 7;
 }
 
 enum EtherType {
