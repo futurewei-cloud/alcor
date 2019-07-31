@@ -89,97 +89,107 @@ public final class Port {
         getVethNameBytes();
 
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>optional string host_ip = 9;</code>
+     */
+    java.lang.String getHostIp();
+    /**
+     * <code>optional string host_ip = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getHostIpBytes();
+
+    /**
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> 
         getFixedIpsList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp getFixedIps(int index);
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     int getFixedIpsCount();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder> 
         getFixedIpsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder getFixedIpsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> 
         getSecurityGroupIdsList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId getSecurityGroupIds(int index);
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     int getSecurityGroupIdsCount();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder> 
         getSecurityGroupIdsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> 
         getAllowAddressPairsList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair getAllowAddressPairs(int index);
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     int getAllowAddressPairsCount();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder> 
         getAllowAddressPairsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder getAllowAddressPairsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> 
         getExtraDhcpOptionsList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption getExtraDhcpOptions(int index);
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     int getExtraDhcpOptionsCount();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder> 
         getExtraDhcpOptionsOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder getExtraDhcpOptionsOrBuilder(
         int index);
@@ -204,6 +214,7 @@ public final class Port {
       adminStateUp_ = false;
       macAddress_ = "";
       vethName_ = "";
+      hostIp_ = "";
       fixedIps_ = java.util.Collections.emptyList();
       securityGroupIds_ = java.util.Collections.emptyList();
       allowAddressPairs_ = java.util.Collections.emptyList();
@@ -282,36 +293,42 @@ public final class Port {
               break;
             }
             case 74: {
-              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              hostIp_ = s;
+              break;
+            }
+            case 82: {
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
                 fixedIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp>();
-                mutable_bitField0_ |= 0x00000100;
+                mutable_bitField0_ |= 0x00000200;
               }
               fixedIps_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.parser(), extensionRegistry));
               break;
             }
-            case 82: {
-              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
                 securityGroupIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId>();
-                mutable_bitField0_ |= 0x00000200;
+                mutable_bitField0_ |= 0x00000400;
               }
               securityGroupIds_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.parser(), extensionRegistry));
               break;
             }
-            case 90: {
-              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+            case 98: {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
                 allowAddressPairs_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair>();
-                mutable_bitField0_ |= 0x00000400;
+                mutable_bitField0_ |= 0x00000800;
               }
               allowAddressPairs_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.parser(), extensionRegistry));
               break;
             }
-            case 98: {
-              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+            case 106: {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
                 extraDhcpOptions_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption>();
-                mutable_bitField0_ |= 0x00000800;
+                mutable_bitField0_ |= 0x00001000;
               }
               extraDhcpOptions_.add(
                   input.readMessage(com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.parser(), extensionRegistry));
@@ -325,16 +342,16 @@ public final class Port {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
           fixedIps_ = java.util.Collections.unmodifiableList(fixedIps_);
         }
-        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           securityGroupIds_ = java.util.Collections.unmodifiableList(securityGroupIds_);
         }
-        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
           allowAddressPairs_ = java.util.Collections.unmodifiableList(allowAddressPairs_);
         }
-        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
           extraDhcpOptions_ = java.util.Collections.unmodifiableList(extraDhcpOptions_);
         }
         makeExtensionsImmutable();
@@ -2998,140 +3015,174 @@ public final class Port {
       }
     }
 
-    public static final int FIXED_IPS_FIELD_NUMBER = 9;
+    public static final int HOST_IP_FIELD_NUMBER = 9;
+    private volatile java.lang.Object hostIp_;
+    /**
+     * <code>optional string host_ip = 9;</code>
+     */
+    public java.lang.String getHostIp() {
+      java.lang.Object ref = hostIp_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        hostIp_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string host_ip = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getHostIpBytes() {
+      java.lang.Object ref = hostIp_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        hostIp_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int FIXED_IPS_FIELD_NUMBER = 10;
     private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> fixedIps_;
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> getFixedIpsList() {
       return fixedIps_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder> 
         getFixedIpsOrBuilderList() {
       return fixedIps_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     public int getFixedIpsCount() {
       return fixedIps_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp getFixedIps(int index) {
       return fixedIps_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder getFixedIpsOrBuilder(
         int index) {
       return fixedIps_.get(index);
     }
 
-    public static final int SECURITY_GROUP_IDS_FIELD_NUMBER = 10;
+    public static final int SECURITY_GROUP_IDS_FIELD_NUMBER = 11;
     private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> securityGroupIds_;
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> getSecurityGroupIdsList() {
       return securityGroupIds_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder> 
         getSecurityGroupIdsOrBuilderList() {
       return securityGroupIds_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     public int getSecurityGroupIdsCount() {
       return securityGroupIds_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId getSecurityGroupIds(int index) {
       return securityGroupIds_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
         int index) {
       return securityGroupIds_.get(index);
     }
 
-    public static final int ALLOW_ADDRESS_PAIRS_FIELD_NUMBER = 11;
+    public static final int ALLOW_ADDRESS_PAIRS_FIELD_NUMBER = 12;
     private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> allowAddressPairs_;
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> getAllowAddressPairsList() {
       return allowAddressPairs_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder> 
         getAllowAddressPairsOrBuilderList() {
       return allowAddressPairs_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     public int getAllowAddressPairsCount() {
       return allowAddressPairs_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair getAllowAddressPairs(int index) {
       return allowAddressPairs_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder getAllowAddressPairsOrBuilder(
         int index) {
       return allowAddressPairs_.get(index);
     }
 
-    public static final int EXTRA_DHCP_OPTIONS_FIELD_NUMBER = 12;
+    public static final int EXTRA_DHCP_OPTIONS_FIELD_NUMBER = 13;
     private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> extraDhcpOptions_;
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> getExtraDhcpOptionsList() {
       return extraDhcpOptions_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder> 
         getExtraDhcpOptionsOrBuilderList() {
       return extraDhcpOptions_;
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     public int getExtraDhcpOptionsCount() {
       return extraDhcpOptions_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption getExtraDhcpOptions(int index) {
       return extraDhcpOptions_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+     * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
      */
     public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder getExtraDhcpOptionsOrBuilder(
         int index) {
@@ -3174,17 +3225,20 @@ public final class Port {
       if (!getVethNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 8, vethName_);
       }
+      if (!getHostIpBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, hostIp_);
+      }
       for (int i = 0; i < fixedIps_.size(); i++) {
-        output.writeMessage(9, fixedIps_.get(i));
+        output.writeMessage(10, fixedIps_.get(i));
       }
       for (int i = 0; i < securityGroupIds_.size(); i++) {
-        output.writeMessage(10, securityGroupIds_.get(i));
+        output.writeMessage(11, securityGroupIds_.get(i));
       }
       for (int i = 0; i < allowAddressPairs_.size(); i++) {
-        output.writeMessage(11, allowAddressPairs_.get(i));
+        output.writeMessage(12, allowAddressPairs_.get(i));
       }
       for (int i = 0; i < extraDhcpOptions_.size(); i++) {
-        output.writeMessage(12, extraDhcpOptions_.get(i));
+        output.writeMessage(13, extraDhcpOptions_.get(i));
       }
     }
 
@@ -3219,21 +3273,24 @@ public final class Port {
       if (!getVethNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, vethName_);
       }
+      if (!getHostIpBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, hostIp_);
+      }
       for (int i = 0; i < fixedIps_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, fixedIps_.get(i));
+          .computeMessageSize(10, fixedIps_.get(i));
       }
       for (int i = 0; i < securityGroupIds_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, securityGroupIds_.get(i));
+          .computeMessageSize(11, securityGroupIds_.get(i));
       }
       for (int i = 0; i < allowAddressPairs_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(11, allowAddressPairs_.get(i));
+          .computeMessageSize(12, allowAddressPairs_.get(i));
       }
       for (int i = 0; i < extraDhcpOptions_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(12, extraDhcpOptions_.get(i));
+          .computeMessageSize(13, extraDhcpOptions_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -3267,6 +3324,8 @@ public final class Port {
           .equals(other.getMacAddress());
       result = result && getVethName()
           .equals(other.getVethName());
+      result = result && getHostIp()
+          .equals(other.getHostIp());
       result = result && getFixedIpsList()
           .equals(other.getFixedIpsList());
       result = result && getSecurityGroupIdsList()
@@ -3302,6 +3361,8 @@ public final class Port {
       hash = (53 * hash) + getMacAddress().hashCode();
       hash = (37 * hash) + VETH_NAME_FIELD_NUMBER;
       hash = (53 * hash) + getVethName().hashCode();
+      hash = (37 * hash) + HOST_IP_FIELD_NUMBER;
+      hash = (53 * hash) + getHostIp().hashCode();
       if (getFixedIpsCount() > 0) {
         hash = (37 * hash) + FIXED_IPS_FIELD_NUMBER;
         hash = (53 * hash) + getFixedIpsList().hashCode();
@@ -3456,27 +3517,29 @@ public final class Port {
 
         vethName_ = "";
 
+        hostIp_ = "";
+
         if (fixedIpsBuilder_ == null) {
           fixedIps_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000200);
         } else {
           fixedIpsBuilder_.clear();
         }
         if (securityGroupIdsBuilder_ == null) {
           securityGroupIds_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
         } else {
           securityGroupIdsBuilder_.clear();
         }
         if (allowAddressPairsBuilder_ == null) {
           allowAddressPairs_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000400);
+          bitField0_ = (bitField0_ & ~0x00000800);
         } else {
           allowAddressPairsBuilder_.clear();
         }
         if (extraDhcpOptionsBuilder_ == null) {
           extraDhcpOptions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000800);
+          bitField0_ = (bitField0_ & ~0x00001000);
         } else {
           extraDhcpOptionsBuilder_.clear();
         }
@@ -3512,37 +3575,38 @@ public final class Port {
         result.adminStateUp_ = adminStateUp_;
         result.macAddress_ = macAddress_;
         result.vethName_ = vethName_;
+        result.hostIp_ = hostIp_;
         if (fixedIpsBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100)) {
+          if (((bitField0_ & 0x00000200) == 0x00000200)) {
             fixedIps_ = java.util.Collections.unmodifiableList(fixedIps_);
-            bitField0_ = (bitField0_ & ~0x00000100);
+            bitField0_ = (bitField0_ & ~0x00000200);
           }
           result.fixedIps_ = fixedIps_;
         } else {
           result.fixedIps_ = fixedIpsBuilder_.build();
         }
         if (securityGroupIdsBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          if (((bitField0_ & 0x00000400) == 0x00000400)) {
             securityGroupIds_ = java.util.Collections.unmodifiableList(securityGroupIds_);
-            bitField0_ = (bitField0_ & ~0x00000200);
+            bitField0_ = (bitField0_ & ~0x00000400);
           }
           result.securityGroupIds_ = securityGroupIds_;
         } else {
           result.securityGroupIds_ = securityGroupIdsBuilder_.build();
         }
         if (allowAddressPairsBuilder_ == null) {
-          if (((bitField0_ & 0x00000400) == 0x00000400)) {
+          if (((bitField0_ & 0x00000800) == 0x00000800)) {
             allowAddressPairs_ = java.util.Collections.unmodifiableList(allowAddressPairs_);
-            bitField0_ = (bitField0_ & ~0x00000400);
+            bitField0_ = (bitField0_ & ~0x00000800);
           }
           result.allowAddressPairs_ = allowAddressPairs_;
         } else {
           result.allowAddressPairs_ = allowAddressPairsBuilder_.build();
         }
         if (extraDhcpOptionsBuilder_ == null) {
-          if (((bitField0_ & 0x00000800) == 0x00000800)) {
+          if (((bitField0_ & 0x00001000) == 0x00001000)) {
             extraDhcpOptions_ = java.util.Collections.unmodifiableList(extraDhcpOptions_);
-            bitField0_ = (bitField0_ & ~0x00000800);
+            bitField0_ = (bitField0_ & ~0x00001000);
           }
           result.extraDhcpOptions_ = extraDhcpOptions_;
         } else {
@@ -3620,11 +3684,15 @@ public final class Port {
           vethName_ = other.vethName_;
           onChanged();
         }
+        if (!other.getHostIp().isEmpty()) {
+          hostIp_ = other.hostIp_;
+          onChanged();
+        }
         if (fixedIpsBuilder_ == null) {
           if (!other.fixedIps_.isEmpty()) {
             if (fixedIps_.isEmpty()) {
               fixedIps_ = other.fixedIps_;
-              bitField0_ = (bitField0_ & ~0x00000100);
+              bitField0_ = (bitField0_ & ~0x00000200);
             } else {
               ensureFixedIpsIsMutable();
               fixedIps_.addAll(other.fixedIps_);
@@ -3637,7 +3705,7 @@ public final class Port {
               fixedIpsBuilder_.dispose();
               fixedIpsBuilder_ = null;
               fixedIps_ = other.fixedIps_;
-              bitField0_ = (bitField0_ & ~0x00000100);
+              bitField0_ = (bitField0_ & ~0x00000200);
               fixedIpsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFixedIpsFieldBuilder() : null;
@@ -3650,7 +3718,7 @@ public final class Port {
           if (!other.securityGroupIds_.isEmpty()) {
             if (securityGroupIds_.isEmpty()) {
               securityGroupIds_ = other.securityGroupIds_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
             } else {
               ensureSecurityGroupIdsIsMutable();
               securityGroupIds_.addAll(other.securityGroupIds_);
@@ -3663,7 +3731,7 @@ public final class Port {
               securityGroupIdsBuilder_.dispose();
               securityGroupIdsBuilder_ = null;
               securityGroupIds_ = other.securityGroupIds_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
               securityGroupIdsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getSecurityGroupIdsFieldBuilder() : null;
@@ -3676,7 +3744,7 @@ public final class Port {
           if (!other.allowAddressPairs_.isEmpty()) {
             if (allowAddressPairs_.isEmpty()) {
               allowAddressPairs_ = other.allowAddressPairs_;
-              bitField0_ = (bitField0_ & ~0x00000400);
+              bitField0_ = (bitField0_ & ~0x00000800);
             } else {
               ensureAllowAddressPairsIsMutable();
               allowAddressPairs_.addAll(other.allowAddressPairs_);
@@ -3689,7 +3757,7 @@ public final class Port {
               allowAddressPairsBuilder_.dispose();
               allowAddressPairsBuilder_ = null;
               allowAddressPairs_ = other.allowAddressPairs_;
-              bitField0_ = (bitField0_ & ~0x00000400);
+              bitField0_ = (bitField0_ & ~0x00000800);
               allowAddressPairsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getAllowAddressPairsFieldBuilder() : null;
@@ -3702,7 +3770,7 @@ public final class Port {
           if (!other.extraDhcpOptions_.isEmpty()) {
             if (extraDhcpOptions_.isEmpty()) {
               extraDhcpOptions_ = other.extraDhcpOptions_;
-              bitField0_ = (bitField0_ & ~0x00000800);
+              bitField0_ = (bitField0_ & ~0x00001000);
             } else {
               ensureExtraDhcpOptionsIsMutable();
               extraDhcpOptions_.addAll(other.extraDhcpOptions_);
@@ -3715,7 +3783,7 @@ public final class Port {
               extraDhcpOptionsBuilder_.dispose();
               extraDhcpOptionsBuilder_ = null;
               extraDhcpOptions_ = other.extraDhcpOptions_;
-              bitField0_ = (bitField0_ & ~0x00000800);
+              bitField0_ = (bitField0_ & ~0x00001000);
               extraDhcpOptionsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getExtraDhcpOptionsFieldBuilder() : null;
@@ -4217,12 +4285,81 @@ public final class Port {
         return this;
       }
 
+      private java.lang.Object hostIp_ = "";
+      /**
+       * <code>optional string host_ip = 9;</code>
+       */
+      public java.lang.String getHostIp() {
+        java.lang.Object ref = hostIp_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          hostIp_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string host_ip = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getHostIpBytes() {
+        java.lang.Object ref = hostIp_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          hostIp_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string host_ip = 9;</code>
+       */
+      public Builder setHostIp(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        hostIp_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string host_ip = 9;</code>
+       */
+      public Builder clearHostIp() {
+        
+        hostIp_ = getDefaultInstance().getHostIp();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string host_ip = 9;</code>
+       */
+      public Builder setHostIpBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        hostIp_ = value;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> fixedIps_ =
         java.util.Collections.emptyList();
       private void ensureFixedIpsIsMutable() {
-        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
           fixedIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp>(fixedIps_);
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000200;
          }
       }
 
@@ -4230,7 +4367,7 @@ public final class Port {
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder> fixedIpsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> getFixedIpsList() {
         if (fixedIpsBuilder_ == null) {
@@ -4240,7 +4377,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public int getFixedIpsCount() {
         if (fixedIpsBuilder_ == null) {
@@ -4250,7 +4387,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp getFixedIps(int index) {
         if (fixedIpsBuilder_ == null) {
@@ -4260,7 +4397,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder setFixedIps(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp value) {
@@ -4277,7 +4414,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder setFixedIps(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder builderForValue) {
@@ -4291,7 +4428,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder addFixedIps(com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp value) {
         if (fixedIpsBuilder_ == null) {
@@ -4307,7 +4444,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder addFixedIps(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp value) {
@@ -4324,7 +4461,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder addFixedIps(
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder builderForValue) {
@@ -4338,7 +4475,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder addFixedIps(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder builderForValue) {
@@ -4352,7 +4489,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder addAllFixedIps(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp> values) {
@@ -4367,12 +4504,12 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder clearFixedIps() {
         if (fixedIpsBuilder_ == null) {
           fixedIps_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000200);
           onChanged();
         } else {
           fixedIpsBuilder_.clear();
@@ -4380,7 +4517,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public Builder removeFixedIps(int index) {
         if (fixedIpsBuilder_ == null) {
@@ -4393,14 +4530,14 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder getFixedIpsBuilder(
           int index) {
         return getFixedIpsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder getFixedIpsOrBuilder(
           int index) {
@@ -4410,7 +4547,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder> 
            getFixedIpsOrBuilderList() {
@@ -4421,14 +4558,14 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder addFixedIpsBuilder() {
         return getFixedIpsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder addFixedIpsBuilder(
           int index) {
@@ -4436,7 +4573,7 @@ public final class Port {
             index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 9;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.FixedIp fixed_ips = 10;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder> 
            getFixedIpsBuilderList() {
@@ -4449,7 +4586,7 @@ public final class Port {
           fixedIpsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIp.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.FixedIpOrBuilder>(
                   fixedIps_,
-                  ((bitField0_ & 0x00000100) == 0x00000100),
+                  ((bitField0_ & 0x00000200) == 0x00000200),
                   getParentForChildren(),
                   isClean());
           fixedIps_ = null;
@@ -4460,9 +4597,9 @@ public final class Port {
       private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> securityGroupIds_ =
         java.util.Collections.emptyList();
       private void ensureSecurityGroupIdsIsMutable() {
-        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
           securityGroupIds_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId>(securityGroupIds_);
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000400;
          }
       }
 
@@ -4470,7 +4607,7 @@ public final class Port {
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder> securityGroupIdsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> getSecurityGroupIdsList() {
         if (securityGroupIdsBuilder_ == null) {
@@ -4480,7 +4617,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public int getSecurityGroupIdsCount() {
         if (securityGroupIdsBuilder_ == null) {
@@ -4490,7 +4627,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId getSecurityGroupIds(int index) {
         if (securityGroupIdsBuilder_ == null) {
@@ -4500,7 +4637,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder setSecurityGroupIds(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId value) {
@@ -4517,7 +4654,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder setSecurityGroupIds(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder builderForValue) {
@@ -4531,7 +4668,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder addSecurityGroupIds(com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId value) {
         if (securityGroupIdsBuilder_ == null) {
@@ -4547,7 +4684,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder addSecurityGroupIds(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId value) {
@@ -4564,7 +4701,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder addSecurityGroupIds(
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder builderForValue) {
@@ -4578,7 +4715,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder addSecurityGroupIds(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder builderForValue) {
@@ -4592,7 +4729,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder addAllSecurityGroupIds(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId> values) {
@@ -4607,12 +4744,12 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder clearSecurityGroupIds() {
         if (securityGroupIdsBuilder_ == null) {
           securityGroupIds_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
           onChanged();
         } else {
           securityGroupIdsBuilder_.clear();
@@ -4620,7 +4757,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public Builder removeSecurityGroupIds(int index) {
         if (securityGroupIdsBuilder_ == null) {
@@ -4633,14 +4770,14 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder getSecurityGroupIdsBuilder(
           int index) {
         return getSecurityGroupIdsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder getSecurityGroupIdsOrBuilder(
           int index) {
@@ -4650,7 +4787,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder> 
            getSecurityGroupIdsOrBuilderList() {
@@ -4661,14 +4798,14 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder addSecurityGroupIdsBuilder() {
         return getSecurityGroupIdsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder addSecurityGroupIdsBuilder(
           int index) {
@@ -4676,7 +4813,7 @@ public final class Port {
             index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 10;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.SecurityGroupId security_group_ids = 11;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder> 
            getSecurityGroupIdsBuilderList() {
@@ -4689,7 +4826,7 @@ public final class Port {
           securityGroupIdsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupId.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.SecurityGroupIdOrBuilder>(
                   securityGroupIds_,
-                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  ((bitField0_ & 0x00000400) == 0x00000400),
                   getParentForChildren(),
                   isClean());
           securityGroupIds_ = null;
@@ -4700,9 +4837,9 @@ public final class Port {
       private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> allowAddressPairs_ =
         java.util.Collections.emptyList();
       private void ensureAllowAddressPairsIsMutable() {
-        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
           allowAddressPairs_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair>(allowAddressPairs_);
-          bitField0_ |= 0x00000400;
+          bitField0_ |= 0x00000800;
          }
       }
 
@@ -4710,7 +4847,7 @@ public final class Port {
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder> allowAddressPairsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> getAllowAddressPairsList() {
         if (allowAddressPairsBuilder_ == null) {
@@ -4720,7 +4857,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public int getAllowAddressPairsCount() {
         if (allowAddressPairsBuilder_ == null) {
@@ -4730,7 +4867,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair getAllowAddressPairs(int index) {
         if (allowAddressPairsBuilder_ == null) {
@@ -4740,7 +4877,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder setAllowAddressPairs(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair value) {
@@ -4757,7 +4894,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder setAllowAddressPairs(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder builderForValue) {
@@ -4771,7 +4908,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder addAllowAddressPairs(com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair value) {
         if (allowAddressPairsBuilder_ == null) {
@@ -4787,7 +4924,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder addAllowAddressPairs(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair value) {
@@ -4804,7 +4941,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder addAllowAddressPairs(
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder builderForValue) {
@@ -4818,7 +4955,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder addAllowAddressPairs(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder builderForValue) {
@@ -4832,7 +4969,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder addAllAllowAddressPairs(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair> values) {
@@ -4847,12 +4984,12 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder clearAllowAddressPairs() {
         if (allowAddressPairsBuilder_ == null) {
           allowAddressPairs_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000400);
+          bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
           allowAddressPairsBuilder_.clear();
@@ -4860,7 +4997,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public Builder removeAllowAddressPairs(int index) {
         if (allowAddressPairsBuilder_ == null) {
@@ -4873,14 +5010,14 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder getAllowAddressPairsBuilder(
           int index) {
         return getAllowAddressPairsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder getAllowAddressPairsOrBuilder(
           int index) {
@@ -4890,7 +5027,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder> 
            getAllowAddressPairsOrBuilderList() {
@@ -4901,14 +5038,14 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder addAllowAddressPairsBuilder() {
         return getAllowAddressPairsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder addAllowAddressPairsBuilder(
           int index) {
@@ -4916,7 +5053,7 @@ public final class Port {
             index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 11;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.AllowAddressPair allow_address_pairs = 12;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder> 
            getAllowAddressPairsBuilderList() {
@@ -4929,7 +5066,7 @@ public final class Port {
           allowAddressPairsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPair.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.AllowAddressPairOrBuilder>(
                   allowAddressPairs_,
-                  ((bitField0_ & 0x00000400) == 0x00000400),
+                  ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
           allowAddressPairs_ = null;
@@ -4940,9 +5077,9 @@ public final class Port {
       private java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> extraDhcpOptions_ =
         java.util.Collections.emptyList();
       private void ensureExtraDhcpOptionsIsMutable() {
-        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
           extraDhcpOptions_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption>(extraDhcpOptions_);
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00001000;
          }
       }
 
@@ -4950,7 +5087,7 @@ public final class Port {
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder> extraDhcpOptionsBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> getExtraDhcpOptionsList() {
         if (extraDhcpOptionsBuilder_ == null) {
@@ -4960,7 +5097,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public int getExtraDhcpOptionsCount() {
         if (extraDhcpOptionsBuilder_ == null) {
@@ -4970,7 +5107,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption getExtraDhcpOptions(int index) {
         if (extraDhcpOptionsBuilder_ == null) {
@@ -4980,7 +5117,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder setExtraDhcpOptions(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption value) {
@@ -4997,7 +5134,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder setExtraDhcpOptions(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder builderForValue) {
@@ -5011,7 +5148,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder addExtraDhcpOptions(com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption value) {
         if (extraDhcpOptionsBuilder_ == null) {
@@ -5027,7 +5164,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder addExtraDhcpOptions(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption value) {
@@ -5044,7 +5181,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder addExtraDhcpOptions(
           com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder builderForValue) {
@@ -5058,7 +5195,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder addExtraDhcpOptions(
           int index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder builderForValue) {
@@ -5072,7 +5209,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder addAllExtraDhcpOptions(
           java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption> values) {
@@ -5087,12 +5224,12 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder clearExtraDhcpOptions() {
         if (extraDhcpOptionsBuilder_ == null) {
           extraDhcpOptions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000800);
+          bitField0_ = (bitField0_ & ~0x00001000);
           onChanged();
         } else {
           extraDhcpOptionsBuilder_.clear();
@@ -5100,7 +5237,7 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public Builder removeExtraDhcpOptions(int index) {
         if (extraDhcpOptionsBuilder_ == null) {
@@ -5113,14 +5250,14 @@ public final class Port {
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder getExtraDhcpOptionsBuilder(
           int index) {
         return getExtraDhcpOptionsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder getExtraDhcpOptionsOrBuilder(
           int index) {
@@ -5130,7 +5267,7 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public java.util.List<? extends com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder> 
            getExtraDhcpOptionsOrBuilderList() {
@@ -5141,14 +5278,14 @@ public final class Port {
         }
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder addExtraDhcpOptionsBuilder() {
         return getExtraDhcpOptionsFieldBuilder().addBuilder(
             com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder addExtraDhcpOptionsBuilder(
           int index) {
@@ -5156,7 +5293,7 @@ public final class Port {
             index, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 12;</code>
+       * <code>repeated .aliothcontroller.PortConfiguration.ExtraDhcpOption extra_dhcp_options = 13;</code>
        */
       public java.util.List<com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder> 
            getExtraDhcpOptionsBuilderList() {
@@ -5169,7 +5306,7 @@ public final class Port {
           extraDhcpOptionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOption.Builder, com.futurewei.alioth.controller.schema.Port.PortConfiguration.ExtraDhcpOptionOrBuilder>(
                   extraDhcpOptions_,
-                  ((bitField0_ & 0x00000800) == 0x00000800),
+                  ((bitField0_ & 0x00001000) == 0x00001000),
                   getParentForChildren(),
                   isClean());
           extraDhcpOptions_ = null;
@@ -5917,28 +6054,28 @@ public final class Port {
   static {
     java.lang.String[] descriptorData = {
       "\n\nport.proto\022\020aliothcontroller\032\014common.p" +
-      "roto\"\231\005\n\021PortConfiguration\022\017\n\007version\030\001 " +
+      "roto\"\252\005\n\021PortConfiguration\022\017\n\007version\030\001 " +
       "\001(\005\022\022\n\nproject_id\030\002 \001(\t\022\022\n\nnetwork_id\030\003 " +
       "\001(\t\022\n\n\002id\030\004 \001(\t\022\014\n\004name\030\005 \001(\t\022\026\n\016admin_s" +
       "tate_up\030\006 \001(\010\022\023\n\013mac_address\030\007 \001(\t\022\021\n\tve" +
-      "th_name\030\010 \001(\t\022>\n\tfixed_ips\030\t \003(\0132+.aliot" +
-      "hcontroller.PortConfiguration.FixedIp\022O\n" +
-      "\022security_group_ids\030\n \003(\01323.aliothcontro" +
-      "ller.PortConfiguration.SecurityGroupId\022Q" +
-      "\n\023allow_address_pairs\030\013 \003(\01324.aliothcont",
-      "roller.PortConfiguration.AllowAddressPai" +
-      "r\022O\n\022extra_dhcp_options\030\014 \003(\01323.aliothco" +
-      "ntroller.PortConfiguration.ExtraDhcpOpti" +
-      "on\0320\n\007FixedIp\022\021\n\tsubnet_id\030\001 \001(\t\022\022\n\nip_a" +
-      "ddress\030\002 \001(\t\032\035\n\017SecurityGroupId\022\n\n\002id\030\001 " +
-      "\001(\t\032;\n\020AllowAddressPair\022\022\n\nip_address\030\001 " +
-      "\001(\t\022\023\n\013mac_address\030\002 \001(\t\032.\n\017ExtraDhcpOpt" +
-      "ion\022\014\n\004name\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\200\001\n\tPor" +
-      "tState\0227\n\016operation_type\030\001 \001(\0162\037.aliothc" +
-      "ontroller.OperationType\022:\n\rconfiguration",
-      "\030\002 \001(\0132#.aliothcontroller.PortConfigurat" +
-      "ionB.\n&com.futurewei.alioth.controller.s" +
-      "chemaB\004Portb\006proto3"
+      "th_name\030\010 \001(\t\022\017\n\007host_ip\030\t \001(\t\022>\n\tfixed_" +
+      "ips\030\n \003(\0132+.aliothcontroller.PortConfigu" +
+      "ration.FixedIp\022O\n\022security_group_ids\030\013 \003" +
+      "(\01323.aliothcontroller.PortConfiguration." +
+      "SecurityGroupId\022Q\n\023allow_address_pairs\030\014",
+      " \003(\01324.aliothcontroller.PortConfiguratio" +
+      "n.AllowAddressPair\022O\n\022extra_dhcp_options" +
+      "\030\r \003(\01323.aliothcontroller.PortConfigurat" +
+      "ion.ExtraDhcpOption\0320\n\007FixedIp\022\021\n\tsubnet" +
+      "_id\030\001 \001(\t\022\022\n\nip_address\030\002 \001(\t\032\035\n\017Securit" +
+      "yGroupId\022\n\n\002id\030\001 \001(\t\032;\n\020AllowAddressPair" +
+      "\022\022\n\nip_address\030\001 \001(\t\022\023\n\013mac_address\030\002 \001(" +
+      "\t\032.\n\017ExtraDhcpOption\022\014\n\004name\030\001 \001(\t\022\r\n\005va" +
+      "lue\030\002 \001(\t\"\200\001\n\tPortState\0227\n\016operation_typ" +
+      "e\030\001 \001(\0162\037.aliothcontroller.OperationType",
+      "\022:\n\rconfiguration\030\002 \001(\0132#.aliothcontroll" +
+      "er.PortConfigurationB.\n&com.futurewei.al" +
+      "ioth.controller.schemaB\004Portb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5958,7 +6095,7 @@ public final class Port {
     internal_static_aliothcontroller_PortConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_PortConfiguration_descriptor,
-        new java.lang.String[] { "Version", "ProjectId", "NetworkId", "Id", "Name", "AdminStateUp", "MacAddress", "VethName", "FixedIps", "SecurityGroupIds", "AllowAddressPairs", "ExtraDhcpOptions", });
+        new java.lang.String[] { "Version", "ProjectId", "NetworkId", "Id", "Name", "AdminStateUp", "MacAddress", "VethName", "HostIp", "FixedIps", "SecurityGroupIds", "AllowAddressPairs", "ExtraDhcpOptions", });
     internal_static_aliothcontroller_PortConfiguration_FixedIp_descriptor =
       internal_static_aliothcontroller_PortConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_PortConfiguration_FixedIp_fieldAccessorTable = new

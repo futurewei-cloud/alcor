@@ -17,6 +17,7 @@ message PortConfiguration {
   bool admin_state_up = 6;
   string mac_address = 7;
   string veth_name = 8;
+  string host_ip = 9;
 
   message FixedIp {
     string subnet_id = 1;
@@ -37,10 +38,10 @@ message PortConfiguration {
     string value = 2;
   }
 
-  repeated FixedIp fixed_ips = 9;
-  repeated SecurityGroupId security_group_ids = 10;
-  repeated AllowAddressPair allow_address_pairs = 11;
-  repeated ExtraDhcpOption extra_dhcp_options = 12;
+  repeated FixedIp fixed_ips = 10;
+  repeated SecurityGroupId security_group_ids = 11;
+  repeated AllowAddressPair allow_address_pairs = 12;
+  repeated ExtraDhcpOption extra_dhcp_options = 13;
 }
 
 message PortState {
