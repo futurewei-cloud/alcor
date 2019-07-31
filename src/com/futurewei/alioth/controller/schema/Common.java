@@ -39,6 +39,10 @@ public final class Common {
      * <code>INFO = 4;</code>
      */
     INFO(4),
+    /**
+     * <code>FINALIZE = 5;</code>
+     */
+    FINALIZE(5),
     UNRECOGNIZED(-1),
     ;
 
@@ -62,6 +66,10 @@ public final class Common {
      * <code>INFO = 4;</code>
      */
     public static final int INFO_VALUE = 4;
+    /**
+     * <code>FINALIZE = 5;</code>
+     */
+    public static final int FINALIZE_VALUE = 5;
 
 
     public final int getNumber() {
@@ -87,6 +95,7 @@ public final class Common {
         case 2: return GET;
         case 3: return DELETE;
         case 4: return INFO;
+        case 5: return FINALIZE;
         default: return null;
       }
     }
@@ -371,13 +380,13 @@ public final class Common {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014common.proto\022\020aliothcontroller*F\n\rOper" +
+      "\n\014common.proto\022\020aliothcontroller*T\n\rOper" +
       "ationType\022\n\n\006CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GET" +
-      "\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004*\037\n\tEtherType\022\010\n" +
-      "\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Protocol\022\007\n\003TCP\020\000\022\007" +
-      "\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0\n&" +
-      "com.futurewei.alioth.controller.schemaB\006" +
-      "Commonb\006proto3"
+      "\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005*\037" +
+      "\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Proto" +
+      "col\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020" +
+      "\003\022\007\n\003ARP\020\004B0\n&com.futurewei.alioth.contr" +
+      "oller.schemaB\006Commonb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

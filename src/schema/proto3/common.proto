@@ -11,6 +11,7 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
+    FINALIZE = 5;
 }
 
 enum EtherType {
