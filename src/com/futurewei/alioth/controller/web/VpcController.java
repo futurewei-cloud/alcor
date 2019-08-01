@@ -64,8 +64,8 @@ public class VpcController {
 //            Goalstate.GoalState goalstate = GoalStateUtil.CreateGoalState(
 //                    Common.OperationType.CREATE,
 //                    resource,
-//                    trHost1.getIpAddress(),
-//                    trHost2.getIpAddress());
+//                    trHost1.getHostIpAddress(),
+//                    trHost2.getHostIpAddress());
 
 //            MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
 //            String topic = MessageClient.getGoalStateTopic(trHost1.getId());
