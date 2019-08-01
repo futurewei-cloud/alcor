@@ -1,20 +1,23 @@
 package com.futurewei.alioth.controller.utilities;
 
+import com.futurewei.alioth.controller.model.SubnetState;
+import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
-import com.futurewei.alioth.controller.schema.Goalstate;
+import com.futurewei.alioth.controller.schema.Goalstate.*;
+import com.futurewei.alioth.controller.schema.Subnet;
 import com.futurewei.alioth.controller.schema.Subnet.*;
 import com.futurewei.alioth.controller.schema.Vpc;
-import com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration;
-import com.futurewei.alioth.controller.model.VpcState;
+import com.futurewei.alioth.controller.schema.Vpc.*;
+import com.futurewei.alioth.controller.model.*;
 
 public class GoalStateUtil {
-    public static  Goalstate.GoalState CreateGoalState(
+    public static  GoalState CreateGoalState(
             Common.OperationType option,
             VpcState customerVpcState,
             String transit_router_ip,
             String transit_router_ip2)
     {
-        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(
+        final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
                 option,
                 customerVpcState.getProjectId(),
                 customerVpcState.getId(),
@@ -23,14 +26,37 @@ public class GoalStateUtil {
                 transit_router_ip,
                 transit_router_ip2);
 
-        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
-                .addVpcStates(vpc_state)
+        GoalState goalstate = GoalState.newBuilder()
+                .addVpcStates(vpcState)
                 .build();
 
         return goalstate;
     }
 
-    public static Vpc.VpcState CreateVpcState(
+    public static GoalState CreateGoalState(
+            Common.OperationType option,
+            SubnetState customerSubnetState,
+            String transit_switch_ip,
+            String transit_switch_ip2)
+    {
+        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
+                option,
+                customerSubnetState.getProjectId(),
+                customerSubnetState.getVpcId(),
+                customerSubnetState.getId(),
+                customerSubnetState.getName(),
+                customerSubnetState.getCidr(),
+                transit_switch_ip,
+                transit_switch_ip2);
+
+        GoalState goalstate = GoalState.newBuilder()
+                .addSubnetStates(gsSubnetState)
+                .build();
+
+        return goalstate;
+    }
+
+    public static Vpc.VpcState CreateGSVpcState(
             Common.OperationType option,
             String project_id,
             String vpc_id,
@@ -47,7 +73,7 @@ public class GoalStateUtil {
                 .build();
     }
 
-    public static Vpc.VpcState CreateVpcState(
+    public static Vpc.VpcState CreateGSVpcState(
             Common.OperationType option,
             String project_id,
             String vpc_id,
@@ -75,7 +101,7 @@ public class GoalStateUtil {
                 .build();
     }
 
-    public static SubnetState CreateSubnetState(
+    public static Subnet.SubnetState CreateGSSubnetState(
             Common.OperationType option,
             String project_id,
             String vpc_id,
@@ -101,7 +127,7 @@ public class GoalStateUtil {
                         .setIpAddress(transit_switch_ip2))
                 .build();
 
-        return SubnetState.newBuilder()
+        return Subnet.SubnetState.newBuilder()
                 .setOperationType(option)
                 .setConfiguration(subnetConfiguration)
                 .build();

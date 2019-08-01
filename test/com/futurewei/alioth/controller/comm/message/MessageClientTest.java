@@ -23,13 +23,13 @@ public class MessageClientTest {
 
     @Test
     public void vpcCreateUpdateE2EVerification() {
-        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+        final Vpc.VpcState vpc_state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
                 "192.168.0.0/24");
 
-        final Vpc.VpcState vpc_state2 = GoalStateUtil.CreateVpcState(Common.OperationType.UPDATE,
+        final Vpc.VpcState vpc_state2 = GoalStateUtil.CreateGSVpcState(Common.OperationType.UPDATE,
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "MiniVpc",
@@ -67,7 +67,7 @@ public class MessageClientTest {
 
     @Test
     public void subnetCreateUpdateE2EVerification() {
-        final Subnet.SubnetState subnet_state1 = GoalStateUtil.CreateSubnetState(Common.OperationType.CREATE,
+        final Subnet.SubnetState subnet_state1 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",
@@ -76,7 +76,7 @@ public class MessageClientTest {
                 "192.168.0.1",
                 "192.168.0.2");
 
-        final Subnet.SubnetState subnet_state2 = GoalStateUtil.CreateSubnetState(Common.OperationType.CREATE,
+        final Subnet.SubnetState subnet_state2 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "8cb94df3-05bd-45d1-95c0-1ad75f929810",
@@ -117,13 +117,13 @@ public class MessageClientTest {
 
     @Test
     public void createOneVpcTwoSubnetsFourPortsE2EVerification() {
-        final Vpc.VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+        final Vpc.VpcState vpc_state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
                 "192.168.0.0/24");
 
-        final Vpc.VpcState vpc_state2 = GoalStateUtil.CreateVpcState(Common.OperationType.UPDATE,
+        final Vpc.VpcState vpc_state2 = GoalStateUtil.CreateGSVpcState(Common.OperationType.UPDATE,
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "MiniVpc",

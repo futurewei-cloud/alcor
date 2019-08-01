@@ -1,9 +1,15 @@
 package com.futurewei.alioth.controller.web;
 
-import com.futurewei.alioth.controller.cache.repo.SubnetRedisRepository;
+import com.futurewei.alioth.controller.cache.repo.*;
+import com.futurewei.alioth.controller.comm.message.*;
+import com.futurewei.alioth.controller.comm.message.MessageClient;
 import com.futurewei.alioth.controller.exception.ResourceNullException;
 import com.futurewei.alioth.controller.exception.ParameterNullOrEmptyException;
+import com.futurewei.alioth.controller.exception.ResourcePersistenceException;
 import com.futurewei.alioth.controller.model.*;
+import com.futurewei.alioth.controller.schema.Common;
+import com.futurewei.alioth.controller.schema.Goalstate.GoalState;
+import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 import com.futurewei.alioth.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +22,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
 public class SubnetController {
+
+    @Autowired
+    private VpcRedisRepository vpcRedisRepository;
 
     @Autowired
     private SubnetRedisRepository subnetRedisRepository;
@@ -50,25 +59,55 @@ public class SubnetController {
             method = POST,
             value = {"/project/{projectid}/subnet", "v4/{projectid}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
-    public SubnetState createSubnetState(@RequestBody SubnetState resource) throws Exception {
+    public SubnetState createSubnetState(@PathVariable String projectid, @RequestBody SubnetState resource) throws Exception {
         try{
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
+
+            // TODO: Create a verification framework for all resources
+            RestPreconditions.verifyResourceFound(resource.getVpcId());
+            RestPreconditions.populateResourceProjectId(resource, projectid);
 
             this.subnetRedisRepository.addItem(resource);
 
-            //TODO: Algorithm to determine the hosts
-//            HostInfo host1 = new HostInfo("hostid_1", "host1", new byte[]{10,0,0,1});
-//            HostInfo host2 = new HostInfo("hostid_1", "host1", new byte[]{10,0,0,2});
-//
-//            Goalstate.GoalState goalstate = GoalStateUtil.CreateGoalState(
-//                    Common.OperationType.CREATE,
-//                    resource,
-//                    host1.getIpAddress(),
-//                    host2.getIpAddress());
-//
-//            MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-//            String topic = MessageClient.getGoalStateTopic(host1.getId());
-//            client.runProducer(topic, goalstate);
+            //TODO: Algorithm to allocate transit switches and routers
+            HostInfo[] transitSwitches = {
+                    new HostInfo("ts-1", "transit switch host1", new byte[]{10,0,0,11}),
+                    new HostInfo("ts-2", "transit switch host2", new byte[]{10,0,0,12})
+            };
+            HostInfo[] transitRouters = {
+                    new HostInfo("tr-1", "transit router host1", new byte[]{10,0,0,1}),
+                    new HostInfo("tr-2", "transit router host2", new byte[]{10,0,0,2})
+            };
+            MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+
+            // Generate subnet goal states and send them to all transit routers
+            SubnetState subnetState = this.subnetRedisRepository.findItem(resource.getId());
+            if(subnetState == null){
+                throw new ResourcePersistenceException();
+            }
+            GoalState subnetGoalState = GoalStateUtil.CreateGoalState(
+                    Common.OperationType.CREATE_UPDATE_ROUTER,
+                    subnetState,
+                    transitSwitches[0].getIpAddress(),
+                    transitSwitches[1].getIpAddress());
+            for(HostInfo transitRouter : transitRouters){
+                String topic = MessageClient.getGoalStateTopic(transitRouter.getId());
+                client.runProducer(topic, subnetGoalState);
+            }
+
+            // Generate vpc goal states and send them to all transit switches
+            VpcState vpcState = this.vpcRedisRepository.findItem(resource.getVpcId());
+            GoalState vpcGoalstate = GoalStateUtil.CreateGoalState(
+                    Common.OperationType.CREATE_UPDATE_SWITCH,
+                    vpcState,
+                    transitRouters[0].getIpAddress(),
+                    transitRouters[1].getIpAddress());
+            for(HostInfo transitSwitch : transitSwitches)
+            {
+                String topic = MessageClient.getGoalStateTopic(transitSwitch.getId());
+                client.runProducer(topic, vpcGoalstate);
+            }
         }
         catch (ResourceNullException e){
             throw new Exception(e);

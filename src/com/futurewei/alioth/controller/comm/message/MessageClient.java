@@ -98,7 +98,7 @@ public class MessageClient {
     }
 
     // TODO: Determine topic format
-    public static String getGoalStateTopic(String topic){
-        return topic;
+    public static String getGoalStateTopic(String id){
+        return "Host-" + id;
     }
 }

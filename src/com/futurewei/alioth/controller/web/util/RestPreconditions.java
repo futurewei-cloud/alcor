@@ -3,6 +3,7 @@ package com.futurewei.alioth.controller.web.util;
 import com.futurewei.alioth.controller.exception.*;
 import com.futurewei.alioth.controller.model.CustomerResource;
 import com.futurewei.alioth.controller.exception.ResourceNotFoundException;
+import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.model.VpcState;
 import org.thymeleaf.util.StringUtils;
 
@@ -45,8 +46,14 @@ public class RestPreconditions {
         }
     }
 
-    public static void populateResourceVpcId(VpcState resource, String vpcId) {
-        String resourceVpcId = resource.getId();
+    public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
+        String resourceVpcId = null;
+        if(resource instanceof VpcState){
+            resourceVpcId = resource.getId();
+        }else if(resource instanceof SubnetState){
+            resourceVpcId = ((SubnetState) resource).getVpcId();
+        }
+
         if (StringUtils.isEmpty(resourceVpcId)) {
             resource.setId(vpcId);
         }else if(!resourceVpcId.equalsIgnoreCase(vpcId)){

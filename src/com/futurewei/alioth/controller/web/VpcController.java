@@ -134,13 +134,6 @@ public class VpcController {
 
     @RequestMapping(
             method = GET,
-            value = "/project/all/vpcs")
-    public Map getAllVpcStates() {
-        return this.vpcRedisRepository.findAllItems();
-    }
-
-    @RequestMapping(
-            method = GET,
             value = "/project/{projectid}/vpcs")
     public Map getVpcStatesByProjectId(@PathVariable String projectid) throws Exception {
         Map<String, VpcState> vpcStates = null;
