@@ -11,7 +11,7 @@ public class VpcTest {
 
     @Test
     public void basicSerializationVerification() {
-        final VpcState state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+        final VpcState state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
@@ -30,7 +30,7 @@ public class VpcTest {
 
     @Test
     public void stringSerializationVerification() {
-        final VpcState state = GoalStateUtil.CreateVpcState(Common.OperationType.DELETE,
+        final VpcState state = GoalStateUtil.CreateGSVpcState(Common.OperationType.DELETE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
@@ -49,7 +49,7 @@ public class VpcTest {
 
     @Test
     public void serializationVerificationWithTransitRouterIps() {
-        final VpcState state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+        final VpcState state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",

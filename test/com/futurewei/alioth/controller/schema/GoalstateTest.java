@@ -10,13 +10,13 @@ import org.junit.Test;
 public class GoalstateTest {
     @Test
     public void basicSerializationVerification() {
-        final VpcState vpc_state = GoalStateUtil.CreateVpcState(Common.OperationType.CREATE,
+        final VpcState vpc_state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "SuperVpc",
                 "192.168.0.0/24");
 
-        final VpcState vpc_state2 = GoalStateUtil.CreateVpcState(Common.OperationType.UPDATE,
+        final VpcState vpc_state2 = GoalStateUtil.CreateGSVpcState(Common.OperationType.UPDATE,
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "92ced20a-7b7f-47f0-818d-69a296144c52",
                 "MiniVpc",

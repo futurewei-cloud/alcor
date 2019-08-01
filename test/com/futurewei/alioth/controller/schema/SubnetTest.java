@@ -8,7 +8,7 @@ import org.junit.Test;
 public class SubnetTest {
     @Test
     public void basicSerializationVerification() {
-        final Subnet.SubnetState state = GoalStateUtil.CreateSubnetState(Common.OperationType.CREATE,
+        final Subnet.SubnetState state = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",

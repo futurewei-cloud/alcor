@@ -1,6 +1,5 @@
 package com.futurewei.alioth.controller.web;
 
-import com.futurewei.alioth.controller.web.TestController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,9 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(TestController.class)
+@WebMvcTest(DebugController.class)
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-public class TestControllerTest {
+public class DebugControllerTest {
 
     @Autowired
     private MockMvc mvc;
