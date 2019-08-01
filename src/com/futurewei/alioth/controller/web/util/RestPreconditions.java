@@ -24,7 +24,7 @@ public class RestPreconditions {
     }
 
     public static void verifyResourceNotNull(CustomerResource resource) throws ResourceNullException {
-        if (resource == null || resource.getId() == null || resource.getId() == "") {
+        if (resource == null || StringUtils.isEmpty(resource.getId())) {
             throw new ResourceNullException("Empty resource id");
         }
     }
