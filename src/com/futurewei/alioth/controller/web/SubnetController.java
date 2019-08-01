@@ -2,7 +2,7 @@ package com.futurewei.alioth.controller.web;
 
 import com.futurewei.alioth.controller.cache.repo.SubnetRedisRepository;
 import com.futurewei.alioth.controller.exception.ResourceNullException;
-import com.futurewei.alioth.controller.exception.ResourceNullOrEmptyException;
+import com.futurewei.alioth.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alioth.controller.model.*;
 import com.futurewei.alioth.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +28,12 @@ public class SubnetController {
         SubnetState subnetState = null;
 
         try{
-            RestPreconditions.checkNotNullorEmpty(projectid);
-            RestPreconditions.checkNotNullorEmpty(subnetId);
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(subnetId);
+            RestPreconditions.verifyResourceFound(projectid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetId);
-        }catch (ResourceNullOrEmptyException e){
+        }catch (ParameterNullOrEmptyException e){
             //TODO: REST error code
             throw new Exception(e);
         }
@@ -51,7 +52,7 @@ public class SubnetController {
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetState createSubnetState(@RequestBody SubnetState resource) throws Exception {
         try{
-            RestPreconditions.checkNotNull(resource);
+            RestPreconditions.verifyResourceNotNull(resource);
 
             this.subnetRedisRepository.addItem(resource);
 
