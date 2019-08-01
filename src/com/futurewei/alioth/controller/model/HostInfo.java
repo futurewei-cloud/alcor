@@ -23,7 +23,11 @@ public class HostInfo {
         }
     }
 
-    public String getIpAddress(){
-        return this.localIp.getAddress().toString();
+    public String getHostIpAddress(){
+        return this.localIp.getHostAddress();
+    }
+
+    public String getHostName(){
+        return this.localIp.getHostName();
     }
 }

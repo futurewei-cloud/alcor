@@ -89,8 +89,8 @@ public class SubnetController {
             GoalState subnetGoalState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_ROUTER,
                     subnetState,
-                    transitSwitches[0].getIpAddress(),
-                    transitSwitches[1].getIpAddress());
+                    transitSwitches[0].getHostIpAddress(),
+                    transitSwitches[1].getHostIpAddress());
             for(HostInfo transitRouter : transitRouters){
                 String topic = MessageClient.getGoalStateTopic(transitRouter.getId());
                 client.runProducer(topic, subnetGoalState);
@@ -101,8 +101,8 @@ public class SubnetController {
             GoalState vpcGoalstate = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_SWITCH,
                     vpcState,
-                    transitRouters[0].getIpAddress(),
-                    transitRouters[1].getIpAddress());
+                    transitRouters[0].getHostIpAddress(),
+                    transitRouters[1].getHostIpAddress());
             for(HostInfo transitSwitch : transitSwitches)
             {
                 String topic = MessageClient.getGoalStateTopic(transitSwitch.getId());
