@@ -36,6 +36,12 @@ public class RestPreconditions {
         }
     }
 
+    public static void verifyParameterEqual(String expectedResourceId, String resourceId) throws ParameterUnexpectedValueException {
+        if(StringUtils.isEmpty(resourceId) || !resourceId.equalsIgnoreCase(expectedResourceId)){
+            throw new ParameterUnexpectedValueException("Expeceted value: " + expectedResourceId + " | actual: " + resourceId);
+        }
+    }
+
     public static void populateResourceProjectId(CustomerResource resource, String projectId) {
         String resourceProjectId = resource.getProjectId();
         if (StringUtils.isEmpty(resourceProjectId)) {
