@@ -3,9 +3,7 @@ package com.futurewei.alioth.controller.web;
 import com.futurewei.alioth.controller.cache.repo.*;
 import com.futurewei.alioth.controller.comm.message.*;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
-import com.futurewei.alioth.controller.exception.ResourceNullException;
-import com.futurewei.alioth.controller.exception.ParameterNullOrEmptyException;
-import com.futurewei.alioth.controller.exception.ResourcePersistenceException;
+import com.futurewei.alioth.controller.exception.*;
 import com.futurewei.alioth.controller.model.*;
 import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate.GoalState;
@@ -16,9 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class SubnetController {
@@ -117,9 +115,97 @@ public class SubnetController {
     }
 
     @RequestMapping(
-            method = GET,
-            value = "/project/all/subnets")
-    public Map getAllSubnetStates() {
-        return this.subnetRedisRepository.findAllItems();
+            method = PUT,
+            value = {"/project/{projectid}/vpc/{vpcid}/subnet/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public SubnetState updateSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid, @RequestBody SubnetState resource) throws Exception {
+
+        SubnetState subnetState = null;
+
+        try{
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditions.verifyResourceNotNull(resource);
+            RestPreconditions.populateResourceProjectId(resource, projectid);
+            RestPreconditions.populateResourceVpcId(resource, vpcid);
+
+            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            if(subnetState == null){
+                throw new ResourceNotFoundException("Subnet not found : " + subnetid);
+            }
+
+            RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
+            RestPreconditions.verifyParameterEqual(subnetState.getVpcId(), vpcid);
+
+            this.subnetRedisRepository.addItem(resource);
+            subnetState = this.subnetRedisRepository.findItem(subnetid);
+
+        }catch (ParameterNullOrEmptyException e){
+            throw new Exception(e);
+        }catch (ResourceNotFoundException e){
+            throw new Exception(e);
+        }catch (ParameterUnexpectedValueException e){
+            throw new Exception(e);
+        }
+
+        return subnetState;
     }
+
+    @RequestMapping(
+            method = DELETE,
+            value = {"/project/{projectid}/vpc/{vpcid}/subnet/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public void deleteSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        SubnetState subnetState = null;
+
+        try {
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
+
+            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            if(subnetState == null){
+                return;
+            }
+
+            RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
+            RestPreconditions.verifyParameterEqual(subnetState.getVpcId(), vpcid);
+
+            subnetRedisRepository.deleteItem(subnetid);
+
+        }catch (ParameterNullOrEmptyException e){
+            throw new Exception(e);
+        }catch (ParameterUnexpectedValueException e){
+            throw new Exception(e);
+        }
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = "/project/{projectid}/vpc/{vpcid}/subnets")
+    public Map geSubnetStatesByProjectIdAndVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+        Map<String, SubnetState> subnetStates = null;
+
+        try {
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditions.verifyResourceFound(projectid);
+            RestPreconditions.verifyResourceFound(vpcid);
+
+            subnetStates = this.subnetRedisRepository.findAllItems();
+            subnetStates = subnetStates.entrySet().stream()
+                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
+                            && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+
+        }catch (ParameterNullOrEmptyException e){
+            throw new Exception(e);
+        }catch (ResourceNotFoundException e){
+            throw new Exception(e);
+        }
+
+        return subnetStates;
+    }
+
+
 }
