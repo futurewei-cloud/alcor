@@ -91,6 +91,7 @@ public class VpcController {
         try{
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditions.verifyResourceNotNull(resource);
             RestPreconditions.populateResourceProjectId(resource, projectid);
             RestPreconditions.populateResourceVpcId(resource, vpcid);
 
