@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.web;
 
+import com.futurewei.alioth.controller.cache.repo.SubnetRedisRepository;
 import com.futurewei.alioth.controller.cache.repo.VpcRedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,9 @@ public class DebugController {
 
     @Autowired
     private VpcRedisRepository vpcRedisRepository;
+
+    @Autowired
+    private SubnetRedisRepository subnetRedisRepository;
 
     @RequestMapping("/")
     public String index() {
@@ -53,6 +57,18 @@ public class DebugController {
         Map result = new HashMap<String, Object>();
         Map dataItems = this.vpcRedisRepository.findAllItems();
         result.put("Count", dataItems.size());
+
+        return result;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = "/project/all/subnets")
+    public Map getAllSubnetStates() {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = this.subnetRedisRepository.findAllItems();
+        result.put("Count", dataItems.size());
+        result.put("Subnets", dataItems);
 
         return result;
     }

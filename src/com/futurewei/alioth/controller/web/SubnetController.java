@@ -3,6 +3,7 @@ package com.futurewei.alioth.controller.web;
 import com.futurewei.alioth.controller.cache.repo.*;
 import com.futurewei.alioth.controller.comm.message.*;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
+import com.futurewei.alioth.controller.exception.ResourceNotFoundException;
 import com.futurewei.alioth.controller.exception.ResourceNullException;
 import com.futurewei.alioth.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alioth.controller.exception.ResourcePersistenceException;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -118,8 +120,29 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = "/project/all/subnets")
-    public Map getAllSubnetStates() {
-        return this.subnetRedisRepository.findAllItems();
+            value = "/project/{projectid}/vpc/{vpcid}/subnets")
+    public Map getVpcStatesByProjectId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+        Map<String, SubnetState> subnetStates = null;
+
+        try {
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditions.verifyResourceFound(projectid);
+            RestPreconditions.verifyResourceFound(vpcid);
+
+            subnetStates = this.subnetRedisRepository.findAllItems();
+            subnetStates = subnetStates.entrySet().stream()
+                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
+                                    && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+
+        }catch (ParameterNullOrEmptyException e){
+            throw new Exception(e);
+        }catch (ResourceNotFoundException e){
+            throw new Exception(e);
+        }
+
+        return subnetStates;
     }
+
 }
