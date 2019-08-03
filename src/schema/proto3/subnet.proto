@@ -31,15 +31,16 @@ message SubnetConfiguration {
     string id = 1;
   }
 
-  message TransitSwitchIp {
+  message TransitSwitch {
     string vpc_id = 1;
     string subnet_id = 2;
     string ip_address = 3;
+    string mac_address = 4;
   }
 
   repeated DnsEntry dns_list = 13;
   repeated SecurityGroupId security_group_ids = 14;
-  repeated TransitSwitchIp transit_switch_ips = 15;
+  repeated TransitSwitch transit_switches = 15;
 }
 message SubnetState {
   OperationType operation_type = 1;

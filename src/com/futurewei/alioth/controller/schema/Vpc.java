@@ -117,27 +117,27 @@ public final class Vpc {
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> 
-        getTransitRouterIpsList();
+    java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> 
+        getTransitRoutersList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index);
+    com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getTransitRouters(int index);
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    int getTransitRouterIpsCount();
+    int getTransitRoutersCount();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
-        getTransitRouterIpsOrBuilderList();
+    java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder> 
+        getTransitRoutersOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
+    com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder getTransitRoutersOrBuilder(
         int index);
   }
   /**
@@ -160,7 +160,7 @@ public final class Vpc {
       tunnelId_ = 0L;
       subnetIds_ = java.util.Collections.emptyList();
       routes_ = java.util.Collections.emptyList();
-      transitRouterIps_ = java.util.Collections.emptyList();
+      transitRouters_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -242,11 +242,11 @@ public final class Vpc {
             }
             case 74: {
               if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-                transitRouterIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp>();
+                transitRouters_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter>();
                 mutable_bitField0_ |= 0x00000100;
               }
-              transitRouterIps_.add(
-                  input.readMessage(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.parser(), extensionRegistry));
+              transitRouters_.add(
+                  input.readMessage(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.parser(), extensionRegistry));
               break;
             }
           }
@@ -264,7 +264,7 @@ public final class Vpc {
           routes_ = java.util.Collections.unmodifiableList(routes_);
         }
         if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-          transitRouterIps_ = java.util.Collections.unmodifiableList(transitRouterIps_);
+          transitRouters_ = java.util.Collections.unmodifiableList(transitRouters_);
         }
         makeExtensionsImmutable();
       }
@@ -1424,8 +1424,8 @@ public final class Vpc {
 
     }
 
-    public interface TransitRouterIpOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:aliothcontroller.VpcConfiguration.TransitRouterIp)
+    public interface TransitRouterOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:aliothcontroller.VpcConfiguration.TransitRouter)
         com.google.protobuf.MessageOrBuilder {
 
       /**
@@ -1447,21 +1447,32 @@ public final class Vpc {
        */
       com.google.protobuf.ByteString
           getIpAddressBytes();
+
+      /**
+       * <code>optional string mac_address = 3;</code>
+       */
+      java.lang.String getMacAddress();
+      /**
+       * <code>optional string mac_address = 3;</code>
+       */
+      com.google.protobuf.ByteString
+          getMacAddressBytes();
     }
     /**
-     * Protobuf type {@code aliothcontroller.VpcConfiguration.TransitRouterIp}
+     * Protobuf type {@code aliothcontroller.VpcConfiguration.TransitRouter}
      */
-    public  static final class TransitRouterIp extends
+    public  static final class TransitRouter extends
         com.google.protobuf.GeneratedMessageV3 implements
-        // @@protoc_insertion_point(message_implements:aliothcontroller.VpcConfiguration.TransitRouterIp)
-        TransitRouterIpOrBuilder {
-      // Use TransitRouterIp.newBuilder() to construct.
-      private TransitRouterIp(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        // @@protoc_insertion_point(message_implements:aliothcontroller.VpcConfiguration.TransitRouter)
+        TransitRouterOrBuilder {
+      // Use TransitRouter.newBuilder() to construct.
+      private TransitRouter(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
         super(builder);
       }
-      private TransitRouterIp() {
+      private TransitRouter() {
         vpcId_ = "";
         ipAddress_ = "";
+        macAddress_ = "";
       }
 
       @java.lang.Override
@@ -1469,7 +1480,7 @@ public final class Vpc {
       getUnknownFields() {
         return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
       }
-      private TransitRouterIp(
+      private TransitRouter(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1501,6 +1512,12 @@ public final class Vpc {
                 ipAddress_ = s;
                 break;
               }
+              case 26: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                macAddress_ = s;
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1514,14 +1531,14 @@ public final class Vpc {
       }
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor;
+        return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_fieldAccessorTable
+        return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouter_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.class, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder.class);
+                com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.class, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder.class);
       }
 
       public static final int VPC_ID_FIELD_NUMBER = 1;
@@ -1592,6 +1609,40 @@ public final class Vpc {
         }
       }
 
+      public static final int MAC_ADDRESS_FIELD_NUMBER = 3;
+      private volatile java.lang.Object macAddress_;
+      /**
+       * <code>optional string mac_address = 3;</code>
+       */
+      public java.lang.String getMacAddress() {
+        java.lang.Object ref = macAddress_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          macAddress_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string mac_address = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMacAddressBytes() {
+        java.lang.Object ref = macAddress_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          macAddress_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -1610,6 +1661,9 @@ public final class Vpc {
         if (!getIpAddressBytes().isEmpty()) {
           com.google.protobuf.GeneratedMessageV3.writeString(output, 2, ipAddress_);
         }
+        if (!getMacAddressBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 3, macAddress_);
+        }
       }
 
       public int getSerializedSize() {
@@ -1623,6 +1677,9 @@ public final class Vpc {
         if (!getIpAddressBytes().isEmpty()) {
           size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, ipAddress_);
         }
+        if (!getMacAddressBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, macAddress_);
+        }
         memoizedSize = size;
         return size;
       }
@@ -1633,16 +1690,18 @@ public final class Vpc {
         if (obj == this) {
          return true;
         }
-        if (!(obj instanceof com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp)) {
+        if (!(obj instanceof com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter)) {
           return super.equals(obj);
         }
-        com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp other = (com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp) obj;
+        com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter other = (com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter) obj;
 
         boolean result = true;
         result = result && getVpcId()
             .equals(other.getVpcId());
         result = result && getIpAddress()
             .equals(other.getIpAddress());
+        result = result && getMacAddress()
+            .equals(other.getMacAddress());
         return result;
       }
 
@@ -1657,63 +1716,65 @@ public final class Vpc {
         hash = (53 * hash) + getVpcId().hashCode();
         hash = (37 * hash) + IP_ADDRESS_FIELD_NUMBER;
         hash = (53 * hash) + getIpAddress().hashCode();
+        hash = (37 * hash) + MAC_ADDRESS_FIELD_NUMBER;
+        hash = (53 * hash) + getMacAddress().hashCode();
         hash = (29 * hash) + unknownFields.hashCode();
         memoizedHashCode = hash;
         return hash;
       }
 
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           com.google.protobuf.ByteString data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(byte[] data)
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(byte[] data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           byte[] data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(java.io.InputStream input)
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(java.io.InputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseDelimitedFrom(java.io.InputStream input)
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseDelimitedFrom(java.io.InputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseDelimitedWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseDelimitedFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseDelimitedFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           com.google.protobuf.CodedInputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parseFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
@@ -1725,7 +1786,7 @@ public final class Vpc {
       public static Builder newBuilder() {
         return DEFAULT_INSTANCE.toBuilder();
       }
-      public static Builder newBuilder(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp prototype) {
+      public static Builder newBuilder(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
       public Builder toBuilder() {
@@ -1740,25 +1801,25 @@ public final class Vpc {
         return builder;
       }
       /**
-       * Protobuf type {@code aliothcontroller.VpcConfiguration.TransitRouterIp}
+       * Protobuf type {@code aliothcontroller.VpcConfiguration.TransitRouter}
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:aliothcontroller.VpcConfiguration.TransitRouterIp)
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder {
+          // @@protoc_insertion_point(builder_implements:aliothcontroller.VpcConfiguration.TransitRouter)
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
-          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor;
+          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor;
         }
 
         protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internalGetFieldAccessorTable() {
-          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_fieldAccessorTable
+          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouter_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
-                  com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.class, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder.class);
+                  com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.class, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder.class);
         }
 
-        // Construct using com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.newBuilder()
+        // Construct using com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
         }
@@ -1779,30 +1840,33 @@ public final class Vpc {
 
           ipAddress_ = "";
 
+          macAddress_ = "";
+
           return this;
         }
 
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
-          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor;
+          return com.futurewei.alioth.controller.schema.Vpc.internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor;
         }
 
-        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getDefaultInstanceForType() {
-          return com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance();
+        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getDefaultInstanceForType() {
+          return com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.getDefaultInstance();
         }
 
-        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp build() {
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp result = buildPartial();
+        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter build() {
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter result = buildPartial();
           if (!result.isInitialized()) {
             throw newUninitializedMessageException(result);
           }
           return result;
         }
 
-        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp buildPartial() {
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp result = new com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp(this);
+        public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter buildPartial() {
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter result = new com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter(this);
           result.vpcId_ = vpcId_;
           result.ipAddress_ = ipAddress_;
+          result.macAddress_ = macAddress_;
           onBuilt();
           return result;
         }
@@ -1834,22 +1898,26 @@ public final class Vpc {
           return (Builder) super.addRepeatedField(field, value);
         }
         public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp) {
-            return mergeFrom((com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp)other);
+          if (other instanceof com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter) {
+            return mergeFrom((com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter)other);
           } else {
             super.mergeFrom(other);
             return this;
           }
         }
 
-        public Builder mergeFrom(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp other) {
-          if (other == com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance()) return this;
+        public Builder mergeFrom(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter other) {
+          if (other == com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.getDefaultInstance()) return this;
           if (!other.getVpcId().isEmpty()) {
             vpcId_ = other.vpcId_;
             onChanged();
           }
           if (!other.getIpAddress().isEmpty()) {
             ipAddress_ = other.ipAddress_;
+            onChanged();
+          }
+          if (!other.getMacAddress().isEmpty()) {
+            macAddress_ = other.macAddress_;
             onChanged();
           }
           onChanged();
@@ -1864,11 +1932,11 @@ public final class Vpc {
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws java.io.IOException {
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp parsedMessage = null;
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter parsedMessage = null;
           try {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp) e.getUnfinishedMessage();
+            parsedMessage = (com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter) e.getUnfinishedMessage();
             throw e.unwrapIOException();
           } finally {
             if (parsedMessage != null) {
@@ -2015,6 +2083,75 @@ public final class Vpc {
           onChanged();
           return this;
         }
+
+        private java.lang.Object macAddress_ = "";
+        /**
+         * <code>optional string mac_address = 3;</code>
+         */
+        public java.lang.String getMacAddress() {
+          java.lang.Object ref = macAddress_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            macAddress_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string mac_address = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getMacAddressBytes() {
+          java.lang.Object ref = macAddress_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            macAddress_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string mac_address = 3;</code>
+         */
+        public Builder setMacAddress(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          macAddress_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string mac_address = 3;</code>
+         */
+        public Builder clearMacAddress() {
+          
+          macAddress_ = getDefaultInstance().getMacAddress();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string mac_address = 3;</code>
+         */
+        public Builder setMacAddressBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          macAddress_ = value;
+          onChanged();
+          return this;
+        }
         public final Builder setUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
           return this;
@@ -2026,39 +2163,39 @@ public final class Vpc {
         }
 
 
-        // @@protoc_insertion_point(builder_scope:aliothcontroller.VpcConfiguration.TransitRouterIp)
+        // @@protoc_insertion_point(builder_scope:aliothcontroller.VpcConfiguration.TransitRouter)
       }
 
-      // @@protoc_insertion_point(class_scope:aliothcontroller.VpcConfiguration.TransitRouterIp)
-      private static final com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp DEFAULT_INSTANCE;
+      // @@protoc_insertion_point(class_scope:aliothcontroller.VpcConfiguration.TransitRouter)
+      private static final com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter DEFAULT_INSTANCE;
       static {
-        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp();
+        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter();
       }
 
-      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getDefaultInstance() {
+      public static com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getDefaultInstance() {
         return DEFAULT_INSTANCE;
       }
 
-      private static final com.google.protobuf.Parser<TransitRouterIp>
-          PARSER = new com.google.protobuf.AbstractParser<TransitRouterIp>() {
-        public TransitRouterIp parsePartialFrom(
+      private static final com.google.protobuf.Parser<TransitRouter>
+          PARSER = new com.google.protobuf.AbstractParser<TransitRouter>() {
+        public TransitRouter parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-            return new TransitRouterIp(input, extensionRegistry);
+            return new TransitRouter(input, extensionRegistry);
         }
       };
 
-      public static com.google.protobuf.Parser<TransitRouterIp> parser() {
+      public static com.google.protobuf.Parser<TransitRouter> parser() {
         return PARSER;
       }
 
       @java.lang.Override
-      public com.google.protobuf.Parser<TransitRouterIp> getParserForType() {
+      public com.google.protobuf.Parser<TransitRouter> getParserForType() {
         return PARSER;
       }
 
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getDefaultInstanceForType() {
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
 
@@ -2289,39 +2426,39 @@ public final class Vpc {
       return routes_.get(index);
     }
 
-    public static final int TRANSIT_ROUTER_IPS_FIELD_NUMBER = 9;
-    private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> transitRouterIps_;
+    public static final int TRANSIT_ROUTERS_FIELD_NUMBER = 9;
+    private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> transitRouters_;
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> getTransitRouterIpsList() {
-      return transitRouterIps_;
+    public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> getTransitRoutersList() {
+      return transitRouters_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
-        getTransitRouterIpsOrBuilderList() {
-      return transitRouterIps_;
+    public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder> 
+        getTransitRoutersOrBuilderList() {
+      return transitRouters_;
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    public int getTransitRouterIpsCount() {
-      return transitRouterIps_.size();
+    public int getTransitRoutersCount() {
+      return transitRouters_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index) {
-      return transitRouterIps_.get(index);
+    public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getTransitRouters(int index) {
+      return transitRouters_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+     * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
      */
-    public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
+    public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder getTransitRoutersOrBuilder(
         int index) {
-      return transitRouterIps_.get(index);
+      return transitRouters_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -2360,8 +2497,8 @@ public final class Vpc {
       for (int i = 0; i < routes_.size(); i++) {
         output.writeMessage(8, routes_.get(i));
       }
-      for (int i = 0; i < transitRouterIps_.size(); i++) {
-        output.writeMessage(9, transitRouterIps_.get(i));
+      for (int i = 0; i < transitRouters_.size(); i++) {
+        output.writeMessage(9, transitRouters_.get(i));
       }
     }
 
@@ -2398,9 +2535,9 @@ public final class Vpc {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(8, routes_.get(i));
       }
-      for (int i = 0; i < transitRouterIps_.size(); i++) {
+      for (int i = 0; i < transitRouters_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, transitRouterIps_.get(i));
+          .computeMessageSize(9, transitRouters_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -2434,8 +2571,8 @@ public final class Vpc {
           .equals(other.getSubnetIdsList());
       result = result && getRoutesList()
           .equals(other.getRoutesList());
-      result = result && getTransitRouterIpsList()
-          .equals(other.getTransitRouterIpsList());
+      result = result && getTransitRoutersList()
+          .equals(other.getTransitRoutersList());
       return result;
     }
 
@@ -2467,9 +2604,9 @@ public final class Vpc {
         hash = (37 * hash) + ROUTES_FIELD_NUMBER;
         hash = (53 * hash) + getRoutesList().hashCode();
       }
-      if (getTransitRouterIpsCount() > 0) {
-        hash = (37 * hash) + TRANSIT_ROUTER_IPS_FIELD_NUMBER;
-        hash = (53 * hash) + getTransitRouterIpsList().hashCode();
+      if (getTransitRoutersCount() > 0) {
+        hash = (37 * hash) + TRANSIT_ROUTERS_FIELD_NUMBER;
+        hash = (53 * hash) + getTransitRoutersList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -2587,7 +2724,7 @@ public final class Vpc {
                 .alwaysUseFieldBuilders) {
           getSubnetIdsFieldBuilder();
           getRoutesFieldBuilder();
-          getTransitRouterIpsFieldBuilder();
+          getTransitRoutersFieldBuilder();
         }
       }
       public Builder clear() {
@@ -2616,11 +2753,11 @@ public final class Vpc {
         } else {
           routesBuilder_.clear();
         }
-        if (transitRouterIpsBuilder_ == null) {
-          transitRouterIps_ = java.util.Collections.emptyList();
+        if (transitRoutersBuilder_ == null) {
+          transitRouters_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000100);
         } else {
-          transitRouterIpsBuilder_.clear();
+          transitRoutersBuilder_.clear();
         }
         return this;
       }
@@ -2670,14 +2807,14 @@ public final class Vpc {
         } else {
           result.routes_ = routesBuilder_.build();
         }
-        if (transitRouterIpsBuilder_ == null) {
+        if (transitRoutersBuilder_ == null) {
           if (((bitField0_ & 0x00000100) == 0x00000100)) {
-            transitRouterIps_ = java.util.Collections.unmodifiableList(transitRouterIps_);
+            transitRouters_ = java.util.Collections.unmodifiableList(transitRouters_);
             bitField0_ = (bitField0_ & ~0x00000100);
           }
-          result.transitRouterIps_ = transitRouterIps_;
+          result.transitRouters_ = transitRouters_;
         } else {
-          result.transitRouterIps_ = transitRouterIpsBuilder_.build();
+          result.transitRouters_ = transitRoutersBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -2795,29 +2932,29 @@ public final class Vpc {
             }
           }
         }
-        if (transitRouterIpsBuilder_ == null) {
-          if (!other.transitRouterIps_.isEmpty()) {
-            if (transitRouterIps_.isEmpty()) {
-              transitRouterIps_ = other.transitRouterIps_;
+        if (transitRoutersBuilder_ == null) {
+          if (!other.transitRouters_.isEmpty()) {
+            if (transitRouters_.isEmpty()) {
+              transitRouters_ = other.transitRouters_;
               bitField0_ = (bitField0_ & ~0x00000100);
             } else {
-              ensureTransitRouterIpsIsMutable();
-              transitRouterIps_.addAll(other.transitRouterIps_);
+              ensureTransitRoutersIsMutable();
+              transitRouters_.addAll(other.transitRouters_);
             }
             onChanged();
           }
         } else {
-          if (!other.transitRouterIps_.isEmpty()) {
-            if (transitRouterIpsBuilder_.isEmpty()) {
-              transitRouterIpsBuilder_.dispose();
-              transitRouterIpsBuilder_ = null;
-              transitRouterIps_ = other.transitRouterIps_;
+          if (!other.transitRouters_.isEmpty()) {
+            if (transitRoutersBuilder_.isEmpty()) {
+              transitRoutersBuilder_.dispose();
+              transitRoutersBuilder_ = null;
+              transitRouters_ = other.transitRouters_;
               bitField0_ = (bitField0_ & ~0x00000100);
-              transitRouterIpsBuilder_ = 
+              transitRoutersBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getTransitRouterIpsFieldBuilder() : null;
+                   getTransitRoutersFieldBuilder() : null;
             } else {
-              transitRouterIpsBuilder_.addAllMessages(other.transitRouterIps_);
+              transitRoutersBuilder_.addAllMessages(other.transitRouters_);
             }
           }
         }
@@ -3656,244 +3793,244 @@ public final class Vpc {
         return routesBuilder_;
       }
 
-      private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> transitRouterIps_ =
+      private java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> transitRouters_ =
         java.util.Collections.emptyList();
-      private void ensureTransitRouterIpsIsMutable() {
+      private void ensureTransitRoutersIsMutable() {
         if (!((bitField0_ & 0x00000100) == 0x00000100)) {
-          transitRouterIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp>(transitRouterIps_);
+          transitRouters_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter>(transitRouters_);
           bitField0_ |= 0x00000100;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> transitRouterIpsBuilder_;
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder> transitRoutersBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> getTransitRouterIpsList() {
-        if (transitRouterIpsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(transitRouterIps_);
+      public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> getTransitRoutersList() {
+        if (transitRoutersBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(transitRouters_);
         } else {
-          return transitRouterIpsBuilder_.getMessageList();
+          return transitRoutersBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public int getTransitRouterIpsCount() {
-        if (transitRouterIpsBuilder_ == null) {
-          return transitRouterIps_.size();
+      public int getTransitRoutersCount() {
+        if (transitRoutersBuilder_ == null) {
+          return transitRouters_.size();
         } else {
-          return transitRouterIpsBuilder_.getCount();
+          return transitRoutersBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp getTransitRouterIps(int index) {
-        if (transitRouterIpsBuilder_ == null) {
-          return transitRouterIps_.get(index);
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter getTransitRouters(int index) {
+        if (transitRoutersBuilder_ == null) {
+          return transitRouters_.get(index);
         } else {
-          return transitRouterIpsBuilder_.getMessage(index);
+          return transitRoutersBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder setTransitRouterIps(
-          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
-        if (transitRouterIpsBuilder_ == null) {
+      public Builder setTransitRouters(
+          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter value) {
+        if (transitRoutersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.set(index, value);
+          ensureTransitRoutersIsMutable();
+          transitRouters_.set(index, value);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.setMessage(index, value);
+          transitRoutersBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder setTransitRouterIps(
-          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
-        if (transitRouterIpsBuilder_ == null) {
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.set(index, builderForValue.build());
+      public Builder setTransitRouters(
+          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder builderForValue) {
+        if (transitRoutersBuilder_ == null) {
+          ensureTransitRoutersIsMutable();
+          transitRouters_.set(index, builderForValue.build());
           onChanged();
         } else {
-          transitRouterIpsBuilder_.setMessage(index, builderForValue.build());
+          transitRoutersBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder addTransitRouterIps(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
-        if (transitRouterIpsBuilder_ == null) {
+      public Builder addTransitRouters(com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter value) {
+        if (transitRoutersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.add(value);
+          ensureTransitRoutersIsMutable();
+          transitRouters_.add(value);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.addMessage(value);
+          transitRoutersBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder addTransitRouterIps(
-          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp value) {
-        if (transitRouterIpsBuilder_ == null) {
+      public Builder addTransitRouters(
+          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter value) {
+        if (transitRoutersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.add(index, value);
+          ensureTransitRoutersIsMutable();
+          transitRouters_.add(index, value);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.addMessage(index, value);
+          transitRoutersBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder addTransitRouterIps(
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
-        if (transitRouterIpsBuilder_ == null) {
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.add(builderForValue.build());
+      public Builder addTransitRouters(
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder builderForValue) {
+        if (transitRoutersBuilder_ == null) {
+          ensureTransitRoutersIsMutable();
+          transitRouters_.add(builderForValue.build());
           onChanged();
         } else {
-          transitRouterIpsBuilder_.addMessage(builderForValue.build());
+          transitRoutersBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder addTransitRouterIps(
-          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder builderForValue) {
-        if (transitRouterIpsBuilder_ == null) {
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.add(index, builderForValue.build());
+      public Builder addTransitRouters(
+          int index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder builderForValue) {
+        if (transitRoutersBuilder_ == null) {
+          ensureTransitRoutersIsMutable();
+          transitRouters_.add(index, builderForValue.build());
           onChanged();
         } else {
-          transitRouterIpsBuilder_.addMessage(index, builderForValue.build());
+          transitRoutersBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder addAllTransitRouterIps(
-          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp> values) {
-        if (transitRouterIpsBuilder_ == null) {
-          ensureTransitRouterIpsIsMutable();
+      public Builder addAllTransitRouters(
+          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter> values) {
+        if (transitRoutersBuilder_ == null) {
+          ensureTransitRoutersIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, transitRouterIps_);
+              values, transitRouters_);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.addAllMessages(values);
+          transitRoutersBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder clearTransitRouterIps() {
-        if (transitRouterIpsBuilder_ == null) {
-          transitRouterIps_ = java.util.Collections.emptyList();
+      public Builder clearTransitRouters() {
+        if (transitRoutersBuilder_ == null) {
+          transitRouters_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000100);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.clear();
+          transitRoutersBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public Builder removeTransitRouterIps(int index) {
-        if (transitRouterIpsBuilder_ == null) {
-          ensureTransitRouterIpsIsMutable();
-          transitRouterIps_.remove(index);
+      public Builder removeTransitRouters(int index) {
+        if (transitRoutersBuilder_ == null) {
+          ensureTransitRoutersIsMutable();
+          transitRouters_.remove(index);
           onChanged();
         } else {
-          transitRouterIpsBuilder_.remove(index);
+          transitRoutersBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder getTransitRouterIpsBuilder(
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder getTransitRoutersBuilder(
           int index) {
-        return getTransitRouterIpsFieldBuilder().getBuilder(index);
+        return getTransitRoutersFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder getTransitRouterIpsOrBuilder(
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder getTransitRoutersOrBuilder(
           int index) {
-        if (transitRouterIpsBuilder_ == null) {
-          return transitRouterIps_.get(index);  } else {
-          return transitRouterIpsBuilder_.getMessageOrBuilder(index);
+        if (transitRoutersBuilder_ == null) {
+          return transitRouters_.get(index);  } else {
+          return transitRoutersBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
-           getTransitRouterIpsOrBuilderList() {
-        if (transitRouterIpsBuilder_ != null) {
-          return transitRouterIpsBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder> 
+           getTransitRoutersOrBuilderList() {
+        if (transitRoutersBuilder_ != null) {
+          return transitRoutersBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(transitRouterIps_);
+          return java.util.Collections.unmodifiableList(transitRouters_);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder addTransitRouterIpsBuilder() {
-        return getTransitRouterIpsFieldBuilder().addBuilder(
-            com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance());
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder addTransitRoutersBuilder() {
+        return getTransitRoutersFieldBuilder().addBuilder(
+            com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder addTransitRouterIpsBuilder(
+      public com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder addTransitRoutersBuilder(
           int index) {
-        return getTransitRouterIpsFieldBuilder().addBuilder(
-            index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.getDefaultInstance());
+        return getTransitRoutersFieldBuilder().addBuilder(
+            index, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouterIp transit_router_ips = 9;</code>
+       * <code>repeated .aliothcontroller.VpcConfiguration.TransitRouter transit_routers = 9;</code>
        */
-      public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder> 
-           getTransitRouterIpsBuilderList() {
-        return getTransitRouterIpsFieldBuilder().getBuilderList();
+      public java.util.List<com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder> 
+           getTransitRoutersBuilderList() {
+        return getTransitRoutersFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder> 
-          getTransitRouterIpsFieldBuilder() {
-        if (transitRouterIpsBuilder_ == null) {
-          transitRouterIpsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIp.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterIpOrBuilder>(
-                  transitRouterIps_,
+          com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder> 
+          getTransitRoutersFieldBuilder() {
+        if (transitRoutersBuilder_ == null) {
+          transitRoutersBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouter.Builder, com.futurewei.alioth.controller.schema.Vpc.VpcConfiguration.TransitRouterOrBuilder>(
+                  transitRouters_,
                   ((bitField0_ & 0x00000100) == 0x00000100),
                   getParentForChildren(),
                   isClean());
-          transitRouterIps_ = null;
+          transitRouters_ = null;
         }
-        return transitRouterIpsBuilder_;
+        return transitRoutersBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -4612,10 +4749,10 @@ public final class Vpc {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aliothcontroller_VpcConfiguration_Route_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor;
+    internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_fieldAccessorTable;
+      internal_static_aliothcontroller_VpcConfiguration_TransitRouter_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aliothcontroller_VpcState_descriptor;
   private static final 
@@ -4631,22 +4768,23 @@ public final class Vpc {
   static {
     java.lang.String[] descriptorData = {
       "\n\tvpc.proto\022\020aliothcontroller\032\014common.pr" +
-      "oto\"\274\003\n\020VpcConfiguration\022\017\n\007version\030\001 \001(" +
+      "oto\"\312\003\n\020VpcConfiguration\022\017\n\007version\030\001 \001(" +
       "\005\022\022\n\nproject_id\030\002 \001(\t\022\n\n\002id\030\003 \001(\t\022\014\n\004nam" +
       "e\030\004 \001(\t\022\014\n\004cidr\030\005 \001(\t\022\021\n\ttunnel_id\030\006 \001(\003" +
       "\022?\n\nsubnet_ids\030\007 \003(\0132+.aliothcontroller." +
       "VpcConfiguration.SubnetId\0228\n\006routes\030\010 \003(" +
       "\0132(.aliothcontroller.VpcConfiguration.Ro" +
-      "ute\022N\n\022transit_router_ips\030\t \003(\01322.alioth" +
-      "controller.VpcConfiguration.TransitRoute" +
-      "rIp\032\026\n\010SubnetId\022\n\n\002id\030\001 \001(\t\032.\n\005Route\022\023\n\013",
-      "destination\030\001 \001(\t\022\020\n\010next_hop\030\002 \001(\t\0325\n\017T" +
-      "ransitRouterIp\022\016\n\006vpc_id\030\001 \001(\t\022\022\n\nip_add" +
-      "ress\030\002 \001(\t\"~\n\010VpcState\0227\n\016operation_type" +
-      "\030\001 \001(\0162\037.aliothcontroller.OperationType\022" +
-      "9\n\rconfiguration\030\002 \001(\0132\".aliothcontrolle" +
-      "r.VpcConfigurationB-\n&com.futurewei.alio" +
-      "th.controller.schemaB\003Vpcb\006proto3"
+      "ute\022I\n\017transit_routers\030\t \003(\01320.aliothcon" +
+      "troller.VpcConfiguration.TransitRouter\032\026" +
+      "\n\010SubnetId\022\n\n\002id\030\001 \001(\t\032.\n\005Route\022\023\n\013desti",
+      "nation\030\001 \001(\t\022\020\n\010next_hop\030\002 \001(\t\032H\n\rTransi" +
+      "tRouter\022\016\n\006vpc_id\030\001 \001(\t\022\022\n\nip_address\030\002 " +
+      "\001(\t\022\023\n\013mac_address\030\003 \001(\t\"~\n\010VpcState\0227\n\016" +
+      "operation_type\030\001 \001(\0162\037.aliothcontroller." +
+      "OperationType\0229\n\rconfiguration\030\002 \001(\0132\".a" +
+      "liothcontroller.VpcConfigurationB-\n&com." +
+      "futurewei.alioth.controller.schemaB\003Vpcb" +
+      "\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4666,7 +4804,7 @@ public final class Vpc {
     internal_static_aliothcontroller_VpcConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_VpcConfiguration_descriptor,
-        new java.lang.String[] { "Version", "ProjectId", "Id", "Name", "Cidr", "TunnelId", "SubnetIds", "Routes", "TransitRouterIps", });
+        new java.lang.String[] { "Version", "ProjectId", "Id", "Name", "Cidr", "TunnelId", "SubnetIds", "Routes", "TransitRouters", });
     internal_static_aliothcontroller_VpcConfiguration_SubnetId_descriptor =
       internal_static_aliothcontroller_VpcConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_VpcConfiguration_SubnetId_fieldAccessorTable = new
@@ -4679,12 +4817,12 @@ public final class Vpc {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_VpcConfiguration_Route_descriptor,
         new java.lang.String[] { "Destination", "NextHop", });
-    internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor =
+    internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor =
       internal_static_aliothcontroller_VpcConfiguration_descriptor.getNestedTypes().get(2);
-    internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_fieldAccessorTable = new
+    internal_static_aliothcontroller_VpcConfiguration_TransitRouter_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_aliothcontroller_VpcConfiguration_TransitRouterIp_descriptor,
-        new java.lang.String[] { "VpcId", "IpAddress", });
+        internal_static_aliothcontroller_VpcConfiguration_TransitRouter_descriptor,
+        new java.lang.String[] { "VpcId", "IpAddress", "MacAddress", });
     internal_static_aliothcontroller_VpcState_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_aliothcontroller_VpcState_fieldAccessorTable = new
