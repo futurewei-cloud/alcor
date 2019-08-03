@@ -172,27 +172,27 @@ public final class Subnet {
         int index);
 
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> 
-        getTransitSwitchIpsList();
+    java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> 
+        getTransitSwitchesList();
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index);
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getTransitSwitches(int index);
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    int getTransitSwitchIpsCount();
+    int getTransitSwitchesCount();
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
-        getTransitSwitchIpsOrBuilderList();
+    java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder> 
+        getTransitSwitchesOrBuilderList();
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+    com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder getTransitSwitchesOrBuilder(
         int index);
   }
   /**
@@ -221,7 +221,7 @@ public final class Subnet {
       secondaryDns_ = "";
       dnsList_ = java.util.Collections.emptyList();
       securityGroupIds_ = java.util.Collections.emptyList();
-      transitSwitchIps_ = java.util.Collections.emptyList();
+      transitSwitches_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -338,11 +338,11 @@ public final class Subnet {
             }
             case 122: {
               if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
-                transitSwitchIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp>();
+                transitSwitches_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch>();
                 mutable_bitField0_ |= 0x00004000;
               }
-              transitSwitchIps_.add(
-                  input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.parser(), extensionRegistry));
+              transitSwitches_.add(
+                  input.readMessage(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.parser(), extensionRegistry));
               break;
             }
           }
@@ -360,7 +360,7 @@ public final class Subnet {
           securityGroupIds_ = java.util.Collections.unmodifiableList(securityGroupIds_);
         }
         if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
-          transitSwitchIps_ = java.util.Collections.unmodifiableList(transitSwitchIps_);
+          transitSwitches_ = java.util.Collections.unmodifiableList(transitSwitches_);
         }
         makeExtensionsImmutable();
       }
@@ -1383,8 +1383,8 @@ public final class Subnet {
 
     }
 
-    public interface TransitSwitchIpOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+    public interface TransitSwitchOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:aliothcontroller.SubnetConfiguration.TransitSwitch)
         com.google.protobuf.MessageOrBuilder {
 
       /**
@@ -1416,22 +1416,33 @@ public final class Subnet {
        */
       com.google.protobuf.ByteString
           getIpAddressBytes();
+
+      /**
+       * <code>optional string mac_address = 4;</code>
+       */
+      java.lang.String getMacAddress();
+      /**
+       * <code>optional string mac_address = 4;</code>
+       */
+      com.google.protobuf.ByteString
+          getMacAddressBytes();
     }
     /**
-     * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitchIp}
+     * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitch}
      */
-    public  static final class TransitSwitchIp extends
+    public  static final class TransitSwitch extends
         com.google.protobuf.GeneratedMessageV3 implements
-        // @@protoc_insertion_point(message_implements:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
-        TransitSwitchIpOrBuilder {
-      // Use TransitSwitchIp.newBuilder() to construct.
-      private TransitSwitchIp(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        // @@protoc_insertion_point(message_implements:aliothcontroller.SubnetConfiguration.TransitSwitch)
+        TransitSwitchOrBuilder {
+      // Use TransitSwitch.newBuilder() to construct.
+      private TransitSwitch(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
         super(builder);
       }
-      private TransitSwitchIp() {
+      private TransitSwitch() {
         vpcId_ = "";
         subnetId_ = "";
         ipAddress_ = "";
+        macAddress_ = "";
       }
 
       @java.lang.Override
@@ -1439,7 +1450,7 @@ public final class Subnet {
       getUnknownFields() {
         return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
       }
-      private TransitSwitchIp(
+      private TransitSwitch(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1477,6 +1488,12 @@ public final class Subnet {
                 ipAddress_ = s;
                 break;
               }
+              case 34: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                macAddress_ = s;
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1490,14 +1507,14 @@ public final class Subnet {
       }
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable
+        return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder.class);
+                com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder.class);
       }
 
       public static final int VPC_ID_FIELD_NUMBER = 1;
@@ -1602,6 +1619,40 @@ public final class Subnet {
         }
       }
 
+      public static final int MAC_ADDRESS_FIELD_NUMBER = 4;
+      private volatile java.lang.Object macAddress_;
+      /**
+       * <code>optional string mac_address = 4;</code>
+       */
+      public java.lang.String getMacAddress() {
+        java.lang.Object ref = macAddress_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          macAddress_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string mac_address = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMacAddressBytes() {
+        java.lang.Object ref = macAddress_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          macAddress_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -1623,6 +1674,9 @@ public final class Subnet {
         if (!getIpAddressBytes().isEmpty()) {
           com.google.protobuf.GeneratedMessageV3.writeString(output, 3, ipAddress_);
         }
+        if (!getMacAddressBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 4, macAddress_);
+        }
       }
 
       public int getSerializedSize() {
@@ -1639,6 +1693,9 @@ public final class Subnet {
         if (!getIpAddressBytes().isEmpty()) {
           size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, ipAddress_);
         }
+        if (!getMacAddressBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, macAddress_);
+        }
         memoizedSize = size;
         return size;
       }
@@ -1649,10 +1706,10 @@ public final class Subnet {
         if (obj == this) {
          return true;
         }
-        if (!(obj instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp)) {
+        if (!(obj instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch)) {
           return super.equals(obj);
         }
-        com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp other = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) obj;
+        com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch other = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch) obj;
 
         boolean result = true;
         result = result && getVpcId()
@@ -1661,6 +1718,8 @@ public final class Subnet {
             .equals(other.getSubnetId());
         result = result && getIpAddress()
             .equals(other.getIpAddress());
+        result = result && getMacAddress()
+            .equals(other.getMacAddress());
         return result;
       }
 
@@ -1677,63 +1736,65 @@ public final class Subnet {
         hash = (53 * hash) + getSubnetId().hashCode();
         hash = (37 * hash) + IP_ADDRESS_FIELD_NUMBER;
         hash = (53 * hash) + getIpAddress().hashCode();
+        hash = (37 * hash) + MAC_ADDRESS_FIELD_NUMBER;
+        hash = (53 * hash) + getMacAddress().hashCode();
         hash = (29 * hash) + unknownFields.hashCode();
         memoizedHashCode = hash;
         return hash;
       }
 
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           com.google.protobuf.ByteString data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(byte[] data)
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(byte[] data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           byte[] data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(java.io.InputStream input)
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(java.io.InputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseDelimitedFrom(java.io.InputStream input)
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseDelimitedFrom(java.io.InputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseDelimitedWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseDelimitedFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseDelimitedFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           com.google.protobuf.CodedInputStream input)
           throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3
             .parseWithIOException(PARSER, input);
       }
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parseFrom(
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parseFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
@@ -1745,7 +1806,7 @@ public final class Subnet {
       public static Builder newBuilder() {
         return DEFAULT_INSTANCE.toBuilder();
       }
-      public static Builder newBuilder(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp prototype) {
+      public static Builder newBuilder(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
       public Builder toBuilder() {
@@ -1760,25 +1821,25 @@ public final class Subnet {
         return builder;
       }
       /**
-       * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitchIp}
+       * Protobuf type {@code aliothcontroller.SubnetConfiguration.TransitSwitch}
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder {
+          // @@protoc_insertion_point(builder_implements:aliothcontroller.SubnetConfiguration.TransitSwitch)
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
-          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor;
         }
 
         protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internalGetFieldAccessorTable() {
-          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
-                  com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder.class);
+                  com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.class, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder.class);
         }
 
-        // Construct using com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.newBuilder()
+        // Construct using com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
         }
@@ -1801,31 +1862,34 @@ public final class Subnet {
 
           ipAddress_ = "";
 
+          macAddress_ = "";
+
           return this;
         }
 
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
-          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+          return com.futurewei.alioth.controller.schema.Subnet.internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor;
         }
 
-        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstanceForType() {
-          return com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance();
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getDefaultInstanceForType() {
+          return com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.getDefaultInstance();
         }
 
-        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp build() {
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp result = buildPartial();
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch build() {
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch result = buildPartial();
           if (!result.isInitialized()) {
             throw newUninitializedMessageException(result);
           }
           return result;
         }
 
-        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp buildPartial() {
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp result = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp(this);
+        public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch buildPartial() {
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch result = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch(this);
           result.vpcId_ = vpcId_;
           result.subnetId_ = subnetId_;
           result.ipAddress_ = ipAddress_;
+          result.macAddress_ = macAddress_;
           onBuilt();
           return result;
         }
@@ -1857,16 +1921,16 @@ public final class Subnet {
           return (Builder) super.addRepeatedField(field, value);
         }
         public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) {
-            return mergeFrom((com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp)other);
+          if (other instanceof com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch) {
+            return mergeFrom((com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch)other);
           } else {
             super.mergeFrom(other);
             return this;
           }
         }
 
-        public Builder mergeFrom(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp other) {
-          if (other == com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance()) return this;
+        public Builder mergeFrom(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch other) {
+          if (other == com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.getDefaultInstance()) return this;
           if (!other.getVpcId().isEmpty()) {
             vpcId_ = other.vpcId_;
             onChanged();
@@ -1877,6 +1941,10 @@ public final class Subnet {
           }
           if (!other.getIpAddress().isEmpty()) {
             ipAddress_ = other.ipAddress_;
+            onChanged();
+          }
+          if (!other.getMacAddress().isEmpty()) {
+            macAddress_ = other.macAddress_;
             onChanged();
           }
           onChanged();
@@ -1891,11 +1959,11 @@ public final class Subnet {
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws java.io.IOException {
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp parsedMessage = null;
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch parsedMessage = null;
           try {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp) e.getUnfinishedMessage();
+            parsedMessage = (com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch) e.getUnfinishedMessage();
             throw e.unwrapIOException();
           } finally {
             if (parsedMessage != null) {
@@ -2111,6 +2179,75 @@ public final class Subnet {
           onChanged();
           return this;
         }
+
+        private java.lang.Object macAddress_ = "";
+        /**
+         * <code>optional string mac_address = 4;</code>
+         */
+        public java.lang.String getMacAddress() {
+          java.lang.Object ref = macAddress_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            macAddress_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string mac_address = 4;</code>
+         */
+        public com.google.protobuf.ByteString
+            getMacAddressBytes() {
+          java.lang.Object ref = macAddress_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            macAddress_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string mac_address = 4;</code>
+         */
+        public Builder setMacAddress(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          macAddress_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string mac_address = 4;</code>
+         */
+        public Builder clearMacAddress() {
+          
+          macAddress_ = getDefaultInstance().getMacAddress();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string mac_address = 4;</code>
+         */
+        public Builder setMacAddressBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          macAddress_ = value;
+          onChanged();
+          return this;
+        }
         public final Builder setUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
           return this;
@@ -2122,39 +2259,39 @@ public final class Subnet {
         }
 
 
-        // @@protoc_insertion_point(builder_scope:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
+        // @@protoc_insertion_point(builder_scope:aliothcontroller.SubnetConfiguration.TransitSwitch)
       }
 
-      // @@protoc_insertion_point(class_scope:aliothcontroller.SubnetConfiguration.TransitSwitchIp)
-      private static final com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp DEFAULT_INSTANCE;
+      // @@protoc_insertion_point(class_scope:aliothcontroller.SubnetConfiguration.TransitSwitch)
+      private static final com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch DEFAULT_INSTANCE;
       static {
-        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp();
+        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch();
       }
 
-      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstance() {
+      public static com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getDefaultInstance() {
         return DEFAULT_INSTANCE;
       }
 
-      private static final com.google.protobuf.Parser<TransitSwitchIp>
-          PARSER = new com.google.protobuf.AbstractParser<TransitSwitchIp>() {
-        public TransitSwitchIp parsePartialFrom(
+      private static final com.google.protobuf.Parser<TransitSwitch>
+          PARSER = new com.google.protobuf.AbstractParser<TransitSwitch>() {
+        public TransitSwitch parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-            return new TransitSwitchIp(input, extensionRegistry);
+            return new TransitSwitch(input, extensionRegistry);
         }
       };
 
-      public static com.google.protobuf.Parser<TransitSwitchIp> parser() {
+      public static com.google.protobuf.Parser<TransitSwitch> parser() {
         return PARSER;
       }
 
       @java.lang.Override
-      public com.google.protobuf.Parser<TransitSwitchIp> getParserForType() {
+      public com.google.protobuf.Parser<TransitSwitch> getParserForType() {
         return PARSER;
       }
 
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getDefaultInstanceForType() {
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
 
@@ -2564,39 +2701,39 @@ public final class Subnet {
       return securityGroupIds_.get(index);
     }
 
-    public static final int TRANSIT_SWITCH_IPS_FIELD_NUMBER = 15;
-    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> transitSwitchIps_;
+    public static final int TRANSIT_SWITCHES_FIELD_NUMBER = 15;
+    private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> transitSwitches_;
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> getTransitSwitchIpsList() {
-      return transitSwitchIps_;
+    public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> getTransitSwitchesList() {
+      return transitSwitches_;
     }
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
-        getTransitSwitchIpsOrBuilderList() {
-      return transitSwitchIps_;
+    public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder> 
+        getTransitSwitchesOrBuilderList() {
+      return transitSwitches_;
     }
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    public int getTransitSwitchIpsCount() {
-      return transitSwitchIps_.size();
+    public int getTransitSwitchesCount() {
+      return transitSwitches_.size();
     }
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index) {
-      return transitSwitchIps_.get(index);
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getTransitSwitches(int index) {
+      return transitSwitches_.get(index);
     }
     /**
-     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+     * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
      */
-    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+    public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder getTransitSwitchesOrBuilder(
         int index) {
-      return transitSwitchIps_.get(index);
+      return transitSwitches_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -2653,8 +2790,8 @@ public final class Subnet {
       for (int i = 0; i < securityGroupIds_.size(); i++) {
         output.writeMessage(14, securityGroupIds_.get(i));
       }
-      for (int i = 0; i < transitSwitchIps_.size(); i++) {
-        output.writeMessage(15, transitSwitchIps_.get(i));
+      for (int i = 0; i < transitSwitches_.size(); i++) {
+        output.writeMessage(15, transitSwitches_.get(i));
       }
     }
 
@@ -2710,9 +2847,9 @@ public final class Subnet {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(14, securityGroupIds_.get(i));
       }
-      for (int i = 0; i < transitSwitchIps_.size(); i++) {
+      for (int i = 0; i < transitSwitches_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(15, transitSwitchIps_.get(i));
+          .computeMessageSize(15, transitSwitches_.get(i));
       }
       memoizedSize = size;
       return size;
@@ -2758,8 +2895,8 @@ public final class Subnet {
           .equals(other.getDnsListList());
       result = result && getSecurityGroupIdsList()
           .equals(other.getSecurityGroupIdsList());
-      result = result && getTransitSwitchIpsList()
-          .equals(other.getTransitSwitchIpsList());
+      result = result && getTransitSwitchesList()
+          .equals(other.getTransitSwitchesList());
       return result;
     }
 
@@ -2804,9 +2941,9 @@ public final class Subnet {
         hash = (37 * hash) + SECURITY_GROUP_IDS_FIELD_NUMBER;
         hash = (53 * hash) + getSecurityGroupIdsList().hashCode();
       }
-      if (getTransitSwitchIpsCount() > 0) {
-        hash = (37 * hash) + TRANSIT_SWITCH_IPS_FIELD_NUMBER;
-        hash = (53 * hash) + getTransitSwitchIpsList().hashCode();
+      if (getTransitSwitchesCount() > 0) {
+        hash = (37 * hash) + TRANSIT_SWITCHES_FIELD_NUMBER;
+        hash = (53 * hash) + getTransitSwitchesList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -2924,7 +3061,7 @@ public final class Subnet {
                 .alwaysUseFieldBuilders) {
           getDnsListFieldBuilder();
           getSecurityGroupIdsFieldBuilder();
-          getTransitSwitchIpsFieldBuilder();
+          getTransitSwitchesFieldBuilder();
         }
       }
       public Builder clear() {
@@ -2965,11 +3102,11 @@ public final class Subnet {
         } else {
           securityGroupIdsBuilder_.clear();
         }
-        if (transitSwitchIpsBuilder_ == null) {
-          transitSwitchIps_ = java.util.Collections.emptyList();
+        if (transitSwitchesBuilder_ == null) {
+          transitSwitches_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00004000);
         } else {
-          transitSwitchIpsBuilder_.clear();
+          transitSwitchesBuilder_.clear();
         }
         return this;
       }
@@ -3025,14 +3162,14 @@ public final class Subnet {
         } else {
           result.securityGroupIds_ = securityGroupIdsBuilder_.build();
         }
-        if (transitSwitchIpsBuilder_ == null) {
+        if (transitSwitchesBuilder_ == null) {
           if (((bitField0_ & 0x00004000) == 0x00004000)) {
-            transitSwitchIps_ = java.util.Collections.unmodifiableList(transitSwitchIps_);
+            transitSwitches_ = java.util.Collections.unmodifiableList(transitSwitches_);
             bitField0_ = (bitField0_ & ~0x00004000);
           }
-          result.transitSwitchIps_ = transitSwitchIps_;
+          result.transitSwitches_ = transitSwitches_;
         } else {
-          result.transitSwitchIps_ = transitSwitchIpsBuilder_.build();
+          result.transitSwitches_ = transitSwitchesBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -3173,29 +3310,29 @@ public final class Subnet {
             }
           }
         }
-        if (transitSwitchIpsBuilder_ == null) {
-          if (!other.transitSwitchIps_.isEmpty()) {
-            if (transitSwitchIps_.isEmpty()) {
-              transitSwitchIps_ = other.transitSwitchIps_;
+        if (transitSwitchesBuilder_ == null) {
+          if (!other.transitSwitches_.isEmpty()) {
+            if (transitSwitches_.isEmpty()) {
+              transitSwitches_ = other.transitSwitches_;
               bitField0_ = (bitField0_ & ~0x00004000);
             } else {
-              ensureTransitSwitchIpsIsMutable();
-              transitSwitchIps_.addAll(other.transitSwitchIps_);
+              ensureTransitSwitchesIsMutable();
+              transitSwitches_.addAll(other.transitSwitches_);
             }
             onChanged();
           }
         } else {
-          if (!other.transitSwitchIps_.isEmpty()) {
-            if (transitSwitchIpsBuilder_.isEmpty()) {
-              transitSwitchIpsBuilder_.dispose();
-              transitSwitchIpsBuilder_ = null;
-              transitSwitchIps_ = other.transitSwitchIps_;
+          if (!other.transitSwitches_.isEmpty()) {
+            if (transitSwitchesBuilder_.isEmpty()) {
+              transitSwitchesBuilder_.dispose();
+              transitSwitchesBuilder_ = null;
+              transitSwitches_ = other.transitSwitches_;
               bitField0_ = (bitField0_ & ~0x00004000);
-              transitSwitchIpsBuilder_ = 
+              transitSwitchesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getTransitSwitchIpsFieldBuilder() : null;
+                   getTransitSwitchesFieldBuilder() : null;
             } else {
-              transitSwitchIpsBuilder_.addAllMessages(other.transitSwitchIps_);
+              transitSwitchesBuilder_.addAllMessages(other.transitSwitches_);
             }
           }
         }
@@ -4405,244 +4542,244 @@ public final class Subnet {
         return securityGroupIdsBuilder_;
       }
 
-      private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> transitSwitchIps_ =
+      private java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> transitSwitches_ =
         java.util.Collections.emptyList();
-      private void ensureTransitSwitchIpsIsMutable() {
+      private void ensureTransitSwitchesIsMutable() {
         if (!((bitField0_ & 0x00004000) == 0x00004000)) {
-          transitSwitchIps_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp>(transitSwitchIps_);
+          transitSwitches_ = new java.util.ArrayList<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch>(transitSwitches_);
           bitField0_ |= 0x00004000;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> transitSwitchIpsBuilder_;
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder> transitSwitchesBuilder_;
 
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> getTransitSwitchIpsList() {
-        if (transitSwitchIpsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(transitSwitchIps_);
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> getTransitSwitchesList() {
+        if (transitSwitchesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(transitSwitches_);
         } else {
-          return transitSwitchIpsBuilder_.getMessageList();
+          return transitSwitchesBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public int getTransitSwitchIpsCount() {
-        if (transitSwitchIpsBuilder_ == null) {
-          return transitSwitchIps_.size();
+      public int getTransitSwitchesCount() {
+        if (transitSwitchesBuilder_ == null) {
+          return transitSwitches_.size();
         } else {
-          return transitSwitchIpsBuilder_.getCount();
+          return transitSwitchesBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp getTransitSwitchIps(int index) {
-        if (transitSwitchIpsBuilder_ == null) {
-          return transitSwitchIps_.get(index);
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch getTransitSwitches(int index) {
+        if (transitSwitchesBuilder_ == null) {
+          return transitSwitches_.get(index);
         } else {
-          return transitSwitchIpsBuilder_.getMessage(index);
+          return transitSwitchesBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder setTransitSwitchIps(
-          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
-        if (transitSwitchIpsBuilder_ == null) {
+      public Builder setTransitSwitches(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch value) {
+        if (transitSwitchesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.set(index, value);
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.set(index, value);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.setMessage(index, value);
+          transitSwitchesBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder setTransitSwitchIps(
-          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
-        if (transitSwitchIpsBuilder_ == null) {
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.set(index, builderForValue.build());
+      public Builder setTransitSwitches(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder builderForValue) {
+        if (transitSwitchesBuilder_ == null) {
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.set(index, builderForValue.build());
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.setMessage(index, builderForValue.build());
+          transitSwitchesBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder addTransitSwitchIps(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
-        if (transitSwitchIpsBuilder_ == null) {
+      public Builder addTransitSwitches(com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch value) {
+        if (transitSwitchesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.add(value);
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.add(value);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.addMessage(value);
+          transitSwitchesBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder addTransitSwitchIps(
-          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp value) {
-        if (transitSwitchIpsBuilder_ == null) {
+      public Builder addTransitSwitches(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch value) {
+        if (transitSwitchesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.add(index, value);
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.add(index, value);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.addMessage(index, value);
+          transitSwitchesBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder addTransitSwitchIps(
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
-        if (transitSwitchIpsBuilder_ == null) {
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.add(builderForValue.build());
+      public Builder addTransitSwitches(
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder builderForValue) {
+        if (transitSwitchesBuilder_ == null) {
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.add(builderForValue.build());
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.addMessage(builderForValue.build());
+          transitSwitchesBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder addTransitSwitchIps(
-          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder builderForValue) {
-        if (transitSwitchIpsBuilder_ == null) {
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.add(index, builderForValue.build());
+      public Builder addTransitSwitches(
+          int index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder builderForValue) {
+        if (transitSwitchesBuilder_ == null) {
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.add(index, builderForValue.build());
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.addMessage(index, builderForValue.build());
+          transitSwitchesBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder addAllTransitSwitchIps(
-          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp> values) {
-        if (transitSwitchIpsBuilder_ == null) {
-          ensureTransitSwitchIpsIsMutable();
+      public Builder addAllTransitSwitches(
+          java.lang.Iterable<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch> values) {
+        if (transitSwitchesBuilder_ == null) {
+          ensureTransitSwitchesIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, transitSwitchIps_);
+              values, transitSwitches_);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.addAllMessages(values);
+          transitSwitchesBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder clearTransitSwitchIps() {
-        if (transitSwitchIpsBuilder_ == null) {
-          transitSwitchIps_ = java.util.Collections.emptyList();
+      public Builder clearTransitSwitches() {
+        if (transitSwitchesBuilder_ == null) {
+          transitSwitches_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00004000);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.clear();
+          transitSwitchesBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public Builder removeTransitSwitchIps(int index) {
-        if (transitSwitchIpsBuilder_ == null) {
-          ensureTransitSwitchIpsIsMutable();
-          transitSwitchIps_.remove(index);
+      public Builder removeTransitSwitches(int index) {
+        if (transitSwitchesBuilder_ == null) {
+          ensureTransitSwitchesIsMutable();
+          transitSwitches_.remove(index);
           onChanged();
         } else {
-          transitSwitchIpsBuilder_.remove(index);
+          transitSwitchesBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder getTransitSwitchIpsBuilder(
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder getTransitSwitchesBuilder(
           int index) {
-        return getTransitSwitchIpsFieldBuilder().getBuilder(index);
+        return getTransitSwitchesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder getTransitSwitchIpsOrBuilder(
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder getTransitSwitchesOrBuilder(
           int index) {
-        if (transitSwitchIpsBuilder_ == null) {
-          return transitSwitchIps_.get(index);  } else {
-          return transitSwitchIpsBuilder_.getMessageOrBuilder(index);
+        if (transitSwitchesBuilder_ == null) {
+          return transitSwitches_.get(index);  } else {
+          return transitSwitchesBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
-           getTransitSwitchIpsOrBuilderList() {
-        if (transitSwitchIpsBuilder_ != null) {
-          return transitSwitchIpsBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder> 
+           getTransitSwitchesOrBuilderList() {
+        if (transitSwitchesBuilder_ != null) {
+          return transitSwitchesBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(transitSwitchIps_);
+          return java.util.Collections.unmodifiableList(transitSwitches_);
         }
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder addTransitSwitchIpsBuilder() {
-        return getTransitSwitchIpsFieldBuilder().addBuilder(
-            com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance());
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder addTransitSwitchesBuilder() {
+        return getTransitSwitchesFieldBuilder().addBuilder(
+            com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder addTransitSwitchIpsBuilder(
+      public com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder addTransitSwitchesBuilder(
           int index) {
-        return getTransitSwitchIpsFieldBuilder().addBuilder(
-            index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.getDefaultInstance());
+        return getTransitSwitchesFieldBuilder().addBuilder(
+            index, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.getDefaultInstance());
       }
       /**
-       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitchIp transit_switch_ips = 15;</code>
+       * <code>repeated .aliothcontroller.SubnetConfiguration.TransitSwitch transit_switches = 15;</code>
        */
-      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder> 
-           getTransitSwitchIpsBuilderList() {
-        return getTransitSwitchIpsFieldBuilder().getBuilderList();
+      public java.util.List<com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder> 
+           getTransitSwitchesBuilderList() {
+        return getTransitSwitchesFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder> 
-          getTransitSwitchIpsFieldBuilder() {
-        if (transitSwitchIpsBuilder_ == null) {
-          transitSwitchIpsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIp.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchIpOrBuilder>(
-                  transitSwitchIps_,
+          com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder> 
+          getTransitSwitchesFieldBuilder() {
+        if (transitSwitchesBuilder_ == null) {
+          transitSwitchesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitch.Builder, com.futurewei.alioth.controller.schema.Subnet.SubnetConfiguration.TransitSwitchOrBuilder>(
+                  transitSwitches_,
                   ((bitField0_ & 0x00004000) == 0x00004000),
                   getParentForChildren(),
                   isClean());
-          transitSwitchIps_ = null;
+          transitSwitches_ = null;
         }
-        return transitSwitchIpsBuilder_;
+        return transitSwitchesBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -5361,10 +5498,10 @@ public final class Subnet {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aliothcontroller_SubnetConfiguration_SecurityGroupId_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor;
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable;
+      internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aliothcontroller_SubnetState_descriptor;
   private static final 
@@ -5380,7 +5517,7 @@ public final class Subnet {
   static {
     java.lang.String[] descriptorData = {
       "\n\014subnet.proto\022\020aliothcontroller\032\014common" +
-      ".proto\"\341\004\n\023SubnetConfiguration\022\017\n\007versio" +
+      ".proto\"\360\004\n\023SubnetConfiguration\022\017\n\007versio" +
       "n\030\001 \001(\005\022\022\n\nproject_id\030\002 \001(\t\022\016\n\006vpc_id\030\003 " +
       "\001(\t\022\n\n\002id\030\004 \001(\t\022\014\n\004name\030\005 \001(\t\022\014\n\004cidr\030\006 " +
       "\001(\t\022\021\n\ttunnel_id\030\007 \001(\003\022\022\n\ngateway_ip\030\010 \001" +
@@ -5390,17 +5527,17 @@ public final class Subnet {
       "hcontroller.SubnetConfiguration.DnsEntry" +
       "\022Q\n\022security_group_ids\030\016 \003(\01325.aliothcon",
       "troller.SubnetConfiguration.SecurityGrou" +
-      "pId\022Q\n\022transit_switch_ips\030\017 \003(\01325.alioth" +
-      "controller.SubnetConfiguration.TransitSw" +
-      "itchIp\032\031\n\010DnsEntry\022\r\n\005entry\030\001 \001(\t\032\035\n\017Sec" +
-      "urityGroupId\022\n\n\002id\030\001 \001(\t\032H\n\017TransitSwitc" +
-      "hIp\022\016\n\006vpc_id\030\001 \001(\t\022\021\n\tsubnet_id\030\002 \001(\t\022\022" +
-      "\n\nip_address\030\003 \001(\t\"\204\001\n\013SubnetState\0227\n\016op" +
-      "eration_type\030\001 \001(\0162\037.aliothcontroller.Op" +
-      "erationType\022<\n\rconfiguration\030\002 \001(\0132%.ali" +
-      "othcontroller.SubnetConfigurationB0\n&com",
-      ".futurewei.alioth.controller.schemaB\006Sub" +
-      "netb\006proto3"
+      "pId\022M\n\020transit_switches\030\017 \003(\01323.aliothco" +
+      "ntroller.SubnetConfiguration.TransitSwit" +
+      "ch\032\031\n\010DnsEntry\022\r\n\005entry\030\001 \001(\t\032\035\n\017Securit" +
+      "yGroupId\022\n\n\002id\030\001 \001(\t\032[\n\rTransitSwitch\022\016\n" +
+      "\006vpc_id\030\001 \001(\t\022\021\n\tsubnet_id\030\002 \001(\t\022\022\n\nip_a" +
+      "ddress\030\003 \001(\t\022\023\n\013mac_address\030\004 \001(\t\"\204\001\n\013Su" +
+      "bnetState\0227\n\016operation_type\030\001 \001(\0162\037.alio" +
+      "thcontroller.OperationType\022<\n\rconfigurat" +
+      "ion\030\002 \001(\0132%.aliothcontroller.SubnetConfi",
+      "gurationB0\n&com.futurewei.alioth.control" +
+      "ler.schemaB\006Subnetb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5420,7 +5557,7 @@ public final class Subnet {
     internal_static_aliothcontroller_SubnetConfiguration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_SubnetConfiguration_descriptor,
-        new java.lang.String[] { "Version", "ProjectId", "VpcId", "Id", "Name", "Cidr", "TunnelId", "GatewayIp", "DhcpEnable", "AvailabilityZone", "PrimaryDns", "SecondaryDns", "DnsList", "SecurityGroupIds", "TransitSwitchIps", });
+        new java.lang.String[] { "Version", "ProjectId", "VpcId", "Id", "Name", "Cidr", "TunnelId", "GatewayIp", "DhcpEnable", "AvailabilityZone", "PrimaryDns", "SecondaryDns", "DnsList", "SecurityGroupIds", "TransitSwitches", });
     internal_static_aliothcontroller_SubnetConfiguration_DnsEntry_descriptor =
       internal_static_aliothcontroller_SubnetConfiguration_descriptor.getNestedTypes().get(0);
     internal_static_aliothcontroller_SubnetConfiguration_DnsEntry_fieldAccessorTable = new
@@ -5433,12 +5570,12 @@ public final class Subnet {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_SubnetConfiguration_SecurityGroupId_descriptor,
         new java.lang.String[] { "Id", });
-    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor =
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor =
       internal_static_aliothcontroller_SubnetConfiguration_descriptor.getNestedTypes().get(2);
-    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_fieldAccessorTable = new
+    internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_aliothcontroller_SubnetConfiguration_TransitSwitchIp_descriptor,
-        new java.lang.String[] { "VpcId", "SubnetId", "IpAddress", });
+        internal_static_aliothcontroller_SubnetConfiguration_TransitSwitch_descriptor,
+        new java.lang.String[] { "VpcId", "SubnetId", "IpAddress", "MacAddress", });
     internal_static_aliothcontroller_SubnetState_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_aliothcontroller_SubnetState_fieldAccessorTable = new
