@@ -19,18 +19,18 @@ public class TestUtil {
 
         Assert.assertEquals("routes mismatched", expected.getConfiguration().getRoutesCount(), result.getConfiguration().getRoutesCount());
 
-        Assert.assertEquals("transit router ips mismatched", expected.getConfiguration().getTransitRouterIpsCount(), result.getConfiguration().getTransitRouterIpsCount());
-        TestUtil.AssertTransitRouterIps(expected.getConfiguration().getTransitRouterIpsList(), result.getConfiguration().getTransitRouterIpsList());
+        Assert.assertEquals("transit router ips mismatched", expected.getConfiguration().getTransitRoutersCount(), result.getConfiguration().getTransitRoutersCount());
+        TestUtil.AssertTransitRouters(expected.getConfiguration().getTransitRoutersList(), result.getConfiguration().getTransitRoutersList());
     }
 
-    public static void AssertTransitRouterIps(List<VpcConfiguration.TransitRouterIp> expected, List<VpcConfiguration.TransitRouterIp> result){
+    public static void AssertTransitRouters(List<VpcConfiguration.TransitRouter> expected, List<VpcConfiguration.TransitRouter> result){
         Assert.assertEquals(expected.size(), result.size());
         for (int i = 0; i < expected.size(); i++) {
-            TestUtil.AssertTransitRouterIp(expected.get(i), result.get(i));
+            TestUtil.AssertTransitRouter(expected.get(i), result.get(i));
         }
     }
 
-    private static void AssertTransitRouterIp(VpcConfiguration.TransitRouterIp expected, VpcConfiguration.TransitRouterIp result) {
+    private static void AssertTransitRouter(VpcConfiguration.TransitRouter expected, VpcConfiguration.TransitRouter result) {
         Assert.assertEquals("vip id mismatched", expected.getVpcId(), result.getVpcId());
         Assert.assertEquals("router ip mismatched", expected.getIpAddress(), result.getIpAddress());
     }
@@ -43,18 +43,18 @@ public class TestUtil {
         Assert.assertEquals("subnet name mismatched", expected.getConfiguration().getName(), result.getConfiguration().getName());
         Assert.assertEquals("cidr mismatched", expected.getConfiguration().getCidr(), result.getConfiguration().getCidr());
 
-        Assert.assertEquals("transit router ips mismatched", expected.getConfiguration().getTransitSwitchIpsCount(), result.getConfiguration().getTransitSwitchIpsCount());
-        TestUtil.AssertTransitSwitchIps(expected.getConfiguration().getTransitSwitchIpsList(), result.getConfiguration().getTransitSwitchIpsList());
+        Assert.assertEquals("transit router ips mismatched", expected.getConfiguration().getTransitSwitchesCount(), result.getConfiguration().getTransitSwitchesCount());
+        TestUtil.AssertTransitSwitches(expected.getConfiguration().getTransitSwitchesList(), result.getConfiguration().getTransitSwitchesList());
     }
 
-    public static void AssertTransitSwitchIps(List<SubnetConfiguration.TransitSwitchIp> expected, List<SubnetConfiguration.TransitSwitchIp> result){
+    public static void AssertTransitSwitches(List<SubnetConfiguration.TransitSwitch> expected, List<SubnetConfiguration.TransitSwitch> result){
         Assert.assertEquals(expected.size(), result.size());
         for (int i = 0; i < expected.size(); i++) {
-            TestUtil.AssertTransitSwitchIp(expected.get(i), result.get(i));
+            TestUtil.AssertTransitSwitch(expected.get(i), result.get(i));
         }
     }
 
-    private static void AssertTransitSwitchIp(SubnetConfiguration.TransitSwitchIp expected, SubnetConfiguration.TransitSwitchIp result) {
+    private static void AssertTransitSwitch(SubnetConfiguration.TransitSwitch expected, SubnetConfiguration.TransitSwitch result) {
         Assert.assertEquals("vip id mismatched", expected.getVpcId(), result.getVpcId());
         Assert.assertEquals("subnet id mismatched", expected.getSubnetId(), result.getSubnetId());
         Assert.assertEquals("router ip mismatched", expected.getIpAddress(), result.getIpAddress());
