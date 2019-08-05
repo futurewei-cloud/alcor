@@ -1,5 +1,8 @@
 package com.futurewei.alioth.controller.schema;
 
+import com.futurewei.alioth.controller.comm.config.DemoConfig;
+import com.futurewei.alioth.controller.model.HostInfo;
+import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Assert;
@@ -8,14 +11,20 @@ import org.junit.Test;
 public class SubnetTest {
     @Test
     public void basicSerializationVerification() {
-        final Subnet.SubnetState state = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
-                "dbf72700-5106-4a7a-918f-a016853911f8",
+        SubnetState customerSubnetState = new SubnetState("dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",
                 "Subnet1",
-                "192.168.0.0/28",
-                "192.168.0.1",
-                "192.168.0.2");
+                "192.168.0.0/28");
+
+        HostInfo[] transitSwitches = {
+                new HostInfo(DemoConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo(DemoConfig.TRANSIT_SWTICH_2_HOST_ID, "transit switch host2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+        };
+
+        final Subnet.SubnetState state = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
+                customerSubnetState,
+                transitSwitches);
 
         final byte[] binaryState = state.toByteArray();
 

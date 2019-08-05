@@ -14,17 +14,12 @@ public class GoalStateUtil {
     public static  GoalState CreateGoalState(
             Common.OperationType option,
             VpcState customerVpcState,
-            String transit_router_ip,
-            String transit_router_ip2)
+            HostInfo[] transitRouterHosts)
     {
         final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
                 option,
-                customerVpcState.getProjectId(),
-                customerVpcState.getId(),
-                customerVpcState.getName(),
-                customerVpcState.getCidr(),
-                transit_router_ip,
-                transit_router_ip2);
+                customerVpcState,
+                transitRouterHosts);
 
         GoalState goalstate = GoalState.newBuilder()
                 .addVpcStates(vpcState)
@@ -36,18 +31,12 @@ public class GoalStateUtil {
     public static GoalState CreateGoalState(
             Common.OperationType option,
             SubnetState customerSubnetState,
-            String transit_switch_ip,
-            String transit_switch_ip2)
+            HostInfo[] transitSwitchHosts)
     {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                 option,
-                customerSubnetState.getProjectId(),
-                customerSubnetState.getVpcId(),
-                customerSubnetState.getId(),
-                customerSubnetState.getName(),
-                customerSubnetState.getCidr(),
-                transit_switch_ip,
-                transit_switch_ip2);
+                customerSubnetState,
+                transitSwitchHosts);
 
         GoalState goalstate = GoalState.newBuilder()
                 .addSubnetStates(gsSubnetState)
@@ -73,27 +62,29 @@ public class GoalStateUtil {
                 .build();
     }
 
+    // TODO: add mac
     public static Vpc.VpcState CreateGSVpcState(
             Common.OperationType option,
-            String project_id,
-            String vpc_id,
-            String vpc_name,
-            String cidr,
-            String transit_router_ip,
-            String transit_router_ip2)
+            VpcState customerVpcState,
+            HostInfo[] transitRouterHosts)
     {
-        VpcConfiguration vpcConfiguration = VpcConfiguration.newBuilder()
-                .setProjectId(project_id)
-                .setId(vpc_id)
-                .setName(vpc_name)
-                .setCidr(cidr)
-                .addTransitRouterIps(VpcConfiguration.TransitRouterIp.newBuilder()
-                        .setVpcId(vpc_id)
-                        .setIpAddress(transit_router_ip))
-                .addTransitRouterIps(VpcConfiguration.TransitRouterIp.newBuilder()
-                        .setVpcId(vpc_id)
-                        .setIpAddress(transit_router_ip2))
-                .build();
+        String vpcId = customerVpcState.getId();
+        VpcConfiguration.Builder vpcConfiguration = VpcConfiguration.newBuilder();
+
+        vpcConfiguration.setProjectId(customerVpcState.getProjectId())
+                .setId(vpcId)
+                .setName(customerVpcState.getName())
+                .setCidr(customerVpcState.getCidr());
+
+        for (HostInfo routerHost : transitRouterHosts){
+            vpcConfiguration.addTransitRouters(
+                    VpcConfiguration.TransitRouter.newBuilder()
+                        .setVpcId(vpcId)
+                        .setIpAddress(routerHost.getHostIpAddress())
+                        .setMacAddress(routerHost.getHostMacAddress()));
+        }
+
+        vpcConfiguration.build();
 
         return Vpc.VpcState.newBuilder()
                 .setOperationType(option)
@@ -101,31 +92,32 @@ public class GoalStateUtil {
                 .build();
     }
 
+    // TODO: add mac
     public static Subnet.SubnetState CreateGSSubnetState(
             Common.OperationType option,
-            String project_id,
-            String vpc_id,
-            String subnet_id,
-            String subnet_name,
-            String cidr,
-            String transit_switch_ip,
-            String transit_switch_ip2)
+            SubnetState customerSubnetState,
+            HostInfo[] transitSwitchHosts)
     {
-        SubnetConfiguration subnetConfiguration = SubnetConfiguration.newBuilder()
-                .setProjectId(project_id)
-                .setVpcId(vpc_id)
-                .setId(subnet_id)
-                .setName(subnet_name)
-                .setCidr(cidr)
-                .addTransitSwitchIps(SubnetConfiguration.TransitSwitchIp.newBuilder()
-                        .setVpcId(vpc_id)
-                        .setSubnetId(subnet_id)
-                        .setIpAddress(transit_switch_ip))
-                .addTransitSwitchIps(SubnetConfiguration.TransitSwitchIp.newBuilder()
-                        .setVpcId(vpc_id)
-                        .setSubnetId(subnet_id)
-                        .setIpAddress(transit_switch_ip2))
-                .build();
+        String vpcId = customerSubnetState.getVpcId();
+        String subnetId = customerSubnetState.getId();
+        SubnetConfiguration.Builder subnetConfiguration = SubnetConfiguration.newBuilder();
+
+        subnetConfiguration.setProjectId(customerSubnetState.getProjectId())
+                .setVpcId(vpcId)
+                .setId(subnetId)
+                .setName(customerSubnetState.getName())
+                .setCidr(customerSubnetState.getCidr());
+
+        for(HostInfo switchHost : transitSwitchHosts){
+            subnetConfiguration.addTransitSwitches(
+                    SubnetConfiguration.TransitSwitch.newBuilder()
+                            .setVpcId(vpcId)
+                            .setSubnetId(subnetId)
+                            .setIpAddress(switchHost.getHostIpAddress())
+                            .setMacAddress(switchHost.getHostMacAddress()));
+        }
+
+        subnetConfiguration.build();
 
         return Subnet.SubnetState.newBuilder()
                 .setOperationType(option)

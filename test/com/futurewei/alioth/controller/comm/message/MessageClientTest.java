@@ -1,5 +1,8 @@
 package com.futurewei.alioth.controller.comm.message;
 
+import com.futurewei.alioth.controller.comm.config.DemoConfig;
+import com.futurewei.alioth.controller.model.HostInfo;
+import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate.GoalState;
 import com.futurewei.alioth.controller.schema.Subnet;
@@ -67,26 +70,38 @@ public class MessageClientTest {
 
     @Test
     public void subnetCreateUpdateE2EVerification() {
-        final Subnet.SubnetState subnet_state1 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
-                "dbf72700-5106-4a7a-918f-a016853911f8",
+        SubnetState customerSubnetState = new SubnetState("dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",
                 "Subnet1",
-                "192.168.0.0/24",
-                "192.168.0.1",
-                "192.168.0.2");
+                "10.0.0.0/24");
 
-        final Subnet.SubnetState subnet_state2 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
-                "dbf72700-5106-4a7a-918f-a016853911f8",
+        HostInfo[] transitSwitches = {
+                new HostInfo("subnet1-ts1", "transit switch host1", new byte[]{10,0,0,1}, "fa:16:3e:d7:f1:04"),
+                new HostInfo("subnet1-ts2", "transit switch host2", new byte[]{10,0,0,2}, "fa:16:3e:d7:f1:05")
+        };
+
+        final Subnet.SubnetState subnetState1 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
+                customerSubnetState,
+                transitSwitches);
+
+        SubnetState customerSubnetState2 = new SubnetState("dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "8cb94df3-05bd-45d1-95c0-1ad75f929810",
                 "Subnet2",
-                "192.168.1.0/24",
-                "192.168.1.1",
-                "192.168.1.3");
+                "10.0.1.0/24");
+
+        HostInfo[] transitSwitches2 = {
+                new HostInfo("subnet2-ts1", "transit switch host1", new byte[]{10,0,1,1}, "fa:16:3e:d7:f1:06"),
+                new HostInfo("subnet2-ts2", "transit switch host2", new byte[]{10,0,1,2}, "fa:16:3e:d7:f1:07")
+        };
+
+        final Subnet.SubnetState subnetState2 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
+                customerSubnetState2,
+                transitSwitches2);
 
         GoalState goalstate = GoalState.newBuilder()
-                .addSubnetStates(subnet_state1).addSubnetStates(subnet_state2)
+                .addSubnetStates(subnetState1).addSubnetStates(subnetState2)
                 .build();
 
         MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
@@ -102,12 +117,12 @@ public class MessageClientTest {
         Assert.assertEquals("invalid port state count", 0, receivedGoalState.getPortStatesCount());
         Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
-        TestUtil.AssertSubnetStates(subnet_state1, receivedGoalState.getSubnetStates(0));
-        TestUtil.AssertSubnetStates(subnet_state2, receivedGoalState.getSubnetStates(1));
+        TestUtil.AssertSubnetStates(subnetState1, receivedGoalState.getSubnetStates(0));
+        TestUtil.AssertSubnetStates(subnetState2, receivedGoalState.getSubnetStates(1));
 
         try {
 
-            TestUtil.AssertSubnetStates(subnet_state1, receivedGoalState.getSubnetStates(1));
+            TestUtil.AssertSubnetStates(subnetState1, receivedGoalState.getSubnetStates(1));
             Assert.assertTrue(false);
         } catch (AssertionError assertionError){
             //catch expected exception

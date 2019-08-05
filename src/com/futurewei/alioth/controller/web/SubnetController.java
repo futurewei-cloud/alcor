@@ -1,6 +1,7 @@
 package com.futurewei.alioth.controller.web;
 
 import com.futurewei.alioth.controller.cache.repo.*;
+import com.futurewei.alioth.controller.comm.config.DemoConfig;
 import com.futurewei.alioth.controller.comm.message.*;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
 import com.futurewei.alioth.controller.exception.*;
@@ -70,12 +71,12 @@ public class SubnetController {
 
             //TODO: Algorithm to allocate transit switches and routers
             HostInfo[] transitSwitches = {
-                    new HostInfo("ts-1", "transit switch host1", new byte[]{10,0,0,11}),
-                    new HostInfo("ts-2", "transit switch host2", new byte[]{10,0,0,12})
+                    new HostInfo(DemoConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                    new HostInfo(DemoConfig.TRANSIT_SWTICH_2_HOST_ID, "transit switch host2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
             };
             HostInfo[] transitRouters = {
-                    new HostInfo("tr-1", "transit router host1", new byte[]{10,0,0,1}),
-                    new HostInfo("tr-2", "transit router host2", new byte[]{10,0,0,2})
+                    new HostInfo(DemoConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
+                    new HostInfo(DemoConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
             };
             MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
 
@@ -87,8 +88,7 @@ public class SubnetController {
             GoalState subnetGoalState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_ROUTER,
                     subnetState,
-                    transitSwitches[0].getHostIpAddress(),
-                    transitSwitches[1].getHostIpAddress());
+                    transitSwitches);
             for(HostInfo transitRouter : transitRouters){
                 String topic = MessageClient.getGoalStateTopic(transitRouter.getId());
                 client.runProducer(topic, subnetGoalState);
@@ -99,8 +99,7 @@ public class SubnetController {
             GoalState vpcGoalstate = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_SWITCH,
                     vpcState,
-                    transitRouters[0].getHostIpAddress(),
-                    transitRouters[1].getHostIpAddress());
+                    transitRouters);
             for(HostInfo transitSwitch : transitSwitches)
             {
                 String topic = MessageClient.getGoalStateTopic(transitSwitch.getId());
