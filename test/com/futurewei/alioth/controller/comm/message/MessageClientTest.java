@@ -336,7 +336,7 @@ public class MessageClientTest {
 
         for (HostInfo switchForSubnet1 : transitSwitchHostsForSubnet1){
             String topic = DemoConfig.HOST_ID_PREFIX + switchForSubnet1.getId();
-            client.runProducer(topic, gsVpcState);
+            client.runProducer(topic, gsPortStateForSubnet1);
             List goalStateList = client.runConsumer(topic, true);
 
             Assert.assertEquals("invalid message count", 1, goalStateList.size());
@@ -362,7 +362,7 @@ public class MessageClientTest {
 
         for (HostInfo switchForSubnet2 : transitSwitchHostsForSubnet2){
             String topic = DemoConfig.HOST_ID_PREFIX + switchForSubnet2.getId();
-            client.runProducer(topic, gsVpcState);
+            client.runProducer(topic, gsPortStateForSubnet2);
             List goalStateList = client.runConsumer(topic, true);
 
             Assert.assertEquals("invalid message count", 1, goalStateList.size());
