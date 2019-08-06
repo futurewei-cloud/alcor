@@ -33,15 +33,15 @@ public class GoalStateUtil {
     public static GoalState CreateGoalState(
             Common.OperationType option,
             SubnetState[] customerSubnetStates,
-            HostInfo[] transitSwitchHosts)
+            HostInfo[][] transitSwitchHosts)
     {
         GoalState.Builder goalstate = GoalState.newBuilder();
 
-        for(SubnetState state : customerSubnetStates){
+        for(int i = 0; i < customerSubnetStates.length; i++){
             final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                     option,
-                    state,
-                    transitSwitchHosts);
+                    customerSubnetStates[i],
+                    transitSwitchHosts[i]);
 
             goalstate.addSubnetStates(gsSubnetState);
         }

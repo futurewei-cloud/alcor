@@ -156,12 +156,6 @@ public class MessageClientTest {
                 new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
         };
 
-        // This is the combination of the two arrays above
-        HostInfo[] transitSwitchHosts = {
-                new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
-        };
-
         MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
 
         ////////////////////////////////////////////////////////////////////////////
@@ -176,7 +170,23 @@ public class MessageClientTest {
                 customerVpcState,
                 transitRouterHosts);
 
-        for(HostInfo transitSwitch : transitSwitchHosts)
+        for(HostInfo transitSwitch : transitSwitchHostsForSubnet1)
+        {
+            String topic = DemoConfig.HOST_ID_PREFIX + transitSwitch.getId();
+            client.runProducer(topic, gsVpcState);
+            List goalStateList = client.runConsumer(topic, true);
+
+            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            GoalState receivedGoalState = (GoalState) goalStateList.get(0);
+
+            Assert.assertEquals("invalid vpc state count", 1, receivedGoalState.getVpcStatesCount());
+            Assert.assertEquals("invalid subnet state count", 0, receivedGoalState.getSubnetStatesCount());
+            Assert.assertEquals("invalid port state count", 0, receivedGoalState.getPortStatesCount());
+            Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
+            TestUtil.AssertVpcStates(gsVpcState.getVpcStates(0), receivedGoalState.getVpcStates(0));
+        }
+
+        for(HostInfo transitSwitch : transitSwitchHostsForSubnet2)
         {
             String topic = DemoConfig.HOST_ID_PREFIX + transitSwitch.getId();
             client.runProducer(topic, gsVpcState);
@@ -201,6 +211,12 @@ public class MessageClientTest {
         SubnetState customerSubnetState2 = new SubnetState(projectId, vpcId, subnet2Id,
                 "Subnet2",
                 "10.0.1.0/24");
+
+        // This is the combination of all the transit switch hosts
+        HostInfo[][] transitSwitchHosts = {
+                transitSwitchHostsForSubnet1,
+                transitSwitchHostsForSubnet2
+        };
 
         final GoalState gsSubnetState = GoalStateUtil.CreateGoalState(
                 Common.OperationType.CREATE_UPDATE_ROUTER,
