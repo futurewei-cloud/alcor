@@ -89,7 +89,7 @@ public class SubnetController {
             GoalState subnetGoalState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_ROUTER,
                     new SubnetState[]{subnetState},
-                    transitSwitches);
+                    new HostInfo[][]{transitSwitches});
             for(HostInfo transitRouter : transitRouters){
                 String topic = MessageClient.getGoalStateTopic(transitRouter.getId());
                 client.runProducer(topic, subnetGoalState);
