@@ -75,4 +75,16 @@ public class PortState extends CustomerResource {
             this.fixedIps.add(new FixedIp(subnetId, vpcIp));
         }
     }
+
+    public PortState(String projectId, String subnetId, String id, String name, String macAddress, String vethName, List<FixedIp> fixedIps) {
+        super(projectId, id, name, "");
+        this.networkId = subnetId;
+        this.macAddress = macAddress;
+        this.vethName = vethName;
+        this.fixedIps = new ArrayList<>(fixedIps);
+    }
+
+    public PortState(PortState state){
+        this(state.getProjectId(), state.getNetworkId(), state.getId(), state.getName(), state.getMacAddress(), state.getVethName(), state.getFixedIps());
+    }
 }

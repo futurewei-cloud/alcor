@@ -16,6 +16,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+
 @Configuration
 @ComponentScan("com.futurewei.alioth.controller.cache")
 @EntityScan("com.futurewei.alioth.controller.cache")
@@ -48,6 +49,16 @@ public class RedisConfiguration {
         template.setKeySerializer( new StringRedisSerializer() );
         template.setHashValueSerializer( new Jackson2JsonRedisSerializer < SubnetState >( SubnetState.class ) );
         template.setValueSerializer(new Jackson2JsonRedisSerializer<SubnetState>(SubnetState.class));
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, PortState> redisPortTemplate() {
+        final RedisTemplate<String, PortState> template = new RedisTemplate<String, PortState>();
+        template.setConnectionFactory(lettuceConnectionFactory());
+        template.setKeySerializer( new StringRedisSerializer() );
+        template.setHashValueSerializer( new Jackson2JsonRedisSerializer < PortState >( PortState.class ) );
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<PortState>(PortState.class));
         return template;
     }
 
