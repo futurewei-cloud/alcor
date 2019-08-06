@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -139,5 +142,33 @@ public class PortController {
             throw new Exception(e);
         }
     }
+
+    @RequestMapping(
+            method = GET,
+            value = "/project/{projectid}/subnet/{subnetid}/ports")
+    public Map gePortStatesByProjectIdAndSubnetId(@PathVariable String projectid, @PathVariable String subnetid) throws Exception {
+        Map<String, PortState> portStates = null;
+
+        try {
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditions.verifyResourceFound(projectid);
+            RestPreconditions.verifyResourceFound(subnetid);
+
+            portStates = this.portRedisRepository.findAllItems();
+            portStates = portStates.entrySet().stream()
+                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
+                            && subnetid.equalsIgnoreCase(state.getValue().getNetworkId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+
+        }catch (ParameterNullOrEmptyException e){
+            throw new Exception(e);
+        }catch (ResourceNotFoundException e){
+            throw new Exception(e);
+        }
+
+        return portStates;
+    }
+
 
 }
