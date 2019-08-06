@@ -1,11 +1,7 @@
 package com.futurewei.alioth.controller.model;
 
 import lombok.Data;
-import org.thymeleaf.util.StringUtils;
-
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

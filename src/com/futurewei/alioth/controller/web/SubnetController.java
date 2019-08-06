@@ -1,7 +1,7 @@
 package com.futurewei.alioth.controller.web;
 
 import com.futurewei.alioth.controller.cache.repo.*;
-import com.futurewei.alioth.controller.comm.config.DemoConfig;
+import com.futurewei.alioth.controller.app.DemoConfig;
 import com.futurewei.alioth.controller.comm.message.*;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
 import com.futurewei.alioth.controller.exception.*;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -87,7 +88,7 @@ public class SubnetController {
             }
             GoalState subnetGoalState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.CREATE_UPDATE_ROUTER,
-                    subnetState,
+                    new SubnetState[]{subnetState},
                     transitSwitches);
             for(HostInfo transitRouter : transitRouters){
                 String topic = MessageClient.getGoalStateTopic(transitRouter.getId());

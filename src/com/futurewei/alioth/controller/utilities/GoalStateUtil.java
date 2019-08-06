@@ -1,9 +1,11 @@
 package com.futurewei.alioth.controller.utilities;
 
+import com.futurewei.alioth.controller.app.DemoConfig;
 import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate.*;
+import com.futurewei.alioth.controller.schema.Port;
 import com.futurewei.alioth.controller.schema.Subnet;
 import com.futurewei.alioth.controller.schema.Subnet.*;
 import com.futurewei.alioth.controller.schema.Vpc;
@@ -30,16 +32,71 @@ public class GoalStateUtil {
 
     public static GoalState CreateGoalState(
             Common.OperationType option,
-            SubnetState customerSubnetState,
+            SubnetState[] customerSubnetStates,
             HostInfo[] transitSwitchHosts)
     {
+        GoalState.Builder goalstate = GoalState.newBuilder();
+
+        for(SubnetState state : customerSubnetStates){
+            final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
+                    option,
+                    state,
+                    transitSwitchHosts);
+
+            goalstate.addSubnetStates(gsSubnetState);
+        }
+
+        return goalstate.build();
+    }
+
+    public static GoalState CreateGoalState(
+            Common.OperationType subnetOption,
+            SubnetState customerSubnetState,
+            HostInfo[] transitSwitchHosts,
+            Common.OperationType portOption,
+            PortState[] customerPortStates,
+            HostInfo[] portHosts)
+    {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                option,
+                subnetOption,
                 customerSubnetState,
                 transitSwitchHosts);
 
+        GoalState.Builder goalstate = GoalState.newBuilder().addSubnetStates(gsSubnetState);
+
+        for (int i = 0; i < customerPortStates.length; i++) {
+            final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
+                    portOption,
+                    customerPortStates[i],
+                    portHosts[i]);
+
+            goalstate.addPortStates(gsPortState);
+        }
+
+        return goalstate.build();
+    }
+
+    public static GoalState CreateGoalState(
+            Common.OperationType subnetOption,
+            SubnetState customerSubnetState,
+            HostInfo[] transitSwitchHosts,
+            Common.OperationType portOption,
+            PortState customerPortState,
+            HostInfo portHost)
+    {
+        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
+                subnetOption,
+                customerSubnetState,
+                transitSwitchHosts);
+
+        final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
+                portOption,
+                customerPortState,
+                portHost);
+
         GoalState goalstate = GoalState.newBuilder()
                 .addSubnetStates(gsSubnetState)
+                .addPortStates(gsPortState)
                 .build();
 
         return goalstate;
@@ -62,7 +119,6 @@ public class GoalStateUtil {
                 .build();
     }
 
-    // TODO: add mac
     public static Vpc.VpcState CreateGSVpcState(
             Common.OperationType option,
             VpcState customerVpcState,
@@ -92,7 +148,6 @@ public class GoalStateUtil {
                 .build();
     }
 
-    // TODO: add mac
     public static Subnet.SubnetState CreateGSSubnetState(
             Common.OperationType option,
             SubnetState customerSubnetState,
@@ -122,6 +177,29 @@ public class GoalStateUtil {
         return Subnet.SubnetState.newBuilder()
                 .setOperationType(option)
                 .setConfiguration(subnetConfiguration)
+                .build();
+    }
+
+    public static Port.PortState CreateGSPortState(
+            Common.OperationType option,
+            PortState customerPortState,
+            HostInfo portHost)
+    {
+        Port.PortConfiguration.Builder portConfiguration = Port.PortConfiguration.newBuilder();
+
+        portConfiguration.setProjectId(customerPortState.getProjectId())
+                .setNetworkId(customerPortState.getNetworkId())
+                .setId(customerPortState.getId())
+                .setName(customerPortState.getName())
+                .setMacAddress(customerPortState.getMacAddress())
+                .setVethName(customerPortState.getVethName())
+                .setHostInfo(Port.PortConfiguration.HostInfo.newBuilder()
+                                .setIpAddress(portHost.getHostIpAddress())
+                                .setMacAddress(portHost.getHostMacAddress()));
+
+        return Port.PortState.newBuilder()
+                .setOperationType(option)
+                .setConfiguration(portConfiguration)
                 .build();
     }
 }
