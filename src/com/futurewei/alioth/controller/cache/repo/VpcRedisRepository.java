@@ -40,7 +40,7 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     @Override
     public void addItem(VpcState newItem) {
-        System.out.println("Id:" + newItem.getId());
+        System.out.println("Vpc Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

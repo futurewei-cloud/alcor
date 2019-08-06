@@ -1,6 +1,6 @@
 package com.futurewei.alioth.controller.cache.repo;
 
-import com.futurewei.alioth.controller.model.SubnetState;
+import com.futurewei.alioth.controller.model.PortState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,16 +10,16 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Repository
-public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
+public class PortRedisRepository implements ICacheRepository<PortState> {
 
-    private static final String KEY = "SubnetState";
+    private static final String KEY = "PortState";
 
-    private RedisTemplate<String, SubnetState> redisTemplate;
+    private RedisTemplate<String, PortState> redisTemplate;
 
     private HashOperations hashOperations;
 
     @Autowired
-    public SubnetRedisRepository(RedisTemplate<String, SubnetState> redisTemplate){
+    public PortRedisRepository(RedisTemplate<String, PortState> redisTemplate){
         this.redisTemplate = redisTemplate;
     }
 
@@ -29,8 +29,8 @@ public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
     }
 
     @Override
-    public SubnetState findItem(String id) {
-        return (SubnetState) hashOperations.get(KEY, id);
+    public PortState findItem(String id) {
+        return (PortState) hashOperations.get(KEY, id);
     }
 
     @Override
@@ -39,8 +39,8 @@ public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
     }
 
     @Override
-    public void addItem(SubnetState newItem) {
-        System.out.println("Subnet Id:" + newItem.getId());
+    public void addItem(PortState newItem) {
+        System.out.println("Port Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

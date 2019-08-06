@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,7 @@ public class SubnetController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/subnet/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
-    public SubnetState getSubnetStateByVpcId(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
+    public SubnetState getSubnetStateById(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
 
         SubnetState subnetState = null;
 
