@@ -65,6 +65,7 @@ public class PortController {
         try{
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
+            RestPreconditions.verifyResourceFound(projectid);
 
             // TODO: Create a verification framework for all resources
             RestPreconditions.verifyResourceFound(resource.getNetworkId());
