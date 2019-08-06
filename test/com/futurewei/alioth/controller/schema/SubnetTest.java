@@ -1,6 +1,6 @@
 package com.futurewei.alioth.controller.schema;
 
-import com.futurewei.alioth.controller.comm.config.DemoConfig;
+import com.futurewei.alioth.controller.app.DemoConfig;
 import com.futurewei.alioth.controller.model.HostInfo;
 import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
