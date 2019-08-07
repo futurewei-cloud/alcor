@@ -197,6 +197,13 @@ public class GoalStateUtil {
                                 .setIpAddress(portHost.getHostIpAddress())
                                 .setMacAddress(portHost.getHostMacAddress()));
 
+        for(PortState.FixedIp fixedIp : customerPortState.getFixedIps()){
+            portConfiguration.addFixedIps(
+                    Port.PortConfiguration.FixedIp.newBuilder()
+                            .setIpAddress(fixedIp.getIpAddress())
+                            .setSubnetId(fixedIp.getSubnetId()));
+        }
+
         return Port.PortState.newBuilder()
                 .setOperationType(option)
                 .setConfiguration(portConfiguration)
