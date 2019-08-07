@@ -145,6 +145,7 @@ public class MessageClientTest {
         String ep2Id = "34bf0cec-0969-4635-b9a9-dd32611f35a4";
         String ep3Id = "364d2bbd-2def-4c70-9965-9ffd2165f43a";
         String ep4Id = "c60fe503-88a2-4198-a3be-85c197acd9db";
+
         HostInfo[] transitRouterHosts = {
                 new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC)
         };
@@ -154,6 +155,16 @@ public class MessageClientTest {
         };
         HostInfo[] transitSwitchHostsForSubnet2 = {
                 new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+        };
+
+        HostInfo[] epHostForSubnet1 = {
+                new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
+                new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC)
+        };
+
+        HostInfo[] epHostForSubnet2 = {
+                new HostInfo("subnet2-ep1", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
+                new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC)
         };
 
         MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
@@ -265,11 +276,6 @@ public class MessageClientTest {
                         new String[]{"10.0.0.2"})
         };
 
-        HostInfo[] epHostForSubnet1 = {
-                new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
-                new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC)
-        };
-
         for (int i=0; i<customerPortStateForSubnet1.length; i++){
             final GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
@@ -306,11 +312,6 @@ public class MessageClientTest {
                         "fa:16:3e:d7:f0:03",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.2"})
-        };
-
-        HostInfo[] epHostForSubnet2 = {
-                new HostInfo("subnet2-ep1", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
-                new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC)
         };
 
         for (int i=0; i<customerPortStateForSubnet2.length; i++){
