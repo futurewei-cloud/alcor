@@ -1,6 +1,6 @@
 package com.futurewei.alioth.controller.comm.message;
 
-import com.futurewei.alioth.controller.app.DemoConfig;
+import com.futurewei.alioth.controller.app.demo.DemoConfig;
 import com.futurewei.alioth.controller.model.HostInfo;
 import com.futurewei.alioth.controller.model.PortState;
 import com.futurewei.alioth.controller.model.SubnetState;
@@ -208,7 +208,7 @@ public class MessageClientTest {
                 new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC)
         };
 
-        OneVpcTwoSubnetCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
+        OneVpcTwoSubnetsCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
                 customerPortStateForSubnet1, customerPortStateForSubnet2,
                 transitRouterHosts, transitSwitchHostsForSubnet1, transitSwitchHostsForSubnet2,
                 epHostForSubnet1, epHostForSubnet2, hostIdPrefix);
@@ -325,14 +325,14 @@ public class MessageClientTest {
                 new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
         };
 
-        OneVpcTwoSubnetCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
+        OneVpcTwoSubnetsCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
                 customerPortStateForSubnet1, customerPortStateForSubnet2,
                 transitRouterHosts, transitSwitchHostsForSubnet1, transitSwitchHostsForSubnet2,
                 epHostForSubnet1, epHostForSubnet2, hostIdPrefix);
 
     }
 
-    private void OneVpcTwoSubnetCommonTest(VpcState customerVpcState, SubnetState customerSubnetState1, SubnetState customerSubnetState2,
+    private void OneVpcTwoSubnetsCommonTest(VpcState customerVpcState, SubnetState customerSubnetState1, SubnetState customerSubnetState2,
                             PortState[] customerPortStateForSubnet1, PortState[] customerPortStateForSubnet2,
                             HostInfo[] transitRouterHosts, HostInfo[] transitSwitchHostsForSubnet1, HostInfo[] transitSwitchHostsForSubnet2,
                             HostInfo[] epHostForSubnet1, HostInfo[] epHostForSubnet2, String hostIdPrefix){
