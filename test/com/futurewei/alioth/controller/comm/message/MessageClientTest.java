@@ -129,14 +129,16 @@ public class MessageClientTest {
         }
     }
 
-    @Test
+    //@Test
     public void createOneVpcTwoSubnetsFourPortsE2EVerification() {
 
         ////////////////////////////////////////////////////////////////////////////
         // Scenario: Create one VPC and two subnets, Subnet1 and Subnet2
+        //           VPC has one transit router R1
         //           Subnet1 has one transit switch S1 and two endpoints EP1 and EP2
         //           Subnet2 has one transit switch S2 and two endpoints EP3 and EP4
         ////////////////////////////////////////////////////////////////////////////
+        final String hostIdPrefix = "i2-";
         String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
         String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
         String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -146,6 +148,44 @@ public class MessageClientTest {
         String ep3Id = "364d2bbd-2def-4c70-9965-9ffd2165f43a";
         String ep4Id = "c60fe503-88a2-4198-a3be-85c197acd9db";
 
+        VpcState customerVpcState =
+                new VpcState(projectId, vpcId,
+                        "SuperVpc",
+                        "10.0.0.0/24");
+
+        SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
+                "Subnet1",
+                "10.0.0.0/24");
+        SubnetState customerSubnetState2 = new SubnetState(projectId, vpcId, subnet2Id,
+                "Subnet2",
+                "10.0.1.0/24");
+
+        PortState[] customerPortStateForSubnet1 = {
+                new PortState(projectId, subnet1Id, ep1Id,
+                        DemoConfig.EP1_ID,
+                        "fa:16:3e:d7:f0:00",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.1"}),
+                new PortState(projectId, subnet1Id, ep2Id,
+                        DemoConfig.EP2_ID,
+                        "fa:16:3e:d7:f0:01",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.2"})
+        };
+
+        PortState[] customerPortStateForSubnet2 = {
+                new PortState(projectId, subnet2Id, ep3Id,
+                        DemoConfig.EP5_ID,
+                        "fa:16:3e:d7:f0:02",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.1"}),
+                new PortState(projectId, subnet2Id, ep4Id,
+                        DemoConfig.EP6_ID,
+                        "fa:16:3e:d7:f0:03",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.2"})
+        };
+
         HostInfo[] transitRouterHosts = {
                 new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC)
         };
@@ -153,8 +193,9 @@ public class MessageClientTest {
         HostInfo[] transitSwitchHostsForSubnet1 = {
                 new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
         };
+
         HostInfo[] transitSwitchHostsForSubnet2 = {
-                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
         };
 
         HostInfo[] epHostForSubnet1 = {
@@ -163,34 +204,168 @@ public class MessageClientTest {
         };
 
         HostInfo[] epHostForSubnet2 = {
-                new HostInfo("subnet2-ep1", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
-                new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC)
+                new HostInfo("subnet2-ep1", "ep3 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
+                new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC)
         };
 
-        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        OneVpcTwoSubnetCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
+                customerPortStateForSubnet1, customerPortStateForSubnet2,
+                transitRouterHosts, transitSwitchHostsForSubnet1, transitSwitchHostsForSubnet2,
+                epHostForSubnet1, epHostForSubnet2, hostIdPrefix);
+
+    }
+
+    @Test
+    public void createOneVpcTwoSubnetsEightPortsMultipleTransitInstancesE2EVerification() {
 
         ////////////////////////////////////////////////////////////////////////////
-        // Step 1: Go to S1 host and S2 host, call update_vpc and update_substrate
+        // Scenario: Create one VPC and two subnets, Subnet1 and Subnet2
+        //           VPC has two transit routers R1 and R2
+        //           Subnet1 has two transit switches, S1 and S2. and four endpoints EP1-4
+        //           Subnet2 has two transit switches, S3 and S4, and four endpoints EP5-8
         ////////////////////////////////////////////////////////////////////////////
+        final String hostIdPrefix = "s2-";
+        String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
+        String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
+        String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
+        String subnet2Id = "8cb94df3-05bd-45d1-95c0-1ad75f929810";
+        String ep1Id = "89e72582-b4fc-4e4e-b46a-6eee650e03f5";
+        String ep2Id = "34bf0cec-0969-4635-b9a9-dd32611f35a4";
+        String ep3Id = "64353fd7-b60c-4108-93ff-ecaa6b63a6a3";
+        String ep4Id = "cae2df90-4a50-437e-a3f2-e3b742c8fbf8";
+        String ep5Id = "364d2bbd-2def-4c70-9965-9ffd2165f43a";
+        String ep6Id = "c60fe503-88a2-4198-a3be-85c197acd9db";
+        String ep7Id = "38e45f95-5ea7-4d0a-9027-886febc27bdc";
+        String ep8Id = "b81abf49-87ab-4a58-b457-93dc5a0dabac";
+
         VpcState customerVpcState =
                 new VpcState(projectId, vpcId,
                         "SuperVpc",
                         "10.0.0.0/24");
 
+        SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
+                "Subnet1",
+                "10.0.0.0/24");
+        SubnetState customerSubnetState2 = new SubnetState(projectId, vpcId, subnet2Id,
+                "Subnet2",
+                "10.0.1.0/24");
+
+        PortState[] customerPortStateForSubnet1 = {
+                new PortState(projectId, subnet1Id, ep1Id,
+                        DemoConfig.EP1_ID,
+                        "fa:16:3e:d7:f0:00",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.1"}),
+                new PortState(projectId, subnet1Id, ep2Id,
+                        DemoConfig.EP2_ID,
+                        "fa:16:3e:d7:f0:01",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.2"}),
+                new PortState(projectId, subnet1Id, ep3Id,
+                        DemoConfig.EP3_ID,
+                        "fa:16:3e:d7:f0:02",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.3"}),
+                new PortState(projectId, subnet1Id, ep4Id,
+                        DemoConfig.EP4_ID,
+                        "fa:16:3e:d7:f0:03",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.0.4"})
+        };
+
+        PortState[] customerPortStateForSubnet2 = {
+                new PortState(projectId, subnet2Id, ep5Id,
+                        DemoConfig.EP5_ID,
+                        "fa:16:3e:d7:f0:04",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.1"}),
+                new PortState(projectId, subnet2Id, ep6Id,
+                        DemoConfig.EP6_ID,
+                        "fa:16:3e:d7:f0:05",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.2"}),
+                new PortState(projectId, subnet2Id, ep7Id,
+                        DemoConfig.EP7_ID,
+                        "fa:16:3e:d7:f0:06",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.3"}),
+                new PortState(projectId, subnet2Id, ep8Id,
+                        DemoConfig.EP8_ID,
+                        "fa:16:3e:d7:f0:07",
+                        DemoConfig.VNET_NAME,
+                        new String[]{"10.0.1.4"})
+        };
+
+        HostInfo[] transitRouterHosts = {
+                new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
+                new HostInfo("vpc1-transit-router2", "transit router2 host", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
+        };
+
+        HostInfo[] transitSwitchHostsForSubnet1 = {
+                new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+        };
+
+        HostInfo[] transitSwitchHostsForSubnet2 = {
+                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
+                new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
+        };
+
+        HostInfo[] epHostForSubnet1 = {
+                new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
+                new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC),
+                new HostInfo("subnet1-ep3", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
+                new HostInfo("subnet1-ep4", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC),
+        };
+
+        HostInfo[] epHostForSubnet2 = {
+                new HostInfo("subnet2-ep1", "ep5 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
+                new HostInfo("subnet2-ep2", "ep6 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
+                new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
+                new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
+        };
+
+        OneVpcTwoSubnetCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
+                customerPortStateForSubnet1, customerPortStateForSubnet2,
+                transitRouterHosts, transitSwitchHostsForSubnet1, transitSwitchHostsForSubnet2,
+                epHostForSubnet1, epHostForSubnet2, hostIdPrefix);
+
+    }
+
+    private void OneVpcTwoSubnetCommonTest(VpcState customerVpcState, SubnetState customerSubnetState1, SubnetState customerSubnetState2,
+                            PortState[] customerPortStateForSubnet1, PortState[] customerPortStateForSubnet2,
+                            HostInfo[] transitRouterHosts, HostInfo[] transitSwitchHostsForSubnet1, HostInfo[] transitSwitchHostsForSubnet2,
+                            HostInfo[] epHostForSubnet1, HostInfo[] epHostForSubnet2, String hostIdPrefix){
+
+        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+
+        // This is the combination of all the transit switch hosts
+        HostInfo[][] transitSwitchHosts = {
+                transitSwitchHostsForSubnet1,
+                transitSwitchHostsForSubnet2
+        };
+
+        final int message_expected_count = 1;
+        final int vpc_expected_count = 1;
+        final int subnet_expected_count = 2;
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 1: Go to S1 host and S2 host, call update_vpc and update_substrate
+        ////////////////////////////////////////////////////////////////////////////
         final GoalState gsVpcState = GoalStateUtil.CreateGoalState(Common.OperationType.CREATE_UPDATE_SWITCH,
                 customerVpcState,
                 transitRouterHosts);
 
         for(HostInfo transitSwitch : transitSwitchHostsForSubnet1)
         {
-            String topic = DemoConfig.HOST_ID_PREFIX + transitSwitch.getId();
+            String topic = hostIdPrefix + transitSwitch.getId();
             client.runProducer(topic, gsVpcState);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
-            Assert.assertEquals("invalid vpc state count", 1, receivedGoalState.getVpcStatesCount());
+            Assert.assertEquals("invalid vpc state count", vpc_expected_count, receivedGoalState.getVpcStatesCount());
             Assert.assertEquals("invalid subnet state count", 0, receivedGoalState.getSubnetStatesCount());
             Assert.assertEquals("invalid port state count", 0, receivedGoalState.getPortStatesCount());
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
@@ -199,14 +374,14 @@ public class MessageClientTest {
 
         for(HostInfo transitSwitch : transitSwitchHostsForSubnet2)
         {
-            String topic = DemoConfig.HOST_ID_PREFIX + transitSwitch.getId();
+            String topic = hostIdPrefix + transitSwitch.getId();
             client.runProducer(topic, gsVpcState);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
-            Assert.assertEquals("invalid vpc state count", 1, receivedGoalState.getVpcStatesCount());
+            Assert.assertEquals("invalid vpc state count", vpc_expected_count, receivedGoalState.getVpcStatesCount());
             Assert.assertEquals("invalid subnet state count", 0, receivedGoalState.getSubnetStatesCount());
             Assert.assertEquals("invalid port state count", 0, receivedGoalState.getPortStatesCount());
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
@@ -216,34 +391,21 @@ public class MessageClientTest {
         ////////////////////////////////////////////////////////////////////////////
         // Step 2: Go to R1 host, call update_substrate only
         ////////////////////////////////////////////////////////////////////////////
-        SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
-                "Subnet1",
-                "10.0.0.0/24");
-        SubnetState customerSubnetState2 = new SubnetState(projectId, vpcId, subnet2Id,
-                "Subnet2",
-                "10.0.1.0/24");
-
-        // This is the combination of all the transit switch hosts
-        HostInfo[][] transitSwitchHosts = {
-                transitSwitchHostsForSubnet1,
-                transitSwitchHostsForSubnet2
-        };
-
         final GoalState gsSubnetState = GoalStateUtil.CreateGoalState(
                 Common.OperationType.CREATE_UPDATE_ROUTER,
                 new SubnetState[]{customerSubnetState1, customerSubnetState2},
                 transitSwitchHosts);
 
         for(HostInfo transitRouter : transitRouterHosts){
-            String topic = DemoConfig.HOST_ID_PREFIX + transitRouter.getId();
+            String topic = hostIdPrefix + transitRouter.getId();
             client.runProducer(topic, gsSubnetState);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
             Assert.assertEquals("invalid vpc state count", 0, receivedGoalState.getVpcStatesCount());
-            Assert.assertEquals("invalid subnet state count", 2, receivedGoalState.getSubnetStatesCount());
+            Assert.assertEquals("invalid subnet state count", subnet_expected_count, receivedGoalState.getSubnetStatesCount());
             Assert.assertEquals("invalid port state count", 0, receivedGoalState.getPortStatesCount());
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
@@ -263,19 +425,6 @@ public class MessageClientTest {
         // Step 3: Go to EP1 host and EP2 host, update_endpoint
         //         Go to EP3 host and EP4 host, update_endpoint
         ////////////////////////////////////////////////////////////////////////////
-        PortState[] customerPortStateForSubnet1 = {
-                new PortState(projectId, subnet1Id, ep1Id,
-                        DemoConfig.EP1_ID,
-                        "fa:16:3e:d7:f0:00",
-                        DemoConfig.VNET_NAME,
-                        new String[]{"10.0.0.1"}),
-                new PortState(projectId, subnet1Id, ep2Id,
-                        DemoConfig.EP2_ID,
-                        "fa:16:3e:d7:f0:01",
-                        DemoConfig.VNET_NAME,
-                        new String[]{"10.0.0.2"})
-        };
-
         for (int i=0; i<customerPortStateForSubnet1.length; i++){
             final GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
@@ -285,11 +434,11 @@ public class MessageClientTest {
                     customerPortStateForSubnet1[i],
                     epHostForSubnet1[i]);
 
-            String topic = DemoConfig.HOST_ID_PREFIX + epHostForSubnet1[i].getId();
+            String topic = hostIdPrefix + epHostForSubnet1[i].getId();
             client.runProducer(topic, gsPortState);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
             Assert.assertEquals("invalid vpc state count", 0, receivedGoalState.getVpcStatesCount());
@@ -301,19 +450,6 @@ public class MessageClientTest {
             TestUtil.AssertPortStates(gsPortState.getPortStates(0), receivedGoalState.getPortStates(0));
         }
 
-        PortState[] customerPortStateForSubnet2 = {
-                new PortState(projectId, subnet2Id, ep3Id,
-                        DemoConfig.EP3_ID,
-                        "fa:16:3e:d7:f0:02",
-                        DemoConfig.VNET_NAME,
-                        new String[]{"10.0.1.1"}),
-                new PortState(projectId, subnet2Id, ep4Id,
-                        DemoConfig.EP4_ID,
-                        "fa:16:3e:d7:f0:03",
-                        DemoConfig.VNET_NAME,
-                        new String[]{"10.0.1.2"})
-        };
-
         for (int i=0; i<customerPortStateForSubnet2.length; i++){
             final GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
@@ -323,11 +459,11 @@ public class MessageClientTest {
                     customerPortStateForSubnet2[i],
                     epHostForSubnet2[i]);
 
-            String topic = DemoConfig.HOST_ID_PREFIX + epHostForSubnet2[i].getId();
+            String topic = hostIdPrefix + epHostForSubnet2[i].getId();
             client.runProducer(topic, gsPortState);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
             Assert.assertEquals("invalid vpc state count", 0, receivedGoalState.getVpcStatesCount());
@@ -352,21 +488,22 @@ public class MessageClientTest {
                 epHostForSubnet1);
 
         for (HostInfo switchForSubnet1 : transitSwitchHostsForSubnet1){
-            String topic = DemoConfig.HOST_ID_PREFIX + switchForSubnet1.getId();
+            String topic = hostIdPrefix + switchForSubnet1.getId();
             client.runProducer(topic, gsPortStateForSubnet1);
             List goalStateList = client.runConsumer(topic, true);
 
-            Assert.assertEquals("invalid message count", 1, goalStateList.size());
+            Assert.assertEquals("invalid message count", message_expected_count, goalStateList.size());
             GoalState receivedGoalState = (GoalState) goalStateList.get(0);
 
             Assert.assertEquals("invalid vpc state count", 0, receivedGoalState.getVpcStatesCount());
             Assert.assertEquals("invalid subnet state count", 1, receivedGoalState.getSubnetStatesCount());
-            Assert.assertEquals("invalid port state count", 2, receivedGoalState.getPortStatesCount());
+            Assert.assertEquals("invalid port state count", customerPortStateForSubnet1.length, receivedGoalState.getPortStatesCount());
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
             TestUtil.AssertSubnetStates(gsPortStateForSubnet1.getSubnetStates(0), receivedGoalState.getSubnetStates(0));
-            TestUtil.AssertPortStates(gsPortStateForSubnet1.getPortStates(0), receivedGoalState.getPortStates(0));
-            TestUtil.AssertPortStates(gsPortStateForSubnet1.getPortStates(1), receivedGoalState.getPortStates(1));
+            for (int i = 0; i < customerPortStateForSubnet1.length; i++){
+                TestUtil.AssertPortStates(gsPortStateForSubnet1.getPortStates(i), receivedGoalState.getPortStates(i));
+            }
         }
 
         final GoalState gsPortStateForSubnet2 = GoalStateUtil.CreateGoalState(
@@ -378,7 +515,7 @@ public class MessageClientTest {
                 epHostForSubnet2);
 
         for (HostInfo switchForSubnet2 : transitSwitchHostsForSubnet2){
-            String topic = DemoConfig.HOST_ID_PREFIX + switchForSubnet2.getId();
+            String topic = hostIdPrefix + switchForSubnet2.getId();
             client.runProducer(topic, gsPortStateForSubnet2);
             List goalStateList = client.runConsumer(topic, true);
 
@@ -387,12 +524,13 @@ public class MessageClientTest {
 
             Assert.assertEquals("invalid vpc state count", 0, receivedGoalState.getVpcStatesCount());
             Assert.assertEquals("invalid subnet state count", 1, receivedGoalState.getSubnetStatesCount());
-            Assert.assertEquals("invalid port state count", 2, receivedGoalState.getPortStatesCount());
+            Assert.assertEquals("invalid port state count", customerPortStateForSubnet2.length, receivedGoalState.getPortStatesCount());
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
             TestUtil.AssertSubnetStates(gsPortStateForSubnet2.getSubnetStates(0), receivedGoalState.getSubnetStates(0));
-            TestUtil.AssertPortStates(gsPortStateForSubnet2.getPortStates(0), receivedGoalState.getPortStates(0));
-            TestUtil.AssertPortStates(gsPortStateForSubnet2.getPortStates(1), receivedGoalState.getPortStates(1));
+            for (int i = 0; i < customerPortStateForSubnet2.length; i++){
+                TestUtil.AssertPortStates(gsPortStateForSubnet2.getPortStates(i), receivedGoalState.getPortStates(i));
+            }
         }
 
 
@@ -410,7 +548,7 @@ public class MessageClientTest {
                     customerPortStateForSubnet1[i],
                     epHostForSubnet1[i]);
 
-            String topic = DemoConfig.HOST_ID_PREFIX + epHostForSubnet1[i].getId();
+            String topic = hostIdPrefix + epHostForSubnet1[i].getId();
             client.runProducer(topic, gsPortState);
             List goalStateList = client.runConsumer(topic, true);
 
@@ -435,7 +573,7 @@ public class MessageClientTest {
                     customerPortStateForSubnet2[i],
                     epHostForSubnet2[i]);
 
-            String topic = DemoConfig.HOST_ID_PREFIX + epHostForSubnet2[i].getId();
+            String topic = hostIdPrefix + epHostForSubnet2[i].getId();
             client.runProducer(topic, gsPortState);
             List goalStateList = client.runConsumer(topic, true);
 
@@ -450,7 +588,5 @@ public class MessageClientTest {
             TestUtil.AssertSubnetStates(gsPortState.getSubnetStates(0), receivedGoalState.getSubnetStates(0));
             TestUtil.AssertPortStates(gsPortState.getPortStates(0), receivedGoalState.getPortStates(0));
         }
-
     }
-
 }
