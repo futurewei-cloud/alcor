@@ -1,6 +1,6 @@
 package com.futurewei.alioth.controller.schema;
 
-import com.futurewei.alioth.controller.app.DemoConfig;
+import com.futurewei.alioth.controller.app.demo.DemoConfig;
 import com.futurewei.alioth.controller.model.HostInfo;
 import com.futurewei.alioth.controller.schema.Vpc.VpcState;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;

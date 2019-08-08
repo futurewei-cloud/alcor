@@ -1,14 +1,12 @@
 package com.futurewei.alioth.controller.schema;
 
-import com.futurewei.alioth.controller.app.DemoConfig;
+import com.futurewei.alioth.controller.app.demo.DemoConfig;
 import com.futurewei.alioth.controller.model.HostInfo;
 import com.futurewei.alioth.controller.model.PortState;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class PortTest {
     @Test

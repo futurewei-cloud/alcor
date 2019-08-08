@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.web;
 
+import com.futurewei.alioth.controller.app.demo.DemoUtil;
 import com.futurewei.alioth.controller.cache.repo.PortRedisRepository;
 import com.futurewei.alioth.controller.cache.repo.SubnetRedisRepository;
 import com.futurewei.alioth.controller.cache.repo.VpcRedisRepository;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alioth.controller.app.demo.DemoConfig.isDemo;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -72,6 +74,8 @@ public class PortController {
             RestPreconditions.populateResourceProjectId(resource, projectid);
 
             this.portRedisRepository.addItem(resource);
+
+            if(isDemo) DemoUtil.CreatePort(resource);
 
         }
         catch (ResourceNullException e){

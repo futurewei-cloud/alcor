@@ -56,20 +56,6 @@ public class VpcController {
             RestPreconditions.populateResourceProjectId(resource, projectid);
 
             this.vpcRedisRepository.addItem(resource);
-
-            //TODO: Algorithm to determine the hosts
-//            HostInfo trHost1 = new HostInfo("tr_hostid_1", "host1", new byte[]{10,0,0,1});
-//            HostInfo trHost2 = new HostInfo("tr_hostid_2", "host1", new byte[]{10,0,0,2});
-//
-//            Goalstate.GoalState goalstate = GoalStateUtil.CreateGoalState(
-//                    Common.OperationType.CREATE,
-//                    resource,
-//                    trHost1.getHostIpAddress(),
-//                    trHost2.getHostIpAddress());
-
-//            MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-//            String topic = MessageClient.getGoalStateTopic(trHost1.getId());
-//            client.runProducer(topic, goalstate);
         }
         catch (ParameterNullOrEmptyException e){
             throw new Exception(e);

@@ -1,7 +1,8 @@
-package com.futurewei.alioth.controller.app;
+package com.futurewei.alioth.controller.app.demo;
 
 public interface DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
+    boolean isDemo = true;
     int OVERFLOW_IP_CONVERSION = 256;
 
     // TODO: figure out to store integer value over 127 in a byte

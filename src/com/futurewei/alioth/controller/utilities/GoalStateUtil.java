@@ -1,6 +1,5 @@
 package com.futurewei.alioth.controller.utilities;
 
-import com.futurewei.alioth.controller.app.DemoConfig;
 import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
