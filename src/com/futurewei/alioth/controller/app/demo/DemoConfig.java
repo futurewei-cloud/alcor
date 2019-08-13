@@ -3,6 +3,8 @@ package com.futurewei.alioth.controller.app.demo;
 public interface DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
     boolean isDemo = true;
+
+    long tunnelId = 3000;
     int OVERFLOW_IP_CONVERSION = 256;
 
     // TODO: figure out to store integer value over 127 in a byte
@@ -46,7 +48,7 @@ public interface DemoConfig {
 
     String EP4_ID = "ephost_4";
     byte[] EP4_HOST_IP = new byte[]{172-OVERFLOW_IP_CONVERSION,17,0,10};
-    String EP4_HOST_MAC = "02:42:ac:11:00:10";
+    String EP4_HOST_MAC = "02:42:ac:11:00:0a";
 
     String EP5_ID = "ephost_5";
     byte[] EP5_HOST_IP = new byte[]{172-OVERFLOW_IP_CONVERSION,17,0,11};

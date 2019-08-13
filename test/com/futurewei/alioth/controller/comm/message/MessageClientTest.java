@@ -129,7 +129,7 @@ public class MessageClientTest {
         }
     }
 
-    //@Test
+    @Test
     public void createOneVpcTwoSubnetsFourPortsE2EVerification() {
 
         ////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ public class MessageClientTest {
         //           Subnet1 has one transit switch S1 and two endpoints EP1 and EP2
         //           Subnet2 has one transit switch S2 and two endpoints EP3 and EP4
         ////////////////////////////////////////////////////////////////////////////
-        final String hostIdPrefix = "i2-";
+        final String hostIdPrefix = "i8-";
         String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
         String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
         String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -151,7 +151,7 @@ public class MessageClientTest {
         VpcState customerVpcState =
                 new VpcState(projectId, vpcId,
                         "SuperVpc",
-                        "10.0.0.0/24");
+                        "10.0.0.0/16");
 
         SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
                 "Subnet1",
@@ -163,12 +163,12 @@ public class MessageClientTest {
         PortState[] customerPortStateForSubnet1 = {
                 new PortState(projectId, subnet1Id, ep1Id,
                         DemoConfig.EP1_ID,
-                        "fa:16:3e:d7:f0:00",
+                        "0e:73:ae:c8:87:00",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
                         DemoConfig.EP2_ID,
-                        "fa:16:3e:d7:f0:01",
+                        "0e:73:ae:c8:87:01",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.2"})
         };
@@ -176,12 +176,12 @@ public class MessageClientTest {
         PortState[] customerPortStateForSubnet2 = {
                 new PortState(projectId, subnet2Id, ep3Id,
                         DemoConfig.EP5_ID,
-                        "fa:16:3e:d7:f0:02",
+                        "0e:73:ae:c8:87:04",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep4Id,
                         DemoConfig.EP6_ID,
-                        "fa:16:3e:d7:f0:03",
+                        "0e:73:ae:c8:87:05",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.2"})
         };
@@ -215,7 +215,7 @@ public class MessageClientTest {
 
     }
 
-    @Test
+    //@Test
     public void createOneVpcTwoSubnetsEightPortsMultipleTransitInstancesE2EVerification() {
 
         ////////////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ public class MessageClientTest {
         //           Subnet1 has two transit switches, S1 and S2. and four endpoints EP1-4
         //           Subnet2 has two transit switches, S3 and S4, and four endpoints EP5-8
         ////////////////////////////////////////////////////////////////////////////
-        final String hostIdPrefix = "s2-";
+        final String hostIdPrefix = "s5-";
         String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
         String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
         String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -241,7 +241,7 @@ public class MessageClientTest {
         VpcState customerVpcState =
                 new VpcState(projectId, vpcId,
                         "SuperVpc",
-                        "10.0.0.0/24");
+                        "10.0.0.0/16");
 
         SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
                 "Subnet1",
@@ -253,22 +253,22 @@ public class MessageClientTest {
         PortState[] customerPortStateForSubnet1 = {
                 new PortState(projectId, subnet1Id, ep1Id,
                         DemoConfig.EP1_ID,
-                        "fa:16:3e:d7:f0:00",
+                        "0e:73:ae:c8:87:00",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
                         DemoConfig.EP2_ID,
-                        "fa:16:3e:d7:f0:01",
+                        "0e:73:ae:c8:87:01",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.2"}),
                 new PortState(projectId, subnet1Id, ep3Id,
                         DemoConfig.EP3_ID,
-                        "fa:16:3e:d7:f0:02",
+                        "0e:73:ae:c8:87:02",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.3"}),
                 new PortState(projectId, subnet1Id, ep4Id,
                         DemoConfig.EP4_ID,
-                        "fa:16:3e:d7:f0:03",
+                        "0e:73:ae:c8:87:03",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.0.4"})
         };
@@ -276,22 +276,22 @@ public class MessageClientTest {
         PortState[] customerPortStateForSubnet2 = {
                 new PortState(projectId, subnet2Id, ep5Id,
                         DemoConfig.EP5_ID,
-                        "fa:16:3e:d7:f0:04",
+                        "0e:73:ae:c8:87:04",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep6Id,
                         DemoConfig.EP6_ID,
-                        "fa:16:3e:d7:f0:05",
+                        "0e:73:ae:c8:87:05",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.2"}),
                 new PortState(projectId, subnet2Id, ep7Id,
                         DemoConfig.EP7_ID,
-                        "fa:16:3e:d7:f0:06",
+                        "0e:73:ae:c8:87:06",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.3"}),
                 new PortState(projectId, subnet2Id, ep8Id,
                         DemoConfig.EP8_ID,
-                        "fa:16:3e:d7:f0:07",
+                        "0e:73:ae:c8:87:07",
                         DemoConfig.VNET_NAME,
                         new String[]{"10.0.1.4"})
         };
@@ -321,8 +321,8 @@ public class MessageClientTest {
         HostInfo[] epHostForSubnet2 = {
                 new HostInfo("subnet2-ep1", "ep5 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
                 new HostInfo("subnet2-ep2", "ep6 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
-                new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
-                new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
+                new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP7_HOST_IP, DemoConfig.EP7_HOST_MAC),
+                new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP8_HOST_IP, DemoConfig.EP8_HOST_MAC),
         };
 
         OneVpcTwoSubnetsCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
