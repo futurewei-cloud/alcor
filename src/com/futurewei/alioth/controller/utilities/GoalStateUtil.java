@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.utilities;
 
+import com.futurewei.alioth.controller.app.demo.DemoConfig;
 import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
@@ -114,7 +115,8 @@ public class GoalStateUtil {
                         .setProjectId(project_id)
                         .setId(vpc_id)
                         .setName(vpc_name)
-                        .setCidr(cidr))
+                        .setCidr(cidr)
+                        .setTunnelId(DemoConfig.tunnelId))
                 .build();
     }
 
@@ -129,7 +131,8 @@ public class GoalStateUtil {
         vpcConfiguration.setProjectId(customerVpcState.getProjectId())
                 .setId(vpcId)
                 .setName(customerVpcState.getName())
-                .setCidr(customerVpcState.getCidr());
+                .setCidr(customerVpcState.getCidr())
+                .setTunnelId(DemoConfig.tunnelId);
 
         for (HostInfo routerHost : transitRouterHosts){
             vpcConfiguration.addTransitRouters(
@@ -160,7 +163,8 @@ public class GoalStateUtil {
                 .setVpcId(vpcId)
                 .setId(subnetId)
                 .setName(customerSubnetState.getName())
-                .setCidr(customerSubnetState.getCidr());
+                .setCidr(customerSubnetState.getCidr())
+                .setTunnelId(DemoConfig.tunnelId);
 
         for(HostInfo switchHost : transitSwitchHosts){
             subnetConfiguration.addTransitSwitches(

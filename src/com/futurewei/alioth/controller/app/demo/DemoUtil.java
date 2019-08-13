@@ -13,7 +13,7 @@ import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 
 public class DemoUtil {
 
-    private static String hostIdPrefix = "es-";
+    private static String hostIdPrefix = "es2-";
     private static String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
     private static String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
     private static String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -30,7 +30,7 @@ public class DemoUtil {
     private static VpcState customerVpcState =
             new VpcState(projectId, vpcId,
                     "SuperVpc",
-                    "10.0.0.0/24");
+                    "10.0.0.0/16");
 
     private static SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
             "Subnet1",
@@ -42,22 +42,22 @@ public class DemoUtil {
     private static PortState[] customerPortStateForSubnet1 = {
             new PortState(projectId, subnet1Id, ep1Id,
                     DemoConfig.EP1_ID,
-                    "fa:16:3e:d7:f0:00",
+                    "0e:73:ae:c8:87:00",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.0.1"}),
             new PortState(projectId, subnet1Id, ep2Id,
                     DemoConfig.EP2_ID,
-                    "fa:16:3e:d7:f0:01",
+                    "0e:73:ae:c8:87:01",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.0.2"}),
             new PortState(projectId, subnet1Id, ep3Id,
                     DemoConfig.EP3_ID,
-                    "fa:16:3e:d7:f0:02",
+                    "0e:73:ae:c8:87:02",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.0.3"}),
             new PortState(projectId, subnet1Id, ep4Id,
                     DemoConfig.EP4_ID,
-                    "fa:16:3e:d7:f0:03",
+                    "0e:73:ae:c8:87:03",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.0.4"})
     };
@@ -65,22 +65,22 @@ public class DemoUtil {
     private static PortState[] customerPortStateForSubnet2 = {
             new PortState(projectId, subnet2Id, ep5Id,
                     DemoConfig.EP5_ID,
-                    "fa:16:3e:d7:f0:04",
+                    "0e:73:ae:c8:87:04",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.1.1"}),
             new PortState(projectId, subnet2Id, ep6Id,
                     DemoConfig.EP6_ID,
-                    "fa:16:3e:d7:f0:05",
+                    "0e:73:ae:c8:87:05",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.1.2"}),
             new PortState(projectId, subnet2Id, ep7Id,
                     DemoConfig.EP7_ID,
-                    "fa:16:3e:d7:f0:06",
+                    "0e:73:ae:c8:87:06",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.1.3"}),
             new PortState(projectId, subnet2Id, ep8Id,
                     DemoConfig.EP8_ID,
-                    "fa:16:3e:d7:f0:07",
+                    "0e:73:ae:c8:87:07",
                     DemoConfig.VNET_NAME,
                     new String[]{"10.0.1.4"})
     };
@@ -110,8 +110,8 @@ public class DemoUtil {
     private static HostInfo[] epHostForSubnet2 = {
             new HostInfo("subnet2-ep1", "ep5 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
             new HostInfo("subnet2-ep2", "ep6 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
-            new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
-            new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
+            new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP7_HOST_IP, DemoConfig.EP7_HOST_MAC),
+            new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP8_HOST_IP, DemoConfig.EP8_HOST_MAC),
     };
 
     public static void CreateSubnet(SubnetState subnetState){
