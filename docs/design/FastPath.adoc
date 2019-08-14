@@ -21,7 +21,7 @@ This is 10x improvement compared to Kafka and those time-critical applications w
 
 The following diagram illustrates the architecture of network control plane with fast path. We have a bi-directional communication channel between them.
 
-image::images/fastpath.GIF["Fast path architecture", width=1024, link="images/fastpath.GIF"]
+image::images/FastPath.GIF["Fast path architecture", width=1024, link="images/FastPath.GIF"]
 
 The top-down communication channel from Controller to Agent could be used in many scenarios which require low E2E latency for network configuration update:
 
