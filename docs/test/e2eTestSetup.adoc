@@ -5,7 +5,7 @@ The test is deployed to five physical machine hosts with the following setup:
 
 . Host 4 hosts Network VPC Controller application
 * Rest web layer (REST CURD APIs)
-* Control logics
+* Control logic
 * Data persistence
 * Goal state model to ensure fast network provisioning
 * Reliable data delivery to message queue
@@ -26,7 +26,7 @@ The test is deployed to five physical machine hosts with the following setup:
 ** Program transit daemon via local RPC calls
 * Data plane component deployed at each container
 ** Transit Daemon to provide PRC apis
-** Transit Agent attached to virtual interface
-** Transit XDP program attached to physical interface
+** Transit Agent attached to virtual interfaces
+** Transit XDP program attached to physical interfaces
 
-image::images/setup_1Vpc2Subnets4Ports.png["Test setup with one Vpc, two subnets and four ports", width=1024, link="images/setup_1Vpc2Subnets4Ports.png"]
+image::images/setup_1Vpc2Subnets4Ports.gif["Test setup with one Vpc, two subnets and four ports", width=900, link="images/setup_1Vpc2Subnets4Ports.gif"]
