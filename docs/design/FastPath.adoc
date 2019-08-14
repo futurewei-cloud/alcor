@@ -28,7 +28,8 @@ and the bi-directional communication channel between the Network Controllers and
 
 image::images/FastPath.GIF["Fast path architecture", width=1024, link="images/FastPath.GIF"]
 
-The top-down communication channel from Controllers to Agents can be used in many scenarios which may require low E2E latency for network configuration update:
+=== Bi-directional Communication Channel
+The top-down communication channel from Controllers to Agents can be used in many scenarios which require low E2E latency for network configuration update:
 
 . Serverless application: Reduce the instantiation time of containers in which customers' code is running, and shorten waiting times of serverless function invokation.
 Either for the first time, or after having its configuration altered/serverless function scale outs.
@@ -43,6 +44,15 @@ so that Controllers may finalize endpoint host programming and give the green li
 
 Later on, we could also consider using the fast path for network health monitoring of transit Daemon/switch/router as well as local host networking components.
 
+=== Retry and Fallback Mechanisms
+
+To improve system stability, a client-side retry and fallback mechanism will be supported to overcome transient failures of gRPC servers,
+corrupted network connection or momentary loss of network connectivity.
+Possible server failures include temporary unavailability of a host node (e.g., host OS crash or restart),
+service unavailability of Control Agents or Network Controllers, or timeouts due to busy servers.
+When a failure occurs first, a gRPC client can retry the failing request immediately.
+If the request still fails, the client makes a few more attempts until a configurable maximum number of requests have been attempted.
+Then if the request remains unsuccessful, the client can fall back to the normal path by sending message to the Kafka cluster.
 
 == Contract between Controller and Agent
 
