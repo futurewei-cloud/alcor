@@ -3,10 +3,11 @@
 == Introduction
 
 A fast-provisioning and scalable network control plane is the core of a competitive public cloud offering.
-This would require an instantaneous delivery of networking configurations driven from a region-level Network Controller to Control Agents deployed at every server host of data center.
-Due to data center scale which usually ranges from a few hundreds of thousands to a few millions of machines, a message queue subsystem (e.g., Kafka or RabbitMQ) or a multi-layer hierarchy system is usually adopted
-as a high-throughput and scalable solution for network configuration update in the data center.
-This approach, however, would introduce excessive latency in E2E message delivery to a scale of 2-3 _ms_ in case of handling 100,000 _s_ message <<kafka_benchmark,1 >> <<kafka_benchmark2, 2>>.
+Such a feature would require an instantaneous delivery of networking configurations driven from a region-level Network Controller to Control Agents deployed at every server host of a data center.
+Due to the scale of data centers, which can range from a couple hundred thousand to a few million machines, a message queue subsystem (e.g., Kafka or RabbitMQ) or a multi-layer hierarchy system is usually adopted
+as a high-throughput and scalable solution for network configuration updates in the data center.
+However, this approach would introduce excessive latency in E2E message delivery.
+For example, in the case of handling 100,000 messages, the additional latency by Kafka would be 2-3 _ms_ <<kafka_benchmark,1 >>, <<kafka_benchmark2, 2>>.
 
 This infrastructure limitation does not fit into some customer scenarios where ultra-low latency for E2E network configuration provisioning (in a few 10 _ms_ or 100 _ms_) is a critical requirement.
 For example, the emerging serverless services like AWS Lambda or Azure Functions requires low latency, in the magnitude of 100 _ms_, as a selling point while lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>
@@ -43,7 +44,7 @@ The contract between Control Agent and Network Controller for top-down channel i
 * Goal state message. The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
 For example, one message could consists of one subnet state update with 1000 ports creation to a data-plane switch, or two VPC update to a single VM/container host.
 
-*goalstate.proto*
+*src/schema/proto3/goalstate.proto*
 
 [source,java]
 ------------------------------------------------------------
@@ -68,7 +69,7 @@ message GoalState {
 
 * VpcState message. OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDATE_SWTICH, CREATE_UPDATE_ROUTER to cover various scenarios in network resource CURD operations.
 
-*vpc.proto*
+*src/schema/proto3/vpc.proto*
 
 [source,java]
 ------------------------------------------------------------
