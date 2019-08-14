@@ -7,41 +7,49 @@ Such a feature would require an instantaneous delivery of networking configurati
 Due to the scale of data centers, which can range from a couple hundred thousand to a few million machines, a message queue subsystem (e.g., Kafka or RabbitMQ) or a multi-layer hierarchy system is usually adopted
 as a high-throughput and scalable solution for network configuration updates in the data center.
 However, this approach would introduce excessive latency in E2E message delivery.
-For example, in the case of handling 100,000 messages, the additional latency by Kafka would be 2-3 _ms_ <<kafka_benchmark,1 >>, <<kafka_benchmark2, 2>>.
+For example, in the case of handling 100,000s messages, the additional latency by Kafka would be 2-3 _ms_ <<kafka_benchmark,1 >>, <<kafka_benchmark2, 2>>.
 
-This infrastructure limitation does not fit into some customer scenarios where ultra-low latency for E2E network configuration provisioning (in a few 10 _ms_ or 100 _ms_) is a critical requirement.
-For example, the emerging serverless services like AWS Lambda or Azure Functions requires low latency, in the magnitude of 100 _ms_, as a selling point while lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>
-(the current workaround is keeping containers in a warm state by regularly sending events to serverless functions).
-To provide a competitive fast-provisioning solution with our new CloudFabric Networking platform, it would be necessary to build a control plane fast path to significantly reduce the E2E provisioning time.
+The infrastructure limitation does not fit into some customer scenarios when ultra-low latency for E2E network configuration provisioning (in a few 10 _ms_ or 100 _ms_) is a critical requirement.
+For example, the emerging serverless platforms and services like AWS Lambda or Azure Functions advertise low latency number of ~100 _ms_, as a major selling point.
+Lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>, and
+the current workaround is simply keeping containers in a warm state by regularly sending events to serverless functions.
+In order to provide a competitive fast-provisioning solution with our new CloudFabric Networking platform, it would be necessary to build a control plane fast path to significantly reduce the E2E provisioning time.
 
-The main idea in this proposal is Kafka bypass and a gRPC-based direct message channel from Network Controllers to Control Agents.
-gRPC has a very low medium latency of 150-300 _μs_ in case of handling 100,000 _s_ message <<gRPC_benchmark,4>>.
-This is 10x improvement compared to Kafka and those time-critical applications will benefit from the low latency of gRPC protocol.
+The main idea in this proposal is a Kafka bypass that utilizes a gRPC-based direct message channel.
+This channel would run between the Network Controllers and the Control Agents.
+gRPC has been shown to have low latency of 150-300 _μs_ in the case of handling 100,000s message <<gRPC_benchmark,4>>.
+This is a 10x improvement compared to Kafka.
+With this fast path, time-critical applications will benefit from the low latency of the gRPC protocol.
 
 == Architecture
 
-The following diagram illustrates the architecture of network control plane with fast path. There is a bi-directional communication channel between Network Controller and Control Agent.
+The following diagram illustrates the architecture of the network control plane fast path,
+and the bi-directional communication channel between the Network Controllers and Control Agents.
 
 image::images/FastPath.GIF["Fast path architecture", width=1024, link="images/FastPath.GIF"]
 
-The top-down communication channel from Controller to Agent could be used in many scenarios which require low E2E latency for network configuration update:
+The top-down communication channel from Controllers to Agents can be used in many scenarios which may require low E2E latency for network configuration update:
 
-. Serverless application: Reduce the instantiation time of the containers in which customers' code is running, and shorten waiting time when a serverless function is invoked for the first time or after having its configuration altered, or when a serverless function scales out.
-. Provide certain SLA on service provisioning time for premium customers who are willing to pay more to get SLB-backed services.
+. Serverless application: Reduce the instantiation time of containers in which customers' code is running, and shorten waiting times of serverless function invokation.
+Either for the first time, or after having its configuration altered/serverless function scale outs.
 
-On the other hand, the bottom-up communication channel from Agent to Controller could serve as a feedback channel to provide
+. Differentiated services: Provide certain SLAs on service provisioning time for premium customers who are willing to pay more to get SLB-backed services.
 
-. Clear status message (e.g., transit switch programming is done so that Controller could finalize endpoint host programming and give greenlight to host to send out packets.
+On the other hand, the bottom-up communication channel from Agents to Controllers could serve as a feedback channel to provide the following.
+
+. Clear status message (e.g., transit switch programming is done
+so that Controllers may finalize endpoint host programming and give the green light for the host to start sending packets.
 . Actionable error situation (e.g. transit daemon down)
 
-Later on, we could also consider to use the fast path for network health monitoring for transit Daemon/switch/router as well as local host networking components.
+Later on, we could also consider using the fast path for network health monitoring of transit Daemon/switch/router as well as local host networking components.
 
 
 == Contract between Controller and Agent
 
-The contract between Control Agent and Network Controller for top-down channel is as follows:
+The contract between the Control Agents and Network Controllers for the top-down channel is as follows:
 
-* Goal state message. The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
+* Goal state message.
+The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
 For example, one message could consists of one subnet state update with 1000 ports creation to a data-plane switch, or two VPC update to a single VM/container host.
 
 *src/schema/proto3/goalstate.proto*
@@ -67,7 +75,8 @@ message GoalState {
 }
 ------------------------------------------------------------
 
-* VpcState message. OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDATE_SWTICH, CREATE_UPDATE_ROUTER to cover various scenarios in network resource CURD operations.
+* VpcState message.
+OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDATE_SWTICH, CREATE_UPDATE_ROUTER to cover various scenarios in network resource CURD operations.
 
 *src/schema/proto3/vpc.proto*
 
@@ -140,13 +149,13 @@ The control plane fast path would requires the following changes:
 [width="100%",options="header"]
 |====================
 |Index|Feature Description|Priority|Note
-|1|An additional field (is_fast_path) in REST APIs that has fast path support|P0|An example is Create/Update Port
-|2|Top-down channel: .3+^.^|P0|
-|2.1|gRPC server hosted in Control Agent|
-|2.2|gRPC client in Network Controller|
+|1|An additional field (is_fast_path) in REST APIs that require fast path support|P0|An example is Create/Update Port
+|2|Top-down channel .3+^.^|P0|
+|2.1|gRPC server hosted in Control Agents|
+|2.2|gRPC client in Network Controllers|
 |3|Bottom-up channel .3+^.^|P1|
-|3.1|gRPC server hosted in Network Controller|
-|3.2|gRPC client in Control Agent|
+|3.1|gRPC server hosted in Network Controllers|
+|3.2|gRPC client in Control Agents|
 |4|E2E latency measurement for fast path|P0|
 |5|Performance test to get scalability limit of gRPC|P1|
 |====================
