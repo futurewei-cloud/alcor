@@ -3,23 +3,23 @@
 == Introduction
 
 A fast-provisioning and scalable network control plane is the core of a competitive public cloud offering.
-This would require an instantaneous delivery of networking configuration driven from a region-level Network Controller to Control Agents deployed at every server host of data center.
+This would require an instantaneous delivery of networking configurations driven from a region-level Network Controller to Control Agents deployed at every server host of data center.
 Due to data center scale which usually ranges from a few hundreds of thousands to a few millions of machines, a message queue subsystem (e.g., Kafka or RabbitMQ) or a multi-layer hierarchy system is usually adopted
 as a high-throughput and scalable solution for network configuration update in the data center.
-This approach, however, would introduce excessive latency in E2E message delivery to a scale of 2-3 ms in case of handling 100,000s message <<kafka_benchmark,1 >> <<kafka_benchmark2, 2>>.
+This approach, however, would introduce excessive latency in E2E message delivery to a scale of 2-3 _ms_ in case of handling 100,000 _s_ message <<kafka_benchmark,1 >> <<kafka_benchmark2, 2>>.
 
-This infrastructure limitation does not fit into some customer scenarios where ultra-low latency for E2E network configuration provisioning (in a few 10ms or 100 ms) is a critical requirement.
-For example, the emerging serverless services like AWS Lambda or Azure Functions requires low latency, in the magnitude of 100 ms, as a selling point while lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>
+This infrastructure limitation does not fit into some customer scenarios where ultra-low latency for E2E network configuration provisioning (in a few 10 _ms_ or 100 _ms_) is a critical requirement.
+For example, the emerging serverless services like AWS Lambda or Azure Functions requires low latency, in the magnitude of 100 _ms_, as a selling point while lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>
 (the current workaround is keeping containers in a warm state by regularly sending events to serverless functions).
 To provide a competitive fast-provisioning solution with our new CloudFabric Networking platform, it would be necessary to build a control plane fast path to significantly reduce the E2E provisioning time.
 
 The main idea in this proposal is Kafka bypass and a gRPC-based direct message channel from Network Controllers to Control Agents.
-gRPC has a very low medium latency of 150-300 μs in case of handling 100,000s message <<gRPC_benchmark,4>>.
+gRPC has a very low medium latency of 150-300 _μs_ in case of handling 100,000 _s_ message <<gRPC_benchmark,4>>.
 This is 10x improvement compared to Kafka and those time-critical applications will benefit from the low latency of gRPC protocol.
 
 == Architecture
 
-The following diagram illustrates the architecture of network control plane with fast path. We have a bi-directional communication channel between them.
+The following diagram illustrates the architecture of network control plane with fast path. There is a bi-directional communication channel between Network Controller and Control Agent.
 
 image::images/FastPath.GIF["Fast path architecture", width=1024, link="images/FastPath.GIF"]
 
