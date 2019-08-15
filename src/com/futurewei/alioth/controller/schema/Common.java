@@ -51,6 +51,10 @@ public final class Common {
      * <code>CREATE_UPDATE_ROUTER = 7;</code>
      */
     CREATE_UPDATE_ROUTER(7),
+    /**
+     * <code>CREATE_UPDATE_GATEWAY = 8;</code>
+     */
+    CREATE_UPDATE_GATEWAY(8),
     UNRECOGNIZED(-1),
     ;
 
@@ -86,6 +90,10 @@ public final class Common {
      * <code>CREATE_UPDATE_ROUTER = 7;</code>
      */
     public static final int CREATE_UPDATE_ROUTER_VALUE = 7;
+    /**
+     * <code>CREATE_UPDATE_GATEWAY = 8;</code>
+     */
+    public static final int CREATE_UPDATE_GATEWAY_VALUE = 8;
 
 
     public final int getNumber() {
@@ -114,6 +122,7 @@ public final class Common {
         case 5: return FINALIZE;
         case 6: return CREATE_UPDATE_SWITCH;
         case 7: return CREATE_UPDATE_ROUTER;
+        case 8: return CREATE_UPDATE_GATEWAY;
         default: return null;
       }
     }
@@ -398,15 +407,15 @@ public final class Common {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014common.proto\022\020aliothcontroller*\210\001\n\rOpe" +
+      "\n\014common.proto\022\020aliothcontroller*\243\001\n\rOpe" +
       "rationType\022\n\n\006CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GE" +
       "T\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005\022" +
       "\030\n\024CREATE_UPDATE_SWITCH\020\006\022\030\n\024CREATE_UPDA" +
-      "TE_ROUTER\020\007*\037\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IP" +
-      "V6\020\001*9\n\010Protocol\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004IC" +
-      "MP\020\002\022\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0\n&com.futurewei" +
-      ".alioth.controller.schemaB\006Commonb\006proto" +
-      "3"
+      "TE_ROUTER\020\007\022\031\n\025CREATE_UPDATE_GATEWAY\020\010*\037" +
+      "\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Proto" +
+      "col\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020" +
+      "\003\022\007\n\003ARP\020\004B0\n&com.futurewei.alioth.contr" +
+      "oller.schemaB\006Commonb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
