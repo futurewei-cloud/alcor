@@ -9,14 +9,28 @@ import "goalstate.proto";
 
 service GoalStateProvisioner {
 
-   // A simple RPC
-   //
    // Push a group of network resource states
-   // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration 
    //
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration 
    // Results consist of a list of operation statuses, and each status is a response to one operation request in the input
+   //
+   // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+   //       Use RetrieveNetworkResourceStates for state query.
    rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
 
+
+   // Retrieve a group of network resource states (stored as a GoalState object)
+   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (GoalState) {}
+}
+
+message GoalStateRequest {
+
+   repeated ResourceStateRequest state_requests = 1;
+
+   message ResourceStateRequest {
+	string resource_id = 1;
+	ResourceType resource_type = 2;
+   }
 }
 
 message GoalStateOperationReply {
@@ -25,8 +39,8 @@ message GoalStateOperationReply {
 
    message GoalStateOperationStatus {
 	string resource_id = 1;
-        ResourceType resource_type = 2;
-        OperationType operation_type = 3;
-        OperationStatus operation_status = 4; 
+	ResourceType resource_type = 2;
+	OperationType operation_type = 3;
+	OperationStatus operation_status = 4;
    }
 }

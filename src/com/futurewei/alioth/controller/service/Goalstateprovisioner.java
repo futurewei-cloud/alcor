@@ -14,6 +14,1336 @@ public final class Goalstateprovisioner {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+  public interface GoalStateRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:aliothcontroller.GoalStateRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> 
+        getStateRequestsList();
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getStateRequests(int index);
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    int getStateRequestsCount();
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    java.util.List<? extends com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder> 
+        getStateRequestsOrBuilderList();
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder getStateRequestsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code aliothcontroller.GoalStateRequest}
+   */
+  public  static final class GoalStateRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:aliothcontroller.GoalStateRequest)
+      GoalStateRequestOrBuilder {
+    // Use GoalStateRequest.newBuilder() to construct.
+    private GoalStateRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private GoalStateRequest() {
+      stateRequests_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private GoalStateRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                stateRequests_ = new java.util.ArrayList<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              stateRequests_.add(
+                  input.readMessage(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.parser(), extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          stateRequests_ = java.util.Collections.unmodifiableList(stateRequests_);
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.class, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.Builder.class);
+    }
+
+    public interface ResourceStateRequestOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:aliothcontroller.GoalStateRequest.ResourceStateRequest)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string resource_id = 1;</code>
+       */
+      java.lang.String getResourceId();
+      /**
+       * <code>optional string resource_id = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getResourceIdBytes();
+
+      /**
+       * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+       */
+      int getResourceTypeValue();
+      /**
+       * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+       */
+      com.futurewei.alioth.controller.schema.Common.ResourceType getResourceType();
+    }
+    /**
+     * Protobuf type {@code aliothcontroller.GoalStateRequest.ResourceStateRequest}
+     */
+    public  static final class ResourceStateRequest extends
+        com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:aliothcontroller.GoalStateRequest.ResourceStateRequest)
+        ResourceStateRequestOrBuilder {
+      // Use ResourceStateRequest.newBuilder() to construct.
+      private ResourceStateRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        super(builder);
+      }
+      private ResourceStateRequest() {
+        resourceId_ = "";
+        resourceType_ = 0;
+      }
+
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+      getUnknownFields() {
+        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+      }
+      private ResourceStateRequest(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        this();
+        int mutable_bitField0_ = 0;
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!input.skipField(tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                resourceId_ = s;
+                break;
+              }
+              case 16: {
+                int rawValue = input.readEnum();
+
+                resourceType_ = rawValue;
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e).setUnfinishedMessage(this);
+        } finally {
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.class, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder.class);
+      }
+
+      public static final int RESOURCE_ID_FIELD_NUMBER = 1;
+      private volatile java.lang.Object resourceId_;
+      /**
+       * <code>optional string resource_id = 1;</code>
+       */
+      public java.lang.String getResourceId() {
+        java.lang.Object ref = resourceId_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          resourceId_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>optional string resource_id = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getResourceIdBytes() {
+        java.lang.Object ref = resourceId_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          resourceId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int RESOURCE_TYPE_FIELD_NUMBER = 2;
+      private int resourceType_;
+      /**
+       * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+       */
+      public int getResourceTypeValue() {
+        return resourceType_;
+      }
+      /**
+       * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+       */
+      public com.futurewei.alioth.controller.schema.Common.ResourceType getResourceType() {
+        com.futurewei.alioth.controller.schema.Common.ResourceType result = com.futurewei.alioth.controller.schema.Common.ResourceType.valueOf(resourceType_);
+        return result == null ? com.futurewei.alioth.controller.schema.Common.ResourceType.UNRECOGNIZED : result;
+      }
+
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        if (!getResourceIdBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 1, resourceId_);
+        }
+        if (resourceType_ != com.futurewei.alioth.controller.schema.Common.ResourceType.VPC.getNumber()) {
+          output.writeEnum(2, resourceType_);
+        }
+      }
+
+      public int getSerializedSize() {
+        int size = memoizedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (!getResourceIdBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, resourceId_);
+        }
+        if (resourceType_ != com.futurewei.alioth.controller.schema.Common.ResourceType.VPC.getNumber()) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeEnumSize(2, resourceType_);
+        }
+        memoizedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+         return true;
+        }
+        if (!(obj instanceof com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest)) {
+          return super.equals(obj);
+        }
+        com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest other = (com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest) obj;
+
+        boolean result = true;
+        result = result && getResourceId()
+            .equals(other.getResourceId());
+        result = result && resourceType_ == other.resourceType_;
+        return result;
+      }
+
+      @java.lang.Override
+      public int hashCode() {
+        if (memoizedHashCode != 0) {
+          return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptorForType().hashCode();
+        hash = (37 * hash) + RESOURCE_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getResourceId().hashCode();
+        hash = (37 * hash) + RESOURCE_TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + resourceType_;
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+      }
+
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
+      }
+      public static Builder newBuilder(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code aliothcontroller.GoalStateRequest.ResourceStateRequest}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:aliothcontroller.GoalStateRequest.ResourceStateRequest)
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.class, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder.class);
+        }
+
+        // Construct using com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessageV3
+                  .alwaysUseFieldBuilders) {
+          }
+        }
+        public Builder clear() {
+          super.clear();
+          resourceId_ = "";
+
+          resourceType_ = 0;
+
+          return this;
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor;
+        }
+
+        public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getDefaultInstanceForType() {
+          return com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.getDefaultInstance();
+        }
+
+        public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest build() {
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest buildPartial() {
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest result = new com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest(this);
+          result.resourceId_ = resourceId_;
+          result.resourceType_ = resourceType_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder clone() {
+          return (Builder) super.clone();
+        }
+        public Builder setField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.setField(field, value);
+        }
+        public Builder clearField(
+            com.google.protobuf.Descriptors.FieldDescriptor field) {
+          return (Builder) super.clearField(field);
+        }
+        public Builder clearOneof(
+            com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          return (Builder) super.clearOneof(oneof);
+        }
+        public Builder setRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            int index, Object value) {
+          return (Builder) super.setRepeatedField(field, index, value);
+        }
+        public Builder addRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.addRepeatedField(field, value);
+        }
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest) {
+            return mergeFrom((com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest other) {
+          if (other == com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.getDefaultInstance()) return this;
+          if (!other.getResourceId().isEmpty()) {
+            resourceId_ = other.resourceId_;
+            onChanged();
+          }
+          if (other.resourceType_ != 0) {
+            setResourceTypeValue(other.getResourceTypeValue());
+          }
+          onChanged();
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest) e.getUnfinishedMessage();
+            throw e.unwrapIOException();
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+
+        private java.lang.Object resourceId_ = "";
+        /**
+         * <code>optional string resource_id = 1;</code>
+         */
+        public java.lang.String getResourceId() {
+          java.lang.Object ref = resourceId_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            resourceId_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string resource_id = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getResourceIdBytes() {
+          java.lang.Object ref = resourceId_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            resourceId_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string resource_id = 1;</code>
+         */
+        public Builder setResourceId(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          resourceId_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string resource_id = 1;</code>
+         */
+        public Builder clearResourceId() {
+          
+          resourceId_ = getDefaultInstance().getResourceId();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string resource_id = 1;</code>
+         */
+        public Builder setResourceIdBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          resourceId_ = value;
+          onChanged();
+          return this;
+        }
+
+        private int resourceType_ = 0;
+        /**
+         * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+         */
+        public int getResourceTypeValue() {
+          return resourceType_;
+        }
+        /**
+         * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+         */
+        public Builder setResourceTypeValue(int value) {
+          resourceType_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+         */
+        public com.futurewei.alioth.controller.schema.Common.ResourceType getResourceType() {
+          com.futurewei.alioth.controller.schema.Common.ResourceType result = com.futurewei.alioth.controller.schema.Common.ResourceType.valueOf(resourceType_);
+          return result == null ? com.futurewei.alioth.controller.schema.Common.ResourceType.UNRECOGNIZED : result;
+        }
+        /**
+         * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+         */
+        public Builder setResourceType(com.futurewei.alioth.controller.schema.Common.ResourceType value) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          
+          resourceType_ = value.getNumber();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional .aliothcontroller.ResourceType resource_type = 2;</code>
+         */
+        public Builder clearResourceType() {
+          
+          resourceType_ = 0;
+          onChanged();
+          return this;
+        }
+        public final Builder setUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+        public final Builder mergeUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+
+        // @@protoc_insertion_point(builder_scope:aliothcontroller.GoalStateRequest.ResourceStateRequest)
+      }
+
+      // @@protoc_insertion_point(class_scope:aliothcontroller.GoalStateRequest.ResourceStateRequest)
+      private static final com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest DEFAULT_INSTANCE;
+      static {
+        DEFAULT_INSTANCE = new com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest();
+      }
+
+      public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      private static final com.google.protobuf.Parser<ResourceStateRequest>
+          PARSER = new com.google.protobuf.AbstractParser<ResourceStateRequest>() {
+        public ResourceStateRequest parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return new ResourceStateRequest(input, extensionRegistry);
+        }
+      };
+
+      public static com.google.protobuf.Parser<ResourceStateRequest> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<ResourceStateRequest> getParserForType() {
+        return PARSER;
+      }
+
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
+    }
+
+    public static final int STATE_REQUESTS_FIELD_NUMBER = 1;
+    private java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> stateRequests_;
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    public java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> getStateRequestsList() {
+      return stateRequests_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    public java.util.List<? extends com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder> 
+        getStateRequestsOrBuilderList() {
+      return stateRequests_;
+    }
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    public int getStateRequestsCount() {
+      return stateRequests_.size();
+    }
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getStateRequests(int index) {
+      return stateRequests_.get(index);
+    }
+    /**
+     * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+     */
+    public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder getStateRequestsOrBuilder(
+        int index) {
+      return stateRequests_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < stateRequests_.size(); i++) {
+        output.writeMessage(1, stateRequests_.get(i));
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < stateRequests_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, stateRequests_.get(i));
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest)) {
+        return super.equals(obj);
+      }
+      com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest other = (com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest) obj;
+
+      boolean result = true;
+      result = result && getStateRequestsList()
+          .equals(other.getStateRequestsList());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (getStateRequestsCount() > 0) {
+        hash = (37 * hash) + STATE_REQUESTS_FIELD_NUMBER;
+        hash = (53 * hash) + getStateRequestsList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code aliothcontroller.GoalStateRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:aliothcontroller.GoalStateRequest)
+        com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.class, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.Builder.class);
+      }
+
+      // Construct using com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getStateRequestsFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (stateRequestsBuilder_ == null) {
+          stateRequests_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          stateRequestsBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.internal_static_aliothcontroller_GoalStateRequest_descriptor;
+      }
+
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest getDefaultInstanceForType() {
+        return com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.getDefaultInstance();
+      }
+
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest build() {
+        com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest buildPartial() {
+        com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest result = new com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest(this);
+        int from_bitField0_ = bitField0_;
+        if (stateRequestsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            stateRequests_ = java.util.Collections.unmodifiableList(stateRequests_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.stateRequests_ = stateRequests_;
+        } else {
+          result.stateRequests_ = stateRequestsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest) {
+          return mergeFrom((com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest other) {
+        if (other == com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.getDefaultInstance()) return this;
+        if (stateRequestsBuilder_ == null) {
+          if (!other.stateRequests_.isEmpty()) {
+            if (stateRequests_.isEmpty()) {
+              stateRequests_ = other.stateRequests_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureStateRequestsIsMutable();
+              stateRequests_.addAll(other.stateRequests_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.stateRequests_.isEmpty()) {
+            if (stateRequestsBuilder_.isEmpty()) {
+              stateRequestsBuilder_.dispose();
+              stateRequestsBuilder_ = null;
+              stateRequests_ = other.stateRequests_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              stateRequestsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getStateRequestsFieldBuilder() : null;
+            } else {
+              stateRequestsBuilder_.addAllMessages(other.stateRequests_);
+            }
+          }
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> stateRequests_ =
+        java.util.Collections.emptyList();
+      private void ensureStateRequestsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          stateRequests_ = new java.util.ArrayList<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest>(stateRequests_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder> stateRequestsBuilder_;
+
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> getStateRequestsList() {
+        if (stateRequestsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(stateRequests_);
+        } else {
+          return stateRequestsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public int getStateRequestsCount() {
+        if (stateRequestsBuilder_ == null) {
+          return stateRequests_.size();
+        } else {
+          return stateRequestsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest getStateRequests(int index) {
+        if (stateRequestsBuilder_ == null) {
+          return stateRequests_.get(index);
+        } else {
+          return stateRequestsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder setStateRequests(
+          int index, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest value) {
+        if (stateRequestsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStateRequestsIsMutable();
+          stateRequests_.set(index, value);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder setStateRequests(
+          int index, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder builderForValue) {
+        if (stateRequestsBuilder_ == null) {
+          ensureStateRequestsIsMutable();
+          stateRequests_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          stateRequestsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder addStateRequests(com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest value) {
+        if (stateRequestsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStateRequestsIsMutable();
+          stateRequests_.add(value);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder addStateRequests(
+          int index, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest value) {
+        if (stateRequestsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStateRequestsIsMutable();
+          stateRequests_.add(index, value);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder addStateRequests(
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder builderForValue) {
+        if (stateRequestsBuilder_ == null) {
+          ensureStateRequestsIsMutable();
+          stateRequests_.add(builderForValue.build());
+          onChanged();
+        } else {
+          stateRequestsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder addStateRequests(
+          int index, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder builderForValue) {
+        if (stateRequestsBuilder_ == null) {
+          ensureStateRequestsIsMutable();
+          stateRequests_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          stateRequestsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder addAllStateRequests(
+          java.lang.Iterable<? extends com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest> values) {
+        if (stateRequestsBuilder_ == null) {
+          ensureStateRequestsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, stateRequests_);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder clearStateRequests() {
+        if (stateRequestsBuilder_ == null) {
+          stateRequests_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public Builder removeStateRequests(int index) {
+        if (stateRequestsBuilder_ == null) {
+          ensureStateRequestsIsMutable();
+          stateRequests_.remove(index);
+          onChanged();
+        } else {
+          stateRequestsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder getStateRequestsBuilder(
+          int index) {
+        return getStateRequestsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder getStateRequestsOrBuilder(
+          int index) {
+        if (stateRequestsBuilder_ == null) {
+          return stateRequests_.get(index);  } else {
+          return stateRequestsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public java.util.List<? extends com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder> 
+           getStateRequestsOrBuilderList() {
+        if (stateRequestsBuilder_ != null) {
+          return stateRequestsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(stateRequests_);
+        }
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder addStateRequestsBuilder() {
+        return getStateRequestsFieldBuilder().addBuilder(
+            com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder addStateRequestsBuilder(
+          int index) {
+        return getStateRequestsFieldBuilder().addBuilder(
+            index, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .aliothcontroller.GoalStateRequest.ResourceStateRequest state_requests = 1;</code>
+       */
+      public java.util.List<com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder> 
+           getStateRequestsBuilderList() {
+        return getStateRequestsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder> 
+          getStateRequestsFieldBuilder() {
+        if (stateRequestsBuilder_ == null) {
+          stateRequestsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequest.Builder, com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest.ResourceStateRequestOrBuilder>(
+                  stateRequests_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          stateRequests_ = null;
+        }
+        return stateRequestsBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:aliothcontroller.GoalStateRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:aliothcontroller.GoalStateRequest)
+    private static final com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest();
+    }
+
+    public static com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GoalStateRequest>
+        PARSER = new com.google.protobuf.AbstractParser<GoalStateRequest>() {
+      public GoalStateRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new GoalStateRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<GoalStateRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GoalStateRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public com.futurewei.alioth.controller.service.Goalstateprovisioner.GoalStateRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface GoalStateOperationReplyOrBuilder extends
       // @@protoc_insertion_point(interface_extends:aliothcontroller.GoalStateOperationReply)
       com.google.protobuf.MessageOrBuilder {
@@ -1529,6 +2859,16 @@ public final class Goalstateprovisioner {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_aliothcontroller_GoalStateRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_aliothcontroller_GoalStateRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aliothcontroller_GoalStateOperationReply_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -1548,21 +2888,28 @@ public final class Goalstateprovisioner {
   static {
     java.lang.String[] descriptorData = {
       "\n\032goalstateprovisioner.proto\022\020aliothcont" +
-      "roller\032\014common.proto\032\017goalstate.proto\"\330\002" +
-      "\n\027GoalStateOperationReply\022^\n\022operation_s" +
-      "tatuses\030\001 \003(\0132B.aliothcontroller.GoalSta" +
-      "teOperationReply.GoalStateOperationStatu" +
-      "s\032\334\001\n\030GoalStateOperationStatus\022\023\n\013resour" +
-      "ce_id\030\001 \001(\t\0225\n\rresource_type\030\002 \001(\0162\036.ali" +
-      "othcontroller.ResourceType\0227\n\016operation_" +
-      "type\030\003 \001(\0162\037.aliothcontroller.OperationT" +
-      "ype\022;\n\020operation_status\030\004 \001(\0162!.aliothco",
-      "ntroller.OperationStatus2}\n\024GoalStatePro" +
-      "visioner\022e\n\031PushNetworkResourceStates\022\033." +
-      "aliothcontroller.GoalState\032).aliothcontr" +
-      "oller.GoalStateOperationReply\"\000B)\n\'com.f" +
-      "uturewei.alioth.controller.serviceb\006prot" +
-      "o3"
+      "roller\032\014common.proto\032\017goalstate.proto\"\307\001" +
+      "\n\020GoalStateRequest\022O\n\016state_requests\030\001 \003" +
+      "(\01327.aliothcontroller.GoalStateRequest.R" +
+      "esourceStateRequest\032b\n\024ResourceStateRequ" +
+      "est\022\023\n\013resource_id\030\001 \001(\t\0225\n\rresource_typ" +
+      "e\030\002 \001(\0162\036.aliothcontroller.ResourceType\"" +
+      "\330\002\n\027GoalStateOperationReply\022^\n\022operation" +
+      "_statuses\030\001 \003(\0132B.aliothcontroller.GoalS" +
+      "tateOperationReply.GoalStateOperationSta",
+      "tus\032\334\001\n\030GoalStateOperationStatus\022\023\n\013reso" +
+      "urce_id\030\001 \001(\t\0225\n\rresource_type\030\002 \001(\0162\036.a" +
+      "liothcontroller.ResourceType\0227\n\016operatio" +
+      "n_type\030\003 \001(\0162\037.aliothcontroller.Operatio" +
+      "nType\022;\n\020operation_status\030\004 \001(\0162!.alioth" +
+      "controller.OperationStatus2\341\001\n\024GoalState" +
+      "Provisioner\022e\n\031PushNetworkResourceStates" +
+      "\022\033.aliothcontroller.GoalState\032).aliothco" +
+      "ntroller.GoalStateOperationReply\"\000\022b\n\035Re" +
+      "trieveNetworkResourceStates\022\".aliothcont",
+      "roller.GoalStateRequest\032\033.aliothcontroll" +
+      "er.GoalState\"\000B)\n\'com.futurewei.alioth.c" +
+      "ontroller.serviceb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1578,8 +2925,20 @@ public final class Goalstateprovisioner {
           com.futurewei.alioth.controller.schema.Common.getDescriptor(),
           com.futurewei.alioth.controller.schema.Goalstate.getDescriptor(),
         }, assigner);
-    internal_static_aliothcontroller_GoalStateOperationReply_descriptor =
+    internal_static_aliothcontroller_GoalStateRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
+    internal_static_aliothcontroller_GoalStateRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_aliothcontroller_GoalStateRequest_descriptor,
+        new java.lang.String[] { "StateRequests", });
+    internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor =
+      internal_static_aliothcontroller_GoalStateRequest_descriptor.getNestedTypes().get(0);
+    internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_aliothcontroller_GoalStateRequest_ResourceStateRequest_descriptor,
+        new java.lang.String[] { "ResourceId", "ResourceType", });
+    internal_static_aliothcontroller_GoalStateOperationReply_descriptor =
+      getDescriptor().getMessageTypes().get(1);
     internal_static_aliothcontroller_GoalStateOperationReply_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aliothcontroller_GoalStateOperationReply_descriptor,
