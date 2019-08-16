@@ -54,9 +54,34 @@ When a failure occurs first, a gRPC client can retry the failing request immedia
 If the request still fails, the client makes a few more attempts until a configurable maximum number of requests have been attempted.
 Then if the request remains unsuccessful, the client can fall back to the normal path by sending message to the Kafka cluster.
 
+=== Idempotent gRPC APIs
+
+By design, gRPC allows both the client and server to make independent and local decision of the success of the call.
+This means that the state on the client and server could be inconsistent,
+which could potentially cause an issue when a RPC call finishes successfully on the server side while fails on the client side.
+
+To address the above issue, the gRPC service APIs in both Network Agent and Network Controller are all idempotent.
+We support idempotent operations including Create, Update, Read and Delete on network resources.
+There is no additional effect if any service API is called more than once with the same input parameter(s).
+For example, if the Network Controller calls the same Control Agent twice and attempts to create one identical port, the second call should return SUCCESS and introduce no additional effect.
+
+//=== Use gRPC Hedge to Reduce Tail Latency
+
+//=== Secure Channels via SSL/TLS
+
+//A gRPC channel are secure by default via SSL/TLS until TLS is disabled for debugging or other purposes. 
+
+
 == Contract between Controller and Agent
 
-The contract between the Control Agents and Network Controllers for the top-down channel is as follows:
+The service APIs and the format of messages exchanged between the Control Agents and Network Controllers for the top-down channel is as follows:
+
+//=== Service APIs
+
+//*src/schema/proto3/controlagentservice.proto*
+
+
+=== Message Exchanged Between Agent and Controller
 
 * Goal state message.
 The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
@@ -151,6 +176,9 @@ message VpcConfiguration {
   repeated TransitRouter transit_routers = 9;
 }
 ------------------------------------------------------------
+
+//=== Error Handling
+
 
 == Proposed Changes
 
