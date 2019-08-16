@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+
+import "common.proto";
+import "goalstate.proto";
+
+service ControlAgentService {
+
+   // A simple RPC
+   //
+   // Modify a group of network resources
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource state  
+   //
+   // Results consist of a list of operation statuses, and each is a response to one operation request in the GoalState object
+   rpc ModifyNetworkResources(GoalState) returns (GoalStateOperationReply) {}
+
+}
+
+message GoalStateOperationReply {
+
+   repeated GoalStateOperationStatus operation_statuses = 1;    
+
+   message GoalStateOperationStatus {
+	string resource_id = 1;
+        ResourceType resource_type = 2;
+        OperationType operation_type = 3;
+        OperationStatus operation_status = 4; 
+   }
+}

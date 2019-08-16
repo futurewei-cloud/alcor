@@ -15,6 +15,122 @@ public final class Common {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   /**
+   * Protobuf enum {@code aliothcontroller.ResourceType}
+   */
+  public enum ResourceType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>VPC = 0;</code>
+     */
+    VPC(0),
+    /**
+     * <code>SUBNET = 1;</code>
+     */
+    SUBNET(1),
+    /**
+     * <code>PORT = 2;</code>
+     */
+    PORT(2),
+    /**
+     * <code>SECURITYGROUP = 3;</code>
+     */
+    SECURITYGROUP(3),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>VPC = 0;</code>
+     */
+    public static final int VPC_VALUE = 0;
+    /**
+     * <code>SUBNET = 1;</code>
+     */
+    public static final int SUBNET_VALUE = 1;
+    /**
+     * <code>PORT = 2;</code>
+     */
+    public static final int PORT_VALUE = 2;
+    /**
+     * <code>SECURITYGROUP = 3;</code>
+     */
+    public static final int SECURITYGROUP_VALUE = 3;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static ResourceType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static ResourceType forNumber(int value) {
+      switch (value) {
+        case 0: return VPC;
+        case 1: return SUBNET;
+        case 2: return PORT;
+        case 3: return SECURITYGROUP;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<ResourceType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        ResourceType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ResourceType>() {
+            public ResourceType findValueByNumber(int number) {
+              return ResourceType.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final ResourceType[] VALUES = values();
+
+    public static ResourceType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private ResourceType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:aliothcontroller.ResourceType)
+  }
+
+  /**
    * Protobuf enum {@code aliothcontroller.OperationType}
    */
   public enum OperationType
@@ -149,7 +265,7 @@ public final class Common {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(0);
+      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(1);
     }
 
     private static final OperationType[] VALUES = values();
@@ -173,6 +289,104 @@ public final class Common {
     }
 
     // @@protoc_insertion_point(enum_scope:aliothcontroller.OperationType)
+  }
+
+  /**
+   * Protobuf enum {@code aliothcontroller.OperationStatus}
+   */
+  public enum OperationStatus
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>SUCCESS = 0;</code>
+     */
+    SUCCESS(0),
+    /**
+     * <code>FAIL = 1;</code>
+     */
+    FAIL(1),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>SUCCESS = 0;</code>
+     */
+    public static final int SUCCESS_VALUE = 0;
+    /**
+     * <code>FAIL = 1;</code>
+     */
+    public static final int FAIL_VALUE = 1;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static OperationStatus valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static OperationStatus forNumber(int value) {
+      switch (value) {
+        case 0: return SUCCESS;
+        case 1: return FAIL;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<OperationStatus>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        OperationStatus> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<OperationStatus>() {
+            public OperationStatus findValueByNumber(int number) {
+              return OperationStatus.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(2);
+    }
+
+    private static final OperationStatus[] VALUES = values();
+
+    public static OperationStatus valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private OperationStatus(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:aliothcontroller.OperationStatus)
   }
 
   /**
@@ -247,7 +461,7 @@ public final class Common {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(1);
+      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(3);
     }
 
     private static final EtherType[] VALUES = values();
@@ -372,7 +586,7 @@ public final class Common {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(2);
+      return com.futurewei.alioth.controller.schema.Common.getDescriptor().getEnumTypes().get(4);
     }
 
     private static final Protocol[] VALUES = values();
@@ -407,15 +621,18 @@ public final class Common {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014common.proto\022\020aliothcontroller*\243\001\n\rOpe" +
-      "rationType\022\n\n\006CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GE" +
-      "T\020\002\022\n\n\006DELETE\020\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005\022" +
-      "\030\n\024CREATE_UPDATE_SWITCH\020\006\022\030\n\024CREATE_UPDA" +
-      "TE_ROUTER\020\007\022\031\n\025CREATE_UPDATE_GATEWAY\020\010*\037" +
-      "\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Proto" +
-      "col\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020" +
-      "\003\022\007\n\003ARP\020\004B0\n&com.futurewei.alioth.contr" +
-      "oller.schemaB\006Commonb\006proto3"
+      "\n\014common.proto\022\020aliothcontroller*@\n\014Reso" +
+      "urceType\022\007\n\003VPC\020\000\022\n\n\006SUBNET\020\001\022\010\n\004PORT\020\002\022" +
+      "\021\n\rSECURITYGROUP\020\003*\243\001\n\rOperationType\022\n\n\006" +
+      "CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GET\020\002\022\n\n\006DELETE\020" +
+      "\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005\022\030\n\024CREATE_UPDA" +
+      "TE_SWITCH\020\006\022\030\n\024CREATE_UPDATE_ROUTER\020\007\022\031\n" +
+      "\025CREATE_UPDATE_GATEWAY\020\010*(\n\017OperationSta" +
+      "tus\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001*\037\n\tEtherType\022" +
+      "\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Protocol\022\007\n\003TCP\020\000" +
+      "\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0",
+      "\n&com.futurewei.alioth.controller.schema" +
+      "B\006Commonb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
