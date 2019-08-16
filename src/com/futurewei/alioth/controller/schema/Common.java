@@ -301,9 +301,13 @@ public final class Common {
      */
     SUCCESS(0),
     /**
-     * <code>FAIL = 1;</code>
+     * <code>FAILURE = 1;</code>
      */
-    FAIL(1),
+    FAILURE(1),
+    /**
+     * <code>INVALID_ARG = 2;</code>
+     */
+    INVALID_ARG(2),
     UNRECOGNIZED(-1),
     ;
 
@@ -312,9 +316,13 @@ public final class Common {
      */
     public static final int SUCCESS_VALUE = 0;
     /**
-     * <code>FAIL = 1;</code>
+     * <code>FAILURE = 1;</code>
      */
-    public static final int FAIL_VALUE = 1;
+    public static final int FAILURE_VALUE = 1;
+    /**
+     * <code>INVALID_ARG = 2;</code>
+     */
+    public static final int INVALID_ARG_VALUE = 2;
 
 
     public final int getNumber() {
@@ -336,7 +344,8 @@ public final class Common {
     public static OperationStatus forNumber(int value) {
       switch (value) {
         case 0: return SUCCESS;
-        case 1: return FAIL;
+        case 1: return FAILURE;
+        case 2: return INVALID_ARG;
         default: return null;
       }
     }
@@ -627,12 +636,12 @@ public final class Common {
       "CREATE\020\000\022\n\n\006UPDATE\020\001\022\007\n\003GET\020\002\022\n\n\006DELETE\020" +
       "\003\022\010\n\004INFO\020\004\022\014\n\010FINALIZE\020\005\022\030\n\024CREATE_UPDA" +
       "TE_SWITCH\020\006\022\030\n\024CREATE_UPDATE_ROUTER\020\007\022\031\n" +
-      "\025CREATE_UPDATE_GATEWAY\020\010*(\n\017OperationSta" +
-      "tus\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001*\037\n\tEtherType\022" +
-      "\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*9\n\010Protocol\022\007\n\003TCP\020\000" +
-      "\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0",
-      "\n&com.futurewei.alioth.controller.schema" +
-      "B\006Commonb\006proto3"
+      "\025CREATE_UPDATE_GATEWAY\020\010*<\n\017OperationSta" +
+      "tus\022\013\n\007SUCCESS\020\000\022\013\n\007FAILURE\020\001\022\017\n\013INVALID" +
+      "_ARG\020\002*\037\n\tEtherType\022\010\n\004IPV4\020\000\022\010\n\004IPV6\020\001*" +
+      "9\n\010Protocol\022\007\n\003TCP\020\000\022\007\n\003UDP\020\001\022\010\n\004ICMP\020\002\022",
+      "\010\n\004HTTP\020\003\022\007\n\003ARP\020\004B0\n&com.futurewei.alio" +
+      "th.controller.schemaB\006Commonb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

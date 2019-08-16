@@ -26,7 +26,8 @@ enum OperationType {
 
 enum OperationStatus {
     SUCCESS = 0;
-    FAIL = 1;
+    FAILURE = 1;
+    INVALID_ARG = 2;
 }
 
 enum EtherType {
