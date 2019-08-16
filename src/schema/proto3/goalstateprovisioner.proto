@@ -7,15 +7,15 @@ option java_package = "com.futurewei.alioth.controller.service";
 import "common.proto";
 import "goalstate.proto";
 
-service ControlAgentService {
+service GoalStateProvisioner {
 
    // A simple RPC
    //
-   // Modify a group of network resources
-   // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource state  
+   // Push a group of network resource states
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration 
    //
-   // Results consist of a list of operation statuses, and each is a response to one operation request in the GoalState object
-   rpc ModifyNetworkResources(GoalState) returns (GoalStateOperationReply) {}
+   // Results consist of a list of operation statuses, and each status is a response to one operation request in the input
+   rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
 
 }
 
