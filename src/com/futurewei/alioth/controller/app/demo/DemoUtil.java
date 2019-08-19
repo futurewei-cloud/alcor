@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.app.demo;
 
+import com.futurewei.alioth.controller.comm.fastpath.GoalStateProvisionerClient;
 import com.futurewei.alioth.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alioth.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alioth.controller.comm.message.MessageClient;
@@ -10,6 +11,8 @@ import com.futurewei.alioth.controller.model.VpcState;
 import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
+
+import static com.futurewei.alioth.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
 
 public class DemoUtil {
 
@@ -165,6 +168,7 @@ public class DemoUtil {
 
     public static void CreatePort(PortState portState){
 
+        boolean isFastPath = portState.isFastPath();
         PortState customerPortState;
         HostInfo epHost;
         SubnetState customerSubnetState;
@@ -212,7 +216,9 @@ public class DemoUtil {
             epHost = epHostForSubnet2[3];
         }
 
-        MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(epHost.getHostIpAddress(), GRPC_SERVER_PORT);
+        MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        String topicForEndpoint = hostIdPrefix + epHost.getId();
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to EP host, update_endpoint
@@ -225,8 +231,12 @@ public class DemoUtil {
                 customerPortState,
                 epHost);
 
-        String topicForEndpoint = hostIdPrefix + epHost.getId();
-        client.runProducer(topicForEndpoint, gsPortState);
+        if(isFastPath){
+            gRpcClientForEpHost.PushNetworkResourceStates(gsPortState);
+        }
+        else{
+            kafkaClient.runProducer(topicForEndpoint, gsPortState);
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 2: Go to switch hosts in current subnet, update_ep and update_substrate
@@ -240,8 +250,14 @@ public class DemoUtil {
                 epHost);
 
         for (HostInfo switchForSubnet : transitSwitchHostsForSubnet){
-            String topicForSwitch = hostIdPrefix + switchForSubnet.getId();
-            client.runProducer(topicForSwitch, gsPortStateForSwitch);
+            if(isFastPath){
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(switchForSubnet.getHostIpAddress(), GRPC_SERVER_PORT);
+                gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
+            }
+            else{
+                String topicForSwitch = hostIdPrefix + switchForSubnet.getId();
+                kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -255,7 +271,12 @@ public class DemoUtil {
                 customerPortState,
                 epHost);
 
-        client.runProducer(topicForEndpoint, gsFinalizedPortState);
+        if(isFastPath){
+            gRpcClientForEpHost.PushNetworkResourceStates(gsFinalizedPortState);
+        }
+        else{
+            kafkaClient.runProducer(topicForEndpoint, gsFinalizedPortState);
+        }
     }
 
     public static void CreateSubnetLegacy(SubnetState subnetState, VpcState vpcState) {

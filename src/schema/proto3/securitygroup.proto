@@ -12,7 +12,8 @@ message SecurityGroupConfiguration {
 
   string project_id = 2;
   string vpc_id = 3;
-  string name = 4;
+  string id = 4;
+  string name = 5;
 
   enum Direction {
     EGRESS = 0;
@@ -32,7 +33,7 @@ message SecurityGroupConfiguration {
     string remote_group_id = 9;
   }
  
-  repeated SecurityGroupRule security_group_rules = 5;
+  repeated SecurityGroupRule security_group_rules = 6;
 }
 
 message SecurityGroupState {
