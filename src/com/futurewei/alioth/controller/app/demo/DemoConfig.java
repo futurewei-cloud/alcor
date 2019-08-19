@@ -7,6 +7,8 @@ public interface DemoConfig {
     long tunnelId = 3000;
     int OVERFLOW_IP_CONVERSION = 256;
 
+    int GRPC_SERVER_PORT = 50000;
+
     // TODO: figure out to store integer value over 127 in a byte
     String TRANSIT_SWTICH_1_HOST_ID = "switchhost_1";
     byte[] TRANSIT_SWITCH_1_IP = new byte[]{172-OVERFLOW_IP_CONVERSION,17,0,15};

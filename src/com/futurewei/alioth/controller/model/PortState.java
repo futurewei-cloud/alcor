@@ -53,6 +53,8 @@ public class PortState extends CustomerResource {
     private String macAddress;
     private String vethName;
 
+    private boolean isFastPath;
+
     private String deviceId;
     private String deviceOwner;
     private String status;
@@ -81,15 +83,16 @@ public class PortState extends CustomerResource {
     }
 
     public PortState(String projectId, String subnetId, String id, String name, String macAddress, String vethName,
-                     List<FixedIp> fixedIps) {
+                     List<FixedIp> fixedIps, boolean isFastPath) {
         super(projectId, id, name, "");
         this.networkId = subnetId;
         this.macAddress = macAddress;
         this.vethName = vethName;
         this.fixedIps = fixedIps == null? null : new ArrayList<FixedIp>(fixedIps);
+        this.isFastPath = isFastPath;
     }
 
     public PortState(PortState state){
-        this(state.getProjectId(), state.getNetworkId(), state.getId(), state.getName(), state.getMacAddress(), state.getVethName(), state.getFixedIps());
+        this(state.getProjectId(), state.getNetworkId(), state.getId(), state.getName(), state.getMacAddress(), state.getVethName(), state.getFixedIps(), state.isFastPath());
     }
 }
