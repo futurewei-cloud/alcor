@@ -36,6 +36,7 @@ public class GoalStateProvisionerClient {
     }
 
     public void PushNetworkResourceStates(GoalState state) {
+        logger.info("Will try to send GS ...");
         GoalStateOperationReply response;
         try {
             response = blockingStub.pushNetworkResourceStates(state);
