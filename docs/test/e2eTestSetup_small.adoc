@@ -1,6 +1,6 @@
-== End-to-End Test Setup
+== End-to-End Test Setup (Small)
 
-The end-to-end test scenario consists of one VPC and two subnets, and each subnet has two ports, respectively.
+The end-to-end test scenario consists of one VPC and two subnets, and each subnet has four ports, respectively.
 The test is deployed to five physical machine hosts with the following setup:
 
 . Host 4 hosts Network VPC Controller application
@@ -15,11 +15,11 @@ The test is deployed to five physical machine hosts with the following setup:
 * Communicate with VPC Controller and Network Control Agent (NCA) with native Kafka protocol and Protobuf
 * Each port node subscribes to its own topics
 
-. Host 0 hosts 7 containers to simulate 8 physical hosts in a data center
+. Host 0 hosts 13 containers simulate 14 physical hosts in a data center
 * Container functionality
-** D0-D3 host customer deployment (VM/container/serverless etc.) each of which is associated with a network port/endpoint
-** D4 and D5 host transit switch instances for subnet 1 and subnet 2, respectively
-** D6 hosts the VPC transit router instance
+** D0-7 host customer deployment (VM/container/serverless etc.) each of which is associated with a network port/endpoint
+** D8, D9 and D10, D11 host transit switch instances for subnet 1 and subnet 2, respectively
+** D12, and D13 hosts the VPC transit router instance
 * Network Control Agent (NCA) deployed at each container
 ** Only entity to manage local host networking configuration
 ** Parse goal state configuration from Kafka
@@ -29,4 +29,4 @@ The test is deployed to five physical machine hosts with the following setup:
 ** Transit Agent attached to virtual interfaces
 ** Transit XDP program attached to physical interfaces
 
-image::images/setup_1Vpc2Subnets4Ports.gif["Test setup with one Vpc, two subnets and four ports", width=900, link="images/setup_1Vpc2Subnets4Ports.gif"]
+image::images/setup_1Vpc2Subnets8Ports.gif["Test setup with one Vpc, two subnets and four ports", width=900, link="images/setup_1Vpc2Subnets8Ports.gif"]
