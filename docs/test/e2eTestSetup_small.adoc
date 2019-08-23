@@ -1,4 +1,4 @@
-== End-to-End Test Setup (Small)
+== End-to-End Test Setup for multiple switches/routers scenario
 
 The end-to-end test scenario consists of one VPC and two subnets, and each subnet has four ports, respectively.
 The test is deployed to five physical machine hosts with the following setup:
@@ -19,7 +19,7 @@ The test is deployed to five physical machine hosts with the following setup:
 * Container functionality
 ** D0-7 host customer deployment (VM/container/serverless etc.) each of which is associated with a network port/endpoint
 ** D8, D9 and D10, D11 host transit switch instances for subnet 1 and subnet 2, respectively
-** D12, and D13 hosts the VPC transit router instance
+** D12, and D13 host the VPC transit router instances
 * Network Control Agent (NCA) deployed at each container
 ** Only entity to manage local host networking configuration
 ** Parse goal state configuration from Kafka
