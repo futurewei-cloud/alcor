@@ -116,7 +116,7 @@ public class GoalStateUtil {
                         .setId(vpc_id)
                         .setName(vpc_name)
                         .setCidr(cidr)
-                        .setTunnelId(DemoConfig.tunnelId))
+                        .setTunnelId(DemoConfig.Tunnel_Id))
                 .build();
     }
 
@@ -132,7 +132,7 @@ public class GoalStateUtil {
                 .setId(vpcId)
                 .setName(customerVpcState.getName())
                 .setCidr(customerVpcState.getCidr())
-                .setTunnelId(DemoConfig.tunnelId);
+                .setTunnelId(DemoConfig.Tunnel_Id);
 
         for (HostInfo routerHost : transitRouterHosts){
             vpcConfiguration.addTransitRouters(
@@ -164,7 +164,7 @@ public class GoalStateUtil {
                 .setId(subnetId)
                 .setName(customerSubnetState.getName())
                 .setCidr(customerSubnetState.getCidr())
-                .setTunnelId(DemoConfig.tunnelId);
+                .setTunnelId(DemoConfig.Tunnel_Id);
 
         for(HostInfo switchHost : transitSwitchHosts){
             subnetConfiguration.addTransitSwitches(

@@ -12,11 +12,11 @@ import com.futurewei.alioth.controller.schema.Common;
 import com.futurewei.alioth.controller.schema.Goalstate;
 import com.futurewei.alioth.controller.utilities.GoalStateUtil;
 
-import static com.futurewei.alioth.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
+import static com.futurewei.alioth.controller.app.demo.DemoConfig.gRPCServerIp;
 
 public class DemoUtil {
 
-    private static String hostIdPrefix = "es2-";
+    private static String hostIdPrefix = "es3-";
     private static String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
     private static String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
     private static String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -94,8 +94,8 @@ public class DemoUtil {
     };
 
     private static HostInfo[] transitSwitchHostsForSubnet1 = {
-            new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-            new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+            new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC, DemoConfig.gRPCServerPortForSubnet1[4]),
+            new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC, DemoConfig.gRPCServerPortForSubnet1[5])
     };
 
     private static HostInfo[] transitSwitchHostsForSubnet2 = {
@@ -104,10 +104,10 @@ public class DemoUtil {
     };
 
     private static HostInfo[] epHostForSubnet1 = {
-            new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
-            new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC),
-            new HostInfo("subnet1-ep3", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
-            new HostInfo("subnet1-ep4", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC),
+            new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[0]),
+            new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[1]),
+            new HostInfo("subnet1-ep3", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[2]),
+            new HostInfo("subnet1-ep4", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[3]),
     };
 
     private static HostInfo[] epHostForSubnet2 = {
@@ -119,6 +119,7 @@ public class DemoUtil {
 
     public static void CreateSubnet(SubnetState subnetState){
 
+        boolean isFastPath = false;
         MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
 
         // This is the combination of all the transit switch hosts
@@ -131,6 +132,8 @@ public class DemoUtil {
                     transitSwitchHostsForSubnet1,
             };
             customerSubnetState = new SubnetState(customerSubnetState1);
+
+            isFastPath = true;
         }
         else{
             transitSwitchHosts = new HostInfo[][] {
@@ -148,8 +151,15 @@ public class DemoUtil {
 
         for(HostInfo transitSwitch : transitSwitchHosts[0])
         {
-            String topic = hostIdPrefix + transitSwitch.getId();
-            client.runProducer(topic, gsVpcState);
+            if(isFastPath){
+                System.out.println("Send Subnet id :" + subnetState.getId() + " with fast path");
+                GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(gRPCServerIp, transitSwitch.getGRPCServerPort());
+                gRpcClientForEpHost.PushNetworkResourceStates(gsVpcState);
+            }
+            else{
+                String topic = hostIdPrefix + transitSwitch.getId();
+                client.runProducer(topic, gsVpcState);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -166,7 +176,7 @@ public class DemoUtil {
         }
     }
 
-    public static void CreatePort(PortState portState){
+    public static long[] CreatePort(PortState portState){
 
         boolean isFastPath = portState.isFastPath();
         PortState customerPortState;
@@ -174,9 +184,12 @@ public class DemoUtil {
         SubnetState customerSubnetState;
         HostInfo[] transitSwitchHostsForSubnet;
 
+        long[] recordedTimeStamp = new long[3];
+
         if(portState.getNetworkId().equalsIgnoreCase(subnet1Id)){
             customerSubnetState = customerSubnetState1;
             transitSwitchHostsForSubnet = transitSwitchHostsForSubnet1;
+            isFastPath = true;
         }
         else{
             customerSubnetState = customerSubnetState2;
@@ -186,18 +199,22 @@ public class DemoUtil {
         if(portState.getId().equalsIgnoreCase(ep1Id)){
             customerPortState = customerPortStateForSubnet1[0];
             epHost = epHostForSubnet1[0];
+            isFastPath = true;
         }
         else if(portState.getId().equalsIgnoreCase(ep2Id)){
             customerPortState = customerPortStateForSubnet1[1];
             epHost = epHostForSubnet1[1];
+            isFastPath = true;
         }
         else if(portState.getId().equalsIgnoreCase(ep3Id)){
             customerPortState = customerPortStateForSubnet1[2];
             epHost = epHostForSubnet1[2];
+            isFastPath = true;
         }
         else if(portState.getId().equalsIgnoreCase(ep4Id)){
             customerPortState = customerPortStateForSubnet1[3];
             epHost = epHostForSubnet1[3];
+            isFastPath = true;
         }
         else if(portState.getId().equalsIgnoreCase(ep5Id)){
             customerPortState = customerPortStateForSubnet2[0];
@@ -216,7 +233,7 @@ public class DemoUtil {
             epHost = epHostForSubnet2[3];
         }
 
-        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(epHost.getHostIpAddress(), GRPC_SERVER_PORT);
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(gRPCServerIp, epHost.getGRPCServerPort());
         MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
         String topicForEndpoint = hostIdPrefix + epHost.getId();
 
@@ -232,11 +249,14 @@ public class DemoUtil {
                 epHost);
 
         if(isFastPath){
+            System.out.println("Send port id :" + portState.getId() + " with fast path");
             gRpcClientForEpHost.PushNetworkResourceStates(gsPortState);
         }
         else{
             kafkaClient.runProducer(topicForEndpoint, gsPortState);
         }
+
+        recordedTimeStamp[0] = System.nanoTime();
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 2: Go to switch hosts in current subnet, update_ep and update_substrate
@@ -251,7 +271,8 @@ public class DemoUtil {
 
         for (HostInfo switchForSubnet : transitSwitchHostsForSubnet){
             if(isFastPath){
-                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(switchForSubnet.getHostIpAddress(), GRPC_SERVER_PORT);
+                System.out.println("Send port id :" + portState.getId() + " to transit switch with fast path");
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(gRPCServerIp, switchForSubnet.getGRPCServerPort());
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             }
             else{
@@ -259,6 +280,8 @@ public class DemoUtil {
                 kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
             }
         }
+
+        recordedTimeStamp[1] = System.nanoTime();
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 3: Go to EP host, update_agent_md and update_agent_ep
@@ -272,11 +295,16 @@ public class DemoUtil {
                 epHost);
 
         if(isFastPath){
+            System.out.println("Send port id :" + portState.getId() + " with fast path");
             gRpcClientForEpHost.PushNetworkResourceStates(gsFinalizedPortState);
         }
         else{
             kafkaClient.runProducer(topicForEndpoint, gsFinalizedPortState);
         }
+
+        recordedTimeStamp[2] = System.nanoTime();
+
+        return recordedTimeStamp;
     }
 
     public static void CreateSubnetLegacy(SubnetState subnetState, VpcState vpcState) {

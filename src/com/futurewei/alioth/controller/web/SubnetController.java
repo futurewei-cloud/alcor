@@ -1,5 +1,6 @@
 package com.futurewei.alioth.controller.web;
 
+import com.futurewei.alioth.controller.app.demo.DemoConfig;
 import com.futurewei.alioth.controller.app.demo.DemoUtil;
 import com.futurewei.alioth.controller.cache.repo.*;
 import com.futurewei.alioth.controller.exception.*;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.futurewei.alioth.controller.app.demo.DemoConfig.isDemo;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
@@ -75,7 +75,9 @@ public class SubnetController {
                 throw new ResourcePersistenceException();
             }
 
-            if(isDemo) DemoUtil.CreateSubnet(subnetState);
+            if(DemoConfig.IS_Demo) {
+                DemoUtil.CreateSubnet(subnetState);
+            }
         }
         catch (ResourceNullException e){
             throw new Exception(e);
