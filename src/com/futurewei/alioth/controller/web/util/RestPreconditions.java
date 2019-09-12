@@ -7,6 +7,10 @@ import com.futurewei.alioth.controller.model.SubnetState;
 import com.futurewei.alioth.controller.model.VpcState;
 import org.thymeleaf.util.StringUtils;
 
+import java.io.IOException;
+
+import static com.futurewei.alioth.controller.app.demo.DemoConfig.*;
+
 public class RestPreconditions {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
         if (resource == null) throw new ResourceNotFoundException();
@@ -68,4 +72,29 @@ public class RestPreconditions {
         }
     }
 
+    public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
+        try {
+            TIME_STAMP_WRITER.newLine();
+
+            long timeElapsedInMsForDataPersistence = (T1 - T0) / 1000000;
+            long timeElapsedInMsForFirstMessaging = (timeArray[0] - T1) / 1000000;
+            TIME_STAMP_WRITER.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
+                    timeElapsedInMsForFirstMessaging + ",");
+            for (int i = 0; i < timeArray.length - 1 ; i++) {
+                long timestampInMs = (timeArray[i+1] - timeArray[i]) / 1000000;
+                TIME_STAMP_WRITER.write(timestampInMs + ",");
+            }
+
+            TOTAL_TIME += (timeArray[timeArray.length-1] - T0) / 1000000;
+            TOTAL_REQUEST ++;
+
+            if(TOTAL_REQUEST % 1000 == 0){
+                TIME_STAMP_WRITER.newLine();
+                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" +
+                        TOTAL_TIME/TOTAL_REQUEST + " ms");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

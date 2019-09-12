@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.futurewei.alioth.controller.app.demo.DemoConfig.isDemo;
+import static com.futurewei.alioth.controller.app.demo.DemoConfig.IS_Demo;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -64,6 +64,9 @@ public class PortController {
             value = {"/project/{projectid}/port", "v4/{projectid}/ports"})
     @ResponseStatus(HttpStatus.CREATED)
     public PortState createPortState(@PathVariable String projectid, @RequestBody PortState resource) throws Exception {
+
+        long T0 = System.nanoTime();
+
         try{
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
@@ -74,9 +77,12 @@ public class PortController {
             RestPreconditions.populateResourceProjectId(resource, projectid);
 
             this.portRedisRepository.addItem(resource);
+            long T1 = System.nanoTime();
 
-            if(isDemo) DemoUtil.CreatePort(resource);
-
+            if(IS_Demo) {
+                long[] times = DemoUtil.CreatePort(resource);
+                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
+            }
         }
         catch (ResourceNullException e){
             throw new Exception(e);

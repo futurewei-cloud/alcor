@@ -12,6 +12,12 @@ public class HostInfo {
     private String id;
     private InetAddress localIp;
     private String macAddress;
+    private int gRPCServerPort;
+
+    public HostInfo(String hostId, String hostName, byte[] ipAddress, String macAddress, int gRPCServerPort) {
+        this(hostId, hostName, ipAddress, macAddress);
+        this.gRPCServerPort = gRPCServerPort;
+    }
 
     public HostInfo(String hostId, String hostName, byte[] ipAddress, String macAddress) {
 
