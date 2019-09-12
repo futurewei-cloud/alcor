@@ -21,6 +21,6 @@ Detailed design docs:
 
 - [Alcor regional controllers](/docs)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent)
-- [Alcor & Mizar integration](https://github.com/futurewei-cloud/Alcor-Mizar-Integration)
+- [Alcor & Mizar integration] (Coming soon)
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar).
