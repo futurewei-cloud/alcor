@@ -1,6 +1,6 @@
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.app.AliothControllerApp;
+import com.futurewei.alcor.controller.app.AlcorControllerApp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DebugController.class)
-@ContextConfiguration(classes={AliothControllerApp.class})
+@ContextConfiguration(classes={AlcorControllerApp.class})
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class DebugControllerTest {
 
