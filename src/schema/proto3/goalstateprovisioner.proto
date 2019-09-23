@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package aliothcontroller;
 
-option java_package = "com.futurewei.alioth.controller.service";
+option java_package = "com.futurewei.alcor.controller.service";
 
 import "common.proto";
 import "goalstate.proto";
