@@ -1,16 +1,16 @@
-# Dockerfile for Alioth Controller
+# Dockerfile for Alcor Controller
 
 FROM openjdk:8
 
 MAINTAINER Liguang Xie <lxie@futurewei.com>
 
-# Alioth Controller process
+# Alcor Controller process
 EXPOSE 8080
-# Alioth Controller admin process
+# Alcor Controller admin process
 
 # Generate container image and run container
-COPY ./target/AliothController-0.1.0-SNAPSHOT.jar /app/AliothController-0.1.0.jar
+COPY ./target/AlcorController-0.1.0-SNAPSHOT.jar /app/AlcorController-0.1.0.jar
 WORKDIR /app
-CMD ["java", "-jar", "AliothController-0.1.0.jar"]
+CMD ["java", "-jar", "AlcorController-0.1.0.jar"]
 
-# Alioth entry points
+# Alcor entry points

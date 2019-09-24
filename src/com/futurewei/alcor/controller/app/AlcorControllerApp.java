@@ -10,14 +10,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-@SpringBootApplication(scanBasePackages = "com.futurewei.alioth.controller")
+@SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({ RedisConfiguration.class})
-public class AliothControllerApp {
+public class AlcorControllerApp {
     public static void main(String[] args) {
-        System.out.println("Hello Alioth Controller!");
-        //Class<?>[] sources = {AliothControllerApp.class, RedisConfiguration.class};
-        SpringApplication.run(AliothControllerApp.class, args);
-        System.out.println("Bye from Alioth Controller!");
+        System.out.println("Hello Alcor Controller!");
+        //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
+        SpringApplication.run(AlcorControllerApp.class, args);
+        System.out.println("Bye from Alcor Controller!");
     }
 
     @Bean

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package aliothcontroller;
+package alcorcontroller;
 
 option java_package = "com.futurewei.alcor.controller.schema";
 option java_outer_classname = "Subnet";
