@@ -9,7 +9,7 @@ The Alcor controller project currently uses _Apache Maven_ to manage the depende
 We recommend using an Ubuntu or Windows OS for development and functionality testing.
 To compile, run, and test Alcor, please follow the following steps:
 
-Clone the Alcor repository
+Clone the Alcor repository.
 ```
 $ git clone https://github.com/futurewei-cloud/alcor.git ~/alcor
 $ cd ~/alcor
@@ -38,7 +38,7 @@ The previous steps allow you to compile and install Alcor.
 If you are interested in deploy alcor controller and its associated components (e.g. DB and cache) as docker containers,
 you can follow the next steps on any Docker supported operating system:
 
-Set up docker images with the dependencies and run docker containers
+Set up docker images with the dependencies and run docker containers.
 ```
 Windows:
 PS > .\scripts\deploy.ps1
@@ -47,7 +47,7 @@ Ubuntu:
 $ ./scripts/deploy.sh
 ```
 
-Test if your local controller is up:
+Test if your local controller is up.
 ```
 curl localhost:8080/actuator/health
 {"status":"UP"}
