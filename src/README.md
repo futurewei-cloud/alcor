@@ -2,53 +2,54 @@ Alcor is a high-performance and large-scale implementation of the next-generatio
 
 ## Setting up a Development Environment
 
-We currently use _maven_ to build the controller project and manage its dependencies.
-We recommend using an ubuntu-based host for development and functionality testing.
-To compile, test, and experiment Alcor on an existing host, please follow the following steps:
+The Alcor controller project currently uses _Apache Maven_ to manage the dependencies and its build.
+We recommend using an Ubuntu or Windows OS for development and functionality testing.
+To compile, run, and test Alcor, please follow the following steps:
 
-1. Clone the Alcor repository
+Clone the Alcor repository
 ```
 $ git clone https://github.com/futurewei-cloud/alcor.git ~/alcor
 $ cd ~/alcor
 $ git submodule update --init --recursive
 ```
 
-Run the bootstrap script to install all needed packages for development, 
-and create a docker container _alcor:controller_ to enable you to start running the functional tests.
+Run the build script to install all needed packages, and clean install the project for development.
 ```
+Windows:
+PS > .\scripts\build.ps1
+
+Ubuntu:
 $ ./scripts/build.sh
 ```
-Compile and run tests. The make test step will run both unit and functional test. If this step passes, then you have everything needed to develop, test, and run Mizar on a single box!
+
+Compile and run tests.
+The make test step will run both unit and functional test.
+If this step passes, then you have everything needed to develop, test, and run Alcor.
 ```
 $ mvn test
- ```
-(Optional) You may want to run unit tests and get coverage reports by:
-```
-$ make run_unittests
-$ make lcov
-```
-(Optional) To execute functional tests only, run:
-```
-$ make functest
-```
-(Optional) To execute a specific functional test
-```
-make run_func_test TEST=<test_class_name>
 ```
 
-### Compiling and Running unit tests Only
+### Deploying Alcor Controller
 
-The previous steps allow you to run the functional tests as well as compiling Mizar. If you are interested only in rapidly compiling the code and running unit tests, you can follow the next steps on any Docker supported operating system:
+The previous steps allow you to compile and install Alcor.
+If you are interested in deploy alcor controller and its associated components (e.g. DB and cache) as docker containers,
+you can follow the next steps on any Docker supported operating system:
 
-Set up a docker image with the dependancies
+Set up docker images with the dependencies and run docker containers
 ```
-sudo docker build -f ~/Mizar/test/Dockerfile -t buildbox:v2 ~/Mizar/test
-```
-Run the buildbox container:
-```
-sudo docker run -it -v ~/Mizar:/Mizar buildbox:v2
-```
-Inside the container, /Mizar will point to the same directory ~/Mizar on your host!
+Windows:
+PS > .\scripts\deploy.ps1
 
-You can then run __make__ and __make lcov__ normally from the container. You will not be able to run __make test__ as functional tests will not run.
+Ubuntu:
+$ ./scripts/deploy.sh
+```
 
+Test if your local controller is up:
+```
+curl localhost:8080/actuator/health
+{"status":"UP"}
+```
+
+Now you are ready to use Alcor Controller.
+
+Next Step: [API Document](/docs/apis/index.adoc)
