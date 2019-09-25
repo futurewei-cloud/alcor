@@ -17,7 +17,14 @@ message SubnetConfiguration {
   string cidr = 6;
   int64 tunnel_id = 7;
 
-  string gateway_ip = 8;
+  message Gateway {
+    string vpc_id = 1;
+    string subnet_id = 2;
+    string ip_address = 3;
+    string mac_address = 4;
+  }
+
+  Gateway gateway = 8;
   bool dhcp_enable = 9;
   string availability_zone = 10;
   string primary_dns = 11;
