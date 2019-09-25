@@ -25,3 +25,5 @@ Detailed design docs:
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
 which is a twin project of Alcor.
+
+* [Getting Started](src/README.md)

@@ -1,4 +1,7 @@
+# Getting Started
+
 Alcor is a high-performance and large-scale implementation of the next-generation cloud networking control plane.
+Please follow the following instruction to set up your development environment and to deploy Alcor.
 
 ## Setting up a Development Environment
 
@@ -52,4 +55,4 @@ curl localhost:8080/actuator/health
 
 Now you are ready to use Alcor Controller.
 
-Next Step: [API Document](/docs/apis/index.adoc)
+Next Step: [API Document](../docs/apis/index.adoc)
