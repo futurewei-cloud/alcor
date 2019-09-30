@@ -17,6 +17,10 @@ Alcor as a platform also offers a way to unify VM and container networking manag
 and guarantees ultra-low latency and high throughput due to its
 application aware fast path when provisioning containers and serverless applications.
 
+The following diagram illustrates the high-level architecture of Alcor control plane.
+
+![Alcor architecture](docs/design/images/AlcorArchitecture.PNG)
+
 Detailed design docs:
 
 - [Alcor regional controllers](/docs)
