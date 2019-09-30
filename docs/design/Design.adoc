@@ -1,1 +1,3 @@
-# Alcor - Cloud Networking Control Plane
+# Alcor - An hyperscale Cloud Virtual Networking Platform
+
+

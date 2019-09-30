@@ -1,12 +1,23 @@
-# Alcor - Cloud Networking Control Plane
+# Alcor
+An hyperscale Cloud Virtual Networking Platform
 
+* For information about how to use Alcor, visit [Getting Started](src/README.md)
+* To ask questions, raise feature requests and get assistance from our community, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues)
+* To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki) (Coming soon)
+
+In this README:
+
+- [Introduction](#introduction)
+- [Repositories](#repositories)
+
+## Introduction
 Cloud means scale and on-demand resource provisioning.
 As more and more enterprise customers migrate their on premise workloads to the cloud,
 its user base could grow at a rate of 10X in just a few years.
 This will require a cloud virtual networking platform with a more scalable and extensible design.
 As a part of the community effort,
 Alcor is an open-source platform that provides high availability, high performance, and large scale
-virtual network control plane at a high resource provisioning rate.
+virtual network control plane and management plane at a high resource provisioning rate.
 
 Alcor leverages the latest SDN and container technologies as well as an advanced distributed system design to
 support deployment, configuration and scale-out of millions of VM and containers.
@@ -24,10 +35,22 @@ The following diagram illustrates the high-level architecture of Alcor control p
 Detailed design docs:
 
 - [Alcor regional controllers](/docs)
-- [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent)
-- [Alcor & Mizar integration] (Coming soon)
+- [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
+
+# Repositories
+The Alcor project is divided across a few GitHub repositories.
+
+- [alcor/alcor](https://github.com/futurewei-cloud/Alcor):
+This is the main repository of Alcor Regional Controller that you are currently looking at.
+It hosts controllers' source codes, build and deployment instructions, and various documents that detail the design of Alcor.
+
+- [alcor/alcorcontrolagent](https://github.com/futurewei-cloud/AlcorControlAgent):
+This repository contains source codes for a host-level stateless agent that connect regional controllers to host networking components.
+It is responsible for programming on-host data plane with various network configuration for CURD of _VPC, subnet, port, Security group etc._,
+ and monitoring network health of containers and VMs on the host.
+
+- alcor/integration (Coming soon)
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
 which is a twin project of Alcor.
 
-* [Getting Started](src/README.md)
