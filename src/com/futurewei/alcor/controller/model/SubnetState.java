@@ -24,6 +24,10 @@ public class SubnetState extends CustomerResource {
         this(projectId, vpcId, id, name, cidr,null, null, null, false, null, null, null);
     }
 
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp){
+        this(projectId, vpcId, id, name, cidr,null, null, gatewayIp, false, null, null, null);
+    }
+
     public SubnetState(SubnetState state){
         this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
                 state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getDnsList());
