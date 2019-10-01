@@ -57,4 +57,4 @@ Now you are ready to use Alcor Controller.
 
 Next Step:
 - [API Document](../docs/apis/index.adoc)
-- [Fast Path](../docs/design/FastPath.adoc)
+- [Fast Path](../docs/design/fastpath.adoc)
