@@ -37,7 +37,7 @@ Detailed design docs:
 - [Alcor regional controllers](/docs)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
 
-# Repositories
+## Repositories
 The Alcor project is divided across a few GitHub repositories.
 
 - [alcor/alcor](https://github.com/futurewei-cloud/Alcor):
@@ -45,7 +45,7 @@ This is the main repository of Alcor Regional Controller that you are currently 
 It hosts controllers' source codes, build and deployment instructions, and various documents that detail the design of Alcor.
 
 - [alcor/alcorcontrolagent](https://github.com/futurewei-cloud/AlcorControlAgent):
-This repository contains source codes for a host-level stateless agent that connect regional controllers to host networking components.
+This repository contains source codes for a host-level stateless agent that connects regional controllers to the host data-plane component.
 It is responsible for programming on-host data plane with various network configuration for CURD of _VPC, subnet, port, Security group etc._,
  and monitoring network health of containers and VMs on the host.
 
