@@ -32,7 +32,7 @@ If this step passes, then you have everything needed to develop, test, and run A
 $ mvn test
 ```
 
-### Deploying Alcor Controller
+## Deploying Alcor Controller
 
 The previous steps allow you to compile and install Alcor.
 If you are interested in deploy alcor controller and its associated components (e.g. DB and cache) as docker containers,

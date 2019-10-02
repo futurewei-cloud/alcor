@@ -50,6 +50,33 @@ public class GoalStateUtil {
     }
 
     public static GoalState CreateGoalState(
+            Common.OperationType vpcOption,
+            VpcState customerVpcState,
+            HostInfo[] transitRouterHosts,
+            Common.OperationType subnetOption,
+            SubnetState[] customerSubnetStates,
+            HostInfo[][] transitSwitchHosts)
+    {
+        final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
+                vpcOption,
+                customerVpcState,
+                transitRouterHosts);
+
+        GoalState.Builder goalState = GoalState.newBuilder().addVpcStates(vpcState);
+
+        for(int i = 0; i < customerSubnetStates.length; i++){
+            final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
+                    subnetOption,
+                    customerSubnetStates[i],
+                    transitSwitchHosts[i]);
+
+            goalState.addSubnetStates(gsSubnetState);
+        }
+
+        return goalState.build();
+    }
+
+    public static GoalState CreateGoalState(
             Common.OperationType subnetOption,
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts,
@@ -165,6 +192,13 @@ public class GoalStateUtil {
                 .setName(customerSubnetState.getName())
                 .setCidr(customerSubnetState.getCidr())
                 .setTunnelId(DemoConfig.Tunnel_Id);
+
+        subnetConfiguration.setGateway(
+                Subnet.SubnetConfiguration.Gateway.newBuilder()
+                        .setVpcId(vpcId)
+                        .setSubnetId(subnetId)
+                        .setIpAddress(customerSubnetState.getGatewayIp())
+                        .setMacAddress(""));
 
         for(HostInfo switchHost : transitSwitchHosts){
             subnetConfiguration.addTransitSwitches(

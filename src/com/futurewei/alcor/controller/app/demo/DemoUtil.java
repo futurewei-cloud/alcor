@@ -16,7 +16,7 @@ import static com.futurewei.alcor.controller.app.demo.DemoConfig.gRPCServerIp;
 
 public class DemoUtil {
 
-    private static String hostIdPrefix = "es3-";
+    private static String hostIdPrefix = "es7-";
     private static String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
     private static String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
     private static String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
@@ -37,10 +37,12 @@ public class DemoUtil {
 
     private static SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
             "Subnet1",
-            "10.0.0.0/24");
+            "10.0.0.0/24",
+            "10.0.0.5");
     private static SubnetState customerSubnetState2 = new SubnetState(projectId, vpcId, subnet2Id,
             "Subnet2",
-            "10.0.1.0/24");
+            "10.0.1.0/24",
+            "10.0.1.5");
 
     private static PortState[] customerPortStateForSubnet1 = {
             new PortState(projectId, subnet1Id, ep1Id,
@@ -145,9 +147,13 @@ public class DemoUtil {
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to switch hosts in current subnet, call update_vpc and update_substrate
         ////////////////////////////////////////////////////////////////////////////
-        final Goalstate.GoalState gsVpcState = GoalStateUtil.CreateGoalState(Common.OperationType.CREATE_UPDATE_SWITCH,
+        final Goalstate.GoalState gsVpcState = GoalStateUtil.CreateGoalState(
+                Common.OperationType.CREATE_UPDATE_SWITCH,
                 customerVpcState,
-                transitRouterHosts);
+                transitRouterHosts,
+                Common.OperationType.CREATE_UPDATE_GATEWAY,
+                new SubnetState[]{customerSubnetState},
+                transitSwitchHosts);
 
         for(HostInfo transitSwitch : transitSwitchHosts[0])
         {
