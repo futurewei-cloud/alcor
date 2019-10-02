@@ -16,8 +16,8 @@ As more enterprise customers migrate their on premise workloads to the cloud,
 the user base of a cloud provider could grow at a rate of 10X in just a few years.
 This will require a cloud virtual networking system with a more scalable and extensible design.
 As a part of the community effort,
-Alcor is an open-source platform that provides high availability, high performance, and large scale
-virtual network control plane and management plane at a high resource provisioning rate.
+Alcor is an open-source cloud git native platform that provides high availability, high performance, and large scale
+virtual networking control plane and management plane at a high resource provisioning rate.
 
 Alcor leverages the latest SDN and container technologies as well as an advanced distributed system design to
 support deployment, configuration and scale-out of millions of VM and containers.
