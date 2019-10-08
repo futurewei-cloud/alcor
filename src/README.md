@@ -56,5 +56,6 @@ curl localhost:8080/actuator/health
 Now you are ready to use Alcor Controller.
 
 Next Step:
+- [Install Control Agents](https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md)
 - [API Document](../docs/apis/index.adoc)
-- [Design Documents](../docs/design/toc.adoc)
+- [Alcor Design Documents](../docs/visionary_design/table_of_content.adoc)

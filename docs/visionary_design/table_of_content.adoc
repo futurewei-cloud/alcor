@@ -2,17 +2,19 @@
 
 ### Design
 
-* xref:design.adoc[High level design]
-* Goal State Data Model
-* Key System Flows
+* xref:high_level_design.adoc[High Level Design]
+* xref:goal_state_model.adoc[Goal State Data Model]
+* xref:system_flow.adoc[Key System Flows]
 * xref:controller.adoc[Alcor Controller Subsystem Design]
 * Data Store Subsystem Design
 * https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Alcor Control Agent Design]
 * xref:comm.adoc[Controller and Control Agent Communication]
-** xref:fastpath.adoc[Fast Path]
+** xref:fast_path.adoc[Fast Path]
+** xref:normal_path.adoc[Normal Path]
+** xref:rescue_path.adoc[Rescue path]
 * Communication Protocol with Compute
 * xref:../apis/index.adoc[API Design]
-* Deployment, Upgrade and Compatibility
+* xref:deployment.adoc[Deployment, Upgrade and Compatibility]
 
 ### Development
 * xref:../../src/README.md[Getting Started]

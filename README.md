@@ -16,7 +16,7 @@ As more enterprise customers migrate their on premise workloads to the cloud,
 the user base of a cloud provider could grow at a rate of 10X in just a few years.
 This will require a cloud virtual networking system with a more scalable and extensible design.
 As a part of the community effort,
-Alcor is an open-source cloud git native platform that provides high availability, high performance, and large scale
+Alcor is an open-source cloud native platform that provides high availability, high performance, and large scale
 virtual networking control plane and management plane at a high resource provisioning rate.
 
 Alcor leverages the latest SDN and container technologies as well as an advanced distributed system design to
@@ -30,11 +30,12 @@ application aware fast path when provisioning containers and serverless applicat
 
 The following diagram illustrates the high-level architecture of Alcor control plane.
 
-![Alcor architecture](docs/design/images/AlcorArchitecture.PNG)
+![Alcor architecture](docs/visionary_design/images/alcor_architecture.PNG)
 
 Detailed design docs:
 
-- [Alcor regional controllers](/docs)
+- [Alcor high level design](/docs/visionary_design/table_of_content.adoc)
+- [Alcor regional controllers](/docs/visionary_design/controller.adoc)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
 
 ## Repositories
