@@ -32,7 +32,7 @@ If this step passes, then you have everything needed to develop, test, and run A
 $ mvn test
 ```
 
-### Deploying Alcor Controller
+## Deploying Alcor Controller
 
 The previous steps allow you to compile and install Alcor.
 If you are interested in deploy alcor controller and its associated components (e.g. DB and cache) as docker containers,
@@ -56,5 +56,6 @@ curl localhost:8080/actuator/health
 Now you are ready to use Alcor Controller.
 
 Next Step:
+- [Install Control Agents](https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md)
 - [API Document](../docs/apis/index.adoc)
-- [Fast Path](../docs/design/fastpath.adoc)
+- [Alcor Design Documents](../docs/visionary_design/table_of_content.adoc)

@@ -1,3 +1,0 @@
-# Alcor - An hyperscale Cloud Virtual Networking Platform
-
-

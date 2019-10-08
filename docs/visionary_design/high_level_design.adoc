@@ -1,0 +1,44 @@
+# Alcor - An hyperscale Cloud Virtual Networking Platform
+
+== Introduction
+
+Micro-service architecture
+
+
+== Alcor Platform Key Feature Design
+
+
+=== Large Scale
+
+* Support 1 M VM/containers with MQ layer and batch processing
+* Ability to process (potentially thousands) Goal State configuration in big batch for customers.
+
+=== High Throughput
+
+* Target is 10K VM/container provisioning per minute
+
+=== Ultra-low Latency
+Fast provisioning: One-layer controller design with Goal State push model and fast path
+
+* Using gRPC for super-fast goal state update for certain customer scenarios like serverless.
+* Goal state model consisting of network resource state and operation type,
+grouping of network configurations and instantaneous provisioning
+
+=== Unified VM/container networking management
+
+=== Support agility and velocity in DevOps
+
+* Micro-services architecture with dedicated responsibility to each micro-service
+* Sidecar model: decouple application and service governance in independent processes, across-language and upgrade decouple
+* Canary-based grey release
+
+=== Resilience
+
+* gRPC-based fast path
+* MQ-based normal path (support Apache Pulsar, Kafka)
+* Rescue path (skip local crashed agent and call neighbor agent to pass network configuration)
+
+=== Compatibility
+
+* Compatibility with OpenStack, Kubernetes, and OPNFV
+* Support multiple data plan including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design).
