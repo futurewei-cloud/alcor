@@ -8,7 +8,7 @@
 
 === Compatibility with OpenStack, Kubernetes, and OPNFV
 
-=== Multiple data plan Support
+=== Multiple Data Plan Support
 
 * Mizar (eBPF/Geneve)
 * OVS/VxLan (in design).

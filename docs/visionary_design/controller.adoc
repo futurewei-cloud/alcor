@@ -1,3 +1,59 @@
-= Control Design
+= Alcor Regional Controller Design
 
-// image::images/controller.jpg["Controller architecture", width=1024, link="images/controller.jpg"]
+[width="100%",options="header"]
+|====================
+|Title|Authors|Version
+|Alcor Regional Controller Design|@xieus|0.1
+|====================
+
+== Project Scope
+
+== Architecture
+
+image::images/controller.jpg["Controller architecture", width=1024, link="images/controller.jpg"]
+
+=== Design Principles
+
+* Regional Scope, AZ resilience
+* Simple network resource abstraction
+* Loosely coupled components for flexible partitioning and easy scale out
+* Top-down configuration driving towards eventual consistency
+* Decoupling among services
+** Database access only through service
+** Isolation of database access and cache on the service level
+** Enable flexible partitioning for various services
+
+== Micro-Service Framework
+
+== Availability Zone Resilience
+
+== Service-to-Service Communication
+
+== Design Proposals
+
+=== Proposal A: Database centric design
+
+OpenStack
+Various business logics (implemented via plugin) access to the same database.
+Each service accesses to SQL database with DAO/ADO library.
+
+=== Proposal B: API server centric design
+
+Kubenetes
+Various business logics access to one (partitioned) database through API services. 
+
+=== Proposal C: Service centric design
+
+Service mesh
+
+=== Proposal Comparison & Decision
+
+[width="100%",options="header"]
+|====================
+|Design|Pros|Cons
+|Option 1: Database centric design |Business logic coupling causing maintainence/upgrade challenges, business intra-interference and deep database coupling |
+|Option 2: API server centric design | | Simplied database access by standard API calls 
+|Option 3: Service centric design| |
+|====================
+
+

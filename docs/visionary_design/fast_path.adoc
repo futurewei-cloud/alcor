@@ -1,5 +1,11 @@
 = Control Plane Fast Path
 
+[width="100%",options="header"]
+|====================
+|Title|Authors|Version
+|Control Plane Fast Path|@xieus|1.0
+|====================
+
 == Introduction
 
 A fast-provisioning and scalable network control plane is the core of a competitive public cloud offering.

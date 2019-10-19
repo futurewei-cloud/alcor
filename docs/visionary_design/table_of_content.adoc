@@ -6,8 +6,8 @@
 * xref:goal_state_model.adoc[Goal State Data Model]
 * xref:system_flow.adoc[Key System Flows]
 * xref:controller.adoc[Alcor Controller Subsystem Design]
-* Data Store Subsystem Design
-* https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Alcor Control Agent Design]
+* xref:data_store.adoc[Data Store and Cache Subsystem Design]
+* https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Control Agent Subsystem Design]
 * xref:comm.adoc[Controller and Control Agent Communication]
 ** xref:fast_path.adoc[Fast Path]
 ** xref:normal_path.adoc[Normal Path]
@@ -15,9 +15,12 @@
 * Communication Protocol with Compute
 * xref:../apis/index.adoc[API Design]
 * xref:deployment.adoc[Deployment, Upgrade and Compatibility]
+* Roadmap and Release Plan
 
 ### Development
 * xref:../../src/README.md[Getting Started]
+* https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md[Install Control Agents]
+
 
 ### Test
 * xref:../test/e2eTestSetup.adoc[E2E Test Setup 1]

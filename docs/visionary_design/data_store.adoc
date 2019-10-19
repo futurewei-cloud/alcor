@@ -1,0 +1,249 @@
+= Data Store and Cache Subsystem Design
+
+[width="100%",options="header"]
+|====================
+|Title|Authors|Version
+|Data Store and Cache Subsystem Design|@xieus|0.1
+|====================
+
+== System Requirements
+* High availability
+* Cross-DC and cross-AZ geo replication
+* Flexible partitioning of the data
+* Support horizontal scaling along with region expansion.
+Preferred scalability to support 100s nodes in one database cluster.
+* Fault tolerance and graceful disaster handling
+* Extensibility
+* Highly performant for  write heavy workload
+while maintaining a good performance for reads
+
+
+1. Traffic pattern (GRUD ratio)
+a. K8S is 50% write ratio
+b. ETCD support 10K/sec write rate
+2. Storage size
+a. ETCD limit is 100 GB per clusters
+
+* Throughput requirement and support further expansion
+a. 500K nodes, 100 ports per node (considering multi-port container ports and VMs)
+   => 50 M ports per region
+b. 1% concurrent => Support 500K read/write per sec
+
+
+== Architectural Design
+
+Look-aside caching pattern for more application control
+
+=== Design Principles
+
+* High availability
+
+* High read/write throughput (measured in RPS)
+
+** Add index in read database
+** Use redundant database (for read or write, RW split, or shadow master) to improve HA and increase throughput
+** Add cache
+
+* Consistency
+** Use middleware to read from master in the inconsistent window
+** Read/Write from the same master, and add a shadow master
+
+* Extensibility
+
+=== Partition
+
+==== Service-aware partitioning
+
+[width="100%",options="header"]
+|====================
+|Micro-Service|Partition Key|Note
+|Private IP Allocator|VPC Id + Subnet Id|
+|Virtual Mac Allocator|Prefix|
+|Virtual IP Allocator|Prefix Ipv6(/96?) and Ipv4(/24?)|
+|VPC Manager|VPC Id|
+|DNS Manager||
+|Node Manager|Node Id|
+|====================
+
+==== Data Routing Algorithm
+[width="100%",options="header"]
+|====================
+|Data Routing Option|Pros|Cons
+|Option 1: Key Range|Simple and easy to expand|Uneven load distribution
+|Option 2: Hash by Key|Simple and even load distribution|Hard to migrate data during database scale-out
+|Option 3: Router-config-server|Flexible with decoupling of business logic with routing algorithm|Additional query before every database visit
+|====================
+
+
+=== Grouping
+
+=== Data Inconsistency Handling
+
+There is synchronization latency between multiple database instances (from master to slave nodes).
+This could potentially cause inconsistency in the following scenarios:
+
+* Service instance X issues a write/update request to port
+* Service instance Y requests a read/get of the same port, and the request reaches a slave node before the synchronization is completed.
+Therefore the data retrieved by instance Y is latency data.
+* Database synchronization is completed eventually
+
+We consider three options as follows to handle such a scenario:
+[width="100%",options="header"]
+|====================
+|Cache|Pros|Cons
+|Option 1: Ignore differences | Simple working solution for many online services like web searching, message system etc.| Not applicable to scenarios requiring strong consistency
+|Option 2: Read/write goes to a HA master | Common strategy used in microservice design to avoid inconsistency issue| Heavy-loaded master node with limited read throughput. Usually cache is supported to increase the read TPS.
+|Option 3: Selectively reading master in the transition period| A balanced strategy: Prevent inconsistency issue in most cases and avoid overloading master node | Overhead of reading cache before database
+|====================
+
+Details about option 3:
+
+* Write Steps
+
+** Write to the master node
+** Generate a cache key with the following format "db:table:PK" by aggregating db, table name and id
+** Write to a cache and set the entry expiration time as the synchronization latency. e.g. 500 _ms_.
+
+* Read Steps
+** Use the same step to generate the cache key
+** When hitting a cache, read the data from master node
+** Otherwise, read the data from other nodes
+
+=== Scale-out consideration
+
+Assuming that we have two
+
+* Modify data routing configuration
+
+== Review of Data Storage and Recommendation
+
+[width="100%",options="header"]
+|====================
+|Name|DB model & type|Pros|Cons| License | Community Support
+
+|Option 1: Apache Ignite
+a|
+- Multi-model database supporting both key-value and SQL for modeling and accessing data
+- Developed by Go
+a|
+- Strongly consistent distributed database
+- Support distributed ACID transactions, SQL queries, on-disk persistence.
+- Provide strong processing APIs for computing on distributed data
+|
+| Apache 2.0
+|
+
+|Option 2: ETCD
+a|
+- No-SQL KV store
+- Developed by Go
+a|
+- Great community support. Native storage system for Kubernetes
+- Highly performant, efficient, and scalable
+|
+| Apache 2.0
+|
+
+|Option 3: Apache Cassandra
+a|
+- No-SQL columnar database developed by _JAVA_
+- Eventual/tuneable consistency level for Read/Write
+- Consistent hashing for mapping keys to servers/nodes
+a|
+- Fast write performance
+- High availability due to distributed and decentralized design.
+Use Zookeeper for leader election and Gossip peer-to-peer protocol for distributed node management.
+- Cross DC and cross geo-region support
+- Large-scale deployment up to over 75,000 nodes
+- Flexible scheme with CQL query support
+a|
+- Doesn't support ACID transaction (only AID at row/partition level)
+|
+| Apache project started by Facebook. Contributors include Apple, Linkedin, Twitter.
+
+|Option 4: Scylla
+| No-SQL KV
+a|
+* Read Performance?
+|
+|
+|
+
+|Option 5: Apache Hbase
+a|
+- No-SQL columnar database
+a|
+- Distributed design
+- Support structured storage for large amounts of data
+-
+| | |
+
+|Option 6: MangoDB
+a|
+- No-SQL document store developed in _C++_
+- Use _JSON_ alike documents to store data
+a|
+- Great community support. Most widely used document-oriented database.
+| | |
+
+|Option 7: Apache CouchDB
+a|
+- No-SQL document store
+- Store data as JSON documents and uses JavaScript as query language
+| | | |
+
+|Option 8: Neo4j
+a|
+- No-SQL graph database
+- Data stored in documents with a focus on relationship between individual documents
+a|
+- ACID-compliant DBMS
+- Most popular graph-oriented database as of this writing.
+| | |
+
+|Option 9: Azure Service Fabric
+a|
+a|
+| | |
+|====================
+
+== Review of Cache Engine
+
+[width="100%",options="header"]
+|====================
+|Cache|Type|Pros|Cons|License
+|Option 1: Memcache | Cache service|
+|
+|
+
+|Option 2: Redis
+| Cache service
+a|
+- Support HA cluster
+- Data persistence
+- Support a variety of data structures ranging from bitmaps, steams, and spatial indexes
+|
+| BSD
+
+|Option 3: LevelDB | In-memory cache | | |
+
+|Option 4: Riak
+| Distributed key-value database
+a|
+- Distributed design
+- Advanced local and multi-cluster replication
+|
+|
+|====================
+
+Note: Cache is optional at this point.
+Our plan is to first conduct a performance analysis for various database storage solutions in terms of throughput, latency and other factors.
+If TPS couldn't satisfy our target performance requirement, we will incorporate cache in our design.
+
+=== Cache Aside Pattern
+For write operation, we could use cache aside pattern which recommends to delete cache entry, instead of resetting cache entry.
+
+Pending item:
+
+* Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
+* Remove cache entry then modify database (ensure atomic operation)

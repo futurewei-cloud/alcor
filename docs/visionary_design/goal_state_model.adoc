@@ -1,1 +1,172 @@
 = Goal State Data Model
+
+[width="100%",options="header"]
+|====================
+|Title|Authors|Version
+|Goal State Data Model|@xieus|0.1
+|====================
+
+
+=== Service APIs
+
+*src/schema/proto3/goalstateprovisioner.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.service";
+
+import "common.proto";
+import "goalstate.proto";
+
+service GoalStateProvisioner {
+
+   // Push a group of network resource states
+   //
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an
+   //        operation type and a resource configuration
+   // Results consist of a list of operation statuses, and each status is a response to one operation
+   //        request in the input
+   //
+   // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+   //       Use RetrieveNetworkResourceStates for state query.
+   rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
+
+
+   // Retrieve a group of network resource states (stored in a GoalState object)
+   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (GoalState) {}
+}
+------------------------------------------------------------
+
+
+=== Message Exchanged Between Agent and Controller
+
+* Goal state message.
+The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
+For example, one message could consists of one subnet state update with 1000 ports creation to a data-plane switch, or two VPC update to a single VM/container host.
+
+*src/schema/proto3/goalstate.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+
+import "vpc.proto";
+import "subnet.proto";
+import "port.proto";
+import "securitygroup.proto";
+
+message GoalState {
+   repeated VpcState vpc_states = 1;
+   repeated SubnetState subnet_states = 2;
+   repeated PortState port_states = 3;
+   repeated SecurityGroupState security_group_states = 4;
+}
+------------------------------------------------------------
+
+* VpcState message.
+OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDATE_SWTICH, CREATE_UPDATE_ROUTER to cover various scenarios in network resource CURD operations.
+
+*src/schema/proto3/vpc.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcState {
+  OperationType operation_type = 1;
+  VpcConfiguration configuration =  2;
+}
+
+------------------------------------------------------------
+
+
+* VpcConfiguration message
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcConfiguration {
+  int32 version = 1;
+
+  string project_id = 2;
+  string id  = 3;
+  string name = 4;
+  string cidr = 5;
+  int64 tunnel_id = 6;
+
+  message SubnetId {
+    string id = 1;
+  }
+
+  message Route {
+    string destination = 1;
+    string next_hop = 2;
+  }
+
+  message TransitRouter {
+    string vpc_id = 1;
+    string ip_address = 2;
+    string mac_address = 3;
+  }
+
+  repeated SubnetId subnet_ids = 7;
+  repeated Route routes = 8;
+  repeated TransitRouter transit_routers = 9;
+}
+------------------------------------------------------------
+
+
+* ResourceType and OperationType enum
+
+[source,java]
+------------------------------------------------------------
+
+syntax = "proto3";
+
+package alcorcontroller;
+
+option java_package = "com.futurewei.alcor.controller.schema";
+option java_outer_classname = "Common";
+
+enum ResourceType {
+    VPC = 0;
+    SUBNET = 1;
+    PORT = 2;
+    SECURITYGROUP = 3;
+}
+
+enum OperationType {
+    CREATE = 0;
+    UPDATE = 1;
+    GET = 2;
+    DELETE = 3;
+    INFO = 4;
+    FINALIZE = 5;
+    CREATE_UPDATE_SWITCH = 6;
+    CREATE_UPDATE_ROUTER = 7;
+    CREATE_UPDATE_GATEWAY = 8;
+}
+------------------------------------------------------------
