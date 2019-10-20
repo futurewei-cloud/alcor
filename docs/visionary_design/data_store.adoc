@@ -69,9 +69,14 @@ Look-aside caching pattern for more application control
 [width="100%",options="header"]
 |====================
 |Data Routing Option|Pros|Cons
-|Option 1: Key Range|Simple and easy to expand|Uneven load distribution
-|Option 2: Hash by Key|Simple and even load distribution|Hard to migrate data during database scale-out
-|Option 3: Router-config-server|Flexible with decoupling of business logic with routing algorithm|Additional query before every database visit
+|Option 1: Key Range
+|Simple and easy to expand|Uneven load distribution
+
+|Option 2: Hash by Key|Simple and even load distribution
+|Hard to migrate data during database scale-out
+
+|Option 3: Router-config-server|Flexible with decoupling of business logic with routing algorithm
+|Additional query before every database visit
 |====================
 
 
@@ -109,7 +114,7 @@ Details about option 3:
 ** When hitting a cache, read the data from master node
 ** Otherwise, read the data from other nodes
 
-=== Scale-out consideration
+=== Capacity Planning
 
 Assuming that we have two
 
@@ -124,7 +129,7 @@ Assuming that we have two
 |Option 1: Apache Ignite
 a|
 - Multi-model database supporting both key-value and SQL for modeling and accessing data
-- Developed by Go
+- Developed by _Java_
 a|
 - Strongly consistent distributed database
 - Support distributed ACID transactions, SQL queries, on-disk persistence.
@@ -136,7 +141,7 @@ a|
 |Option 2: ETCD
 a|
 - No-SQL KV store
-- Developed by Go
+- Developed by _Go_
 a|
 - Great community support. Native storage system for Kubernetes
 - Highly performant, efficient, and scalable
@@ -206,6 +211,17 @@ a|
 a|
 | | |
 |====================
+
+[width="100%",cols="<,<,<,>",options="header"]
+|====================
+|Name| Apache Ignite | ETCD | Apache Cassandra
+
+|Collocated Joins| | |
+
+|Non-collocated Joins
+a| NOTE: hello | |
+|====================
+
 
 == Review of Cache Engine
 
