@@ -72,12 +72,12 @@ The control plane rescue path would requires the following changes:
 |====================
 |Index|Feature Description|Priority|Note
 |1|An additional field (TargetHostIP) in GoalState message to specify either "LocalHost" or remote host IP|P0|
-|2|Top-down channel .3+^.^|P0|
-|2.1|gRPC server hosted in Control Agents|
-|2.2|gRPC client in Network Controllers|
-|3|Bottom-up channel .3+^.^|P1|
-|3.1|gRPC server hosted in Network Controllers|
-|3.2|gRPC client in Control Agents|
+|2|Update Control Agent logic to use TargetHostIP .3+^.^|P0|
+|2.1|Control Agents to perform network configuration in Remote Host|
+|2.2|Control Agents to perform dataplace programming in Remote Host|
+|3|Update Network Controllor .3+^.^|P0|
+|3.1|work item 1|
+|3.2|work item 2|
 |4|E2E latency measurement for rescue path|P0|
 |5|Performance test to get scalability limit for remote network configuration|P1|
 |====================
