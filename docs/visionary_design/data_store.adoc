@@ -7,61 +7,78 @@
 |====================
 
 == System Requirements
-* High availability
-* Cross-DC and cross-AZ geo replication
-* Flexible partitioning of the data
-* Support horizontal scaling along with region expansion.
-Preferred scalability to support 100s nodes in one database cluster.
-* Fault tolerance and graceful disaster handling
-* Extensibility
-* Highly performant for  write heavy workload
-while maintaining a good performance for reads
+=== Must-have features
+* Standalone without dependency on other data-center services
+* Horizontal scaling along with region expansion
+* Strong consistency and ACID transaction
+* Cross-DC and cross-AZ geo-replication
+* High availability & Fault tolerance with graceful disaster handling
+* Highly performant for read heavy workload while maintaining low latency for writes
 
+=== Nice-to-have features
+* Scale to 100s nodes in one _database_ cluster in production system
+* Support ANSI-99 SQL
+* Cross-data-partition transaction (one applicable scenario is VPC peering when two VPCs could land on different data partitions).
+* Flexible partitioning of the data sets
 
-1. Traffic pattern (GRUD ratio)
-a. K8S is 50% write ratio
-b. ETCD support 10K/sec write rate
-2. Storage size
-a. ETCD limit is 100 GB per clusters
+=== Throughput and data storage requirements
+Note: The requirements given below are for VPC controller services. Similar analysis could be done for other controllers.
 
-* Throughput requirement and support further expansion
-a. 500K nodes, 100 ports per node (considering multi-port container ports and VMs)
-   => 50 M ports per region
-b. 1% concurrent => Support 500K read/write per sec
+* Traffic pattern
+** The control plane traffic pattern is expected to be READ intensive with most majority of GURD calls are READ.
 
+* Throughput target for data storage subsystem
+** The target is 1 million read/write operations per second.
+** Estimated size of a middle-sized region is 500K node with 100 ports per node with consideration of multi-port container and VMs.
+Thus, the estimated total number of ports is ~50 millions.
+** The estimated number of port-related resources (e.g. security groups, ACL, routes, DNS records and subnets) is of the same magnitude.
+Doubling the port number would make the total number of network resources at *O*(100 millions).
+** The estimated rate of system concurrency is 1% including query, insert and update,
+which results in the estimated throughput of 1 million read/write operations per second.
+
+* Storage size
+** The storage size of network resource depends on multiple factors including the size of VPC and subnets,
+and customer-specified fields (e.g. security rules and routes).
+The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
+** On average, we look into the estimated size of *O*(10 _KB_) which could be subject to adjustment.
+** Given the estimated total number of resources at *O*(100 millions), we look into a system storage sized at about 1 _TB_.
 
 == Architectural Design
 
-Look-aside caching pattern for more application control
+//Look-aside caching pattern for more application control
+//
+//=== Design Principles
+//
+//* High availability
+//* High read/write throughput (measured in RPS)
+//** Add index in read database
+//** Use redundant database (for read or write, RW split, or shadow master) to improve HA and increase throughput
+//** Add cache
+//
+//* Consistency
+//** Use middleware to read from master in the inconsistent window
+//** Read/Write from the same master, and add a shadow master
+//
+//* Extensibility
 
-=== Design Principles
+=== Data Sharding
 
-* High availability
+As a result of the estimated throughput and storage size, a single machine (or even a partition with multiple replica) is
+certainly unable to scale to the required high load.
+In order to scale to
 
-* High read/write throughput (measured in RPS)
-
-** Add index in read database
-** Use redundant database (for read or write, RW split, or shadow master) to improve HA and increase throughput
-** Add cache
-
-* Consistency
-** Use middleware to read from master in the inconsistent window
-** Read/Write from the same master, and add a shadow master
-
-* Extensibility
-
-=== Partition
+scalability and reduced the impacted
 
 ==== Service-aware partitioning
 
 [width="100%",options="header"]
 |====================
 |Micro-Service|Partition Key|Note
-|Private IP Allocator|VPC Id + Subnet Id|
-|Virtual Mac Allocator|Prefix|
-|Virtual IP Allocator|Prefix Ipv6(/96?) and Ipv4(/24?)|
-|VPC Manager|VPC Id|
-|DNS Manager||
+|Private IP Allocator|Subnet Id| Subnet-level uniqueness
+|Virtual Mac Allocator|MAC address prefix| Regional uniqueness
+|Virtual IP Allocator|IP address prefix (Ipv6 and Ipv4)| Global uniqueness
+|VPC Manager|VPC Id| Manage VNI/Route/ACL/Security Group
+|DNS Manager|DNS record id|
 |Node Manager|Node Id|
 |====================
 
@@ -70,13 +87,20 @@ Look-aside caching pattern for more application control
 |====================
 |Data Routing Option|Pros|Cons
 |Option 1: Key Range
-|Simple and easy to expand|Uneven load distribution
+|Simple and easy to expand
+|Uneven load distribution
 
-|Option 2: Hash by Key|Simple and even load distribution
+|Option 2: Hash by Key
+|Simple and even load distribution
 |Hard to migrate data during database scale-out
 
-|Option 3: Router-config-server|Flexible with decoupling of business logic with routing algorithm
+|Option 3: Router-config-server
+|Flexible with decoupling of business logic with routing algorithm
 |Additional query before every database visit
+
+|Option 4: Embed partition information in resource id
+|Simple and consistent mapping during database scale-out
+|
 |====================
 
 
@@ -124,7 +148,7 @@ Assuming that we have two
 
 [width="100%",options="header"]
 |====================
-|Name|DB model & type|Pros|Cons| License | Community Support
+|Name|DB model and type|Pros|Cons| License and Pricing Models| Community Support and Key Customers
 
 |Option 1: Apache Ignite
 a|
@@ -134,9 +158,10 @@ a|
 - Strongly consistent distributed database
 - Support distributed ACID transactions, SQL queries, on-disk persistence.
 - Provide strong processing APIs for computing on distributed data
-|
+a|
+- Supported programming languages are limited - _JAVA_, _C++_ and _C#_
 | Apache 2.0
-|
+| Open Source
 
 |Option 2: ETCD
 a|
@@ -166,13 +191,22 @@ a|
 |
 | Apache project started by Facebook. Contributors include Apple, Linkedin, Twitter.
 
-|Option 4: Scylla
-| No-SQL KV
+|Option 4: ScyllaDB
 a|
-* Read Performance?
+- Cassandra-compatible wide columnar store
+- Rewrite Cassandra in _C++_
+- Claimed to be the fastest NoSQL database with 99% latency of <1 msec
+a|
+- Highly-performant (efficiently utilizes full resources of a node and network; millions of IOPS per node)
+- Highly-available (peer-to-peer, no single-point-of-failure, active-active)
+- Share many features of Cassandra like horizontal scalling, tunable consistency model and built-in geo replication
+
 |
-|
-|
+a|
+- Scylla open source is based on GPL
+- Scylla Enterprise is subscription-based
+- Scylla Cloud is a managed DBaaS with various pricing models including annual, monthly and hourly
+| Comcast, Grab, Yahoo! Japan
 
 |Option 5: Apache Hbase
 a|
@@ -212,16 +246,109 @@ a|
 | | |
 |====================
 
-[width="100%",cols="<,<,<,>",options="header"]
-|====================
-|Name| Apache Ignite | ETCD | Apache Cassandra
+=== Feature Comparision among Selective Databases
 
-|Collocated Joins| | |
+[width="100%",cols="<.^,^.^,^.^,^.^,^.^",options="header"]
+|====================
+|Name| Apache Ignite | ETCD | Apache Cassandra | ScyllaDB
+
+|Applicable application
+| Read-intensive or mixed application <<ignite_cassandra,1>>
+| Application requires infrequent data update (e.g. metadata) and reliable watch queries <<etcd_data_model,2>>
+| Write-intensive application <<ignite_cassandra,1>>
+|
+
+|Distributed design| Yes | Yes | Yes | Yes
+
+|Data partition| Yes (via distributed hashing table)
+|No (data sharding unsupported)
+|Yes
+| Yes
+
+|Strong consistency
+|Yes
+|Yes (consensus achieved through raft protocol)
+| No. Eventual/tuneable consistency
+| No. Eventual/tuneable consistency
+
+|ACID transaction
+|Yes (via 2-phase commit)
+|
+|No. Light-weighted transaction (LWT)
+|
+
+|Cross-partition transaction
+|Yes with the support of transaction coordinator failover
+|No
+|No
+|No
+
+|Concurrency modes|
+Pessimistic & optimistic| | |
+
+|Isolation levels
+|Read Committed & Repeatable Read & Serializable|
+|
+|
+
+|Multiversion Concurrency Control
+| Yes (Snapshot isolation is in Beta at v2.7,
+only support pessimistic concurrency and Repeatable Read isolation)
+| Yes (A multiversion persistent & immutable kv store with past versions of key-value pair preserved and watchable)
+|
+|
+
+|Data persistence
+| Support WAL and check pointing
+| Data stored in a persistent b+ tree
+|
+|
+
+|In-memory capabilities
+| Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
+|
+| No | Yes
+
+|ANSI-99 SQL
+| Yes (via ODBC/JDBC APIs to Ignite, including both DDL and DML)
+|
+| No. Support SQL-like DML and DDL statements (CQL)
+| No. Support SQL-like DML and DDL statements (CQL)
+
+|Collocated joins| Yes | | No?
+|
 
 |Non-collocated Joins
-a| NOTE: hello | |
+a| Yes
+|
+| No?
+|
+
+|Geo-replication
+| Yes * (active-passive and active-active bi-directional replication)
+| No
+| Yes
+|
+
+|Secondary index | Yes | |  | Yes
+
+|Foreign keys | No | | No | No
+
+|Event watches/leases/elections
+| Yes (cache interceptors and events)
+| Yes (built-in support)
+| No
+|
+
+|Maximum reliable database size
+|
+|Several gigabytes <<etcd_data_model,2>>
+|
+|
+
 |====================
 
+Note: * means that the feature is available only in the enterprise edition.
 
 == Review of Cache Engine
 
@@ -263,3 +390,10 @@ Pending item:
 
 * Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
 * Remove cache entry then modify database (ensure atomic operation)
+
+
+[bibliography]
+== References
+
+1. [[ignite_cassandra]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
+2. [[etcd_data_model]] ETCD data model (https://github.com/etcd-io/etcd/blob/master/Documentation/learning/data_model.md)

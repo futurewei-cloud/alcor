@@ -3,7 +3,7 @@
 [width="100%",options="header"]
 |====================
 |Title|Authors|Version
-|Control Plane Fast Path|@er1cthe0ne|1.0
+|Control Plane Rescue Path|@er1cthe0ne|0.1
 |====================
 
 == Introduction

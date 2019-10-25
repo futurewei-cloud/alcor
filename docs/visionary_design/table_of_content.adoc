@@ -12,6 +12,7 @@
 ** xref:fast_path.adoc[Fast Path]
 ** xref:normal_path.adoc[Normal Path]
 ** xref:rescue_path.adoc[Rescue path]
+* xref:health.adoc[Health Monitoring and Failure Detection]
 * Communication Protocol with Compute
 * xref:../apis/index.adoc[API Design]
 * xref:deployment.adoc[Deployment, Upgrade and Compatibility]
