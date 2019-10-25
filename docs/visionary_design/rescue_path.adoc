@@ -1,6 +1,4 @@
-= Control Plane Rescue Path [DRAFT]
-
-Skip local crashed agent and call neighbor agent to pass network configuration
+= Control Plane Rescue Path
 
 [width="100%",options="header"]
 |====================
@@ -10,7 +8,7 @@ Skip local crashed agent and call neighbor agent to pass network configuration
 
 == Introduction
 
-A highly available network control plane is also critical to to public cloud offering. As the user base of a cloud provide growing at the rate of 10X in just a few years. The network control plane load faces exponential grow which requires innovative architecture and revolutionary design to support the scale. As the line of code increases to support the complex requirements and customer features, we need a fail safe network control path to handle software failures so that the network control plane can continue function as of nothing bad had happened.
+A highly available network control plane is critical to public cloud offerings. As the user base of cloud provider grows at the rate of 10X in just a few years. The network control plane workload faces exponential growth which requires innovative architecture and revolutionary design to support the scale. As the lines of code increase to support complex requirements and customer features, a fail safe mechanism is needed to handle software failures so that the network control plane can continue function without customer visible impact.
 
 == Architecture
 
@@ -21,15 +19,13 @@ image::images/rescue_path.GIF["Rescue path architecture", width=1024, link="imag
 
 === Design
 
-Even if the rate of sofware failure is 1 out of 1 million, the failure would happen everyday in a large scale public cloud offering.
+Even if the rate of sofware failure is 1 out of 1 million, a failure would happen everyday in a large scale public cloud offering. The network control plane will leverage both a monitoring system (likely Prometheus) and directly indication from network control agent to defect failure and invoke the rescue path. See health monitoring/failure detection design here: TBD.
 
-the network configuration tasks were not only work locally fast, it will also work well remotely with minimal cost.
+All network control agent tasks were designed to have throughput, and low latency when it is running on local compute host. The network control agent can also invoke tasks on a remote compute host with minimal additional cost. The additional cost would come from calling remote ssh vs local shell out call for network configuration, and doing remote RPC vs local RPC when programming Mizar dataplane.
 
-how to network configuration
+For remote host network configuration, one of the network control agent will simply invoke remote SSH to the other compute host using the TargetHostIP supplied in the GoalState message from network controller. For Mizar dataplane programming, network controller agent can use remote RPC to invoke Mizar dataplane API on the other compute host.
 
-how to program transit
-
-Tranparenecy to customer.
+During usage the network control plane rescue path, all existing customer deployment should continue to work without impact. Although the compute node will be marked as not healthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visable customer facing degration. 
 
 == Updated Contract between Controller and Agent
 
