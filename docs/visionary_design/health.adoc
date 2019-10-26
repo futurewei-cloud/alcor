@@ -1,7 +1,0 @@
-= Health Monitoring and Failure Detection
-
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Health Monitoring and Failure Detection|@er1cthe0ne|0.1
-|====================

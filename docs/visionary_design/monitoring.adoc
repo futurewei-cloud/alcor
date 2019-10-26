@@ -1,0 +1,23 @@
+= System Monitoring and Failure Detection
+
+[width="100%",options="header"]
+|====================
+|Title|Authors|Version
+|System Monitoring and Failure Detection|@er1cthe0ne|0.1
+|====================
+
+== Overview of Control Plane Health Monitoring
+
+== Background
+
+=== Prometheus
+
+* Short introduction...
+* How to
+
+=== Grafana
+
+* Short introduction...
+* How to set up DataSource and Dashboard....
+* Some beautiful Grafana diagram as an example...
+
