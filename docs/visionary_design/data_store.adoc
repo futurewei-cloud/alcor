@@ -11,15 +11,18 @@
 * Standalone without dependency on other data-center services
 * Horizontal scaling along with region expansion
 * Strong consistency and ACID transaction
-* Cross-DC and cross-AZ geo-replication
+* Cross-DC and cross-AZ geo replication
 * High availability & Fault tolerance with graceful disaster handling
 * Highly performant for read heavy workload while maintaining low latency for writes
 
 === Nice-to-have features
-* Scale to 100s nodes in one _database_ cluster in production system
+* Scale to 100s nodes in one _database_ cluster in proven production environment
+* Cross-shard transaction (one applicable scenario is VPC peering when two VPCs could land on different data partitions).
+* In-memory processing capabilities
 * Support ANSI-99 SQL
-* Cross-data-partition transaction (one applicable scenario is VPC peering when two VPCs could land on different data partitions).
-* Flexible partitioning of the data sets
+* Support collocated joins and non-collocated joins
+* Support secondary index
+* Event watches and leases
 
 === Throughput and data storage requirements
 Note: The requirements given below are for VPC controller services. Similar analysis could be done for other controllers.
@@ -65,7 +68,7 @@ The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 
 As a result of the estimated throughput and storage size, a single machine (or even a partition with multiple replica) is
 certainly unable to scale to the required high load.
-In order to scale to
+In order to scale
 
 scalability and reduced the impacted
 
@@ -104,7 +107,32 @@ scalability and reduced the impacted
 |====================
 
 
-=== Grouping
+=== Data Replication
+
+Data replication is very useful in terms of availability and performance.
+
+- To increase availability and resilience
+- To keep data geographically close to the controller services thus reduce latency
+- To increase the read throughput
+
+Leader-based replication
+
+Popular algorithms for replicating changes between nodes:
+
+- single leader
+- multi leader
+- leaderless
+
+Synchronous vs Asynchronous replication
+
+- configurable option or hardcoded
+- semi-synchronous
+
+Alcor Replication model
+
+- Each AZ has a primary
+- Semi-synchronous replication within a AZ
+- Asynchronuous replication
 
 === Data Inconsistency Handling
 
@@ -324,7 +352,7 @@ a| Yes
 | No?
 |
 
-|Geo-replication
+|Geo replication
 | Yes * (active-passive and active-active bi-directional replication)
 | No
 | Yes
@@ -338,6 +366,19 @@ a| Yes
 | Yes (cache interceptors and events)
 | Yes (built-in support)
 | No
+|
+
+|Synchronous replication model
+|
+|Single leader
+|
+|
+
+
+|Semi-synchronous
+|
+|Single leader
+|
 |
 
 |Maximum reliable database size
