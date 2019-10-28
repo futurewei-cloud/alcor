@@ -15,6 +15,7 @@
 * xref:monitoring.adoc[System Monitoring and Failure Detection]
 ** xref:node_monitoring.adoc[Node Monitoring]
 ** xref:controller_monitoring.adoc[Controller Service Monitoring]
+* Control Plane Security
 * Communication Protocol with Compute
 * xref:../apis/index.adoc[API Design]
 * xref:deployment.adoc[Deployment, Upgrade and Compatibility]

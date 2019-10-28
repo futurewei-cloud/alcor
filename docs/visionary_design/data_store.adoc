@@ -1,4 +1,7 @@
 = Data Store and Cache Subsystem Design
+Liguang Xie <lxie@futurewei.com>
+v0.1, 2019-10-27
+:toc: right
 
 [width="100%",options="header"]
 |====================
@@ -6,6 +9,21 @@
 |Data Store and Cache Subsystem Design|@xieus|0.1
 |====================
 
+== Overview
+
+[.lead]
+Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
+The choice is not that obvious though.
+There are so many database and cache systems in the market with various characteristics as they are designed to
+meet different requirements by different applications.
+
+In this design spec, we go through our system requirements including scalability, availability,
+durability, and performance.
+Secondly, we review existing distributed database and cache solutions, discuss their data model, license, community support and pros and cons.
+We then zoom in on selective databases and compare their features, characteristics and applicable applications.
+Based on the above information, we match our system requirements with the available solutions, and propose architectural design.
+
+[#system-requirements]
 == System Requirements
 === Must-have features
 * Standalone without dependency on other data-center services
@@ -14,8 +32,10 @@
 * Cross-DC and cross-AZ geo replication
 * High availability & Fault tolerance with graceful disaster handling
 * Highly performant for read heavy workload while maintaining low latency for writes
+* Support rolling upgrade without downtime
 
 === Nice-to-have features
+* Built-in cache support
 * Scale to 100s nodes in one _database_ cluster in proven production environment
 * Cross-shard transaction (one applicable scenario is VPC peering when two VPCs could land on different data partitions).
 * In-memory processing capabilities
@@ -46,137 +66,20 @@ The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 ** On average, we look into the estimated size of *O*(10 _KB_) which could be subject to adjustment.
 ** Given the estimated total number of resources at *O*(100 millions), we look into a system storage sized at about 1 _TB_.
 
-== Architectural Design
 
-//Look-aside caching pattern for more application control
-//
-//=== Design Principles
-//
-//* High availability
-//* High read/write throughput (measured in RPS)
-//** Add index in read database
-//** Use redundant database (for read or write, RW split, or shadow master) to improve HA and increase throughput
-//** Add cache
-//
-//* Consistency
-//** Use middleware to read from master in the inconsistent window
-//** Read/Write from the same master, and add a shadow master
-//
-//* Extensibility
+== Review of Database and Cache Solutions
 
-=== Data Sharding
+In this section, we select a few popular distributed databases from different categories including distributed SQL,
+key-value store, no-SQL columnar database, document store, and graph store.
+We review the data model, license, community support and discuss their pros and cons.
+We further zoom in on selective databases and compare their features, characteristics and applicable applications.
+If you are already familiar with existing solutions on the market, please skip this section and
+refer to <<#architecture>> for more information.
 
-As a result of the estimated throughput and storage size, a single machine (or even a partition with multiple replica) is
-certainly unable to scale to the required high load.
-In order to scale
-
-scalability and reduced the impacted
-
-==== Service-aware partitioning
-
-[width="100%",options="header"]
+=== Review of Popular Databases
+[width="100%",cols="1,2,5,2,,1", options="header"]
 |====================
-|Micro-Service|Partition Key|Note
-|Private IP Allocator|Subnet Id| Subnet-level uniqueness
-|Virtual Mac Allocator|MAC address prefix| Regional uniqueness
-|Virtual IP Allocator|IP address prefix (Ipv6 and Ipv4)| Global uniqueness
-|VPC Manager|VPC Id| Manage VNI/Route/ACL/Security Group
-|DNS Manager|DNS record id|
-|Node Manager|Node Id|
-|====================
-
-==== Data Routing Algorithm
-[width="100%",options="header"]
-|====================
-|Data Routing Option|Pros|Cons
-|Option 1: Key Range
-|Simple and easy to expand
-|Uneven load distribution
-
-|Option 2: Hash by Key
-|Simple and even load distribution
-|Hard to migrate data during database scale-out
-
-|Option 3: Router-config-server
-|Flexible with decoupling of business logic with routing algorithm
-|Additional query before every database visit
-
-|Option 4: Embed partition information in resource id
-|Simple and consistent mapping during database scale-out
-|
-|====================
-
-
-=== Data Replication
-
-Data replication is very useful in terms of availability and performance.
-
-- To increase availability and resilience
-- To keep data geographically close to the controller services thus reduce latency
-- To increase the read throughput
-
-Leader-based replication
-
-Popular algorithms for replicating changes between nodes:
-
-- single leader
-- multi leader
-- leaderless
-
-Synchronous vs Asynchronous replication
-
-- configurable option or hardcoded
-- semi-synchronous
-
-Alcor Replication model
-
-- Each AZ has a primary
-- Semi-synchronous replication within a AZ
-- Asynchronuous replication
-
-=== Data Inconsistency Handling
-
-There is synchronization latency between multiple database instances (from master to slave nodes).
-This could potentially cause inconsistency in the following scenarios:
-
-* Service instance X issues a write/update request to port
-* Service instance Y requests a read/get of the same port, and the request reaches a slave node before the synchronization is completed.
-Therefore the data retrieved by instance Y is latency data.
-* Database synchronization is completed eventually
-
-We consider three options as follows to handle such a scenario:
-[width="100%",options="header"]
-|====================
-|Cache|Pros|Cons
-|Option 1: Ignore differences | Simple working solution for many online services like web searching, message system etc.| Not applicable to scenarios requiring strong consistency
-|Option 2: Read/write goes to a HA master | Common strategy used in microservice design to avoid inconsistency issue| Heavy-loaded master node with limited read throughput. Usually cache is supported to increase the read TPS.
-|Option 3: Selectively reading master in the transition period| A balanced strategy: Prevent inconsistency issue in most cases and avoid overloading master node | Overhead of reading cache before database
-|====================
-
-Details about option 3:
-
-* Write Steps
-
-** Write to the master node
-** Generate a cache key with the following format "db:table:PK" by aggregating db, table name and id
-** Write to a cache and set the entry expiration time as the synchronization latency. e.g. 500 _ms_.
-
-* Read Steps
-** Use the same step to generate the cache key
-** When hitting a cache, read the data from master node
-** Otherwise, read the data from other nodes
-
-=== Capacity Planning
-
-Assuming that we have two
-
-* Modify data routing configuration
-
-== Review of Data Storage and Recommendation
-
-[width="100%",options="header"]
-|====================
-|Name|DB model and type|Pros|Cons| License and Pricing Models| Community Support and Key Customers
+|Name|DB model and type|Pros|Cons| License and Pricing Models| Community Support
 
 |Option 1: Apache Ignite
 a|
@@ -186,21 +89,29 @@ a|
 - Strongly consistent distributed database
 - Support distributed ACID transactions, SQL queries, on-disk persistence.
 - Provide strong processing APIs for computing on distributed data
+- Cross DC and cross geo-region support
 a|
 - Supported programming languages are limited - _JAVA_, _C++_ and _C#_
 | Apache 2.0
-| Open Source
+a|
+- Top 5 Apache project by commits
+- Top 3 most active Apache mailing lists
 
 |Option 2: ETCD
 a|
 - No-SQL KV store
 - Developed by _Go_
 a|
-- Great community support. Native storage system for Kubernetes
-- Highly performant, efficient, and scalable
-|
+- Strongly consistent KV store (via Raft protocol)
+- Support watch of keys or directories for changes
+- Cross-platform support, small binaries
+a|
+- Unable to scale horizontally due to lack of data sharding
+- Limited data store up to a few _GB_ <<etcd_data_model,2>>
 | Apache 2.0
-|
+a|
+- Great community support backed by CNCF.
+- Native storage system for Kubernetes
 
 |Option 3: Apache Cassandra
 a|
@@ -268,10 +179,7 @@ a|
 - Most popular graph-oriented database as of this writing.
 | | |
 
-|Option 9: Azure Service Fabric
-a|
-a|
-| | |
+
 |====================
 
 === Feature Comparision among Selective Databases
@@ -288,7 +196,7 @@ a|
 
 |Distributed design| Yes | Yes | Yes | Yes
 
-|Data partition| Yes (via distributed hashing table)
+|Data sharding| Yes (via distributed hashing table)
 |No (data sharding unsupported)
 |Yes
 | Yes
@@ -300,12 +208,12 @@ a|
 | No. Eventual/tuneable consistency
 
 |ACID transaction
-|Yes (via 2-phase commit)
-|
+|Yes (distributed transaction via improved 2-phase commit)
+|Yes (single shard ACID)
 |No. Light-weighted transaction (LWT)
 |
 
-|Cross-partition transaction
+|Cross-shard transaction
 |Yes with the support of transaction coordinator failover
 |No
 |No
@@ -332,7 +240,7 @@ only support pessimistic concurrency and Repeatable Read isolation)
 |
 |
 
-|In-memory capabilities
+|In-memory cache capabilities
 | Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
 |
 | No | Yes
@@ -374,10 +282,21 @@ a| Yes
 |
 |
 
-
 |Semi-synchronous
 |
 |Single leader
+|
+|
+
+|Replication logs and mechanism
+|Write-ahead log
+|Write-ahead log
+|
+|
+
+|Rolling upgrade
+|Enterprise edition support rolling upgrade for minor and maintenance versions of the same major series*
+|
 |
 |
 
@@ -391,7 +310,7 @@ a| Yes
 
 Note: * means that the feature is available only in the enterprise edition.
 
-== Review of Cache Engine
+=== Review of Cache Engine
 
 [width="100%",options="header"]
 |====================
@@ -424,13 +343,162 @@ Note: Cache is optional at this point.
 Our plan is to first conduct a performance analysis for various database storage solutions in terms of throughput, latency and other factors.
 If TPS couldn't satisfy our target performance requirement, we will incorporate cache in our design.
 
-=== Cache Aside Pattern
-For write operation, we could use cache aside pattern which recommends to delete cache entry, instead of resetting cache entry.
+=== Cache Access Pattern
+
+Cache Aside Pattern: For write operation, we could use cache aside pattern which recommends to delete cache entry,
+instead of resetting cache entry.
 
 Pending item:
 
 * Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
 * Remove cache entry then modify database (ensure atomic operation)
+
+
+[#architecture]
+== Architectural Design
+
+//Look-aside caching pattern for more application control
+//
+//=== Design Principles
+//
+//* High availability
+//* High read/write throughput (measured in RPS)
+//** Add index in read database
+//** Use redundant database (for read or write, RW split, or shadow master) to improve HA and increase throughput
+//** Add cache
+//
+//* Consistency
+//** Use middleware to read from master in the inconsistent window
+//** Read/Write from the same master, and add a shadow master
+//
+//* Extensibility
+
+=== Data Sharding
+
+As a result of the estimated throughput and storage size, a single machine (or even a partition with multiple replica) is
+certainly unable to scale to the required high load.
+In order to scale
+
+scalability and reduced the impacted
+
+Requirement:
+
+* Horizontal scaling along with region expansion
+* Strong consistency and ACID transaction
+
+
+==== Service-aware partitioning
+
+[width="100%",options="header"]
+|====================
+|Micro-Service|Partition Key|Note
+|Private IP Allocator|Subnet Id| Subnet-level uniqueness
+|Virtual Mac Allocator|MAC address prefix| Regional uniqueness
+|Virtual IP Allocator|IP address prefix (Ipv6 and Ipv4)| Global uniqueness
+|VPC Manager|VPC Id| Manage VNI/Route/ACL/Security Group
+|DNS Manager|DNS record id|
+|Node Manager|Node Id|
+|====================
+
+==== Data Routing Algorithm
+[width="100%",options="header"]
+|====================
+|Data Routing Option|Pros|Cons
+|Option 1: Key Range
+|Simple and easy to expand
+|Uneven load distribution
+
+|Option 2: Hash by Key
+|Simple and even load distribution
+|Hard to migrate data during database scale-out
+
+|Option 3: Router-config-server
+|Flexible with decoupling of business logic with routing algorithm
+|Additional query before every database visit
+
+|Option 4: Embed partition information in resource id
+|Simple and consistent mapping during database scale-out
+|
+|====================
+
+
+=== Data Replication
+
+Data replication is very useful in terms of availability and performance.
+
+- To increase availability and resilience
+- To keep data geographically close to the controller services thus reduce latency
+- To increase the read throughput
+
+Requirement:
+
+* Cross-DC and cross-AZ geo replication
+* Highly performant for read heavy workload while maintaining low latency for writes
+
+Leader-based replication
+
+Popular algorithms for replicating changes between nodes:
+
+- single leader
+- multi leader
+- leaderless
+
+Synchronous vs Asynchronous replication
+
+- configurable option or hardcoded
+- semi-synchronous
+
+Alcor Replication model
+
+- Each AZ has a primary
+- Semi-synchronous replication within a AZ
+- Asynchronuous replication
+
+=== High availability
+
+* High availability
+* Fault tolerance with graceful disaster handling
+** Capable of handling node outages and planned maintenance
+** Zero downtime: keep the system as a whole running despite individual node failure
+
+=== Data Inconsistency Handling
+
+There is synchronization latency between multiple database instances (from leader to follower nodes).
+This could potentially cause inconsistency in the following scenarios:
+
+* Service instance X issues a write/update request to port
+* Service instance Y requests a read/get of the same port, and the request reaches a follower node
+before the synchronization is completed.
+Therefore the data retrieved by instance Y is legacy data.
+* Database synchronization is completed eventually
+
+We consider three options as follows to handle such a scenario:
+[width="100%",options="header"]
+|====================
+|Cache|Pros|Cons
+|Option 1: Ignore differences | Simple working solution for many online services like web searching, message system etc.| Not applicable to scenarios requiring strong consistency
+|Option 2: Read/write goes to a HA master | Common strategy used in microservice design to avoid inconsistency issue| Heavy-loaded master node with limited read throughput. Usually cache is supported to increase the read TPS.
+|Option 3: Selectively reading master in the transition period| A balanced strategy: Prevent inconsistency issue in most cases and avoid overloading master node | Overhead of reading cache before database
+|====================
+
+Details about option 3:
+
+* Write Steps
+
+** Write to the master node
+** Generate a cache key with the following format "db:table:PK" by aggregating db, table name and id
+** Write to a cache and set the entry expiration time as the synchronization latency. e.g. 500 _ms_.
+
+* Read Steps
+** Use the same step to generate the cache key
+** When hitting a cache, read the data from master node
+** Otherwise, read the data from other nodes
+
+=== Capacity Planning
+
+Assuming that we have two
+
+* Modify data routing configuration
 
 
 [bibliography]
