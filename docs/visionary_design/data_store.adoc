@@ -81,9 +81,9 @@ If you are already familiar with existing solutions on the market, please skip <
 
 [#ReviewDatabase]
 === Review of Popular Databases
-[width="100%",cols="1,1,1,1,1,1", options="header"]
+[width="100%",cols="1,1,3,1,1,1", options="header"]
 |====================
-|Name|DB model and type|Pros|Cons| License| Adoption  Community Support
+|Name|DB model and type|Pros|Cons| Adoption and Community Support | License
 
 |Option 1: Apache Ignite <<ignite_home>>
 a|
@@ -96,10 +96,10 @@ a|
 - Cross DC and cross geo-region support
 a|
 - Supported programming languages are limited - _JAVA_, _C++_ and _C#_
-| Apache 2.0
 a|
 - Top 5 Apache project by commits
 - Top 3 most active Apache mailing lists
+| Apache 2.0
 
 |Option 2: ETCD <<etcd>>
 a|
@@ -112,10 +112,10 @@ a|
 a|
 - Unable to scale horizontally due to lack of data sharding
 - Limited data store up to a few _GB_ <<etcd_data_model>>
-| Apache 2.0
 a|
 - Great community support backed by CNCF.
 - Native storage system for Kubernetes
+| Apache 2.0
 
 |Option 3: Apache Cassandra <<cassandra>>
 a|
@@ -130,11 +130,11 @@ a|
 - Flexible scheme with CQL query support
 a|
 - Doesn't support ACID transaction (only AID at row/partition level)
-| Apache 2.0
 a|
 - Apache open source project originally sprung out of Facebook.
 - Contributors include Apple, Linkedin, Twitter.
 - Apple had the biggest Cassandra instance with 75,000+ nodes and stored more than 10 petabytes of data <<cassandra_data>>
+| Apache 2.0
 
 |Option 4: ScyllaDB <<scylla>>
 a|
@@ -148,12 +148,12 @@ a|
 a|
 - Relatively low adoption rate
 a|
+- Open source project adopted by Comcast, Grab, Yahoo! Japan etc.
+- Not donated to any open source foundation
+a|
 - Open source is based on Apache GPL v3.0
 - Scylla Enterprise is subscription-based
 - Scylla Cloud is a managed DBaaS with various pricing models including annual, monthly and hourly
-a|
-- Open source project adopted by Comcast, Grab, Yahoo! Japan etc.
-- Not donated to any open source foundation
 
 |Option 5: Apache Hbase <<hbase>>
 a|
@@ -166,10 +166,10 @@ a|
 a|
 - Centralized master-based architecture could cause single point of failure <<hbase_cassandra>>
 - Lack of query language like Cassandra
-| Apache 2.0
 a|
 - Open source project adopted by Netflix, Flipkart, Facebook etc.
 - Backup by Cloudera
+| Apache 2.0
 
 |Option 6: MangoDB <<mongodb>>
 a|
@@ -184,11 +184,11 @@ a|
 - MapReduce implementations remain a slow process <<mangodb_compare>>
 - MongoDB suffers from memory hog issues as the databases start scaling
 a|
-- Community edition is under Server Side Public License (SSPL) v1 after Oct. 16, 2018, otherwise Apache GPL
-- Enterprise edition is supported by MongoDB, Inc.
-a|
 - Great community support.
 - Most widely used document-oriented database (by Google, Facebook, eBay, SAP etc.)
+a|
+- Community edition is under Server Side Public License (SSPL) v1 after Oct. 16, 2018, otherwise Apache GPL
+- Enterprise edition is supported by MongoDB, Inc.
 
 //|Option 7: Apache CouchDB
 //a|
@@ -205,10 +205,10 @@ a|
 - Most popular graph-oriented database as of this writing.
 a|
 - Unsupported data sharding
+| Adopted by Ebay, Walmart, NASA etc.
 a|
 - Community edition is under GPL v3 license.
 - Enterprise edition is supported by Neo4j, Inc.
-| Adopted by Ebay, Walmart, NASA etc.
 |====================
 
 [#FeatureComp]
