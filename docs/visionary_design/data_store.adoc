@@ -14,7 +14,7 @@ v0.1, 2019-10-27
 [.lead]
 Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
 The choice is not that obvious though.
-There are so many database and cache systems in the market with various characteristics as they are designed to
+There are so many database and cache systems on the market with various characteristics as they are designed to
 meet different requirements by different applications.
 
 In this design spec, we go through our system requirements including scalability, availability,
@@ -224,7 +224,9 @@ a|
 | Write-intensive application <<ignite_cassandra>>
 |
 
-|Distributed design| Yes | Yes | Yes | Yes
+|Distributed design| Yes | Yes
+|Decentralized and master-less
+|Decentralized and master-less
 
 |Data sharding| Yes (via distributed hashing table)
 |No (data sharding unsupported)
@@ -241,7 +243,7 @@ a|
 |Yes (distributed transaction via improved 2-phase commit)
 |Yes (single shard ACID)
 |No. Light-weighted transaction (LWT)
-|
+|No (with a roadmap ofsupporting CQL Light-weight transactions (LWT) in 3.x.)
 
 |Cross-shard transaction
 |Yes (with the support of transaction coordinator)
@@ -250,11 +252,15 @@ a|
 |No
 
 |Concurrency modes|
-Pessimistic & optimistic| | |
+Pessimistic & optimistic
+|Caller responsible for acquiring explicit lock (via ETCD v3 service Lock)
+|Hybrid of optimistic and pessimistic (switched to pessimistic in high contention on a single partition)
+|
 
 |Isolation levels
-|Read Committed & Repeatable Read & Serializable|
-|
+|Read Committed & Repeatable Read & Serializable
+|Serializable isolation
+|Serializable (LWT on a per-row basis through Paxos)
 |
 
 |Multiversion Concurrency Control
@@ -262,19 +268,19 @@ Pessimistic & optimistic| | |
 only support pessimistic concurrency and Repeatable Read isolation)
 | Yes (A multiversion persistent & immutable kv store with past versions of key-value pair preserved and watchable)
 |
-|
+| Yes
 
 |Data persistence
 | Support WAL and check pointing
 | Data stored in a persistent b+ tree
-|
-|
+| SSTable
+| SSTable
 
 |In-memory cache capabilities
 | Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
 | No
-| No
-| Yes
+| No (data stored in a memory buffer before flushing out to disk)
+| Yes (In-memory tables to reduce read latency for mostly read workload)
 
 |ANSI-99 SQL
 | Yes (via ODBC/JDBC APIs to Ignite, including both DDL and DML)
@@ -282,14 +288,17 @@ only support pessimistic concurrency and Repeatable Read isolation)
 | No but support SQL-like DML and DDL statements (CQL)
 | No but support SQL-like DML and DDL statements (CQL)
 
-|Collocated joins| Yes | | No?
-|
+|Collocated joins
+| Yes
+| No
+| No
+| No
 
 |Non-collocated Joins
-a| Yes
-|
-| No?
-|
+| Yes
+| No
+| No
+| No
 
 |Geo replication
 | Yes * (active-passive and active-active bi-directional replication)
@@ -297,15 +306,19 @@ a| Yes
 | Yes
 |
 
-|Secondary index | Yes | |  | Yes
+|Secondary index
+| Yes
+| Yes (store a secondary index on memory and use btree to match the key to its physical data location)
+| Yes (does not use one single type of index clustered on the Primary Key)
+| Yes (maintains an index table for the secondary index keys)
 
-|Foreign keys | No | | No | No
+|Foreign keys | No | No | No | No
 
 |Event watches/leases/elections
 | Yes (cache interceptors and events)
 | Yes (built-in support)
 | No
-|
+| No
 
 |Synchronous replication model
 |
@@ -313,23 +326,23 @@ a| Yes
 |Use Zookeeper for leader election
 |
 
-|Semi-synchronous
-|
-|Single leader
-|
-|
+//|Semi-synchronous
+//|
+//|Single leader
+//|
+//|
 
 |Replication logs and mechanism
 |Write-ahead log
-|Write-ahead log
+|Appends a gRPC request to a write-ahead log
 |
 |
 
 |Rolling upgrade
 |Enterprise edition support rolling upgrade for minor and maintenance versions of the same major series*
-|
-|
-|
+|Yes
+|Yes
+|Yes
 
 |Maximum reliable database size
 |
