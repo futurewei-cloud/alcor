@@ -68,7 +68,7 @@ The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 ** Given the estimated total number of resources at *O*(100 millions), we look into a system storage sized at about 1 _TB_.
 
 
-== Review of Database and Cache Solutions
+== Review of Distributed Databases
 
 Based on the expected scale and throughput, we select a few popular distributed databases from different categories including distributed SQL,
 key-value store, no-SQL columnar database, document store, and graph store.
@@ -222,22 +222,25 @@ a|
 | Read-intensive or mixed application <<ignite_cassandra>>
 | Application requires infrequent data update (e.g. metadata) and reliable watch queries <<etcd_data_model>>
 | Write-intensive application <<ignite_cassandra>>
-|
+| Application requires ultra-low latency and extreme throughput
 
-|Distributed design| Yes | Yes
+|Distributed design
+|Yes
+|Yes
 |Decentralized and master-less
 |Decentralized and master-less
 
-|Data sharding| Yes (via distributed hashing table)
+|Data sharding
+|Yes (via distributed hashing table)
 |No (data sharding unsupported)
 |Yes
-| Yes
+|Yes
 
 |Strong consistency
 |Yes
 |Yes (consensus achieved through raft protocol)
-| No. Eventual/tuneable consistency
-| No. Eventual/tuneable consistency
+|No. Eventual/tuneable consistency
+|No. Eventual consistency and tuneable per query
 
 |ACID transaction
 |Yes (distributed transaction via improved 2-phase commit)
@@ -251,80 +254,80 @@ a|
 |No
 |No
 
-|Concurrency modes|
-Pessimistic & optimistic
+|Concurrency modes
+|Pessimistic & optimistic
 |Caller responsible for acquiring explicit lock (via ETCD v3 service Lock)
 |Hybrid of optimistic and pessimistic (switched to pessimistic in high contention on a single partition)
 |
 
 |Isolation levels
 |Read Committed & Repeatable Read & Serializable
-|Serializable isolation
+|Serializable isolation by MVCC
 |Serializable (LWT on a per-row basis through Paxos)
-|
+|Serializable isolation
 
 |Multiversion Concurrency Control
-| Yes (Snapshot isolation is in Beta at v2.7,
+|Yes (Snapshot isolation is in Beta at v2.7,
 only support pessimistic concurrency and Repeatable Read isolation)
-| Yes (A multiversion persistent & immutable kv store with past versions of key-value pair preserved and watchable)
-|
-| Yes
+|Yes (A multiversion persistent & immutable kv store with past versions of key-value pair preserved and watchable)
+|No (with last-writer-wins semantics)
+|Yes
 
 |Data persistence
-| Support WAL and check pointing
-| Data stored in a persistent b+ tree
-| SSTable
-| SSTable
+|Support WAL and check pointing
+|Data stored in a persistent b+ tree
+|SSTable (ordered and immutable)
+|SSTable (ordered and immutable)
 
 |In-memory cache capabilities
-| Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
-| No
-| No (data stored in a memory buffer before flushing out to disk)
-| Yes (In-memory tables to reduce read latency for mostly read workload)
+|Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
+|No
+|No (data stored in a memory buffer before flushing out to disk)
+|Yes (In-memory tables to reduce read latency for mostly read workload)
 
 |ANSI-99 SQL
-| Yes (via ODBC/JDBC APIs to Ignite, including both DDL and DML)
-| No.
-| No but support SQL-like DML and DDL statements (CQL)
-| No but support SQL-like DML and DDL statements (CQL)
+|Yes (via ODBC/JDBC APIs to Ignite, including both DDL and DML)
+|No
+|No but support SQL-like DML and DDL statements (CQL)
+|No but support SQL-like DML and DDL statements (CQL)
 
 |Collocated joins
-| Yes
-| No
-| No
-| No
+|Yes
+|No
+|No
+|No
 
 |Non-collocated Joins
-| Yes
-| No
-| No
-| No
+|Yes
+|No
+|No
+|No
 
 |Geo replication
-| Yes * (active-passive and active-active bi-directional replication)
-| No
-| Yes
-|
+|Yes * (active-passive and active-active bi-directional replication)
+|No
+|Yes
+|Yes
 
 |Secondary index
-| Yes
-| Yes (store a secondary index on memory and use btree to match the key to its physical data location)
-| Yes (does not use one single type of index clustered on the Primary Key)
-| Yes (maintains an index table for the secondary index keys)
+|Yes
+|Yes (store a secondary index on memory and use btree to match the key to its physical data location)
+|Yes (does not use one single type of index clustered on the Primary Key)
+|Yes (maintains an index table for the secondary index keys)
 
 |Foreign keys | No | No | No | No
 
 |Event watches/leases/elections
-| Yes (cache interceptors and events)
-| Yes (built-in support)
-| No
-| No
+|No (cache interceptors and events?)
+|Yes (built-in support)
+|No
+|No
 
-|Synchronous replication model
-|
-|Single leader
-|Use Zookeeper for leader election
-|
+//|Synchronous replication model
+//|
+//|Single leader
+//|Use Zookeeper for leader election
+//|
 
 //|Semi-synchronous
 //|
@@ -335,8 +338,8 @@ only support pessimistic concurrency and Repeatable Read isolation)
 |Replication logs and mechanism
 |Write-ahead log
 |Appends a gRPC request to a write-ahead log
-|
-|
+|Write-ahead log(?)
+|Write-ahead log(?)
 
 |Rolling upgrade
 |Enterprise edition support rolling upgrade for minor and maintenance versions of the same major series*
@@ -345,57 +348,59 @@ only support pessimistic concurrency and Repeatable Read isolation)
 |Yes
 
 |Maximum reliable database size
-|
-|Several gigabytes <<etcd_data_model>>
-|Apple had the biggest Cassandra instance with 75,000+ nodes and stored more than 10 petabytes of data <<cassandra_data>>
-|
+|Hundreds of _TBs_
+|Several _GBs_ <<etcd_data_model>>
+|Apple had the biggest Cassandra instance with 75,000+ nodes and stored more than 10 _PBs_ of data <<cassandra_data>>
+|It is reporeted that one Scylla customer runs a 1 _PB_ cluster with 30 nodes <<scylla_data>>
 
 |====================
 
 Note: * means that the feature is available only in the enterprise edition.
 
-=== Review of Cache Engine
-
-[width="100%",options="header"]
-|====================
-|Cache|Type|Pros|Cons|License
-|Option 1: Memcache | Cache service|
-|
-|
-
-|Option 2: Redis
-| Cache service
-a|
-- Support HA cluster
-- Data persistence
-- Support a variety of data structures ranging from bitmaps, steams, and spatial indexes
-|
-| BSD
-
-|Option 3: LevelDB | In-memory cache | | |
-
-|Option 4: Riak
-| Distributed key-value database
-a|
-- Distributed design
-- Advanced local and multi-cluster replication
-|
-|
-|====================
-
-Note: Cache is optional at this point.
-Our plan is to first conduct a performance analysis for various database storage solutions in terms of throughput, latency and other factors.
-If TPS couldn't satisfy our target performance requirement, we will incorporate cache in our design.
-
-=== Cache Access Pattern
-
-Cache Aside Pattern: For write operation, we could use cache aside pattern which recommends to delete cache entry,
-instead of resetting cache entry.
-
-Pending item:
-
-* Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
-* Remove cache entry then modify database (ensure atomic operation)
+//=== Review of Cache Store
+//
+//[width="100%",options="header"]
+//|====================
+//|Cache|Type|Pros|Cons|License
+//|Option 1: Memcached
+//|Cache service
+//|
+//|
+//|
+//
+//|Option 2: Redis
+//| Cache service
+//a|
+//- Support HA cluster
+//- Data persistence
+//- Support a variety of data structures ranging from bitmaps, steams, and spatial indexes
+//|
+//| BSD
+//
+//|Option 3: LevelDB | In-memory cache | | |
+//
+//|Option 4: Riak
+//| Distributed key-value database
+//a|
+//- Distributed design
+//- Advanced local and multi-cluster replication
+//|
+//|
+//|====================
+//
+//Note: Cache is optional at this point.
+//Our plan is to first conduct a performance analysis for various database storage solutions in terms of throughput, latency and other factors.
+//If TPS couldn't satisfy our target performance requirement, we will incorporate cache in our design.
+//
+//=== Cache Access Pattern
+//
+//Cache Aside Pattern: For write operation, we could use cache aside pattern which recommends to delete cache entry,
+//instead of resetting cache entry.
+//
+//Pending item:
+//
+//* Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
+//* Remove cache entry then modify database (ensure atomic operation)
 
 
 [#architecture]
@@ -560,3 +565,5 @@ Assuming that we have two
 - [[[mangodb_compare, 10]]] Cassandra vs. MongoDB vs. Hbase: A Comparison of NoSQL Databases https://logz.io/blog/nosql-database-comparison/
 - [[[neo4j,11]]] Neo4j: http://neo4j.com
 - [[[ignite_cassandra,12]]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
+- [[[scylla_data,13]]]Scaling Up versus Scaling Out:
+Mythbusting Database Deployment Options for Big Data https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf
