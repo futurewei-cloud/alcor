@@ -45,7 +45,8 @@ Based on the above information, we match our system requirements with the availa
 * Event watches and leases
 
 === Throughput and data storage requirements
-Note: The requirements given below are for VPC controller services. Similar analysis could be done for other controllers.
+Note: The requirements given below are for VPC controller services.
+Similar analysis could be done for other controllers.
 
 * Traffic pattern
 ** The control plane traffic pattern is expected to be READ intensive with most majority of GURD calls are READ.
@@ -69,19 +70,22 @@ The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 
 == Review of Database and Cache Solutions
 
-In this section, we select a few popular distributed databases from different categories including distributed SQL,
+Based on the expected scale and throughput, we select a few popular distributed databases from different categories including distributed SQL,
 key-value store, no-SQL columnar database, document store, and graph store.
 We review the data model, license, community support and discuss their pros and cons.
-We further zoom in on selective databases and compare their features, characteristics and applicable applications.
-If you are already familiar with existing solutions on the market, please skip this section and
-refer to <<#architecture>> for more information.
 
+If you are already familiar with existing solutions on the market, please skip <<ReviewDatabase>> and refer to
+
+- <<FeatureComp>> for more deep dive of selective distributed databases and comparison of their features, characteristics and applicable applications.
+- <<#architecture>> for our system design proposal.
+
+[#ReviewDatabase]
 === Review of Popular Databases
-[width="100%",cols="1,2,5,2,,1", options="header"]
+[width="100%",cols="1,1,1,1,1,1", options="header"]
 |====================
-|Name|DB model and type|Pros|Cons| License and Pricing Models| Community Support
+|Name|DB model and type|Pros|Cons| License| Adoption  Community Support
 
-|Option 1: Apache Ignite
+|Option 1: Apache Ignite <<ignite_home>>
 a|
 - Multi-model database supporting both key-value and SQL for modeling and accessing data
 - Developed by _Java_
@@ -97,7 +101,7 @@ a|
 - Top 5 Apache project by commits
 - Top 3 most active Apache mailing lists
 
-|Option 2: ETCD
+|Option 2: ETCD <<etcd>>
 a|
 - No-SQL KV store
 - Developed by _Go_
@@ -107,81 +111,107 @@ a|
 - Cross-platform support, small binaries
 a|
 - Unable to scale horizontally due to lack of data sharding
-- Limited data store up to a few _GB_ <<etcd_data_model,2>>
+- Limited data store up to a few _GB_ <<etcd_data_model>>
 | Apache 2.0
 a|
 - Great community support backed by CNCF.
 - Native storage system for Kubernetes
 
-|Option 3: Apache Cassandra
+|Option 3: Apache Cassandra <<cassandra>>
 a|
 - No-SQL columnar database developed by _JAVA_
-- Eventual/tuneable consistency level for Read/Write
+- Eventual/ tuneable consistency level for Read/Write
 - Consistent hashing for mapping keys to servers/nodes
 a|
 - Fast write performance
-- High availability due to distributed and decentralized design.
-Use Zookeeper for leader election and Gossip peer-to-peer protocol for distributed node management.
+- Distributed and decentralized design (Gossip peer-to-peer protocol for distributed node management)
 - Cross DC and cross geo-region support
 - Large-scale deployment up to over 75,000 nodes
 - Flexible scheme with CQL query support
 a|
 - Doesn't support ACID transaction (only AID at row/partition level)
-|
-| Apache project started by Facebook. Contributors include Apple, Linkedin, Twitter.
+| Apache 2.0
+a|
+- Apache open source project originally sprung out of Facebook.
+- Contributors include Apple, Linkedin, Twitter.
+- Apple had the biggest Cassandra instance with 75,000+ nodes and stored more than 10 petabytes of data <<cassandra_data>>
 
-|Option 4: ScyllaDB
+|Option 4: ScyllaDB <<scylla>>
 a|
 - Cassandra-compatible wide columnar store
 - Rewrite Cassandra in _C++_
-- Claimed to be the fastest NoSQL database with 99% latency of <1 msec
+- Claimed to be the fastest NoSQL database with 99% tail latency less than 1 _msec_
 a|
 - Highly-performant (efficiently utilizes full resources of a node and network; millions of IOPS per node)
 - Highly-available (peer-to-peer, no single-point-of-failure, active-active)
-- Share many features of Cassandra like horizontal scalling, tunable consistency model and built-in geo replication
-
-|
+- Share many features of Cassandra like horizontal scaling, tunable consistency model and built-in geo replication
 a|
-- Scylla open source is based on GPL
+- Relatively low adoption rate
+a|
+- Open source is based on Apache GPL v3.0
 - Scylla Enterprise is subscription-based
 - Scylla Cloud is a managed DBaaS with various pricing models including annual, monthly and hourly
-| Comcast, Grab, Yahoo! Japan
+a|
+- Open source project adopted by Comcast, Grab, Yahoo! Japan etc.
+- Not donated to any open source foundation
 
-|Option 5: Apache Hbase
+|Option 5: Apache Hbase <<hbase>>
 a|
 - No-SQL columnar database
+- Developed by _Java_
 a|
-- Distributed design
-- Support structured storage for large amounts of data
--
-| | |
+- Provides Google's Bigtable-like capabilities on top of Apache Hadoop
+- Offer strong consistency
+- Support structured storage for large amounts of data (on top of HDFS)
+a|
+- Centralized master-based architecture could cause single point of failure <<hbase_cassandra>>
+- Lack of query language like Cassandra
+| Apache 2.0
+a|
+- Open source project adopted by Netflix, Flipkart, Facebook etc.
+- Backup by Cloudera
 
-|Option 6: MangoDB
+|Option 6: MangoDB <<mongodb>>
 a|
 - No-SQL document store developed in _C++_
 - Use _JSON_ alike documents to store data
 a|
-- Great community support. Most widely used document-oriented database.
-| | |
-
-|Option 7: Apache CouchDB
+- Schema-free design provides flexibility and agility on various data type
+//- Fields can vary from document to document and data structure can be changed over time
+- multi-document ACID Transactions with snapshot isolation
+- Built in high availability, horizontal scaling, and geo distribution
 a|
-- No-SQL document store
-- Store data as JSON documents and uses JavaScript as query language
-| | | |
-
-|Option 8: Neo4j
+- MapReduce implementations remain a slow process <<mangodb_compare>>
+- MongoDB suffers from memory hog issues as the databases start scaling
 a|
-- No-SQL graph database
+- Community edition is under Server Side Public License (SSPL) v1 after Oct. 16, 2018, otherwise Apache GPL
+- Enterprise edition is supported by MongoDB, Inc.
+a|
+- Great community support.
+- Most widely used document-oriented database (by Google, Facebook, eBay, SAP etc.)
+
+//|Option 7: Apache CouchDB
+//a|
+//- No-SQL document store
+//- Store data as JSON documents and uses JavaScript as query language
+//| | | |
+
+|Option 7: Neo4j <<neo4j>>
+a|
+- No-SQL graph database developed in _Java_
 - Data stored in documents with a focus on relationship between individual documents
 a|
 - ACID-compliant DBMS
 - Most popular graph-oriented database as of this writing.
-| | |
-
-
+a|
+- Unsupported data sharding
+a|
+- Community edition is under GPL v3 license.
+- Enterprise edition is supported by Neo4j, Inc.
+| Adopted by Ebay, Walmart, NASA etc.
 |====================
 
+[#FeatureComp]
 === Feature Comparision among Selective Databases
 
 [width="100%",cols="<.^,^.^,^.^,^.^,^.^",options="header"]
@@ -189,9 +219,9 @@ a|
 |Name| Apache Ignite | ETCD | Apache Cassandra | ScyllaDB
 
 |Applicable application
-| Read-intensive or mixed application <<ignite_cassandra,1>>
-| Application requires infrequent data update (e.g. metadata) and reliable watch queries <<etcd_data_model,2>>
-| Write-intensive application <<ignite_cassandra,1>>
+| Read-intensive or mixed application <<ignite_cassandra>>
+| Application requires infrequent data update (e.g. metadata) and reliable watch queries <<etcd_data_model>>
+| Write-intensive application <<ignite_cassandra>>
 |
 
 |Distributed design| Yes | Yes | Yes | Yes
@@ -214,7 +244,7 @@ a|
 |
 
 |Cross-shard transaction
-|Yes with the support of transaction coordinator failover
+|Yes (with the support of transaction coordinator)
 |No
 |No
 |No
@@ -242,14 +272,15 @@ only support pessimistic concurrency and Repeatable Read isolation)
 
 |In-memory cache capabilities
 | Yes (data and indexes stored in managed off-heap regions in RAM and outside of Java heap)
-|
-| No | Yes
+| No
+| No
+| Yes
 
 |ANSI-99 SQL
 | Yes (via ODBC/JDBC APIs to Ignite, including both DDL and DML)
-|
-| No. Support SQL-like DML and DDL statements (CQL)
-| No. Support SQL-like DML and DDL statements (CQL)
+| No.
+| No but support SQL-like DML and DDL statements (CQL)
+| No but support SQL-like DML and DDL statements (CQL)
 
 |Collocated joins| Yes | | No?
 |
@@ -279,7 +310,7 @@ a| Yes
 |Synchronous replication model
 |
 |Single leader
-|
+|Use Zookeeper for leader election
 |
 
 |Semi-synchronous
@@ -302,8 +333,8 @@ a| Yes
 
 |Maximum reliable database size
 |
-|Several gigabytes <<etcd_data_model,2>>
-|
+|Several gigabytes <<etcd_data_model>>
+|Apple had the biggest Cassandra instance with 75,000+ nodes and stored more than 10 petabytes of data <<cassandra_data>>
 |
 
 |====================
@@ -504,5 +535,15 @@ Assuming that we have two
 [bibliography]
 == References
 
-1. [[ignite_cassandra]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
-2. [[etcd_data_model]] ETCD data model (https://github.com/etcd-io/etcd/blob/master/Documentation/learning/data_model.md)
+- [[[ignite_home,1]]] Apache Ignite: https://ignite.apache.org/
+- [[[etcd,2]]] ETCD: https://etcd.io
+- [[[etcd_data_model,3]]] ETCD data model: https://github.com/etcd-io/etcd/blob/master/Documentation/learning/data_model.md
+- [[[cassandra,4]]] Apache Cassandra: http://cassandra.apache.org/
+- [[[cassandra_data,5]]] Apache Cassandra: Four Interesting Facts https://www.datastax.com/blog/2019/03/apache-cassandratm-four-interesting-facts
+- [[[scylla,6]]] Scylla DB: https://www.scylladb.com/
+- [[[hbase,7]]] Apache HBase: https://hbase.apache.org/
+- [[[hbase_cassandra,8]]] Cassandra vs. HBase: twins or just strangers with similar looks? https://www.scnsoft.com/blog/cassandra-vs-hbase
+- [[[mongodb,9]]] MangoDB: https://www.mongodb.com/
+- [[[mangodb_compare, 10]]] Cassandra vs. MongoDB vs. Hbase: A Comparison of NoSQL Databases https://logz.io/blog/nosql-database-comparison/
+- [[[neo4j,11]]] Neo4j: http://neo4j.com
+- [[[ignite_cassandra,12]]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
