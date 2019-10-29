@@ -214,7 +214,7 @@ a|
 [#FeatureComp]
 === Feature Comparision among Selective Databases
 
-[width="100%",cols="<.^,^.^,^.^,^.^,^.^",options="header"]
+[width="100%",cols="<.^,^.<,^.<,^.<,^.<",options="header"]
 |====================
 |Name| Apache Ignite | ETCD | Apache Cassandra | ScyllaDB
 
