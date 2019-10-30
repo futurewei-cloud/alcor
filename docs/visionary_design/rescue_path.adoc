@@ -17,7 +17,7 @@ and how it communicate to peer compute host to help with network configuration a
 
 image::images/rescue_path.GIF["Rescue path architecture", width=1024, link="images/rescue_path.GIF"]
 
-=== Design
+== Design
 
 Even if the rate of sofware failure is 1 out of 1 million, a failure would happen everyday in a large scale public cloud offering. The network control plane will leverage both a monitoring system (likely Prometheus) and directly indication from network control agent to defect failure and invoke the rescue path. See health monitoring/failure detection design here: TBD.
 
