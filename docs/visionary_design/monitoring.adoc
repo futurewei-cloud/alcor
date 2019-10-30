@@ -33,12 +33,15 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 
 == Design
 
-* one
-* two
+* Host Agents Health
+* Data Plane Health from TransitD for transit switch and router
+* Host Machine Health, host networking stack/interface/utilization
+* Tenant VMs/Containers Health
+* What happen if Host Netdata or the Host machine goes down? Need to leverage Prometheus for host heart beat 
 
-//=== Error Handling
+//=== Controller health
 
-//response back to network controller using gsReply message
+//controller should sent heart beats to Prometheus
 
 
 == Proposed Changes
@@ -48,13 +51,13 @@ The control plane rescue path would requires the following changes:
 [width="100%",options="header"]
 |====================
 |Index|Feature Description|Priority|Note
-|1|An additional field (TargetHostIP) in GoalState message to specify either "LocalHost" or remote host IP|P0|
-|2|Update Control Agent logic to use TargetHostIP .3+^.^|P0|
-|2.1|Control Agents to perform network configuration in Remote Host|
-|2.2|Control Agents to perform dataplace programming in Remote Host|
-|3|Update Network Controllor .3+^.^|P0|
+|1|Netdata research and investigation |P0|
+|2|Netdata implementation .3+^.^|P0|
+|2.1|work item 1|
+|2.2|work item 2|
+|3|Update Node Manager .3+^.^|P0|
 |3.1|work item 1|
 |3.2|work item 2|
-|4|E2E latency measurement for rescue path|P0|
-|5|Performance test to get scalability limit for remote network configuration|P1|
+|4|E2E latency measurement for monitoring plane|P0|
+|5|Performance test to get scalability limit for monitoring data|P1|
 |====================
