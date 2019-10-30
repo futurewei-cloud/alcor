@@ -44,6 +44,7 @@ Based on the above information, we match our system requirements with the availa
 * Support ANSI-99 SQL
 * Support collocated joins and non-collocated joins
 * Support secondary index
+* No warm-up time after cluster node restart
 * Event watches and leases
 
 === Throughput and data storage requirements
@@ -415,15 +416,53 @@ Based on <<system-requirements>> and <<FeatureComp>>, Apache Ignite provides a v
 * Proven horizontal scalability to meet our throughput and storage requirement
 * Cross-DC and cross-AZ geo replication for AZ-resilient HA
 * In-memory processing capabilities applicable for read heavy workload application while offering low latency for writes
-* Support rolling upgrade without downtime
-* Support collocated joins and non-collocated joins
+* Rolling upgrade without downtime
+* Collocated joins and non-collocated joins
+* In-memory indexing
 
-TIP: To get more details about how to scale Ignite cluster to meet the storage requirements, refer to <<capacity>>.
+TIP: To get more details about how to scale Ignite cluster to meet the storage requirements,
+refer to <<capacity>>.
 
-The diagram below illustrates our proposed architecture on data storage.
-We leverage the geo-replication provided by Ignite to achieve control plane AZ resilience.
+We have two architectural design options.
 
-image::images/database.jpg["Fast path architecture", width=1024, link="images/database.jpg"]
+=== Design Option: Cross-AZ Architecture
+Option 1 is cross-AZ design, as illustrated in the following diagram.
+Controller services and database/cache clusters are deployed across Availability zones.
+Each availability zone has multiple pods/replicas of each service,
+and multiple Ignite nodes for high availability and high resilience.
+We leverage the geo-replication features provided by Ignite,
+and enable data center replication feature (available in Enterprise/Ultimate Edition up to 31 data centers <<crossaz>>, and turned off by default)
+which supports both active-active and active-passive modes for replication.
+
+The advantage of option 1 is AZ resilience and fast read operations.
+If any AZ or any data center goes down, control plane service remains up and fully capable of assuming its load and data.
+Secondly, read operation is expected to have ultra-low latency due to data locality
+-- service could always reach up-to-date data
+from Ignite nodes deployed at the same AZ as service node --
+and in-memory cache capability.
+
+The downside is that data replication takes more time when data update is across the AZ boundary
+(in a matter of a few _ms_ by common industrial practise) and lower write throughput.
+This could be countered by Ignite's in-memory capabilities and persistence model that a write operation
+could be acknowledged right after the data reaches RAM and operation is recorded in write-ahead log.
+
+
+image::images/database.jpg["Database and Cache Architecture", width=1024, link="images/database.JPG"]
+
+
+=== Design Option: Single-AZ Architecture
+
+NOTE: The discussion targets a multi-AZ setup but this architecture is also applicable to a region with single AZ.
+
+Option 2 is a simplified version of Option 1, and mostly applies when the open source version of Ignite is used.
+Database/cache cluster is deployed within one data center while controller continues to be distributed across DC/AZ boundary.
+
+The pros/cons of option 2 is quite as opposite of those of option 1.
+There is no AZ resilience for database/cache subsystem (thus the entire control plane) although controller services
+could continue to benefit from cross-AZ deployments.
+The read/write latency varies depending on how far the service node is from the data node.
+When services and data happen to be in the same AZ, we expect to have low latency for both read and write.
+Otherwise, latency increases as every call needs to go across AZ boundary.
 
 //
 //=== Design Principles
@@ -489,7 +528,22 @@ Requirement:
 |====================
 
 
-=== Data Replication
+=== Data Persistence and Replication
+
+Ignite native persistence is a distributed ACID and SQL-compliant disk store that transparently integrates with Ignite's durable memory.
+Ignite persistence is optional and can be turned on and off.
+When turned off Ignite becomes a pure in-memory store.
+
+With the native persistence enabled, Ignite always stores a superset of data on disk,
+and as much as it can in RAM based on the capacity of the latter.
+For example, if there are 100 entries and RAM has the capacity to store only 20,
+then all 100 will be stored on disk and only 20 will be cached in RAM for better performance.
+
+By default, the files' hierarchy explained above is maintained under a shared ${IGNITE_HOME}/work/db directory.
+
+If several cluster nodes are started on a single box/machine,
+then every node process will have its persistence files under a uniquely defined subdirectory such as ${IGNITE_HOME}/work/db/node{IDX}-{UUID}. Both IDX and UUID parameters are calculated by Ignite automatically upon the nodes' startup.
+
 
 Data replication is very useful in terms of availability and performance.
 
@@ -520,6 +574,8 @@ Alcor Replication model
 - Each AZ has a primary
 - Semi-synchronous replication within a AZ
 - Asynchronuous replication
+
+
 
 === High availability
 
@@ -586,3 +642,4 @@ Assuming that we have two
 - [[[ignite_cassandra,12]]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
 - [[[scylla_data,13]]]Scaling Up versus Scaling Out:
 Mythbusting Database Deployment Options for Big Data https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf
+- [[[crossaz,14]]] Gridgain data center replication: https://www.gridgain.com/products/software/enterprise-edition/data-center-replication
