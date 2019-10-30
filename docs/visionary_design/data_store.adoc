@@ -11,7 +11,8 @@ v0.1, 2019-10-27
 
 == Overview
 
-[.lead]
+//[.lead]
+
 Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
 The choice is not that obvious though.
 There are so many database and cache systems on the market with various characteristics as they are designed to
@@ -25,6 +26,7 @@ Based on the above information, we match our system requirements with the availa
 
 [#system-requirements]
 == System Requirements
+
 === Must-have features
 * Standalone without dependency on other data-center services
 * Horizontal scaling along with region expansion
@@ -66,7 +68,6 @@ and customer-specified fields (e.g. security rules and routes).
 The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 ** On average, we look into the estimated size of *O*(10 _KB_) which could be subject to adjustment.
 ** Given the estimated total number of resources at *O*(100 millions), we look into a system storage sized at about 1 _TB_.
-
 
 == Review of Distributed Databases
 
@@ -406,7 +407,24 @@ Note: * means that the feature is available only in the enterprise edition.
 [#architecture]
 == Architectural Design
 
-//Look-aside caching pattern for more application control
+Based on <<system-requirements>> and <<FeatureComp>>, Apache Ignite provides a very rich feature set that matches most of our system requirements. Specifically, it offers the following features:
+
+* Standalone distributed database and built-in cache services
+* Strong consistency, distributed ACID transactions and SQL queries
+* Data sharding and cross-shard transacation
+* Proven horizontal scalability to meet our throughput and storage requirement
+* Cross-DC and cross-AZ geo replication for AZ-resilient HA
+* In-memory processing capabilities applicable for read heavy workload application while offering low latency for writes
+* Support rolling upgrade without downtime
+* Support collocated joins and non-collocated joins
+
+TIP: To get more details about how to scale Ignite cluster to meet the storage requirements, refer to <<capacity>>.
+
+The diagram below illustrates our proposed architecture on data storage.
+We leverage the geo-replication provided by Ignite to achieve control plane AZ resilience.
+
+image::images/database.jpg["Fast path architecture", width=1024, link="images/database.jpg"]
+
 //
 //=== Design Principles
 //
@@ -543,6 +561,7 @@ Details about option 3:
 ** When hitting a cache, read the data from master node
 ** Otherwise, read the data from other nodes
 
+[#capacity]
 === Capacity Planning
 
 Assuming that we have two
