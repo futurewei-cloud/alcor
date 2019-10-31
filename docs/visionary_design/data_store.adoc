@@ -47,7 +47,7 @@ Based on the above information, we match our system requirements with the availa
 * No warm-up time after cluster node restart
 * Event watches and leases
 
-=== Throughput and data storage requirements
+=== Throughput and Data Storage Requirements
 Note: The requirements given below are for VPC controller services.
 Similar analysis could be done for other controllers.
 
@@ -82,7 +82,7 @@ If you are already familiar with existing solutions on the market, please skip <
 - <<#architecture>> for our system design proposal.
 
 [#ReviewDatabase]
-=== Review of Popular Databases
+=== High-Level Overview of Popular Databases
 [width="100%",cols="1,1,3,1,1,1", options="header"]
 |====================
 |Name|DB model and type|Pros|Cons| Adoption and Community Support | License
@@ -609,7 +609,7 @@ If several cluster nodes are started on a single machine,
 every node process will have its persistence files under a uniquely defined subdirectory such as ${IGNITE_HOME}/work/db/node{IDX}-{UUID}.
 Both IDX and UUID parameters are calculated by Ignite automatically upon the nodes' startup.
 
-=== Data Replication mode
+=== Data Replication Mode
 
 Data replication is very useful in terms of availability and performance with the following usage:
 
