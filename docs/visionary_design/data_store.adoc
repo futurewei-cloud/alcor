@@ -78,7 +78,7 @@ We review the data model, license, community support and discuss their pros and 
 
 If you are already familiar with existing solutions on the market, please skip <<ReviewDatabase>> and refer to
 
-- <<FeatureComp>> for more deep dive of selective distributed databases and comparison of their features, characteristics and applicable applications.
+- <<FeatureComp>> for more deep dive of selective distributed databases and comparison of their features, characteristics and applicable applications;
 - <<#architecture>> for our system design proposal.
 
 [#ReviewDatabase]
@@ -425,6 +425,7 @@ refer to <<capacity>>.
 
 We have two architectural design options.
 
+[#cross-az-design]
 === Design Option: Cross-AZ Architecture
 Option 1 is cross-AZ design, as illustrated in the following diagram.
 Controller services and database/cache clusters are deployed across Availability zones.
@@ -446,10 +447,9 @@ The downside is that data replication takes more time when data update is across
 This could be countered by Ignite's in-memory capabilities and persistence model that a write operation
 could be acknowledged right after the data reaches RAM and operation is recorded in write-ahead log.
 
-
 image::images/database.JPG["Database and Cache Architecture", width=1024, link="images/database.JPG"]
 
-
+[#single-az-design]
 === Design Option: Single-AZ Architecture
 
 NOTE: The discussion targets a multi-AZ setup but this architecture is also applicable to a region with single AZ.
@@ -479,7 +479,7 @@ Otherwise, latency increases as every call needs to go across AZ boundary.
 //
 //* Extensibility
 
-=== Data Sharding
+=== Service-Aware Data Sharding
 
 As a result of the estimated throughput and storage size,
 a single machine (or even a partition with multiple replicas) is
@@ -493,135 +493,252 @@ Requirement:
 * Strong consistency and ACID transaction
 
 
-==== Service-aware partitioning
+==== Per-Micro-Service Data Caching and Sharding
+
+Every micro-service maintains its own cache configuration including customized
+affinity function (managing the mapping from cache key to partition),
+crash-safe affinity (ensuring primary and backup copies located at distinct physical machines),
+and partition numbers.
+As an example, the VPC cache configuration is listed as follows:
+
+[source,xml]
+----
+<bean class="org.apache.ignite.configuration.IgniteConfiguration">
+    <property name="cacheConfiguration">
+        <list>
+            <!-- Creating a cache configuration. -->
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <property name="name" value="myCache"/>
+
+                <!-- Creating the affinity function with custom setting. -->
+                <property name="affinity">
+                    <bean class="org.apache.ignite.cache.affinity.rendezvous.RendezvousAffinityFunction">
+                        <property name="excludeNeighbors" value="true"/>
+                        <property name="partitions" value="2048"/>
+                    </bean>
+                </property>
+            </bean>
+        </list>
+    </property>
+</bean>
+----
+
+Below is the proposed cache key to be used in various micro-services in our VPC controller:
 
 [width="100%",options="header"]
 |====================
-|Micro-Service|Partition Key|Note
+|Micro-Service|Cache/Partition Key|Requirements
 |Private IP Allocator|Subnet Id| Subnet-level uniqueness
 |Virtual Mac Allocator|MAC address prefix| Regional uniqueness
 |Virtual IP Allocator|IP address prefix (Ipv6 and Ipv4)| Global uniqueness
-|VPC Manager|VPC Id| Manage VNI/Route/ACL/Security Group
-|DNS Manager|DNS record id|
-|Node Manager|Node Id|
+|VPC Manager|VPC Id
+a|
+- Global uniqueness.
+- Manage VNI/Route/ACL/Security Group
+|DNS Manager|DNS record id|Regional uniqueness
+|Node Manager|Node Id|Regional uniqueness
 |====================
 
-==== Data Routing Algorithm
-[width="100%",options="header"]
-|====================
-|Data Routing Option|Pros|Cons
-|Option 1: Key Range
-|Simple and easy to expand
-|Uneven load distribution
+==== Service-Managed Data Collocation
 
-|Option 2: Hash by Key
-|Simple and even load distribution
-|Hard to migrate data during database scale-out
+In many cases when multiple cache keys are accessed together, control plane can have read/write performance gain
+if different cache keys are collocated on the same processing node.
+By doing so, we avoid costly network trips to fetch data from remote nodes.
+For example, we prefer to store a VPC and all of its subnets on the same nodes as they will be accessed pretty frequently.
+We can bundle them by giving them the same *affinityKey*.
+The example codes are given as follows:
 
-|Option 3: Router-config-server
-|Flexible with decoupling of business logic with routing algorithm
-|Additional query before every database visit
+[source,java]
+----
+public class SubnetKey {
+    // Subnet ID used to identify a subnet.
+    private String subnetId;
 
-|Option 4: Embed partition information in resource id
-|Simple and consistent mapping during database scale-out
-|
-|====================
+    // VPC ID which will be used for affinity.
+    @AffinityKeyMapped
+    private String vpcId;
+    ...
+}
+----
+
+To check Affinity key mapping, we could use Ignite's *AffinityFunction* pluggable APIs <<ignite_affinity_apis>>:
+
+- partitions() - Gets the total number of partitions for a cache.
+- partition(...) - Given a key, this method determines which partition a key belongs to.
+The mapping must not change over time.
+- assignPartitions(...) - This method is called every time a cluster topology changes.
+This method returns a partition-to-node mapping for the given cluster topology.
+
+//==== Data Routing Algorithm
+//[width="100%",options="header"]
+//|====================
+//|Data Routing Option|Pros|Cons
+//|Option 1: Key Range
+//|Simple and easy to expand
+//|Uneven load distribution
+//
+//|Option 2: Hash by Key
+//|Simple and even load distribution
+//|Hard to migrate data during database scale-out
+//
+//|Option 3: Router-config-server
+//|Flexible with decoupling of business logic with routing algorithm
+//|Additional query before every database visit
+//
+//|Option 4: Embed partition information in resource id
+//a|
+//- Simple and consistent mapping during database scale-out
+//- Allow customized mapping from resource id to node
+//|
+//|====================
 
 
-=== Data Persistence and Replication
+=== Native Data Persistence
 
-Ignite native persistence is a distributed ACID and SQL-compliant disk store that transparently integrates with Ignite's durable memory.
-Ignite persistence is optional and can be turned on and off.
-When turned off Ignite becomes a pure in-memory store.
+NOTE: Ignite native persistence is a distributed ACID and SQL-compliant disk store that transparently integrates with Ignite's durable memory.
+It is optional, and when turned off,
+Ignite becomes a pure in-memory store and could work with many 3rd party databases such as RDBMS, HDFS and NoSQL.
+If turned on, Ignite serves as distributed database and cache at the same time.
+We opt in the native persistence to take advantage of many benefits brought by native persistence including running SQL queries
+on both memory and disk, and quick cluster (re)start without preloading data from the persistence into the memory.
 
 With the native persistence enabled, Ignite always stores a superset of data on disk,
 and as much as it can in RAM based on the capacity of the latter.
-For example, if there are 100 entries and RAM has the capacity to store only 20,
-then all 100 will be stored on disk and only 20 will be cached in RAM for better performance.
+By default, the persistence files are maintained under a shared ${IGNITE_HOME}/work/db directory.
+If several cluster nodes are started on a single machine,
+every node process will have its persistence files under a uniquely defined subdirectory such as ${IGNITE_HOME}/work/db/node{IDX}-{UUID}.
+Both IDX and UUID parameters are calculated by Ignite automatically upon the nodes' startup.
 
-By default, the files' hierarchy explained above is maintained under a shared ${IGNITE_HOME}/work/db directory.
+=== Data Replication mode
 
-If several cluster nodes are started on a single box/machine,
-then every node process will have its persistence files under a uniquely defined subdirectory such as ${IGNITE_HOME}/work/db/node{IDX}-{UUID}. Both IDX and UUID parameters are calculated by Ignite automatically upon the nodes' startup.
-
-
-Data replication is very useful in terms of availability and performance.
+Data replication is very useful in terms of availability and performance with the following usage:
 
 - To increase availability and resilience
 - To keep data geographically close to the controller services thus reduce latency
 - To increase the read throughput
 
-Requirement:
+Based on discussion in <<system-requirements>> and <<cross-az-design>>, our system design expects read heavy workload and high availability.
+Accordingly, Ignite offers three cache replication models including PARTITIONED, REPLICATED and LOCAL, each with trade-off between availability and performance <<ignite_replication>>.
+If the expected availability requirement is AZ resilience, we prefer to use cross-AZ geo replication and REPLICATED cache mode
+where all the data is replicated to every node in the cluster.
+This cache mode provides the utmost availability of data.
+Otherwise, we could use PARTITIONED mode where updates become cheaper compared to REPLICATED mode because only one primary node
+(and optionally 1 or more backup nodes) need to be updated for every key.
+However, read throughput would drop and reads become more expensive because only certain nodes have the data cached.
 
-* Cross-DC and cross-AZ geo replication
-* Highly performant for read heavy workload while maintaining low latency for writes
+As an example, the VPC cache configuration is set as follows:
 
-Leader-based replication
+[source,xml]
+----
+<bean class="org.apache.ignite.configuration.IgniteConfiguration">
+    ...
+    <property name="cacheConfiguration">
+        <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set a cache name. -->
+            <property name="name" value="vpcCache"/>
+            <!-- Set cache mode. -->
+            <property name="cacheMode" value="REPLICATED"/>
+            <!-- Other cache configurations. -->
+            ...
+        </bean>
+    </property>
+</bean>
+----
 
-Popular algorithms for replicating changes between nodes:
+//Leader-based replication
+//
+//Popular algorithms for replicating changes between nodes:
+//
+//- single leader
+//- multi leader
+//- leaderless
+//
+//Synchronous vs Asynchronous replication
+//
+//- configurable option or hardcoded
+//- semi-synchronous
 
-- single leader
-- multi leader
-- leaderless
+//Alcor Replication model
+//
+//- Each AZ has a primary
+//- Semi-synchronous replication within a AZ
+//- Asynchronuous replication
 
-Synchronous vs Asynchronous replication
-
-- configurable option or hardcoded
-- semi-synchronous
-
-Alcor Replication model
-
-- Each AZ has a primary
-- Semi-synchronous replication within a AZ
-- Asynchronuous replication
-
-
-
-=== High availability
-
-* Fault tolerance with graceful disaster handling
-** Capable of handling node outages and planned maintenance
-** Zero downtime: keep the system as a whole running despite individual node failure
-
-=== Data Inconsistency Handling
-
-There is synchronization latency between multiple database instances (from leader to follower nodes).
-This could potentially cause inconsistency in the following scenarios:
-
-* Service instance X issues a write/update request to port
-* Service instance Y requests a read/get of the same port, and the request reaches a follower node
-before the synchronization is completed.
-Therefore the data retrieved by instance Y is legacy data.
-* Database synchronization is completed eventually
-
-We consider three options as follows to handle such a scenario:
-[width="100%",options="header"]
-|====================
-|Cache|Pros|Cons
-|Option 1: Ignore differences | Simple working solution for many online services like web searching, message system etc.| Not applicable to scenarios requiring strong consistency
-|Option 2: Read/write goes to a HA master | Common strategy used in microservice design to avoid inconsistency issue| Heavy-loaded master node with limited read throughput. Usually cache is supported to increase the read TPS.
-|Option 3: Selectively reading master in the transition period| A balanced strategy: Prevent inconsistency issue in most cases and avoid overloading master node | Overhead of reading cache before database
-|====================
-
-Details about option 3:
-
-* Write Steps
-
-** Write to the master node
-** Generate a cache key with the following format "db:table:PK" by aggregating db, table name and id
-** Write to a cache and set the entry expiration time as the synchronization latency. e.g. 500 _ms_.
-
-* Read Steps
-** Use the same step to generate the cache key
-** When hitting a cache, read the data from master node
-** Otherwise, read the data from other nodes
+//=== High Avaialbility
+//As the minimal, the availability requirements
+//* Fault tolerance with graceful disaster handling
+//** Capable of handling node outages and planned maintenance
+//** Zero downtime: keep the system as a whole running despite individual node failure
+//
+//=== Data Inconsistency Handling
+//
+//There is synchronization latency between multiple database instances (from leader to follower nodes).
+//This could potentially cause inconsistency in the following scenarios:
+//
+//* Service instance X issues a write/update request to port
+//* Service instance Y requests a read/get of the same port, and the request reaches a follower node
+//before the synchronization is completed.
+//Therefore the data retrieved by instance Y is legacy data.
+//* Database synchronization is completed eventually
+//
+//We consider three options as follows to handle such a scenario:
+//[width="100%",options="header"]
+//|====================
+//|Cache|Pros|Cons
+//|Option 1: Ignore differences | Simple working solution for many online services like web searching, message system etc.| Not applicable to scenarios requiring strong consistency
+//|Option 2: Read/write goes to a HA master | Common strategy used in microservice design to avoid inconsistency issue| Heavy-loaded master node with limited read throughput. Usually cache is supported to increase the read TPS.
+//|Option 3: Selectively reading master in the transition period| A balanced strategy: Prevent inconsistency issue in most cases and avoid overloading master node | Overhead of reading cache before database
+//|====================
+//
+//Details about option 3:
+//
+//* Write Steps
+//
+//** Write to the master node
+//** Generate a cache key with the following format "db:table:PK" by aggregating db, table name and id
+//** Write to a cache and set the entry expiration time as the synchronization latency. e.g. 500 _ms_.
+//
+//* Read Steps
+//** Use the same step to generate the cache key
+//** When hitting a cache, read the data from master node
+//** Otherwise, read the data from other nodes
 
 [#capacity]
 === Capacity Planning
 
-Assuming that we have two
+Based on discussion in <<system-requirements>>, the expected size of dataset is *O(1 TB)*.
+In the recommended capacity plan <<ignite_capacity>>, we assume that 30% of index capacity and 33% of data stored in RAM.
+We propose to use 2 backup copies in addition to primary one so that 3-AZ region could be covered.
+We enable native persistence and assume the SSD over-provisioning rate is 100%.
 
-* Modify data routing configuration
+NOTE: The plan is subject to change when more data points are collected.
+
+The required data capacity in RAM is as follows:
+[width="100%",options="header"]
+|====================
+|Required data capacity (GB)|Value
+|Raw data | 1,000
+|Primary data capacity | 1,350
+|Total data capacity with backups | 4,050
+|Total RAM capacity needed | 1,337
+|====================
+
+The required data capacity in disk is as follows:
+[width="100%",options="header"]
+|====================
+|Required data capacity (GB)|Value
+|Raw data | 4,050
+|Total disk capacity needed| 6,885
+|====================
+
+The following table lists the number of required servers/machines with a few sample server configurations:
+[width="100%",options="header"]
+|====================
+|Cores| RAM (GB) | Disk(GB) | Number of Required Servers
+|16 | 128 | 1,200 (2 x 600 NVMe SSD) | 12
+|32 | 256 | 2,400 (4 x 600 NVMe SSD) | 6
+|48 | 384 | 3,600 (4 x 900 NVMe SSD) | 4
+|====================
 
 
 [bibliography]
@@ -642,3 +759,6 @@ Assuming that we have two
 - [[[scylla_data,13]]]Scaling Up versus Scaling Out:
 Mythbusting Database Deployment Options for Big Data https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf
 - [[[crossaz,14]]] Gridgain data center replication: https://www.gridgain.com/products/software/enterprise-edition/data-center-replication
+- [[[ignite_affinity_apis,15]]] Apache Ignite AffinityFunction: https://ignite.apache.org/releases/latest/javadoc/org/apache/ignite/cache/affinity/AffinityFunction.html
+- [[[ignite_replication,16]]] Apache Ignite Partitioning and Replication: https://apacheignite.readme.io/docs/cache-modes
+- [[[ignite_capacity,17]]] Apache Ignite Capacity Planning: https://apacheignite.readme.io/docs/capacity-planning
