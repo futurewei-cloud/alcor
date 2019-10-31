@@ -447,7 +447,7 @@ This could be countered by Ignite's in-memory capabilities and persistence model
 could be acknowledged right after the data reaches RAM and operation is recorded in write-ahead log.
 
 
-image::images/database.jpg["Database and Cache Architecture", width=1024, link="images/database.JPG"]
+image::images/database.JPG["Database and Cache Architecture", width=1024, link="images/database.JPG"]
 
 
 === Design Option: Single-AZ Architecture
@@ -481,9 +481,9 @@ Otherwise, latency increases as every call needs to go across AZ boundary.
 
 === Data Sharding
 
-As a result of the estimated throughput and storage size, a single machine (or even a partition with multiple replica) is
+As a result of the estimated throughput and storage size,
+a single machine (or even a partition with multiple replicas) is
 certainly unable to scale to the required high load.
-In order to scale
 
 scalability and reduced the impacted
 
@@ -579,7 +579,6 @@ Alcor Replication model
 
 === High availability
 
-* High availability
 * Fault tolerance with graceful disaster handling
 ** Capable of handling node outages and planned maintenance
 ** Zero downtime: keep the system as a whole running despite individual node failure
