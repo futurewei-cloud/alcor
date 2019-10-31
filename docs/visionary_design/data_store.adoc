@@ -16,11 +16,12 @@ v0.1, 2019-10-27
 Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
 The choice is not that obvious though.
 There are so many database and cache systems on the market with various characteristics as they are designed to
-meet different requirements by different applications.
+meet different requirements of different applications.
 
 In this design spec, we go through our system requirements including scalability, availability,
 durability, and performance.
-Secondly, we review existing distributed database and cache solutions, discuss their data model, license, community support and pros and cons.
+Secondly, we review existing distributed database and cache solutions,
+discuss their data model, license, and community support, and summarize the pros and cons of each solution.
 We then zoom in on selective databases and compare their features, characteristics and applicable applications.
 Based on the above information, we match our system requirements with the available solutions, and propose architectural design.
 
@@ -31,7 +32,6 @@ Based on the above information, we match our system requirements with the availa
 * Standalone without dependency on other data-center services
 * Horizontal scaling along with region expansion
 * Strong consistency and ACID transaction
-* Cross-DC and cross-AZ geo replication
 * High availability & Fault tolerance with graceful disaster handling
 * Highly performant for read heavy workload while maintaining low latency for writes
 * Support rolling upgrade without downtime
@@ -39,16 +39,16 @@ Based on the above information, we match our system requirements with the availa
 === Nice-to-have features
 * Built-in cache support
 * Scale to 100s nodes in one _database_ cluster in proven production environment
-* Cross-shard transaction (one applicable scenario is VPC peering when two VPCs could land on different data partitions).
-* In-memory processing capabilities
+* Cross-shard transaction (one applicable scenario is VPC peering when two VPCs could land on different data shards).
+* Cross-DC and cross-AZ geo replication
 * Support ANSI-99 SQL
 * Support collocated joins and non-collocated joins
-* Support secondary index
-* No warm-up time after cluster node restart
+* Support primary/secondary index
+* No need for warm-up time after cluster node restart
 * Event watches and leases
 
 === Throughput and Data Storage Requirements
-Note: The requirements given below are for VPC controller services.
+NOTE: The requirements given below are for VPC controller services.
 Similar analysis could be done for other controllers.
 
 * Traffic pattern
@@ -56,7 +56,7 @@ Similar analysis could be done for other controllers.
 
 * Throughput target for data storage subsystem
 ** The target is 1 million read/write operations per second.
-** Estimated size of a middle-sized region is 500K node with 100 ports per node with consideration of multi-port container and VMs.
+** Estimated size of a middle-sized region is 500,000 node with 100 ports per node with consideration of multi-port container and VMs.
 Thus, the estimated total number of ports is ~50 millions.
 ** The estimated number of port-related resources (e.g. security groups, ACL, routes, DNS records and subnets) is of the same magnitude.
 Doubling the port number would make the total number of network resources at *O*(100 millions).
@@ -68,7 +68,7 @@ which results in the estimated throughput of 1 million read/write operations per
 and customer-specified fields (e.g. security rules and routes).
 The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 ** On average, we look into the estimated size of *O*(10 _KB_) which could be subject to adjustment.
-** Given the estimated total number of resources at *O*(100 millions), we look into a system storage sized at about 1 _TB_.
+** Given the estimated total number of resources at *O*(100 millions), we look into a system storage size between 1 _TB_ and a few _TBs_.
 
 == Review of Distributed Databases
 
@@ -484,14 +484,8 @@ Otherwise, latency increases as every call needs to go across AZ boundary.
 As a result of the estimated throughput and storage size,
 a single machine (or even a partition with multiple replicas) is
 certainly unable to scale to the required high load.
-
-scalability and reduced the impacted
-
-Requirement:
-
-* Horizontal scaling along with region expansion
-* Strong consistency and ACID transaction
-
+To support horizontal scaling, the service-aware data sharding proposal here leverages a few useful Ignite features,
+such as customized affinity function and data collocation.
 
 ==== Per-Micro-Service Data Caching and Sharding
 
@@ -541,7 +535,7 @@ a|
 
 ==== Service-Managed Data Collocation
 
-In many cases when multiple cache keys are accessed together, control plane can have read/write performance gain
+In many cases when multiple cache keys are accessed together, control plane can have performance gain for both read and write
 if different cache keys are collocated on the same processing node.
 By doing so, we avoid costly network trips to fetch data from remote nodes.
 For example, we prefer to store a VPC and all of its subnets on the same nodes as they will be accessed pretty frequently.
@@ -600,7 +594,7 @@ It is optional, and when turned off,
 Ignite becomes a pure in-memory store and could work with many 3rd party databases such as RDBMS, HDFS and NoSQL.
 If turned on, Ignite serves as distributed database and cache at the same time.
 We opt in the native persistence to take advantage of many benefits brought by native persistence including running SQL queries
-on both memory and disk, and quick cluster (re)start without preloading data from the persistence into the memory.
+on both memory and disk, and quick cluster (re)start without preloading data from the disk into the memory.
 
 With the native persistence enabled, Ignite always stores a superset of data on disk,
 and as much as it can in RAM based on the capacity of the latter.
@@ -611,7 +605,7 @@ Both IDX and UUID parameters are calculated by Ignite automatically upon the nod
 
 === Data Replication Mode
 
-Data replication is very useful in terms of availability and performance with the following usage:
+Data replication is very useful on availability and performance with the following usage:
 
 - To increase availability and resilience
 - To keep data geographically close to the controller services thus reduce latency
@@ -708,7 +702,7 @@ As an example, the VPC cache configuration is set as follows:
 
 Based on discussion in <<system-requirements>>, the expected size of dataset is *O(1 TB)*.
 In the recommended capacity plan <<ignite_capacity>>, we assume that 30% of index capacity and 33% of data stored in RAM.
-We propose to use 2 backup copies in addition to primary one so that 3-AZ region could be covered.
+We propose to use 2 backup copies in addition to primary one so that a three-AZ region could be covered.
 We enable native persistence and assume the SSD over-provisioning rate is 100%.
 
 NOTE: The plan is subject to change when more data points are collected.
@@ -716,7 +710,7 @@ NOTE: The plan is subject to change when more data points are collected.
 The required data capacity in RAM is as follows:
 [width="100%",options="header"]
 |====================
-|Required data capacity (GB)|Value
+|Required data capacity|Value (GB)
 |Raw data | 1,000
 |Primary data capacity | 1,350
 |Total data capacity with backups | 4,050
@@ -726,7 +720,7 @@ The required data capacity in RAM is as follows:
 The required data capacity in disk is as follows:
 [width="100%",options="header"]
 |====================
-|Required data capacity (GB)|Value
+|Required data capacity|Value (GB)
 |Raw data | 4,050
 |Total disk capacity needed| 6,885
 |====================
@@ -755,7 +749,7 @@ The following table lists the number of required servers/machines with a few sam
 - [[[mongodb,9]]] MangoDB: https://www.mongodb.com/
 - [[[mangodb_compare, 10]]] Cassandra vs. MongoDB vs. Hbase: A Comparison of NoSQL Databases https://logz.io/blog/nosql-database-comparison/
 - [[[neo4j,11]]] Neo4j: http://neo4j.com
-- [[[ignite_cassandra,12]]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing (https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing)
+- [[[ignite_cassandra,12]]] Apache Ignite and Apache Cassandra Benchmarks: The Power of In-Memory Computing https://www.gridgain.com/resources/blog/apacher-ignitetm-and-apacher-cassandratm-benchmarks-power-in-memory-computing
 - [[[scylla_data,13]]]Scaling Up versus Scaling Out:
 Mythbusting Database Deployment Options for Big Data https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf https://www.scylladb.com/wp-content/uploads/wp-scaling-up-vs-scaling-out.pdf
 - [[[crossaz,14]]] Gridgain data center replication: https://www.gridgain.com/products/software/enterprise-edition/data-center-replication
