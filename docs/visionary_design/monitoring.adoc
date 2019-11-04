@@ -6,9 +6,9 @@
 |System Monitoring and Failure Detection|@er1cthe0ne|0.1
 |====================
 
-== Introduction
+// == Introduction
 
-TBD...
+// TBD...
 
 == Architecture
 
@@ -40,9 +40,12 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 * Data Plane Health from TransitD for transit switch and router
 * Host Machine Health, host networking stack/interface/utilization
 * Tenant VMs/Containers Health
-* Controller health
-** controller should sent heart beats to Prometheus
 
+== Open Questions
+
+* What kinds of metrix to collect on the host machine?
+* What is the amount and frequency of data (in MB) to be collected and stored on Host Netdata?
+* What is the amount and frequency of data (in MB) to be sent to Prometheus?
 
 == Proposed Changes
 
