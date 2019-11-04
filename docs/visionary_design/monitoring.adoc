@@ -20,20 +20,46 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 
 === Netdata
 
+Netdata<<netdata,1>> is distributed, real-time, performance and health monitoring for systems and applications. It is a highly optimized monitoring agent you install on all your systems and containers.
+
+Netdata provides unparalleled insights, in real-time, of everything happening on the systems it runs (including web servers, databases, applications), using highly interactive web dashboards. It can run autonomously, without any third party components, or it can be integrated to existing monitoring tool chains (Prometheus, Graphite, OpenTSDB, Kafka, Grafana, etc).
+
+Netdata is fast and efficient, designed to permanently run on all systems (physical & virtual servers, containers, IoT devices), without disrupting their core function.
+
+Netdata is free, open-source software and it currently runs on Linux, FreeBSD, and MacOS. Windows support is on the roadmap and not yet available.
+
 === Prometheus
 
-* Short introduction...
-* How to
+Prometheus<<prometheus,2>> is an open-source systems monitoring and alerting toolkit originally built at SoundCloud. Since its inception in 2012, many companies and organizations have adopted Prometheus, and the project has a very active developer and user community. It is now a standalone open source project and maintained independently of any company. To emphasize this, and to clarify the project's governance structure, Prometheus joined the Cloud Native Computing Foundation in 2016 as the second hosted project, after Kubernetes.
+
+Prometheus's main features are:
+
+* a multi-dimensional data model with time series data identified by metric name and key/value pairs
+* PromQL, a flexible query language to leverage this dimensionality
+* no reliance on distributed storage; single server nodes are autonomous
+* time series collection happens via a pull model over HTTP
+* pushing time series is supported via an intermediary gateway
+* targets are discovered via service discovery or static configuration
+* multiple modes of graphing and dashboarding support
 
 === Grafana
 
-* Short introduction...
-* How to set up DataSource and Dashboard....
-* Some beautiful Grafana diagram as an example...
+Grafana<<grafana,3>>  is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
+
+See https://grafana.com/grafana/ for some beautiful Grafana diagram examples.
 
 == Design
 
-* Host Netdata Health
+The highlevel design is to have a decentralized data collection and processing engine, named Host Netdata (based on Netdata<<netdata,1>>), running on each compute host. The Host Netdata is responsible to:
+* heartbeat with node manager
+* collect all the interesting local metrix
+* quickly analyze it for clear problems (like ACA went down)
+* raise alarm to node manager on clear problems
+* digest and archive data into prometheus
+
+=== Host Netdata Health
+As Host Netdata became the decentralized monitoring engine which can efficiently collect, process data and provide clear and actionable alarm. It can also became the signal point of failure on our monitoring plane and block all the host data processing when Host Netdata goes offline or when host machine goes down. We need a strong mechanism to ensure its liveliness. There will be two heartbeat paths:
+
 ** what happen if Host machine goes down? 
 ** Need to leverage Prometheus for host heart beat 
 * Host Agents Health 
@@ -64,3 +90,12 @@ The System Monitoring and Failure Detection system would requires the following 
 |4|E2E latency measurement for monitoring plane|P0|
 |5|Performance test to get scalability limit for monitoring data|P1|
 |====================
+
+[bibliography]
+== References
+
+- [[netdata]] What is Netdata: https://docs.netdata.cloud/docs/what-is-netdata/
+
+- [[prometheus]] What is prometheus: https://prometheus.io/docs/introduction/overview/
+
+- [[grafana]] What is grafana: https://grafana.com/docs/v4.3/
