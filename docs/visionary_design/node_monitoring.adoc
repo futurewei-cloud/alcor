@@ -6,9 +6,9 @@
 |Node Monitoring|@er1cthe0ne|0.1
 |====================
 
-== Introduction
+// == Introduction
 
-TBD...
+// TBD...
 
 == Architectural
 
@@ -16,7 +16,8 @@ TBD...
 
 == Node Health Model
 
-* Agent health (heartbeat?)
+* Agent health and heartbeats
+** All Host Agents (e.g. ACA, ELB, Compute, etc...) will send heartbeat to Host Netdata every second, Host Netdata will setup alarm and notify node manager for issues. Host Netdata will also send heartbeat to node manager which contains all the heartbeat data of all Host Agents (in bit map). Host Netdata will then archive the data to prometheus for longer term storage and viewing in Grafana.
 
 == Detection and Handling of Node Failure
 
@@ -37,8 +38,8 @@ The Node Monitoring system would requires the following changes:
 [width="100%",options="header"]
 |====================
 |Index|Feature Description|Priority|Note
-|1|Netdata research and investigation |P0|
-|2|Netdata implementation .3+^.^|P0|
+|1|Node Monitoring research and investigation |P0|
+|2|Node Monitoring implementation .3+^.^|P0|
 |2.1|work item 1|
 |2.2|work item 2|
 |3|Update Node Manager .3+^.^|P0|
