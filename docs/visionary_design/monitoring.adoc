@@ -33,20 +33,20 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 
 == Design
 
-* Host Agents Health
+* Host Netdata Health
+** what happen if Host machine goes down? 
+** Need to leverage Prometheus for host heart beat 
+* Host Agents Health 
 * Data Plane Health from TransitD for transit switch and router
 * Host Machine Health, host networking stack/interface/utilization
 * Tenant VMs/Containers Health
-* What happen if Host Netdata or the Host machine goes down? Need to leverage Prometheus for host heart beat 
-
-//=== Controller health
-
-//controller should sent heart beats to Prometheus
+* Controller health
+** controller should sent heart beats to Prometheus
 
 
 == Proposed Changes
 
-The control plane rescue path would requires the following changes:
+The System Monitoring and Failure Detection system would requires the following changes:
 
 [width="100%",options="header"]
 |====================
