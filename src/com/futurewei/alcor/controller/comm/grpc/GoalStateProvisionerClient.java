@@ -46,6 +46,11 @@ public class GoalStateProvisionerClient {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return;
         }
+        logger.info("Message total operation time: " + response.getMessageTotalOperationTime());
         logger.info("Goal state operation status counts: " + response.getOperationStatusesCount());
+
+        for (int i = 0; i < response.getOperationStatusesCount(); i++) {
+            logger.info("GS #" + i + ":" + response.getOperationStatuses(i));
+        }
     }
 }
