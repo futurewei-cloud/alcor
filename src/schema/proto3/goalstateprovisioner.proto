@@ -37,7 +37,10 @@ message GoalStateOperationReply {
 
    repeated GoalStateOperationStatus operation_statuses = 1;    
 
-   // total time taken (in nanoseconds) to update this goal state configurations
+   // Total operation time (in nanoseconds)
+   //    1. to process the message (consisting of multiple operations)
+   //    2. to program data plane
+   // Note: The list of operation_statuses details the time spent at each operation
    uint32 message_total_operation_time = 2;
 
    message GoalStateOperationStatus {
