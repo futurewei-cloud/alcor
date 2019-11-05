@@ -21,17 +21,19 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 
 === Netdata
 
-Netdata <<Netdata>> is distributed, real-time, performance and health monitoring for systems and applications. It is a highly optimized monitoring agent you install on all your systems and containers.
+"Netdata is distributed, real-time, performance and health monitoring for systems and applications. It is a highly optimized monitoring agent you install on all your systems and containers.
 
 Netdata provides unparalleled insights, in real-time, of everything happening on the systems it runs (including web servers, databases, applications), using highly interactive web dashboards. It can run autonomously, without any third party components, or it can be integrated to existing monitoring tool chains (Prometheus, Graphite, OpenTSDB, Kafka, Grafana, etc).
 
 Netdata is fast and efficient, designed to permanently run on all systems (physical & virtual servers, containers, IoT devices), without disrupting their core function.
 
-Netdata is free, open-source software and it currently runs on Linux, FreeBSD, and MacOS. Windows support is on the roadmap and not yet available.
+Netdata is free, open-source software and it currently runs on Linux, FreeBSD, and MacOS." <<Netdata>>
+
+Windows support is on the roadmap and not yet available.
 
 === Prometheus
 
-Prometheus <<Prometheus>> is an open-source systems monitoring and alerting toolkit originally built at SoundCloud. Since its inception in 2012, many companies and organizations have adopted Prometheus, and the project has a very active developer and user community. It is now a standalone open source project and maintained independently of any company. To emphasize this, and to clarify the project's governance structure, Prometheus joined the Cloud Native Computing Foundation in 2016 as the second hosted project, after Kubernetes.
+"Prometheus is an open-source systems monitoring and alerting toolkit originally built at SoundCloud. Since its inception in 2012, many companies and organizations have adopted Prometheus, and the project has a very active developer and user community. It is now a standalone open source project and maintained independently of any company. To emphasize this, and to clarify the project's governance structure, Prometheus joined the Cloud Native Computing Foundation in 2016 as the second hosted project, after Kubernetes.
 
 Prometheus's main features are:
 
@@ -41,11 +43,11 @@ Prometheus's main features are:
 * time series collection happens via a pull model over HTTP
 * pushing time series is supported via an intermediary gateway
 * targets are discovered via service discovery or static configuration
-* multiple modes of graphing and dashboarding support
+* multiple modes of graphing and dashboarding support" <<Prometheus>>
 
 === Grafana
 
-Grafana <<Grafana>> is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
+"Grafana is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control." <<Grafana>>
 
 See https://grafana.com/grafana/ for some beautiful Grafana diagram examples.
 
@@ -61,23 +63,25 @@ The high-level design is to have a decentralized data collection and processing 
 
 === Host Agents and Netdata Health
 
-As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager. It can also become the single point of failure on our monitoring plane and block all the host data processing when Host Netdata goes offline or when host machine goes down. A strong mechanism is needed to ensure its liveliness. There will be two heartbeat paths:
+As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager. It can also becomes the single point of failure on monitoring plane and block all host data processing when Host Netdata goes offline or when host machine goes down. A liveliness guarantee system is needed. There will be two heartbeat paths:
 
-1. Host Netdata heartbeat to node manage freqently (e.g. every a few seconds) through gRPC or Kafka
-2. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds)
+1. Host Netdata will monitor all Host Agents heartbeat very second, notify node manager directly through gRPC if there is issue with one or more Host Agent.
+2. Host Netdata heartbeat to node manager freqently (e.g. every a few seconds) through gRPC or Kafka.
+3. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds) for longer term storage and viewing in Grafana.
 
-NOTE: Two paths above will contain both heartbeat data from Host Netdata, and heartbeat data from all Host Agents (e.g. ACA, ELB, Compute, etc...)
+NOTE: 2 and 3 above will contain both heartbeat data from Host Netdata, and heartbeat data from all Host Agents (e.g. ACA, ELB, Compute, etc...) in bitmap format to minimize data and storage size.
 
 === Host Machine Health
 
 Host Netdata will collect host machine networking health data like physical NIC bandwidth, and host network stack health and utilization.
-Host netdata will perform quick data analysis for obvious issue like transit switch is maxed out on physical NIC bandwidth. It will notifiy node manager on clear and actionable alarms. All the local metrix will be digested (e.g. sum, average) and archive to prometheus.
+
+Host Netdata will perform quick data analysis for obvious issue like physical NIC bandwidth maxed out. It will notifiy node manager on clear and actionable alarms. All the local metrix will be digested (e.g. sum, average) and archive to prometheus.
 
 Host Netdata can also collect other host machine health including CPU and memory usage, that is not limited to the scope of networking.
 
 === Data-Plane Health
 
-Transit daemon metrix for transit switch and transit router
+Host Netdata will also monitor the Data-Plane health. For Mizar data plane, a new Netdata plugin will be used to pull data from Transit daemon for transit switch and transit router metrix. For obvious issue like transit switch is overloaded, it will notify VPC manager directly through gRPC to correct the issue. All remaining data will be archived to prometheus for deeper analysis.
 
 === Tenant VMs/Containers Health
 
