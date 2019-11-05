@@ -17,6 +17,7 @@ public class GoalStateProvisionerClient {
 
     private final ManagedChannel channel;
     private final GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub;
+    private final GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub;
 
     /** Construct client connecting to GoalStateProvisioner server at {@code host:port}. */
     public GoalStateProvisionerClient(String host, int port) {
@@ -29,6 +30,7 @@ public class GoalStateProvisionerClient {
     GoalStateProvisionerClient(ManagedChannel channel) {
         this.channel = channel;
         blockingStub = GoalStateProvisionerGrpc.newBlockingStub(channel);
+        asyncStub = GoalStateProvisionerGrpc.newStub(channel);
     }
 
     public void shutdown() throws InterruptedException {
