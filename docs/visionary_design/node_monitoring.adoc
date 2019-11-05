@@ -49,7 +49,15 @@ families: *
 == Detection and Recovery of Resource Provisioning Failure
 
 * VPC/Subnet/Port/Security Group etc..
-* What happen if dataplane programming failed? The error will propagate back to VPC controller and it should notify compute about the VM/Container setup failure. Compute should move on and pick another host. 
+* What happen if dataplane programming failed? The error will propagate back to VPC controller and it should notify compute about the VM/Container setup failure. Compute should move on and pick another host.
+
+== Tenant VMs/Containers Health
+
+Tenant VMs/Containers Health will be monitored in two ways:
+
+1. The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused). This is linux runtime dependent and does not require customer opt-in. This data can be streamed to host netdata without customer involvement.
+
+2. Customer can opt-into a 3rd party monitoring solution or opt into our Netdata solution. Once they enable Netdata for VM/container monitoring, the tenant Netdata will stream data to host netdata for quick analysis and archive to prometheus.
 
 // == Summary
 
