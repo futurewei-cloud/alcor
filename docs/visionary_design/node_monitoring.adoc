@@ -1,4 +1,5 @@
 = Node Monitoring
+:toc: right
 
 [width="100%",options="header"]
 |====================
@@ -17,19 +18,36 @@
 == Node Health Model
 
 * Agent health and heartbeats
-** All Host Agents (e.g. ACA, ELB, Compute, etc...) will send heartbeat to Host Netdata every second, Host Netdata will setup alarm and notify node manager for issues.
-** Host Netdata will also send heartbeat to node manager which contains all the heartbeat data of all Host Agents (in bit map). Host Netdata will then archive the data to prometheus for longer term storage and viewing in Grafana.
+1. Host Netdata will monitor all Host Agents heartbeat very second, notify node manager directly through gRPC if there is issue with one or more Host Agent.
+2. Host Netdata heartbeat to node manager freqently (e.g. every a few seconds) through gRPC or Kafka.
+3. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds) for longer term storage and viewing in Grafana.
 
-Option 1: Configure NetData to monitor target processes (configuration file needed)
-Option 2: Plug in Monit as a process monitoring agent
+* Option 1: Configure Netdata to monitor target processes, below is a sample configuration file
+[source]
+------------------------------------------------------------
+template: aca_running
+families: *
+      on: apps.processes
+  lookup: min -1s unaligned of kubelet
+   units: processes
+   every: 1s
+    crit: $this == nan
+    info: check if aca is running
+   delay: down 5s multiplier 2 max 10m
+      to: sysadmin
+------------------------------------------------------------
+
+* Option 2: use Monit as process monitoring manager, use the available Monit plugin from Netdata to pull data from Monit.
+** Monit can provide a more powerful and richer capability to launch/monitor/relanch process/daemon.
 
 == Detection and Handling of Node Failure
 
-* Key workflow
+* Key workflow between different components
 
 == Detection and Recovery of Resource Provisioning Failure
 
 * VPC/Subnet/Port/Security Group etc..
+* What happen if dataplane programming failed? The error will propagate back to VPC controller and it should notify compute about the VM/Container setup failure. Compute should move on and pick another host. 
 
 // == Summary
 
