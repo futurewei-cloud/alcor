@@ -51,6 +51,7 @@ See https://grafana.com/grafana/ for some beautiful Grafana diagram examples.
 == Design
 
 The highlevel design is to have a decentralized data collection and processing engine, named Host Netdata (based on Netdata<<netdata,1>>), running on each compute host. The Host Netdata is responsible to:
+
 * heartbeat with node manager
 * collect all the interesting local metrix
 * quickly analyze it for clear problems (like ACA went down)
