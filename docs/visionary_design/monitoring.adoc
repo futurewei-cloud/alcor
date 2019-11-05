@@ -86,7 +86,7 @@ Tenant VMs/Containers Health will be monitored in two ways:
 * What kinds of metrix to collect on the host machine?
 * What is the amount and frequency of data (in MB) to be collected and stored on Host Netdata?
 * What is the amount and frequency of data (in MB) to be sent to Prometheus?
-* Need to figure out to collect health data from VM/Container runtime.
+* Need to figure out how to collect health data from VM/Container runtime.
 
 == Proposed Changes
 
