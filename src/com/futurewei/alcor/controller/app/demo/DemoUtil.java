@@ -1,6 +1,6 @@
 package com.futurewei.alcor.controller.app.demo;
 
-import com.futurewei.alcor.controller.comm.fastpath.GoalStateProvisionerClient;
+import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alcor.controller.comm.message.MessageClient;

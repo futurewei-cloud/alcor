@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.comm.fastpath;
+package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
