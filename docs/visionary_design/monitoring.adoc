@@ -44,7 +44,7 @@ Prometheus's main features are:
 
 === Grafana
 
-Grafana<<grafana,3>>  is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
+Grafana<<grafana,3>> is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
 
 See https://grafana.com/grafana/ for some beautiful Grafana diagram examples.
 
@@ -54,25 +54,39 @@ The highlevel design is to have a decentralized data collection and processing e
 
 * heartbeat with node manager
 * collect all the interesting local metrix
-* quickly analyze it for clear problems (like ACA went down)
-* raise alarm to node manager on clear problems
+* quickly analyze local data for clear issues (like ACA went down)
+* raise alarm to node manager on definite problems
 * digest and archive data into prometheus
 
 === Host Netdata Health
-As Host Netdata became the decentralized monitoring engine which can efficiently collect, process data and provide clear and actionable alarm. It can also became the signal point of failure on our monitoring plane and block all the host data processing when Host Netdata goes offline or when host machine goes down. We need a strong mechanism to ensure its liveliness. There will be two heartbeat paths:
 
-** what happen if Host machine goes down? 
-** Need to leverage Prometheus for host heart beat 
-* Host Agents Health 
-* Data Plane Health from TransitD for transit switch and router
-* Host Machine Health, host networking stack/interface/utilization
-* Tenant VMs/Containers Health
+As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager. It can also become the single point of failure on our monitoring plane and block all the host data processing when Host Netdata goes offline or when host machine goes down. A strong mechanism is needed to ensure its liveliness. There will be two heartbeat paths:
+
+1. Host Netdata heartbeat to node manage freqently (e.g. every 2 to 5 seconds) through gRPC or Kafka
+2. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds)
+
+* Note that both path will contain heartbeat data from Host Netdata, and also heartbeat data from all Host Agents (e.g. ACA, ELB, Compute, etc...) 
+
+=== Host Machine Health
+
+Host Netdata will collect host machine networking health data like physical NIC bandwidth, host network stack health and utilization, and transit daemon metrix for transit switch and transit router. Host netdata will perform quick data analysis for obvious issue like transit switch is maxed out on physical NIC bandwidth. It will notifiy node manager on clear and actionable alarms. All the local metrix will be digested (e.g. sum, average) and archive to prometheus.
+
+Host Netdata can also collect other host machine health including CPU and memory usage, that not limited to the scope of networking.
+
+=== Tenant VMs/Containers Health
+
+Tenant VMs/Containers Health will be monitored in two ways:
+
+1. The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused). This is runtime dependent and does not require customer opt-in. This data can be shared to host netdata without customer involvement.
+
+2. Customer can opt-into an 3rd party monitoring solution or opt-into our netdata solution. Once they enable netdata for VM/container monitoring, the tenant netdata will stream data to host netdata for quick analysis and archive to prometheus.
 
 == Open Questions
 
 * What kinds of metrix to collect on the host machine?
 * What is the amount and frequency of data (in MB) to be collected and stored on Host Netdata?
 * What is the amount and frequency of data (in MB) to be sent to Prometheus?
+* Need to figure out to collect health data from VM/Container runtime.
 
 == Proposed Changes
 
