@@ -1,4 +1,5 @@
 = System Monitoring and Failure Detection
+:toc: right
 
 [width="100%",options="header"]
 |====================
