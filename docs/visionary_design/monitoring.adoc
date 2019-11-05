@@ -20,7 +20,7 @@ image::images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, 
 
 === Netdata
 
-Netdata <<netdata>> is distributed, real-time, performance and health monitoring for systems and applications. It is a highly optimized monitoring agent you install on all your systems and containers.
+<<Netdata>> is distributed, real-time, performance and health monitoring for systems and applications. It is a highly optimized monitoring agent you install on all your systems and containers.
 
 Netdata provides unparalleled insights, in real-time, of everything happening on the systems it runs (including web servers, databases, applications), using highly interactive web dashboards. It can run autonomously, without any third party components, or it can be integrated to existing monitoring tool chains (Prometheus, Graphite, OpenTSDB, Kafka, Grafana, etc).
 
@@ -30,7 +30,7 @@ Netdata is free, open-source software and it currently runs on Linux, FreeBSD, a
 
 === Prometheus
 
-Prometheus <<prometheus>> is an open-source systems monitoring and alerting toolkit originally built at SoundCloud. Since its inception in 2012, many companies and organizations have adopted Prometheus, and the project has a very active developer and user community. It is now a standalone open source project and maintained independently of any company. To emphasize this, and to clarify the project's governance structure, Prometheus joined the Cloud Native Computing Foundation in 2016 as the second hosted project, after Kubernetes.
+<<Prometheus>> is an open-source systems monitoring and alerting toolkit originally built at SoundCloud. Since its inception in 2012, many companies and organizations have adopted Prometheus, and the project has a very active developer and user community. It is now a standalone open source project and maintained independently of any company. To emphasize this, and to clarify the project's governance structure, Prometheus joined the Cloud Native Computing Foundation in 2016 as the second hosted project, after Kubernetes.
 
 Prometheus's main features are:
 
@@ -44,13 +44,13 @@ Prometheus's main features are:
 
 === Grafana
 
-Grafana <<grafana>> is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
+<<Grafana>> is an open source metric analytics & visualization suite. It is most commonly used for visualizing time series data for infrastructure and application analytics but many use it in other domains including industrial sensors, home automation, weather, and process control.
 
 See https://grafana.com/grafana/ for some beautiful Grafana diagram examples.
 
 == Design
 
-The highlevel design is to have a decentralized data collection and processing engine, named Host Netdata (based on Netdata <<netdata>>), running on each compute host. The Host Netdata is responsible to:
+The highlevel design is to have a decentralized data collection and processing engine, named Host Netdata (based on <<Netdata>>), running on each compute host. The Host Netdata is responsible to:
 
 * heartbeat with node manager
 * collect all the interesting local metrix
@@ -71,13 +71,13 @@ As Host Netdata becomes the decentralized monitoring engine which can efficientl
 
 Host Netdata will collect host machine networking health data like physical NIC bandwidth, host network stack health and utilization, and transit daemon metrix for transit switch and transit router. Host netdata will perform quick data analysis for obvious issue like transit switch is maxed out on physical NIC bandwidth. It will notifiy node manager on clear and actionable alarms. All the local metrix will be digested (e.g. sum, average) and archive to prometheus.
 
-Host Netdata can also collect other host machine health including CPU and memory usage, that not limited to the scope of networking.
+Host Netdata can also collect other host machine health including CPU and memory usage, that is not limited to the scope of networking.
 
 === Tenant VMs/Containers Health
 
 Tenant VMs/Containers Health will be monitored in two ways:
 
-1. The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused). This is runtime dependent and does not require customer opt-in. This data can be shared to host netdata without customer involvement.
+1. The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused). This is linux runtime dependent and does not require customer opt-in. This data can be streamed to host netdata without customer involvement.
 
 2. Customer can opt-into an 3rd party monitoring solution or opt-into our netdata solution. Once they enable netdata for VM/container monitoring, the tenant netdata will stream data to host netdata for quick analysis and archive to prometheus.
 
@@ -109,8 +109,8 @@ The System Monitoring and Failure Detection system would requires the following 
 [bibliography]
 == References
 
-- [[[netdata,1]]] What is Netdata: https://docs.netdata.cloud/docs/what-is-netdata/
+- [[[Netdata]]]: https://docs.netdata.cloud/docs/what-is-netdata/
 
-- [[[prometheus,2]]] What is prometheus: https://prometheus.io/docs/introduction/overview/
+- [[[Prometheus]]]: https://prometheus.io/docs/introduction/overview/
 
-- [[[grafana,3]]] What is grafana: https://grafana.com/docs/v4.3/
+- [[[Grafana]]]: https://grafana.com/docs/v4.3/
