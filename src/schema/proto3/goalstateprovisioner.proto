@@ -18,9 +18,8 @@ service GoalStateProvisioner {
    //       Use RetrieveNetworkResourceStates for state query.
    rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
 
-
-   // Retrieve a group of network resource states (stored as a GoalState object)
-   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (GoalState) {}
+   // Retrieve a group of network resource states (stored as a steam of GoalState objects)
+   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (stream GoalState) {}
 }
 
 message GoalStateRequest {
@@ -28,8 +27,8 @@ message GoalStateRequest {
    repeated ResourceStateRequest state_requests = 1;
 
    message ResourceStateRequest {
-	string resource_id = 1;
-	ResourceType resource_type = 2;
+    string resource_id = 1;
+    ResourceType resource_type = 2;
    }
 }
 
@@ -44,12 +43,12 @@ message GoalStateOperationReply {
    uint32 message_total_operation_time = 2;
 
    message GoalStateOperationStatus {
-	string resource_id = 1;
-	ResourceType resource_type = 2;
-	OperationType operation_type = 3;
-	OperationStatus operation_status = 4;
-	uint32 dataplane_programming_time = 5;
-	uint32 network_configuration_time = 6;    
-	uint32 state_elapse_time = 7;
+    string resource_id = 1;
+    ResourceType resource_type = 2;
+    OperationType operation_type = 3;
+    OperationStatus operation_status = 4;
+    uint32 dataplane_programming_time = 5;
+    uint32 network_configuration_time = 6;
+    uint32 state_elapse_time = 7;
    }
 }
