@@ -50,6 +50,7 @@ public class GoalStateProvisionerServer {
             server.awaitTermination();
         }
     }
+
     static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         @Override
