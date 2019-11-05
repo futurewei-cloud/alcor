@@ -62,7 +62,7 @@ public class DemoConfig {
     public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,20};
     public static String TRANSIT_ROUTER_2_MAC = "02:42:ac:11:00:14";
 
-    public static String VNET_NAME = "veth0";
+    public static String VETH_NAME = "veth0";
 
     public static String EP1_ID = "ephost_1";
     public static byte[] EP1_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,7};
