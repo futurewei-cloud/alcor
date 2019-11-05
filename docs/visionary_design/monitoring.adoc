@@ -63,7 +63,7 @@ The high-level design is to have a decentralized data collection and processing 
 
 === Host Agents and Netdata Health
 
-As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager. It can also becomes the single point of failure on monitoring plane and block all host data processing when Host Netdata goes offline or when host machine goes down. A liveliness guarantee system is needed. There will be two heartbeat paths:
+As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager. It can also becomes the single point of failure on monitoring plane and block all host data processing when Host Netdata goes offline or when host machine goes down. A liveliness guarantee system is needed. There will be multiple heartbeat paths:
 
 1. Host Netdata will monitor all Host Agents heartbeat very second, notify node manager directly through gRPC if there is issue with one or more Host Agent.
 2. Host Netdata heartbeat to node manager freqently (e.g. every a few seconds) through gRPC or Kafka.
