@@ -10,14 +10,18 @@
 
 // TBD...
 
-== Architectural
+== Architectural Design
 
 * Architectural diagram
 
 == Node Health Model
 
 * Agent health and heartbeats
-** All Host Agents (e.g. ACA, ELB, Compute, etc...) will send heartbeat to Host Netdata every second, Host Netdata will setup alarm and notify node manager for issues. Host Netdata will also send heartbeat to node manager which contains all the heartbeat data of all Host Agents (in bit map). Host Netdata will then archive the data to prometheus for longer term storage and viewing in Grafana.
+** All Host Agents (e.g. ACA, ELB, Compute, etc...) will send heartbeat to Host Netdata every second, Host Netdata will setup alarm and notify node manager for issues.
+** Host Netdata will also send heartbeat to node manager which contains all the heartbeat data of all Host Agents (in bit map). Host Netdata will then archive the data to prometheus for longer term storage and viewing in Grafana.
+
+Option 1: Configure NetData to monitor target processes (configuration file needed)
+Option 2: Plug in Monit as a process monitoring agent
 
 == Detection and Handling of Node Failure
 
