@@ -1,11 +1,5 @@
 = Alcor Regional Controller Design
 
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Alcor Regional Controller Design|@xieus|0.1
-|====================
-
 == Project Scope
 
 == Architecture

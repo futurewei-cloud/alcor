@@ -1,11 +1,5 @@
 = Controller Service Monitoring
 
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Controller Service Monitoring|@xieus, @er1cthe0ne|0.1
-|====================
-
 == Architectural Design
 
 * Architectural diagram

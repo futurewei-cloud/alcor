@@ -1,11 +1,5 @@
 # Alcor - A Hyperscale Cloud Virtual Networking Platform
 
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|High level design|@xieus|0.1
-|====================
-
 == Introduction
 
 Service mesh based architecture

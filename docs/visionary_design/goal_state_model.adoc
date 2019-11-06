@@ -1,11 +1,7 @@
 = Goal State Data Model
-
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Goal State Data Model|@xieus|0.1
-|====================
-
+Liguang Xie <lxie@futurewei.com>
+v0.1, 2019-10-15
+:toc: right
 
 === Service APIs
 

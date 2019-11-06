@@ -1,11 +1,7 @@
 = Node Monitoring
+Eric Li <eli1@futurewei.com>
+v0.1, 2019-11-01
 :toc: right
-
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Node Monitoring|@er1cthe0ne|0.1
-|====================
 
 // == Introduction
 
