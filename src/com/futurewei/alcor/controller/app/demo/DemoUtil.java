@@ -30,6 +30,7 @@ public class DemoUtil {
     private static String ep7Id = "38e45f95-5ea7-4d0a-9027-886febc27bdc";
     private static String ep8Id = "b81abf49-87ab-4a58-b457-93dc5a0dabac";
 
+    // Virtual network resources
     private static VpcState customerVpcState =
             new VpcState(projectId, vpcId,
                     "SuperVpc",
@@ -90,6 +91,7 @@ public class DemoUtil {
                     new String[]{"10.0.1.4"})
     };
 
+    // Physical network resources
     private static HostInfo[] transitRouterHosts = {
             new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
             new HostInfo("vpc1-transit-router2", "transit router2 host", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
