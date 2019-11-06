@@ -1,8 +1,7 @@
-package com.futurewei.alcor.controller.comm.fastpath;
+package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.schema.*;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
-import com.futurewei.alcor.controller.schema.*;
 import com.futurewei.alcor.controller.schema.Goalstate.*;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
 import io.grpc.Server;
@@ -51,6 +50,7 @@ public class GoalStateProvisionerServer {
             server.awaitTermination();
         }
     }
+
     static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         @Override

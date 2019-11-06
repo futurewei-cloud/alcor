@@ -1,8 +1,11 @@
 package com.futurewei.alcor.controller.app;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
+import com.futurewei.alcor.controller.model.HostInfo;
+import com.futurewei.alcor.controller.resourcemgr.physical.DataCenterConfigLoader;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +20,11 @@ public class AlcorControllerApp {
         System.out.println("Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
-        System.out.println("Bye from Alcor Controller!");
+        System.out.println("Bye from Alcor Controller!\n\n");
+
+        System.out.println("Loading node from config/machine.json");
+        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList(".\\config\\machine.json");
+        System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");
     }
 
     @Bean

@@ -163,12 +163,12 @@ public class MessageClientTest {
                 new PortState(projectId, subnet1Id, ep1Id,
                         DemoConfig.EP1_ID,
                         "0e:73:ae:c8:87:00",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
                         DemoConfig.EP2_ID,
                         "0e:73:ae:c8:87:01",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.2"})
         };
 
@@ -176,12 +176,12 @@ public class MessageClientTest {
                 new PortState(projectId, subnet2Id, ep3Id,
                         DemoConfig.EP5_ID,
                         "0e:73:ae:c8:87:04",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep4Id,
                         DemoConfig.EP6_ID,
                         "0e:73:ae:c8:87:05",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.2"})
         };
 
@@ -253,22 +253,22 @@ public class MessageClientTest {
                 new PortState(projectId, subnet1Id, ep1Id,
                         DemoConfig.EP1_ID,
                         "0e:73:ae:c8:87:00",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
                         DemoConfig.EP2_ID,
                         "0e:73:ae:c8:87:01",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.2"}),
                 new PortState(projectId, subnet1Id, ep3Id,
                         DemoConfig.EP3_ID,
                         "0e:73:ae:c8:87:02",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.3"}),
                 new PortState(projectId, subnet1Id, ep4Id,
                         DemoConfig.EP4_ID,
                         "0e:73:ae:c8:87:03",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.0.4"})
         };
 
@@ -276,22 +276,22 @@ public class MessageClientTest {
                 new PortState(projectId, subnet2Id, ep5Id,
                         DemoConfig.EP5_ID,
                         "0e:73:ae:c8:87:04",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep6Id,
                         DemoConfig.EP6_ID,
                         "0e:73:ae:c8:87:05",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.2"}),
                 new PortState(projectId, subnet2Id, ep7Id,
                         DemoConfig.EP7_ID,
                         "0e:73:ae:c8:87:06",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.3"}),
                 new PortState(projectId, subnet2Id, ep8Id,
                         DemoConfig.EP8_ID,
                         "0e:73:ae:c8:87:07",
-                        DemoConfig.VNET_NAME,
+                        DemoConfig.VETH_NAME,
                         new String[]{"10.0.1.4"})
         };
 

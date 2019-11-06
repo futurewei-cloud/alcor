@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.comm.fastpath;
+package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
 import com.futurewei.alcor.controller.schema.Goalstate.*;
@@ -17,6 +17,7 @@ public class GoalStateProvisionerClient {
 
     private final ManagedChannel channel;
     private final GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub;
+    private final GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub;
 
     /** Construct client connecting to GoalStateProvisioner server at {@code host:port}. */
     public GoalStateProvisionerClient(String host, int port) {
@@ -29,6 +30,7 @@ public class GoalStateProvisionerClient {
     GoalStateProvisionerClient(ManagedChannel channel) {
         this.channel = channel;
         blockingStub = GoalStateProvisionerGrpc.newBlockingStub(channel);
+        asyncStub = GoalStateProvisionerGrpc.newStub(channel);
     }
 
     public void shutdown() throws InterruptedException {
@@ -44,6 +46,11 @@ public class GoalStateProvisionerClient {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return;
         }
+        logger.info("Message total operation time: " + response.getMessageTotalOperationTime());
         logger.info("Goal state operation status counts: " + response.getOperationStatusesCount());
+
+        for (int i = 0; i < response.getOperationStatusesCount(); i++) {
+            logger.info("GS #" + i + ":" + response.getOperationStatuses(i));
+        }
     }
 }

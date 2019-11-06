@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.comm.fastpath;
+package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
@@ -48,7 +48,7 @@ public class GoalStateProvisionerClientTest {
         ManagedChannel channel = grpcCleanup.register(
                 InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
-        // Create a HelloWorldClient using the in-process channel;
+        // Create a client using the in-process channel;
         client = new GoalStateProvisionerClient(channel);
     }
 

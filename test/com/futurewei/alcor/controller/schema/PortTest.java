@@ -16,7 +16,7 @@ public class PortTest {
                 "89e72582-b4fc-4e4e-b46a-6eee650e03f5",
                 "ep1",
                 "fa:16:3e:d7:f0:00",
-                DemoConfig.VNET_NAME,
+                DemoConfig.VETH_NAME,
                 new String[]{"10.0.0.1"});
 
         HostInfo epHost = new HostInfo("host0", "ep1 host", new byte[]{127,0,0,1}, "fa:16:3e:d7:f1:00");
