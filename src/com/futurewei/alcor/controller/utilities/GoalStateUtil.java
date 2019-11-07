@@ -198,7 +198,7 @@ public class GoalStateUtil {
                         .setVpcId(vpcId)
                         .setSubnetId(subnetId)
                         .setIpAddress(customerSubnetState.getGatewayIp())
-                        .setMacAddress(""));
+                        .setMacAddress(DemoConfig.GATEWAY_MAC_ADDRESS));
 
         for(HostInfo switchHost : transitSwitchHosts){
             subnetConfiguration.addTransitSwitches(

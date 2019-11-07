@@ -67,6 +67,7 @@ public class DemoUtil {
         {
             if(isFastPath){
                 System.out.println("Send Subnet id :" + subnetState.getId() + " with fast path");
+                System.out.println("GS: " + gsVpcState.toString());
                 GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, transitSwitch.getGRPCServerPort());
                 gRpcClientForEpHost.PushNetworkResourceStates(gsVpcState);
             }
@@ -241,6 +242,10 @@ public class DemoUtil {
     }
 
     public static void AssignNodes(List<HostInfo> hosts){
+        for (int i = 0; i < hosts.size() ; i++) {
+            hosts.get(i).setGRPCServerPort(50001+i);
+        }
+
         DemoConfig.epHosts = new ArrayList<>(hosts);
     }
 

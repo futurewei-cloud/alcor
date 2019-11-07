@@ -137,6 +137,8 @@ public class DemoConfig {
     /////////////////////////////////
     // Physical network resources
     /////////////////////////////////
+    public static String GATEWAY_MAC_ADDRESS = "0e:73:ae:c8:FF:FF";
+
     public static String TRANSIT_SWTICH_1_HOST_ID = "switchhost_1";
     public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,15};
     public static String TRANSIT_SWITCH_1_MAC = "02:42:ac:11:00:0f";
