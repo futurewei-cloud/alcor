@@ -12,6 +12,11 @@ import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
+// NOTE: This file is only used for demo purpose.
+//       Please don't use it in production
 public class DemoUtil {
 
     public static void CreateSubnet(SubnetState subnetState){
@@ -32,11 +37,19 @@ public class DemoUtil {
 
             isFastPath = true;
         }
-        else{
+        else if ((subnetState.getId().equalsIgnoreCase(DemoConfig.subnet2Id))){
             transitSwitchHosts = new HostInfo[][] {
                     DemoConfig.transitSwitchHostsForSubnet2
             };
             customerSubnetState = new SubnetState(DemoConfig.customerSubnetState2);
+        }
+        else{
+            transitSwitchHosts = new HostInfo[][] {
+                    DemoConfig.transitSwitchHosts,
+            };
+            customerSubnetState = new SubnetState(DemoConfig.customerSubnetState);
+
+            isFastPath = true;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -72,8 +85,15 @@ public class DemoUtil {
                 transitSwitchHosts);
 
         for(HostInfo transitRouter : DemoConfig.transitRouterHosts){
-            String topic = DemoConfig.HOST_ID_PREFIX + transitRouter.getId();
-            client.runProducer(topic, gsSubnetState);
+            if(isFastPath){
+                System.out.println("Send VPC id :" + subnetState.getVpcId() + " with fast path");
+                GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, transitRouter.getGRPCServerPort());
+                gRpcClient.PushNetworkResourceStates(gsSubnetState);
+            }
+            else{
+                String topic = DemoConfig.HOST_ID_PREFIX + transitRouter.getId();
+                client.runProducer(topic, gsSubnetState);
+            }
         }
     }
 
@@ -92,9 +112,14 @@ public class DemoUtil {
             transitSwitchHostsForSubnet = DemoConfig.transitSwitchHostsForSubnet1;
             isFastPath = true;
         }
-        else{
+        else if (portState.getNetworkId().equalsIgnoreCase(DemoConfig.subnet2Id)){
             customerSubnetState = DemoConfig.customerSubnetState2;
             transitSwitchHostsForSubnet = DemoConfig.transitSwitchHostsForSubnet2;
+        }
+        else{
+            customerSubnetState = DemoConfig.customerSubnetState;
+            transitSwitchHostsForSubnet = DemoConfig.transitSwitchHosts;
+            isFastPath = true;
         }
 
         if(portState.getId().equalsIgnoreCase(DemoConfig.ep1Id)){
@@ -129,9 +154,16 @@ public class DemoUtil {
             customerPortState = DemoConfig.customerPortStateForSubnet2[2];
             epHost = DemoConfig.epHostForSubnet2[2];
         }
-        else{
+        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep8Id)){
             customerPortState = DemoConfig.customerPortStateForSubnet2[3];
             epHost = DemoConfig.epHostForSubnet2[3];
+        }
+        else{
+            System.out.println("EP host counter :" + DemoConfig.epHostCounter);
+
+            epHost = DemoConfig.epHosts.get(DemoConfig.epHostCounter);
+            customerPortState = DemoUtil.GeneretePortState(epHost, DemoConfig.epHostCounter);
+            DemoConfig.epHostCounter++;
         }
 
         GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, epHost.getGRPCServerPort());
@@ -206,6 +238,29 @@ public class DemoUtil {
         recordedTimeStamp[2] = System.nanoTime();
 
         return recordedTimeStamp;
+    }
+
+    public static void AssignNodes(List<HostInfo> hosts){
+        DemoConfig.epHosts = new ArrayList<>(hosts);
+    }
+
+    // This function generates port state solely based on the container host
+    public static PortState GeneretePortState(HostInfo hostInfo, int index){
+        return new PortState(DemoConfig.projectId,
+                DemoConfig.subnetId,
+                hostInfo.getId(),
+                hostInfo.getId(),
+                GenereateMacAddress(index),
+                DemoConfig.VETH_NAME,
+                new String[]{GenereateIpAddress(index)});
+    }
+
+    private static String GenereateMacAddress(int index){
+        return "0e:73:ae:c8:" + Integer.toHexString(index/256) + ":" + Integer.toHexString(index%256);
+    }
+
+    private static String GenereateIpAddress(int index){
+        return "10.0." + index/256 + "." + index%256;
     }
 
     public static void CreateSubnetLegacy(SubnetState subnetState, VpcState vpcState) {

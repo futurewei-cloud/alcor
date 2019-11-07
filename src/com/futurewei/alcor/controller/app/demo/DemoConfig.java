@@ -8,6 +8,7 @@ import com.futurewei.alcor.controller.model.VpcState;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
@@ -52,6 +53,8 @@ public class DemoConfig {
 
     public static String projectId = "dbf72700-5106-4a7a-918f-a016853911f8";
     public static String vpcId = "99d9d709-8478-4b46-9f3f-2206b1023fd3";
+    public static String subnetId = "9fd87d97-7164-4f6b-b116-e9fdf30c6339";
+
     public static String subnet1Id = "d973934b-93e8-42fa-ac91-bf0cdb84fffc";
     public static String subnet2Id = "8cb94df3-05bd-45d1-95c0-1ad75f929810";
     public static String ep1Id = "89e72582-b4fc-4e4e-b46a-6eee650e03f5";
@@ -67,6 +70,12 @@ public class DemoConfig {
             new VpcState(projectId, vpcId,
                     "SuperVpc",
                     "10.0.0.0/16");
+
+    // Large VPC
+    public static SubnetState customerSubnetState = new SubnetState(projectId, vpcId, subnetId,
+            "Subnet1",
+            "10.0.0.0/20",
+            "10.0.15.255");
 
     public static SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
             "Subnet1",
@@ -123,6 +132,8 @@ public class DemoConfig {
                     new String[]{"10.0.1.4"})
     };
 
+    public static List<PortState> customerPortStates;
+
     /////////////////////////////////
     // Physical network resources
     /////////////////////////////////
@@ -150,10 +161,10 @@ public class DemoConfig {
     public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,20};
     public static String TRANSIT_ROUTER_2_MAC = "02:42:ac:11:00:14";
 
-    public static HostInfo[] transitRouterHosts = {
-            new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
-            new HostInfo("vpc1-transit-router2", "transit router2 host", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
-    };
+//    public static HostInfo[] transitRouterHosts = {
+//            new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
+//            new HostInfo("vpc1-transit-router2", "transit router2 host", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
+//    };
 
     public static HostInfo[] transitSwitchHostsForSubnet1 = {
             new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC, DemoConfig.gRPCServerPortForSubnet1[4]),
@@ -163,6 +174,17 @@ public class DemoConfig {
     public static HostInfo[] transitSwitchHostsForSubnet2 = {
             new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
             new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
+    };
+
+    // Large VPC
+    public static HostInfo[] transitSwitchHosts = {
+            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(203-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cb", 50201),
+            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(204-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cc", 50202),
+            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(205-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cd", 50203)
+    };
+
+    public static HostInfo[] transitRouterHosts = {
+            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(206-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:ce", 50204)
     };
 
     public static String EP1_ID = "ephost_1";
@@ -210,4 +232,7 @@ public class DemoConfig {
             new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP7_HOST_IP, DemoConfig.EP7_HOST_MAC),
             new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP8_HOST_IP, DemoConfig.EP8_HOST_MAC),
     };
+
+    public static int epHostCounter = 0;
+    public static List<HostInfo> epHosts;
 }
