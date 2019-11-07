@@ -10,11 +10,14 @@ import com.futurewei.alcor.controller.exception.ParameterUnexpectedValueExceptio
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
 import com.futurewei.alcor.controller.model.PortState;
+import com.futurewei.alcor.controller.model.PortStateGroup;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -181,5 +184,38 @@ public class PortController {
         return portStates;
     }
 
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/portgroup"},
+            consumes="application/json",
+            produces="application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<PortState> createPortStates(@PathVariable String projectid, @RequestBody PortStateGroup resourceGroup) throws Exception {
+
+        long T0 = System.nanoTime();
+        List<PortState> response = new ArrayList<>();
+
+        try{
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyResourceFound(projectid);
+
+            List<PortState> portStates = resourceGroup.getPortStates();
+            for (PortState state : portStates) {
+                this.portRedisRepository.addItem(state);
+                response.add(state);
+            }
+            long T1 = System.nanoTime();
+
+            if(DemoConfig.IS_Demo) {
+//                long[] times = DemoUtil.CreatePort(resource);
+//                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
+            }
+        }
+        catch (Exception e){
+            throw e;
+        }
+
+        return response;
+    }
 
 }
