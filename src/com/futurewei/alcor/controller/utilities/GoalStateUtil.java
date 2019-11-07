@@ -108,6 +108,33 @@ public class GoalStateUtil {
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts,
             Common.OperationType portOption,
+            PortState[] customerPortStates,
+            HostInfo portHost)
+    {
+        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
+                subnetOption,
+                customerSubnetState,
+                transitSwitchHosts);
+
+        GoalState.Builder goalstate = GoalState.newBuilder().addSubnetStates(gsSubnetState);
+
+        for (int i = 0; i < customerPortStates.length; i++) {
+            final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
+                    portOption,
+                    customerPortStates[i],
+                    portHost);
+
+            goalstate.addPortStates(gsPortState);
+        }
+
+        return goalstate.build();
+    }
+
+    public static GoalState CreateGoalState(
+            Common.OperationType subnetOption,
+            SubnetState customerSubnetState,
+            HostInfo[] transitSwitchHosts,
+            Common.OperationType portOption,
             PortState customerPortState,
             HostInfo portHost)
     {

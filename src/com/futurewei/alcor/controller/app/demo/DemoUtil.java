@@ -4,16 +4,15 @@ import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alcor.controller.comm.message.MessageClient;
-import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.model.PortState;
-import com.futurewei.alcor.controller.model.SubnetState;
-import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.model.*;
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.customerPortStates;
 
 // NOTE: This file is only used for demo purpose.
 //       Please don't use it in production
@@ -96,6 +95,110 @@ public class DemoUtil {
                 client.runProducer(topic, gsSubnetState);
             }
         }
+    }
+
+    public static void CreatePortGroup(PortStateGroup portStateGroup){
+        List<PortState> portStates = portStateGroup.getPortStates();
+        int portCount = portStates.size();
+        int epHostCount = DemoConfig.epHosts.size();
+        int portCountPerHost = portCount/epHostCount;
+
+        for (int i = 0; i <epHostCount ; i++) {
+            DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
+        }
+    }
+
+    public static long[] CreatePorts(List<PortState> portStates, int hostIndex, int epStartIndex, int epEndIndex){
+
+        System.out.println("EP host index :" + hostIndex + "; EP start index: " + epStartIndex + "; end index: " + epEndIndex);
+        long[] recordedTimeStamp = new long[3];
+        boolean isFastPath = true; //portStates.get(0).isFastPath();
+
+        SubnetState customerSubnetState = DemoConfig.customerSubnetState;
+        HostInfo[] transitSwitchHostsForSubnet = DemoConfig.transitSwitchHosts;
+        PortState[] customerPortStates = new PortState[epEndIndex-epStartIndex];
+        HostInfo epHost = DemoConfig.epHosts.get(hostIndex);
+
+        for (int i = 0; i < epEndIndex-epStartIndex; i++) {
+            int epIndex = epStartIndex + i;
+            PortState customerPortState = DemoUtil.GeneretePortState(epHost, epIndex);
+            customerPortStates[i] = customerPortState;
+        }
+
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, epHost.getGRPCServerPort());
+        MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        String topicForEndpoint = DemoConfig.HOST_ID_PREFIX + epHost.getId();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 1: Go to EP host, update_endpoint
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.CREATE,
+                customerPortStates,
+                epHost);
+
+        if(isFastPath){
+            System.out.println("Sending " + customerPortStates.length + " ports with fast path");
+            System.out.println("Sending: " + gsPortState);
+            gRpcClientForEpHost.PushNetworkResourceStates(gsPortState);
+        }
+        else{
+            kafkaClient.runProducer(topicForEndpoint, gsPortState);
+        }
+
+        recordedTimeStamp[0] = System.nanoTime();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 2: Go to switch hosts in current subnet, update_ep and update_substrate
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsPortStateForSwitch = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.CREATE_UPDATE_SWITCH,
+                customerPortStates,
+                epHost);
+
+        for (HostInfo switchForSubnet : transitSwitchHostsForSubnet){
+            if(isFastPath){
+                System.out.println("Sending " + customerPortStates.length  + " ports to transit switch with fast path");
+                System.out.println("Sending: " + gsPortStateForSwitch);
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
+                gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
+            }
+            else{
+                String topicForSwitch = DemoConfig.HOST_ID_PREFIX + switchForSubnet.getId();
+                kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
+            }
+        }
+
+        recordedTimeStamp[1] = System.nanoTime();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 3: Go to EP host, update_agent_md and update_agent_ep
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsFinalizedPortState = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.FINALIZE,
+                customerPortStates,
+                epHost);
+
+        if(isFastPath){
+            System.out.println("Sending " + customerPortStates.length  + " with fast path");
+            gRpcClientForEpHost.PushNetworkResourceStates(gsFinalizedPortState);
+        }
+        else{
+            kafkaClient.runProducer(topicForEndpoint, gsFinalizedPortState);
+        }
+
+        recordedTimeStamp[2] = System.nanoTime();
+
+        return recordedTimeStamp;
     }
 
     public static long[] CreatePort(PortState portState){
@@ -250,14 +353,14 @@ public class DemoUtil {
     }
 
     // This function generates port state solely based on the container host
-    public static PortState GeneretePortState(HostInfo hostInfo, int index){
+    public static PortState GeneretePortState(HostInfo hostInfo, int epIndex){
         return new PortState(DemoConfig.projectId,
                 DemoConfig.subnetId,
-                hostInfo.getId(),
-                hostInfo.getId(),
-                GenereateMacAddress(index),
+                hostInfo.getId() + "_" + epIndex,
+                hostInfo.getId() + "_" + epIndex,
+                GenereateMacAddress(epIndex),
                 DemoConfig.VETH_NAME,
-                new String[]{GenereateIpAddress(index)});
+                new String[]{GenereateIpAddress(epIndex)});
     }
 
     private static String GenereateMacAddress(int index){

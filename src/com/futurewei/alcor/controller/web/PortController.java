@@ -207,7 +207,8 @@ public class PortController {
             long T1 = System.nanoTime();
 
             if(DemoConfig.IS_Demo) {
-//                long[] times = DemoUtil.CreatePort(resource);
+                DemoUtil.CreatePortGroup(resourceGroup);
+//                long[] times = DemoUtil.CreatePortGroup(resourceGroup);
 //                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
             }
         }
