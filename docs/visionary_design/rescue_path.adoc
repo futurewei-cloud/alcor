@@ -13,13 +13,13 @@ image::images/rescue_path.GIF["Rescue path architecture", width=1024, link="imag
 
 == Design
 
-Even if the rate of sofware failure is 1 out of 1 million, a failure would happen everyday in a large scale public cloud offering. The network control plane will leverage both a monitoring system (likely Prometheus) and directly indication from network control agent to defect failure and invoke the rescue path. See health monitoring/failure detection design here: TBD.
+Even if the rate of sofware failure is 1 out of 1 million, a failure would happen everyday in a large scale public cloud offering. The network control plane will leverage both a monitoring system (likely Prometheus) and direct indication from network control agent to defect failure and invoke the rescue path. See health monitoring/failure detection design here: TBD.
 
-All network control agent tasks were designed to have throughput, and low latency when it is running on local compute host. The network control agent can also invoke tasks on a remote compute host with minimal additional cost. The additional cost would come from calling remote ssh vs local shell out call for network configuration, and doing remote RPC vs local RPC when programming Mizar dataplane.
+All network control agent tasks were designed to have high throughput, and low latency when it is running on local compute host. The network control agent can also invoke tasks on a remote compute host with minimal additional cost. The additional cost would come from calling remote ssh vs local shell out call for network configuration, and doing remote RPC vs local RPC when programming Mizar dataplane.
 
 For remote host network configuration, one of the network control agent will simply invoke remote SSH to the other compute host using the TargetHostIP supplied in the GoalState message from network controller. For Mizar dataplane programming, network controller agent can use remote RPC to invoke Mizar dataplane API on the other compute host.
 
-During usage the network control plane rescue path, all existing customer deployment should continue to work without impact. Although the compute node will be marked as not healthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visable customer facing degration. 
+During usage the network control plane rescue path, all existing customer deployments should continue to work without impact. Although the compute node will be marked as unhealthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visible degradation. 
 
 == Updated Contract between Controller and Agent
 
