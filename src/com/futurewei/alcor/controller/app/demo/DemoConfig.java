@@ -14,11 +14,11 @@ import java.util.List;
 public class DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
     public static boolean IS_Demo = true;
-    public static boolean IS_PARALLEL = false;
-    public static int TEST_NUM_PORTS = 10;
+    public static boolean IS_PARALLEL = true;
+    public static int TEST_NUM_PORTS = 100;
 
     public static String HOST_ID_PREFIX = "es7-";
-    public static int GRPC_SERVER_PORT = 50051;
+    public static int GRPC_SERVER_PORT = 50005;
     public static long Tunnel_Id = 3000;
 
     // TODO: figure out to store integer value over 127 in a byte
@@ -189,14 +189,14 @@ public class DemoConfig {
 
     // Large VPC
     // (byte)(205-OVERFLOW_IP_CONVERSION)
-    public static HostInfo[] transitSwitchHosts = {
-            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(3 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0d", 50001 + TEST_NUM_PORTS),
-            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(4 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0e", 50002 + TEST_NUM_PORTS),
-            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0f", 50003 + TEST_NUM_PORTS)
+    public static HostInfo[] transitRouterHosts = {
+            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(3)}, "02:42:ac:11:00:03", 50001)
     };
 
-    public static HostInfo[] transitRouterHosts = {
-            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(6 + TEST_NUM_PORTS)}, "02:42:ac:11:00:10", 50004 + + TEST_NUM_PORTS)
+    public static HostInfo[] transitSwitchHosts = {
+            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(4)}, "02:42:ac:11:00:04", 50002),
+            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5)}, "02:42:ac:11:00:05", 50003),
+            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(6)}, "02:42:ac:11:00:06", 50004)
     };
 
     public static String EP1_ID = "ephost_1";

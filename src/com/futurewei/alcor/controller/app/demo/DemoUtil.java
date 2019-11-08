@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.customerPortStates;
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
 
 // NOTE: This file is only used for demo purpose.
 //       Please don't use it in production
@@ -130,7 +129,7 @@ public class DemoUtil {
                 });
             }
             else{
-                DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
+                long[] times = DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
             }
         }
     }
@@ -373,7 +372,7 @@ public class DemoUtil {
 
     public static void AssignNodes(List<HostInfo> hosts){
         for (int i = 0; i < hosts.size() ; i++) {
-            hosts.get(i).setGRPCServerPort(50001+i);
+            hosts.get(i).setGRPCServerPort(GRPC_SERVER_PORT + i);
         }
 
         DemoConfig.epHosts = new ArrayList<>(hosts);
