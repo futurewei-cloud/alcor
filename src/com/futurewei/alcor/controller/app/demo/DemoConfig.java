@@ -6,6 +6,7 @@ import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -13,16 +14,20 @@ import java.util.List;
 public class DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
     public static boolean IS_Demo = true;
+    public static boolean IS_PARALLEL = false;
+    public static int TEST_NUM_PORTS = 10;
 
     public static String HOST_ID_PREFIX = "es7-";
+    public static int GRPC_SERVER_PORT = 50051;
     public static long Tunnel_Id = 3000;
-    public static int OVERFLOW_IP_CONVERSION = 256;
 
     // TODO: figure out to store integer value over 127 in a byte
+    public static int OVERFLOW_IP_CONVERSION = 256;
     public static byte FIRST_IP_BLOCK = (byte)(172-OVERFLOW_IP_CONVERSION);
 
-    public static int GRPC_SERVER_PORT = 50051;
-    public static BufferedWriter TIME_STAMP_WRITER;
+    public static FileWriter TIME_STAMP_FILE;
+    public static String LOG_FILE_PATH = "C:\\temp\\samplefile.txt";
+
     public static long TOTAL_TIME = 0;
     public static int TOTAL_REQUEST = 0;
 
@@ -38,9 +43,13 @@ public class DemoConfig {
 
     static {
         try {
-            TIME_STAMP_WRITER = new BufferedWriter(
-                    new FileWriter("c:/temp/samplefile.txt", true)  //Set true for append mode
-                );
+            File file = new File(LOG_FILE_PATH);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            TIME_STAMP_FILE = new FileWriter(file);
+            //TIME_STAMP_FILE = new FileWriter("C:\\temp\\samplefile.txt", true);  //Set true for append mode
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +84,7 @@ public class DemoConfig {
     public static SubnetState customerSubnetState = new SubnetState(projectId, vpcId, subnetId,
             "Subnet1",
             "10.0.0.0/20",
-            "10.0.15.255");
+            "10.0.0.5");
 
     public static SubnetState customerSubnetState1 = new SubnetState(projectId, vpcId, subnet1Id,
             "Subnet1",
@@ -137,7 +146,7 @@ public class DemoConfig {
     /////////////////////////////////
     // Physical network resources
     /////////////////////////////////
-    public static String GATEWAY_MAC_ADDRESS = "0e:73:ae:c8:FF:FF";
+    public static String GATEWAY_MAC_ADDRESS = "02:42:ac:11:00:0d"; //"0e:73:ae:c8:FF:FF";
 
     public static String TRANSIT_SWTICH_1_HOST_ID = "switchhost_1";
     public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,15};
@@ -179,14 +188,15 @@ public class DemoConfig {
     };
 
     // Large VPC
+    // (byte)(205-OVERFLOW_IP_CONVERSION)
     public static HostInfo[] transitSwitchHosts = {
-            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(203-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cb", 50201),
-            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(204-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cc", 50202),
-            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(205-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:cd", 50203)
+            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(3 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0d", 50001 + TEST_NUM_PORTS),
+            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(4 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0e", 50002 + TEST_NUM_PORTS),
+            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5 + TEST_NUM_PORTS)}, "02:42:ac:11:00:0f", 50003 + TEST_NUM_PORTS)
     };
 
     public static HostInfo[] transitRouterHosts = {
-            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(206-OVERFLOW_IP_CONVERSION)}, "02:42:ac:11:00:ce", 50204)
+            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(6 + TEST_NUM_PORTS)}, "02:42:ac:11:00:10", 50004 + + TEST_NUM_PORTS)
     };
 
     public static String EP1_ID = "ephost_1";

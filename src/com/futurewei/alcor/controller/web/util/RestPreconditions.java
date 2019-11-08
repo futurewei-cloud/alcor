@@ -1,5 +1,6 @@
 package com.futurewei.alcor.controller.web.util;
 
+import com.futurewei.alcor.controller.app.demo.DemoConfig;
 import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.exception.*;
@@ -7,6 +8,7 @@ import com.futurewei.alcor.controller.model.CustomerResource;
 import com.futurewei.alcor.controller.model.VpcState;
 import org.thymeleaf.util.StringUtils;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
@@ -73,28 +75,38 @@ public class RestPreconditions {
     }
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
+        BufferedWriter timeStampWriter = null;
+
         try {
-            TIME_STAMP_WRITER.newLine();
+            timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
+            timeStampWriter.newLine();
 
             long timeElapsedInMsForDataPersistence = (T1 - T0) / 1000000;
             long timeElapsedInMsForFirstMessaging = (timeArray[0] - T1) / 1000000;
-            TIME_STAMP_WRITER.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
+            timeStampWriter.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
                     timeElapsedInMsForFirstMessaging + ",");
             for (int i = 0; i < timeArray.length - 1 ; i++) {
                 long timestampInMs = (timeArray[i+1] - timeArray[i]) / 1000000;
-                TIME_STAMP_WRITER.write(timestampInMs + ",");
+                timeStampWriter.write(timestampInMs + ",");
             }
 
             TOTAL_TIME += (timeArray[timeArray.length-1] - T0) / 1000000;
             TOTAL_REQUEST ++;
 
             if(TOTAL_REQUEST % 1000 == 0){
-                TIME_STAMP_WRITER.newLine();
-                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" +
+                timeStampWriter.newLine();
+                timeStampWriter.write("Average time of " + TOTAL_REQUEST + " requests :" +
                         TOTAL_TIME/TOTAL_REQUEST + " ms");
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try{
+                if(timeStampWriter != null)
+                    timeStampWriter.close();
+            }catch(Exception ex){
+                System.err.println("Error in closing the BufferedWriter" + ex);
+            }
         }
     }
 }
