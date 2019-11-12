@@ -5,7 +5,6 @@ import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,7 +14,7 @@ public class DemoConfig {
 //    String HOST_ID_PREFIX = "hostid-";
     public static boolean IS_Demo = true;
     public static boolean IS_PARALLEL = true;
-    public static int TEST_NUM_PORTS = 100;
+    public static int TEST_NUM_PORTS = 1000;
 
     public static String HOST_ID_PREFIX = "es7-";
     public static int GRPC_SERVER_PORT = 50005;
@@ -195,8 +194,8 @@ public class DemoConfig {
 
     public static HostInfo[] transitSwitchHosts = {
             new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(4)}, "02:42:ac:11:00:04", 50002),
-            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5)}, "02:42:ac:11:00:05", 50003),
-            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(6)}, "02:42:ac:11:00:06", 50004)
+//            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5)}, "02:42:ac:11:00:05", 50003),
+//            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(6)}, "02:42:ac:11:00:06", 50004)
     };
 
     public static String EP1_ID = "ephost_1";

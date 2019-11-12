@@ -382,8 +382,8 @@ public class DemoUtil {
     public static PortState GeneretePortState(HostInfo hostInfo, int epIndex){
         return new PortState(DemoConfig.projectId,
                 DemoConfig.subnetId,
-                hostInfo.getId() + "_" + epIndex,
-                hostInfo.getId() + "_" + epIndex,
+                epIndex + "_" + hostInfo.getId(),
+                epIndex + "_" + hostInfo.getId(),
                 GenereateMacAddress(epIndex),
                 DemoConfig.VETH_NAME,
                 new String[]{GenereateIpAddress(epIndex)});
