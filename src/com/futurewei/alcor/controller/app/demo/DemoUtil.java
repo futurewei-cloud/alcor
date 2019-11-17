@@ -11,9 +11,7 @@ import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import static com.futurewei.alcor.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
 
@@ -21,7 +19,7 @@ import static com.futurewei.alcor.controller.app.demo.DemoConfig.GRPC_SERVER_POR
 //       Please don't use it in production
 public class DemoUtil {
 
-    private static final int THREADS_LIMIT = 50;
+    private static final int THREADS_LIMIT = 100;
     private static final int TIMEOUT = 600;
 
     public static void CreateSubnet(SubnetState subnetState){
@@ -103,35 +101,68 @@ public class DemoUtil {
         }
     }
 
-    public static void CreatePortGroup(PortStateGroup portStateGroup){
+    public static long[][] CreatePortGroup(PortStateGroup portStateGroup){
         List<PortState> portStates = portStateGroup.getPortStates();
         int portCount = portStates.size();
         int epHostCount = DemoConfig.epHosts.size();
         int portCountPerHost = portCount/epHostCount > 0 ? portCount/epHostCount: 1;
 
+        long[][] results = new long[epHostCount][];
+
         ExecutorService executor = Executors.newFixedThreadPool(THREADS_LIMIT);
+        CompletionService<long[]> goalStateProgrammingService = new ExecutorCompletionService<long[]>(executor);
 
         for (int i = 0; i < epHostCount ; i++) {
 
             if(DemoConfig.IS_PARALLEL){
                 final int nodeIndex = i;
-                Future<long[]> future = executor.submit(()-> {
-                    try{
+
+                goalStateProgrammingService.submit(new Callable<long[]>() {
+                    @Override
+                    public long[] call() throws IllegalStateException {
                         String name = Thread.currentThread().getName();
                         System.out.println("Running on thread " + name);
 
                         return DemoUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
                     }
-                    catch(Exception e){
-                        e.printStackTrace();
-                        throw new IllegalStateException("programming task interrupted", e);
-                    }
                 });
+
+//                Future<long[]> future = executor.submit(()-> {
+//                    try{
+//                        String name = Thread.currentThread().getName();
+//                        System.out.println("Running on thread " + name);
+//
+//                        return DemoUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
+//                    }
+//                    catch(Exception e){
+//                        e.printStackTrace();
+//                        throw new IllegalStateException("programming task interrupted", e);
+//                    }
+//                });
             }
             else{
                 long[] times = DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
+                results[i] = times;
             }
         }
+
+        int received = 0;
+        boolean errors = false;
+
+        while(DemoConfig.IS_PARALLEL && received < epHostCount && !errors ){
+            try{
+                Future<long[]> resultFuture = goalStateProgrammingService.take();
+                long[] result = resultFuture.get();
+                results[received] = result;
+                received++;
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                errors = true;
+            }
+        }
+
+        return results;
     }
 
     public static long[] CreatePorts(List<PortState> portStates, int hostIndex, int epStartIndex, int epEndIndex){
@@ -253,7 +284,9 @@ public class DemoUtil {
         }
 
         if(portState.getId().equalsIgnoreCase(DemoConfig.ep1Id)){
+            System.out.println("check input id :" + portState.getId());
             customerPortState = DemoConfig.customerPortStateForSubnet1[0];
+            System.out.println("check name :" + customerPortState.getName());
             epHost = DemoConfig.epHostForSubnet1[0];
             isFastPath = true;
         }
@@ -295,6 +328,8 @@ public class DemoUtil {
             customerPortState = DemoUtil.GeneretePortState(epHost, DemoConfig.epHostCounter);
             DemoConfig.epHostCounter++;
         }
+
+        System.out.println("EP :" + customerPortState.getId() + " name " + customerPortState.getName());
 
         GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, epHost.getGRPCServerPort());
         MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
@@ -390,11 +425,11 @@ public class DemoUtil {
     }
 
     private static String GenereateMacAddress(int index){
-        return "0e:73:ae:c8:" + Integer.toHexString((index+6)/250) + ":" + Integer.toHexString((index+6)%250);
+        return "0e:73:ae:c8:" + Integer.toHexString((index+6)/256) + ":" + Integer.toHexString((index+6)%256);
     }
 
     private static String GenereateIpAddress(int index){
-        return "10.0." + (index+6)/250 + "." + (index+6)%250;
+        return "10.0." + (index+6)/256 + "." + (index+6)%256;
     }
 
     public static void CreateSubnetLegacy(SubnetState subnetState, VpcState vpcState) {

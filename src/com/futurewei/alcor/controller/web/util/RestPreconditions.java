@@ -75,10 +75,10 @@ public class RestPreconditions {
     }
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
-        BufferedWriter timeStampWriter = null;
+        BufferedWriter timeStampWriter = TIME_STAMP_WRITER;
 
         try {
-            timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
+            //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
             timeStampWriter.newLine();
 
             long timeElapsedInMsForDataPersistence = (T1 - T0) / 1000000;
@@ -102,8 +102,8 @@ public class RestPreconditions {
             e.printStackTrace();
         } finally {
             try{
-                if(timeStampWriter != null)
-                    timeStampWriter.close();
+//                if(timeStampWriter != null)
+//                    timeStampWriter.close();
             }catch(Exception ex){
                 System.err.println("Error in closing the BufferedWriter" + ex);
             }

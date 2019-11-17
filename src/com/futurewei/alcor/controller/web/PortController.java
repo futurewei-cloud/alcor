@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.TIME_STAMP_WRITER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -86,6 +87,9 @@ public class PortController {
                 long[] times = DemoUtil.CreatePort(resource);
                 RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
             }
+
+            if(TIME_STAMP_WRITER != null)
+                TIME_STAMP_WRITER.close();
         }
         catch (ResourceNullException e){
             throw new Exception(e);
@@ -207,9 +211,17 @@ public class PortController {
             long T1 = System.nanoTime();
 
             if(DemoConfig.IS_Demo) {
-                DemoUtil.CreatePortGroup(resourceGroup);
+                long[][] elapsedTimes = DemoUtil.CreatePortGroup(resourceGroup);
 //                long[] times = DemoUtil.CreatePortGroup(resourceGroup);
-//                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
+                int hostCount = elapsedTimes.length;
+                System.out.println("Total number of time sequences:" + hostCount);
+                for (int i = 0; i < hostCount; i++) {
+                    RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
+                }
+
+                if(TIME_STAMP_WRITER != null)
+                    TIME_STAMP_WRITER.close();
+
             }
         }
         catch (Exception e){

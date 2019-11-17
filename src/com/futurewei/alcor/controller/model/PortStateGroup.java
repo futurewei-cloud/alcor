@@ -12,4 +12,8 @@ public class PortStateGroup {
     public PortStateGroup(){
 
     }
+
+    public PortState getPortState(int index){
+        return this.getPortStates().get(index);
+    }
 }

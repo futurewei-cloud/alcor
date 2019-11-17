@@ -5,6 +5,7 @@ import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class DemoConfig {
     public static boolean IS_PARALLEL = true;
     public static int TEST_NUM_PORTS = 1000;
 
-    public static String HOST_ID_PREFIX = "es7-";
+    public static String HOST_ID_PREFIX = "es8-";
     public static int GRPC_SERVER_PORT = 50005;
     public static long Tunnel_Id = 3000;
 
@@ -25,7 +26,8 @@ public class DemoConfig {
     public static byte FIRST_IP_BLOCK = (byte)(172-OVERFLOW_IP_CONVERSION);
 
     public static FileWriter TIME_STAMP_FILE;
-    public static String LOG_FILE_PATH = "C:\\temp\\samplefile.txt";
+    public static BufferedWriter TIME_STAMP_WRITER;
+    public static String LOG_FILE_PATH = "timestamp.log";
 
     public static long TOTAL_TIME = 0;
     public static int TOTAL_REQUEST = 0;
@@ -48,6 +50,7 @@ public class DemoConfig {
             }
 
             TIME_STAMP_FILE = new FileWriter(file);
+            TIME_STAMP_WRITER = new BufferedWriter(TIME_STAMP_FILE);
             //TIME_STAMP_FILE = new FileWriter("C:\\temp\\samplefile.txt", true);  //Set true for append mode
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,22 +99,22 @@ public class DemoConfig {
 
     public static PortState[] customerPortStateForSubnet1 = {
             new PortState(projectId, subnet1Id, ep1Id,
-                    DemoConfig.EP1_ID,
+                    "89e72582", //DemoConfig.EP1_ID,
                     "0e:73:ae:c8:87:00",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.0.1"}),
             new PortState(projectId, subnet1Id, ep2Id,
-                    DemoConfig.EP2_ID,
+                    "34bf0cec",
                     "0e:73:ae:c8:87:01",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.0.2"}),
             new PortState(projectId, subnet1Id, ep3Id,
-                    DemoConfig.EP3_ID,
+                    "64353fd7",
                     "0e:73:ae:c8:87:02",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.0.3"}),
             new PortState(projectId, subnet1Id, ep4Id,
-                    DemoConfig.EP4_ID,
+                    "cae2df90",
                     "0e:73:ae:c8:87:03",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.0.4"})
@@ -119,22 +122,22 @@ public class DemoConfig {
 
     public static PortState[] customerPortStateForSubnet2 = {
             new PortState(projectId, subnet2Id, ep5Id,
-                    DemoConfig.EP5_ID,
+                    "364d2bbd",
                     "0e:73:ae:c8:87:04",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.1.1"}),
             new PortState(projectId, subnet2Id, ep6Id,
-                    DemoConfig.EP6_ID,
+                    "c60fe503",
                     "0e:73:ae:c8:87:05",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.1.2"}),
             new PortState(projectId, subnet2Id, ep7Id,
-                    DemoConfig.EP7_ID,
+                    "38e45f95",
                     "0e:73:ae:c8:87:06",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.1.3"}),
             new PortState(projectId, subnet2Id, ep8Id,
-                    DemoConfig.EP8_ID,
+                    "b81abf49",
                     "0e:73:ae:c8:87:07",
                     DemoConfig.VETH_NAME,
                     new String[]{"10.0.1.4"})
@@ -147,29 +150,29 @@ public class DemoConfig {
     /////////////////////////////////
     public static String GATEWAY_MAC_ADDRESS = "02:42:ac:11:00:0d"; //"0e:73:ae:c8:FF:FF";
 
-    public static String TRANSIT_SWTICH_1_HOST_ID = "switchhost_1";
-    public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,15};
-    public static String TRANSIT_SWITCH_1_MAC = "02:42:ac:11:00:0f";
+    public static String TRANSIT_SWTICH_1_HOST_ID = "switchhost_0";
+    public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,11};
+    public static String TRANSIT_SWITCH_1_MAC = "02:42:ac:11:00:0b";
 
-    public static String TRANSIT_SWTICH_2_HOST_ID = "switchhost_2";
-    public static byte[] TRANSIT_SWITCH_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,16};
-    public static String TRANSIT_SWITCH_2_MAC = "02:42:ac:11:00:10";
+    public static String TRANSIT_SWTICH_2_HOST_ID = "switchhost_1";
+    public static byte[] TRANSIT_SWITCH_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,12};
+    public static String TRANSIT_SWITCH_2_MAC = "02:42:ac:11:00:0c";
 
-    public static String TRANSIT_SWTICH_3_HOST_ID = "switchhost_3";
-    public static byte[] TRANSIT_SWITCH_3_IP = new byte[]{FIRST_IP_BLOCK,17,0,17};
-    public static String TRANSIT_SWITCH_3_MAC = "02:42:ac:11:00:11";
+    public static String TRANSIT_SWTICH_3_HOST_ID = "switchhost_2";
+    public static byte[] TRANSIT_SWITCH_3_IP = new byte[]{FIRST_IP_BLOCK,17,0,13};
+    public static String TRANSIT_SWITCH_3_MAC = "02:42:ac:11:00:0d";
 
-    public static String TRANSIT_SWTICH_4_HOST_ID = "switchhost_4";
-    public static byte[] TRANSIT_SWITCH_4_IP = new byte[]{FIRST_IP_BLOCK,17,0,18};
-    public static String TRANSIT_SWITCH_4_MAC = "02:42:ac:11:00:12";
+    public static String TRANSIT_SWTICH_4_HOST_ID = "switchhost_3";
+    public static byte[] TRANSIT_SWITCH_4_IP = new byte[]{FIRST_IP_BLOCK,17,0,14};
+    public static String TRANSIT_SWITCH_4_MAC = "02:42:ac:11:00:0e";
 
-    public static String TRANSIT_ROUTER_1_HOST_ID = "routerhost_1";
-    public static byte[] TRANSIT_ROUTER_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,19};
-    public static String TRANSIT_ROUTER_1_MAC = "02:42:ac:11:00:13";
+    public static String TRANSIT_ROUTER_1_HOST_ID = "routerhost_0";
+    public static byte[] TRANSIT_ROUTER_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,15};
+    public static String TRANSIT_ROUTER_1_MAC = "02:42:ac:11:00:0f";
 
-    public static String TRANSIT_ROUTER_2_HOST_ID = "routerhost_2";
-    public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,20};
-    public static String TRANSIT_ROUTER_2_MAC = "02:42:ac:11:00:14";
+    public static String TRANSIT_ROUTER_2_HOST_ID = "routerhost_1";
+    public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,16};
+    public static String TRANSIT_ROUTER_2_MAC = "02:42:ac:11:00:10";
 
 //    public static HostInfo[] transitRouterHosts = {
 //            new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
@@ -186,6 +189,10 @@ public class DemoConfig {
             new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
     };
 
+//    public static HostInfo[] transitRouterHosts = {
+//            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(15)}, "02:42:ac:11:00:0f", 50011),
+//            new HostInfo("vpc1-transit-router2", "transit router2 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(16)}, "02:42:ac:11:00:10", 50012)
+//    };
     // Large VPC
     // (byte)(205-OVERFLOW_IP_CONVERSION)
     public static HostInfo[] transitRouterHosts = {
@@ -198,37 +205,37 @@ public class DemoConfig {
 //            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(6)}, "02:42:ac:11:00:06", 50004)
     };
 
-    public static String EP1_ID = "ephost_1";
-    public static byte[] EP1_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,7};
-    public static String EP1_HOST_MAC = "02:42:ac:11:00:07";
+    public static String EP1_ID = "ephost_0";
+    public static byte[] EP1_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,3};
+    public static String EP1_HOST_MAC = "02:42:ac:11:00:03";
 
-    public static String EP2_ID = "ephost_2";
-    public static byte[] EP2_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,8};
-    public static String EP2_HOST_MAC = "02:42:ac:11:00:08";
+    public static String EP2_ID = "ephost_1";
+    public static byte[] EP2_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,4};
+    public static String EP2_HOST_MAC = "02:42:ac:11:00:04";
 
-    public static String EP3_ID = "ephost_3";
-    public static byte[] EP3_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,9};
-    public static String EP3_HOST_MAC = "02:42:ac:11:00:09";
+    public static String EP3_ID = "ephost_2";
+    public static byte[] EP3_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,5};
+    public static String EP3_HOST_MAC = "02:42:ac:11:00:05";
 
-    public static String EP4_ID = "ephost_4";
-    public static byte[] EP4_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,10};
-    public static String EP4_HOST_MAC = "02:42:ac:11:00:0a";
+    public static String EP4_ID = "ephost_3";
+    public static byte[] EP4_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,6};
+    public static String EP4_HOST_MAC = "02:42:ac:11:00:06";
 
-    public static String EP5_ID = "ephost_5";
-    public static byte[] EP5_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,11};
-    public static String EP5_HOST_MAC = "02:42:ac:11:00:0b";
+    public static String EP5_ID = "ephost_4";
+    public static byte[] EP5_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,7};
+    public static String EP5_HOST_MAC = "02:42:ac:11:00:07";
 
-    public static String EP6_ID = "ephost_6";
-    public static byte[] EP6_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,12};
-    public static String EP6_HOST_MAC = "02:42:ac:11:00:0c";
+    public static String EP6_ID = "ephost_5";
+    public static byte[] EP6_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,8};
+    public static String EP6_HOST_MAC = "02:42:ac:11:00:08";
 
-    public static String EP7_ID = "ephost_7";
-    public static byte[] EP7_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,13};
-    public static String EP7_HOST_MAC = "02:42:ac:11:00:0d";
+    public static String EP7_ID = "ephost_6";
+    public static byte[] EP7_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,9};
+    public static String EP7_HOST_MAC = "02:42:ac:11:00:09";
 
-    public static String EP8_ID = "ephost_8";
-    public static byte[] EP8_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,14};
-    public static String EP8_HOST_MAC = "02:42:ac:11:00:0e";
+    public static String EP8_ID = "ephost_7";
+    public static byte[] EP8_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,10};
+    public static String EP8_HOST_MAC = "02:42:ac:11:00:0a";
 
     public static HostInfo[] epHostForSubnet1 = {
             new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[0]),
