@@ -1,6 +1,6 @@
 = System Monitoring and Failure Detection
 Liguang Xie <lxie@futurewei.com>, Eric Li <eli1@futurewei.com>
-v0.1, 2019-11-01
+v0.1, 2019-11-20
 :toc: right
 
 == Introduction
@@ -20,20 +20,20 @@ The node-level design is to have a decentralized data collection and processing 
 The Host Netdata is responsible of:
 
 * Heartbeating with node manager
-* Collecting all the interesting local metrix
-* Analyzing local data quickly to detect failure (like ACA went down)
+* Collecting all the interesting local metrics
+* Analyzing local data quickly to detect failure (like ACA down)
 * Raising alarm to node manager on definite problems
-* Digesting and archiving data into prometheus
+* Digesting and archiving data into Prometheus
 
 === Host Agents and Netdata Health
 
 As Host Netdata becomes the decentralized monitoring engine which can efficiently collect, process data and provide clear actionable notification to node manager.
-It can also becomes the single point of failure on monitoring plane and block all host data processing when Host Netdata goes offline or when host machine goes down.
+It can also become the single point of failure on monitoring plane and block all host data processing when Host Netdata goes offline or when host machine goes down.
 A liveliness guarantee system is needed. There will be multiple heartbeat paths:
 
 . Host Netdata will monitor all Host Agents heartbeat very second, notify node manager directly through gRPC if there is issue with one or more Host Agent.
-. Host Netdata heartbeat to node manager freqently (e.g. every a few seconds) through gRPC or Kafka.
-. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds) for longer term storage and viewing in Grafana.
+. Host Netdata heartbeat to node manager frequently  (e.g. every a few seconds) through gRPC or Kafka.
+. Host Netdata archive heartbeat data to Prometheus  (e.g. every 5 seconds) for longer term storage and viewing in Grafana.
 
 NOTE: 2 and 3 above will contain both heartbeat data from Host Netdata, and heartbeat data from all Host Agents (e.g. ACA, ELB, Compute, etc...) in bitmap format to minimize data and storage size.
 
@@ -41,27 +41,27 @@ NOTE: 2 and 3 above will contain both heartbeat data from Host Netdata, and hear
 
 Host Netdata will collect host machine networking health data like physical NIC bandwidth, and host network stack health and utilization.
 
-Host Netdata will perform quick data analysis for obvious issue like physical NIC bandwidth maxed out.
-It will notifiy node manager on clear and actionable alarms. All the local metrix will be digested (e.g. sum, average) and archive to prometheus.
+It will perform quick data analysis for obvious issue like physical NIC bandwidth maxed out.
+It will notify node manager on clear and actionable alarms. All the local metrics will be digested (e.g. sum, average) and archive to Prometheus.
 
-Host Netdata can also collect other host machine health including CPU and memory usage, that is not limited to the scope of networking.
+Host Netdata can also collect other host machine health including CPU and memory usage, which is not limited to the scope of networking.
 
 === Data-Plane Health
 
 Host Netdata will also monitor the Data-Plane health.
-For Mizar data plane, a new Netdata plugin will be used to pull data from Transit daemon for transit switch and transit router metrix.
-For obvious issue like transit switch is overloaded, it will notify VPC manager directly through gRPC to correct the issue.
-All remaining data will be archived to prometheus for deeper analysis.
+For Mizar data plane, a new Netdata plugin will be used to pull data from Transit daemon for transit switch and transit router metrics.
+For obvious issue like transit switch is overloaded, it will notify VPC manager directly through gRPC to address the issue.
+All remaining data will be archived to Prometheus for deeper analysis.
 
 === Tenant VMs/Containers Health
 
 Tenant VMs/Containers Health will be monitored in two ways:
 
 . The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused).
-This is linux runtime dependent and does not require customer opt-in. This data can be streamed to host netdata without customer involvement.
+This is Linux runtime dependent and does not require customer opt-in. This data can be streamed to host netdata without customer involvement.
 
 . Customer can opt-into a 3rd party monitoring solution or opt into our Netdata solution.
-Once they enable Netdata for VM/container monitoring, the tenant Netdata will stream data to host netdata for quick analysis and archive to prometheus.
+Once they enable Netdata for VM/container monitoring, the tenant Netdata will stream data to host netdata for quick analysis and archive to Prometheus.
 
 
 == Controller Service Monitoring
