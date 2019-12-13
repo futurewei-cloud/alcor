@@ -30,6 +30,7 @@ public class AlcorControllerApp {
             DemoUtil.AssignNodes(hostNodeList);
         }
         System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");
+        DemoConfig.APP_START_TS = System.nanoTime();
     }
 
     @Bean

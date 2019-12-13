@@ -89,14 +89,26 @@ public class RestPreconditions {
                 long timestampInMs = (timeArray[i+1] - timeArray[i]) / 1000000;
                 timeStampWriter.write(timestampInMs + ",");
             }
+            timeStampWriter.flush();
 
-            TOTAL_TIME += (timeArray[timeArray.length-1] - T0) / 1000000;
+            long elapseTimeInMs = (timeArray[timeArray.length-1] - T0) / 1000000;
+            TOTAL_TIME += elapseTimeInMs ;
             TOTAL_REQUEST ++;
+            if(elapseTimeInMs<MIN_TIME) MIN_TIME=elapseTimeInMs;
+            if(elapseTimeInMs>MAX_TIME) MAX_TIME=elapseTimeInMs;
 
-            if(TOTAL_REQUEST % 1000 == 0){
+            if(TOTAL_REQUEST == epHosts.size() * EP_PER_HOST){
+                timeStampWriter.newLine();
+                timeStampWriter.write("," + TOTAL_TIME/TOTAL_REQUEST + "," +  MIN_TIME + "," + MAX_TIME);
                 timeStampWriter.newLine();
                 timeStampWriter.write("Average time of " + TOTAL_REQUEST + " requests :" +
                         TOTAL_TIME/TOTAL_REQUEST + " ms");
+                timeStampWriter.newLine();
+                timeStampWriter.write("Time span: " + (System.nanoTime()-APP_START_TS)/1000000 + " ms");
+                timeStampWriter.flush();
+
+                if(timeStampWriter != null)
+                    timeStampWriter.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

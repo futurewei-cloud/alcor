@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.EP_PER_HOST;
 import static com.futurewei.alcor.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
 
 // NOTE: This file is only used for demo purpose.
@@ -322,11 +323,15 @@ public class DemoUtil {
             epHost = DemoConfig.epHostForSubnet2[3];
         }
         else{
-            System.out.println("EP host counter :" + DemoConfig.epHostCounter);
+            System.out.println("EP host counter :" + DemoConfig.epHostCounter + "| ep counter: " + DemoConfig.epCounter);
 
             epHost = DemoConfig.epHosts.get(DemoConfig.epHostCounter);
-            customerPortState = DemoUtil.GeneretePortState(epHost, DemoConfig.epHostCounter);
-            DemoConfig.epHostCounter++;
+            customerPortState = DemoUtil.GeneretePortState(epHost, DemoConfig.epCounter);
+
+            DemoConfig.epCounter++;
+            if(DemoConfig.epCounter % DemoConfig.EP_PER_HOST == 0){
+                DemoConfig.epHostCounter++;
+            }
         }
 
         System.out.println("EP :" + customerPortState.getId() + " name " + customerPortState.getName());

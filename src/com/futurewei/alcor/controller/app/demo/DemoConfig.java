@@ -31,6 +31,9 @@ public class DemoConfig {
 
     public static long TOTAL_TIME = 0;
     public static int TOTAL_REQUEST = 0;
+    public static long MAX_TIME = Long.MIN_VALUE;
+    public static long MIN_TIME = Long.MAX_VALUE;
+    public static long APP_START_TS = 0;
 
     public static String gRPCServerIp = "10.213.43.166";
     public static int[] gRPCServerPortForSubnet1 = {
@@ -253,4 +256,6 @@ public class DemoConfig {
 
     public static int epHostCounter = 0;
     public static List<HostInfo> epHosts;
+    public static int epCounter = 0;
+    public static int EP_PER_HOST = 1;
 }

@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.TIME_STAMP_WRITER;
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.TOTAL_REQUEST;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -87,9 +88,6 @@ public class PortController {
                 long[] times = DemoUtil.CreatePort(resource);
                 RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
             }
-
-            if(TIME_STAMP_WRITER != null)
-                TIME_STAMP_WRITER.close();
         }
         catch (ResourceNullException e){
             throw new Exception(e);
@@ -212,13 +210,22 @@ public class PortController {
 
             if(DemoConfig.IS_Demo) {
                 long[][] elapsedTimes = DemoUtil.CreatePortGroup(resourceGroup);
-//                long[] times = DemoUtil.CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
+
+                long averageElapseTime = 0, minElapseTime = Long.MAX_VALUE, maxElapseTime = Long.MIN_VALUE;
                 System.out.println("Total number of time sequences:" + hostCount);
                 for (int i = 0; i < hostCount; i++) {
+                    long et = elapsedTimes[i][2] - T0;
+                    averageElapseTime += et;
+                    if(et<minElapseTime) minElapseTime=et;
+                    if(et>maxElapseTime) maxElapseTime=et;
                     RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
                 }
 
+                TIME_STAMP_WRITER.newLine();
+                TIME_STAMP_WRITER.write("," + averageElapseTime/(1000000*hostCount) + "," +  minElapseTime/1000000 + "," + maxElapseTime/1000000);
+                TIME_STAMP_WRITER.newLine();
+                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" + TOTAL_TIME/TOTAL_REQUEST + " ms");
                 if(TIME_STAMP_WRITER != null)
                     TIME_STAMP_WRITER.close();
 
