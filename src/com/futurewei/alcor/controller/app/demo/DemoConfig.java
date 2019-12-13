@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class DemoConfig {
-//    String HOST_ID_PREFIX = "hostid-";
+
     public static boolean IS_Demo = true;
     public static boolean IS_PARALLEL = true;
     public static int TEST_NUM_PORTS = 1000;
@@ -54,7 +54,6 @@ public class DemoConfig {
 
             TIME_STAMP_FILE = new FileWriter(file);
             TIME_STAMP_WRITER = new BufferedWriter(TIME_STAMP_FILE);
-            //TIME_STAMP_FILE = new FileWriter("C:\\temp\\samplefile.txt", true);  //Set true for append mode
         } catch (IOException e) {
             e.printStackTrace();
         }
