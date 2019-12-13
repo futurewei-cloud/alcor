@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.EP_PER_HOST;
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.GRPC_SERVER_PORT;
-
 // NOTE: This file is only used for demo purpose.
 //       Please don't use it in production
 public class DemoUtil {
@@ -127,19 +124,6 @@ public class DemoUtil {
                         return DemoUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
                     }
                 });
-
-//                Future<long[]> future = executor.submit(()-> {
-//                    try{
-//                        String name = Thread.currentThread().getName();
-//                        System.out.println("Running on thread " + name);
-//
-//                        return DemoUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
-//                    }
-//                    catch(Exception e){
-//                        e.printStackTrace();
-//                        throw new IllegalStateException("programming task interrupted", e);
-//                    }
-//                });
             }
             else{
                 long[] times = DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
@@ -412,7 +396,7 @@ public class DemoUtil {
 
     public static void AssignNodes(List<HostInfo> hosts){
         for (int i = 0; i < hosts.size() ; i++) {
-            hosts.get(i).setGRPCServerPort(GRPC_SERVER_PORT + i);
+            hosts.get(i).setGRPCServerPort(DemoConfig.GRPC_SERVER_PORT + i);
         }
 
         DemoConfig.epHosts = new ArrayList<>(hosts);

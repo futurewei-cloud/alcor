@@ -1,16 +1,16 @@
 package com.futurewei.alcor.controller.utilities;
 
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
+import com.futurewei.alcor.controller.app.demo.*;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 import com.futurewei.alcor.controller.schema.Common;
-import com.futurewei.alcor.controller.schema.Subnet;
-import com.futurewei.alcor.controller.schema.Goalstate.*;
+import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.schema.Port;
+import com.futurewei.alcor.controller.schema.Subnet;
 import com.futurewei.alcor.controller.schema.Vpc;
-import com.futurewei.alcor.controller.schema.Vpc.*;
+import com.futurewei.alcor.controller.schema.Vpc.VpcConfiguration;
 
 public class GoalStateUtil {
     public static  GoalState CreateGoalState(

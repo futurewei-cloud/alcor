@@ -199,13 +199,13 @@ public class DemoConfig {
     // Large VPC
     // (byte)(205-OVERFLOW_IP_CONVERSION)
     public static HostInfo[] transitRouterHosts = {
-            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(3)}, "02:42:ac:11:00:03", 50001)
+            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(6)}, "02:42:ac:11:00:06", 50001)
     };
 
     public static HostInfo[] transitSwitchHosts = {
-            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(4)}, "02:42:ac:11:00:04", 50002),
-//            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(5)}, "02:42:ac:11:00:05", 50003),
-//            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(6)}, "02:42:ac:11:00:06", 50004)
+            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(7)}, "02:42:ac:11:00:07", 50002),
+            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(8)}, "02:42:ac:11:00:08", 50003),
+            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(9)}, "02:42:ac:11:00:09", 50004)
     };
 
     public static String EP1_ID = "ephost_0";
