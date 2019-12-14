@@ -1,5 +1,6 @@
 package com.futurewei.alcor.controller.web.util;
 
+import com.futurewei.alcor.controller.app.demo.DemoConfig;
 import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.exception.*;
@@ -7,6 +8,7 @@ import com.futurewei.alcor.controller.model.CustomerResource;
 import com.futurewei.alcor.controller.model.VpcState;
 import org.thymeleaf.util.StringUtils;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
@@ -73,28 +75,50 @@ public class RestPreconditions {
     }
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
+        BufferedWriter timeStampWriter = TIME_STAMP_WRITER;
+
         try {
-            TIME_STAMP_WRITER.newLine();
+            //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
+            timeStampWriter.newLine();
 
             long timeElapsedInMsForDataPersistence = (T1 - T0) / 1000000;
             long timeElapsedInMsForFirstMessaging = (timeArray[0] - T1) / 1000000;
-            TIME_STAMP_WRITER.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
+            timeStampWriter.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
                     timeElapsedInMsForFirstMessaging + ",");
             for (int i = 0; i < timeArray.length - 1 ; i++) {
                 long timestampInMs = (timeArray[i+1] - timeArray[i]) / 1000000;
-                TIME_STAMP_WRITER.write(timestampInMs + ",");
+                timeStampWriter.write(timestampInMs + ",");
             }
+            timeStampWriter.flush();
 
-            TOTAL_TIME += (timeArray[timeArray.length-1] - T0) / 1000000;
+            long elapseTimeInMs = (timeArray[timeArray.length-1] - T0) / 1000000;
+            TOTAL_TIME += elapseTimeInMs ;
             TOTAL_REQUEST ++;
+            if(elapseTimeInMs<MIN_TIME) MIN_TIME=elapseTimeInMs;
+            if(elapseTimeInMs>MAX_TIME) MAX_TIME=elapseTimeInMs;
 
-            if(TOTAL_REQUEST % 1000 == 0){
-                TIME_STAMP_WRITER.newLine();
-                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" +
+            if(TOTAL_REQUEST == epHosts.size() * EP_PER_HOST){
+                timeStampWriter.newLine();
+                timeStampWriter.write("," + TOTAL_TIME/TOTAL_REQUEST + "," +  MIN_TIME + "," + MAX_TIME);
+                timeStampWriter.newLine();
+                timeStampWriter.write("Average time of " + TOTAL_REQUEST + " requests :" +
                         TOTAL_TIME/TOTAL_REQUEST + " ms");
+                timeStampWriter.newLine();
+                timeStampWriter.write("Time span: " + (System.nanoTime()-APP_START_TS)/1000000 + " ms");
+                timeStampWriter.flush();
+
+                if(timeStampWriter != null)
+                    timeStampWriter.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try{
+//                if(timeStampWriter != null)
+//                    timeStampWriter.close();
+            }catch(Exception ex){
+                System.err.println("Error in closing the BufferedWriter" + ex);
+            }
         }
     }
 }

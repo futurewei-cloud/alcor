@@ -10,14 +10,19 @@ import com.futurewei.alcor.controller.exception.ParameterUnexpectedValueExceptio
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
 import com.futurewei.alcor.controller.model.PortState;
+import com.futurewei.alcor.controller.model.PortStateGroup;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
+import static com.futurewei.alcor.controller.app.demo.DemoConfig.TOTAL_REQUEST;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -181,5 +186,56 @@ public class PortController {
         return portStates;
     }
 
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/portgroup"},
+            consumes="application/json",
+            produces="application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<PortState> createPortStates(@PathVariable String projectid, @RequestBody PortStateGroup resourceGroup) throws Exception {
+
+        long T0 = System.nanoTime();
+        List<PortState> response = new ArrayList<>();
+
+        try{
+            RestPreconditions.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditions.verifyResourceFound(projectid);
+
+            List<PortState> portStates = resourceGroup.getPortStates();
+            for (PortState state : portStates) {
+                this.portRedisRepository.addItem(state);
+                response.add(state);
+            }
+            long T1 = System.nanoTime();
+
+            if(DemoConfig.IS_Demo) {
+                long[][] elapsedTimes = DemoUtil.CreatePortGroup(resourceGroup);
+                int hostCount = elapsedTimes.length;
+
+                long averageElapseTime = 0, minElapseTime = Long.MAX_VALUE, maxElapseTime = Long.MIN_VALUE;
+                System.out.println("Total number of time sequences:" + hostCount);
+                for (int i = 0; i < hostCount; i++) {
+                    long et = elapsedTimes[i][2] - T0;
+                    averageElapseTime += et;
+                    if(et<minElapseTime) minElapseTime=et;
+                    if(et>maxElapseTime) maxElapseTime=et;
+                    RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
+                }
+
+                TIME_STAMP_WRITER.newLine();
+                TIME_STAMP_WRITER.write("," + averageElapseTime/(1000000*hostCount) + "," +  minElapseTime/1000000 + "," + maxElapseTime/1000000);
+                TIME_STAMP_WRITER.newLine();
+                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" + TOTAL_TIME/TOTAL_REQUEST + " ms");
+                if(TIME_STAMP_WRITER != null)
+                    TIME_STAMP_WRITER.close();
+
+            }
+        }
+        catch (Exception e){
+            throw e;
+        }
+
+        return response;
+    }
 
 }
