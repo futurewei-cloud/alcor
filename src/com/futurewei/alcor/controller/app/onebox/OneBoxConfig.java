@@ -35,7 +35,7 @@ public class OneBoxConfig {
     public static long MIN_TIME = Long.MAX_VALUE;
     public static long APP_START_TS = 0;
 
-    public static String gRPCServerIp = "172.17.0.1"; //"10.213.43.166";
+    public static String gRPCServerIp = "172.17.0.1";
     public static int[] gRPCServerPortForSubnet1 = {
             50001,
             50002,

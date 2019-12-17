@@ -19,13 +19,14 @@ import org.springframework.context.annotation.Import;
 @Import({ RedisConfiguration.class})
 public class AlcorControllerApp {
     public static void main(String[] args) {
+
         System.out.println("Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
         System.out.println("Bye from Alcor Controller!\n\n");
 
         System.out.println("Loading node from config/machine.json");
-        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList("/app/config/machine.json"); //".\\config\\machine.json");
+        List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
         if(OneBoxConfig.IS_Demo){
             OneBoxUtil.AssignNodes(hostNodeList);
         }
