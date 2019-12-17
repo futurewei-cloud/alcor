@@ -7,14 +7,18 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Properties;
 
 public abstract class MessageConsumerFactory implements AbstractFactory<Consumer> {
 
+    @Value("${apache.kafka.address}")
+    private String kafkaAddress;
+
     public Consumer Create() {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, IKafkaConfiguration.KAFKA_BROKERS);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, IKafkaConfiguration.CONSUMER_GROUP_ID);
 
         // Key is set as long

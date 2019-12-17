@@ -5,14 +5,18 @@ import com.futurewei.alcor.controller.comm.config.IKafkaConfiguration;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.Serializer;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Properties;
 
 public abstract class MessageProducerFactory implements AbstractFactory<Producer> {
 
+    @Value("${apache.kafka.address}")
+    private String kafkaAddress;
+
     public Producer Create() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, IKafkaConfiguration.KAFKA_BROKERS);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaAddress);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, IKafkaConfiguration.PRODUCER_CLIENT_ID);
 
         // Key is set as long and Value is given by concrete implementation

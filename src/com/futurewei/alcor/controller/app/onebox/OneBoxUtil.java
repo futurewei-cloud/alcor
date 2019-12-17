@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.app.demo;
+package com.futurewei.alcor.controller.app.onebox;
 
 import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageConsumerFactory;
@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 
 // NOTE: This file is only used for demo purpose.
 //       Please don't use it in production
-public class DemoUtil {
+public class OneBoxUtil {
 
     private static final int THREADS_LIMIT = 100;
     private static final int TIMEOUT = 600;
@@ -30,25 +30,25 @@ public class DemoUtil {
         HostInfo[][] transitSwitchHosts;
         SubnetState customerSubnetState;
 
-        if(subnetState.getId().equalsIgnoreCase(DemoConfig.subnet1Id)){
+        if(subnetState.getId().equalsIgnoreCase(OneBoxConfig.subnet1Id)){
             transitSwitchHosts = new HostInfo[][] {
-                    DemoConfig.transitSwitchHostsForSubnet1,
+                    OneBoxConfig.transitSwitchHostsForSubnet1,
             };
-            customerSubnetState = new SubnetState(DemoConfig.customerSubnetState1);
+            customerSubnetState = new SubnetState(OneBoxConfig.customerSubnetState1);
 
             isFastPath = true;
         }
-        else if ((subnetState.getId().equalsIgnoreCase(DemoConfig.subnet2Id))){
+        else if ((subnetState.getId().equalsIgnoreCase(OneBoxConfig.subnet2Id))){
             transitSwitchHosts = new HostInfo[][] {
-                    DemoConfig.transitSwitchHostsForSubnet2
+                    OneBoxConfig.transitSwitchHostsForSubnet2
             };
-            customerSubnetState = new SubnetState(DemoConfig.customerSubnetState2);
+            customerSubnetState = new SubnetState(OneBoxConfig.customerSubnetState2);
         }
         else{
             transitSwitchHosts = new HostInfo[][] {
-                    DemoConfig.transitSwitchHosts,
+                    OneBoxConfig.transitSwitchHosts,
             };
-            customerSubnetState = new SubnetState(DemoConfig.customerSubnetState);
+            customerSubnetState = new SubnetState(OneBoxConfig.customerSubnetState);
 
             isFastPath = true;
         }
@@ -58,8 +58,8 @@ public class DemoUtil {
         ////////////////////////////////////////////////////////////////////////////
         final Goalstate.GoalState gsVpcState = GoalStateUtil.CreateGoalState(
                 Common.OperationType.CREATE_UPDATE_SWITCH,
-                DemoConfig.customerVpcState,
-                DemoConfig.transitRouterHosts,
+                OneBoxConfig.customerVpcState,
+                OneBoxConfig.transitRouterHosts,
                 Common.OperationType.CREATE_UPDATE_GATEWAY,
                 new SubnetState[]{customerSubnetState},
                 transitSwitchHosts);
@@ -69,11 +69,11 @@ public class DemoUtil {
             if(isFastPath){
                 System.out.println("Send Subnet id :" + subnetState.getId() + " with fast path");
                 System.out.println("GS: " + gsVpcState.toString());
-                GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, transitSwitch.getGRPCServerPort());
+                GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, transitSwitch.getGRPCServerPort());
                 gRpcClientForEpHost.PushNetworkResourceStates(gsVpcState);
             }
             else{
-                String topic = DemoConfig.HOST_ID_PREFIX + transitSwitch.getId();
+                String topic = OneBoxConfig.HOST_ID_PREFIX + transitSwitch.getId();
                 client.runProducer(topic, gsVpcState);
             }
         }
@@ -86,14 +86,14 @@ public class DemoUtil {
                 new SubnetState[]{customerSubnetState},
                 transitSwitchHosts);
 
-        for(HostInfo transitRouter : DemoConfig.transitRouterHosts){
+        for(HostInfo transitRouter : OneBoxConfig.transitRouterHosts){
             if(isFastPath){
                 System.out.println("Send VPC id :" + subnetState.getVpcId() + " with fast path");
-                GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, transitRouter.getGRPCServerPort());
+                GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, transitRouter.getGRPCServerPort());
                 gRpcClient.PushNetworkResourceStates(gsSubnetState);
             }
             else{
-                String topic = DemoConfig.HOST_ID_PREFIX + transitRouter.getId();
+                String topic = OneBoxConfig.HOST_ID_PREFIX + transitRouter.getId();
                 client.runProducer(topic, gsSubnetState);
             }
         }
@@ -102,7 +102,7 @@ public class DemoUtil {
     public static long[][] CreatePortGroup(PortStateGroup portStateGroup){
         List<PortState> portStates = portStateGroup.getPortStates();
         int portCount = portStates.size();
-        int epHostCount = DemoConfig.epHosts.size();
+        int epHostCount = OneBoxConfig.epHosts.size();
         int portCountPerHost = portCount/epHostCount > 0 ? portCount/epHostCount: 1;
 
         long[][] results = new long[epHostCount][];
@@ -112,7 +112,7 @@ public class DemoUtil {
 
         for (int i = 0; i < epHostCount ; i++) {
 
-            if(DemoConfig.IS_PARALLEL){
+            if(OneBoxConfig.IS_PARALLEL){
                 final int nodeIndex = i;
 
                 goalStateProgrammingService.submit(new Callable<long[]>() {
@@ -121,12 +121,12 @@ public class DemoUtil {
                         String name = Thread.currentThread().getName();
                         System.out.println("Running on thread " + name);
 
-                        return DemoUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
+                        return OneBoxUtil.CreatePorts(portStates, nodeIndex, nodeIndex*portCountPerHost, (nodeIndex+1)*portCountPerHost);
                     }
                 });
             }
             else{
-                long[] times = DemoUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
+                long[] times = OneBoxUtil.CreatePorts(portStates, i, i*portCountPerHost, (i+1)*portCountPerHost);
                 results[i] = times;
             }
         }
@@ -134,7 +134,7 @@ public class DemoUtil {
         int received = 0;
         boolean errors = false;
 
-        while(DemoConfig.IS_PARALLEL && received < epHostCount && !errors ){
+        while(OneBoxConfig.IS_PARALLEL && received < epHostCount && !errors ){
             try{
                 Future<long[]> resultFuture = goalStateProgrammingService.take();
                 long[] result = resultFuture.get();
@@ -156,20 +156,20 @@ public class DemoUtil {
         long[] recordedTimeStamp = new long[3];
         boolean isFastPath = true; //portStates.get(0).isFastPath();
 
-        SubnetState customerSubnetState = DemoConfig.customerSubnetState;
-        HostInfo[] transitSwitchHostsForSubnet = DemoConfig.transitSwitchHosts;
+        SubnetState customerSubnetState = OneBoxConfig.customerSubnetState;
+        HostInfo[] transitSwitchHostsForSubnet = OneBoxConfig.transitSwitchHosts;
         PortState[] customerPortStates = new PortState[epEndIndex-epStartIndex];
-        HostInfo epHost = DemoConfig.epHosts.get(hostIndex);
+        HostInfo epHost = OneBoxConfig.epHosts.get(hostIndex);
 
         for (int i = 0; i < epEndIndex-epStartIndex; i++) {
             int epIndex = epStartIndex + i;
-            PortState customerPortState = DemoUtil.GeneretePortState(epHost, epIndex);
+            PortState customerPortState = OneBoxUtil.GeneretePortState(epHost, epIndex);
             customerPortStates[i] = customerPortState;
         }
 
-        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, epHost.getGRPCServerPort());
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, epHost.getGRPCServerPort());
         MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-        String topicForEndpoint = DemoConfig.HOST_ID_PREFIX + epHost.getId();
+        String topicForEndpoint = OneBoxConfig.HOST_ID_PREFIX + epHost.getId();
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to EP host, update_endpoint
@@ -208,11 +208,11 @@ public class DemoUtil {
             if(isFastPath){
                 System.out.println("Sending " + customerPortStates.length  + " ports to transit switch with fast path");
                 System.out.println("Sending: " + gsPortStateForSwitch);
-                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             }
             else{
-                String topicForSwitch = DemoConfig.HOST_ID_PREFIX + switchForSubnet.getId();
+                String topicForSwitch = OneBoxConfig.HOST_ID_PREFIX + switchForSubnet.getId();
                 kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
             }
         }
@@ -253,76 +253,76 @@ public class DemoUtil {
 
         long[] recordedTimeStamp = new long[3];
 
-        if(portState.getNetworkId().equalsIgnoreCase(DemoConfig.subnet1Id)){
-            customerSubnetState = DemoConfig.customerSubnetState1;
-            transitSwitchHostsForSubnet = DemoConfig.transitSwitchHostsForSubnet1;
+        if(portState.getNetworkId().equalsIgnoreCase(OneBoxConfig.subnet1Id)){
+            customerSubnetState = OneBoxConfig.customerSubnetState1;
+            transitSwitchHostsForSubnet = OneBoxConfig.transitSwitchHostsForSubnet1;
             isFastPath = true;
         }
-        else if (portState.getNetworkId().equalsIgnoreCase(DemoConfig.subnet2Id)){
-            customerSubnetState = DemoConfig.customerSubnetState2;
-            transitSwitchHostsForSubnet = DemoConfig.transitSwitchHostsForSubnet2;
+        else if (portState.getNetworkId().equalsIgnoreCase(OneBoxConfig.subnet2Id)){
+            customerSubnetState = OneBoxConfig.customerSubnetState2;
+            transitSwitchHostsForSubnet = OneBoxConfig.transitSwitchHostsForSubnet2;
         }
         else{
-            customerSubnetState = DemoConfig.customerSubnetState;
-            transitSwitchHostsForSubnet = DemoConfig.transitSwitchHosts;
+            customerSubnetState = OneBoxConfig.customerSubnetState;
+            transitSwitchHostsForSubnet = OneBoxConfig.transitSwitchHosts;
             isFastPath = true;
         }
 
-        if(portState.getId().equalsIgnoreCase(DemoConfig.ep1Id)){
+        if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep1Id)){
             System.out.println("check input id :" + portState.getId());
-            customerPortState = DemoConfig.customerPortStateForSubnet1[0];
+            customerPortState = OneBoxConfig.customerPortStateForSubnet1[0];
             System.out.println("check name :" + customerPortState.getName());
-            epHost = DemoConfig.epHostForSubnet1[0];
+            epHost = OneBoxConfig.epHostForSubnet1[0];
             isFastPath = true;
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep2Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet1[1];
-            epHost = DemoConfig.epHostForSubnet1[1];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep2Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet1[1];
+            epHost = OneBoxConfig.epHostForSubnet1[1];
             isFastPath = true;
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep3Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet1[2];
-            epHost = DemoConfig.epHostForSubnet1[2];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep3Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet1[2];
+            epHost = OneBoxConfig.epHostForSubnet1[2];
             isFastPath = true;
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep4Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet1[3];
-            epHost = DemoConfig.epHostForSubnet1[3];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep4Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet1[3];
+            epHost = OneBoxConfig.epHostForSubnet1[3];
             isFastPath = true;
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep5Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet2[0];
-            epHost = DemoConfig.epHostForSubnet2[0];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep5Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet2[0];
+            epHost = OneBoxConfig.epHostForSubnet2[0];
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep6Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet2[1];
-            epHost = DemoConfig.epHostForSubnet2[1];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep6Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet2[1];
+            epHost = OneBoxConfig.epHostForSubnet2[1];
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep7Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet2[2];
-            epHost = DemoConfig.epHostForSubnet2[2];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep7Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet2[2];
+            epHost = OneBoxConfig.epHostForSubnet2[2];
         }
-        else if(portState.getId().equalsIgnoreCase(DemoConfig.ep8Id)){
-            customerPortState = DemoConfig.customerPortStateForSubnet2[3];
-            epHost = DemoConfig.epHostForSubnet2[3];
+        else if(portState.getId().equalsIgnoreCase(OneBoxConfig.ep8Id)){
+            customerPortState = OneBoxConfig.customerPortStateForSubnet2[3];
+            epHost = OneBoxConfig.epHostForSubnet2[3];
         }
         else{
-            System.out.println("EP host counter :" + DemoConfig.epHostCounter + "| ep counter: " + DemoConfig.epCounter);
+            System.out.println("EP host counter :" + OneBoxConfig.epHostCounter + "| ep counter: " + OneBoxConfig.epCounter);
 
-            epHost = DemoConfig.epHosts.get(DemoConfig.epHostCounter);
-            customerPortState = DemoUtil.GeneretePortState(epHost, DemoConfig.epCounter);
+            epHost = OneBoxConfig.epHosts.get(OneBoxConfig.epHostCounter);
+            customerPortState = OneBoxUtil.GeneretePortState(epHost, OneBoxConfig.epCounter);
 
-            DemoConfig.epCounter++;
-            if(DemoConfig.epCounter % DemoConfig.EP_PER_HOST == 0){
-                DemoConfig.epHostCounter++;
+            OneBoxConfig.epCounter++;
+            if(OneBoxConfig.epCounter % OneBoxConfig.EP_PER_HOST == 0){
+                OneBoxConfig.epHostCounter++;
             }
         }
 
         System.out.println("EP :" + customerPortState.getId() + " name " + customerPortState.getName());
 
-        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, epHost.getGRPCServerPort());
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, epHost.getGRPCServerPort());
         MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
-        String topicForEndpoint = DemoConfig.HOST_ID_PREFIX + epHost.getId();
+        String topicForEndpoint = OneBoxConfig.HOST_ID_PREFIX + epHost.getId();
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to EP host, update_endpoint
@@ -359,11 +359,11 @@ public class DemoUtil {
         for (HostInfo switchForSubnet : transitSwitchHostsForSubnet){
             if(isFastPath){
                 System.out.println("Send port id :" + portState.getId() + " to transit switch with fast path");
-                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(DemoConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(OneBoxConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             }
             else{
-                String topicForSwitch = DemoConfig.HOST_ID_PREFIX + switchForSubnet.getId();
+                String topicForSwitch = OneBoxConfig.HOST_ID_PREFIX + switchForSubnet.getId();
                 kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
             }
         }
@@ -396,20 +396,20 @@ public class DemoUtil {
 
     public static void AssignNodes(List<HostInfo> hosts){
         for (int i = 0; i < hosts.size() ; i++) {
-            hosts.get(i).setGRPCServerPort(DemoConfig.GRPC_SERVER_PORT + i);
+            hosts.get(i).setGRPCServerPort(OneBoxConfig.GRPC_SERVER_PORT + i);
         }
 
-        DemoConfig.epHosts = new ArrayList<>(hosts);
+        OneBoxConfig.epHosts = new ArrayList<>(hosts);
     }
 
     // This function generates port state solely based on the container host
     public static PortState GeneretePortState(HostInfo hostInfo, int epIndex){
-        return new PortState(DemoConfig.projectId,
-                DemoConfig.subnetId,
+        return new PortState(OneBoxConfig.projectId,
+                OneBoxConfig.subnetId,
                 epIndex + "_" + hostInfo.getId(),
                 epIndex + "_" + hostInfo.getId(),
                 GenereateMacAddress(epIndex),
-                DemoConfig.VETH_NAME,
+                OneBoxConfig.VETH_NAME,
                 new String[]{GenereateIpAddress(epIndex)});
     }
 
@@ -425,12 +425,12 @@ public class DemoUtil {
 
         //TODO: Algorithm to allocate transit switches and routers
         HostInfo[] transitSwitches = {
-                new HostInfo(DemoConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-                new HostInfo(DemoConfig.TRANSIT_SWTICH_3_HOST_ID, "transit switch host2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
+                new HostInfo(OneBoxConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo(OneBoxConfig.TRANSIT_SWTICH_3_HOST_ID, "transit switch host2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC)
         };
         HostInfo[] transitRouters = {
-                new HostInfo(DemoConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
-                new HostInfo(DemoConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
+                new HostInfo(OneBoxConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", OneBoxConfig.TRANSIT_ROUTER_1_IP, OneBoxConfig.TRANSIT_ROUTER_1_MAC),
+                new HostInfo(OneBoxConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", OneBoxConfig.TRANSIT_ROUTER_2_IP, OneBoxConfig.TRANSIT_ROUTER_2_MAC)
         };
 
         // Generate subnet goal states and send them to all transit routers

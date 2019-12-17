@@ -1,7 +1,7 @@
 package com.futurewei.alcor.controller.schema;
 
 import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
+import com.futurewei.alcor.controller.app.onebox.DemoConfig;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 import com.google.protobuf.InvalidProtocolBufferException;

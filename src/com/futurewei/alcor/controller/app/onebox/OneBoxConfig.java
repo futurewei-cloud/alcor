@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.app.demo;
+package com.futurewei.alcor.controller.app.onebox;
 
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-public class DemoConfig {
+public class OneBoxConfig {
 
     public static boolean IS_Demo = true;
     public static boolean IS_PARALLEL = true;
@@ -35,7 +35,7 @@ public class DemoConfig {
     public static long MIN_TIME = Long.MAX_VALUE;
     public static long APP_START_TS = 0;
 
-    public static String gRPCServerIp = "10.213.43.166";
+    public static String gRPCServerIp = "172.17.0.1";
     public static int[] gRPCServerPortForSubnet1 = {
             50001,
             50002,
@@ -103,22 +103,22 @@ public class DemoConfig {
             new PortState(projectId, subnet1Id, ep1Id,
                     "89e72582", //DemoConfig.EP1_ID,
                     "0e:73:ae:c8:87:00",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.0.1"}),
             new PortState(projectId, subnet1Id, ep2Id,
                     "34bf0cec",
                     "0e:73:ae:c8:87:01",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.0.2"}),
             new PortState(projectId, subnet1Id, ep3Id,
                     "64353fd7",
                     "0e:73:ae:c8:87:02",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.0.3"}),
             new PortState(projectId, subnet1Id, ep4Id,
                     "cae2df90",
                     "0e:73:ae:c8:87:03",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.0.4"})
     };
 
@@ -126,22 +126,22 @@ public class DemoConfig {
             new PortState(projectId, subnet2Id, ep5Id,
                     "364d2bbd",
                     "0e:73:ae:c8:87:04",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.1.1"}),
             new PortState(projectId, subnet2Id, ep6Id,
                     "c60fe503",
                     "0e:73:ae:c8:87:05",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.1.2"}),
             new PortState(projectId, subnet2Id, ep7Id,
                     "38e45f95",
                     "0e:73:ae:c8:87:06",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.1.3"}),
             new PortState(projectId, subnet2Id, ep8Id,
                     "b81abf49",
                     "0e:73:ae:c8:87:07",
-                    DemoConfig.VETH_NAME,
+                    OneBoxConfig.VETH_NAME,
                     new String[]{"10.0.1.4"})
     };
 
@@ -182,13 +182,13 @@ public class DemoConfig {
 //    };
 
     public static HostInfo[] transitSwitchHostsForSubnet1 = {
-            new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC, DemoConfig.gRPCServerPortForSubnet1[4]),
-            new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC, DemoConfig.gRPCServerPortForSubnet1[5])
+            new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC, OneBoxConfig.gRPCServerPortForSubnet1[4]),
+            new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_2_IP, OneBoxConfig.TRANSIT_SWITCH_2_MAC, OneBoxConfig.gRPCServerPortForSubnet1[5])
     };
 
     public static HostInfo[] transitSwitchHostsForSubnet2 = {
-            new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
-            new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
+            new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC),
+            new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_4_IP, OneBoxConfig.TRANSIT_SWITCH_4_MAC)
     };
 
 //    public static HostInfo[] transitRouterHosts = {
@@ -240,17 +240,17 @@ public class DemoConfig {
     public static String EP8_HOST_MAC = "02:42:ac:11:00:0a";
 
     public static HostInfo[] epHostForSubnet1 = {
-            new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[0]),
-            new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[1]),
-            new HostInfo("subnet1-ep3", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[2]),
-            new HostInfo("subnet1-ep4", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC, DemoConfig.gRPCServerPortForSubnet1[3]),
+            new HostInfo("subnet1-ep1", "ep1 host", OneBoxConfig.EP1_HOST_IP, OneBoxConfig.EP1_HOST_MAC, OneBoxConfig.gRPCServerPortForSubnet1[0]),
+            new HostInfo("subnet1-ep2", "ep2 host", OneBoxConfig.EP2_HOST_IP, OneBoxConfig.EP2_HOST_MAC, OneBoxConfig.gRPCServerPortForSubnet1[1]),
+            new HostInfo("subnet1-ep3", "ep3 host", OneBoxConfig.EP3_HOST_IP, OneBoxConfig.EP3_HOST_MAC, OneBoxConfig.gRPCServerPortForSubnet1[2]),
+            new HostInfo("subnet1-ep4", "ep4 host", OneBoxConfig.EP4_HOST_IP, OneBoxConfig.EP4_HOST_MAC, OneBoxConfig.gRPCServerPortForSubnet1[3]),
     };
 
     public static HostInfo[] epHostForSubnet2 = {
-            new HostInfo("subnet2-ep1", "ep5 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
-            new HostInfo("subnet2-ep2", "ep6 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
-            new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP7_HOST_IP, DemoConfig.EP7_HOST_MAC),
-            new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP8_HOST_IP, DemoConfig.EP8_HOST_MAC),
+            new HostInfo("subnet2-ep1", "ep5 host", OneBoxConfig.EP5_HOST_IP, OneBoxConfig.EP5_HOST_MAC),
+            new HostInfo("subnet2-ep2", "ep6 host", OneBoxConfig.EP6_HOST_IP, OneBoxConfig.EP6_HOST_MAC),
+            new HostInfo("subnet2-ep3", "ep7 host", OneBoxConfig.EP7_HOST_IP, OneBoxConfig.EP7_HOST_MAC),
+            new HostInfo("subnet2-ep4", "ep8 host", OneBoxConfig.EP8_HOST_IP, OneBoxConfig.EP8_HOST_MAC),
     };
 
     public static int epHostCounter = 0;

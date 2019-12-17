@@ -1,8 +1,6 @@
 package com.futurewei.alcor.controller.resourcemgr.physical;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +11,28 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 
 public class DataCenterConfigLoader {
-    public static List<HostInfo> loadAndGetHostNodeList(String machineConfigFilePath){
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Value("${alcor.machine.config:app/config/machine.json}")
+    private String machineConfigFile;
+
+    String getPropertyFile(){
+        return resourceLoader.getResource(this.machineConfigFile).getFilename();
+    }
+
+    public List<HostInfo> loadAndGetHostNodeList() {
+        System.out.println("Loading node from " + this.machineConfigFile);
+        return this.loadAndGetHostNodeList(this.machineConfigFile);
+    }
+
+    public List<HostInfo> loadAndGetHostNodeList(String machineConfigFilePath){
 
         //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
@@ -27,7 +44,7 @@ public class DataCenterConfigLoader {
             JSONArray nodeList = (JSONArray) obj.get("Hosts");
 
             nodeList.forEach( node -> {
-                HostInfo hostNode = DataCenterConfigLoader.parseNodeObject((JSONObject) node);
+                HostInfo hostNode = this.parseNodeObject((JSONObject) node);
                 if(hostNode != null) hostInfos.add(hostNode);
             });
         } catch (FileNotFoundException e) {
@@ -41,7 +58,7 @@ public class DataCenterConfigLoader {
         return hostInfos;
     }
 
-    private static HostInfo parseNodeObject(JSONObject node)
+    private HostInfo parseNodeObject(JSONObject node)
     {
         String id = (String) node.get("id");
         String ip = (String) node.get("ip");

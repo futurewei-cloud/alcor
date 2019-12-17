@@ -1,6 +1,6 @@
 package com.futurewei.alcor.controller.utilities;
 
-import com.futurewei.alcor.controller.app.demo.*;
+import com.futurewei.alcor.controller.app.onebox.*;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -170,7 +170,7 @@ public class GoalStateUtil {
                         .setId(vpc_id)
                         .setName(vpc_name)
                         .setCidr(cidr)
-                        .setTunnelId(DemoConfig.Tunnel_Id))
+                        .setTunnelId(OneBoxConfig.Tunnel_Id))
                 .build();
     }
 
@@ -186,7 +186,7 @@ public class GoalStateUtil {
                 .setId(vpcId)
                 .setName(customerVpcState.getName())
                 .setCidr(customerVpcState.getCidr())
-                .setTunnelId(DemoConfig.Tunnel_Id);
+                .setTunnelId(OneBoxConfig.Tunnel_Id);
 
         for (HostInfo routerHost : transitRouterHosts){
             vpcConfiguration.addTransitRouters(
@@ -218,14 +218,14 @@ public class GoalStateUtil {
                 .setId(subnetId)
                 .setName(customerSubnetState.getName())
                 .setCidr(customerSubnetState.getCidr())
-                .setTunnelId(DemoConfig.Tunnel_Id);
+                .setTunnelId(OneBoxConfig.Tunnel_Id);
 
         subnetConfiguration.setGateway(
                 Subnet.SubnetConfiguration.Gateway.newBuilder()
                         .setVpcId(vpcId)
                         .setSubnetId(subnetId)
                         .setIpAddress(customerSubnetState.getGatewayIp())
-                        .setMacAddress(DemoConfig.GATEWAY_MAC_ADDRESS));
+                        .setMacAddress(OneBoxConfig.GATEWAY_MAC_ADDRESS));
 
         for(HostInfo switchHost : transitSwitchHosts){
             subnetConfiguration.addTransitSwitches(

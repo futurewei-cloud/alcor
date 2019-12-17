@@ -3,9 +3,9 @@ package com.futurewei.alcor.controller.app;
 import java.util.Arrays;
 import java.util.List;
 
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
-import com.futurewei.alcor.controller.app.demo.DemoUtil;
-import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
+import com.futurewei.alcor.controller.cache.config.*;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.DataCenterConfigLoader;
 import org.springframework.boot.CommandLineRunner;
@@ -19,18 +19,19 @@ import org.springframework.context.annotation.Import;
 @Import({ RedisConfiguration.class})
 public class AlcorControllerApp {
     public static void main(String[] args) {
+
         System.out.println("Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
         System.out.println("Bye from Alcor Controller!\n\n");
 
         System.out.println("Loading node from config/machine.json");
-        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList(".\\config\\machine.json");
-        if(DemoConfig.IS_Demo){
-            DemoUtil.AssignNodes(hostNodeList);
+        List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
+        if(OneBoxConfig.IS_Demo){
+            OneBoxUtil.AssignNodes(hostNodeList);
         }
         System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");
-        DemoConfig.APP_START_TS = System.nanoTime();
+        OneBoxConfig.APP_START_TS = System.nanoTime();
     }
 
     @Bean
