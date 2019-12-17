@@ -1,7 +1,6 @@
 package com.futurewei.alcor.controller.comm.config;
 
 public interface IKafkaConfiguration {
-    public static String KAFKA_BROKERS = "172.17.0.1:9092";
 
     public static String CONSUMER_GROUP_ID = "vpc_controller_c2";
     public static Integer MAX_NO_MESSAGE_FOUND_COUNT = 10;

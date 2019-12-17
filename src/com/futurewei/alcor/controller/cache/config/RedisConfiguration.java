@@ -7,6 +7,7 @@ import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,16 +26,17 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 @EntityScan("com.futurewei.alcor.controller.cache")
 public class RedisConfiguration {
 
-//    @Bean
-//    JedisConnectionFactory jedisConnectionFactory() {
-//        return new JedisConnectionFactory();
-//    }
+    @Value("${spring.redis.host}")
+    private String redisHostName;
+
+    @Value("${spring.redis.port}")
+    private int redisHostPort;
 
     @Bean
     LettuceConnectionFactory lettuceConnectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName("172.17.0.1");
-        configuration.setPort(6379);
+        configuration.setHostName(redisHostName);
+        configuration.setPort(redisHostPort);
         return new LettuceConnectionFactory(configuration);
     }
 

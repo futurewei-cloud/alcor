@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.futurewei.alcor.controller.app.demo.DemoConfig;
 import com.futurewei.alcor.controller.app.demo.DemoUtil;
-import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
+import com.futurewei.alcor.controller.cache.config.*;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.DataCenterConfigLoader;
 import org.springframework.boot.CommandLineRunner;
@@ -25,7 +25,7 @@ public class AlcorControllerApp {
         System.out.println("Bye from Alcor Controller!\n\n");
 
         System.out.println("Loading node from config/machine.json");
-        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList(".\\config\\machine.json");
+        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList("/app/config/machine.json"); //".\\config\\machine.json");
         if(DemoConfig.IS_Demo){
             DemoUtil.AssignNodes(hostNodeList);
         }
