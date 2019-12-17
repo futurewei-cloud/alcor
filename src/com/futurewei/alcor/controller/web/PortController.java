@@ -1,7 +1,7 @@
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
-import com.futurewei.alcor.controller.app.demo.DemoUtil;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
 import com.futurewei.alcor.controller.cache.repo.PortRedisRepository;
 import com.futurewei.alcor.controller.cache.repo.SubnetRedisRepository;
 import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.TOTAL_REQUEST;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
@@ -84,8 +82,8 @@ public class PortController {
             this.portRedisRepository.addItem(resource);
             long T1 = System.nanoTime();
 
-            if(DemoConfig.IS_Demo) {
-                long[] times = DemoUtil.CreatePort(resource);
+            if(OneBoxConfig.IS_Demo) {
+                long[] times = OneBoxUtil.CreatePort(resource);
                 RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
             }
         }
@@ -208,8 +206,8 @@ public class PortController {
             }
             long T1 = System.nanoTime();
 
-            if(DemoConfig.IS_Demo) {
-                long[][] elapsedTimes = DemoUtil.CreatePortGroup(resourceGroup);
+            if(OneBoxConfig.IS_Demo) {
+                long[][] elapsedTimes = OneBoxUtil.CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
 
                 long averageElapseTime = 0, minElapseTime = Long.MAX_VALUE, maxElapseTime = Long.MIN_VALUE;
@@ -222,12 +220,12 @@ public class PortController {
                     RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
                 }
 
-                TIME_STAMP_WRITER.newLine();
-                TIME_STAMP_WRITER.write("," + averageElapseTime/(1000000*hostCount) + "," +  minElapseTime/1000000 + "," + maxElapseTime/1000000);
-                TIME_STAMP_WRITER.newLine();
-                TIME_STAMP_WRITER.write("Average time of " + TOTAL_REQUEST + " requests :" + TOTAL_TIME/TOTAL_REQUEST + " ms");
-                if(TIME_STAMP_WRITER != null)
-                    TIME_STAMP_WRITER.close();
+                OneBoxConfig.TIME_STAMP_WRITER.newLine();
+                OneBoxConfig.TIME_STAMP_WRITER.write("," + averageElapseTime/(1000000*hostCount) + "," +  minElapseTime/1000000 + "," + maxElapseTime/1000000);
+                OneBoxConfig.TIME_STAMP_WRITER.newLine();
+                OneBoxConfig.TIME_STAMP_WRITER.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" + OneBoxConfig.TOTAL_TIME/OneBoxConfig.TOTAL_REQUEST + " ms");
+                if(OneBoxConfig.TIME_STAMP_WRITER != null)
+                    OneBoxConfig.TIME_STAMP_WRITER.close();
 
             }
         }

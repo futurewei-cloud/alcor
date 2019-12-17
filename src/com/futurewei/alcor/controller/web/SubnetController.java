@@ -6,8 +6,8 @@ import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
-import com.futurewei.alcor.controller.app.demo.DemoUtil;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -77,8 +77,8 @@ public class SubnetController {
                 throw new ResourcePersistenceException();
             }
 
-            if(DemoConfig.IS_Demo) {
-                DemoUtil.CreateSubnet(subnetState);
+            if(OneBoxConfig.IS_Demo) {
+                OneBoxUtil.CreateSubnet(subnetState);
             }
         }
         catch (ResourceNullException e){

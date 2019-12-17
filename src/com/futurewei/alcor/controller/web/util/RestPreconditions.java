@@ -1,17 +1,14 @@
 package com.futurewei.alcor.controller.web.util;
 
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.SubnetState;
-import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.CustomerResource;
 import com.futurewei.alcor.controller.model.VpcState;
 import org.thymeleaf.util.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-
-import static com.futurewei.alcor.controller.app.demo.DemoConfig.*;
 
 public class RestPreconditions {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
@@ -75,7 +72,7 @@ public class RestPreconditions {
     }
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
-        BufferedWriter timeStampWriter = TIME_STAMP_WRITER;
+        BufferedWriter timeStampWriter = OneBoxConfig.TIME_STAMP_WRITER;
 
         try {
             //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
@@ -92,19 +89,19 @@ public class RestPreconditions {
             timeStampWriter.flush();
 
             long elapseTimeInMs = (timeArray[timeArray.length-1] - T0) / 1000000;
-            TOTAL_TIME += elapseTimeInMs ;
-            TOTAL_REQUEST ++;
-            if(elapseTimeInMs<MIN_TIME) MIN_TIME=elapseTimeInMs;
-            if(elapseTimeInMs>MAX_TIME) MAX_TIME=elapseTimeInMs;
+            OneBoxConfig.TOTAL_TIME += elapseTimeInMs ;
+            OneBoxConfig.TOTAL_REQUEST ++;
+            if(elapseTimeInMs < OneBoxConfig.MIN_TIME) OneBoxConfig.MIN_TIME = elapseTimeInMs;
+            if(elapseTimeInMs > OneBoxConfig.MAX_TIME) OneBoxConfig.MAX_TIME = elapseTimeInMs;
 
-            if(TOTAL_REQUEST == epHosts.size() * EP_PER_HOST){
+            if(OneBoxConfig.TOTAL_REQUEST == OneBoxConfig.epHosts.size() * OneBoxConfig.EP_PER_HOST){
                 timeStampWriter.newLine();
-                timeStampWriter.write("," + TOTAL_TIME/TOTAL_REQUEST + "," +  MIN_TIME + "," + MAX_TIME);
+                timeStampWriter.write("," + OneBoxConfig.TOTAL_TIME/OneBoxConfig.TOTAL_REQUEST + "," +  OneBoxConfig.MIN_TIME + "," + OneBoxConfig.MAX_TIME);
                 timeStampWriter.newLine();
-                timeStampWriter.write("Average time of " + TOTAL_REQUEST + " requests :" +
-                        TOTAL_TIME/TOTAL_REQUEST + " ms");
+                timeStampWriter.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" +
+                        OneBoxConfig.TOTAL_TIME/OneBoxConfig.TOTAL_REQUEST + " ms");
                 timeStampWriter.newLine();
-                timeStampWriter.write("Time span: " + (System.nanoTime()-APP_START_TS)/1000000 + " ms");
+                timeStampWriter.write("Time span: " + (System.nanoTime() - OneBoxConfig.APP_START_TS)/1000000 + " ms");
                 timeStampWriter.flush();
 
                 if(timeStampWriter != null)
