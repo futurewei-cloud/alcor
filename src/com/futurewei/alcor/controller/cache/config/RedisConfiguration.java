@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -31,7 +32,10 @@ public class RedisConfiguration {
 
     @Bean
     LettuceConnectionFactory lettuceConnectionFactory() {
-        return new LettuceConnectionFactory();
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName("172.17.0.1");
+        configuration.setPort(6379);
+        return new LettuceConnectionFactory(configuration);
     }
 
     @Bean
