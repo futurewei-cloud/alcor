@@ -2,7 +2,7 @@ package com.futurewei.alcor.controller.exception;
 
 public class ResourceNotFoundException extends Exception {
 
-    public ResourceNotFoundException(){
+    public ResourceNotFoundException() {
 
     }
 

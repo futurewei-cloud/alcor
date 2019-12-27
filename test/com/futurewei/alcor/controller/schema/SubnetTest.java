@@ -32,7 +32,7 @@ public class SubnetTest {
             final Subnet.SubnetState deserializedObject = Subnet.SubnetState.parseFrom(binaryState);
 
             TestUtil.AssertSubnetStates(state, deserializedObject);
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             Assert.assertTrue(false);
         }
     }

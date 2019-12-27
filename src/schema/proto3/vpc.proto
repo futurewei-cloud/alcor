@@ -8,35 +8,35 @@ option java_outer_classname = "Vpc";
 import "common.proto";
 
 message VpcConfiguration {
-  int32 version = 1;
+    int32 version = 1;
 
-  string project_id = 2;
-  string id  = 3;
-  string name = 4;
-  string cidr = 5;
-  int64 tunnel_id = 6;
+    string project_id = 2;
+    string id = 3;
+    string name = 4;
+    string cidr = 5;
+    int64 tunnel_id = 6;
 
-  message SubnetId {
-    string id = 1;
-  }
+    message SubnetId {
+        string id = 1;
+    }
 
-  message Route {
-    string destination = 1;
-    string next_hop = 2;
-  }
+    message Route {
+        string destination = 1;
+        string next_hop = 2;
+    }
 
-  message TransitRouter {
-    string vpc_id = 1;
-    string ip_address = 2;
-    string mac_address = 3;
-  }
+    message TransitRouter {
+        string vpc_id = 1;
+        string ip_address = 2;
+        string mac_address = 3;
+    }
 
-  repeated SubnetId subnet_ids = 7;
-  repeated Route routes = 8;
-  repeated TransitRouter transit_routers = 9;
+    repeated SubnetId subnet_ids = 7;
+    repeated Route routes = 8;
+    repeated TransitRouter transit_routers = 9;
 }
 
 message VpcState {
-  OperationType operation_type = 1;
-  VpcConfiguration configuration =  2;
+    OperationType operation_type = 1;
+    VpcConfiguration configuration = 2;
 }

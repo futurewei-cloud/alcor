@@ -60,7 +60,7 @@ public class MessageClientTest {
 
             TestUtil.AssertVpcStates(vpc_state, receivedGoalState.getVpcStates(1));
             Assert.assertTrue(false);
-        } catch (AssertionError assertionError){
+        } catch (AssertionError assertionError) {
             //catch expected exception
             Assert.assertTrue(true);
         }
@@ -75,8 +75,8 @@ public class MessageClientTest {
                 "10.0.0.0/24");
 
         HostInfo[] transitSwitches = {
-                new HostInfo("subnet1-ts1", "transit switch host1", new byte[]{10,0,0,1}, "fa:16:3e:d7:f1:04"),
-                new HostInfo("subnet1-ts2", "transit switch host2", new byte[]{10,0,0,2}, "fa:16:3e:d7:f1:05")
+                new HostInfo("subnet1-ts1", "transit switch host1", new byte[]{10, 0, 0, 1}, "fa:16:3e:d7:f1:04"),
+                new HostInfo("subnet1-ts2", "transit switch host2", new byte[]{10, 0, 0, 2}, "fa:16:3e:d7:f1:05")
         };
 
         final Subnet.SubnetState subnetState1 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
@@ -90,8 +90,8 @@ public class MessageClientTest {
                 "10.0.1.0/24");
 
         HostInfo[] transitSwitches2 = {
-                new HostInfo("subnet2-ts1", "transit switch host1", new byte[]{10,0,1,1}, "fa:16:3e:d7:f1:06"),
-                new HostInfo("subnet2-ts2", "transit switch host2", new byte[]{10,0,1,2}, "fa:16:3e:d7:f1:07")
+                new HostInfo("subnet2-ts1", "transit switch host1", new byte[]{10, 0, 1, 1}, "fa:16:3e:d7:f1:06"),
+                new HostInfo("subnet2-ts2", "transit switch host2", new byte[]{10, 0, 1, 2}, "fa:16:3e:d7:f1:07")
         };
 
         final Subnet.SubnetState subnetState2 = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,
@@ -122,7 +122,7 @@ public class MessageClientTest {
 
             TestUtil.AssertSubnetStates(subnetState1, receivedGoalState.getSubnetStates(1));
             Assert.assertTrue(false);
-        } catch (AssertionError assertionError){
+        } catch (AssertionError assertionError) {
             //catch expected exception
             Assert.assertTrue(true);
         }
@@ -190,11 +190,11 @@ public class MessageClientTest {
         };
 
         HostInfo[] transitSwitchHostsForSubnet1 = {
-                new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
         };
 
         HostInfo[] transitSwitchHostsForSubnet2 = {
-                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
+                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
         };
 
         HostInfo[] epHostForSubnet1 = {
@@ -301,13 +301,13 @@ public class MessageClientTest {
         };
 
         HostInfo[] transitSwitchHostsForSubnet1 = {
-                new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-                new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo("subnet1-transit-switch2", "transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
         };
 
         HostInfo[] transitSwitchHostsForSubnet2 = {
-                new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
-                new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
+                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
+                new HostInfo("subnet2-transit-switch2", "transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
         };
 
         HostInfo[] epHostForSubnet1 = {
@@ -332,9 +332,9 @@ public class MessageClientTest {
     }
 
     private void OneVpcTwoSubnetsCommonTest(VpcState customerVpcState, SubnetState customerSubnetState1, SubnetState customerSubnetState2,
-                            PortState[] customerPortStateForSubnet1, PortState[] customerPortStateForSubnet2,
-                            HostInfo[] transitRouterHosts, HostInfo[] transitSwitchHostsForSubnet1, HostInfo[] transitSwitchHostsForSubnet2,
-                            HostInfo[] epHostForSubnet1, HostInfo[] epHostForSubnet2, String hostIdPrefix){
+                                            PortState[] customerPortStateForSubnet1, PortState[] customerPortStateForSubnet2,
+                                            HostInfo[] transitRouterHosts, HostInfo[] transitSwitchHostsForSubnet1, HostInfo[] transitSwitchHostsForSubnet2,
+                                            HostInfo[] epHostForSubnet1, HostInfo[] epHostForSubnet2, String hostIdPrefix) {
 
         MessageClient client = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
 
@@ -355,8 +355,7 @@ public class MessageClientTest {
                 customerVpcState,
                 transitRouterHosts);
 
-        for(HostInfo transitSwitch : transitSwitchHostsForSubnet1)
-        {
+        for (HostInfo transitSwitch : transitSwitchHostsForSubnet1) {
             String topic = hostIdPrefix + transitSwitch.getId();
             client.runProducer(topic, gsVpcState);
             List goalStateList = client.runConsumer(topic, true);
@@ -371,8 +370,7 @@ public class MessageClientTest {
             TestUtil.AssertVpcStates(gsVpcState.getVpcStates(0), receivedGoalState.getVpcStates(0));
         }
 
-        for(HostInfo transitSwitch : transitSwitchHostsForSubnet2)
-        {
+        for (HostInfo transitSwitch : transitSwitchHostsForSubnet2) {
             String topic = hostIdPrefix + transitSwitch.getId();
             client.runProducer(topic, gsVpcState);
             List goalStateList = client.runConsumer(topic, true);
@@ -395,7 +393,7 @@ public class MessageClientTest {
                 new SubnetState[]{customerSubnetState1, customerSubnetState2},
                 transitSwitchHosts);
 
-        for(HostInfo transitRouter : transitRouterHosts){
+        for (HostInfo transitRouter : transitRouterHosts) {
             String topic = hostIdPrefix + transitRouter.getId();
             client.runProducer(topic, gsSubnetState);
             List goalStateList = client.runConsumer(topic, true);
@@ -414,7 +412,7 @@ public class MessageClientTest {
             try {
                 TestUtil.AssertSubnetStates(gsSubnetState.getSubnetStates(0), receivedGoalState.getSubnetStates(1));
                 Assert.assertTrue(false);
-            } catch (AssertionError assertionError){
+            } catch (AssertionError assertionError) {
                 //catch expected exception
                 Assert.assertTrue(true);
             }
@@ -424,7 +422,7 @@ public class MessageClientTest {
         // Step 3: Go to EP1 host and EP2 host, update_endpoint
         //         Go to EP3 host and EP4 host, update_endpoint
         ////////////////////////////////////////////////////////////////////////////
-        for (int i=0; i<customerPortStateForSubnet1.length; i++){
+        for (int i = 0; i < customerPortStateForSubnet1.length; i++) {
             final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
                     customerSubnetState1,
@@ -449,7 +447,7 @@ public class MessageClientTest {
             TestUtil.AssertPortStates(gsPortState.getPortStates(0), receivedGoalState.getPortStates(0));
         }
 
-        for (int i=0; i<customerPortStateForSubnet2.length; i++){
+        for (int i = 0; i < customerPortStateForSubnet2.length; i++) {
             final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
                     customerSubnetState2,
@@ -486,7 +484,7 @@ public class MessageClientTest {
                 customerPortStateForSubnet1,
                 epHostForSubnet1);
 
-        for (HostInfo switchForSubnet1 : transitSwitchHostsForSubnet1){
+        for (HostInfo switchForSubnet1 : transitSwitchHostsForSubnet1) {
             String topic = hostIdPrefix + switchForSubnet1.getId();
             client.runProducer(topic, gsPortStateForSubnet1);
             List goalStateList = client.runConsumer(topic, true);
@@ -500,7 +498,7 @@ public class MessageClientTest {
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
             TestUtil.AssertSubnetStates(gsPortStateForSubnet1.getSubnetStates(0), receivedGoalState.getSubnetStates(0));
-            for (int i = 0; i < customerPortStateForSubnet1.length; i++){
+            for (int i = 0; i < customerPortStateForSubnet1.length; i++) {
                 TestUtil.AssertPortStates(gsPortStateForSubnet1.getPortStates(i), receivedGoalState.getPortStates(i));
             }
         }
@@ -513,7 +511,7 @@ public class MessageClientTest {
                 customerPortStateForSubnet2,
                 epHostForSubnet2);
 
-        for (HostInfo switchForSubnet2 : transitSwitchHostsForSubnet2){
+        for (HostInfo switchForSubnet2 : transitSwitchHostsForSubnet2) {
             String topic = hostIdPrefix + switchForSubnet2.getId();
             client.runProducer(topic, gsPortStateForSubnet2);
             List goalStateList = client.runConsumer(topic, true);
@@ -527,7 +525,7 @@ public class MessageClientTest {
             Assert.assertEquals("invalid security group state count", 0, receivedGoalState.getSecurityGroupStatesCount());
 
             TestUtil.AssertSubnetStates(gsPortStateForSubnet2.getSubnetStates(0), receivedGoalState.getSubnetStates(0));
-            for (int i = 0; i < customerPortStateForSubnet2.length; i++){
+            for (int i = 0; i < customerPortStateForSubnet2.length; i++) {
                 TestUtil.AssertPortStates(gsPortStateForSubnet2.getPortStates(i), receivedGoalState.getPortStates(i));
             }
         }
@@ -538,7 +536,7 @@ public class MessageClientTest {
         //         Go to EP3 host and EP4 host, update_agent_md and update_agent_ep
         ////////////////////////////////////////////////////////////////////////////
 
-        for (int i=0; i<customerPortStateForSubnet1.length; i++){
+        for (int i = 0; i < customerPortStateForSubnet1.length; i++) {
             final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
                     customerSubnetState1,
@@ -563,7 +561,7 @@ public class MessageClientTest {
             TestUtil.AssertPortStates(gsPortState.getPortStates(0), receivedGoalState.getPortStates(0));
         }
 
-        for (int i=0; i<customerPortStateForSubnet2.length; i++){
+        for (int i = 0; i < customerPortStateForSubnet2.length; i++) {
             final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
                     Common.OperationType.INFO,
                     customerSubnetState2,

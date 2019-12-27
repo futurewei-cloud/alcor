@@ -9,15 +9,15 @@ public class CustomerResource {
     private String name;
     private String description;
 
-    public CustomerResource(){
+    public CustomerResource() {
 
     }
 
-    public CustomerResource(CustomerResource state){
+    public CustomerResource(CustomerResource state) {
         this(state.projectId, state.id, state.name, state.description);
     }
 
-    public CustomerResource(String projectId, String id, String name, String description){
+    public CustomerResource(String projectId, String id, String name, String description) {
         this.projectId = projectId;
         this.id = id;
         this.name = name;

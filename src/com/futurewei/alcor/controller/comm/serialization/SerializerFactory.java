@@ -3,7 +3,7 @@ package com.futurewei.alcor.controller.comm.serialization;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-public class SerializerFactory{
+public class SerializerFactory {
 
     public static Serializer Create(SerializerType type) {
         Serializer serializer = null;

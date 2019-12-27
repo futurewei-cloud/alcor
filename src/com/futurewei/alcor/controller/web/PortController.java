@@ -43,18 +43,18 @@ public class PortController {
 
         PortState portState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(portId);
             RestPreconditions.verifyResourceFound(projectid);
 
             portState = this.portRedisRepository.findItem(portId);
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
         }
 
-        if(portState == null){
+        if (portState == null) {
             //TODO: REST error code
             return new PortState();
         }
@@ -70,7 +70,7 @@ public class PortController {
 
         long T0 = System.nanoTime();
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
             RestPreconditions.verifyResourceFound(projectid);
@@ -82,12 +82,11 @@ public class PortController {
             this.portRedisRepository.addItem(resource);
             long T1 = System.nanoTime();
 
-            if(OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Demo) {
                 long[] times = OneBoxUtil.CreatePort(resource);
                 RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
             }
-        }
-        catch (ResourceNullException e){
+        } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
@@ -101,7 +100,7 @@ public class PortController {
 
         PortState portState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(portid);
             RestPreconditions.verifyResourceNotNull(resource);
@@ -110,7 +109,7 @@ public class PortController {
             RestPreconditions.populateResourceProjectId(resource, projectid);
 
             portState = this.portRedisRepository.findItem(portid);
-            if(portState == null){
+            if (portState == null) {
                 throw new ResourceNotFoundException("Port not found : " + portid);
             }
 
@@ -119,11 +118,11 @@ public class PortController {
             this.portRedisRepository.addItem(resource);
             portState = this.portRedisRepository.findItem(portid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
 
@@ -142,7 +141,7 @@ public class PortController {
             RestPreconditions.verifyParameterNotNullorEmpty(portid);
 
             portState = this.portRedisRepository.findItem(portid);
-            if(portState == null){
+            if (portState == null) {
                 return;
             }
 
@@ -150,9 +149,9 @@ public class PortController {
 
             portRedisRepository.deleteItem(portid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
     }
@@ -173,11 +172,11 @@ public class PortController {
             portStates = portStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
                             && subnetid.equalsIgnoreCase(state.getValue().getNetworkId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
         }
 
@@ -187,15 +186,15 @@ public class PortController {
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/portgroup"},
-            consumes="application/json",
-            produces="application/json")
+            consumes = "application/json",
+            produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public List<PortState> createPortStates(@PathVariable String projectid, @RequestBody PortStateGroup resourceGroup) throws Exception {
 
         long T0 = System.nanoTime();
         List<PortState> response = new ArrayList<>();
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceFound(projectid);
 
@@ -206,7 +205,7 @@ public class PortController {
             }
             long T1 = System.nanoTime();
 
-            if(OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Demo) {
                 long[][] elapsedTimes = OneBoxUtil.CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
 
@@ -215,21 +214,20 @@ public class PortController {
                 for (int i = 0; i < hostCount; i++) {
                     long et = elapsedTimes[i][2] - T0;
                     averageElapseTime += et;
-                    if(et<minElapseTime) minElapseTime=et;
-                    if(et>maxElapseTime) maxElapseTime=et;
+                    if (et < minElapseTime) minElapseTime = et;
+                    if (et > maxElapseTime) maxElapseTime = et;
                     RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
                 }
 
                 OneBoxConfig.TIME_STAMP_WRITER.newLine();
-                OneBoxConfig.TIME_STAMP_WRITER.write("," + averageElapseTime/(1000000*hostCount) + "," +  minElapseTime/1000000 + "," + maxElapseTime/1000000);
+                OneBoxConfig.TIME_STAMP_WRITER.write("," + averageElapseTime / (1000000 * hostCount) + "," + minElapseTime / 1000000 + "," + maxElapseTime / 1000000);
                 OneBoxConfig.TIME_STAMP_WRITER.newLine();
-                OneBoxConfig.TIME_STAMP_WRITER.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" + OneBoxConfig.TOTAL_TIME/OneBoxConfig.TOTAL_REQUEST + " ms");
-                if(OneBoxConfig.TIME_STAMP_WRITER != null)
+                OneBoxConfig.TIME_STAMP_WRITER.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" + OneBoxConfig.TOTAL_TIME / OneBoxConfig.TOTAL_REQUEST + " ms");
+                if (OneBoxConfig.TIME_STAMP_WRITER != null)
                     OneBoxConfig.TIME_STAMP_WRITER.close();
 
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
 

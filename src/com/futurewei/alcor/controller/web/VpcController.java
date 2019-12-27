@@ -28,18 +28,18 @@ public class VpcController {
 
         VpcState vpcState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceFound(projectid);
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
         }
 
-        if(vpcState == null){
+        if (vpcState == null) {
             //TODO: REST error code
             return new VpcState();
         }
@@ -52,17 +52,15 @@ public class VpcController {
             value = {"/project/{projectid}/vpc", "/v4/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
     public VpcState createVpcState(@PathVariable String projectid, @RequestBody VpcState resource) throws Exception {
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
             RestPreconditions.populateResourceProjectId(resource, projectid);
 
             this.vpcRedisRepository.addItem(resource);
-        }
-        catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }
-        catch (ResourceNullException e){
+        } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
@@ -76,7 +74,7 @@ public class VpcController {
 
         VpcState vpcState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceNotNull(resource);
@@ -84,7 +82,7 @@ public class VpcController {
             RestPreconditions.populateResourceVpcId(resource, vpcid);
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
-            if(vpcState == null){
+            if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
@@ -92,7 +90,7 @@ public class VpcController {
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
@@ -101,7 +99,7 @@ public class VpcController {
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/vpc/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"} )
+            value = {"/project/{projectid}/vpc/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
     public void deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         VpcState vpcState = null;
 
@@ -116,7 +114,7 @@ public class VpcController {
             }
 
             vpcRedisRepository.deleteItem(vpcid);
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
     }
@@ -134,11 +132,11 @@ public class VpcController {
             vpcStates = this.vpcRedisRepository.findAllItems();
             vpcStates = vpcStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
         }
 

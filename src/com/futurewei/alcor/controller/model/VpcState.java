@@ -7,17 +7,18 @@ public class VpcState extends CustomerResource {
 
     private String cidr;
 
-    public VpcState() {}
-
-    public VpcState(String projectId, String id, String name, String cidr){
-        this(projectId, id, name, cidr,null);
+    public VpcState() {
     }
 
-    public VpcState(VpcState state){
+    public VpcState(String projectId, String id, String name, String cidr) {
+        this(projectId, id, name, cidr, null);
+    }
+
+    public VpcState(VpcState state) {
         this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription());
     }
 
-    public VpcState(String projectId, String id, String name, String cidr, String description){
+    public VpcState(String projectId, String id, String name, String cidr, String description) {
 
         super(projectId, id, name, description);
         this.cidr = cidr;

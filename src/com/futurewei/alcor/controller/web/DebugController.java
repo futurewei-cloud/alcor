@@ -33,7 +33,7 @@ public class DebugController {
     @RequestMapping(
             method = GET,
             value = "/debug")
-    public DebugInfo getDebugInfo(@RequestParam(value="name", defaultValue="World") String name) {
+    public DebugInfo getDebugInfo(@RequestParam(value = "name", defaultValue = "World") String name) {
         return new DebugInfo(counter.incrementAndGet(),
                 String.format(template, name));
     }

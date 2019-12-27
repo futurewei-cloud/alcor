@@ -1,6 +1,7 @@
 package com.futurewei.alcor.controller.model;
 
 import lombok.Data;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
@@ -23,24 +24,23 @@ public class HostInfo {
 
         this.id = hostId;
 
-        try{
+        try {
             this.localIp = InetAddress.getByAddress(hostName, ipAddress);
-            if(this.validate(macAddress)) {
+            if (this.validate(macAddress)) {
                 this.macAddress = macAddress;
-            }else{
+            } else {
                 this.macAddress = null;
             }
-        }
-        catch(UnknownHostException e){
+        } catch (UnknownHostException e) {
             System.err.printf("Invalid ip address" + ipAddress);
         }
     }
 
-    public String getHostName(){
+    public String getHostName() {
         return this.localIp.getHostName();
     }
 
-    public String getHostIpAddress(){
+    public String getHostIpAddress() {
         return this.localIp.getHostAddress();
     }
 

@@ -19,7 +19,7 @@ public class PortTest {
                 DemoConfig.VETH_NAME,
                 new String[]{"10.0.0.1"});
 
-        HostInfo epHost = new HostInfo("host0", "ep1 host", new byte[]{127,0,0,1}, "fa:16:3e:d7:f1:00");
+        HostInfo epHost = new HostInfo("host0", "ep1 host", new byte[]{127, 0, 0, 1}, "fa:16:3e:d7:f1:00");
 
         final Port.PortState state = GoalStateUtil.CreateGSPortState(Common.OperationType.CREATE,
                 customerPortState,
@@ -31,7 +31,7 @@ public class PortTest {
             final Port.PortState deserializedObject = Port.PortState.parseFrom(binaryState);
 
             TestUtil.AssertPortStates(state, deserializedObject);
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             Assert.assertTrue(false);
         }
     }
