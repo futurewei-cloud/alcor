@@ -41,9 +41,9 @@ public class GoalstateTest {
 
             TestUtil.AssertVpcStates(vpc_state, deserializedObject.getVpcStates(1));
             Assert.assertTrue(false);
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             Assert.assertTrue(false);
-        } catch (AssertionError assertionError){
+        } catch (AssertionError assertionError) {
             //catch expected exception
             Assert.assertTrue(true);
         }

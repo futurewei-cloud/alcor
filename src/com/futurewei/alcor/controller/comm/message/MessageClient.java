@@ -23,7 +23,7 @@ public class MessageClient {
     }
 
     public List<?> runConsumer(String topic, boolean keepRunning) {
-        if(this.messageConsumerFactory == null){
+        if (this.messageConsumerFactory == null) {
             System.out.printf("No message consumer factory is specified");
             return null;
         }
@@ -67,7 +67,7 @@ public class MessageClient {
     }
 
     public void runProducer(String topic, Object message, int messageCount) {
-        if(this.messageProducerFactory == null){
+        if (this.messageProducerFactory == null) {
             System.out.printf("No message producer factory is specified");
             return;
         }
@@ -81,12 +81,10 @@ public class MessageClient {
                 RecordMetadata metadata = (RecordMetadata) producer.send(record).get();
                 System.out.println("Record sent with key " + index + " to partition " + metadata.partition()
                         + " with offset " + metadata.offset());
-            }
-            catch (ExecutionException e) {
+            } catch (ExecutionException e) {
                 System.out.println("Error in sending record");
                 System.out.println(e);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 System.out.println("Error in sending record");
                 System.out.println(e);
             }
@@ -98,7 +96,7 @@ public class MessageClient {
     }
 
     // TODO: Determine topic format
-    public static String getGoalStateTopic(String id){
+    public static String getGoalStateTopic(String id) {
         return "Host-" + id;
     }
 }

@@ -19,12 +19,12 @@ public class PortRedisRepository implements ICacheRepository<PortState> {
     private HashOperations hashOperations;
 
     @Autowired
-    public PortRedisRepository(RedisTemplate<String, PortState> redisTemplate){
+    public PortRedisRepository(RedisTemplate<String, PortState> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
-    private void init(){
+    private void init() {
         hashOperations = redisTemplate.opsForHash();
     }
 

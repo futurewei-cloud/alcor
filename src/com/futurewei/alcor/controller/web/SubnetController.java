@@ -33,18 +33,18 @@ public class SubnetController {
 
         SubnetState subnetState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(subnetId);
             RestPreconditions.verifyResourceFound(projectid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetId);
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
         }
 
-        if(subnetState == null){
+        if (subnetState == null) {
             //TODO: REST error code
             return new SubnetState();
         }
@@ -57,7 +57,7 @@ public class SubnetController {
             value = {"/project/{projectid}/subnet", "v4/{projectid}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetState createSubnetState(@PathVariable String projectid, @RequestBody SubnetState resource) throws Exception {
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceNotNull(resource);
 
@@ -68,20 +68,19 @@ public class SubnetController {
             this.subnetRedisRepository.addItem(resource);
 
             SubnetState subnetState = this.subnetRedisRepository.findItem(resource.getId());
-            if(subnetState == null){
+            if (subnetState == null) {
                 throw new ResourcePersistenceException();
             }
 
             VpcState vpcState = this.vpcRedisRepository.findItem(resource.getVpcId());
-            if(vpcState == null){
+            if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
 
-            if(OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Demo) {
                 OneBoxUtil.CreateSubnet(subnetState);
             }
-        }
-        catch (ResourceNullException e){
+        } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
@@ -95,7 +94,7 @@ public class SubnetController {
 
         SubnetState subnetState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
@@ -104,7 +103,7 @@ public class SubnetController {
             RestPreconditions.populateResourceVpcId(resource, vpcid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetid);
-            if(subnetState == null){
+            if (subnetState == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetid);
             }
 
@@ -114,11 +113,11 @@ public class SubnetController {
             this.subnetRedisRepository.addItem(resource);
             subnetState = this.subnetRedisRepository.findItem(subnetid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
 
@@ -138,7 +137,7 @@ public class SubnetController {
             RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetid);
-            if(subnetState == null){
+            if (subnetState == null) {
                 return;
             }
 
@@ -147,9 +146,9 @@ public class SubnetController {
 
             subnetRedisRepository.deleteItem(subnetid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
     }
@@ -170,11 +169,11 @@ public class SubnetController {
             subnetStates = subnetStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
                             && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
         }
 

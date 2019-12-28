@@ -19,12 +19,12 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
     private HashOperations hashOperations;
 
     @Autowired
-    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate){
+    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
-    private void init(){
+    private void init() {
         hashOperations = redisTemplate.opsForHash();
     }
 

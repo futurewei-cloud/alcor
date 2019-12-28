@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DebugController.class)
-@ContextConfiguration(classes={AlcorControllerApp.class})
+@ContextConfiguration(classes = {AlcorControllerApp.class})
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class DebugControllerTest {
 

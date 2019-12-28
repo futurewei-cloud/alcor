@@ -23,7 +23,7 @@ public class OneBoxConfig {
 
     // TODO: figure out to store integer value over 127 in a byte
     public static int OVERFLOW_IP_CONVERSION = 256;
-    public static byte FIRST_IP_BLOCK = (byte)(172-OVERFLOW_IP_CONVERSION);
+    public static byte FIRST_IP_BLOCK = (byte) (172 - OVERFLOW_IP_CONVERSION);
 
     public static FileWriter TIME_STAMP_FILE;
     public static BufferedWriter TIME_STAMP_WRITER;
@@ -153,27 +153,27 @@ public class OneBoxConfig {
     public static String GATEWAY_MAC_ADDRESS = "02:42:ac:11:00:0d"; //"0e:73:ae:c8:FF:FF";
 
     public static String TRANSIT_SWTICH_1_HOST_ID = "switchhost_0";
-    public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,11};
+    public static byte[] TRANSIT_SWITCH_1_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 11};
     public static String TRANSIT_SWITCH_1_MAC = "02:42:ac:11:00:0b";
 
     public static String TRANSIT_SWTICH_2_HOST_ID = "switchhost_1";
-    public static byte[] TRANSIT_SWITCH_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,12};
+    public static byte[] TRANSIT_SWITCH_2_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 12};
     public static String TRANSIT_SWITCH_2_MAC = "02:42:ac:11:00:0c";
 
     public static String TRANSIT_SWTICH_3_HOST_ID = "switchhost_2";
-    public static byte[] TRANSIT_SWITCH_3_IP = new byte[]{FIRST_IP_BLOCK,17,0,13};
+    public static byte[] TRANSIT_SWITCH_3_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 13};
     public static String TRANSIT_SWITCH_3_MAC = "02:42:ac:11:00:0d";
 
     public static String TRANSIT_SWTICH_4_HOST_ID = "switchhost_3";
-    public static byte[] TRANSIT_SWITCH_4_IP = new byte[]{FIRST_IP_BLOCK,17,0,14};
+    public static byte[] TRANSIT_SWITCH_4_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 14};
     public static String TRANSIT_SWITCH_4_MAC = "02:42:ac:11:00:0e";
 
     public static String TRANSIT_ROUTER_1_HOST_ID = "routerhost_0";
-    public static byte[] TRANSIT_ROUTER_1_IP = new byte[]{FIRST_IP_BLOCK,17,0,15};
+    public static byte[] TRANSIT_ROUTER_1_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 15};
     public static String TRANSIT_ROUTER_1_MAC = "02:42:ac:11:00:0f";
 
     public static String TRANSIT_ROUTER_2_HOST_ID = "routerhost_1";
-    public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK,17,0,16};
+    public static byte[] TRANSIT_ROUTER_2_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 16};
     public static String TRANSIT_ROUTER_2_MAC = "02:42:ac:11:00:10";
 
 //    public static HostInfo[] transitRouterHosts = {
@@ -182,61 +182,61 @@ public class OneBoxConfig {
 //    };
 
     public static HostInfo[] transitSwitchHostsForSubnet1 = {
-            new HostInfo("subnet1-transit-switch1","transit switch1 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC, OneBoxConfig.gRPCServerPortForSubnet1[4]),
-            new HostInfo("subnet1-transit-switch2","transit switch2 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_2_IP, OneBoxConfig.TRANSIT_SWITCH_2_MAC, OneBoxConfig.gRPCServerPortForSubnet1[5])
+            new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC, OneBoxConfig.gRPCServerPortForSubnet1[4]),
+            new HostInfo("subnet1-transit-switch2", "transit switch2 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_2_IP, OneBoxConfig.TRANSIT_SWITCH_2_MAC, OneBoxConfig.gRPCServerPortForSubnet1[5])
     };
 
     public static HostInfo[] transitSwitchHostsForSubnet2 = {
-            new HostInfo("subnet2-transit-switch1","transit switch1 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC),
-            new HostInfo("subnet2-transit-switch2","transit switch2 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_4_IP, OneBoxConfig.TRANSIT_SWITCH_4_MAC)
+            new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC),
+            new HostInfo("subnet2-transit-switch2", "transit switch2 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_4_IP, OneBoxConfig.TRANSIT_SWITCH_4_MAC)
     };
 
-//    public static HostInfo[] transitRouterHosts = {
+    //    public static HostInfo[] transitRouterHosts = {
 //            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(15)}, "02:42:ac:11:00:0f", 50011),
 //            new HostInfo("vpc1-transit-router2", "transit router2 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(16)}, "02:42:ac:11:00:10", 50012)
 //    };
     // Large VPC
     // (byte)(205-OVERFLOW_IP_CONVERSION)
     public static HostInfo[] transitRouterHosts = {
-            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK,17,0,(byte)(6)}, "02:42:ac:11:00:06", 50001)
+            new HostInfo("vpc1-transit-router1", "transit router1 host", new byte[]{FIRST_IP_BLOCK, 17, 0, (byte) (6)}, "02:42:ac:11:00:06", 50001)
     };
 
     public static HostInfo[] transitSwitchHosts = {
-            new HostInfo("switchhost_0","switchhost_0", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(7)}, "02:42:ac:11:00:07", 50002),
-            new HostInfo("switchhost_1","switchhost_1", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(8)}, "02:42:ac:11:00:08", 50003),
-            new HostInfo("switchhost_2","switchhost_2", new byte[]{FIRST_IP_BLOCK,17,0, (byte)(9)}, "02:42:ac:11:00:09", 50004)
+            new HostInfo("switchhost_0", "switchhost_0", new byte[]{FIRST_IP_BLOCK, 17, 0, (byte) (7)}, "02:42:ac:11:00:07", 50002),
+            new HostInfo("switchhost_1", "switchhost_1", new byte[]{FIRST_IP_BLOCK, 17, 0, (byte) (8)}, "02:42:ac:11:00:08", 50003),
+            new HostInfo("switchhost_2", "switchhost_2", new byte[]{FIRST_IP_BLOCK, 17, 0, (byte) (9)}, "02:42:ac:11:00:09", 50004)
     };
 
     public static String EP1_ID = "ephost_0";
-    public static byte[] EP1_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,3};
+    public static byte[] EP1_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 3};
     public static String EP1_HOST_MAC = "02:42:ac:11:00:03";
 
     public static String EP2_ID = "ephost_1";
-    public static byte[] EP2_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,4};
+    public static byte[] EP2_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 4};
     public static String EP2_HOST_MAC = "02:42:ac:11:00:04";
 
     public static String EP3_ID = "ephost_2";
-    public static byte[] EP3_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,5};
+    public static byte[] EP3_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 5};
     public static String EP3_HOST_MAC = "02:42:ac:11:00:05";
 
     public static String EP4_ID = "ephost_3";
-    public static byte[] EP4_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,6};
+    public static byte[] EP4_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 6};
     public static String EP4_HOST_MAC = "02:42:ac:11:00:06";
 
     public static String EP5_ID = "ephost_4";
-    public static byte[] EP5_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,7};
+    public static byte[] EP5_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 7};
     public static String EP5_HOST_MAC = "02:42:ac:11:00:07";
 
     public static String EP6_ID = "ephost_5";
-    public static byte[] EP6_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,8};
+    public static byte[] EP6_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 8};
     public static String EP6_HOST_MAC = "02:42:ac:11:00:08";
 
     public static String EP7_ID = "ephost_6";
-    public static byte[] EP7_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,9};
+    public static byte[] EP7_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 9};
     public static String EP7_HOST_MAC = "02:42:ac:11:00:09";
 
     public static String EP8_ID = "ephost_7";
-    public static byte[] EP8_HOST_IP = new byte[]{FIRST_IP_BLOCK,17,0,10};
+    public static byte[] EP8_HOST_IP = new byte[]{FIRST_IP_BLOCK, 17, 0, 10};
     public static String EP8_HOST_MAC = "02:42:ac:11:00:0a";
 
     public static HostInfo[] epHostForSubnet1 = {

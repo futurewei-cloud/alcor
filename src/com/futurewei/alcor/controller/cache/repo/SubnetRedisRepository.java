@@ -19,12 +19,12 @@ public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
     private HashOperations hashOperations;
 
     @Autowired
-    public SubnetRedisRepository(RedisTemplate<String, SubnetState> redisTemplate){
+    public SubnetRedisRepository(RedisTemplate<String, SubnetState> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
-    private void init(){
+    private void init() {
         hashOperations = redisTemplate.opsForHash();
     }
 

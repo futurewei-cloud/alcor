@@ -8,7 +8,7 @@ import org.junit.Assert;
 import java.util.List;
 
 public class TestUtil {
-    public static void AssertVpcStates(VpcState expected, VpcState result){
+    public static void AssertVpcStates(VpcState expected, VpcState result) {
         Assert.assertEquals("operation type mismatched", expected.getOperationType(), result.getOperationType());
         Assert.assertEquals("project id mismatched", expected.getConfiguration().getProjectId(), result.getConfiguration().getProjectId());
         Assert.assertEquals("vpc id mismatched", expected.getConfiguration().getId(), result.getConfiguration().getId());
@@ -23,7 +23,7 @@ public class TestUtil {
         TestUtil.AssertTransitRouters(expected.getConfiguration().getTransitRoutersList(), result.getConfiguration().getTransitRoutersList());
     }
 
-    public static void AssertTransitRouters(List<VpcConfiguration.TransitRouter> expected, List<VpcConfiguration.TransitRouter> result){
+    public static void AssertTransitRouters(List<VpcConfiguration.TransitRouter> expected, List<VpcConfiguration.TransitRouter> result) {
         Assert.assertEquals(expected.size(), result.size());
         for (int i = 0; i < expected.size(); i++) {
             TestUtil.AssertTransitRouter(expected.get(i), result.get(i));
@@ -35,7 +35,7 @@ public class TestUtil {
         Assert.assertEquals("router ip mismatched", expected.getIpAddress(), result.getIpAddress());
     }
 
-    public static void AssertSubnetStates(Subnet.SubnetState expected, Subnet.SubnetState result){
+    public static void AssertSubnetStates(Subnet.SubnetState expected, Subnet.SubnetState result) {
         Assert.assertEquals("operation type mismatched", expected.getOperationType(), result.getOperationType());
         Assert.assertEquals("project id mismatched", expected.getConfiguration().getProjectId(), result.getConfiguration().getProjectId());
         Assert.assertEquals("vpc id mismatched", expected.getConfiguration().getVpcId(), result.getConfiguration().getVpcId());
@@ -47,7 +47,7 @@ public class TestUtil {
         TestUtil.AssertTransitSwitches(expected.getConfiguration().getTransitSwitchesList(), result.getConfiguration().getTransitSwitchesList());
     }
 
-    public static void AssertTransitSwitches(List<Subnet.SubnetConfiguration.TransitSwitch> expected, List<Subnet.SubnetConfiguration.TransitSwitch> result){
+    public static void AssertTransitSwitches(List<Subnet.SubnetConfiguration.TransitSwitch> expected, List<Subnet.SubnetConfiguration.TransitSwitch> result) {
         Assert.assertEquals(expected.size(), result.size());
         for (int i = 0; i < expected.size(); i++) {
             TestUtil.AssertTransitSwitch(expected.get(i), result.get(i));
@@ -60,7 +60,7 @@ public class TestUtil {
         Assert.assertEquals("router ip mismatched", expected.getIpAddress(), result.getIpAddress());
     }
 
-    public static void AssertPortStates(PortState expected, PortState result){
+    public static void AssertPortStates(PortState expected, PortState result) {
         Assert.assertEquals("operation type mismatched", expected.getOperationType(), result.getOperationType());
         Assert.assertEquals("project id mismatched", expected.getConfiguration().getProjectId(), result.getConfiguration().getProjectId());
         Assert.assertEquals("network id mismatched", expected.getConfiguration().getNetworkId(), result.getConfiguration().getNetworkId());
@@ -81,7 +81,7 @@ public class TestUtil {
         Assert.assertEquals("extra dhcp option count mismatched", expected.getConfiguration().getExtraDhcpOptionsCount(), result.getConfiguration().getExtraDhcpOptionsCount());
     }
 
-    private static void AssertHostInfo(HostInfo expected, HostInfo result){
+    private static void AssertHostInfo(HostInfo expected, HostInfo result) {
         Assert.assertEquals("host ip address mismatched", expected.getIpAddress(), result.getIpAddress());
         Assert.assertEquals("host mac address mismatched", expected.getMacAddress(), result.getMacAddress());
     }

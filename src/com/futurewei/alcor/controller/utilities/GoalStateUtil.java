@@ -13,11 +13,10 @@ import com.futurewei.alcor.controller.schema.Vpc;
 import com.futurewei.alcor.controller.schema.Vpc.VpcConfiguration;
 
 public class GoalStateUtil {
-    public static  GoalState CreateGoalState(
+    public static GoalState CreateGoalState(
             Common.OperationType option,
             VpcState customerVpcState,
-            HostInfo[] transitRouterHosts)
-    {
+            HostInfo[] transitRouterHosts) {
         final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
                 option,
                 customerVpcState,
@@ -33,11 +32,10 @@ public class GoalStateUtil {
     public static GoalState CreateGoalState(
             Common.OperationType option,
             SubnetState[] customerSubnetStates,
-            HostInfo[][] transitSwitchHosts)
-    {
+            HostInfo[][] transitSwitchHosts) {
         GoalState.Builder goalstate = GoalState.newBuilder();
 
-        for(int i = 0; i < customerSubnetStates.length; i++){
+        for (int i = 0; i < customerSubnetStates.length; i++) {
             final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                     option,
                     customerSubnetStates[i],
@@ -55,8 +53,7 @@ public class GoalStateUtil {
             HostInfo[] transitRouterHosts,
             Common.OperationType subnetOption,
             SubnetState[] customerSubnetStates,
-            HostInfo[][] transitSwitchHosts)
-    {
+            HostInfo[][] transitSwitchHosts) {
         final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
                 vpcOption,
                 customerVpcState,
@@ -64,7 +61,7 @@ public class GoalStateUtil {
 
         GoalState.Builder goalState = GoalState.newBuilder().addVpcStates(vpcState);
 
-        for(int i = 0; i < customerSubnetStates.length; i++){
+        for (int i = 0; i < customerSubnetStates.length; i++) {
             final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                     subnetOption,
                     customerSubnetStates[i],
@@ -82,8 +79,7 @@ public class GoalStateUtil {
             HostInfo[] transitSwitchHosts,
             Common.OperationType portOption,
             PortState[] customerPortStates,
-            HostInfo[] portHosts)
-    {
+            HostInfo[] portHosts) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                 subnetOption,
                 customerSubnetState,
@@ -109,8 +105,7 @@ public class GoalStateUtil {
             HostInfo[] transitSwitchHosts,
             Common.OperationType portOption,
             PortState[] customerPortStates,
-            HostInfo portHost)
-    {
+            HostInfo portHost) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                 subnetOption,
                 customerSubnetState,
@@ -136,8 +131,7 @@ public class GoalStateUtil {
             HostInfo[] transitSwitchHosts,
             Common.OperationType portOption,
             PortState customerPortState,
-            HostInfo portHost)
-    {
+            HostInfo portHost) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
                 subnetOption,
                 customerSubnetState,
@@ -161,8 +155,7 @@ public class GoalStateUtil {
             String project_id,
             String vpc_id,
             String vpc_name,
-            String cidr)
-    {
+            String cidr) {
         return Vpc.VpcState.newBuilder()
                 .setOperationType(option)
                 .setConfiguration(VpcConfiguration.newBuilder()
@@ -177,8 +170,7 @@ public class GoalStateUtil {
     public static Vpc.VpcState CreateGSVpcState(
             Common.OperationType option,
             VpcState customerVpcState,
-            HostInfo[] transitRouterHosts)
-    {
+            HostInfo[] transitRouterHosts) {
         String vpcId = customerVpcState.getId();
         VpcConfiguration.Builder vpcConfiguration = VpcConfiguration.newBuilder();
 
@@ -188,12 +180,12 @@ public class GoalStateUtil {
                 .setCidr(customerVpcState.getCidr())
                 .setTunnelId(OneBoxConfig.Tunnel_Id);
 
-        for (HostInfo routerHost : transitRouterHosts){
+        for (HostInfo routerHost : transitRouterHosts) {
             vpcConfiguration.addTransitRouters(
                     VpcConfiguration.TransitRouter.newBuilder()
-                        .setVpcId(vpcId)
-                        .setIpAddress(routerHost.getHostIpAddress())
-                        .setMacAddress(routerHost.getHostMacAddress()));
+                            .setVpcId(vpcId)
+                            .setIpAddress(routerHost.getHostIpAddress())
+                            .setMacAddress(routerHost.getHostMacAddress()));
         }
 
         vpcConfiguration.build();
@@ -207,8 +199,7 @@ public class GoalStateUtil {
     public static Subnet.SubnetState CreateGSSubnetState(
             Common.OperationType option,
             SubnetState customerSubnetState,
-            HostInfo[] transitSwitchHosts)
-    {
+            HostInfo[] transitSwitchHosts) {
         String vpcId = customerSubnetState.getVpcId();
         String subnetId = customerSubnetState.getId();
         Subnet.SubnetConfiguration.Builder subnetConfiguration = Subnet.SubnetConfiguration.newBuilder();
@@ -227,7 +218,7 @@ public class GoalStateUtil {
                         .setIpAddress(customerSubnetState.getGatewayIp())
                         .setMacAddress(OneBoxConfig.GATEWAY_MAC_ADDRESS));
 
-        for(HostInfo switchHost : transitSwitchHosts){
+        for (HostInfo switchHost : transitSwitchHosts) {
             subnetConfiguration.addTransitSwitches(
                     Subnet.SubnetConfiguration.TransitSwitch.newBuilder()
                             .setVpcId(vpcId)
@@ -247,8 +238,7 @@ public class GoalStateUtil {
     public static Port.PortState CreateGSPortState(
             Common.OperationType option,
             PortState customerPortState,
-            HostInfo portHost)
-    {
+            HostInfo portHost) {
         Port.PortConfiguration.Builder portConfiguration = Port.PortConfiguration.newBuilder();
 
         portConfiguration.setProjectId(customerPortState.getProjectId())
@@ -258,10 +248,10 @@ public class GoalStateUtil {
                 .setMacAddress(customerPortState.getMacAddress())
                 .setVethName(customerPortState.getVethName())
                 .setHostInfo(Port.PortConfiguration.HostInfo.newBuilder()
-                                .setIpAddress(portHost.getHostIpAddress())
-                                .setMacAddress(portHost.getHostMacAddress()));
+                        .setIpAddress(portHost.getHostIpAddress())
+                        .setMacAddress(portHost.getHostMacAddress()));
 
-        for(PortState.FixedIp fixedIp : customerPortState.getFixedIps()){
+        for (PortState.FixedIp fixedIp : customerPortState.getFixedIps()) {
             portConfiguration.addFixedIps(
                     Port.PortConfiguration.FixedIp.newBuilder()
                             .setIpAddress(fixedIp.getIpAddress())

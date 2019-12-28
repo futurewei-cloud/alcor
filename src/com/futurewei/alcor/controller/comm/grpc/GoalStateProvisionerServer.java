@@ -54,30 +54,30 @@ public class GoalStateProvisionerServer {
     static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         @Override
-        public void pushNetworkResourceStates(GoalState state, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver){
+        public void pushNetworkResourceStates(GoalState state, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
             Goalstateprovisioner.GoalStateOperationReply.Builder reply = Goalstateprovisioner.GoalStateOperationReply.newBuilder();
-            for (Vpc.VpcState vpcState : state.getVpcStatesList()){
+            for (Vpc.VpcState vpcState : state.getVpcStatesList()) {
                 reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                         .setResourceId(vpcState.getConfiguration().getId())
                         .setOperationStatusValue(Common.ResourceType.VPC_VALUE)
                         .setOperationType(vpcState.getOperationType())
                         .setOperationStatus(Common.OperationStatus.SUCCESS));
             }
-            for (Subnet.SubnetState subnetState : state.getSubnetStatesList()){
+            for (Subnet.SubnetState subnetState : state.getSubnetStatesList()) {
                 reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                         .setResourceId(subnetState.getConfiguration().getId())
                         .setOperationStatusValue(Common.ResourceType.SUBNET_VALUE)
                         .setOperationType(subnetState.getOperationType())
                         .setOperationStatus(Common.OperationStatus.SUCCESS));
             }
-            for (Port.PortState portState : state.getPortStatesList()){
+            for (Port.PortState portState : state.getPortStatesList()) {
                 reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                         .setResourceId(portState.getConfiguration().getId())
                         .setOperationStatusValue(Common.ResourceType.PORT_VALUE)
                         .setOperationType(portState.getOperationType())
                         .setOperationStatus(Common.OperationStatus.SUCCESS));
             }
-            for (SecurityGroup.SecurityGroupState securityGroupState: state.getSecurityGroupStatesList()){
+            for (SecurityGroup.SecurityGroupState securityGroupState : state.getSecurityGroupStatesList()) {
                 reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
                         .setResourceId(securityGroupState.getConfiguration().getName())
                         .setOperationStatusValue(Common.ResourceType.SECURITYGROUP_VALUE)

@@ -14,7 +14,7 @@ public class GoalStateDeserializer implements Deserializer<GoalState> {
         try {
             return data == null ? null : GoalState.parseFrom(data);
 
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             throw new SerializationException("Error when deserializing byte[] to string due to invalid protobuf exception " + bf_exp);
         }
     }

@@ -25,7 +25,7 @@ public class VpcTest {
             final Vpc.VpcState deserializedObject = Vpc.VpcState.parseFrom(binaryState);
 
             TestUtil.AssertVpcStates(state, deserializedObject);
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             Assert.assertTrue(false);
         }
     }
@@ -53,9 +53,9 @@ public class VpcTest {
     public void serializationVerificationWithTransitRouterIps() {
         VpcState customerVpcState =
                 new VpcState("dbf72700-5106-4a7a-918f-a016853911f8",
-                "99d9d709-8478-4b46-9f3f-2206b1023fd3",
-                "SuperVpc",
-                "10.0.0.0/24");
+                        "99d9d709-8478-4b46-9f3f-2206b1023fd3",
+                        "SuperVpc",
+                        "10.0.0.0/24");
         HostInfo[] transitRouterHosts = {
                 new HostInfo(DemoConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
                 new HostInfo(DemoConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
@@ -71,7 +71,7 @@ public class VpcTest {
             final Vpc.VpcState deserializedObject = Vpc.VpcState.parseFrom(binaryState);
 
             TestUtil.AssertVpcStates(state, deserializedObject);
-        } catch(InvalidProtocolBufferException bf_exp) {
+        } catch (InvalidProtocolBufferException bf_exp) {
             Assert.assertTrue(false);
         }
     }

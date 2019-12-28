@@ -9,11 +9,11 @@ public class PortStateGroup {
 
     private List<PortState> portStates;
 
-    public PortStateGroup(){
+    public PortStateGroup() {
 
     }
 
-    public PortState getPortState(int index){
+    public PortState getPortState(int index) {
         return this.getPortStates().get(index);
     }
 }

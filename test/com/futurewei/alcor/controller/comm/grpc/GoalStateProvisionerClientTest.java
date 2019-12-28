@@ -32,7 +32,8 @@ public class GoalStateProvisionerClientTest {
 
     private final GoalStateProvisionerGrpc.GoalStateProvisionerImplBase serviceImpl =
             mock(GoalStateProvisionerGrpc.GoalStateProvisionerImplBase.class,
-                    delegatesTo(new GoalStateProvisionerGrpc.GoalStateProvisionerImplBase() {}));
+                    delegatesTo(new GoalStateProvisionerGrpc.GoalStateProvisionerImplBase() {
+                    }));
     private GoalStateProvisionerClient client;
 
     @Before

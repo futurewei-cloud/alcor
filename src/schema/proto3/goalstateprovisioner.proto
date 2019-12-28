@@ -16,10 +16,12 @@ service GoalStateProvisioner {
     //
     // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
     //       Use RetrieveNetworkResourceStates for state query.
-    rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
+    rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
+    }
 
     // Retrieve a group of network resource states (stored as a steam of GoalState objects)
-    rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (stream GoalState) {}
+    rpc RetrieveNetworkResourceStates (GoalStateRequest) returns (stream GoalState) {
+    }
 }
 
 message GoalStateRequest {
@@ -50,5 +52,5 @@ message GoalStateOperationReply {
         uint32 dataplane_programming_time = 5;
         uint32 network_configuration_time = 6;
         uint32 state_elapse_time = 7;
-   }
+    }
 }

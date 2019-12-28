@@ -12,7 +12,7 @@ public class RedisListener implements MessageListener {
 
     public static List<String> messageList = new ArrayList<String>();
 
-    public RedisListener(){
+    public RedisListener() {
 
     }
 
