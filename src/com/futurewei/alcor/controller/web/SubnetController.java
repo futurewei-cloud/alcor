@@ -44,7 +44,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/subnet/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
+            value = {"/project/{projectid}/subnets/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
     public SubnetState getSubnetStateById(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
 
         SubnetState subnetState = null;
