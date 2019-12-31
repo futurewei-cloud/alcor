@@ -149,7 +149,7 @@ public class PortController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}"})
-    public void deletePortState(@PathVariable String projectid, @PathVariable String portid) throws Exception {
+    public ResponseId deletePortState(@PathVariable String projectid, @PathVariable String portid) throws Exception {
 
         PortState portState = null;
 
@@ -159,7 +159,7 @@ public class PortController {
 
             portState = this.portRedisRepository.findItem(portid);
             if (portState == null) {
-                return;
+                return new ResponseId();
             }
 
             RestPreconditions.verifyParameterEqual(portState.getProjectId(), projectid);
@@ -171,6 +171,8 @@ public class PortController {
         } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
+
+        return new ResponseId(portid);
     }
 
     @RequestMapping(
