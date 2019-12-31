@@ -93,7 +93,7 @@ public class SubnetController {
                 throw new ResourcePersistenceException();
             }
 
-            if (OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Onebox) {
                 OneBoxUtil.CreateSubnet(subnetState);
             }
         } catch (ResourceNullException e) {

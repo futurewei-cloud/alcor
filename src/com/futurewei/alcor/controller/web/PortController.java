@@ -25,8 +25,7 @@ import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.controller.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
-import com.futurewei.alcor.controller.model.PortState;
-import com.futurewei.alcor.controller.model.PortStateGroup;
+import com.futurewei.alcor.controller.model.*;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,8 +53,8 @@ public class PortController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/port/{portId}", "v4/{projectid}/ports/{portId}"})
-    public PortState getPortStateById(@PathVariable String projectid, @PathVariable String portId) throws Exception {
+            value = {"/project/{projectid}/ports/{portId}", "v4/{projectid}/ports/{portId}"})
+    public PortStateJson getPortStateById(@PathVariable String projectid, @PathVariable String portId) throws Exception {
 
         PortState portState = null;
 
@@ -72,41 +71,42 @@ public class PortController {
 
         if (portState == null) {
             //TODO: REST error code
-            return new PortState();
+            return new PortStateJson();
         }
 
-        return portState;
+        return new PortStateJson(portState);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/port", "v4/{projectid}/ports"})
+            value = {"/project/{projectid}/ports", "v4/{projectid}/ports"})
     @ResponseStatus(HttpStatus.CREATED)
-    public PortState createPortState(@PathVariable String projectid, @RequestBody PortState resource) throws Exception {
+    public PortState createPortState(@PathVariable String projectid, @RequestBody PortStateJson resource) throws Exception {
 
         long T0 = System.nanoTime();
 
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditions.verifyResourceNotNull(resource);
             RestPreconditions.verifyResourceFound(projectid);
 
             // TODO: Create a verification framework for all resources
-            RestPreconditions.verifyResourceFound(resource.getNetworkId());
-            RestPreconditions.populateResourceProjectId(resource, projectid);
+            PortState portState = resource.getPort();
+            RestPreconditions.verifyResourceNotNull(portState);
+            RestPreconditions.verifyResourceFound(portState.getNetworkId());
+            RestPreconditions.populateResourceProjectId(portState, projectid);
 
-            this.portRedisRepository.addItem(resource);
+            this.portRedisRepository.addItem(portState);
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Demo) {
-                long[] times = OneBoxUtil.CreatePort(resource);
-                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
+            if (OneBoxConfig.IS_Onebox) {
+                long[] times = OneBoxUtil.CreatePort(portState);
+                RestPreconditions.recordRequestTimeStamp(portState.getId(), T0, T1, times);
             }
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
-        return new PortState(resource);
+        return new PortState(resource.getPort());
     }
 
     @RequestMapping(
@@ -221,7 +221,7 @@ public class PortController {
             }
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Onebox) {
                 long[][] elapsedTimes = OneBoxUtil.CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
 
