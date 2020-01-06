@@ -43,7 +43,7 @@ public class AlcorControllerApp {
 
         System.out.println("Loading node from config/machine.json");
         List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
-        if(OneBoxConfig.IS_Demo){
+        if(OneBoxConfig.IS_Onebox){
             OneBoxUtil.AssignNodes(hostNodeList);
         }
         System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");

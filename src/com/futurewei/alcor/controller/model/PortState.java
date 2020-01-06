@@ -113,3 +113,4 @@ public class PortState extends CustomerResource {
         this(state.getProjectId(), state.getNetworkId(), state.getId(), state.getName(), state.getMacAddress(), state.getVethName(), state.getFixedIps(), state.isFastPath());
     }
 }
+

@@ -44,7 +44,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/subnet/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
+            value = {"/project/{projectid}/subnets/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
     public SubnetState getSubnetStateById(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
 
         SubnetState subnetState = null;
@@ -93,7 +93,7 @@ public class SubnetController {
                 throw new ResourcePersistenceException();
             }
 
-            if (OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Onebox) {
                 OneBoxUtil.CreateSubnet(subnetState);
             }
         } catch (ResourceNullException e) {

@@ -25,8 +25,7 @@ import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.controller.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
-import com.futurewei.alcor.controller.model.PortState;
-import com.futurewei.alcor.controller.model.PortStateGroup;
+import com.futurewei.alcor.controller.model.*;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,8 +53,8 @@ public class PortController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/port/{portId}", "v4/{projectid}/ports/{portId}"})
-    public PortState getPortStateById(@PathVariable String projectid, @PathVariable String portId) throws Exception {
+            value = {"/project/{projectid}/ports/{portId}", "v4/{projectid}/ports/{portId}"})
+    public PortStateJson getPortStateById(@PathVariable String projectid, @PathVariable String portId) throws Exception {
 
         PortState portState = null;
 
@@ -72,67 +71,69 @@ public class PortController {
 
         if (portState == null) {
             //TODO: REST error code
-            return new PortState();
+            return new PortStateJson();
         }
 
-        return portState;
+        return new PortStateJson(portState);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/port", "v4/{projectid}/ports"})
+            value = {"/project/{projectid}/ports", "v4/{projectid}/ports"})
     @ResponseStatus(HttpStatus.CREATED)
-    public PortState createPortState(@PathVariable String projectid, @RequestBody PortState resource) throws Exception {
+    public PortStateJson createPortState(@PathVariable String projectid, @RequestBody PortStateJson resource) throws Exception {
 
         long T0 = System.nanoTime();
 
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditions.verifyResourceNotNull(resource);
             RestPreconditions.verifyResourceFound(projectid);
 
             // TODO: Create a verification framework for all resources
-            RestPreconditions.verifyResourceFound(resource.getNetworkId());
-            RestPreconditions.populateResourceProjectId(resource, projectid);
+            PortState portState = resource.getPort();
+            RestPreconditions.verifyResourceNotNull(portState);
+            RestPreconditions.verifyResourceFound(portState.getNetworkId());
+            RestPreconditions.populateResourceProjectId(portState, projectid);
 
-            this.portRedisRepository.addItem(resource);
+            this.portRedisRepository.addItem(portState);
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Demo) {
-                long[] times = OneBoxUtil.CreatePort(resource);
-                RestPreconditions.recordRequestTimeStamp(resource.getId(), T0, T1, times);
+            if (OneBoxConfig.IS_Onebox) {
+                long[] times = OneBoxUtil.CreatePort(portState);
+                RestPreconditions.recordRequestTimeStamp(portState.getId(), T0, T1, times);
             }
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
-        return new PortState(resource);
+        return new PortStateJson(resource.getPort());
     }
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/port/{portid}", "v4/{projectid}/ports/{portid}"})
-    public PortState updateSubnetState(@PathVariable String projectid, @PathVariable String portid, @RequestBody PortState resource) throws Exception {
+            value = {"/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}"})
+    public PortStateJson updateSubnetState(@PathVariable String projectid, @PathVariable String portid, @RequestBody PortStateJson resource) throws Exception {
 
-        PortState portState = null;
+        PortState currentPortState = null;
 
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(portid);
-            RestPreconditions.verifyResourceNotNull(resource);
 
-            RestPreconditions.verifyResourceFound(resource.getNetworkId());
-            RestPreconditions.populateResourceProjectId(resource, projectid);
+            PortState updatedPortState = resource.getPort();
+            RestPreconditions.verifyResourceNotNull(updatedPortState);
+            RestPreconditions.verifyResourceFound(updatedPortState.getNetworkId());
+            RestPreconditions.populateResourceProjectId(updatedPortState, projectid);
 
-            portState = this.portRedisRepository.findItem(portid);
-            if (portState == null) {
+            currentPortState = this.portRedisRepository.findItem(portid);
+            if (currentPortState == null) {
                 throw new ResourceNotFoundException("Port not found : " + portid);
             }
 
-            RestPreconditions.verifyParameterEqual(portState.getProjectId(), projectid);
+            RestPreconditions.verifyParameterEqual(currentPortState.getProjectId(), projectid);
 
-            this.portRedisRepository.addItem(resource);
-            portState = this.portRedisRepository.findItem(portid);
+            this.portRedisRepository.addItem(updatedPortState);
+            currentPortState = this.portRedisRepository.findItem(portid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -142,13 +143,13 @@ public class PortController {
             throw new Exception(e);
         }
 
-        return portState;
+        return new PortStateJson(currentPortState);
     }
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/port/{portid}", "v4/{projectid}/ports/{portid}"})
-    public void deletePortState(@PathVariable String projectid, @PathVariable String portid) throws Exception {
+            value = {"/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}"})
+    public ResponseId deletePortState(@PathVariable String projectid, @PathVariable String portid) throws Exception {
 
         PortState portState = null;
 
@@ -158,7 +159,7 @@ public class PortController {
 
             portState = this.portRedisRepository.findItem(portid);
             if (portState == null) {
-                return;
+                return new ResponseId();
             }
 
             RestPreconditions.verifyParameterEqual(portState.getProjectId(), projectid);
@@ -170,6 +171,8 @@ public class PortController {
         } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
+
+        return new ResponseId(portid);
     }
 
     @RequestMapping(
@@ -221,7 +224,7 @@ public class PortController {
             }
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Demo) {
+            if (OneBoxConfig.IS_Onebox) {
                 long[][] elapsedTimes = OneBoxUtil.CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
 
