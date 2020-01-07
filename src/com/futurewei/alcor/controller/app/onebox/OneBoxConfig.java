@@ -29,6 +29,7 @@ import java.util.List;
 
 public class OneBoxConfig {
 
+    public static boolean IS_K8S = true;
     public static boolean IS_Onebox = true;
     public static boolean IS_PARALLEL = true;
     public static int TEST_NUM_PORTS = 1000;

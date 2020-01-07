@@ -26,6 +26,7 @@ import com.futurewei.alcor.controller.exception.ParameterUnexpectedValueExceptio
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
 import com.futurewei.alcor.controller.model.*;
+import com.futurewei.alcor.controller.web.util.ControllerUtil;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,6 +85,7 @@ public class PortController {
     public PortStateJson createPortState(@PathVariable String projectid, @RequestBody PortStateJson resource) throws Exception {
 
         long T0 = System.nanoTime();
+        PortState customerPortState = null;
 
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
@@ -93,20 +95,24 @@ public class PortController {
             PortState portState = resource.getPort();
             RestPreconditions.verifyResourceNotNull(portState);
             RestPreconditions.verifyResourceFound(portState.getNetworkId());
+            RestPreconditions.verifyResourceNotExists(portState.getId());
             RestPreconditions.populateResourceProjectId(portState, projectid);
 
             this.portRedisRepository.addItem(portState);
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Onebox) {
+            if (OneBoxConfig.IS_K8S) {
+                customerPortState = ControllerUtil.CreatePort(portState);
+            } else if (OneBoxConfig.IS_Onebox) {
                 long[] times = OneBoxUtil.CreatePort(portState);
                 RestPreconditions.recordRequestTimeStamp(portState.getId(), T0, T1, times);
+                customerPortState = portState;
             }
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
-        return new PortStateJson(resource.getPort());
+        return new PortStateJson(customerPortState);
     }
 
     @RequestMapping(
