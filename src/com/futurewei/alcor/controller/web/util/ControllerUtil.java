@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.web.util;
 
-import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -28,12 +27,12 @@ public class ControllerUtil {
     public static PortState CreatePort(PortState portState) {
 
         HostInfo epHost = DataCenterConfig.nodeManager.getHostInfoById(portState.getBindingHostId());
-        PortState customerPortState = ControllerUtil.AssignVipMacToPort(portState, OneBoxConfig.epCounter);
+        PortState customerPortState = ControllerUtil.AssignVipMacToPort(portState, ControllerConfig.epCounter);
         SubnetState customerSubnetState = ControllerConfig.customerSubnetState;
         HostInfo[] transitSwitchHostsForSubnet = ControllerConfig.transitSwitchHosts;
 
-        System.out.println("EP host counter :" + OneBoxConfig.epHostCounter + "| ep counter: " + OneBoxConfig.epCounter);
-        OneBoxConfig.epCounter++;
+        System.out.println("EP counter: " + ControllerConfig.epCounter);
+        ControllerConfig.epCounter++;
         System.out.println("EP :" + customerPortState.getId() + " name " + customerPortState.getName());
         System.out.println("Host :" + epHost + " id " + epHost.getId() + " name " + epHost.getHostName() + " ip " + epHost.getHostIpAddress() + " mac " + epHost.getHostMacAddress());
 

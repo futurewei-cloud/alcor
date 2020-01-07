@@ -36,4 +36,5 @@ public class ControllerConfig {
 
     public static HostInfo[] transitSwitchHosts = DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch);
 
+    public static int epCounter = 0;
 }
