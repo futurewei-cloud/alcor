@@ -33,8 +33,8 @@ public class ControllerUtil {
 
         System.out.println("EP counter: " + ControllerConfig.epCounter);
         ControllerConfig.epCounter++;
-        System.out.println("EP :" + customerPortState.getId() + " name " + customerPortState.getName());
-        System.out.println("Host :" + epHost + " id " + epHost.getId() + " name " + epHost.getHostName() + " ip " + epHost.getHostIpAddress() + " mac " + epHost.getHostMacAddress());
+        System.out.println("EP :" + customerPortState);
+        System.out.println("Host :" + epHost);
 
         PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
         GoalStateWorker worker = new GoalStateWorker(portProgramInfo);

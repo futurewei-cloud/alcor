@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -112,6 +113,9 @@ public class PortState extends CustomerResource {
     @JsonProperty("binding:vnic_type")
     private String bindingVnicType;
 
+    @JsonProperty("network_ns")
+    private String networkNamespace;
+
     @JsonProperty("dns_name")
     private String dnsName;
 
@@ -140,7 +144,7 @@ public class PortState extends CustomerResource {
                      boolean isFastPath, String deviceId, String deviceOwner, String status,
                      List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts,
                      List<SecurityGroupId> securityGroups, String bindingHostId, String bindingProfile, String bindingVnicType,
-                     String dnsName, List<DnsRecord> dnsAssignment) {
+                     String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         super(projectId, id, name, "");
         this.networkId = subnetId;
         this.tenantId = tenantId;
@@ -151,15 +155,16 @@ public class PortState extends CustomerResource {
         this.deviceId = deviceId;
         this.deviceOwner = deviceOwner;
         this.status = status;
-        this.fixedIps = fixedIps == null ? null : new ArrayList<>(fixedIps);
-        this.allowedAddressPairs = allowedAddressPairs == null ? null : new ArrayList<>(allowedAddressPairs);
-        this.extraDhcpOpts = extraDhcpOpts == null ? null : new ArrayList<>(extraDhcpOpts);
-        this.securityGroups = securityGroups == null ? null : new ArrayList<>(securityGroups);
+        this.fixedIps = (fixedIps == null ? null : new ArrayList<>(fixedIps));
+        this.allowedAddressPairs = (allowedAddressPairs == null ? null : new ArrayList<>(allowedAddressPairs));
+        this.extraDhcpOpts = (extraDhcpOpts == null ? null : new ArrayList<>(extraDhcpOpts));
+        this.securityGroups = (securityGroups == null ? null : new ArrayList<>(securityGroups));
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
         this.bindingVnicType = bindingVnicType;
+        this.networkNamespace = (Strings.isNullOrEmpty(networkNamespace) ? "" : networkNamespace);
         this.dnsName = dnsName;
-        this.dnsAssignment = dnsAssignment;
+        this.dnsAssignment = (dnsAssignment == null ? null : new ArrayList<>(dnsAssignment));
     }
 
     public PortState(PortState state) {
@@ -168,7 +173,7 @@ public class PortState extends CustomerResource {
                 state.isFastPath(), state.getDeviceId(), state.getDeviceOwner(), state.getStatus(),
                 state.getFixedIps(), state.getAllowedAddressPairs(), state.getExtraDhcpOpts(),
                 state.getSecurityGroups(), state.getBindingHostId(), state.getBindingProfile(), state.getBindingVnicType(),
-                state.getDnsName(), state.getDnsAssignment());
+                state.getNetworkNamespace(), state.getDnsName(), state.getDnsAssignment());
     }
 
     public static List<FixedIp> convertToFixedIps(String[] vpcIps, String subnetId) {

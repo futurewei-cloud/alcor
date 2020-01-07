@@ -30,7 +30,7 @@ message PortConfiguration {
     string network_id = 3;
     string id = 4;
     string name = 5;
-    bool admin_state_up = 6;
+    string network_ns = 6;
     string mac_address = 7;
     string veth_name = 8;
 
