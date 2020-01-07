@@ -263,6 +263,7 @@ public class GoalStateUtil {
                 .setName(customerPortState.getName())
                 .setMacAddress(customerPortState.getMacAddress())
                 .setVethName(customerPortState.getVethName())
+                .setNetworkNs(customerPortState.getNetworkNamespace())
                 .setHostInfo(Port.PortConfiguration.HostInfo.newBuilder()
                         .setIpAddress(portHost.getHostIpAddress())
                         .setMacAddress(portHost.getHostMacAddress()));
