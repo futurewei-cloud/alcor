@@ -155,16 +155,16 @@ public class PortState extends CustomerResource {
         this.deviceId = deviceId;
         this.deviceOwner = deviceOwner;
         this.status = status;
-        this.fixedIps = fixedIps == null ? null : new ArrayList<>(fixedIps);
-        this.allowedAddressPairs = allowedAddressPairs == null ? null : new ArrayList<>(allowedAddressPairs);
-        this.extraDhcpOpts = extraDhcpOpts == null ? null : new ArrayList<>(extraDhcpOpts);
-        this.securityGroups = securityGroups == null ? null : new ArrayList<>(securityGroups);
+        this.fixedIps = (fixedIps == null ? null : new ArrayList<>(fixedIps));
+        this.allowedAddressPairs = (allowedAddressPairs == null ? null : new ArrayList<>(allowedAddressPairs));
+        this.extraDhcpOpts = (extraDhcpOpts == null ? null : new ArrayList<>(extraDhcpOpts));
+        this.securityGroups = (securityGroups == null ? null : new ArrayList<>(securityGroups));
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
         this.bindingVnicType = bindingVnicType;
-        this.networkNamespace = Strings.isNullOrEmpty(networkNamespace) ? "" : networkNamespace;
+        this.networkNamespace = (Strings.isNullOrEmpty(networkNamespace) ? "" : networkNamespace);
         this.dnsName = dnsName;
-        this.dnsAssignment = dnsAssignment == null ? null : new ArrayList<>(dnsAssignment);
+        this.dnsAssignment = (dnsAssignment == null ? null : new ArrayList<>(dnsAssignment));
     }
 
     public PortState(PortState state) {
