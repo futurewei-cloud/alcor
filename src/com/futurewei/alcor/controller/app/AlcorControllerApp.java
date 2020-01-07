@@ -23,7 +23,7 @@ import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
 import com.futurewei.alcor.controller.cache.config.*;
 import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.resourcemgr.physical.DataCenterConfigLoader;
+import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,8 +32,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
-@Import({ RedisConfiguration.class})
+@Import({RedisConfiguration.class})
 public class AlcorControllerApp {
+
     public static void main(String[] args) {
 
         System.out.println("Hello Alcor Controller!");
@@ -43,9 +44,14 @@ public class AlcorControllerApp {
 
         System.out.println("Loading node from config/machine.json");
         List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
-        if(OneBoxConfig.IS_Onebox){
+        if (OneBoxConfig.IS_K8S) {
+            System.out.println("Loading Node Manager");
+            DataCenterConfig.nodeManager = new NodeManager(hostNodeList);
+            OneBoxUtil.AssignNodes(hostNodeList);
+        } else if (OneBoxConfig.IS_Onebox) {
             OneBoxUtil.AssignNodes(hostNodeList);
         }
+
         System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");
         OneBoxConfig.APP_START_TS = System.nanoTime();
     }

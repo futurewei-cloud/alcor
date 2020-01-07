@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.controller.resourcemgr.physical;
+package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
 import java.io.*;
 import java.net.UnknownHostException;
