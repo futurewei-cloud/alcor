@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -161,7 +162,7 @@ public class PortState extends CustomerResource {
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
         this.bindingVnicType = bindingVnicType;
-        this.networkNamespace = networkNamespace;
+        this.networkNamespace = Strings.isNullOrEmpty(networkNamespace) ? "" : networkNamespace;
         this.dnsName = dnsName;
         this.dnsAssignment = dnsAssignment == null ? null : new ArrayList<>(dnsAssignment);
     }
