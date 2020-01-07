@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -24,14 +25,28 @@ import java.util.List;
 @Data
 public class SubnetState extends CustomerResource {
 
+    @JsonProperty("vpc_id")
     private String vpcId;
+
+    @JsonProperty("cidr")
     private String cidr;
 
+    @JsonProperty("availability_zone")
     private String availabilityZone;
+
+    @JsonProperty("gateway_ip")
     private String gatewayIp;
+
+    @JsonProperty("dhcp_enable")
     private Boolean dhcpEnable;
+
+    @JsonProperty("primary_dns")
     private String primaryDns;
+
+    @JsonProperty("secondary_dns")
     private String secondaryDns;
+
+    @JsonProperty("dns_list")
     private List<String> dnsList;
 
     public SubnetState() {
@@ -62,7 +77,7 @@ public class SubnetState extends CustomerResource {
         this.dhcpEnable = dhcpEnable;
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
-        this.dnsList = dnsList == null ? null : new ArrayList<>(dnsList);
+        this.dnsList = (dnsList == null ? null : new ArrayList<>(dnsList));
     }
 
 }
