@@ -47,13 +47,19 @@ Ubuntu:
 $ ./scripts/deploy.sh
 ```
 
+## Sanity Test
+
 Test if your local controller is up.
 ```
 curl localhost:8080/actuator/health
 {"status":"UP"}
 ```
-
 Now you are ready to use Alcor Controller.
+You can deploy a sample VPC with one subnet and one port with the following script.
+```
+Ubuntu:
+$ ./scripts/sampeVpcTest.sh localhost 8080
+```
 
 Next Step:
 - [Install Control Agents](https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md)
