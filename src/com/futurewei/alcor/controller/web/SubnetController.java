@@ -23,6 +23,7 @@ import com.futurewei.alcor.controller.model.ResponseId;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.SubnetStateJson;
 import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.web.util.ControllerUtil;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
@@ -98,7 +99,9 @@ public class SubnetController {
                 throw new ResourcePersistenceException();
             }
 
-            if (OneBoxConfig.IS_Onebox) {
+            if (OneBoxConfig.IS_K8S) {
+                ControllerUtil.CreateSubnet(subnetState, vpcState);
+            } else if (OneBoxConfig.IS_Onebox) {
                 OneBoxUtil.CreateSubnet(subnetState);
             }
         } catch (ResourceNullException e) {

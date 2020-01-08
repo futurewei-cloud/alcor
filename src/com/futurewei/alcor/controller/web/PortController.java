@@ -98,7 +98,6 @@ public class PortController {
             RestPreconditions.verifyResourceNotExists(portState.getId());
             RestPreconditions.populateResourceProjectId(portState, projectid);
 
-            this.portRedisRepository.addItem(portState);
             long T1 = System.nanoTime();
 
             if (OneBoxConfig.IS_K8S) {
@@ -108,6 +107,9 @@ public class PortController {
                 RestPreconditions.recordRequestTimeStamp(portState.getId(), T0, T1, times);
                 customerPortState = portState;
             }
+
+            this.portRedisRepository.addItem(customerPortState);
+
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }

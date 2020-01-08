@@ -15,23 +15,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt;
 
-import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.model.PortState;
-import com.futurewei.alcor.controller.model.SubnetState;
+import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
+import com.futurewei.alcor.controller.comm.message.MessageClient;
 import lombok.Data;
 
 @Data
-public class PortProgramInfo {
+public abstract class GoalStateProgrammer {
+    private GoalStateProvisionerClient gRpcClientForEpHost;
+    private MessageClient kafkaClient;
 
-    private PortState customerPortState;
-    private HostInfo epHost;
-    private SubnetState customerSubnetState;
-    private HostInfo[] transitSwitchHosts;
-
-    public PortProgramInfo(PortState portState, HostInfo epHost, SubnetState subnetState, HostInfo[] transitSwitchHostsForSubnet) {
-        this.customerPortState = portState;
-        this.epHost = epHost;
-        this.customerSubnetState = subnetState;
-        this.transitSwitchHosts = transitSwitchHostsForSubnet.clone();
-    }
+    public abstract long[] run();
 }
