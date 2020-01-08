@@ -15,23 +15,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt;
 
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
+import com.futurewei.alcor.controller.model.VpcState;
 import lombok.Data;
 
 @Data
-public class PortProgramInfo {
+public class SubnetProgramInfo {
 
-    private PortState customerPortState;
-    private HostInfo epHost;
     private SubnetState customerSubnetState;
     private HostInfo[] transitSwitchHosts;
+    private VpcState customerVpcState;
+    private HostInfo[] transitRouterHosts;
 
-    public PortProgramInfo(PortState portState, HostInfo epHost, SubnetState subnetState, HostInfo[] transitSwitchHostsForSubnet) {
-        this.customerPortState = portState;
-        this.epHost = epHost;
-        this.customerSubnetState = subnetState;
-        this.transitSwitchHosts = transitSwitchHostsForSubnet.clone();
+    public SubnetProgramInfo(SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, VpcState customerVpcState, HostInfo[] transitRouterHosts){
+        this.customerSubnetState = customerSubnetState;
+        this.transitSwitchHosts = transitSwitchHosts.clone();
+        this.customerVpcState = customerVpcState;
+        this.transitRouterHosts = transitRouterHosts.clone();
     }
 }

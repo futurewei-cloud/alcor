@@ -29,16 +29,15 @@ import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 import lombok.Data;
 
 @Data
-public class GoalStateWorker {
+public class PortGoalStateProgrammer extends GoalStateProgrammer {
 
     private PortProgramInfo portProgramInfo;
-    private GoalStateProvisionerClient gRpcClientForEpHost;
-    private MessageClient kafkaClient;
 
-    public GoalStateWorker(PortProgramInfo portProgramInfo) {
+    public PortGoalStateProgrammer(PortProgramInfo portProgramInfo) {
         this.portProgramInfo = portProgramInfo;
     }
 
+    @Override
     public long[] SendGoalStateToHosts() {
 
         long[] recordedTimeStamp = new long[3];
@@ -46,10 +45,11 @@ public class GoalStateWorker {
         PortState customerPortState = this.portProgramInfo.getCustomerPortState();
         HostInfo epHost = this.portProgramInfo.getEpHost();
         SubnetState customerSubnetState = this.portProgramInfo.getCustomerSubnetState();
-        HostInfo[] transitSwitchHostsForSubnet = this.portProgramInfo.getTransitSwitchHostsForSubnet();
+        HostInfo[] transitSwitchHostsForSubnet = this.portProgramInfo.getTransitSwitchHosts();
+
         boolean isFastPath = customerPortState.isFastPath();
         if (!isFastPath) {
-            kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+            this.setKafkaClient(new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory()));
         }
         System.out.println("EP :" + customerPortState.getId() + "|name:" + customerPortState.getName() + "| fastpath: " + isFastPath);
 
@@ -66,11 +66,11 @@ public class GoalStateWorker {
 
         if (isFastPath) {
             System.out.println("Send port id :" + customerPortState.getId() + " with fast path");
-            gRpcClientForEpHost = new GoalStateProvisionerClient(epHost.getHostIpAddress(), epHost.getGRPCServerPort());
-            gRpcClientForEpHost.PushNetworkResourceStates(gsPortState);
+            this.setGRpcClientForEpHost(new GoalStateProvisionerClient(epHost.getHostIpAddress(), epHost.getGRPCServerPort()));
+            this.getGRpcClientForEpHost().PushNetworkResourceStates(gsPortState);
         } else {
             String topicForEndpoint = IKafkaConfiguration.PRODUCER_CLIENT_ID + epHost.getId();
-            kafkaClient.runProducer(topicForEndpoint, gsPortState);
+            this.getKafkaClient().runProducer(topicForEndpoint, gsPortState);
         }
 
         recordedTimeStamp[0] = System.nanoTime();
@@ -93,7 +93,7 @@ public class GoalStateWorker {
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             } else {
                 String topicForSwitch = IKafkaConfiguration.PRODUCER_CLIENT_ID + switchForSubnet.getId();
-                kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
+                this.getKafkaClient().runProducer(topicForSwitch, gsPortStateForSwitch);
             }
         }
 
@@ -112,10 +112,10 @@ public class GoalStateWorker {
 
         if (isFastPath) {
             System.out.println("Send port id :" + customerPortState.getId() + " with fast path");
-            gRpcClientForEpHost.PushNetworkResourceStates(gsFinalizedPortState);
+            this.getGRpcClientForEpHost().PushNetworkResourceStates(gsFinalizedPortState);
         } else {
             String topicForEndpoint = IKafkaConfiguration.PRODUCER_CLIENT_ID + epHost.getId();
-            kafkaClient.runProducer(topicForEndpoint, gsFinalizedPortState);
+            this.getKafkaClient().runProducer(topicForEndpoint, gsFinalizedPortState);
         }
 
         recordedTimeStamp[2] = System.nanoTime();

@@ -15,19 +15,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.web.util;
 
+import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
-import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.GoalStateWorker;
+import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.PortGoalStateProgrammer;
 import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.PortProgramInfo;
+import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.SubnetGoalStateProgrammer;
+import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.SubnetProgramInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 
 public class ControllerUtil {
 
     public static PortState CreatePort(PortState portState) {
 
-        HostInfo epHost = DataCenterConfig.nodeManager.getHostInfoById(portState.getBindingHostId());
         PortState customerPortState = ControllerUtil.AssignVipMacToPort(portState, ControllerConfig.epCounter);
+        HostInfo epHost = DataCenterConfig.nodeManager.getHostInfoById(portState.getBindingHostId());
         SubnetState customerSubnetState = ControllerConfig.customerSubnetState;
         HostInfo[] transitSwitchHostsForSubnet = ControllerConfig.transitSwitchHosts;
 
@@ -37,10 +43,22 @@ public class ControllerUtil {
         System.out.println("Host :" + epHost);
 
         PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
-        GoalStateWorker worker = new GoalStateWorker(portProgramInfo);
-        worker.SendGoalStateToHosts();
+        PortGoalStateProgrammer gsProgrammer = new PortGoalStateProgrammer(portProgramInfo);
+        gsProgrammer.SendGoalStateToHosts();
 
         return customerPortState;
+    }
+
+    public static void CreateSubnet(SubnetState subnetState, VpcState vpcState) {
+
+        SubnetState customerSubnetState = new SubnetState(subnetState);
+        HostInfo[] transitSwitchHosts = ControllerConfig.transitSwitchHosts;
+        VpcState customerVpcState = vpcState;
+        HostInfo[] transitRouterHosts = ControllerConfig.transitRouterHosts;
+
+        SubnetProgramInfo subnetProgramInfo = new SubnetProgramInfo(customerSubnetState, transitSwitchHosts, customerVpcState, transitRouterHosts);
+        SubnetGoalStateProgrammer gsProgrammer = new SubnetGoalStateProgrammer(subnetProgramInfo);
+        gsProgrammer.SendGoalStateToHosts();
     }
 
     public static PortState AssignVipMacToPort(PortState portState, int epIndex) {

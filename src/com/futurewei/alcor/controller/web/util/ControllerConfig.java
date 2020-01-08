@@ -25,6 +25,7 @@ public class ControllerConfig {
     public static String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
     public static String subnetId = "a87e0f87-a2d9-44ef-9194-9a62f178594e";
     private static int InitNumOfTransitSwitch = 3;
+    private static int InitNumOfTransitRouter = 1;
 
     public static SubnetState customerSubnetState = new SubnetState(
             ControllerConfig.projectId,
@@ -35,6 +36,7 @@ public class ControllerConfig {
             "10.0.0.5");
 
     public static HostInfo[] transitSwitchHosts = DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch);
+    public static HostInfo[] transitRouterHosts = DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter);
 
     public static int epCounter = 0;
 }
