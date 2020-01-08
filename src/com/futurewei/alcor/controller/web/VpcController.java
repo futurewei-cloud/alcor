@@ -23,7 +23,10 @@ import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
+import com.futurewei.alcor.controller.exception.ResourcePersistenceException;
+import com.futurewei.alcor.controller.model.ResponseId;
 import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.model.VpcStateJson;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,8 +42,8 @@ public class VpcController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/vpc/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
-    public VpcState getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+    public VpcStateJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcState vpcState = null;
 
@@ -57,52 +60,63 @@ public class VpcController {
 
         if (vpcState == null) {
             //TODO: REST error code
-            return new VpcState();
+            return new VpcStateJson();
         }
 
-        return vpcState;
+        return new VpcStateJson(vpcState);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/vpc", "/v4/{projectid}/vpcs"})
+            value = {"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
-    public VpcState createVpcState(@PathVariable String projectid, @RequestBody VpcState resource) throws Exception {
+    public VpcStateJson createVpcState(@PathVariable String projectid, @RequestBody VpcStateJson resource) throws Exception {
+        VpcState vpcState = null;
+
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditions.verifyResourceNotNull(resource);
-            RestPreconditions.populateResourceProjectId(resource, projectid);
 
-            this.vpcRedisRepository.addItem(resource);
+            VpcState inVpcState = resource.getVpc();
+            RestPreconditions.verifyResourceNotNull(inVpcState);
+            RestPreconditions.populateResourceProjectId(inVpcState, projectid);
+
+            this.vpcRedisRepository.addItem(inVpcState);
+
+            vpcState = this.vpcRedisRepository.findItem(inVpcState.getId());
+            if (vpcState == null) {
+                throw new ResourcePersistenceException();
+            }
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
-        return new VpcState(resource);
+        return new VpcStateJson(vpcState);
     }
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/vpc/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
-    public VpcState updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcState resource) throws Exception {
+            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+    public VpcStateJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource) throws Exception {
 
         VpcState vpcState = null;
 
         try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
-            RestPreconditions.verifyResourceNotNull(resource);
-            RestPreconditions.populateResourceProjectId(resource, projectid);
-            RestPreconditions.populateResourceVpcId(resource, vpcid);
+
+            VpcState inVpcState = resource.getVpc();
+            RestPreconditions.verifyResourceNotNull(inVpcState);
+            RestPreconditions.populateResourceProjectId(inVpcState, projectid);
+            RestPreconditions.populateResourceVpcId(inVpcState, vpcid);
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcRedisRepository.addItem(resource);
+            this.vpcRedisRepository.addItem(inVpcState);
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
 
@@ -110,13 +124,13 @@ public class VpcController {
             throw new Exception(e);
         }
 
-        return vpcState;
+        return new VpcStateJson(vpcState);
     }
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/vpc/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
-    public void deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+    public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         VpcState vpcState = null;
 
         try {
@@ -126,13 +140,15 @@ public class VpcController {
 
             vpcState = this.vpcRedisRepository.findItem(vpcid);
             if (vpcState == null) {
-                return;
+                return new ResponseId();
             }
 
             vpcRedisRepository.deleteItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
+
+        return new ResponseId(vpcid);
     }
 
     @RequestMapping(
