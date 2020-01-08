@@ -44,7 +44,7 @@ public class ControllerUtil {
 
         PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
         PortGoalStateProgrammer gsProgrammer = new PortGoalStateProgrammer(portProgramInfo);
-        gsProgrammer.run();
+        gsProgrammer.SendGoalStateToHosts();
 
         return customerPortState;
     }
@@ -58,7 +58,7 @@ public class ControllerUtil {
 
         SubnetProgramInfo subnetProgramInfo = new SubnetProgramInfo(customerSubnetState, transitSwitchHosts, customerVpcState, transitRouterHosts);
         SubnetGoalStateProgrammer gsProgrammer = new SubnetGoalStateProgrammer(subnetProgramInfo);
-        gsProgrammer.run();
+        gsProgrammer.SendGoalStateToHosts();
     }
 
     public static PortState AssignVipMacToPort(PortState portState, int epIndex) {

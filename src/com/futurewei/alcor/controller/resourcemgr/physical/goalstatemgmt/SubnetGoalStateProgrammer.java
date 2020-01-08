@@ -38,7 +38,7 @@ public class SubnetGoalStateProgrammer extends GoalStateProgrammer {
     }
 
     @Override
-    public long[] run() {
+    public long[] SendGoalStateToHosts() {
 
         long[] recordedTimeStamp = new long[3];
         recordedTimeStamp[0] = System.nanoTime();

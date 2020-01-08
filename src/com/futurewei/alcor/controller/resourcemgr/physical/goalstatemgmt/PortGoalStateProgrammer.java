@@ -38,7 +38,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
     }
 
     @Override
-    public long[] run() {
+    public long[] SendGoalStateToHosts() {
 
         long[] recordedTimeStamp = new long[3];
 

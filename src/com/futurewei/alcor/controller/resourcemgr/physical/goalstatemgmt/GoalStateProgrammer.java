@@ -24,5 +24,5 @@ public abstract class GoalStateProgrammer {
     private GoalStateProvisionerClient gRpcClientForEpHost;
     private MessageClient kafkaClient;
 
-    public abstract long[] run();
+    public abstract long[] SendGoalStateToHosts();
 }
