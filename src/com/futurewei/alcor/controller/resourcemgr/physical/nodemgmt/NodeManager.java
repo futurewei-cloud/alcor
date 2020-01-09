@@ -37,11 +37,13 @@ public class NodeManager {
     }
 
     private static List<HostInfo> AssignNodes(List<HostInfo> hosts) {
-        for (int i = 0; i < hosts.size(); i++) {
-            hosts.get(i).setGRPCServerPort(NodeManager.GRPC_SERVER_PORT);
+        List<HostInfo> hostInfoList = new ArrayList<>(hosts);
+        for (int i = 0; i < hostInfoList.size(); i++) {
+            HostInfo host = hostInfoList.get(i);
+            host.setGRPCServerPort(NodeManager.GRPC_SERVER_PORT);
         }
 
-        return new ArrayList<>(hosts);
+        return hostInfoList;
     }
 
     public HostInfo getHostInfoById(String hostId) {
