@@ -65,7 +65,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
                 epHost);
 
         if (isFastPath) {
-            System.out.println("Send port id :" + customerPortState.getId() + " with fast path");
+            System.out.println("Send port id :" + customerPortState.getId() + " with fast path to ep host " + epHost);
             this.setGRpcClientForEpHost(new GoalStateProvisionerClient(epHost.getHostIpAddress(), epHost.getGRPCServerPort()));
             this.getGRpcClientForEpHost().PushNetworkResourceStates(gsPortState);
         } else {
@@ -88,7 +88,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
 
         for (HostInfo switchForSubnet : transitSwitchHostsForSubnet) {
             if (isFastPath) {
-                System.out.println("Send port id :" + customerPortState.getId() + " to transit switch with fast path");
+                System.out.println("Send port id :" + customerPortState.getId() + " to transit switch with fast path " + switchForSubnet);
                 GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(switchForSubnet.getHostIpAddress(), switchForSubnet.getGRPCServerPort());
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             } else {
@@ -111,7 +111,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
                 epHost);
 
         if (isFastPath) {
-            System.out.println("Send port id :" + customerPortState.getId() + " with fast path");
+            System.out.println("Send port id :" + customerPortState.getId() + " with fast path to ep host");
             this.getGRpcClientForEpHost().PushNetworkResourceStates(gsFinalizedPortState);
         } else {
             String topicForEndpoint = IKafkaConfiguration.PRODUCER_CLIENT_ID + epHost.getId();

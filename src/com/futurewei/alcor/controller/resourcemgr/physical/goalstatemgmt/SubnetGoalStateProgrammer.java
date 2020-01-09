@@ -65,7 +65,7 @@ public class SubnetGoalStateProgrammer extends GoalStateProgrammer {
 
         for (HostInfo transitSwitch : transitSwitchHosts) {
             if (this.isFastPath) {
-                System.out.println("Send Subnet id :" + customerSubnetState.getId() + " with fast path");
+                System.out.println("Send Subnet id :" + customerSubnetState.getId() + " with fast path to switch host" + transitSwitch);
                 System.out.println("GS: " + gsVpcState.toString());
                 GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(transitSwitch.getHostIpAddress(), transitSwitch.getGRPCServerPort());
                 gRpcClientForEpHost.PushNetworkResourceStates(gsVpcState);

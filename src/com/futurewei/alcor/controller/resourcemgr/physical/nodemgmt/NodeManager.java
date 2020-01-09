@@ -46,7 +46,7 @@ public class NodeManager {
 
     public HostInfo getHostInfoById(String hostId) {
         if (this.nodeMap != null) { //&& !Strings.isNullOrEmpty(hostId)) {
-            System.out.println("host id: " + hostId);
+            System.out.println("[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
             return this.nodeMap.get(hostId);
         }
 
