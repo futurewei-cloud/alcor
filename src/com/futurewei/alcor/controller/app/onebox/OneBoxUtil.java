@@ -388,13 +388,14 @@ public class OneBoxUtil {
         return recordedTimeStamp;
     }
 
-    public static void AssignNodes(List<HostInfo> hosts) {
+    public static List<HostInfo> AssignNodes(List<HostInfo> hosts) {
         List<HostInfo> hostInfoList = new ArrayList<>(hosts);
         for (int i = 0; i < hostInfoList.size(); i++) {
-            hostInfoList.get(i).setGRPCServerPort(OneBoxConfig.GRPC_SERVER_PORT + i);
+            HostInfo host = hostInfoList.get(i);
+            host.setGRPCServerPort(OneBoxConfig.GRPC_SERVER_PORT + i);
         }
 
-        OneBoxConfig.epHosts = hostInfoList;
+        return hostInfoList;
     }
 
     // This function generates port state solely based on the container host
