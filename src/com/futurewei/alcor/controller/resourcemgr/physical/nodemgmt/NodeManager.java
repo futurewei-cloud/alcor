@@ -32,11 +32,14 @@ public class NodeManager {
     private HashMap<String, HostInfo> nodeMap;
 
     public NodeManager(List<HostInfo> hosts) {
-        this.nodes = NodeManager.AssignNodes(hosts);
+        this.nodes = NodeManager.LoadNodes(hosts);
+        for (HostInfo host : hosts) {
+            System.out.println(host);
+        }
         this.BuildMapFromNodeIdToInfo(this.nodes);
     }
 
-    private static List<HostInfo> AssignNodes(List<HostInfo> hosts) {
+    private static List<HostInfo> LoadNodes(List<HostInfo> hosts) {
         List<HostInfo> hostInfoList = new ArrayList<>(hosts);
         for (int i = 0; i < hostInfoList.size(); i++) {
             HostInfo host = hostInfoList.get(i);
