@@ -48,7 +48,7 @@ public class AlcorControllerApp {
             System.out.println("Loading Node Manager");
             DataCenterConfig.nodeManager = new NodeManager(hostNodeList);
         } else if (OneBoxConfig.IS_Onebox) {
-            OneBoxConfig.epHosts = OneBoxUtil.AssignNodes(hostNodeList);
+            OneBoxConfig.epHosts = OneBoxUtil.LoadNodes(hostNodeList);
         }
 
         System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");

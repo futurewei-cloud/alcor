@@ -388,7 +388,7 @@ public class OneBoxUtil {
         return recordedTimeStamp;
     }
 
-    public static List<HostInfo> AssignNodes(List<HostInfo> hosts) {
+    public static List<HostInfo> LoadNodes(List<HostInfo> hosts) {
         List<HostInfo> hostInfoList = new ArrayList<>(hosts);
         for (int i = 0; i < hostInfoList.size(); i++) {
             HostInfo host = hostInfoList.get(i);
