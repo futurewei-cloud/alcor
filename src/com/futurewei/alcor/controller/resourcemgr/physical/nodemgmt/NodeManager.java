@@ -32,21 +32,26 @@ public class NodeManager {
     private HashMap<String, HostInfo> nodeMap;
 
     public NodeManager(List<HostInfo> hosts) {
-        this.nodes = NodeManager.AssignNodes(hosts);
+        this.nodes = NodeManager.LoadNodes(hosts);
+        for (HostInfo host : hosts) {
+            System.out.println(host);
+        }
         this.BuildMapFromNodeIdToInfo(this.nodes);
     }
 
-    private static List<HostInfo> AssignNodes(List<HostInfo> hosts) {
-        for (int i = 0; i < hosts.size(); i++) {
-            hosts.get(i).setGRPCServerPort(NodeManager.GRPC_SERVER_PORT);
+    private static List<HostInfo> LoadNodes(List<HostInfo> hosts) {
+        List<HostInfo> hostInfoList = new ArrayList<>(hosts);
+        for (int i = 0; i < hostInfoList.size(); i++) {
+            HostInfo host = hostInfoList.get(i);
+            host.setGRPCServerPort(NodeManager.GRPC_SERVER_PORT);
         }
 
-        return new ArrayList<>(hosts);
+        return hostInfoList;
     }
 
     public HostInfo getHostInfoById(String hostId) {
         if (this.nodeMap != null) { //&& !Strings.isNullOrEmpty(hostId)) {
-            System.out.println("host id: " + hostId);
+            System.out.println("[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
             return this.nodeMap.get(hostId);
         }
 
@@ -58,7 +63,7 @@ public class NodeManager {
         HostInfo[] randomHosts = new HostInfo[count];
 
         for (int i = 0; i < count; i++) {
-            int index = Common.getRandomNumberInRange(0, this.getNodes().size());
+            int index = Common.getRandomNumberInRange(0, this.getNodes().size() - 1);
             randomHosts[i] = this.getNodes().get(index);
         }
 

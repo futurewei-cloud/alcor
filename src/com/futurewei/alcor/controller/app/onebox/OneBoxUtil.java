@@ -24,6 +24,7 @@ import com.futurewei.alcor.controller.model.*;
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
+import org.apache.catalina.Host;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -387,12 +388,14 @@ public class OneBoxUtil {
         return recordedTimeStamp;
     }
 
-    public static void AssignNodes(List<HostInfo> hosts) {
-        for (int i = 0; i < hosts.size(); i++) {
-            hosts.get(i).setGRPCServerPort(OneBoxConfig.GRPC_SERVER_PORT + i);
+    public static List<HostInfo> LoadNodes(List<HostInfo> hosts) {
+        List<HostInfo> hostInfoList = new ArrayList<>(hosts);
+        for (int i = 0; i < hostInfoList.size(); i++) {
+            HostInfo host = hostInfoList.get(i);
+            host.setGRPCServerPort(OneBoxConfig.GRPC_SERVER_PORT + i);
         }
 
-        OneBoxConfig.epHosts = new ArrayList<>(hosts);
+        return hostInfoList;
     }
 
     // This function generates port state solely based on the container host

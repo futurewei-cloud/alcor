@@ -271,7 +271,7 @@ public class OneBoxConfig {
     };
 
     public static int epHostCounter = 0;
-    public static List<HostInfo> epHosts;
+    public static List<HostInfo> epHosts = null;
     public static int epCounter = 0;
     public static int EP_PER_HOST = 1;
 }
