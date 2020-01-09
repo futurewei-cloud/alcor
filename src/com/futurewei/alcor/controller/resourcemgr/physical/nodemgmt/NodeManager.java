@@ -58,7 +58,7 @@ public class NodeManager {
         HostInfo[] randomHosts = new HostInfo[count];
 
         for (int i = 0; i < count; i++) {
-            int index = Common.getRandomNumberInRange(0, this.getNodes().size());
+            int index = Common.getRandomNumberInRange(0, this.getNodes().size() - 1);
             randomHosts[i] = this.getNodes().get(index);
         }
 
