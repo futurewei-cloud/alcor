@@ -24,7 +24,6 @@ import com.futurewei.alcor.controller.model.*;
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
-import org.apache.catalina.Host;
 
 import java.util.ArrayList;
 import java.util.List;
