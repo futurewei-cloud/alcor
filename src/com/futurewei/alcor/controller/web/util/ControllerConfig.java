@@ -35,8 +35,8 @@ public class ControllerConfig {
             "10.0.0.0/20",
             "10.0.0.5");
 
-    public static HostInfo[] transitSwitchHosts = DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch);
-    public static HostInfo[] transitRouterHosts = DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter);
+    public static HostInfo[] transitSwitchHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch));
+    public static HostInfo[] transitRouterHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter));
 
     public static int epCounter = 0;
 }

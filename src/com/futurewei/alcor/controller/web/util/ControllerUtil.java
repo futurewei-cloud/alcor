@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.web.util;
 
-import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -25,8 +24,6 @@ import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.PortPro
 import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.SubnetGoalStateProgrammer;
 import com.futurewei.alcor.controller.resourcemgr.physical.goalstatemgmt.SubnetProgramInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 
 public class ControllerUtil {
 
