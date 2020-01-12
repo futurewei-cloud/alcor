@@ -6,7 +6,7 @@ metadata:
   labels:
     app: alcor
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: alcor
   ports:

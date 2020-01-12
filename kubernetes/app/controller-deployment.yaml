@@ -16,7 +16,7 @@ spec:
       containers:
         - name: alcor
           image: fwnetworking/controller
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
