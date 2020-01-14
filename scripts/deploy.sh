@@ -27,7 +27,8 @@ else
 fi
 
 # Build a controller image and deploy as a docker container
-docker build -t fwnetworking/controller .
+sed -e "s/\${DevEnv}/onebox/" -i Dockerfile
+docker build -t alcor/controller .
 if [ -n "$(docker ps -q -f name=$CtrlContainer)" ]; then
     echo "Controller container $CtrlContainer is already running. Build exits...\n"
     exit 1
