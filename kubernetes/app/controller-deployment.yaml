@@ -5,6 +5,7 @@ metadata:
   labels:
     app: alcor
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: alcor

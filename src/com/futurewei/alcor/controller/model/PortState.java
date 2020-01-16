@@ -28,7 +28,11 @@ public class PortState extends CustomerResource {
 
     @Data
     public static class FixedIp {
+
+        @JsonProperty("subnet_id")
         private String subnetId;
+
+        @JsonProperty("ip_address")
         private String ipAddress;
 
         public FixedIp() {
@@ -43,13 +47,21 @@ public class PortState extends CustomerResource {
 
     @Data
     public static class AllowAddressPair {
+
+        @JsonProperty("ip_address")
         private String ipAddress;
+
+        @JsonProperty("mac_address")
         private String macAddress;
     }
 
     @Data
     public static class ExtraDhcpOpt {
+
+        @JsonProperty("opt_name")
         private String optName;
+
+        @JsonProperty("opt_value")
         private String optValue;
     }
 
@@ -60,8 +72,14 @@ public class PortState extends CustomerResource {
 
     @Data
     public static class DnsRecord {
+
+        @JsonProperty("host_name")
         private String hostName;
+
+        @JsonProperty("ip_address")
         private String ipAddress;
+
+        @JsonProperty("fqdn")
         private String fqdn;
     }
 

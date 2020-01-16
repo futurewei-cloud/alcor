@@ -6,7 +6,7 @@ metadata:
   labels:
     app: alcor
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: alcor
   ports:
