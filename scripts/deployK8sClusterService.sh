@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if $1; then
-	docker build -t fwnetworking/controller .
-	docker push fwnetworking/controller:latest
-fi
-
 #Clean up
 kubectl delete svc alcor
 kubectl delete deployment alcor
