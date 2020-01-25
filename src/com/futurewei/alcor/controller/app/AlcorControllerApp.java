@@ -30,12 +30,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
+//log
+import java.util.logging.*;
+
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
 
+    private final static Logger logger = Logger.getLogger(AlcorControllerApp.class.getName());
     public static void main(String[] args) {
-
+        AlcorControllerApp.loginit();
+        logger.log(Level.INFO, "Test Log: Alcor Controller!");
         System.out.println("Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
@@ -67,5 +72,10 @@ public class AlcorControllerApp {
             }
 
         };
+    }
+    public static void loginit(){
+        Logger l = Logger.getLogger("");
+        l.getGlobal().getParent().getHandlers()[0].setLevel(Level.ALL);
+        l.setLevel(Level.ALL);
     }
 }
