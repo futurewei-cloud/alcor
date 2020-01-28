@@ -26,10 +26,6 @@
     <dependencies>
         <!-- Compile -->
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>spring-cloud-kubernetes-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>2.3.0</version>
