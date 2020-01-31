@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
+import com.futurewei.alcor.controller.app.AlcorControllerApp;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
 import com.futurewei.alcor.controller.schema.Goalstate.*;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
@@ -24,12 +25,12 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
 import java.util.concurrent.TimeUnit;
+
+//log
+import com.futurewei.alcor.controller.logging.Log;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GoalStateProvisionerClient {
-
-    private static final Logger logger = Logger.getLogger(GoalStateProvisionerClient.class.getName());
 
     private final ManagedChannel channel;
     private final GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub;
@@ -42,7 +43,7 @@ public class GoalStateProvisionerClient {
         this(ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build());
-    }
+        }
 
     /**
      * Construct client for accessing GoalStateProvisioner server using the existing channel.
@@ -58,19 +59,23 @@ public class GoalStateProvisionerClient {
     }
 
     public void PushNetworkResourceStates(GoalState state) {
-        logger.info("Will try to send GS with fast path...");
+        Log.entering(this.getClass().getName(),"PushNetworkResourceStates(GoalState state)");
+
+        System.out.println("GoalStateProvisionerClient : Will try to send GS with fast path...");
         Goalstateprovisioner.GoalStateOperationReply response;
         try {
             response = blockingStub.pushNetworkResourceStates(state);
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            Log.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return;
         }
-        logger.info("Message total operation time: " + response.getMessageTotalOperationTime());
-        logger.info("Goal state operation status counts: " + response.getOperationStatusesCount());
+        Log.log(Level.INFO, "Message total operation time: " + response.getMessageTotalOperationTime());
+        Log.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
 
         for (int i = 0; i < response.getOperationStatusesCount(); i++) {
-            logger.info("GS #" + i + ":" + response.getOperationStatuses(i));
+            Log.log(Level.INFO,"GS #" + i + ":" + response.getOperationStatuses(i));
         }
+        Log.exiting(this.getClass().getName(),"PushNetworkResourceStates(GoalState state)");
+
     }
 }

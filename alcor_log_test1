@@ -1,0 +1,665 @@
+Hello Alcor Controller!
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.1.6.RELEASE)
+
+2020-01-31 23:03:44.754 DEBUG 1 --- [           main] o.s.web.context.ContextLoader            : Published root WebApplicationContext as ServletContext attribute with name [org.springframework.web.context.WebApplicationContext.ROOT]
+2020-01-31 23:03:44.757  INFO 1 --- [           main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 5799 ms
+2020-01-31 23:03:47.020 DEBUG 1 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/**/favicon.ico] in 'faviconHandlerMapping'
+2020-01-31 23:03:47.507 DEBUG 1 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2020-01-31 23:03:47.700 DEBUG 1 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 23 mappings in 'requestMappingHandlerMapping'
+2020-01-31 23:03:47.730 DEBUG 1 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2020-01-31 23:03:47.764 DEBUG 1 --- [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+Let's inspect the beans provided by Spring Boot:
+alcorControllerApp
+applicationTaskExecutor
+auditEventRepository
+auditEventsEndpoint
+auditListener
+basicErrorController
+beanNameHandlerMapping
+beanNameViewResolver
+beansEndpoint
+cachesEndpoint
+cachesEndpointWebExtension
+characterEncodingFilter
+classLoaderMetrics
+commandLineRunner
+conditionsReportEndpoint
+configurationPropertiesReportEndpoint
+controllerEndpointDiscoverer
+controllerEndpointHandlerMapping
+controllerExposeExcludePropertyEndpointFilter
+conventionErrorViewResolver
+createHealthStatusHttpMapper
+debugController
+defaultServletHandlerMapping
+defaultTemplateResolver
+defaultValidator
+defaultViewResolver
+diskSpaceHealthIndicator
+diskSpaceHealthIndicatorProperties
+dispatcherServlet
+dispatcherServletMappingDescriptionProvider
+dispatcherServletRegistration
+dumpEndpoint
+endpointCachingOperationInvokerAdvisor
+endpointMediaTypes
+endpointOperationParameterMapper
+envInfoContributor
+environmentEndpoint
+environmentEndpointWebExtension
+error
+errorAttributes
+errorPageCustomizer
+errorPageRegistrarBeanPostProcessor
+faviconHandlerMapping
+faviconRequestHandler
+fileDescriptorMetrics
+filterMappingDescriptionProvider
+formContentFilter
+gson
+gsonBuilder
+handlerExceptionResolver
+healthAggregator
+healthEndpoint
+healthEndpointWebExtension
+healthIndicatorRegistry
+healthWebEndpointResponseMapper
+heapDumpWebEndpoint
+hiddenHttpMethodFilter
+httpExchangeTracer
+httpRequestHandlerAdapter
+httpTraceEndpoint
+httpTraceFilter
+infoEndpoint
+jacksonCodecCustomizer
+jacksonGeoModule
+jacksonObjectMapper
+jacksonObjectMapperBuilder
+java8TimeDialect
+jmxAnnotationEndpointDiscoverer
+jmxIncludeExcludePropertyEndpointFilter
+jmxMBeanExporter
+jsonComponentModule
+jvmGcMetrics
+jvmMemoryMetrics
+jvmThreadMetrics
+kafkaAdmin
+kafkaConsumerFactory
+kafkaConsumerMetrics
+kafkaListenerContainerFactory
+kafkaListenerContainerFactoryConfigurer
+kafkaProducerFactory
+kafkaProducerListener
+kafkaTemplate
+keyValueMappingContext
+lettuceClientResources
+lettuceConnectionFactory
+localeCharsetMappingsCustomizer
+logbackMetrics
+loggersEndpoint
+loggingCodecCustomizer
+management.endpoint.configprops-org.springframework.boot.actuate.autoconfigure.context.properties.ConfigurationPropertiesReportEndpointProperties
+management.endpoint.env-org.springframework.boot.actuate.autoconfigure.env.EnvironmentEndpointProperties
+management.endpoint.health-org.springframework.boot.actuate.autoconfigure.health.HealthEndpointProperties
+management.endpoint.logfile-org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties
+management.endpoints.jmx-org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointProperties
+management.endpoints.web-org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties
+management.endpoints.web.cors-org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties
+management.health.status-org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorProperties
+management.info-org.springframework.boot.actuate.autoconfigure.info.InfoContributorProperties
+management.metrics-org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties
+management.metrics.export.simple-org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleProperties
+management.server-org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties
+management.trace.http-org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceProperties
+managementServletContext
+mappingJackson2HttpMessageConverter
+mappingsEndpoint
+mbeanExporter
+mbeanServer
+messageConverters
+meterRegistryPostProcessor
+methodValidationPostProcessor
+metricsEndpoint
+metricsHttpClientUriTagFilter
+metricsHttpServerUriTagFilter
+metricsRestTemplateCustomizer
+metricsWebMvcConfigurer
+micrometerClock
+multipartConfigElement
+multipartResolver
+mvcContentNegotiationManager
+mvcConversionService
+mvcHandlerMappingIntrospector
+mvcPathMatcher
+mvcResourceUrlProvider
+mvcUriComponentsContributor
+mvcUrlPathHelper
+mvcValidator
+mvcViewResolver
+objectNamingStrategy
+org.springframework.boot.actuate.autoconfigure.audit.AuditAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.audit.AuditAutoConfiguration$AuditEventRepositoryConfiguration
+org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.beans.BeansEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.cache.CachesEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.context.properties.ConfigurationPropertiesReportEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.web.ServletEndpointManagementContextConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.web.ServletEndpointManagementContextConfiguration$WebMvcServletEndpointManagementContextConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration$WebEndpointServletConfiguration
+org.springframework.boot.actuate.autoconfigure.endpoint.web.servlet.WebMvcEndpointManagementContextConfiguration
+org.springframework.boot.actuate.autoconfigure.env.EnvironmentEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthEndpointConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthEndpointWebExtensionConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthEndpointWebExtensionConfiguration$ServletWebHealthConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration$ReactiveHealthIndicatorConfiguration
+org.springframework.boot.actuate.autoconfigure.info.InfoContributorAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.info.InfoEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.logging.LoggersEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.management.HeapDumpWebEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.management.ThreadDumpEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.KafkaMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.LogbackMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.MetricsEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.web.client.HttpClientMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.web.client.RestTemplateMetricsConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.web.servlet.WebMvcMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.redis.RedisHealthIndicatorAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.redis.RedisReactiveHealthIndicatorAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.scheduling.ScheduledTasksEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.system.DiskSpaceHealthIndicatorAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration$ServletTraceFilterConfiguration
+org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration$ServletWebConfiguration
+org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration$ServletWebConfiguration$SpringMvcConfiguration
+org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration
+org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration$SameManagementContextConfiguration
+org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration$SameManagementContextConfiguration$EnableSameManagementContextConfiguration
+org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration
+org.springframework.boot.autoconfigure.AutoConfigurationPackages
+org.springframework.boot.autoconfigure.condition.BeanTypeRegistry
+org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
+org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration
+org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration
+org.springframework.boot.autoconfigure.data.redis.LettuceConnectionConfiguration
+org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration
+org.springframework.boot.autoconfigure.domain.EntityScanPackages
+org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration
+org.springframework.boot.autoconfigure.http.GsonHttpMessageConvertersConfiguration
+org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration
+org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration$StringHttpMessageConverterConfiguration
+org.springframework.boot.autoconfigure.http.JacksonHttpMessageConvertersConfiguration
+org.springframework.boot.autoconfigure.http.JacksonHttpMessageConvertersConfiguration$MappingJackson2HttpMessageConverterConfiguration
+org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration
+org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration$JacksonCodecConfiguration
+org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration$LoggingCodecConfiguration
+org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration
+org.springframework.boot.autoconfigure.internalCachingMetadataReaderFactory
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$Jackson2ObjectMapperBuilderCustomizerConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$JacksonObjectMapperBuilderConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$JacksonObjectMapperConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$ParameterNamesModuleConfiguration
+org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
+org.springframework.boot.autoconfigure.kafka.KafkaAnnotationDrivenConfiguration
+org.springframework.boot.autoconfigure.kafka.KafkaAnnotationDrivenConfiguration$EnableKafkaConfiguration
+org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+org.springframework.boot.autoconfigure.reactor.core.ReactorCoreAutoConfiguration
+org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
+org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration$ThymeleafDefaultConfiguration
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration$ThymeleafJava8TimeDialect
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration$ThymeleafWebMvcConfiguration
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration$ThymeleafWebMvcConfiguration$ThymeleafViewResolverConfiguration
+org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration
+org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
+org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
+org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
+org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration$TomcatWebServerFactoryCustomizerConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletRegistrationConfiguration
+org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedTomcat
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$EnableWebMvcConfiguration
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$WebMvcAutoConfigurationAdapter
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$WebMvcAutoConfigurationAdapter$FaviconConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration$DefaultErrorViewResolverConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration$WhitelabelErrorViewConfiguration
+org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
+org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration$TomcatWebSocketConfiguration
+org.springframework.boot.context.properties.ConfigurationBeanFactoryMetadata
+org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.event.internalEventListenerFactory
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.data.web.config.ProjectingArgumentResolverRegistrar
+org.springframework.data.web.config.SpringDataJacksonConfiguration
+org.springframework.data.web.config.SpringDataWebConfiguration
+org.springframework.kafka.annotation.KafkaBootstrapConfiguration
+org.springframework.kafka.config.internalKafkaListenerAnnotationProcessor
+org.springframework.kafka.config.internalKafkaListenerEndpointRegistry
+pageableCustomizer
+pageableResolver
+parameterNamesModule
+pathMappedEndpoints
+persistenceExceptionTranslationPostProcessor
+platformTransactionManagerCustomizers
+portController
+portRedisRepository
+preserveErrorControllerTargetClassPostProcessor
+processorMetrics
+projectingArgumentResolverBeanPostProcessor
+propertiesMeterFilter
+propertySourcesPlaceholderConfigurer
+reactiveHealthIndicatorRegistry
+reactiveRedisTemplate
+redisConfiguration
+redisContainer
+redisConverter
+redisCustomConversions
+redisHealthIndicator
+redisKeyValueAdapter
+redisKeyValueTemplate
+redisListener
+redisListenerInstance
+redisPortTemplate
+redisPublisher
+redisReferenceResolver
+redisSubnetTemplate
+redisTemplate
+redisVpcPublisherInstance
+redisVpcTemplate
+requestContextFilter
+requestMappingHandlerAdapter
+requestMappingHandlerMapping
+resourceHandlerMapping
+restTemplateBuilder
+restTemplateTagConfigurer
+scheduledTasksEndpoint
+server-org.springframework.boot.autoconfigure.web.ServerProperties
+servletEndpointDiscoverer
+servletEndpointRegistrar
+servletExposeExcludePropertyEndpointFilter
+servletMappingDescriptionProvider
+servletWebChildContextFactory
+servletWebServerFactoryCustomizer
+simpleConfig
+simpleControllerHandlerAdapter
+simpleMeterRegistry
+sortCustomizer
+sortResolver
+spring.data.web-org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties
+spring.gson-org.springframework.boot.autoconfigure.gson.GsonProperties
+spring.http-org.springframework.boot.autoconfigure.http.HttpProperties
+spring.info-org.springframework.boot.autoconfigure.info.ProjectInfoProperties
+spring.jackson-org.springframework.boot.autoconfigure.jackson.JacksonProperties
+spring.kafka-org.springframework.boot.autoconfigure.kafka.KafkaProperties
+spring.mvc-org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties
+spring.reactor-org.springframework.boot.autoconfigure.reactor.core.ReactorCoreProperties
+spring.redis-org.springframework.boot.autoconfigure.data.redis.RedisProperties
+spring.resources-org.springframework.boot.autoconfigure.web.ResourceProperties
+spring.servlet.multipart-org.springframework.boot.autoconfigure.web.servlet.MultipartProperties
+spring.task.execution-org.springframework.boot.autoconfigure.task.TaskExecutionProperties
+spring.task.scheduling-org.springframework.boot.autoconfigure.task.TaskSchedulingProperties
+spring.thymeleaf-org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties
+spring.transaction-org.springframework.boot.autoconfigure.transaction.TransactionProperties
+standardGsonBuilderCustomizer
+standardJacksonObjectMapperBuilderCustomizer
+stringHttpMessageConverter
+stringRedisTemplate
+subnetController
+subnetRedisRepository
+taskExecutorBuilder
+taskSchedulerBuilder
+templateEngine
+thymeleafViewResolver
+tomcatMetricsBinder
+tomcatServletWebServerFactory
+tomcatServletWebServerFactoryCustomizer
+tomcatWebServerFactoryCustomizer
+topic
+traceRepository
+uptimeMetrics
+viewControllerHandlerMapping
+viewResolver
+vpcController
+vpcRedisRepository
+webEndpointDiscoverer
+webEndpointPathMapper
+webEndpointServletHandlerMapping
+webExposeExcludePropertyEndpointFilter
+webMvcMetricsFilter
+webMvcTagsProvider
+webServerFactoryCustomizerBeanPostProcessor
+websocketServletWebServerCustomizer
+welcomePageHandlerMapping
+Bye from Alcor Controller!
+
+
+Loading node from config/machine.json
+Node ID:ephost_0|IP:172.17.0.10|MAC:02:42:ac:11:00:0a
+Node ID:ephost_1|IP:172.17.0.11|MAC:02:42:ac:11:00:0b
+Node ID:ephost_2|IP:172.17.0.12|MAC:02:42:ac:11:00:0c
+Node ID:ephost_3|IP:172.17.0.13|MAC:02:42:ac:11:00:0d
+Node ID:ephost_4|IP:172.17.0.14|MAC:02:42:ac:11:00:0e
+Node ID:ephost_5|IP:172.17.0.15|MAC:02:42:ac:11:00:0f
+Node ID:ephost_6|IP:172.17.0.16|MAC:02:42:ac:11:00:10
+Node ID:ephost_7|IP:172.17.0.17|MAC:02:42:ac:11:00:11
+Node ID:ephost_8|IP:172.17.0.18|MAC:02:42:ac:11:00:12
+Node ID:ephost_9|IP:172.17.0.19|MAC:02:42:ac:11:00:13
+Node ID:ephost_10|IP:172.17.0.20|MAC:02:42:ac:11:00:14
+Node ID:ephost_11|IP:172.17.0.21|MAC:02:42:ac:11:00:15
+Node ID:ephost_12|IP:172.17.0.22|MAC:02:42:ac:11:00:16
+Node ID:ephost_13|IP:172.17.0.23|MAC:02:42:ac:11:00:17
+Node ID:ephost_14|IP:172.17.0.24|MAC:02:42:ac:11:00:18
+Node ID:ephost_15|IP:172.17.0.25|MAC:02:42:ac:11:00:19
+Node ID:ephost_16|IP:172.17.0.26|MAC:02:42:ac:11:00:1a
+Node ID:ephost_17|IP:172.17.0.27|MAC:02:42:ac:11:00:1b
+Node ID:ephost_18|IP:172.17.0.28|MAC:02:42:ac:11:00:1c
+Node ID:ephost_19|IP:172.17.0.29|MAC:02:42:ac:11:00:1d
+Node ID:ephost_20|IP:172.17.0.30|MAC:02:42:ac:11:00:1e
+Node ID:ephost_21|IP:172.17.0.31|MAC:02:42:ac:11:00:1f
+Node ID:ephost_22|IP:172.17.0.32|MAC:02:42:ac:11:00:20
+Node ID:ephost_23|IP:172.17.0.33|MAC:02:42:ac:11:00:21
+Node ID:ephost_24|IP:172.17.0.34|MAC:02:42:ac:11:00:22
+Node ID:ephost_25|IP:172.17.0.35|MAC:02:42:ac:11:00:23
+Node ID:ephost_26|IP:172.17.0.36|MAC:02:42:ac:11:00:24
+Node ID:ephost_27|IP:172.17.0.37|MAC:02:42:ac:11:00:25
+Node ID:ephost_28|IP:172.17.0.38|MAC:02:42:ac:11:00:26
+Node ID:ephost_29|IP:172.17.0.39|MAC:02:42:ac:11:00:27
+Node ID:ephost_30|IP:172.17.0.40|MAC:02:42:ac:11:00:28
+Node ID:ephost_31|IP:172.17.0.41|MAC:02:42:ac:11:00:29
+Node ID:ephost_32|IP:172.17.0.42|MAC:02:42:ac:11:00:2a
+Node ID:ephost_33|IP:172.17.0.43|MAC:02:42:ac:11:00:2b
+Node ID:ephost_34|IP:172.17.0.44|MAC:02:42:ac:11:00:2c
+Node ID:ephost_35|IP:172.17.0.45|MAC:02:42:ac:11:00:2d
+Node ID:ephost_36|IP:172.17.0.46|MAC:02:42:ac:11:00:2e
+Node ID:ephost_37|IP:172.17.0.47|MAC:02:42:ac:11:00:2f
+Node ID:ephost_38|IP:172.17.0.48|MAC:02:42:ac:11:00:30
+Node ID:ephost_39|IP:172.17.0.49|MAC:02:42:ac:11:00:31
+Node ID:ephost_40|IP:172.17.0.50|MAC:02:42:ac:11:00:32
+Node ID:ephost_41|IP:172.17.0.51|MAC:02:42:ac:11:00:33
+Node ID:ephost_42|IP:172.17.0.52|MAC:02:42:ac:11:00:34
+Node ID:ephost_43|IP:172.17.0.53|MAC:02:42:ac:11:00:35
+Node ID:ephost_44|IP:172.17.0.54|MAC:02:42:ac:11:00:36
+Node ID:ephost_45|IP:172.17.0.55|MAC:02:42:ac:11:00:37
+Node ID:ephost_46|IP:172.17.0.56|MAC:02:42:ac:11:00:38
+Node ID:ephost_47|IP:172.17.0.57|MAC:02:42:ac:11:00:39
+Node ID:ephost_48|IP:172.17.0.58|MAC:02:42:ac:11:00:3a
+Node ID:ephost_49|IP:172.17.0.59|MAC:02:42:ac:11:00:3b
+Loading Node Manager
+== Docker Log Test ==
+HostInfo(id=ephost_0, localIp=ephost_0/172.17.0.10, macAddress=02:42:ac:11:00:0a, gRPCServerPort=50001)
+HostInfo(id=ephost_1, localIp=ephost_1/172.17.0.11, macAddress=02:42:ac:11:00:0b, gRPCServerPort=50001)
+HostInfo(id=ephost_2, localIp=ephost_2/172.17.0.12, macAddress=02:42:ac:11:00:0c, gRPCServerPort=50001)
+HostInfo(id=ephost_3, localIp=ephost_3/172.17.0.13, macAddress=02:42:ac:11:00:0d, gRPCServerPort=50001)
+HostInfo(id=ephost_4, localIp=ephost_4/172.17.0.14, macAddress=02:42:ac:11:00:0e, gRPCServerPort=50001)
+HostInfo(id=ephost_5, localIp=ephost_5/172.17.0.15, macAddress=02:42:ac:11:00:0f, gRPCServerPort=50001)
+HostInfo(id=ephost_6, localIp=ephost_6/172.17.0.16, macAddress=02:42:ac:11:00:10, gRPCServerPort=50001)
+HostInfo(id=ephost_7, localIp=ephost_7/172.17.0.17, macAddress=02:42:ac:11:00:11, gRPCServerPort=50001)
+HostInfo(id=ephost_8, localIp=ephost_8/172.17.0.18, macAddress=02:42:ac:11:00:12, gRPCServerPort=50001)
+HostInfo(id=ephost_9, localIp=ephost_9/172.17.0.19, macAddress=02:42:ac:11:00:13, gRPCServerPort=50001)
+HostInfo(id=ephost_10, localIp=ephost_10/172.17.0.20, macAddress=02:42:ac:11:00:14, gRPCServerPort=50001)
+HostInfo(id=ephost_11, localIp=ephost_11/172.17.0.21, macAddress=02:42:ac:11:00:15, gRPCServerPort=50001)
+HostInfo(id=ephost_12, localIp=ephost_12/172.17.0.22, macAddress=02:42:ac:11:00:16, gRPCServerPort=50001)
+HostInfo(id=ephost_13, localIp=ephost_13/172.17.0.23, macAddress=02:42:ac:11:00:17, gRPCServerPort=50001)
+HostInfo(id=ephost_14, localIp=ephost_14/172.17.0.24, macAddress=02:42:ac:11:00:18, gRPCServerPort=50001)
+HostInfo(id=ephost_15, localIp=ephost_15/172.17.0.25, macAddress=02:42:ac:11:00:19, gRPCServerPort=50001)
+HostInfo(id=ephost_16, localIp=ephost_16/172.17.0.26, macAddress=02:42:ac:11:00:1a, gRPCServerPort=50001)
+HostInfo(id=ephost_17, localIp=ephost_17/172.17.0.27, macAddress=02:42:ac:11:00:1b, gRPCServerPort=50001)
+HostInfo(id=ephost_18, localIp=ephost_18/172.17.0.28, macAddress=02:42:ac:11:00:1c, gRPCServerPort=50001)
+HostInfo(id=ephost_19, localIp=ephost_19/172.17.0.29, macAddress=02:42:ac:11:00:1d, gRPCServerPort=50001)
+HostInfo(id=ephost_20, localIp=ephost_20/172.17.0.30, macAddress=02:42:ac:11:00:1e, gRPCServerPort=50001)
+HostInfo(id=ephost_21, localIp=ephost_21/172.17.0.31, macAddress=02:42:ac:11:00:1f, gRPCServerPort=50001)
+HostInfo(id=ephost_22, localIp=ephost_22/172.17.0.32, macAddress=02:42:ac:11:00:20, gRPCServerPort=50001)
+HostInfo(id=ephost_23, localIp=ephost_23/172.17.0.33, macAddress=02:42:ac:11:00:21, gRPCServerPort=50001)
+HostInfo(id=ephost_24, localIp=ephost_24/172.17.0.34, macAddress=02:42:ac:11:00:22, gRPCServerPort=50001)
+HostInfo(id=ephost_25, localIp=ephost_25/172.17.0.35, macAddress=02:42:ac:11:00:23, gRPCServerPort=50001)
+HostInfo(id=ephost_26, localIp=ephost_26/172.17.0.36, macAddress=02:42:ac:11:00:24, gRPCServerPort=50001)
+HostInfo(id=ephost_27, localIp=ephost_27/172.17.0.37, macAddress=02:42:ac:11:00:25, gRPCServerPort=50001)
+HostInfo(id=ephost_28, localIp=ephost_28/172.17.0.38, macAddress=02:42:ac:11:00:26, gRPCServerPort=50001)
+HostInfo(id=ephost_29, localIp=ephost_29/172.17.0.39, macAddress=02:42:ac:11:00:27, gRPCServerPort=50001)
+HostInfo(id=ephost_30, localIp=ephost_30/172.17.0.40, macAddress=02:42:ac:11:00:28, gRPCServerPort=50001)
+HostInfo(id=ephost_31, localIp=ephost_31/172.17.0.41, macAddress=02:42:ac:11:00:29, gRPCServerPort=50001)
+HostInfo(id=ephost_32, localIp=ephost_32/172.17.0.42, macAddress=02:42:ac:11:00:2a, gRPCServerPort=50001)
+HostInfo(id=ephost_33, localIp=ephost_33/172.17.0.43, macAddress=02:42:ac:11:00:2b, gRPCServerPort=50001)
+HostInfo(id=ephost_34, localIp=ephost_34/172.17.0.44, macAddress=02:42:ac:11:00:2c, gRPCServerPort=50001)
+HostInfo(id=ephost_35, localIp=ephost_35/172.17.0.45, macAddress=02:42:ac:11:00:2d, gRPCServerPort=50001)
+HostInfo(id=ephost_36, localIp=ephost_36/172.17.0.46, macAddress=02:42:ac:11:00:2e, gRPCServerPort=50001)
+HostInfo(id=ephost_37, localIp=ephost_37/172.17.0.47, macAddress=02:42:ac:11:00:2f, gRPCServerPort=50001)
+HostInfo(id=ephost_38, localIp=ephost_38/172.17.0.48, macAddress=02:42:ac:11:00:30, gRPCServerPort=50001)
+HostInfo(id=ephost_39, localIp=ephost_39/172.17.0.49, macAddress=02:42:ac:11:00:31, gRPCServerPort=50001)
+HostInfo(id=ephost_40, localIp=ephost_40/172.17.0.50, macAddress=02:42:ac:11:00:32, gRPCServerPort=50001)
+HostInfo(id=ephost_41, localIp=ephost_41/172.17.0.51, macAddress=02:42:ac:11:00:33, gRPCServerPort=50001)
+HostInfo(id=ephost_42, localIp=ephost_42/172.17.0.52, macAddress=02:42:ac:11:00:34, gRPCServerPort=50001)
+HostInfo(id=ephost_43, localIp=ephost_43/172.17.0.53, macAddress=02:42:ac:11:00:35, gRPCServerPort=50001)
+HostInfo(id=ephost_44, localIp=ephost_44/172.17.0.54, macAddress=02:42:ac:11:00:36, gRPCServerPort=50001)
+HostInfo(id=ephost_45, localIp=ephost_45/172.17.0.55, macAddress=02:42:ac:11:00:37, gRPCServerPort=50001)
+HostInfo(id=ephost_46, localIp=ephost_46/172.17.0.56, macAddress=02:42:ac:11:00:38, gRPCServerPort=50001)
+HostInfo(id=ephost_47, localIp=ephost_47/172.17.0.57, macAddress=02:42:ac:11:00:39, gRPCServerPort=50001)
+HostInfo(id=ephost_48, localIp=ephost_48/172.17.0.58, macAddress=02:42:ac:11:00:3a, gRPCServerPort=50001)
+HostInfo(id=ephost_49, localIp=ephost_49/172.17.0.59, macAddress=02:42:ac:11:00:3b, gRPCServerPort=50001)
+Entering BuildMapFromNodeIdToInfo
+hosts size : 50
+Load 50 nodes from machine.json
+2020-01-31 23:04:39.140  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2020-01-31 23:04:39.140 DEBUG 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected StandardServletMultipartResolver
+2020-01-31 23:04:39.163 DEBUG 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2020-01-31 23:04:39.164  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 24 ms
+2020-01-31 23:04:39.203 DEBUG 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : GET "/actuator/health", parameters={}
+2020-01-31 23:04:39.383 DEBUG 1 --- [nio-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/vnd.spring-boot.actuator.v2+json', given [*/*] and supported [application/vnd.spring-boot.actuator.v2+json, application/json]
+2020-01-31 23:04:39.473 DEBUG 1 --- [nio-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [UP {}]
+2020-01-31 23:04:39.516 DEBUG 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2020-01-31 23:05:07.199 DEBUG 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : POST "/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs", parameters={}
+2020-01-31 23:05:07.228 DEBUG 1 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to public com.futurewei.alcor.controller.model.VpcStateJson com.futurewei.alcor.controller.web.VpcController.createVpcState(java.lang.String,com.futurewei.alcor.controller.model.VpcStateJson) throws java.lang.Exception
+2020-01-31 23:05:07.330 DEBUG 1 --- [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [VpcStateJson(vpc=VpcState(cidr=10.0.0.0/16))]
+Vpc Id:9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+2020-01-31 23:05:07.392 DEBUG 1 --- [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/json, application/*+json]
+2020-01-31 23:05:07.393 DEBUG 1 --- [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Writing [VpcStateJson(vpc=VpcState(cidr=10.0.0.0/16))]
+2020-01-31 23:05:07.397 DEBUG 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 201 CREATED
+2020-01-31 23:05:07.442 DEBUG 1 --- [nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : GET "/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038", parameters={}
+2020-01-31 23:05:07.467 DEBUG 1 --- [nio-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to public com.futurewei.alcor.controller.model.VpcStateJson com.futurewei.alcor.controller.web.VpcController.getVpcStateByVpcId(java.lang.String,java.lang.String) throws java.lang.Exception
+2020-01-31 23:05:07.483 DEBUG 1 --- [nio-8080-exec-3] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/json, application/*+json]
+2020-01-31 23:05:07.483 DEBUG 1 --- [nio-8080-exec-3] m.m.a.RequestResponseBodyMethodProcessor : Writing [VpcStateJson(vpc=VpcState(cidr=10.0.0.0/16))]
+2020-01-31 23:05:07.485 DEBUG 1 --- [nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2020-01-31 23:05:07.584 DEBUG 1 --- [nio-8080-exec-4] o.s.web.servlet.DispatcherServlet        : POST "/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets", parameters={}
+2020-01-31 23:05:07.585 DEBUG 1 --- [nio-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to public com.futurewei.alcor.controller.model.SubnetStateJson com.futurewei.alcor.controller.web.SubnetController.createSubnetState(java.lang.String,com.futurewei.alcor.controller.model.SubnetStateJson) throws java.lang.Exception
+2020-01-31 23:05:07.652 DEBUG 1 --- [nio-8080-exec-4] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [SubnetStateJson(subnet=SubnetState(vpcId=9192a4d4-ffff-4ece-b3f0-8d36e3d88038, cidr=10.0.0.0/20, ava (truncated)...]
+Subnet Id:a87e0f87-a2d9-44ef-9194-9a62f178594e
+Send Subnet id :a87e0f87-a2d9-44ef-9194-9a62f178594e with fast path to switch hostHostInfo(id=ephost_29, localIp=ephost_29/172.17.0.39, macAddress=02:42:ac:11:00:27, gRPCServerPort=50001)
+GS: vpc_states {
+  operation_type: CREATE_UPDATE_SWITCH
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    name: "test_vpc"
+    cidr: "10.0.0.0/16"
+    tunnel_id: 3000
+    transit_routers {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      ip_address: "172.17.0.34"
+      mac_address: "02:42:ac:11:00:22"
+    }
+  }
+}
+subnet_states {
+  operation_type: CREATE_UPDATE_GATEWAY
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+    name: "test_subnet"
+    cidr: "10.0.0.0/20"
+    tunnel_id: 3000
+    gateway {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "10.0.0.5"
+      mac_address: "02:42:ac:11:00:0d"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.39"
+      mac_address: "02:42:ac:11:00:27"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.14"
+      mac_address: "02:42:ac:11:00:0e"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.42"
+      mac_address: "02:42:ac:11:00:2a"
+    }
+  }
+}
+
+GoalStateProvisionerClient : Will try to send GS with fast path...
+Send Subnet id :a87e0f87-a2d9-44ef-9194-9a62f178594e with fast path to switch hostHostInfo(id=ephost_4, localIp=ephost_4/172.17.0.14, macAddress=02:42:ac:11:00:0e, gRPCServerPort=50001)
+GS: vpc_states {
+  operation_type: CREATE_UPDATE_SWITCH
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    name: "test_vpc"
+    cidr: "10.0.0.0/16"
+    tunnel_id: 3000
+    transit_routers {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      ip_address: "172.17.0.34"
+      mac_address: "02:42:ac:11:00:22"
+    }
+  }
+}
+subnet_states {
+  operation_type: CREATE_UPDATE_GATEWAY
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+    name: "test_subnet"
+    cidr: "10.0.0.0/20"
+    tunnel_id: 3000
+    gateway {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "10.0.0.5"
+      mac_address: "02:42:ac:11:00:0d"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.39"
+      mac_address: "02:42:ac:11:00:27"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.14"
+      mac_address: "02:42:ac:11:00:0e"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.42"
+      mac_address: "02:42:ac:11:00:2a"
+    }
+  }
+}
+
+GoalStateProvisionerClient : Will try to send GS with fast path...
+Send Subnet id :a87e0f87-a2d9-44ef-9194-9a62f178594e with fast path to switch hostHostInfo(id=ephost_32, localIp=ephost_32/172.17.0.42, macAddress=02:42:ac:11:00:2a, gRPCServerPort=50001)
+GS: vpc_states {
+  operation_type: CREATE_UPDATE_SWITCH
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    name: "test_vpc"
+    cidr: "10.0.0.0/16"
+    tunnel_id: 3000
+    transit_routers {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      ip_address: "172.17.0.34"
+      mac_address: "02:42:ac:11:00:22"
+    }
+  }
+}
+subnet_states {
+  operation_type: CREATE_UPDATE_GATEWAY
+  configuration {
+    project_id: "3dda2801-d675-4688-a63f-dcda8d327f50"
+    vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+    name: "test_subnet"
+    cidr: "10.0.0.0/20"
+    tunnel_id: 3000
+    gateway {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "10.0.0.5"
+      mac_address: "02:42:ac:11:00:0d"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.39"
+      mac_address: "02:42:ac:11:00:27"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.14"
+      mac_address: "02:42:ac:11:00:0e"
+    }
+    transit_switches {
+      vpc_id: "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+      subnet_id: "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+      ip_address: "172.17.0.42"
+      mac_address: "02:42:ac:11:00:2a"
+    }
+  }
+}
+
+GoalStateProvisionerClient : Will try to send GS with fast path...
+Send VPC id :9192a4d4-ffff-4ece-b3f0-8d36e3d88038 with fast path
+GoalStateProvisionerClient : Will try to send GS with fast path...
+2020-01-31 23:05:20.989 DEBUG 1 --- [nio-8080-exec-4] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/json, application/*+json]
+2020-01-31 23:05:20.990 DEBUG 1 --- [nio-8080-exec-4] m.m.a.RequestResponseBodyMethodProcessor : Writing [SubnetStateJson(subnet=SubnetState(vpcId=9192a4d4-ffff-4ece-b3f0-8d36e3d88038, cidr=10.0.0.0/20, ava (truncated)...]
+2020-01-31 23:05:21.005 DEBUG 1 --- [nio-8080-exec-4] o.s.web.servlet.DispatcherServlet        : Completed 201 CREATED

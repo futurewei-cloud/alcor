@@ -25,14 +25,13 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+//log
+import com.futurewei.alcor.controller.logging.Log;
+import java.util.logging.Level;
 
 public class GoalStateProvisionerServer {
-
-    private static final Logger logger = Logger.getLogger(GoalStateProvisionerServer.class.getName());
-
     private Server server;
-
     private void start() throws IOException {
         /* The port on which the server should run */
         int port = 50051;
@@ -40,7 +39,9 @@ public class GoalStateProvisionerServer {
                 .addService(new GoalStateProvisionerImpl())
                 .build()
                 .start();
-        logger.info("Server started, listening on " + port);
+        Log.init();
+        System.out.println("GoalStateProvisionerServer : Server started, listening on ");
+        Log.log(Level.INFO,"Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

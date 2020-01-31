@@ -18,7 +18,6 @@ package com.futurewei.alcor.controller.app;
 
 import java.util.Arrays;
 import java.util.List;
-
 import com.futurewei.alcor.controller.app.onebox.*;
 import com.futurewei.alcor.controller.cache.config.*;
 import com.futurewei.alcor.controller.model.HostInfo;
@@ -31,17 +30,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 //log
-import java.util.logging.*;
+import com.futurewei.alcor.controller.logging.Log;
+import java.util.logging.Level;
 
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
-
-    private final static Logger logger = Logger.getLogger(AlcorControllerApp.class.getName());
     public static void main(String[] args) {
-        AlcorControllerApp.loginit();
-        logger.log(Level.INFO, "Test Log: Alcor Controller!");
         System.out.println("Hello Alcor Controller!");
+        Log.init();
+        Log.log(Level.INFO, "Alcor Controller Log Started!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
         System.out.println("Bye from Alcor Controller!\n\n");
@@ -62,7 +60,6 @@ public class AlcorControllerApp {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
-
             System.out.println("Let's inspect the beans provided by Spring Boot:");
 
             String[] beanNames = ctx.getBeanDefinitionNames();
@@ -70,12 +67,6 @@ public class AlcorControllerApp {
             for (String beanName : beanNames) {
                 System.out.println(beanName);
             }
-
         };
-    }
-    public static void loginit(){
-        Logger l = Logger.getLogger("");
-        l.getGlobal().getParent().getHandlers()[0].setLevel(Level.ALL);
-        l.setLevel(Level.ALL);
     }
 }

@@ -31,6 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 
+//log
+import com.futurewei.alcor.controller.logging.Log;
+import java.util.logging.Level;
+
 public class DataCenterConfigLoader {
 
     @Autowired
@@ -45,6 +49,7 @@ public class DataCenterConfigLoader {
 
     public List<HostInfo> loadAndGetHostNodeList() {
         System.out.println("Loading node from " + this.machineConfigFile);
+        Log.entering(this.getClass().getName(), "List<HostInfo>");
         return this.loadAndGetHostNodeList(this.machineConfigFile);
     }
 
@@ -54,6 +59,7 @@ public class DataCenterConfigLoader {
         JSONParser jsonParser = new JSONParser();
         List<HostInfo> hostInfos = new ArrayList<>();
 
+        Log.entering(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
         try (FileReader reader = new FileReader(machineConfigFilePath))
         {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
@@ -70,7 +76,7 @@ public class DataCenterConfigLoader {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+        Log.exiting(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
         return hostInfos;
     }
 
@@ -87,7 +93,7 @@ public class DataCenterConfigLoader {
             return new HostInfo(id, id, ipByteArray, mac);
         }
         catch (UnknownHostException e){
-
+            Log.log(Level.WARNING, "UnknownHostException");
         }
 
         return null;
