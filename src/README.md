@@ -65,3 +65,4 @@ Next Step:
 - [Install Control Agents](https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md)
 - [API Document](../docs/apis/index.adoc)
 - [Alcor Design Documents](../docs/visionary_design/table_of_content.adoc)
+- [Kubernetes cluster setup guide with Mizar-MP](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)

@@ -3,7 +3,9 @@ A Hyperscale Cloud Virtual Networking System
 
 * For information about how to use Alcor, visit [Getting Started](src/README.md)
 * To ask questions, raise feature requests and get assistance from our community, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues)
-* To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki) (Coming soon)
+* To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki).
+For example, [Kubernetes cluster setup guide with Mizar-MP](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
+shows how to use Mizar-MP for Kubernetes container network provisioning.
 
 In this README:
 
