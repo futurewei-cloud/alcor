@@ -51,9 +51,10 @@ One step further, each application contains various infrastructure microservices
 ### Throughput-Optimal Design
 Alcor focuses on top-down throughput optimization on every system layer including API, Controller, messaging mechanism,
 and host agent.
-For example, a batch API is provided to support deploying a group of ports with a single POST call;
-a message batching mechanism is proposed on a per-host basis, which is capable of driving groups (potentially thousands) of resources
-to the same host in one shot.
+For example,
+a batch API is provided to support deploying a group of ports with a single POST call, and
+a message batching mechanism is proposed on a per-host basis, which is capable of driving groups (potentially thousands)
+of resources to the same host in one shot.
 
 ### Fast Resource Provisioning
 To support time-critical applications, Alcor enables a direct communication channel from Controller to Host Agent.
@@ -65,7 +66,7 @@ This channel bypasses a message queueing system like Kafka, and utilizes gRPC to
 ### Planned Features
 
 The planned features are listed in our current roadmap:
-1. Major VPC features (e.g. security group, ACL, QoS)
+1. Major VPC features (e.g., security group, ACL, QoS)
 2. Intelligent network function placement and auto-scaling
 3. Compatibility with OVS
 4. Controller Grey release
