@@ -87,7 +87,7 @@ It is responsible for programming on-host data plane with various network config
 - [alcor/integration](https://github.com/futurewei-cloud/mizar-mp)
 The integration repository contains codes and scripts for end-to-end integration of Alcor control plane with popular orchestration platforms and data plane implementations.
 We currently support integration with Kubernetes and Mizar.
-We will continue to support support integration with other orchestration systems and data plane implementations.
+We will continue to support integration with other orchestration systems and data plane implementations.
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
 which is a complementary project of Alcor.
