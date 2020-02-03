@@ -1,0 +1,18 @@
+name: Docker Image CI
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Go to the project directory
+      run: cd .
+    - name: Build Alcor controller
+      run: ./scripts/build.sh
+    - name: Build docker image for Alcor Controller
+      run: docker build . --file Dockerfile --tag alcor_controller:$(date +%s)
