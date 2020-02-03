@@ -55,10 +55,14 @@ curl localhost:8080/actuator/health
 {"status":"UP"}
 ```
 Now you are ready to use Alcor Controller.
-You can deploy a sample VPC with one subnet and one port with the following script.
+
+
+## Create First VPC
+
+To create your first VPC, you can deploy a sample VPC with one subnet and one port with the following script.
 ```
 Ubuntu:
-$ ./scripts/sampeVpcTest.sh localhost 8080
+$ ./scripts/sampeVpcTest.sh localhost 8080 false
 ```
 
 Next Step:
