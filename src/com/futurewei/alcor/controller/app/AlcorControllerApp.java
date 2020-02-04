@@ -16,12 +16,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.app;
 
-import java.util.Arrays;
-import java.util.List;
-import com.futurewei.alcor.controller.app.onebox.*;
-import com.futurewei.alcor.controller.cache.config.*;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
+import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
+import com.futurewei.alcor.controller.logging.Log;
 import com.futurewei.alcor.controller.model.HostInfo;
-import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.*;
+import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfig;
+import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfigLoader;
+import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.NodeManager;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,13 +31,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-//log
-import com.futurewei.alcor.controller.logging.Log;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
+
     public static void main(String[] args) {
         System.out.println("Hello Alcor Controller!");
         Log.init();

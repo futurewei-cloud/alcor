@@ -16,11 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
-import java.io.*;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.futurewei.alcor.controller.logging.Log;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.Common;
 import org.json.simple.JSONArray;
@@ -31,8 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 
-//log
-import com.futurewei.alcor.controller.logging.Log;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class DataCenterConfigLoader {
@@ -43,7 +43,7 @@ public class DataCenterConfigLoader {
     @Value("${alcor.machine.config:app/config/machine.json}")
     private String machineConfigFile;
 
-    String getPropertyFile(){
+    String getPropertyFile() {
         return resourceLoader.getResource(this.machineConfigFile).getFilename();
     }
 
@@ -53,21 +53,20 @@ public class DataCenterConfigLoader {
         return this.loadAndGetHostNodeList(this.machineConfigFile);
     }
 
-    public List<HostInfo> loadAndGetHostNodeList(String machineConfigFilePath){
+    public List<HostInfo> loadAndGetHostNodeList(String machineConfigFilePath) {
 
         //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
         List<HostInfo> hostInfos = new ArrayList<>();
 
         Log.entering(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
-        try (FileReader reader = new FileReader(machineConfigFilePath))
-        {
+        try (FileReader reader = new FileReader(machineConfigFilePath)) {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             JSONArray nodeList = (JSONArray) obj.get("Hosts");
 
-            nodeList.forEach( node -> {
+            nodeList.forEach(node -> {
                 HostInfo hostNode = this.parseNodeObject((JSONObject) node);
-                if(hostNode != null) hostInfos.add(hostNode);
+                if (hostNode != null) hostInfos.add(hostNode);
             });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -80,19 +79,17 @@ public class DataCenterConfigLoader {
         return hostInfos;
     }
 
-    private HostInfo parseNodeObject(JSONObject node)
-    {
+    private HostInfo parseNodeObject(JSONObject node) {
         String id = (String) node.get("id");
         String ip = (String) node.get("ip");
         String mac = (String) node.get("mac");
         System.out.println("Node ID:" + id + "|IP:" + ip + "|MAC:" + mac);
 
         byte[] ipByteArray;
-        try{
+        try {
             ipByteArray = Common.fromIpAddressStringToByteArray(ip);
             return new HostInfo(id, id, ipByteArray, mac);
-        }
-        catch (UnknownHostException e){
+        } catch (UnknownHostException e) {
             Log.log(Level.WARNING, "UnknownHostException");
         }
 

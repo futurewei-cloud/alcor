@@ -16,22 +16,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
+import com.futurewei.alcor.controller.logging.Log;
 import com.futurewei.alcor.controller.schema.*;
-import com.futurewei.alcor.controller.service.Goalstateprovisioner;
-import com.futurewei.alcor.controller.schema.Goalstate.*;
+import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.controller.service.Goalstateprovisioner;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
-
-//log
-import com.futurewei.alcor.controller.logging.Log;
 import java.util.logging.Level;
 
 public class GoalStateProvisionerServer {
     private Server server;
+
     private void start() throws IOException {
         /* The port on which the server should run */
         int port = 50051;
@@ -41,7 +40,7 @@ public class GoalStateProvisionerServer {
                 .start();
         Log.init();
         System.out.println("GoalStateProvisionerServer : Server started, listening on ");
-        Log.log(Level.INFO,"Server started, listening on " + port);
+        Log.log(Level.INFO, "Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

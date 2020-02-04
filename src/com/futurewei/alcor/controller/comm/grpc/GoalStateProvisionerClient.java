@@ -16,18 +16,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
-import com.futurewei.alcor.controller.app.AlcorControllerApp;
-import com.futurewei.alcor.controller.service.Goalstateprovisioner;
-import com.futurewei.alcor.controller.schema.Goalstate.*;
+import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.controller.service.Goalstateprovisioner;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
 import java.util.concurrent.TimeUnit;
-
-//log
-import com.futurewei.alcor.controller.logging.Log;
 import java.util.logging.Level;
 
 public class GoalStateProvisionerClient {
@@ -43,7 +40,7 @@ public class GoalStateProvisionerClient {
         this(ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build());
-        }
+    }
 
     /**
      * Construct client for accessing GoalStateProvisioner server using the existing channel.
@@ -59,7 +56,7 @@ public class GoalStateProvisionerClient {
     }
 
     public void PushNetworkResourceStates(GoalState state) {
-        Log.entering(this.getClass().getName(),"PushNetworkResourceStates(GoalState state)");
+        Log.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
         System.out.println("GoalStateProvisionerClient : Will try to send GS with fast path...");
         Goalstateprovisioner.GoalStateOperationReply response;
@@ -73,9 +70,9 @@ public class GoalStateProvisionerClient {
         Log.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
 
         for (int i = 0; i < response.getOperationStatusesCount(); i++) {
-            Log.log(Level.INFO,"GS #" + i + ":" + response.getOperationStatuses(i));
+            Log.log(Level.INFO, "GS #" + i + ":" + response.getOperationStatuses(i));
         }
-        Log.exiting(this.getClass().getName(),"PushNetworkResourceStates(GoalState state)");
+        Log.exiting(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
     }
 }

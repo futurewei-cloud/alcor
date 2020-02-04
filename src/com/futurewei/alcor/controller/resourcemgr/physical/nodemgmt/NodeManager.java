@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
-import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
+import com.futurewei.alcor.controller.logging.Log;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.Common;
 import lombok.Data;
@@ -24,9 +24,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-//log
-import com.futurewei.alcor.controller.logging.Log;
 import java.util.logging.Level;
 
 @Data
@@ -42,7 +39,7 @@ public class NodeManager {
         this.nodes = NodeManager.LoadNodes(hosts);
         for (HostInfo host : hosts) {
             System.out.println(host);
-            Log.log(Level.INFO,"Log:"+ host);
+            Log.log(Level.INFO, "Log:" + host);
         }
         this.BuildMapFromNodeIdToInfo(this.nodes);
         Log.exiting(this.getClass().getName(), "NodeManager(List<HostInfo> hosts)");
@@ -62,7 +59,7 @@ public class NodeManager {
     public HostInfo getHostInfoById(String hostId) {
         if (this.nodeMap != null) { //&& !Strings.isNullOrEmpty(hostId)) {
             System.out.println("[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
-            Log.log(Level.INFO,"Log:"+ "[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
+            Log.log(Level.INFO, "Log:" + "[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
             return this.nodeMap.get(hostId);
         }
         System.out.println("[NodeManager] node map is empty");
