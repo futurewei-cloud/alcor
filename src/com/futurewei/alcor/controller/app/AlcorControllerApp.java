@@ -20,6 +20,7 @@ import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
 import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
 import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfig;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfigLoader;
@@ -38,11 +39,10 @@ import java.util.logging.Level;
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
-
     public static void main(String[] args) {
         System.out.println("Hello Alcor Controller!");
-        Log.init();
-        Log.log(Level.INFO, "Alcor Controller Log Started!");
+        Log alcorLog = LogFactory.getLog();
+        alcorLog.log(Level.INFO, "Alcor Controller Log Started!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
         System.out.println("Bye from Alcor Controller!\n\n");

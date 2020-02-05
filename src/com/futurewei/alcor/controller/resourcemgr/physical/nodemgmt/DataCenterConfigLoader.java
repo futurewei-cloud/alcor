@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
 import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.Common;
 import org.json.simple.JSONArray;
@@ -49,7 +50,8 @@ public class DataCenterConfigLoader {
 
     public List<HostInfo> loadAndGetHostNodeList() {
         System.out.println("Loading node from " + this.machineConfigFile);
-        Log.entering(this.getClass().getName(), "List<HostInfo>");
+        Log alcorLog = LogFactory.getLog();
+        alcorLog.entering(this.getClass().getName(), "List<HostInfo>");
         return this.loadAndGetHostNodeList(this.machineConfigFile);
     }
 
@@ -58,8 +60,8 @@ public class DataCenterConfigLoader {
         //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
         List<HostInfo> hostInfos = new ArrayList<>();
-
-        Log.entering(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
+        Log alcorLog = LogFactory.getLog();
+        alcorLog.entering(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
         try (FileReader reader = new FileReader(machineConfigFilePath)) {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             JSONArray nodeList = (JSONArray) obj.get("Hosts");
@@ -75,7 +77,7 @@ public class DataCenterConfigLoader {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Log.exiting(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
+        alcorLog.exiting(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
         return hostInfos;
     }
 
@@ -90,7 +92,8 @@ public class DataCenterConfigLoader {
             ipByteArray = Common.fromIpAddressStringToByteArray(ip);
             return new HostInfo(id, id, ipByteArray, mac);
         } catch (UnknownHostException e) {
-            Log.log(Level.WARNING, "UnknownHostException");
+            Log alcorLog = LogFactory.getLog();
+            alcorLog.log(Level.WARNING, "UnknownHostException");
         }
 
         return null;

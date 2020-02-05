@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
@@ -56,23 +57,24 @@ public class GoalStateProvisionerClient {
     }
 
     public void PushNetworkResourceStates(GoalState state) {
-        Log.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
+        Log alcorLog = LogFactory.getLog();
+        alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
         System.out.println("GoalStateProvisionerClient : Will try to send GS with fast path...");
         Goalstateprovisioner.GoalStateOperationReply response;
         try {
             response = blockingStub.pushNetworkResourceStates(state);
         } catch (StatusRuntimeException e) {
-            Log.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            alcorLog.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return;
         }
-        Log.log(Level.INFO, "Message total operation time: " + response.getMessageTotalOperationTime());
-        Log.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
+        alcorLog.log(Level.INFO, "Message total operation time: " + response.getMessageTotalOperationTime());
+        alcorLog.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
 
         for (int i = 0; i < response.getOperationStatusesCount(); i++) {
-            Log.log(Level.INFO, "GS #" + i + ":" + response.getOperationStatuses(i));
+            alcorLog.log(Level.INFO, "GS #" + i + ":" + response.getOperationStatuses(i));
         }
-        Log.exiting(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
+        alcorLog.exiting(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
     }
 }

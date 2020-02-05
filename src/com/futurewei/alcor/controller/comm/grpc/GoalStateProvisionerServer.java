@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.comm.grpc;
 
 import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.schema.*;
 import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
@@ -38,9 +39,9 @@ public class GoalStateProvisionerServer {
                 .addService(new GoalStateProvisionerImpl())
                 .build()
                 .start();
-        Log.init();
+        Log alcorLog = LogFactory.getLog();
         System.out.println("GoalStateProvisionerServer : Server started, listening on ");
-        Log.log(Level.INFO, "Server started, listening on " + port);
+        alcorLog.log(Level.INFO, "Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
