@@ -3,7 +3,19 @@ Liguang Xie <lxie@futurewei.com>
 v0.1, 2019-10-15
 :toc: right
 
-=== Service APIs
+=== Overview
+
+This goal state data model is mainly used for communication channel between Regional Controller and Host Agent.
+It support programming of groups of network resources to the same host in one message.
+The resource grouping could have various combinations including:
+
+* Multiple resource instances (e.g., 100 ports for the same host)
+* Multiple resource types (e.g., security group + port)
+* Multiple resource operation types (e.g., security group update + port creation)
+* Across VPC and subnet boundaries (security group update in VPC 1 + port creation in VPC 2)
+
+
+=== Messaging APIs
 
 *src/schema/proto3/goalstateprovisioner.proto*
 
@@ -11,34 +23,33 @@ v0.1, 2019-10-15
 ------------------------------------------------------------
 syntax = "proto3";
 
-package aliothcontroller;
+package alcorcontroller;
 
-option java_package = "com.futurewei.alioth.controller.service";
+option java_package = "com.futurewei.alcor.controller.service";
 
 import "common.proto";
 import "goalstate.proto";
 
 service GoalStateProvisioner {
 
-   // Push a group of network resource states
-   //
-   // Input: a GoalState object consists of a list of operation requests, and each request contains an
-   //        operation type and a resource configuration
-   // Results consist of a list of operation statuses, and each status is a response to one operation
-   //        request in the input
-   //
-   // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
-   //       Use RetrieveNetworkResourceStates for state query.
-   rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
+    // Push a group of network resource states
+    //
+    // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration
+    // Results consist of a list of operation statuses, and each status is a response to one operation request in the input
+    //
+    // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+    //       Use RetrieveNetworkResourceStates for state query.
+    rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
+    }
 
-
-   // Retrieve a group of network resource states (stored in a GoalState object)
-   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (GoalState) {}
+    // Retrieve a group of network resource states (stored as a steam of GoalState objects)
+    rpc RetrieveNetworkResourceStates (GoalStateRequest) returns (stream GoalState) {
+    }
 }
 ------------------------------------------------------------
 
 
-=== Message Exchanged Between Agent and Controller
+=== Message Format
 
 * Goal state message.
 The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
@@ -50,9 +61,9 @@ For example, one message could consists of one subnet state update with 1000 por
 ------------------------------------------------------------
 syntax = "proto3";
 
-package aliothcontroller;
+package alcorcontroller;
 
-option java_package = "com.futurewei.alioth.controller.schema";
+option java_package = "com.futurewei.alcor.controller.schema";
 
 import "vpc.proto";
 import "subnet.proto";
@@ -60,10 +71,10 @@ import "port.proto";
 import "securitygroup.proto";
 
 message GoalState {
-   repeated VpcState vpc_states = 1;
-   repeated SubnetState subnet_states = 2;
-   repeated PortState port_states = 3;
-   repeated SecurityGroupState security_group_states = 4;
+    repeated VpcState vpc_states = 1;
+    repeated SubnetState subnet_states = 2;
+    repeated PortState port_states = 3;
+    repeated SecurityGroupState security_group_states = 4;
 }
 ------------------------------------------------------------
 
@@ -76,16 +87,16 @@ OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDAT
 ------------------------------------------------------------
 syntax = "proto3";
 
-package aliothcontroller;
+package alcorcontroller;
 
-option java_package = "com.futurewei.alioth.controller.schema";
+option java_package = "com.futurewei.alcor.controller.schema";
 option java_outer_classname = "Vpc";
 
 import "common.proto";
 
 message VpcState {
-  OperationType operation_type = 1;
-  VpcConfiguration configuration =  2;
+    OperationType operation_type = 1;
+    VpcConfiguration configuration = 2;
 }
 
 ------------------------------------------------------------
@@ -97,45 +108,47 @@ message VpcState {
 ------------------------------------------------------------
 syntax = "proto3";
 
-package aliothcontroller;
+package alcorcontroller;
 
-option java_package = "com.futurewei.alioth.controller.schema";
+option java_package = "com.futurewei.alcor.controller.schema";
 option java_outer_classname = "Vpc";
 
 import "common.proto";
 
 message VpcConfiguration {
-  int32 version = 1;
+    int32 version = 1;
 
-  string project_id = 2;
-  string id  = 3;
-  string name = 4;
-  string cidr = 5;
-  int64 tunnel_id = 6;
+    string project_id = 2;
+    string id = 3;
+    string name = 4;
+    string cidr = 5;
+    int64 tunnel_id = 6;
 
-  message SubnetId {
-    string id = 1;
-  }
+    message SubnetId {
+        string id = 1;
+    }
 
-  message Route {
-    string destination = 1;
-    string next_hop = 2;
-  }
+    message Route {
+        string destination = 1;
+        string next_hop = 2;
+    }
 
-  message TransitRouter {
-    string vpc_id = 1;
-    string ip_address = 2;
-    string mac_address = 3;
-  }
+    message TransitRouter {
+        string vpc_id = 1;
+        string ip_address = 2;
+        string mac_address = 3;
+    }
 
-  repeated SubnetId subnet_ids = 7;
-  repeated Route routes = 8;
-  repeated TransitRouter transit_routers = 9;
+    repeated SubnetId subnet_ids = 7;
+    repeated Route routes = 8;
+    repeated TransitRouter transit_routers = 9;
 }
 ------------------------------------------------------------
 
 
-* ResourceType and OperationType enum
+* Common enum including ResourceType and OperationType
+
+*src/schema/proto3/common.proto*
 
 [source,java]
 ------------------------------------------------------------
@@ -165,4 +178,25 @@ enum OperationType {
     CREATE_UPDATE_ROUTER = 7;
     CREATE_UPDATE_GATEWAY = 8;
 }
+
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    INVALID_ARG = 2;
+}
+
+enum EtherType {
+    IPV4 = 0;
+    IPV6 = 1;
+}
+
+enum Protocol {
+    TCP = 0;
+    UDP = 1;
+    ICMP = 2;
+    HTTP = 3;
+    ARP = 4;
+}
 ------------------------------------------------------------
+
+* Please refer to src/schema/proto3/* for more message format.
