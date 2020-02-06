@@ -60,7 +60,7 @@ public class GoalStateProvisionerClient {
         Log alcorLog = LogFactory.getLog();
         alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
-        System.out.println("GoalStateProvisionerClient : Will try to send GS with fast path...");
+        alcorLog.log(Level.INFO, "GoalStateProvisionerClient : Will try to send GS with fast path...");
         Goalstateprovisioner.GoalStateOperationReply response;
         try {
             response = blockingStub.pushNetworkResourceStates(state);

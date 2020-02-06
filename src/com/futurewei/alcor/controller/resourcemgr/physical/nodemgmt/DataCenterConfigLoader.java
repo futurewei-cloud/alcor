@@ -93,7 +93,7 @@ public class DataCenterConfigLoader {
             return new HostInfo(id, id, ipByteArray, mac);
         } catch (UnknownHostException e) {
             Log alcorLog = LogFactory.getLog();
-            alcorLog.log(Level.WARNING, "UnknownHostException");
+            alcorLog.log(Level.SEVERE, "UnknownHostException");
         }
 
         return null;

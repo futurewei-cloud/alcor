@@ -2,6 +2,8 @@ package com.futurewei.alcor.controller.web.util;
 
 import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.exception.*;
+import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.CustomerResource;
 import com.futurewei.alcor.controller.model.VpcState;
@@ -9,6 +11,7 @@ import org.thymeleaf.util.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.logging.Level;
 
 public class RestPreconditions {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
@@ -73,7 +76,7 @@ public class RestPreconditions {
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray){
         BufferedWriter timeStampWriter = OneBoxConfig.TIME_STAMP_WRITER;
-
+        Log alcorLog = LogFactory.getLog();
         try {
             //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
             timeStampWriter.newLine();
@@ -108,13 +111,13 @@ public class RestPreconditions {
                     timeStampWriter.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            alcorLog.log(Level.SEVERE, e.getMessage());
         } finally {
             try{
 //                if(timeStampWriter != null)
 //                    timeStampWriter.close();
             }catch(Exception ex){
-                System.err.println("Error in closing the BufferedWriter" + ex);
+                alcorLog.log(Level.SEVERE, "Error in closing the BufferedWriter", ex);
             }
         }
     }

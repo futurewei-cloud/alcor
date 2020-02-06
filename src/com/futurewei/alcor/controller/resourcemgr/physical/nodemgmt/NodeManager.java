@@ -59,13 +59,12 @@ public class NodeManager {
     }
 
     public HostInfo getHostInfoById(String hostId) {
+        Log alcorLog = LogFactory.getLog();
         if (this.nodeMap != null) { //&& !Strings.isNullOrEmpty(hostId)) {
-            System.out.println("[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
-            Log alcorLog = LogFactory.getLog();
             alcorLog.log(Level.INFO, "Log:" + "[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
             return this.nodeMap.get(hostId);
         }
-        System.out.println("[NodeManager] node map is empty");
+        alcorLog.log(Level.WARNING,"[NodeManager] node map is empty");
         return null;
     }
 
@@ -81,13 +80,14 @@ public class NodeManager {
     }
 
     private void BuildMapFromNodeIdToInfo(List<HostInfo> hosts) {
-        System.out.println("Entering BuildMapFromNodeIdToInfo");
+        Log alcorLog = LogFactory.getLog();
+        alcorLog.log(Level.INFO, "Entering BuildMapFromNodeIdToInfo");
         if (hosts != null) {
             if (this.nodeMap == null) {
                 this.nodeMap = new HashMap<>();
             }
 
-            System.out.println("hosts size : " + hosts.size());
+            alcorLog.log(Level.INFO, "hosts size : " + hosts.size());
             for (HostInfo host : hosts) {
                 this.nodeMap.put(host.getId(), host);
             }

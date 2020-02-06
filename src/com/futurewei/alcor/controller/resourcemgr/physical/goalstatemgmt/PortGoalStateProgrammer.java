@@ -20,6 +20,8 @@ import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alcor.controller.comm.message.MessageClient;
+import com.futurewei.alcor.controller.logging.Log;
+import com.futurewei.alcor.controller.logging.LogFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -27,6 +29,8 @@ import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 import lombok.Data;
+
+import java.util.logging.Level;
 
 @Data
 public class PortGoalStateProgrammer extends GoalStateProgrammer {
@@ -41,6 +45,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
     public long[] SendGoalStateToHosts() {
 
         long[] recordedTimeStamp = new long[3];
+        Log alcorLog = LogFactory.getLog();
 
         PortState customerPortState = this.portProgramInfo.getCustomerPortState();
         HostInfo epHost = this.portProgramInfo.getEpHost();
@@ -51,7 +56,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
         if (!isFastPath) {
             this.setKafkaClient(new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory()));
         }
-        System.out.println("EP :" + customerPortState.getId() + "|name:" + customerPortState.getName() + "| fastpath: " + isFastPath);
+        alcorLog.log(Level.INFO,"EP :" + customerPortState.getId() + "|name:" + customerPortState.getName() + "| fastpath: " + isFastPath);
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to EP host, update_endpoint
@@ -88,7 +93,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
 
         for (HostInfo switchForSubnet : transitSwitchHostsForSubnet) {
             if (isFastPath) {
-                System.out.println("Send port id :" + customerPortState.getId() + " to transit switch with fast path " + switchForSubnet);
+                alcorLog.log(Level.INFO, "Send port id :" + customerPortState.getId() + " to transit switch with fast path " + switchForSubnet);
                 GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(switchForSubnet.getHostIpAddress(), switchForSubnet.getGRPCServerPort());
                 gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
             } else {
@@ -111,7 +116,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
                 epHost);
 
         if (isFastPath) {
-            System.out.println("Send port id :" + customerPortState.getId() + " with fast path to ep host");
+            alcorLog.log(Level.INFO, "Send port id :" + customerPortState.getId() + " with fast path to ep host");
             this.getGRpcClientForEpHost().PushNetworkResourceStates(gsFinalizedPortState);
         } else {
             String topicForEndpoint = IKafkaConfiguration.PRODUCER_CLIENT_ID + epHost.getId();

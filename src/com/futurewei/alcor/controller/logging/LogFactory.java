@@ -6,20 +6,26 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class LogFactory {
-    public static Log alcorLog = null;
-    private static Properties properties;
+    public static Log alcorLog = new Log();
+    private static Properties properties = new Properties();
+    private static boolean bLogCreated = false;
 
     public LogFactory() {
-        properties = new Properties();
     }
 
     public static Log getLog() {
-        if (alcorLog == null)
-            createLog();
+        try {
+            if (bLogCreated == false) {
+                createLog();
+                bLogCreated = true;
+            }
+        } catch (Exception e) {
+            alcorLog.log(Level.WARNING, "Failed: Log System Creation & Returning to Default Log", e);
+        }
         return alcorLog;
     }
 
-    public static Log createLog() {
+    public static void createLog() {
         try {
             readLogProperties();
             Level logLevel = Level.parse(properties.getProperty("logging.level.root"));
@@ -28,7 +34,7 @@ public class LogFactory {
                     alcorLog = createConsoleLog(logLevel);
                     break;
                 case "file":
-                    String strPath = System.getProperty("user.dir");
+                    //String strPath = System.getProperty("user.dir");
                     String strDir = properties.getProperty("logging.file.path");
                     alcorLog = createFileLog(logLevel, strDir);
                     break;
@@ -37,9 +43,8 @@ public class LogFactory {
                     break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            alcorLog.log(Level.WARNING, "Failed: Log Configuration", e);
         }
-        return alcorLog;
     }
 
     private static ConsoleLog createConsoleLog(Level logLevel) {
@@ -47,7 +52,7 @@ public class LogFactory {
         try {
             consoleLog = new ConsoleLog(logLevel);
         } catch (Exception e) {
-            System.out.println("Fail: Console Logging System Creation");
+            alcorLog.log(Level.WARNING, "Fail: Console Logging System Creation", e);
         }
         return consoleLog;
     }
@@ -57,7 +62,7 @@ public class LogFactory {
         try {
             fileLog = new FileLog(logLevel, strDir);
         } catch (Exception e) {
-            System.out.println("Fail: File Logging System Creation" + strDir);
+            alcorLog.log(Level.WARNING, "Fail: File Logging System Creation" + strDir, e);
         }
         return fileLog;
     }

@@ -40,38 +40,36 @@ import java.util.logging.Level;
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
     public static void main(String[] args) {
-        System.out.println("Hello Alcor Controller!");
         Log alcorLog = LogFactory.getLog();
-        if(alcorLog != null)
-            alcorLog.log(Level.INFO, "Alcor Controller Log Started!");
-        else
-            System.out.println("===alcorLog is null===");
+        alcorLog.log(Level.INFO, "Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
-        System.out.println("Bye from Alcor Controller!\n\n");
+        alcorLog.log(Level.INFO,"Bye from Alcor Controller!\n\n");
 
-        System.out.println("Loading node from config/machine.json");
+        alcorLog.log(Level.INFO,"Loading node from config/machine.json");
         List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
         if (OneBoxConfig.IS_K8S) {
-            System.out.println("Loading Node Manager");
+            if(alcorLog != null)
+                alcorLog.log(Level.INFO,"Loading Node Manager");
             DataCenterConfig.nodeManager = new NodeManager(hostNodeList);
         } else if (OneBoxConfig.IS_Onebox) {
             OneBoxConfig.epHosts = OneBoxUtil.LoadNodes(hostNodeList);
         }
 
-        System.out.println("Load " + hostNodeList.size() + " nodes from machine.json");
+        alcorLog.log(Level.INFO,"Load " + hostNodeList.size() + " nodes from machine.json");
         OneBoxConfig.APP_START_TS = System.nanoTime();
     }
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
-            System.out.println("Let's inspect the beans provided by Spring Boot:");
+            Log alcorLog = LogFactory.getLog();
+            alcorLog.log(Level.INFO, "Let's inspect the beans provided by Spring Boot:");
 
             String[] beanNames = ctx.getBeanDefinitionNames();
             Arrays.sort(beanNames);
             for (String beanName : beanNames) {
-                System.out.println(beanName);
+                alcorLog.log(Level.INFO,beanName);
             }
         };
     }

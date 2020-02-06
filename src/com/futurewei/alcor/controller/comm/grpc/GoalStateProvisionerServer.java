@@ -40,15 +40,15 @@ public class GoalStateProvisionerServer {
                 .build()
                 .start();
         Log alcorLog = LogFactory.getLog();
-        System.out.println("GoalStateProvisionerServer : Server started, listening on ");
+        alcorLog.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on ");
         alcorLog.log(Level.INFO, "Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                alcorLog.log(Level.SEVERE, "*** shutting down gRPC server since JVM is shutting down");
                 GoalStateProvisionerServer.this.stop();
-                System.err.println("*** server shut down");
+                alcorLog.log(Level.SEVERE, "*** server shut down");
             }
         });
     }
