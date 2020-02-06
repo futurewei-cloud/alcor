@@ -8,7 +8,6 @@ public class Log implements ILog {
     protected LogFormatter logFormatter;
 
     public Log() {
-        //logger = java.util.logging.Logger.getLogger("com.futurewei.alcor.controller");
         logger = java.util.logging.Logger.getGlobal();
         logFormatter = new LogFormatter();
     }

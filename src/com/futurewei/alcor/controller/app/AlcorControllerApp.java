@@ -42,7 +42,10 @@ public class AlcorControllerApp {
     public static void main(String[] args) {
         System.out.println("Hello Alcor Controller!");
         Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO, "Alcor Controller Log Started!");
+        if(alcorLog != null)
+            alcorLog.log(Level.INFO, "Alcor Controller Log Started!");
+        else
+            System.out.println("===alcorLog is null===");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
         System.out.println("Bye from Alcor Controller!\n\n");

@@ -22,15 +22,18 @@ public class LogFactory {
     public static Log createLog() {
         try {
             readLogProperties();
+            Level logLevel = Level.parse(properties.getProperty("logging.level.root"));
             switch (properties.getProperty("logging.type")) {
                 case "console":
-                    alcorLog = createConsoleLog();
+                    alcorLog = createConsoleLog(logLevel);
                     break;
                 case "file":
-                    alcorLog = createFileLog();
+                    String strPath = System.getProperty("user.dir");
+                    String strDir = properties.getProperty("logging.file.path");
+                    alcorLog = createFileLog(logLevel, strDir);
                     break;
                 default:
-                    alcorLog = createConsoleLog();
+                    alcorLog = createConsoleLog(logLevel);
                     break;
             }
         } catch (Exception e) {
@@ -39,10 +42,9 @@ public class LogFactory {
         return alcorLog;
     }
 
-    private static ConsoleLog createConsoleLog() {
+    private static ConsoleLog createConsoleLog(Level logLevel) {
         ConsoleLog consoleLog = null;
         try {
-            Level logLevel = Level.parse(properties.getProperty("logging.level.root"));
             consoleLog = new ConsoleLog(logLevel);
         } catch (Exception e) {
             System.out.println("Fail: Console Logging System Creation");
@@ -50,12 +52,12 @@ public class LogFactory {
         return consoleLog;
     }
 
-    private static FileLog createFileLog() {
+    private static FileLog createFileLog(Level logLevel, String strDir) {
         FileLog fileLog = null;
         try {
-            fileLog = new FileLog();
+            fileLog = new FileLog(logLevel, strDir);
         } catch (Exception e) {
-            System.out.println("Fail: File Logging System Creation");
+            System.out.println("Fail: File Logging System Creation" + strDir);
         }
         return fileLog;
     }
@@ -76,5 +78,5 @@ public class LogFactory {
         } catch (Exception e) {
             throw e;
         }
-   }
+    }
 }
