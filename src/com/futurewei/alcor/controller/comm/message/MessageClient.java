@@ -17,8 +17,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.comm.message;
 
 import com.futurewei.alcor.controller.comm.config.IKafkaConfiguration;
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
@@ -47,10 +47,10 @@ public class MessageClient {
     }
 
     public List<?> runConsumer(String topic, boolean keepRunning) {
-        Log alcorLog = LogFactory.getLog();
+        Logger logger = LoggerFactory.getLogger();
 
         if (this.messageConsumerFactory == null) {
-            alcorLog.log(Level.INFO, "No message consumer factory is specified");
+            logger.log(Level.INFO, "No message consumer factory is specified");
             return null;
         }
 
@@ -65,7 +65,7 @@ public class MessageClient {
 
             if (consumerRecords.count() == 0) {
                 noMessageFound++;
-                alcorLog.log(Level.INFO, "No message found :" + noMessageFound);
+                logger.log(Level.INFO, "No message found :" + noMessageFound);
 
                 if (noMessageFound > IKafkaConfiguration.MAX_NO_MESSAGE_FOUND_COUNT)
                     // If no message found count is reached to threshold exit loop.
@@ -76,10 +76,10 @@ public class MessageClient {
 
             //print each record.
             consumerRecords.forEach(record -> {
-                alcorLog.log(Level.INFO, "Record Key " + record.key());
-                alcorLog.log(Level.INFO, "Record value " + record.value());
-                alcorLog.log(Level.INFO, "Record partition " + record.partition());
-                alcorLog.log(Level.INFO, "Record offset " + record.offset());
+                logger.log(Level.INFO, "Record Key " + record.key());
+                logger.log(Level.INFO, "Record value " + record.value());
+                logger.log(Level.INFO, "Record partition " + record.partition());
+                logger.log(Level.INFO, "Record offset " + record.offset());
 
                 recordsValue.add(record.value());
             });
@@ -92,9 +92,9 @@ public class MessageClient {
     }
 
     public void runProducer(String topic, Object message, int messageCount) {
-        Log alcorLog = LogFactory.getLog();
+        Logger logger = LoggerFactory.getLogger();
         if (this.messageProducerFactory == null) {
-            alcorLog.log(Level.INFO, "No message producer factory is specified");
+            logger.log(Level.INFO, "No message producer factory is specified");
             return;
         }
 
@@ -105,12 +105,12 @@ public class MessageClient {
             ProducerRecord<Long, Object> record = new ProducerRecord(topic, message);
             try {
                 RecordMetadata metadata = (RecordMetadata) producer.send(record).get();
-                alcorLog.log(Level.INFO, "Record sent with key " + index + " to partition " + metadata.partition()
+                logger.log(Level.INFO, "Record sent with key " + index + " to partition " + metadata.partition()
                         + " with offset " + metadata.offset());
             } catch (ExecutionException e) {
-                alcorLog.log(Level.SEVERE, "Error in sending record", e);
+                logger.log(Level.SEVERE, "Error in sending record", e);
             } catch (InterruptedException e) {
-                alcorLog.log(Level.SEVERE, "Error in sending record", e);
+                logger.log(Level.SEVERE, "Error in sending record", e);
             }
         }
     }

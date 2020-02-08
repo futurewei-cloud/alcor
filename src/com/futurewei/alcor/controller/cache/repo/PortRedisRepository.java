@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.cache.repo;
 
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.PortState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Repository
 public class PortRedisRepository implements ICacheRepository<PortState> {
@@ -56,7 +59,8 @@ public class PortRedisRepository implements ICacheRepository<PortState> {
 
     @Override
     public void addItem(PortState newItem) {
-        System.out.println("Port Id:" + newItem.getId());
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "Port Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

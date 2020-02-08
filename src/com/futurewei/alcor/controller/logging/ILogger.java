@@ -2,7 +2,7 @@ package com.futurewei.alcor.controller.logging;
 
 import java.util.logging.Level;
 
-public interface ILog {
+public interface ILogger {
     void entering(String sourceClass, String sourceMethod);
 
     void exiting(String sourceClass, String sourceMethod);

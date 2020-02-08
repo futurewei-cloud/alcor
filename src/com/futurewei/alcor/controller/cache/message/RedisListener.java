@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.cache.message;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class RedisListener implements MessageListener {
 
     public void onMessage(final Message message, final byte[] pattern) {
         messageList.add(message.toString());
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO,("Message received: " + new String(message.getBody())));
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, ("Message received: " + new String(message.getBody())));
     }
 }

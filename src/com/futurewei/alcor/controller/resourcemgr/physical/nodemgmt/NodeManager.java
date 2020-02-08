@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.Common;
 import lombok.Data;
@@ -34,17 +34,16 @@ public class NodeManager {
     private HashMap<String, HostInfo> nodeMap;
 
     public NodeManager(List<HostInfo> hosts) {
-        System.out.println("== Docker Log Test ==");
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.entering(this.getClass().getName(), "NodeManager(List<HostInfo> hosts)");
+        Logger logger = LoggerFactory.getLogger();
+        logger.entering(this.getClass().getName(), "NodeManager(List<HostInfo> hosts)");
 
         this.nodes = NodeManager.LoadNodes(hosts);
         for (HostInfo host : hosts) {
             System.out.println(host);
-            alcorLog.log(Level.INFO, "Log:" + host);
+            logger.log(Level.INFO, "Log:" + host);
         }
         this.BuildMapFromNodeIdToInfo(this.nodes);
-        alcorLog.exiting(this.getClass().getName(), "NodeManager(List<HostInfo> hosts)");
+        logger.exiting(this.getClass().getName(), "NodeManager(List<HostInfo> hosts)");
 
     }
 
@@ -59,12 +58,12 @@ public class NodeManager {
     }
 
     public HostInfo getHostInfoById(String hostId) {
-        Log alcorLog = LogFactory.getLog();
+        Logger logger = LoggerFactory.getLogger();
         if (this.nodeMap != null) { //&& !Strings.isNullOrEmpty(hostId)) {
-            alcorLog.log(Level.INFO, "Log:" + "[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
+            logger.log(Level.INFO, "Log:" + "[NodeManager] Host id: " + hostId + " info:" + this.nodeMap.get(hostId));
             return this.nodeMap.get(hostId);
         }
-        alcorLog.log(Level.WARNING,"[NodeManager] node map is empty");
+        logger.log(Level.WARNING, "[NodeManager] node map is empty");
         return null;
     }
 
@@ -80,14 +79,14 @@ public class NodeManager {
     }
 
     private void BuildMapFromNodeIdToInfo(List<HostInfo> hosts) {
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO, "Entering BuildMapFromNodeIdToInfo");
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "Entering BuildMapFromNodeIdToInfo");
         if (hosts != null) {
             if (this.nodeMap == null) {
                 this.nodeMap = new HashMap<>();
             }
 
-            alcorLog.log(Level.INFO, "hosts size : " + hosts.size());
+            logger.log(Level.INFO, "hosts size : " + hosts.size());
             for (HostInfo host : hosts) {
                 this.nodeMap.put(host.getId(), host);
             }

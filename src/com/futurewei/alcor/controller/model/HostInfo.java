@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.model;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import lombok.Data;
 
 import java.net.InetAddress;
@@ -41,7 +41,7 @@ public class HostInfo {
 
     public HostInfo(String hostId, String hostName, byte[] ipAddress, String macAddress) {
 
-        Log alcorLog = LogFactory.getLog();
+        Logger logger = LoggerFactory.getLogger();
 
         this.id = hostId;
 
@@ -53,7 +53,7 @@ public class HostInfo {
                 this.macAddress = null;
             }
         } catch (UnknownHostException e) {
-            alcorLog.log(Level.SEVERE, "Invalid ip address" + ipAddress, e);
+            logger.log(Level.SEVERE, "Invalid ip address" + ipAddress, e);
         }
     }
 

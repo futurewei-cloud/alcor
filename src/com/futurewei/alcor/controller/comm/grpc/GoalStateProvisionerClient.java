@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.controller.service.Goalstateprovisioner;
@@ -57,7 +57,7 @@ public class GoalStateProvisionerClient {
     }
 
     public void PushNetworkResourceStates(GoalState state) {
-        Log alcorLog = LogFactory.getLog();
+        Logger alcorLog = LoggerFactory.getLogger();
         alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
         alcorLog.log(Level.INFO, "GoalStateProvisionerClient : Will try to send GS with fast path...");

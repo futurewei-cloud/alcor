@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.schema.*;
 import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
@@ -39,16 +39,16 @@ public class GoalStateProvisionerServer {
                 .addService(new GoalStateProvisionerImpl())
                 .build()
                 .start();
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on ");
-        alcorLog.log(Level.INFO, "Server started, listening on " + port);
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on ");
+        logger.log(Level.INFO, "Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                alcorLog.log(Level.SEVERE, "*** shutting down gRPC server since JVM is shutting down");
+                logger.log(Level.SEVERE, "*** shutting down gRPC server since JVM is shutting down");
                 GoalStateProvisionerServer.this.stop();
-                alcorLog.log(Level.SEVERE, "*** server shut down");
+                logger.log(Level.SEVERE, "*** server shut down");
             }
         });
     }

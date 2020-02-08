@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.cache.repo;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.SubnetState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -59,8 +59,8 @@ public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
 
     @Override
     public void addItem(SubnetState newItem) {
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO,"Subnet Id:" + newItem.getId());
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "Subnet Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

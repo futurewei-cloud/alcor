@@ -20,12 +20,16 @@ import com.futurewei.alcor.controller.comm.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alcor.controller.comm.message.GoalStateMessageProducerFactory;
 import com.futurewei.alcor.controller.comm.message.MessageClient;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.SubnetState;
 import com.futurewei.alcor.controller.model.VpcState;
 import com.futurewei.alcor.controller.schema.Common;
 import com.futurewei.alcor.controller.schema.Goalstate;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
+
+import java.util.logging.Level;
 
 public class SubnetGoalStateProgrammer extends GoalStateProgrammer {
 
@@ -85,10 +89,10 @@ public class SubnetGoalStateProgrammer extends GoalStateProgrammer {
                 Common.OperationType.CREATE_UPDATE_ROUTER,
                 new SubnetState[]{customerSubnetState},
                 new HostInfo[][]{transitSwitchHosts});
-
+        Logger logger = LoggerFactory.getLogger();
         for (HostInfo transitRouter : transitRouterHosts) {
             if (this.isFastPath) {
-                System.out.println("Send VPC id :" + customerSubnetState.getVpcId() + " with fast path");
+                logger.log(Level.INFO, "Send VPC id :" + customerSubnetState.getVpcId() + " with fast path");
                 GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(transitRouter.getHostIpAddress(), transitRouter.getGRPCServerPort());
                 gRpcClient.PushNetworkResourceStates(gsSubnetState);
             } else {

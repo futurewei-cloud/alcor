@@ -15,8 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.controller.web.util;
 
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -32,17 +32,17 @@ import java.util.logging.Level;
 public class ControllerUtil {
 
     public static PortState CreatePort(PortState portState) {
-        Log alcorLog = LogFactory.getLog();
+        Logger logger = LoggerFactory.getLogger();
 
         PortState customerPortState = ControllerUtil.AssignVipMacToPort(portState, ControllerConfig.epCounter);
         HostInfo epHost = DataCenterConfig.nodeManager.getHostInfoById(portState.getBindingHostId());
         SubnetState customerSubnetState = ControllerConfig.customerSubnetState;
         HostInfo[] transitSwitchHostsForSubnet = ControllerConfig.transitSwitchHosts;
 
-        alcorLog.log(Level.INFO, "EP counter: " + ControllerConfig.epCounter);
+        logger.log(Level.INFO, "EP counter: " + ControllerConfig.epCounter);
         ControllerConfig.epCounter++;
-        alcorLog.log(Level.INFO, "EP :" + customerPortState);
-        alcorLog.log(Level.INFO, "Host :" + epHost);
+        logger.log(Level.INFO, "EP :" + customerPortState);
+        logger.log(Level.INFO, "Host :" + epHost);
 
         PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
         PortGoalStateProgrammer gsProgrammer = new PortGoalStateProgrammer(portProgramInfo);

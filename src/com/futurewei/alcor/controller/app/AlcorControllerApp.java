@@ -19,8 +19,8 @@ package com.futurewei.alcor.controller.app;
 import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
 import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
-import com.futurewei.alcor.controller.logging.Log;
-import com.futurewei.alcor.controller.logging.LogFactory;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfig;
 import com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt.DataCenterConfigLoader;
@@ -39,37 +39,37 @@ import java.util.logging.Level;
 @SpringBootApplication(scanBasePackages = "com.futurewei.alcor.controller")
 @Import({RedisConfiguration.class})
 public class AlcorControllerApp {
+
     public static void main(String[] args) {
-        Log alcorLog = LogFactory.getLog();
-        alcorLog.log(Level.INFO, "Hello Alcor Controller!");
         //Class<?>[] sources = {Alcor.class, RedisConfiguration.class};
         SpringApplication.run(AlcorControllerApp.class, args);
-        alcorLog.log(Level.INFO,"Bye from Alcor Controller!\n\n");
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "Hello Alcor Controller!");
+        logger.log(Level.INFO, "Bye from Alcor Controller!\n\n");
 
-        alcorLog.log(Level.INFO,"Loading node from config/machine.json");
+        logger.log(Level.INFO, "Loading node from config/machine.json");
         List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("/app/config/machine.json");
         if (OneBoxConfig.IS_K8S) {
-            if(alcorLog != null)
-                alcorLog.log(Level.INFO,"Loading Node Manager");
+            logger.log(Level.INFO, "Loading Node Manager");
             DataCenterConfig.nodeManager = new NodeManager(hostNodeList);
         } else if (OneBoxConfig.IS_Onebox) {
             OneBoxConfig.epHosts = OneBoxUtil.LoadNodes(hostNodeList);
         }
 
-        alcorLog.log(Level.INFO,"Load " + hostNodeList.size() + " nodes from machine.json");
+        logger.log(Level.INFO, "Load " + hostNodeList.size() + " nodes from machine.json");
         OneBoxConfig.APP_START_TS = System.nanoTime();
     }
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
-            Log alcorLog = LogFactory.getLog();
-            alcorLog.log(Level.INFO, "Let's inspect the beans provided by Spring Boot:");
+            Logger logger = LoggerFactory.getLogger();
+            logger.log(Level.INFO, "Let's inspect the beans provided by Spring Boot:");
 
             String[] beanNames = ctx.getBeanDefinitionNames();
             Arrays.sort(beanNames);
             for (String beanName : beanNames) {
-                alcorLog.log(Level.INFO,beanName);
+                logger.log(Level.INFO, beanName);
             }
         };
     }
