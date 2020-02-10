@@ -13,6 +13,6 @@ COPY ./target/AlcorController-0.1.0-SNAPSHOT.jar /app/AlcorController-0.1.0.jar
 COPY ./config/machine.json /app/config/machine.json
 
 WORKDIR /app
-CMD ["java", "-Dspring.profiles.active=onebox", "-jar", "AlcorController-0.1.0.jar"]
+CMD ["java", "-Dspring.profiles.active=${DevEnv}", "-jar", "AlcorController-0.1.0.jar"]
 
 # Alcor entry points
