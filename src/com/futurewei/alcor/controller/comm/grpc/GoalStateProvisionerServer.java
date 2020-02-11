@@ -16,21 +16,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.grpc;
 
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.schema.*;
-import com.futurewei.alcor.controller.service.Goalstateprovisioner;
-import com.futurewei.alcor.controller.schema.Goalstate.*;
+import com.futurewei.alcor.controller.schema.Goalstate.GoalState;
 import com.futurewei.alcor.controller.service.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.controller.service.Goalstateprovisioner;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class GoalStateProvisionerServer {
-
-    private static final Logger logger = Logger.getLogger(GoalStateProvisionerServer.class.getName());
-
     private Server server;
 
     private void start() throws IOException {
@@ -40,14 +39,16 @@ public class GoalStateProvisionerServer {
                 .addService(new GoalStateProvisionerImpl())
                 .build()
                 .start();
-        logger.info("Server started, listening on " + port);
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on ");
+        logger.log(Level.INFO, "Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                logger.log(Level.SEVERE, "*** shutting down gRPC server since JVM is shutting down");
                 GoalStateProvisionerServer.this.stop();
-                System.err.println("*** server shut down");
+                logger.log(Level.SEVERE, "*** server shut down");
             }
         });
     }

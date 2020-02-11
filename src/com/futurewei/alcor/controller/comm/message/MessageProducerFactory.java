@@ -16,9 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.message;
 
-import com.futurewei.alcor.controller.interfaces.AbstractFactory;
 import com.futurewei.alcor.controller.comm.config.IKafkaConfiguration;
-import org.apache.kafka.clients.producer.*;
+import com.futurewei.alcor.controller.interfaces.AbstractFactory;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.springframework.beans.factory.annotation.Value;

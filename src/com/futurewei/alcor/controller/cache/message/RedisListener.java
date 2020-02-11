@@ -16,12 +16,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.cache.message;
 
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 @Service
 public class RedisListener implements MessageListener {
@@ -34,6 +37,7 @@ public class RedisListener implements MessageListener {
 
     public void onMessage(final Message message, final byte[] pattern) {
         messageList.add(message.toString());
-        System.out.println("Message received: " + new String(message.getBody()));
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, ("Message received: " + new String(message.getBody())));
     }
 }

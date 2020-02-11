@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.cache.repo;
 
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Repository
 public class VpcRedisRepository implements ICacheRepository<VpcState> {
@@ -56,7 +59,8 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
 
     @Override
     public void addItem(VpcState newItem) {
-        System.out.println("Vpc Id:" + newItem.getId());
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "Vpc Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

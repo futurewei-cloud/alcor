@@ -26,117 +26,42 @@ import java.util.List;
 @Data
 public class PortState extends CustomerResource {
 
-    @Data
-    public static class FixedIp {
-
-        @JsonProperty("subnet_id")
-        private String subnetId;
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        public FixedIp() {
-
-        }
-
-        public FixedIp(String subnetId, String ipAddress) {
-            this.subnetId = subnetId;
-            this.ipAddress = ipAddress;
-        }
-    }
-
-    @Data
-    public static class AllowAddressPair {
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        @JsonProperty("mac_address")
-        private String macAddress;
-    }
-
-    @Data
-    public static class ExtraDhcpOpt {
-
-        @JsonProperty("opt_name")
-        private String optName;
-
-        @JsonProperty("opt_value")
-        private String optValue;
-    }
-
-    @Data
-    public static class SecurityGroupId {
-        private String id;
-    }
-
-    @Data
-    public static class DnsRecord {
-
-        @JsonProperty("host_name")
-        private String hostName;
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        @JsonProperty("fqdn")
-        private String fqdn;
-    }
-
     @JsonProperty("network_id")
     private String networkId;
-
     @JsonProperty("tenant_id")
     private String tenantId;
-
     @JsonProperty("admin_state_up")
     private boolean adminStateUp;
-
     @JsonProperty("mac_address")
     private String macAddress;
-
     @JsonProperty("veth_name")
     private String vethName;
-
     @JsonProperty("fast_path")
     private boolean isFastPath;
-
     @JsonProperty("device_id")
     private String deviceId;
-
     @JsonProperty("device_owner")
     private String deviceOwner;
-
     @JsonProperty("status")
     private String status;
-
     @JsonProperty("fixed_ips")
     private List<FixedIp> fixedIps;
-
     @JsonProperty("allowed_address_pairs")
     private List<AllowAddressPair> allowedAddressPairs;
-
     @JsonProperty("extra_dhcp_opts")
     private List<ExtraDhcpOpt> extraDhcpOpts;
-
     @JsonProperty("security_groups")
     private List<SecurityGroupId> securityGroups;
-
     @JsonProperty("binding:host_id")
     private String bindingHostId;
-
     @JsonProperty("binding:profile")
     private String bindingProfile;
-
     @JsonProperty("binding:vnic_type")
     private String bindingVnicType;
-
     @JsonProperty("network_ns")
     private String networkNamespace;
-
     @JsonProperty("dns_name")
     private String dnsName;
-
     @JsonProperty("dns_assignment")
     private List<DnsRecord> dnsAssignment;
 
@@ -204,6 +129,63 @@ public class PortState extends CustomerResource {
         }
 
         return fixedIps;
+    }
+
+    @Data
+    public static class FixedIp {
+
+        @JsonProperty("subnet_id")
+        private String subnetId;
+
+        @JsonProperty("ip_address")
+        private String ipAddress;
+
+        public FixedIp() {
+
+        }
+
+        public FixedIp(String subnetId, String ipAddress) {
+            this.subnetId = subnetId;
+            this.ipAddress = ipAddress;
+        }
+    }
+
+    @Data
+    public static class AllowAddressPair {
+
+        @JsonProperty("ip_address")
+        private String ipAddress;
+
+        @JsonProperty("mac_address")
+        private String macAddress;
+    }
+
+    @Data
+    public static class ExtraDhcpOpt {
+
+        @JsonProperty("opt_name")
+        private String optName;
+
+        @JsonProperty("opt_value")
+        private String optValue;
+    }
+
+    @Data
+    public static class SecurityGroupId {
+        private String id;
+    }
+
+    @Data
+    public static class DnsRecord {
+
+        @JsonProperty("host_name")
+        private String hostName;
+
+        @JsonProperty("ip_address")
+        private String ipAddress;
+
+        @JsonProperty("fqdn")
+        private String fqdn;
     }
 }
 

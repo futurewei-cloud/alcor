@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.utilities;
 
-import com.futurewei.alcor.controller.app.onebox.*;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
