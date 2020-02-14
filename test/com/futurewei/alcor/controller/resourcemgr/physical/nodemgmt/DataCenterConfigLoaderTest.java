@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.controller.resourcemgr.physical;
+package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
 import com.futurewei.alcor.controller.model.HostInfo;
 import org.junit.Assert;
@@ -26,7 +26,7 @@ public class DataCenterConfigLoaderTest {
 
     @Test
     public void machineConfigFileLoadTest() {
-        List<HostInfo> hostNodeList = DataCenterConfigLoader.loadAndGetHostNodeList(".\\test\\com\\futurewei\\alcor\\controller\\resourcemgr\\physical\\machine.json");
+        List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList(".\\test\\com\\futurewei\\alcor\\controller\\resourcemgr\\physical\\nodemgmt\\machine.json");
 
         Assert.assertEquals("incorrect number of nodes", 200, hostNodeList.size());
 

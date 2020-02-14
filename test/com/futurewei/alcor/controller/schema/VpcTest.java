@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.schema;
 
-import com.futurewei.alcor.controller.app.onebox.DemoConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.VpcState;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
@@ -73,8 +73,8 @@ public class VpcTest {
                         "SuperVpc",
                         "10.0.0.0/24");
         HostInfo[] transitRouterHosts = {
-                new HostInfo(DemoConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
-                new HostInfo(DemoConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
+                new HostInfo(OneBoxConfig.TRANSIT_ROUTER_1_HOST_ID, "transit router host1", OneBoxConfig.TRANSIT_ROUTER_1_IP, OneBoxConfig.TRANSIT_ROUTER_1_MAC),
+                new HostInfo(OneBoxConfig.TRANSIT_ROUTER_2_HOST_ID, "transit router host2", OneBoxConfig.TRANSIT_ROUTER_2_IP, OneBoxConfig.TRANSIT_ROUTER_2_MAC)
         };
 
         final Vpc.VpcState state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,

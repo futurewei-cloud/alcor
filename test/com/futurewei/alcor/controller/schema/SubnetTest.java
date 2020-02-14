@@ -17,7 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.controller.schema;
 
 import com.futurewei.alcor.controller.model.SubnetState;
-import com.futurewei.alcor.controller.app.onebox.DemoConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.GoalStateUtil;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -34,8 +34,8 @@ public class SubnetTest {
                 "192.168.0.0/28");
 
         HostInfo[] transitSwitches = {
-                new HostInfo(DemoConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-                new HostInfo(DemoConfig.TRANSIT_SWTICH_3_HOST_ID, "transit switch host2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
+                new HostInfo(OneBoxConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo(OneBoxConfig.TRANSIT_SWTICH_3_HOST_ID, "transit switch host2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC)
         };
 
         final Subnet.SubnetState state = GoalStateUtil.CreateGSSubnetState(Common.OperationType.CREATE,

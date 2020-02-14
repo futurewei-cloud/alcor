@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.comm.message;
 
-import com.futurewei.alcor.controller.app.onebox.DemoConfig;
+import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.model.PortState;
 import com.futurewei.alcor.controller.model.SubnetState;
@@ -177,50 +177,50 @@ public class MessageClientTest {
 
         PortState[] customerPortStateForSubnet1 = {
                 new PortState(projectId, subnet1Id, ep1Id,
-                        DemoConfig.EP1_ID,
+                        OneBoxConfig.EP1_ID,
                         "0e:73:ae:c8:87:00",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
-                        DemoConfig.EP2_ID,
+                        OneBoxConfig.EP2_ID,
                         "0e:73:ae:c8:87:01",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.2"})
         };
 
         PortState[] customerPortStateForSubnet2 = {
                 new PortState(projectId, subnet2Id, ep3Id,
-                        DemoConfig.EP5_ID,
+                        OneBoxConfig.EP5_ID,
                         "0e:73:ae:c8:87:04",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep4Id,
-                        DemoConfig.EP6_ID,
+                        OneBoxConfig.EP6_ID,
                         "0e:73:ae:c8:87:05",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.2"})
         };
 
         HostInfo[] transitRouterHosts = {
-                new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC)
+                new HostInfo("vpc1-transit-router1", "transit router1 host", OneBoxConfig.TRANSIT_ROUTER_1_IP, OneBoxConfig.TRANSIT_ROUTER_1_MAC)
         };
 
         HostInfo[] transitSwitchHostsForSubnet1 = {
-                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC),
         };
 
         HostInfo[] transitSwitchHostsForSubnet2 = {
-                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC)
+                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC)
         };
 
         HostInfo[] epHostForSubnet1 = {
-                new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
-                new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC)
+                new HostInfo("subnet1-ep1", "ep1 host", OneBoxConfig.EP1_HOST_IP, OneBoxConfig.EP1_HOST_MAC),
+                new HostInfo("subnet1-ep2", "ep2 host", OneBoxConfig.EP2_HOST_IP, OneBoxConfig.EP2_HOST_MAC)
         };
 
         HostInfo[] epHostForSubnet2 = {
-                new HostInfo("subnet2-ep1", "ep3 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
-                new HostInfo("subnet2-ep2", "ep4 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC)
+                new HostInfo("subnet2-ep1", "ep3 host", OneBoxConfig.EP5_HOST_IP, OneBoxConfig.EP5_HOST_MAC),
+                new HostInfo("subnet2-ep2", "ep4 host", OneBoxConfig.EP6_HOST_IP, OneBoxConfig.EP6_HOST_MAC)
         };
 
         OneVpcTwoSubnetsCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,
@@ -267,77 +267,77 @@ public class MessageClientTest {
 
         PortState[] customerPortStateForSubnet1 = {
                 new PortState(projectId, subnet1Id, ep1Id,
-                        DemoConfig.EP1_ID,
+                        OneBoxConfig.EP1_ID,
                         "0e:73:ae:c8:87:00",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.1"}),
                 new PortState(projectId, subnet1Id, ep2Id,
-                        DemoConfig.EP2_ID,
+                        OneBoxConfig.EP2_ID,
                         "0e:73:ae:c8:87:01",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.2"}),
                 new PortState(projectId, subnet1Id, ep3Id,
-                        DemoConfig.EP3_ID,
+                        OneBoxConfig.EP3_ID,
                         "0e:73:ae:c8:87:02",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.3"}),
                 new PortState(projectId, subnet1Id, ep4Id,
-                        DemoConfig.EP4_ID,
+                        OneBoxConfig.EP4_ID,
                         "0e:73:ae:c8:87:03",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.0.4"})
         };
 
         PortState[] customerPortStateForSubnet2 = {
                 new PortState(projectId, subnet2Id, ep5Id,
-                        DemoConfig.EP5_ID,
+                        OneBoxConfig.EP5_ID,
                         "0e:73:ae:c8:87:04",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.1"}),
                 new PortState(projectId, subnet2Id, ep6Id,
-                        DemoConfig.EP6_ID,
+                        OneBoxConfig.EP6_ID,
                         "0e:73:ae:c8:87:05",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.2"}),
                 new PortState(projectId, subnet2Id, ep7Id,
-                        DemoConfig.EP7_ID,
+                        OneBoxConfig.EP7_ID,
                         "0e:73:ae:c8:87:06",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.3"}),
                 new PortState(projectId, subnet2Id, ep8Id,
-                        DemoConfig.EP8_ID,
+                        OneBoxConfig.EP8_ID,
                         "0e:73:ae:c8:87:07",
-                        DemoConfig.VETH_NAME,
+                        OneBoxConfig.VETH_NAME,
                         new String[]{"10.0.1.4"})
         };
 
         HostInfo[] transitRouterHosts = {
-                new HostInfo("vpc1-transit-router1", "transit router1 host", DemoConfig.TRANSIT_ROUTER_1_IP, DemoConfig.TRANSIT_ROUTER_1_MAC),
-                new HostInfo("vpc1-transit-router2", "transit router2 host", DemoConfig.TRANSIT_ROUTER_2_IP, DemoConfig.TRANSIT_ROUTER_2_MAC)
+                new HostInfo("vpc1-transit-router1", "transit router1 host", OneBoxConfig.TRANSIT_ROUTER_1_IP, OneBoxConfig.TRANSIT_ROUTER_1_MAC),
+                new HostInfo("vpc1-transit-router2", "transit router2 host", OneBoxConfig.TRANSIT_ROUTER_2_IP, OneBoxConfig.TRANSIT_ROUTER_2_MAC)
         };
 
         HostInfo[] transitSwitchHostsForSubnet1 = {
-                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", DemoConfig.TRANSIT_SWITCH_1_IP, DemoConfig.TRANSIT_SWITCH_1_MAC),
-                new HostInfo("subnet1-transit-switch2", "transit switch2 host for subnet1", DemoConfig.TRANSIT_SWITCH_2_IP, DemoConfig.TRANSIT_SWITCH_2_MAC)
+                new HostInfo("subnet1-transit-switch1", "transit switch1 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC),
+                new HostInfo("subnet1-transit-switch2", "transit switch2 host for subnet1", OneBoxConfig.TRANSIT_SWITCH_2_IP, OneBoxConfig.TRANSIT_SWITCH_2_MAC)
         };
 
         HostInfo[] transitSwitchHostsForSubnet2 = {
-                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", DemoConfig.TRANSIT_SWITCH_3_IP, DemoConfig.TRANSIT_SWITCH_3_MAC),
-                new HostInfo("subnet2-transit-switch2", "transit switch2 host for subnet2", DemoConfig.TRANSIT_SWITCH_4_IP, DemoConfig.TRANSIT_SWITCH_4_MAC)
+                new HostInfo("subnet2-transit-switch1", "transit switch1 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_3_IP, OneBoxConfig.TRANSIT_SWITCH_3_MAC),
+                new HostInfo("subnet2-transit-switch2", "transit switch2 host for subnet2", OneBoxConfig.TRANSIT_SWITCH_4_IP, OneBoxConfig.TRANSIT_SWITCH_4_MAC)
         };
 
         HostInfo[] epHostForSubnet1 = {
-                new HostInfo("subnet1-ep1", "ep1 host", DemoConfig.EP1_HOST_IP, DemoConfig.EP1_HOST_MAC),
-                new HostInfo("subnet1-ep2", "ep2 host", DemoConfig.EP2_HOST_IP, DemoConfig.EP2_HOST_MAC),
-                new HostInfo("subnet1-ep3", "ep3 host", DemoConfig.EP3_HOST_IP, DemoConfig.EP3_HOST_MAC),
-                new HostInfo("subnet1-ep4", "ep4 host", DemoConfig.EP4_HOST_IP, DemoConfig.EP4_HOST_MAC),
+                new HostInfo("subnet1-ep1", "ep1 host", OneBoxConfig.EP1_HOST_IP, OneBoxConfig.EP1_HOST_MAC),
+                new HostInfo("subnet1-ep2", "ep2 host", OneBoxConfig.EP2_HOST_IP, OneBoxConfig.EP2_HOST_MAC),
+                new HostInfo("subnet1-ep3", "ep3 host", OneBoxConfig.EP3_HOST_IP, OneBoxConfig.EP3_HOST_MAC),
+                new HostInfo("subnet1-ep4", "ep4 host", OneBoxConfig.EP4_HOST_IP, OneBoxConfig.EP4_HOST_MAC),
         };
 
         HostInfo[] epHostForSubnet2 = {
-                new HostInfo("subnet2-ep1", "ep5 host", DemoConfig.EP5_HOST_IP, DemoConfig.EP5_HOST_MAC),
-                new HostInfo("subnet2-ep2", "ep6 host", DemoConfig.EP6_HOST_IP, DemoConfig.EP6_HOST_MAC),
-                new HostInfo("subnet2-ep3", "ep7 host", DemoConfig.EP7_HOST_IP, DemoConfig.EP7_HOST_MAC),
-                new HostInfo("subnet2-ep4", "ep8 host", DemoConfig.EP8_HOST_IP, DemoConfig.EP8_HOST_MAC),
+                new HostInfo("subnet2-ep1", "ep5 host", OneBoxConfig.EP5_HOST_IP, OneBoxConfig.EP5_HOST_MAC),
+                new HostInfo("subnet2-ep2", "ep6 host", OneBoxConfig.EP6_HOST_IP, OneBoxConfig.EP6_HOST_MAC),
+                new HostInfo("subnet2-ep3", "ep7 host", OneBoxConfig.EP7_HOST_IP, OneBoxConfig.EP7_HOST_MAC),
+                new HostInfo("subnet2-ep4", "ep8 host", OneBoxConfig.EP8_HOST_IP, OneBoxConfig.EP8_HOST_MAC),
         };
 
         OneVpcTwoSubnetsCommonTest(customerVpcState, customerSubnetState1, customerSubnetState2,

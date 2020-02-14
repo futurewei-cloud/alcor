@@ -82,7 +82,7 @@ public class TestUtil {
         Assert.assertEquals("network id mismatched", expected.getConfiguration().getNetworkId(), result.getConfiguration().getNetworkId());
         Assert.assertEquals("id mismatched", expected.getConfiguration().getId(), result.getConfiguration().getId());
         Assert.assertEquals("name mismatched", expected.getConfiguration().getName(), result.getConfiguration().getName());
-        Assert.assertEquals("admin state up mismatched", expected.getConfiguration().getAdminStateUp(), result.getConfiguration().getAdminStateUp());
+        Assert.assertEquals("admin state up mismatched", expected.getConfiguration().getNetworkNs(), result.getConfiguration().getNetworkNs());
         Assert.assertEquals("mac address mismatched", expected.getConfiguration().getMacAddress(), result.getConfiguration().getMacAddress());
         Assert.assertEquals("veth name mismatched", expected.getConfiguration().getVethName(), result.getConfiguration().getVethName());
 
