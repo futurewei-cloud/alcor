@@ -133,7 +133,7 @@
 
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
-        <!--testSourceDirectory>${project.basedir}/test/</testSourceDirectory-->
+        <testSourceDirectory>${project.basedir}/test/</testSourceDirectory>
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>

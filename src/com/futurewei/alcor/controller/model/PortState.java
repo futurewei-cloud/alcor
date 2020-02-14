@@ -74,12 +74,12 @@ public class PortState extends CustomerResource {
 
     public PortState(String projectId, String subnetId, String id, String name, String macAddress, String vethName,
                      String[] vpcIps, boolean isFastPath) {
-        super(projectId, id, name, "");
-        this.networkId = subnetId;
-        this.macAddress = macAddress;
-        this.vethName = vethName;
-        this.fixedIps = PortState.convertToFixedIps(vpcIps, subnetId);
-        this.isFastPath = isFastPath;
+        this(projectId, subnetId, id, name,
+                null, false, macAddress, vethName,
+                isFastPath, null, null, null,
+                PortState.convertToFixedIps(vpcIps, subnetId), null, null,
+                null, null, null, null,
+                "", null, null);
     }
 
     public PortState(String projectId, String subnetId, String id, String name,
