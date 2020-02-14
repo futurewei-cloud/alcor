@@ -38,7 +38,7 @@ public class MessageClientTest {
     public void runProducer() {
     }
 
-    @Test
+    //@Test
     public void vpcCreateUpdateE2EVerification() {
         final Vpc.VpcState vpc_state = GoalStateUtil.CreateGSVpcState(Common.OperationType.CREATE,
                 "dbf72700-5106-4a7a-918f-a016853911f8",
@@ -82,7 +82,7 @@ public class MessageClientTest {
         }
     }
 
-    @Test
+    //@Test
     public void subnetCreateUpdateE2EVerification() {
         SubnetState customerSubnetState = new SubnetState("dbf72700-5106-4a7a-918f-a016853911f8",
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
@@ -146,7 +146,7 @@ public class MessageClientTest {
         }
     }
 
-    @Test
+    //@Test
     public void createOneVpcTwoSubnetsFourPortsE2EVerification() {
 
         ////////////////////////////////////////////////////////////////////////////
