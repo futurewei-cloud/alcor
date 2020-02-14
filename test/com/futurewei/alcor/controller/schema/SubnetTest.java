@@ -31,7 +31,8 @@ public class SubnetTest {
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",
                 "Subnet1",
-                "192.168.0.0/28");
+                "192.168.0.0/28",
+                "192.168.0.5");
 
         HostInfo[] transitSwitches = {
                 new HostInfo(OneBoxConfig.TRANSIT_SWTICH_1_HOST_ID, "transit switch host1", OneBoxConfig.TRANSIT_SWITCH_1_IP, OneBoxConfig.TRANSIT_SWITCH_1_MAC),

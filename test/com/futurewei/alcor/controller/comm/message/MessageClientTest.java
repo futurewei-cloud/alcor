@@ -88,7 +88,8 @@ public class MessageClientTest {
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "d973934b-93e8-42fa-ac91-bf0cdb84fffc",
                 "Subnet1",
-                "10.0.0.0/24");
+                "10.0.0.0/24",
+                "10.0.0.5");
 
         HostInfo[] transitSwitches = {
                 new HostInfo("subnet1-ts1", "transit switch host1", new byte[]{10, 0, 0, 1}, "fa:16:3e:d7:f1:04"),
@@ -103,7 +104,8 @@ public class MessageClientTest {
                 "99d9d709-8478-4b46-9f3f-2206b1023fd3",
                 "8cb94df3-05bd-45d1-95c0-1ad75f929810",
                 "Subnet2",
-                "10.0.1.0/24");
+                "10.0.1.0/24",
+                "10.0.1.5");
 
         HostInfo[] transitSwitches2 = {
                 new HostInfo("subnet2-ts1", "transit switch host1", new byte[]{10, 0, 1, 1}, "fa:16:3e:d7:f1:06"),
