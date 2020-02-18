@@ -1,11 +1,11 @@
 # Alcor
-A Hyperscale Cloud Virtual Networking System
+A Hyperscale Cloud Native SDN Platform
 
 * For information about how to use Alcor, visit [Getting Started](src/README.md)
 * To ask questions, raise feature requests and get assistance from our community, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues)
 * To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki).
-For example, [Kubernetes cluster setup guide with Mizar-MP](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
-shows how to use Mizar-MP for Kubernetes container network provisioning.
+For example, [Kubernetes cluster setup guide with Alcor](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
+shows how to use Alcor for Kubernetes container network provisioning.
 
 In this README:
 
@@ -86,8 +86,8 @@ It is responsible for programming on-host data plane with various network config
 
 - [alcor/integration](https://github.com/futurewei-cloud/mizar-mp)
 The integration repository contains codes and scripts for end-to-end integration of Alcor control plane with popular orchestration platforms and data plane implementations.
-We currently support integration with Kubernetes and Mizar.
-We will continue to support integration with other orchestration systems and data plane implementations.
+We currently support integration with Kubernetes (via CNI plugin) and Mizar Data Plane.
+We will continue to integrate with other orchestration systems and data plane implementations.
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
 which is a complementary project of Alcor.
