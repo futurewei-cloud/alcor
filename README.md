@@ -10,7 +10,7 @@ shows how to use Mizar-MP for Kubernetes container network provisioning.
 In this README:
 
 - [Introduction](#introduction)
-- [Key Features](#key%20features)
+- [Key Features](#key-features)
 - [Repositories](#repositories)
 
 ## Introduction
