@@ -1,0 +1,386 @@
+== [big blue]*Alcor Controller APIs*
+
+The followings are the RESTful APIs of Alcor controller system.
+
+
+[width="100%",cols="10%,30%,10%,35%,15%"]
+|===
+|*Group* |*API Name* |*Method* |*Request*|*Response*
+
+|<<VPCController>>
+|xref:getVpcStateByVpcId[getVpcStateByVpcId]
+|*GET*
+|xref:vpc_req_1[/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}]
+|
+
+|
+|xref:createVpcState[createVpcState]
+|*POST*
+|/project/{projectid}/vpcs
+|
+
+|
+|updateVpcStateByVpcId
+|*PUT*
+|/project/{projectid}/vpcs/{vpcid}
+|
+
+|
+|deleteVpcStateByVpcId
+|*DELETE*
+|/project/{projectid}/vpcs/{vpcid}
+|
+
+|
+|getVpcStatesByProjectId
+|*GET*
+|/project/{projectid}/vpcs
+|
+
+|*Subnet Controller*
+|getSubnetStateById
+|*GET*
+|/project/{projectid}/subnets/{subnetId}
+|
+
+|
+|createSubnetState
+|*POST*
+|/project/{projectid}/subnets
+|
+
+|
+|updateSubnetState
+|*PUT*
+|/project/{projectid}/vpcs/{vpcid}/+
+subnets/{subnetid}
+|
+
+|
+|deleteSubnetState
+|*DELETE*
+|/project/{projectid}/vpcs/{vpcid}/
+subnets/{subnetid}
+|
+
+|
+|getSubnetStatesByProjectIdAndVpcId
+|*GET*
+|/project/{projectid}/vpcs/{vpcid}/subnets
+|
+
+|*Port Controller*
+|getPortStateById
+|*GET*
+|/project/{projectid}/ports/{portId}
+|
+
+|
+|createPortState
+|*POST*
+|/project/{projectid}/ports
+|
+
+|
+|updateSubnetState
+|*PUT*
+|/project/{projectid}/ports/{portid}
+|
+
+|
+|deletePortState
+|*DELETE*
+|/project/{projectid}/ports/{portid}
+|
+
+|
+|getPortStatesByProjectIdAndSubnetId
+|*GET*
+|/project/{projectid}/subnet/+
+{subnetid}/ports
+|
+
+|
+|createPortStates
+|*POST*
+|/project/{projectid}/portgroup
+|
+
+|*Debug Controller*
+|index
+|*GET*
+|*/*
+|
+
+|
+|getDebugInfo
+|*GET*|/debug|
+
+||getVpcCount|*GET* |*/project/all/vpccount*|
+||getAllSubnetStates|*GET*|/project/all/subnets|
+|===
+
+[[VPCController]]
+=== [blue]*VPC Controller*
+
+
+anchor:getVpcStateByVpcId[]*getVpcStateByVpcId*
+
+* Method: GET
+
+* anchor:vpc_req_1[]Request: /project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String vpcid
+
+* Response: VpcStateJson(vpcState)
+....
+
+....
+anchor:createVpcState[]**createVpcState**
+
+* Method: POST
+
+* Request "/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"
+
+* Request Parameter: @PathVariable String projectid, @RequestBody VpcStateJson resource
+
+* Response: VpcStateJson(vpcState)
+....
+
+....
+anchor:updateVpcStateByVpcId[]**updateVpcStateByVpcId**
+
+* Method: PUT
+
+* Request /project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource
+
+* Response: VpcStateJson(vpcState)
+....
+
+....
+anchor:deleteVpcStateByVpcId[]**deleteVpcStateByVpcId**
+
+* Method: DELETE
+
+* Request /project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource
+
+* Response ResponseId(vpcid)
+....
+
+....
+anchor:getVpcStatesByProjectId[]**getVpcStatesByProjectId**
+
+* Method: GET
+* Request /project/{projectid}/vpcs
+* Request Parameter: @PathVariable String projectid
+* Response vpcStates
+....
+
+....
+
+[[SubNetController]]
+=== [blue]*Subnet Controller*
+
+anchor:getSubnetStateById[]**getSubnetStateById**
+
+* Method: GET
+
+* Request: /project/{projectid}/subnets/{subnetId}, "/v4/{projectid}/subnets/{subnetId}"
+
+* Request Parameter:
+
+* Response: SubnetStateJson(subnetState)
+....
+
+....
+anchor:createSubnetState[]**createSubnetState**
+
+* Method: POST
+
+* Request: "/project/{projectid}/subnets","v4/{projectid}/subnets"
+
+* Request Parameter:
+
+* Response: SubnetStateJson(subnetState)
+....
+
+....
+anchor:updateSubnetState[]**updateSubnetState**
+
+* Method: PUT
+
+* Request: "/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"
+
+* Request Parameter:
+
+* Response: SubnetStateJson(subnetState)
+....
+
+....
+anchor:deleteSubnetState[]**deleteSubnetState**
+
+* Method: DELETE
+
+* Request: "/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"
+
+* Request Parameter:
+
+* Response:
+....
+
+....
+anchor:geSubnetStatesByProjectIdAndVpcId[]**geSubnetStatesByProjectIdAndVpcId**
+
+* Method: GET
+
+* Request: /project/{projectid}/vpcs/{vpcid}/subnets
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String vpcid
+
+* Response: subnetStates
+....
+
+....
+
+[[PortController]]
+=== [blue]*Port Controller*
+
+anchor:getPortStateById[]**getPortStateById**
+
+* Method: GET
+
+* Request: "/project/{projectid}/ports/{portId}", "v4/{projectid}/ports/{portId}"
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String portId
+
+* Response: PortStateJson(portState)
+....
+
+....
+anchor:createPortState[]**createPortState**
+
+* Method: POST
+
+* Request: "/project/{projectid}/ports", "v4/{projectid}/ports"
+
+* Request Parameter: @PathVariable String projectid, @RequestBody PortStateJson resource
+
+* Response: PortStateJson(customerPortState)
+....
+
+....
+anchor:updateSubnetState[]updateSubnetState
+
+* Method: PUT
+
+* Request: "/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}"
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String portid, @RequestBody PortStateJson resource
+
+* Response: PortStateJson(currentPortState)
+....
+
+....
+anchor:deletePortState[]**deletePortState**
+
+* Method: DELETE
+
+* Request: /project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String portid
+
+* Response: ResponseId(portid)
+....
+
+....
+anchor:gePortStatesByProjectIdAndSubnetId[]**gePortStatesByProjectIdAndSubnetId**
+
+* Method: GET
+
+* Request: /project/{projectid}/subnet/{subnetid}/ports
+
+* Request Parameter: @PathVariable String projectid, @PathVariable String subnetid
+
+* Response: portStates
+....
+
+....
+anchor:createPortStates[]**createPortStates**
+
+* Method: POST
+
+* Request: "/project/{projectid}/ports/{portId}", "v4/{projectid}/ports/{portId}"
+
+* Request Parameter @PathVariable String projectid, @RequestBody PortStateGroup resourceGroup
+
+* Response: response
+....
+
+....
+
+[[DebugController]]
+=== [blue]*Debug Controller*
+
+anchor:index[]**index**
+
+* Method: GET
+
+* Request: /
+
+* Request Parameter:
+
+* Response: "Greetings from Alioth!"
+....
+
+....
+
+anchor:getDebugInfo[]**getDebugInfo**
+
+* Method: GET
+
+* Request: /debug
+
+* Request Parameter: value = "name", defaultValue = "World"
+
+* Response: "Hello \{name}"
+....
+
+....
+
+anchor:getVpcCountAndAllVpcStates[]**getVpcCountAndAllVpcStates**
+
+* Method: GET
+
+* Request: /project/all/vpccount
+
+* Request Parameter:
+
+* Response: Map
+....
+
+....
+anchor:getVpcCount[]**getVpcCount**
+
+* Method: GET
+
+* Request: /project/all/vpccount
+
+* Request Parameter:
+
+* Response: Map
+....
+
+....
+anchor:getAllSubnetStates[]**getAllSubnetStates**
+
+* Method: GET
+
+* Request: /project/all/subnets
+
+* Request Parameter:
+
+* Response: Map
