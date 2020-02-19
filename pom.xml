@@ -134,7 +134,7 @@
 
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/test/com.futurewei.alcor.controller.alcor.web</testSourceDirectory>
+        <testSourceDirectory>${project.basedir}/test/com/futurewei/alcor/controller/web</testSourceDirectory>
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>

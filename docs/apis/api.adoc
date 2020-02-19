@@ -335,7 +335,11 @@ anchor:index[]**index**
 
 * Response: "Greetings from Alioth!"
 ....
+.request
+include::{snippets}/home/http-request.adoc[]
 
+.response
+include::{snippets}/home/http-response.adoc[]
 ....
 
 anchor:getDebugInfo[]**getDebugInfo**
@@ -348,7 +352,11 @@ anchor:getDebugInfo[]**getDebugInfo**
 
 * Response: "Hello \{name}"
 ....
+.request
+include::{snippets}/getDebugInfo/http-request.adoc[]
 
+.response
+include::{snippets}/getDebugInfo/http-response.adoc[]
 ....
 
 anchor:getVpcCountAndAllVpcStates[]**getVpcCountAndAllVpcStates**
@@ -361,7 +369,11 @@ anchor:getVpcCountAndAllVpcStates[]**getVpcCountAndAllVpcStates**
 
 * Response: Map
 ....
+.request
+include::{snippets}/getVpcCountAndAllVpcStates/http-request.adoc[]
 
+.response
+include::{snippets}/getVpcCountAndAllVpcStates/http-response.adoc[]
 ....
 anchor:getVpcCount[]**getVpcCount**
 
@@ -373,7 +385,11 @@ anchor:getVpcCount[]**getVpcCount**
 
 * Response: Map
 ....
+.request
+include::{snippets}/getVpcCount/http-request.adoc[]
 
+.response
+include::{snippets}/getVpcCount/http-response.adoc[]
 ....
 anchor:getAllSubnetStates[]**getAllSubnetStates**
 
@@ -384,3 +400,10 @@ anchor:getAllSubnetStates[]**getAllSubnetStates**
 * Request Parameter:
 
 * Response: Map
+....
+.request
+include::{snippets}/getAllSubnetStates/http-request.adoc[]
+
+.response
+include::{snippets}/getAllSubnetStates/http-response.adoc[]
+....
