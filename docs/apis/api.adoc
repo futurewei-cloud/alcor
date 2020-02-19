@@ -3,126 +3,107 @@
 The followings are the RESTful APIs of Alcor controller system.
 
 
-[width="100%",cols="10%,30%,10%,35%,15%"]
+[width="100%",cols="20%,10%,50%,20%"]
 |===
-|*Group* |*API Name* |*Method* |*Request*|*Response*
+|*Group* |*Method* |*Request*|*Response*
 
 |<<VPCController>>
-|xref:getVpcStateByVpcId[getVpcStateByVpcId]
 |*GET*
 |xref:vpc_req_1[/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}]
 |
 
 |
-|xref:createVpcState[createVpcState]
 |*POST*
 |/project/{projectid}/vpcs
 |
 
 |
-|updateVpcStateByVpcId
 |*PUT*
 |/project/{projectid}/vpcs/{vpcid}
 |
 
 |
-|deleteVpcStateByVpcId
 |*DELETE*
 |/project/{projectid}/vpcs/{vpcid}
 |
 
 |
-|getVpcStatesByProjectId
 |*GET*
 |/project/{projectid}/vpcs
 |
 
 |*Subnet Controller*
-|getSubnetStateById
 |*GET*
 |/project/{projectid}/subnets/{subnetId}
 |
 
 |
-|createSubnetState
 |*POST*
 |/project/{projectid}/subnets
 |
 
 |
-|updateSubnetState
 |*PUT*
 |/project/{projectid}/vpcs/{vpcid}/+
 subnets/{subnetid}
 |
 
 |
-|deleteSubnetState
 |*DELETE*
 |/project/{projectid}/vpcs/{vpcid}/
 subnets/{subnetid}
 |
 
 |
-|getSubnetStatesByProjectIdAndVpcId
 |*GET*
 |/project/{projectid}/vpcs/{vpcid}/subnets
 |
 
 |*Port Controller*
-|getPortStateById
 |*GET*
 |/project/{projectid}/ports/{portId}
 |
 
 |
-|createPortState
 |*POST*
 |/project/{projectid}/ports
 |
 
 |
-|updateSubnetState
 |*PUT*
 |/project/{projectid}/ports/{portid}
 |
 
 |
-|deletePortState
 |*DELETE*
 |/project/{projectid}/ports/{portid}
 |
 
 |
-|getPortStatesByProjectIdAndSubnetId
 |*GET*
 |/project/{projectid}/subnet/+
 {subnetid}/ports
 |
 
 |
-|createPortStates
 |*POST*
 |/project/{projectid}/portgroup
 |
 
 |*Debug Controller*
-|index
 |*GET*
 |*/*
 |
 
 |
-|getDebugInfo
 |*GET*|/debug|
 
-||getVpcCount|*GET* |*/project/all/vpccount*|
-||getAllSubnetStates|*GET*|/project/all/subnets|
+||*GET* |/project/all/vpccount*|
+||*GET*|/project/all/subnets|
 |===
 
 [[VPCController]]
 === [blue]*VPC Controller*
-
 
 anchor:getVpcStateByVpcId[]*getVpcStateByVpcId*
 
