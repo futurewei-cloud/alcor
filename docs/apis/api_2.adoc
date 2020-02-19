@@ -3,7 +3,7 @@
 The followings are the RESTful APIs of Alcor controller system.
 
 
-[width="100%",cols="25%,15%,50%,20%"]
+[width="100%",cols="25%,15%,45%,20%"]
 |===
 |*Group* |*Method* |*Request*|*Response*
 
@@ -32,7 +32,7 @@ The followings are the RESTful APIs of Alcor controller system.
 |/project/{projectid}/vpcs
 |vpc states
 
-|*Subnet Controller*
+|<<SubNetController>>
 |GET
 |/project/{projectid}/subnets/{subnetId}
 |Json(subnet state)
@@ -59,7 +59,7 @@ subnets/{subnetid}
 |/project/{projectid}/vpcs/{vpcid}/subnets
 |subnet states
 
-|*Port Controller*
+|<<PortController>>
 |GET
 |/project/{projectid}/ports/{portId}
 |Json(port state)
@@ -90,7 +90,7 @@ subnets/{subnetid}
 |/project/{projectid}/portgroup
 |response id
 
-|*Debug Controller*
+|<<DebugController>>
 |GET
 |/
 |"Greetings from Alioth!"
