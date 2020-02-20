@@ -209,6 +209,8 @@
                             <doctype>book</doctype>
                             <attributes>
                                 <snippets>${snippets}</snippets>
+                                <!--stylesheet>style2.css</stylesheet-->
+                                <stylesdir>${basedir}/docs/apis</stylesdir>
                             </attributes>
                             <sourceDirectory>${basedir}/docs</sourceDirectory>
                             <outputDirectory>target/generated-docs</outputDirectory>

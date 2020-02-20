@@ -61,28 +61,4 @@ public class DebugControllerTest {
                 .andExpect(content().string(containsString("Hello")))
                 .andDo(document("getDebugInfo"));
     }
-
-    @Test
-    public void debug_getVpcCountAndAllVpcStates() throws Exception {
-        this.mvc.perform(get("/project/all/vpcs"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("getVpcCountAndAllVpcStates"));
-    }
-
-    @Test
-    public void debug_getVpcCount() throws Exception {
-        this.mvc.perform(get("/project/all/vpccount"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("getVpcCount"));
-    }
-
-    @Test
-    public void debug_getAllSubnetStates() throws Exception {
-        this.mvc.perform(get("/project/all/subnets"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("getAllSubnetStates"));
-    }
 }

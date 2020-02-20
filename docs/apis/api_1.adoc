@@ -1,105 +1,105 @@
-== [big blue]*Alcor Controller APIs*
+= [big blue]*Alcor Controller APIs*
+:stylesheet: style1.css
 
 The followings are the RESTful APIs of Alcor controller system.
 
-
-[width="100%",cols="20%,10%,50%,20%"]
+[width="100%",cols="25%,15%,39%,21%"]
 |===
 |*Group* |*Method* |*Request*|*Response*
 
 |<<VPCController>>
-|*GET*
-|xref:vpc_req_1[/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}]
-|
+|GET
+|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|Json(vpc state)
 
 |
-|*POST*
+|POST
 |/project/{projectid}/vpcs
-|
+|Json(vpc state)
 
 |
-|*PUT*
+|PUT
 |/project/{projectid}/vpcs/{vpcid}
-|
+|ResponseId(vpc id)
 
 |
-|*DELETE*
+|DELETE
 |/project/{projectid}/vpcs/{vpcid}
-|
+|ResponseId(vpc id)
 
 |
-|*GET*
+|GET
 |/project/{projectid}/vpcs
-|
+|vpc states
 
-|*Subnet Controller*
-|*GET*
+|<<SubNetController>>
+|GET
 |/project/{projectid}/subnets/{subnetId}
-|
+|Json(subnet state)
 
 |
-|*POST*
+|POST
 |/project/{projectid}/subnets
-|
+|Json(subnet state)
 
 |
-|*PUT*
+|PUT
 |/project/{projectid}/vpcs/{vpcid}/+
 subnets/{subnetid}
-|
+|Json(subnet state)
 
 |
-|*DELETE*
+|DELETE
 |/project/{projectid}/vpcs/{vpcid}/
 subnets/{subnetid}
-|
+|response id
 
 |
-|*GET*
+|GET
 |/project/{projectid}/vpcs/{vpcid}/subnets
-|
+|subnet states
 
-|*Port Controller*
-|*GET*
+|<<PortController>>
+|GET
 |/project/{projectid}/ports/{portId}
-|
+|Json(port state)
 
 |
-|*POST*
+|POST
 |/project/{projectid}/ports
-|
+|Json(customer port state)
 
 |
-|*PUT*
+|PUT
 |/project/{projectid}/ports/{portid}
-|
+|Json(current port state)
 
 |
-|*DELETE*
+|DELETE
 |/project/{projectid}/ports/{portid}
-|
+|ResponseId(portid)
 
 |
-|*GET*
+|GET
 |/project/{projectid}/subnet/+
 {subnetid}/ports
-|
+|port states
 
 |
-|*POST*
+|POST
 |/project/{projectid}/portgroup
-|
+|response id
 
-|*Debug Controller*
-|*GET*
-|*/*
-|
+|<<DebugController>>
+|GET
+|/
+|"Greetings from Alioth!"
 
 |
-|*GET*|/debug|
+|GET|/debug|"Hello \{name}"
 
-||*GET* |/project/all/vpccount*|
-||*GET*|/project/all/subnets|
+||GET |/project/all/vpccount*|Map of Vpc
+||GET|/project/all/subnets|Map of subset states
 |===
 
 [[VPCController]]

@@ -1,8 +1,7 @@
 = [big blue]*Alcor Controller APIs*
-:stylesheet: style2.css
+:stylesheet: style3.css
 
 The followings are the RESTful APIs of Alcor controller system.
-
 
 [width="100%",cols="25%,15%,39%,21%"]
 |===
