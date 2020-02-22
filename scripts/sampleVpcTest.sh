@@ -64,7 +64,7 @@ curl -H "Accept: application/json" -H "Content-Type:application/json" \
 	"binding:host_id": "ephost_0",
 	"binding:profile": null,
 	"binding:vnic_type": null,
-	"network_ns": "test_netw_ns",
+	"network_ns": "/var/run/netns/test_netw_ns",
 	"dnsName": null,
 	"dnsAssignment": null,
 	"fast_path": true }}' | json_pp
