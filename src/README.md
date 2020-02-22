@@ -6,7 +6,7 @@ Please follow the following instruction to set up your development environment a
 ## Setting up a Development Environment
 
 The Alcor controller project currently uses _Apache Maven_ to manage the dependencies and its build.
-We recommend using an Ubuntu or Windows OS for development and functionality testing.
+We recommend using an Ubuntu, Mac OS X or Windows OS for development and functionality testing.
 To compile, run, and test Alcor, please follow the following steps:
 
 Clone the Alcor repository.
@@ -21,7 +21,7 @@ Run the build script to install all needed packages, and clean install the proje
 Windows:
 PS > .\scripts\build.ps1
 
-Ubuntu:
+Ubuntu or Mac OS X:
 $ ./scripts/build.sh
 ```
 
@@ -43,7 +43,7 @@ Set up docker images with the dependencies and run docker containers.
 Windows:
 PS > .\scripts\deploy.ps1
 
-Ubuntu:
+Ubuntu or Mac OS X:
 $ ./scripts/deploy.sh
 ```
 
