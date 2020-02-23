@@ -26,7 +26,7 @@ public class FileLogger extends Logger {
     public FileLogger(Level level, String strDir) throws Exception {
         try {
             String strFileName = makeLogFileName();
-            fileHandler = new FileHandler(strDir + "/" + strFileName, 1024, 96, true);
+            fileHandler = new FileHandler(strDir + "/" + strFileName, 1024 * 1024 * 10, 96, true);
             fileHandler.setLevel(level);
             fileHandler.setFormatter(logFormatter);
             logger.addHandler(fileHandler);
