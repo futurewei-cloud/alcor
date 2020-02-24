@@ -1,8 +1,13 @@
 = Control Plane Rescue Path
 
+Skip local crashed agent and call neighbor agent to pass network configuration
+
 == Introduction
 
-A highly available network control plane is critical to public cloud offerings. As the user base of cloud provider grows at the rate of 10X in just a few years. The network control plane workload faces exponential growth which requires innovative architecture and revolutionary design to support the scale. With the lines of code increase to support complex requirements and customer features, a fail-safe mechanism is needed to handle software failures so that the network control plane can continue to function without customer visible impact.
+A highly available network control plane is critical to public cloud offerings.
+As the user base of cloud provider grows at the rate of 10X in just a few years.
+The network control plane workload faces exponential growth which requires innovative architecture and revolutionary design to support the scale.
+With the lines of code increase to support complex requirements and customer features, a fail-safe mechanism is needed to handle software failures so that the network control plane can continue to function without customer visible impact.
 
 == Architecture
 

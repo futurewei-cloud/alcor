@@ -1,12 +1,8 @@
-# Alcor - A Hyperscale Cloud Virtual Networking Platform
+# Alcor - A Hyperscale Cloud-Native SDN Control Plane
 
 == Introduction
 
-Service mesh based architecture
-
-== Alcor Platform Key Feature Design
-
-== Shared-nothing Micro-service Architecture
+Shared-nothing Micro-service Architecture
 
 * Micro-services design
 ** Each micro-service has its dedicated responsibility (e,g, allocating virtual IPs, virtual MACs) and provides gRPC apis for service access
@@ -17,6 +13,9 @@ Service mesh based architecture
 ** Reduce cache miss rate and hot cache removal due to noisy neighbors
 ** Each service could scale on its own by adding new instances, cache instance and database tables.
 ** No single point of failure issue since there is no central resource bottleneck in the system
+
+
+== Alcor Platform Key Feature Design
 
 === Large Scale
 
@@ -37,7 +36,6 @@ grouping of network configurations and instantaneous provisioning
 === Unified VM/container networking management
 
 === Support agility and velocity in DevOps
-
 * Sidecar model: decouple application and service governance in independent processes, across-language and upgrade decouple
 * Services could be updated independently due to service decoupling
 * Canary-based grey release
@@ -54,6 +52,6 @@ grouping of network configurations and instantaneous provisioning
 === Compatibility
 
 * Compatibility with OpenStack, Kubernetes, and OPNFV
-* Support various layer 2 network techniques (eBPF/Geneve or OVS/VxLan) in different compute nodes
+* Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design).
 ** Open driver framework at Controllers
-** Plugin model for agent (?)
+** Plugin model at Alcor Control Agent

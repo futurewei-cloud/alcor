@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
 syntax = "proto3";
 
 package alcorcontroller;
@@ -8,35 +24,35 @@ option java_outer_classname = "SecurityGroup";
 import "common.proto";
 
 message SecurityGroupConfiguration {
-  int32 version = 1;
+    int32 version = 1;
 
-  string project_id = 2;
-  string vpc_id = 3;
-  string id = 4;
-  string name = 5;
+    string project_id = 2;
+    string vpc_id = 3;
+    string id = 4;
+    string name = 5;
 
-  enum Direction {
-    EGRESS = 0;
-    INGRESS = 1;
-  }
+    enum Direction {
+        EGRESS = 0;
+        INGRESS = 1;
+    }
 
-  message SecurityGroupRule {
-    string security_group_id = 1;
-    string id = 2;
-    Direction direction = 3;
-    EtherType ethertype = 4;
-    Protocol protocol = 5;
+    message SecurityGroupRule {
+        string security_group_id = 1;
+        string id = 2;
+        Direction direction = 3;
+        EtherType ethertype = 4;
+        Protocol protocol = 5;
 
-    int32 port_range_min = 6;
-    int32 port_range_max = 7;
-    string remote_ip_prefix = 8;
-    string remote_group_id = 9;
-  }
- 
-  repeated SecurityGroupRule security_group_rules = 6;
+        int32 port_range_min = 6;
+        int32 port_range_max = 7;
+        string remote_ip_prefix = 8;
+        string remote_group_id = 9;
+    }
+
+    repeated SecurityGroupRule security_group_rules = 6;
 }
 
 message SecurityGroupState {
-  OperationType operation_type = 1;
-  SecurityGroupConfiguration configuration = 2;
+    OperationType operation_type = 1;
+    SecurityGroupConfiguration configuration = 2;
 }

@@ -1,13 +1,31 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
 package com.futurewei.alcor.controller.web;
 
 import com.futurewei.alcor.controller.cache.repo.SubnetRedisRepository;
 import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.exception.*;
+import com.futurewei.alcor.controller.model.ResponseId;
 import com.futurewei.alcor.controller.model.SubnetState;
+import com.futurewei.alcor.controller.model.SubnetStateJson;
 import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.web.util.ControllerUtil;
 import com.futurewei.alcor.controller.web.util.RestPreconditions;
-import com.futurewei.alcor.controller.app.demo.DemoConfig;
-import com.futurewei.alcor.controller.app.demo.DemoUtil;
+import com.futurewei.alcor.controller.app.onebox.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,107 +46,112 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/subnet/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
-    public SubnetState getSubnetStateById(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
+            value = {"/project/{projectid}/subnets/{subnetId}", "v4/{projectid}/subnets/{subnetId}"})
+    public SubnetStateJson getSubnetStateById(@PathVariable String projectid, @PathVariable String subnetId) throws Exception {
 
         SubnetState subnetState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(subnetId);
             RestPreconditions.verifyResourceFound(projectid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetId);
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
         }
 
-        if(subnetState == null){
+        if (subnetState == null) {
             //TODO: REST error code
-            return new SubnetState();
+            return new SubnetStateJson();
         }
 
-        return subnetState;
+        return new SubnetStateJson(subnetState);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/subnet", "v4/{projectid}/subnets"})
+            value = {"/project/{projectid}/subnets", "v4/{projectid}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
-    public SubnetState createSubnetState(@PathVariable String projectid, @RequestBody SubnetState resource) throws Exception {
-        try{
+    public SubnetStateJson createSubnetState(@PathVariable String projectid, @RequestBody SubnetStateJson resource) throws Exception {
+        SubnetState subnetState = null;
+
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditions.verifyResourceNotNull(resource);
+            RestPreconditions.verifyResourceNotNull(resource.getSubnet());
 
             // TODO: Create a verification framework for all resources
-            RestPreconditions.verifyResourceFound(resource.getVpcId());
-            RestPreconditions.populateResourceProjectId(resource, projectid);
+            SubnetState inSubnetState = resource.getSubnet();
+            RestPreconditions.verifyResourceFound(inSubnetState.getVpcId());
+            RestPreconditions.populateResourceProjectId(inSubnetState, projectid);
 
-            this.subnetRedisRepository.addItem(resource);
+            this.subnetRedisRepository.addItem(inSubnetState);
 
-            SubnetState subnetState = this.subnetRedisRepository.findItem(resource.getId());
-            if(subnetState == null){
+            subnetState = this.subnetRedisRepository.findItem(inSubnetState.getId());
+            if (subnetState == null) {
                 throw new ResourcePersistenceException();
             }
 
-            VpcState vpcState = this.vpcRedisRepository.findItem(resource.getVpcId());
-            if(vpcState == null){
+            VpcState vpcState = this.vpcRedisRepository.findItem(inSubnetState.getVpcId());
+            if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
 
-            if(DemoConfig.IS_Demo) {
-                DemoUtil.CreateSubnet(subnetState);
+            if (OneBoxConfig.IS_K8S) {
+                ControllerUtil.CreateSubnet(subnetState, vpcState);
+            } else if (OneBoxConfig.IS_Onebox) {
+                OneBoxUtil.CreateSubnet(subnetState);
             }
-        }
-        catch (ResourceNullException e){
+        } catch (ResourceNullException e) {
             throw new Exception(e);
         }
 
-        return new SubnetState(resource);
+        return new SubnetStateJson(subnetState);
     }
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/vpc/{vpcid}/subnet/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
-    public SubnetState updateSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid, @RequestBody SubnetState resource) throws Exception {
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public SubnetStateJson updateSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid, @RequestBody SubnetStateJson resource) throws Exception {
 
         SubnetState subnetState = null;
 
-        try{
+        try {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
-            RestPreconditions.verifyResourceNotNull(resource);
-            RestPreconditions.populateResourceProjectId(resource, projectid);
-            RestPreconditions.populateResourceVpcId(resource, vpcid);
+            SubnetState inSubnetState = resource.getSubnet();
+            RestPreconditions.verifyResourceNotNull(inSubnetState);
+            RestPreconditions.populateResourceProjectId(inSubnetState, projectid);
+            RestPreconditions.populateResourceVpcId(inSubnetState, vpcid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetid);
-            if(subnetState == null){
+            if (subnetState == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetid);
             }
 
             RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
             RestPreconditions.verifyParameterEqual(subnetState.getVpcId(), vpcid);
 
-            this.subnetRedisRepository.addItem(resource);
+            this.subnetRedisRepository.addItem(inSubnetState);
             subnetState = this.subnetRedisRepository.findItem(subnetid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
 
-        return subnetState;
+        return new SubnetStateJson(subnetState);
     }
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/vpc/{vpcid}/subnet/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
-    public void deleteSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public ResponseId deleteSubnetState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         SubnetState subnetState = null;
 
@@ -138,8 +161,8 @@ public class SubnetController {
             RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
 
             subnetState = this.subnetRedisRepository.findItem(subnetid);
-            if(subnetState == null){
-                return;
+            if (subnetState == null) {
+                return new ResponseId();
             }
 
             RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
@@ -147,16 +170,18 @@ public class SubnetController {
 
             subnetRedisRepository.deleteItem(subnetid);
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ParameterUnexpectedValueException e){
+        } catch (ParameterUnexpectedValueException e) {
             throw new Exception(e);
         }
+
+        return new ResponseId(subnetid);
     }
 
     @RequestMapping(
             method = GET,
-            value = "/project/{projectid}/vpc/{vpcid}/subnets")
+            value = "/project/{projectid}/vpcs/{vpcid}/subnets")
     public Map geSubnetStatesByProjectIdAndVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         Map<String, SubnetState> subnetStates = null;
 
@@ -170,11 +195,11 @@ public class SubnetController {
             subnetStates = subnetStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
                             && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state-> state.getValue()));
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
-        }catch (ParameterNullOrEmptyException e){
+        } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw new Exception(e);
         }
 

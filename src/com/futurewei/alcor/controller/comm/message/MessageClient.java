@@ -1,16 +1,35 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
 package com.futurewei.alcor.controller.comm.message;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import com.futurewei.alcor.controller.comm.config.IKafkaConfiguration;
+import com.futurewei.alcor.controller.logging.Logger;
+import com.futurewei.alcor.controller.logging.LoggerFactory;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 public class MessageClient {
 
@@ -22,9 +41,16 @@ public class MessageClient {
         this.messageProducerFactory = messageProducerFactory;
     }
 
+    // TODO: Determine topic format
+    public static String getGoalStateTopic(String id) {
+        return "Host-" + id;
+    }
+
     public List<?> runConsumer(String topic, boolean keepRunning) {
-        if(this.messageConsumerFactory == null){
-            System.out.printf("No message consumer factory is specified");
+        Logger logger = LoggerFactory.getLogger();
+
+        if (this.messageConsumerFactory == null) {
+            logger.log(Level.INFO, "No message consumer factory is specified");
             return null;
         }
 
@@ -39,7 +65,7 @@ public class MessageClient {
 
             if (consumerRecords.count() == 0) {
                 noMessageFound++;
-                System.out.println("No message found :" + noMessageFound);
+                logger.log(Level.INFO, "No message found :" + noMessageFound);
 
                 if (noMessageFound > IKafkaConfiguration.MAX_NO_MESSAGE_FOUND_COUNT)
                     // If no message found count is reached to threshold exit loop.
@@ -50,14 +76,13 @@ public class MessageClient {
 
             //print each record.
             consumerRecords.forEach(record -> {
-                System.out.println("Record Key " + record.key());
-                System.out.println("Record value " + record.value());
-                System.out.println("Record partition " + record.partition());
-                System.out.println("Record offset " + record.offset());
+                logger.log(Level.INFO, "Record Key " + record.key());
+                logger.log(Level.INFO, "Record value " + record.value());
+                logger.log(Level.INFO, "Record partition " + record.partition());
+                logger.log(Level.INFO, "Record offset " + record.offset());
 
                 recordsValue.add(record.value());
             });
-
             // commits the offset of record to broker.
             consumer.commitAsync();
         }
@@ -67,8 +92,9 @@ public class MessageClient {
     }
 
     public void runProducer(String topic, Object message, int messageCount) {
-        if(this.messageProducerFactory == null){
-            System.out.printf("No message producer factory is specified");
+        Logger logger = LoggerFactory.getLogger();
+        if (this.messageProducerFactory == null) {
+            logger.log(Level.INFO, "No message producer factory is specified");
             return;
         }
 
@@ -79,26 +105,17 @@ public class MessageClient {
             ProducerRecord<Long, Object> record = new ProducerRecord(topic, message);
             try {
                 RecordMetadata metadata = (RecordMetadata) producer.send(record).get();
-                System.out.println("Record sent with key " + index + " to partition " + metadata.partition()
+                logger.log(Level.INFO, "Record sent with key " + index + " to partition " + metadata.partition()
                         + " with offset " + metadata.offset());
-            }
-            catch (ExecutionException e) {
-                System.out.println("Error in sending record");
-                System.out.println(e);
-            }
-            catch (InterruptedException e) {
-                System.out.println("Error in sending record");
-                System.out.println(e);
+            } catch (ExecutionException e) {
+                logger.log(Level.SEVERE, "Error in sending record", e);
+            } catch (InterruptedException e) {
+                logger.log(Level.SEVERE, "Error in sending record", e);
             }
         }
     }
 
     public void runProducer(String topic, Object message) {
         this.runProducer(topic, message, 1);
-    }
-
-    // TODO: Determine topic format
-    public static String getGoalStateTopic(String id){
-        return "Host-" + id;
     }
 }

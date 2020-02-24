@@ -49,5 +49,3 @@ Service mesh
 |Option 2: API server centric design | | Simplied database access by standard API calls 
 |Option 3: Service centric design| |
 |====================
-
-

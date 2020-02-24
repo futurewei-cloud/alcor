@@ -1,4 +1,4 @@
-= Alioth Controller API documents
+= Alcor Controller API documents
 
 .request
 include::{snippets}/home/http-request.adoc[]
