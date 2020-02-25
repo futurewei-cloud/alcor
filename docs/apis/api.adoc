@@ -1,5 +1,4 @@
 = [big blue]*Alcor Controller APIs*
-:stylesheet: style.css
 
 The followings are the RESTful APIs of Alcor controller system.
 
