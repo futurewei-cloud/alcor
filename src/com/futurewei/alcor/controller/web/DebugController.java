@@ -36,10 +36,10 @@ public class DebugController {
     private final AtomicLong counter = new AtomicLong();
 
     @Autowired
-    public VpcRedisRepository vpcRedisRepository;
+    private VpcRedisRepository vpcRedisRepository;
 
     @Autowired
-    public SubnetRedisRepository subnetRedisRepository;
+    private SubnetRedisRepository subnetRedisRepository;
 
     @RequestMapping("/")
     public String index() {
