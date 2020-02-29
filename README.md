@@ -2,7 +2,7 @@
 A Hyperscale Cloud Native SDN Platform
 
 * For information about how to use Alcor, visit [Getting Started](src/README.md)
-* To ask questions, raise feature requests and get assistance from our community, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues)
+* To ask questions, raise feature requests and get assistance from our community, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues) or [Google Group](https://groups.google.com/forum/#!forum/alcor-dev)
 * To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki).
 For example, [Kubernetes cluster setup guide with Alcor](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
 shows how to use Alcor for Kubernetes container network provisioning.
