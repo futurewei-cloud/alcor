@@ -13,50 +13,46 @@ TBD
 . Performance, both control plane programming throughput and latency, is a priority
 . A VPC/Subnet will only support one type of DP (e.g. OVS or mizar)
 
-== Basic flow applicable to all options:
+== Current ACA Layered Design
+
+The current ACA implementation already have the core GS parsing logic in one place regardless of the dataplane, until the actual processing of the VPC/Subnet/port configuration which is dataplane dependent, thanks to the implementation of parallel programming workitem implementation. We can simply put the dataplane dependent code into different classes, or do fancy stuff like load library/plugin during runtime.
+
+== Basic flow applicable to all options
 
 . Customer creates a VM from UI or API
 . Customer picks an existing VPC and Subnet, or create one on the creation wizard (UI)
-. The VM creation call goes to Nova and scheduler pick an appropriate compute host to place the VM
-.. Schedule should pick a compute host with correct dataplane support (e.g. OVS)
-. Nova will call Alcor Controller (was Neutron server) to allocate network
-. Nova compute host agent will add tap device to connect the VM to OVS br_int
-.. Need to investigate if we need to change to ACA take care of that
+. The VM creation API call goes to Nova scheduler pick an appropriate compute host to place the VM
+.. Scheduler should pick a compute host with correct dataplane support (e.g. OVS)
+. Nova compute will call Alcor Controller (was Neutron server) to allocate network
+. Nova host agent will add tap device to connect the VM to OVS br_int
+.. Need to investigate if we should let ACA to do it
 . Alcor controller push down goal state to the corresponding compute host(s) and network node(s)
-. Two major endpoint host goal state updates:
+. Two major endpoint host goal state updates to point out:
 .. Port operation: CREATE: to setup the network device and start dataplane programming
 .. Port operation: FINALIZE: complete rest of dataplane programming and mark the device as ready to use
 
-== Option one: Abstraction at Alcor Controller layer:
+== Option one: Abstraction at Alcor Controller layer
 
 . When Nova calls Alcor Controller to allocate network, it will pass down explicit information on which dataplane to program (OVS or mizar)
 .. Code maintainability and debuggability is better because the intent is explicit
 . Alcor Controller will invoke the OVS or mizar programming flow accordingly
 .. Performance is better because endpoint programming and switch/router programming can be done in parallel
 . Goal state message sends to ACA will explicitly say which dataplane to program
-.. ACA will return explicit error if that dataplane is not supported on a host
+.. ACA should return explicit error if that dataplane is not supported on a host
+.. This approach can support concurrent dataplanes available on the same host, although it is not a priority
 
 *src/schema/proto3/goalstate.proto*
 [source,java]
 ------------------------------------------------------------
-enum DataplaneType {
+enum DataplaneType { // ***NEW***
     OVS = 0;
     MIZAR = 1;
 }
 
-syntax = "proto3";
-
-package alcorcontroller;
-
-option java_package = "com.futurewei.alcor.controller.schema";
-
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "securitygroup.proto";
+/* snipped out */
 
 message GoalState {
-    DataplaneType dataplane_type = 1;
+    DataplaneType dataplane_type = 1; // ***NEW***
     repeated VpcState vpc_states = 2;
     repeated SubnetState subnet_states = 3;
     repeated PortState port_states = 4;
@@ -64,14 +60,74 @@ message GoalState {
 }
 ------------------------------------------------------------
 
-== Option two: Abstraction at Alcor Control Agent (ACA) layer:
+*src/schema/proto3/goalstateprovisioner.proto*
+[source,java]
+------------------------------------------------------------
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    INVALID_ARG = 2;
+    UNSUPPORTED_DATAPLANE = 3 // ***NEW***
+}
 
-. When Nova calls Alcor Controller to allocate network, it does NOT need to pass down explicit information on which dataplane to program (OVS or mizar)
+/* snipped out */
+
+message GoalStateOperationReply {
+
+    repeated GoalStateOperationStatus operation_statuses = 1;
+    uint32 message_total_operation_time = 2;
+
+    message GoalStateOperationStatus {
+        string resource_id = 1;
+        ResourceType resource_type = 2;
+        OperationType operation_type = 3;
+        OperationStatus operation_status = 4;
+        uint32 dataplane_programming_time = 5;
+        uint32 network_configuration_time = 6;
+        uint32 state_elapse_time = 7;
+    }
+}
+------------------------------------------------------------
+
+== Option two: Abstraction at Alcor Control Agent (ACA) layer
+
+. When Nova compute calls Alcor Controller to allocate network, it does NOT need to pass down explicit information on which dataplane to program (OVS or mizar)
 . ACA will be configured with dataplane mode during startup time (e.g. config file, plugin)
+.. Note that this approach does not support concurrent dataplanes implementation on the host
 . Alcor Controller doesn’t need to know which dataplane to program when sending down Port operation: CREATE   
 . When ACA receives goal state update with Port operation: CREATE
 .. It will setup the network device according to the configure dataplane (OVS or mizar)
 .. ACA will reply to the goal state update message to let Alcor controller know additional work is needed for this endpoint to work, and on which dataplane:
 ... OVS: L3 router programming
-... mizar: transit switch/router programming
+... mizar: mizar bouncer/divider programming
 .. Once the additional work is done, Alcor Controller will send Port operation: FINALIZE to finish the endpoint setup
+
+*src/schema/proto3/goalstateprovisioner.proto*
+[source,java]
+------------------------------------------------------------
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    INVALID_ARG = 2;
+    OVS_PROGRAMMING_NEEDED = 3 // ***NEW***
+    MIZAR_PROGRAMMING_NEEDED = 4 // ***NEW***
+}
+
+/* snipped out */
+
+message GoalStateOperationReply {
+
+    repeated GoalStateOperationStatus operation_statuses = 1;
+    uint32 message_total_operation_time = 2;
+
+    message GoalStateOperationStatus {
+        string resource_id = 1;
+        ResourceType resource_type = 2;
+        OperationType operation_type = 3;
+        OperationStatus operation_status = 4;
+        uint32 dataplane_programming_time = 5;
+        uint32 network_configuration_time = 6;
+        uint32 state_elapse_time = 7;
+    }
+}
+------------------------------------------------------------
