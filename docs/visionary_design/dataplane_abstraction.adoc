@@ -15,7 +15,7 @@ TBD
 
 == Current ACA Layered Design
 
-The current ACA implementation already have the core GS parsing logic in one place regardless of the dataplane, until the actual processing of the VPC/Subnet/port configuration which is dataplane dependent, thanks to the implementation of parallel programming workitem implementation. We can simply put the dataplane dependent code into different classes, or do fancy stuff like load library/plugin during runtime.
+The current ACA implementation already have the core GS parsing logic in one place regardless of the dataplane, until the actual processing of the VPC/Subnet/port configuration which is dataplane dependent, thanks to the implementation of parallel programming workitem design. We can simply put the dataplane dependent code into different class, or do stuff like load library/plugin during runtime.
 
 == Basic flow applicable to all options
 
@@ -33,7 +33,7 @@ The current ACA implementation already have the core GS parsing logic in one pla
 
 == Option one: Abstraction at Alcor Controller layer
 
-. When Nova calls Alcor Controller to allocate network, it will pass down explicit information on which dataplane to program (OVS or mizar)
+. When Nova compute calls Alcor Controller to allocate network, it will pass down explicit information on which dataplane to program (OVS or mizar)
 .. Code maintainability and debuggability is better because the intent is explicit
 . Alcor Controller will invoke the OVS or mizar programming flow accordingly
 .. Performance is better because endpoint programming and switch/router programming can be done in parallel
@@ -100,7 +100,7 @@ message GoalStateOperationReply {
 .. ACA will reply to the goal state update message to let Alcor controller know additional work is needed for this endpoint to work, and on which dataplane:
 ... OVS: L3 router programming
 ... mizar: mizar bouncer/divider programming
-.. Once the additional work is done, Alcor Controller will send Port operation: FINALIZE to finish the endpoint setup
+.. Once the additional work is done, Alcor Controller will send Port operation: FINALIZE to finish the endpoint setup on the host
 
 *src/schema/proto3/goalstateprovisioner.proto*
 [source,java]
