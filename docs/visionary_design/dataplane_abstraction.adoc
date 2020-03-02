@@ -1,0 +1,49 @@
+= Control Plane Fast Path
+Eric Li <sze.li@futurewei.com>
+v0.1, 2020-03-01
+:toc: right
+
+== Introduction
+
+TBD
+
+== Assumptions
+
+. It is unlikely to have multiple dataplane supported at the same host (e.g. OVS + mizar)
+. Performance, both control plane programming throughput and latency, is a priority
+. A VPC/Subnet will only support one type of DP (e.g. OVS or mizar)
+
+== Basic flow applicable to all options:
+
+. Customer creates a VM from UI or API
+. Customer picks an existing VPC and Subnet, or create one on the creation wizard (UI)
+. The VM creation call goes to Nova and scheduler pick an appropriate compute host to place the VM
+.. Schedule should pick a compute host with correct dataplane support (e.g. OVS)
+. Nova will call Alcor Controller (was Neutron server) to allocate network
+. Nova compute host agent will add tap device to connect the VM to OVS br_int
+.. Need to investigate if we need to change to ACA take care of that
+. Alcor controller push down goal state to the corresponding compute host(s) and network node(s)
+. Two major endpoint host goal state updates:
+.. Port operation: CREATE: to setup the network device and start dataplane programming
+.. Port operation: FINALIZE: complete rest of dataplane programming and mark the device as ready to use
+
+== Option one: Abstraction at Alcor Controller layer:
+
+. When Nova calls Alcor Controller to allocate network, it will pass down explicit information on which dataplane to program (OVS or mizar)
+.. Code maintainability and debuggability is better because the intent is explicit
+. Alcor Controller will invoke the OVS or mizar programming flow accordingly
+.. Performance is better because endpoint programming and switch/router programming can be done in parallel
+. Goal state message sends to ACA will explicitly say which dataplane to program
+.. ACA will return explicit error if that dataplane is not supported on a host
+
+== Option two: Abstraction at Alcor Control Agent (ACA) layer:
+
+. When Nova calls Alcor Controller to allocate network, it does NOT need to pass down explicit information on which dataplane to program (OVS or mizar)
+. ACA will be configured with dataplane mode during startup time (e.g. config file, plugin)
+. Alcor Controller doesn’t need to know which dataplane to program when sending down Port operation: CREATE   
+. When ACA receives goal state update with Port operation: CREATE
+.. It will setup the network device according to the configure dataplane (OVS or mizar)
+.. ACA will reply to the goal state update message to let Alcor controller know additional work is needed for this endpoint to work, and on which dataplane:
+... OVS: L3 router programming
+... mizar: transit switch/router programming
+.. Once the additional work is done, Alcor Controller will send Port operation: FINALIZE to finish the endpoint setup
