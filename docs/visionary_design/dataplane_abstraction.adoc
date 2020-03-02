@@ -9,8 +9,7 @@ TBD
 
 == Assumptions
 
-. It is unlikely to have multiple dataplane supported at the same host (e.g. OVS + mizar)
-. Performance, both control plane programming throughput and latency, is a priority
+. Performance, both control plane programming throughput and latency, is a requirement and priority
 . A VPC/Subnet will only support one type of DP (e.g. OVS or mizar)
 
 == Current ACA Layered Design
@@ -22,7 +21,6 @@ The current ACA implementation already have the core GS parsing logic in one pla
 . Customer creates a VM from UI or API
 . Customer picks an existing VPC and Subnet, or create one on the creation wizard (UI)
 . The VM creation API call goes to Nova scheduler pick an appropriate compute host to place the VM
-.. Scheduler should pick a compute host with correct dataplane support (e.g. OVS)
 . Nova compute will call Alcor Controller (was Neutron server) to allocate network
 . Nova host agent will add tap device to connect the VM to OVS br_int
 .. Need to investigate if we should let ACA to do it
@@ -30,6 +28,7 @@ The current ACA implementation already have the core GS parsing logic in one pla
 . Two major endpoint host goal state updates to point out:
 .. Port operation: CREATE: to setup the network device and start dataplane programming
 .. Port operation: FINALIZE: complete rest of dataplane programming and mark the device as ready to use
+.. Investigate to see if we can combine the two port operations
 
 == Option one: Abstraction at Alcor Controller layer
 
