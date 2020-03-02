@@ -98,7 +98,7 @@ message GoalStateOperationReply {
 . When ACA receives goal state update with Port operation: CREATE
 .. It will setup the network device according to the configure dataplane (OVS or mizar)
 .. ACA will reply to the goal state update message to let Alcor controller know additional work is needed for this endpoint to work, and on which dataplane:
-... OVS: L3 router programming
+... OVS: L3 router programming (to be confirmed)
 ... mizar: mizar bouncer/divider programming
 .. Once the additional work is done, Alcor Controller will send Port operation: FINALIZE to finish the endpoint setup on the host
 
