@@ -7,6 +7,7 @@ import org.apache.ignite.client.ClientCache;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
+@ConditionalOnBean(IgniteClient.class)
 public class VpcIgniteRepository implements ICacheRepository<VpcState> {
     private static final Logger logger = LoggerFactory.getLogger();
     private static final String KEY = "VpcState";

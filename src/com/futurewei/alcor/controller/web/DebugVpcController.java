@@ -13,15 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
 @RestController
 public class DebugVpcController {
-    @Autowired
+    @Autowired(required = false)
     private VpcIgniteRepository vpcIgniteRepository;
 
     @RequestMapping(
