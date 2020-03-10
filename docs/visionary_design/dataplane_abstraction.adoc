@@ -10,7 +10,7 @@ TBD
 == Assumptions
 
 . Performance, both control plane programming throughput and latency, is a requirement and priority
-. *** UPDATED*** A VPC project network may support more than one type of dataplane (e.g. VXLAN_OVS and VLAN_OVS)
+. *** UPDATED *** A VPC project network may support more than one type of dataplane (e.g. VXLAN_OVS and VLAN_OVS)
 
 == Current ACA Layered Design
 
@@ -22,7 +22,7 @@ The current ACA implementation already have the core GS parsing logic in one pla
 . Customer picks an existing VPC and Subnet, or create one on the creation wizard (UI)
 . The VM creation API call goes to Nova scheduler pick an appropriate compute host to place the VM
 . Nova compute will call Alcor Controller (was Neutron server) to allocate network
-.. ***UPDATED*** see if we can have Nova compute to pass down the host info to Alcor Controller
+.. *** UPDATED *** see if we can have Nova compute to pass down the host info to Alcor Controller
 . Nova host agent will add tap device to connect the VM to OVS br_int
 . Alcor controller push down goal state to the corresponding compute host(s) and network node(s)
 . Two major endpoint host goal state updates to point out:
@@ -30,14 +30,14 @@ The current ACA implementation already have the core GS parsing logic in one pla
 .. Port operation: FINALIZE: complete rest of dataplane programming and mark the device as ready to use
 .. Investigate to see if we can combine the two port operations
 
-== Abstraction at Alcor Control Plane ***UPDATED***
+== Abstraction at Alcor Control Plane *** UPDATED ***
 
 . ACA and Alcor Controller will be configured with supported network type and default during startup time (e.g. config file)
 .. Note that this approach does support concurrent network type (e.g. VXLAN and VLAN) on the host 
 . When Nova compute calls Alcor Controller to allocate network, it can either
 .. NOT specify the dataplane type, so it will use the Alcor Controller default
 .. Specify the network type, Alcor controller will leverage that for processing, ACA running on compute host will try to see if it is supported, else return UNSUPPORTED_DATAPLANE
-.. ***QUESTION*** Do we want to go with always explicit approach?
+.. *** QUESTION *** Do we want to go with always explicit approach?
 . Alcor Controller can specify which network type to program or just use default when sending down Port operation: CREATE
 .. Note that Neutron server is always explicit on the network type when sending down port detail
 . When ACA receives goal state update with Port operation: CREATE (in one shot, not calling operation FINALIZE anymore)
@@ -47,7 +47,7 @@ The current ACA implementation already have the core GS parsing logic in one pla
 *src/schema/proto3/goalstate.proto*
 [source,java]
 ------------------------------------------------------------
-enum NetworkType { // ***NEW*** ***UPDATED***
+enum NetworkType { // ***NEW*** *** UPDATED ***
     VXLAN = 0;      // use the default type configured in compute host ACA
     VLAN = 1;
     GRE = 2;
