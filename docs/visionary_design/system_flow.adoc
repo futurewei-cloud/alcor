@@ -1,6 +1,12 @@
 = Key System Flows
 
+Option 1:
+
 image::images/workflow_create.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/workflow_create.JPG"]
+
+Option 2:
+
+image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option2.JPG"]
 
 == VPC Creation
 
