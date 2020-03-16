@@ -1,6 +1,6 @@
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.cache.repo.VpcIgniteRepository;
+import com.futurewei.alcor.controller.cache.repo.VpcRepository;
 import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;
@@ -19,7 +19,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 @RestController
 public class DebugVpcController {
     @Autowired(required = false)
-    private VpcIgniteRepository vpcIgniteRepository;
+    private VpcRepository vpcRepository;
 
     @RequestMapping(
             method = GET,
@@ -33,7 +33,7 @@ public class DebugVpcController {
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceFound(projectid);
 
-            vpcState = this.vpcIgniteRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -61,9 +61,9 @@ public class DebugVpcController {
             RestPreconditions.verifyResourceNotNull(inVpcState);
             RestPreconditions.populateResourceProjectId(inVpcState, projectid);
 
-            this.vpcIgniteRepository.addItem(inVpcState);
+            this.vpcRepository.addItem(inVpcState);
 
-            vpcState = this.vpcIgniteRepository.findItem(inVpcState.getId());
+            vpcState = this.vpcRepository.findItem(inVpcState.getId());
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
@@ -92,14 +92,14 @@ public class DebugVpcController {
             RestPreconditions.populateResourceProjectId(inVpcState, projectid);
             RestPreconditions.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcIgniteRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcIgniteRepository.addItem(inVpcState);
+            this.vpcRepository.addItem(inVpcState);
 
-            vpcState = this.vpcIgniteRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -119,12 +119,12 @@ public class DebugVpcController {
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceFound(projectid);
 
-            vpcState = this.vpcIgniteRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 return new ResponseId();
             }
 
-            vpcIgniteRepository.deleteItem(vpcid);
+            vpcRepository.deleteItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }

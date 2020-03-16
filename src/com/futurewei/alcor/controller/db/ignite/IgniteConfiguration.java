@@ -1,4 +1,4 @@
-package com.futurewei.alcor.controller.cache.ignite;
+package com.futurewei.alcor.controller.db.ignite;
 
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;

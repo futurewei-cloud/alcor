@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.controller.cache.config;
+package com.futurewei.alcor.controller.db.redis;
 
 import com.futurewei.alcor.controller.cache.message.ICachePublisher;
 import com.futurewei.alcor.controller.cache.message.RedisListener;
