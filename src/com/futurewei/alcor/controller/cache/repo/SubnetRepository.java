@@ -6,10 +6,15 @@ import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.SubnetState;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.stereotype.Repository;
+
 import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.logging.Level;
 
+@Repository
+@ConditionalOnBean(Database.class)
 public class SubnetRepository implements ICacheRepository<SubnetState> {
     private static final Logger logger = LoggerFactory.getLogger();
     private static final String KEY = "SubnetState";
