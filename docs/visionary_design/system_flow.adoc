@@ -25,6 +25,7 @@ image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet
 Neutron uses RPC over message queue for Neutron server and compute host agent communication. As more features are added to neutron, more RPC calls are added support feature like Security Group, DVR, smartnic.
 
 The communication channel is quite chatty, it involves at least 5 RPC calls to setup a new port on a compute host on a typical setup with security group and DVR:
+
 . get_devices_details_list_and_failed_devices - agent calls neutron server to get detail on a newly discover port
 . get_subnet_for_dvr - agent calls neutron server to get the subnet information on the new port
 . get_ports_on_host_by_subnet - agent call neutron for a list of ports on the host to update DVR
