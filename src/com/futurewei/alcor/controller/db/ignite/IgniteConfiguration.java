@@ -43,11 +43,15 @@ public class IgniteConfiguration {
     @Bean
     public IgniteClient igniteClientInstance() {
         ClientConfiguration cfg = new ClientConfiguration()
-                .setAddresses(host + ":" + port)
-                .setSslClientCertificateKeyStorePath(keyStorePath)
-                .setSslClientCertificateKeyStorePassword(keyStorePassword)
-                .setSslTrustCertificateKeyStorePath(trustStorePath)
-                .setSslTrustCertificateKeyStorePassword(trustStorePassword);
+                .setAddresses(host + ":" + port);
+
+        if (keyStorePath != null && keyStorePassword != null &&
+                trustStorePath != null && trustStorePassword != null) {
+            cfg.setSslClientCertificateKeyStorePath(keyStorePath)
+                    .setSslClientCertificateKeyStorePassword(keyStorePassword)
+                    .setSslTrustCertificateKeyStorePath(trustStorePath)
+                    .setSslTrustCertificateKeyStorePassword(trustStorePassword);
+        }
 
         IgniteClient igniteClient = null;
 
