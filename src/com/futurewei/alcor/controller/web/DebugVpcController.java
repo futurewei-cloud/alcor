@@ -1,10 +1,9 @@
 package com.futurewei.alcor.controller.web;
 
 import com.futurewei.alcor.controller.cache.repo.VpcRepository;
-import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
-import com.futurewei.alcor.controller.exception.ResourceNullException;
-import com.futurewei.alcor.controller.exception.ResourcePersistenceException;
+import com.futurewei.alcor.controller.exception.CacheException;
+import com.futurewei.alcor.controller.db.Transaction;
+import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.ResponseId;
 import com.futurewei.alcor.controller.model.VpcState;
 import com.futurewei.alcor.controller.model.VpcStateJson;
@@ -12,6 +11,9 @@ import com.futurewei.alcor.controller.web.util.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -48,6 +50,29 @@ public class DebugVpcController {
     }
 
     @RequestMapping(
+            method = GET,
+            value = "/debug/project/all/vpcs")
+    public Map getVpcCountAndAllVpcStates() throws CacheException {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = vpcRepository.findAllItems();
+        result.put("Count", dataItems.size());
+        result.put("Vpcs", dataItems);
+
+        return result;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = "/debug/project/all/vpccount")
+    public Map getVpcCount() throws CacheException {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = vpcRepository.findAllItems();
+        result.put("Count", dataItems.size());
+
+        return result;
+    }
+
+    @RequestMapping(
             method = POST,
             value = {"/debug/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
@@ -61,9 +86,14 @@ public class DebugVpcController {
             RestPreconditions.verifyResourceNotNull(inVpcState);
             RestPreconditions.populateResourceProjectId(inVpcState, projectid);
 
-            this.vpcRepository.addItem(inVpcState);
+            Transaction transaction = this.vpcRepository.getCache().getTransaction();
+            transaction.start();
 
+            this.vpcRepository.addItem(inVpcState);
             vpcState = this.vpcRepository.findItem(inVpcState.getId());
+
+            transaction.commit();
+
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }

@@ -1,6 +1,8 @@
 package com.futurewei.alcor.controller.db.ignite;
 
 import com.futurewei.alcor.controller.db.ICache;
+import com.futurewei.alcor.controller.db.Transaction;
+import com.futurewei.alcor.controller.exception.CacheException;
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
 import org.apache.ignite.cache.query.Query;
@@ -19,10 +21,13 @@ import java.util.stream.Collectors;
 
 public class IgniteCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
-    private static final int QUERY_PAGE_SIZE = 1000;
     private ClientCache<K, V> cache;
+    private IgniteClient igniteClient;
+    private IgniteTransaction transaction;
 
     public IgniteCache(IgniteClient igniteClient, String name) {
+        this.igniteClient = igniteClient;
+
         try {
             cache = igniteClient.getOrCreateCache(name);
         }
@@ -33,42 +38,77 @@ public class IgniteCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
+        transaction = new IgniteTransaction(igniteClient);
+
         Assert.notNull(igniteClient, "Create cache for vpc failed");
     }
 
     @Override
-    public V get(K var1) {
-        return cache.get(var1);
+    public V get(K key) throws CacheException {
+        try {
+            return cache.get(key);
+        }catch (ClientException e) {
+            logger.log(Level.WARNING, "IgniteCache get operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
     }
 
     @Override
-    public void put(K var1, V var2) {
-        cache.put(var1, var2);
+    public void put(K key, V value) throws CacheException {
+        try {
+            cache.put(key, value);
+        }catch (ClientException e) {
+            logger.log(Level.WARNING, "IgniteCache put operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
     }
 
     @Override
-    public boolean containsKey(K var1) {
-        return cache.containsKey(var1);
+    public boolean containsKey(K key) throws CacheException {
+        try {
+            return cache.containsKey(key);
+        }catch (ClientException e) {
+            logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
     }
 
     @Override
-    public Map<K, V> getAll() {
-        Query<Cache.Entry<K, V>> qry = new ScanQuery<K, V>
-                ((k, v) -> k != null) .setPageSize(QUERY_PAGE_SIZE);
+    public Map<K, V> getAll() throws CacheException {
+        Query<Cache.Entry<K, V>> qry = new ScanQuery<K, V>();
 
-        QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
-
-        return cur.getAll().stream().collect(Collectors
-                .toMap(Cache.Entry::getKey, Cache.Entry::getValue));
+        try {
+            QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
+            return cur.getAll().stream().collect(Collectors
+                    .toMap(Cache.Entry::getKey, Cache.Entry::getValue));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "IgniteCache getAll operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> var1) {
-        cache.putAll(var1);
+    public void putAll(Map<? extends K, ? extends V> items) throws CacheException {
+        try {
+            cache.putAll(items);
+        }catch (ClientException e) {
+            logger.log(Level.WARNING, "IgniteCache putAll operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
     }
 
     @Override
-    public boolean remove(K var1) {
-        return cache.remove(var1);
+    public boolean remove(K key) throws CacheException {
+        try {
+            return cache.remove(key);
+        }catch (ClientException e) {
+            logger.log(Level.WARNING, "IgniteCache remove operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Transaction getTransaction() {
+        return transaction;
     }
 }

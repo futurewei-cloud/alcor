@@ -1,7 +1,8 @@
 package com.futurewei.alcor.controller.cache.repo;
 
-import com.futurewei.alcor.controller.db.Database;
+import com.futurewei.alcor.controller.db.CacheFactory;
 import com.futurewei.alcor.controller.db.ICache;
+import com.futurewei.alcor.controller.exception.CacheException;
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.PortState;
@@ -14,39 +15,40 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ConditionalOnBean(Database.class)
+@ConditionalOnBean(CacheFactory.class)
 public class PortRepository implements ICacheRepository<PortState> {
     private static final Logger logger = LoggerFactory.getLogger();
-    private static final String KEY = "PortState";
 
     private ICache<String, PortState> cache;
 
     @Autowired
-    public PortRepository(Database database) {
-        cache = database.getPortCache(KEY);
+    public PortRepository(CacheFactory cacheFactory) {
+        cache = cacheFactory.getCache(PortState.class);
     }
 
     @PostConstruct
-    private void init() {}
+    private void init() {
+        logger.log(Level.INFO, "PortRepository init completed");
+    }
 
     @Override
-    public PortState findItem(String id) {
+    public PortState findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map findAllItems() {
+    public Map findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(PortState newItem) {
+    public void addItem(PortState newItem) throws CacheException {
         logger.log(Level.INFO, "Port Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);
     }
 
     @Override
-    public void deleteItem(String id) {
+    public void deleteItem(String id) throws CacheException {
         cache.remove(id);
     }
 }

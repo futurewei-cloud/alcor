@@ -28,9 +28,26 @@ public class IgniteConfiguration {
     @Value("${ignite.port}")
     private Integer port;
 
+    @Value("${ignite.key-store-path}")
+    private String keyStorePath;
+
+    @Value("${ignite.key-store-password}")
+    private String keyStorePassword;
+
+    @Value("${ignite.trust-store-path}")
+    private String trustStorePath;
+
+    @Value("${ignite.trust-store-password}")
+    private String trustStorePassword;
+
     @Bean
     public IgniteClient igniteClientInstance() {
-        ClientConfiguration cfg = new ClientConfiguration().setAddresses(host + ":" + String.valueOf(port));
+        ClientConfiguration cfg = new ClientConfiguration()
+                .setAddresses(host + ":" + port)
+                .setSslClientCertificateKeyStorePath(keyStorePath)
+                .setSslClientCertificateKeyStorePassword(keyStorePassword)
+                .setSslTrustCertificateKeyStorePath(trustStorePath)
+                .setSslTrustCertificateKeyStorePassword(trustStorePassword);
 
         IgniteClient igniteClient = null;
 
