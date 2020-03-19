@@ -1,24 +1,31 @@
 = Key System Flows
 
-Option 1:
+//Option 1:
+//
+//image::images/workflow_create.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/workflow_create.JPG"]
+//
+//Option 2:
+//
+//image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option2.JPG"]
 
-image::images/workflow_create.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/workflow_create.JPG"]
+== VPC/Subnet/Port Workflow
 
-Option 2:
+These creation workflow involves multiple microservice types
 
-image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option2.JPG"]
+. Customer Resource Management services, each managing a specific resource including VPC, subnet, port, route, IP and MAC
+. Infrastructure services that are invisible to end-users including data-plane managers and node manager
 
-== VPC Creation
+=== Creation Workflow
 
-== Subnet Creation/Update
+image::images/Create_workflow_option3.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option3.jpg"]
 
-== Port Creation/Update
+=== Update Workflow
 
-== VPC Deletion
+=== Deletion Workflow
 
-== Subnet Deletion
+== Gateway/Router Workflow
 
-== Port Deletion
+== Security Group and Network ACL Workflow
 
 == Reference: Neutron High Level Flow
 
