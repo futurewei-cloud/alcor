@@ -28,16 +28,16 @@ public class IgniteConfiguration {
     @Value("${ignite.port}")
     private Integer port;
 
-    @Value("${ignite.key-store-path}")
+    @Value("${ignite.key-store-path:#{null}}")
     private String keyStorePath;
 
-    @Value("${ignite.key-store-password}")
+    @Value("${ignite.key-store-password:#{null}}")
     private String keyStorePassword;
 
-    @Value("${ignite.trust-store-path}")
+    @Value("${ignite.trust-store-path:#{null}}")
     private String trustStorePath;
 
-    @Value("${ignite.trust-store-password}")
+    @Value("${ignite.trust-store-password:#{null}}")
     private String trustStorePassword;
 
     @Bean
