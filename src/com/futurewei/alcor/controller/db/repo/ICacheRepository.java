@@ -14,17 +14,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.controller.cache.repo;
+package com.futurewei.alcor.controller.db.repo;
+
+import com.futurewei.alcor.controller.exception.CacheException;
 
 import java.util.Map;
 
 public interface ICacheRepository<T> {
 
-    T findItem(String id);
+    T findItem(String id) throws CacheException;
 
-    Map<String, T> findAllItems();
+    Map<String, T> findAllItems() throws CacheException;
 
-    void addItem(T newItem);
+    void addItem(T newItem) throws CacheException;
 
-    void deleteItem(String id);
+    void deleteItem(String id) throws CacheException;
 }
