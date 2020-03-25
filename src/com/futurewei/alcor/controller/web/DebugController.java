@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.cache.repo.SubnetRedisRepository;
-import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
+import com.futurewei.alcor.controller.db.repo.SubnetRedisRepository;
+import com.futurewei.alcor.controller.db.repo.VpcRedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

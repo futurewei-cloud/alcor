@@ -18,7 +18,7 @@ package com.futurewei.alcor.controller.app;
 
 import com.futurewei.alcor.controller.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.controller.app.onebox.OneBoxUtil;
-import com.futurewei.alcor.controller.cache.config.RedisConfiguration;
+import com.futurewei.alcor.controller.db.redis.RedisConfiguration;
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
