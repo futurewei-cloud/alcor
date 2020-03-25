@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.cache.repo.SubnetRedisRepository;
-import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
+import com.futurewei.alcor.controller.db.repo.SubnetRedisRepository;
+import com.futurewei.alcor.controller.db.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.exception.*;
 import com.futurewei.alcor.controller.model.ResponseId;
 import com.futurewei.alcor.controller.model.SubnetState;

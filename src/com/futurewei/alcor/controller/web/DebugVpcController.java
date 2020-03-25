@@ -1,6 +1,6 @@
 package com.futurewei.alcor.controller.web;
 
-import com.futurewei.alcor.controller.cache.repo.VpcRepository;
+import com.futurewei.alcor.controller.db.repo.VpcRepository;
 import com.futurewei.alcor.controller.exception.CacheException;
 import com.futurewei.alcor.controller.db.Transaction;
 import com.futurewei.alcor.controller.exception.*;

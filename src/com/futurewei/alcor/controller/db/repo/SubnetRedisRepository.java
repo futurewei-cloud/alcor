@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.controller.cache.repo;
+package com.futurewei.alcor.controller.db.repo;
 
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
-import com.futurewei.alcor.controller.model.VpcState;
+import com.futurewei.alcor.controller.model.SubnetState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,16 +29,16 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-public class VpcRedisRepository implements ICacheRepository<VpcState> {
+public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
 
-    private static final String KEY = "VpcState";
+    private static final String KEY = "SubnetState";
 
-    private RedisTemplate<String, VpcState> redisTemplate;
+    private RedisTemplate<String, SubnetState> redisTemplate;
 
     private HashOperations hashOperations;
 
     @Autowired
-    public VpcRedisRepository(RedisTemplate<String, VpcState> redisTemplate) {
+    public SubnetRedisRepository(RedisTemplate<String, SubnetState> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -48,8 +48,8 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
     }
 
     @Override
-    public VpcState findItem(String id) {
-        return (VpcState) hashOperations.get(KEY, id);
+    public SubnetState findItem(String id) {
+        return (SubnetState) hashOperations.get(KEY, id);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class VpcRedisRepository implements ICacheRepository<VpcState> {
     }
 
     @Override
-    public void addItem(VpcState newItem) {
+    public void addItem(SubnetState newItem) {
         Logger logger = LoggerFactory.getLogger();
-        logger.log(Level.INFO, "Vpc Id:" + newItem.getId());
+        logger.log(Level.INFO, "Subnet Id:" + newItem.getId());
         hashOperations.put(KEY, newItem.getId(), newItem);
     }
 

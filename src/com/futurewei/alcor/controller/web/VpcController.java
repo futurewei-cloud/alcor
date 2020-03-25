@@ -19,7 +19,7 @@ package com.futurewei.alcor.controller.web;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.futurewei.alcor.controller.cache.repo.VpcRedisRepository;
+import com.futurewei.alcor.controller.db.repo.VpcRedisRepository;
 import com.futurewei.alcor.controller.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.controller.exception.ResourceNotFoundException;
 import com.futurewei.alcor.controller.exception.ResourceNullException;

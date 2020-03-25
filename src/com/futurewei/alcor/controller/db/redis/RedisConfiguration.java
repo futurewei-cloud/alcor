@@ -37,8 +37,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan("com.futurewei.alcor.controller.cache")
-@EntityScan("com.futurewei.alcor.controller.cache")
+@ComponentScan("com.futurewei.alcor.controller.db")
+@EntityScan("com.futurewei.alcor.controller.db")
 public class RedisConfiguration {
 
     @Value("${spring.redis.host}")
