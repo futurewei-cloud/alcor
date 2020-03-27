@@ -1,15 +1,9 @@
-package com.futurewei.vpcmanager.utils;
+package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.common.exception.*;
-import com.futurewei.common.logging.Logger;
-import com.futurewei.common.logging.LoggerFactory;
 import com.futurewei.common.entity.CustomerResource;
-import com.futurewei.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.thymeleaf.util.StringUtils;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.logging.Level;
 
 public class RestPreconditionsUtil {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {

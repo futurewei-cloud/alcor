@@ -139,7 +139,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.futurewei.vpcmanager.VpcManagerApplication</mainClass>
+                    <mainClass>com.futurewei.alcor.vpcmanager.VpcManagerApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -172,7 +172,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.futurewei.vpcmanager.VpcManagerApplication</mainClass>
+                            <mainClass>com.futurewei.alcor.vpcmanager.VpcManagerApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -181,7 +181,7 @@
 <!--                <groupId>org.springframework.boot</groupId>-->
 <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
 <!--                <configuration>-->
-<!--                    <mainClass>com.futurewei.vpcmanager.VpcManagerApplication</mainClass>-->
+<!--                    <mainClass>com.futurewei.alcor.vpcmanager.VpcManagerApplication</mainClass>-->
 <!--                </configuration>-->
 <!--            </plugin>-->
             <plugin>

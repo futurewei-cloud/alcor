@@ -14,10 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.vpcmanager.controller;
+package com.futurewei.alcor.vpcmanager.controller;
 
-import com.futurewei.vpcmanager.dao.VpcRedisRepository;
-import com.futurewei.vpcmanager.entity.DebugInfo;
+import com.futurewei.alcor.vpcmanager.dao.VpcRedisRepository;
+import com.futurewei.alcor.vpcmanager.entity.DebugInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -1,4 +1,4 @@
-package com.futurewei.vpcmanager;
+package com.futurewei.alcor.vpcmanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

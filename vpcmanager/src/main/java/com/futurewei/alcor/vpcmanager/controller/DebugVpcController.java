@@ -1,48 +1,30 @@
-/*
-Copyright 2019 The Alcor Authors.
+package com.futurewei.alcor.vpcmanager.controller;
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-*/
-
-package com.futurewei.vpcmanager.controller;
-
-import com.futurewei.vpcmanager.dao.VpcRedisRepository;
-import com.futurewei.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.common.exception.ResourceNotFoundException;
-import com.futurewei.common.exception.ResourceNullException;
-import com.futurewei.common.exception.ResourcePersistenceException;
+import com.futurewei.common.repo.Transaction;
+import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
+import com.futurewei.common.exception.*;
+import com.futurewei.common.exception.CacheException;
 import com.futurewei.common.entity.ResponseId;
-import com.futurewei.vpcmanager.entity.VpcState;
-import com.futurewei.vpcmanager.entity.VpcStateJson;
-import com.futurewei.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
+import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
-public class VpcController {
-
-    @Autowired
-    private VpcRedisRepository vpcRedisRepository;
+public class DebugVpcController {
+    @Autowired(required = false)
+    private VpcRepository vpcRepository;
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/debug/project/{projectid}/vpcs/{vpcid}"})
     public VpcStateJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcState vpcState = null;
@@ -52,7 +34,7 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -67,8 +49,31 @@ public class VpcController {
     }
 
     @RequestMapping(
+            method = GET,
+            value = "/debug/project/all/vpcs")
+    public Map getVpcCountAndAllVpcStates() throws CacheException {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = vpcRepository.findAllItems();
+        result.put("Count", dataItems.size());
+        result.put("Vpcs", dataItems);
+
+        return result;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = "/debug/project/all/vpccount")
+    public Map getVpcCount() throws CacheException {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = vpcRepository.findAllItems();
+        result.put("Count", dataItems.size());
+
+        return result;
+    }
+
+    @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"})
+            value = {"/debug/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
     public VpcStateJson createVpcState(@PathVariable String projectid, @RequestBody VpcStateJson resource) throws Exception {
         VpcState vpcState = null;
@@ -80,9 +85,14 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
-            this.vpcRedisRepository.addItem(inVpcState);
+            Transaction transaction = this.vpcRepository.getCache().getTransaction();
+            transaction.start();
 
-            vpcState = this.vpcRedisRepository.findItem(inVpcState.getId());
+            this.vpcRepository.addItem(inVpcState);
+            vpcState = this.vpcRepository.findItem(inVpcState.getId());
+
+            transaction.commit();
+
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
@@ -97,7 +107,7 @@ public class VpcController {
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/debug/project/{projectid}/vpcs/{vpcid}"})
     public VpcStateJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource) throws Exception {
 
         VpcState vpcState = null;
@@ -111,14 +121,14 @@ public class VpcController {
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcRedisRepository.addItem(inVpcState);
+            this.vpcRepository.addItem(inVpcState);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -129,7 +139,7 @@ public class VpcController {
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/debug/project/{projectid}/vpcs/{vpcid}"})
     public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         VpcState vpcState = null;
 
@@ -138,40 +148,16 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 return new ResponseId();
             }
 
-            vpcRedisRepository.deleteItem(vpcid);
+            vpcRepository.deleteItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
         return new ResponseId(vpcid);
-    }
-
-    @RequestMapping(
-            method = GET,
-            value = "/project/{projectid}/vpcs")
-    public Map getVpcStatesByProjectId(@PathVariable String projectid) throws Exception {
-        Map<String, VpcState> vpcStates = null;
-
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditionsUtil.verifyResourceFound(projectid);
-
-            vpcStates = this.vpcRedisRepository.findAllItems();
-            vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        } catch (ResourceNotFoundException e) {
-            throw new Exception(e);
-        }
-
-        return vpcStates;
     }
 }

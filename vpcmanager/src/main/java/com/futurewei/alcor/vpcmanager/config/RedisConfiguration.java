@@ -14,13 +14,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.vpcmanager.config;
+package com.futurewei.alcor.vpcmanager.config;
 
 import com.futurewei.common.repo.ICachePublisher;
 import com.futurewei.common.service.RedisListener;
-import com.futurewei.vpcmanager.service.RedisPublisher;
+import com.futurewei.alcor.vpcmanager.service.RedisPublisher;
 
-import com.futurewei.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +36,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan({"com.futurewei.vpcmanager.service", "com.futurewei.common.service"})
-@EntityScan({"com.futurewei.vpcmanager.entity}", "com.futurewei.common.entity"})
+@ComponentScan({"com.futurewei.alcor.vpcmanager.service", "com.futurewei.common.service"})
+@EntityScan({"com.futurewei.alcor.vpcmanager.entity}", "com.futurewei.common.entity"})
 public class RedisConfiguration {
 
     @Value("${spring.redis.host}")

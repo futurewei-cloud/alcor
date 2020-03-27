@@ -14,12 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.vpcmanager.dao;
+package com.futurewei.alcor.vpcmanager.dao;
 
 import com.futurewei.common.logging.Logger;
 import com.futurewei.common.logging.LoggerFactory;
 import com.futurewei.common.repo.ICacheRepository;
-import com.futurewei.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;

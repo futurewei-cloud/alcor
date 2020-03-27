@@ -14,10 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.vpcmanager.service;
+package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.common.repo.ICachePublisher;
-import com.futurewei.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
