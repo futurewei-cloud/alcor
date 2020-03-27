@@ -17,11 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.vpcmanager.controller;
 
 import com.futurewei.vpcmanager.dao.VpcRedisRepository;
-import com.futurewei.vpcmanager.comm.exception.ParameterNullOrEmptyException;
-import com.futurewei.vpcmanager.comm.exception.ResourceNotFoundException;
-import com.futurewei.vpcmanager.comm.exception.ResourceNullException;
-import com.futurewei.vpcmanager.comm.exception.ResourcePersistenceException;
-import com.futurewei.vpcmanager.entity.ResponseId;
+import com.futurewei.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.common.exception.ResourceNotFoundException;
+import com.futurewei.common.exception.ResourceNullException;
+import com.futurewei.common.exception.ResourcePersistenceException;
+import com.futurewei.common.entity.ResponseId;
 import com.futurewei.vpcmanager.entity.VpcState;
 import com.futurewei.vpcmanager.entity.VpcStateJson;
 import com.futurewei.vpcmanager.utils.RestPreconditionsUtil;

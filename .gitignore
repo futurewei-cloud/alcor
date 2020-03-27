@@ -70,5 +70,4 @@ fabric.properties
 *.iml
 
 # Vpcmanager files
-vpcmanager/.mvn/
 vpcmanager/target/

@@ -15,17 +15,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.vpcmanager.config;
 
-import com.futurewei.vpcmanager.entity.HostInfo;
-
 public class ControllerConfig {
 
     public static String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
     public static String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
     private static int InitNumOfTransitSwitch = 3;
     private static int InitNumOfTransitRouter = 1;
-
-    public static HostInfo[] transitSwitchHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch));
-    public static HostInfo[] transitRouterHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter));
 
     public static int epCounter = 0;
 }

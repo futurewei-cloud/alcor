@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.vpcmanager.config;
 
-import com.futurewei.vpcmanager.dao.ICachePublisher;
-import com.futurewei.vpcmanager.service.RedisListener;
+import com.futurewei.common.repo.ICachePublisher;
+import com.futurewei.common.service.RedisListener;
 import com.futurewei.vpcmanager.service.RedisPublisher;
 
 import com.futurewei.vpcmanager.entity.VpcState;
@@ -36,8 +36,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan("com.futurewei.vpcmanager.service")
-@EntityScan("com.futurewei.vpcmanager.entity")
+@ComponentScan({"com.futurewei.vpcmanager.service", "com.futurewei.common.service"})
+@EntityScan({"com.futurewei.vpcmanager.entity}", "com.futurewei.common.entity"})
 public class RedisConfiguration {
 
     @Value("${spring.redis.host}")

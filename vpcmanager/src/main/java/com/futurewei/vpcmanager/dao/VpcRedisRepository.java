@@ -16,9 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.vpcmanager.dao;
 
-import com.futurewei.vpcmanager.comm.logging.Logger;
-import com.futurewei.vpcmanager.comm.logging.LoggerFactory;
-import com.futurewei.vpcmanager.dao.ICacheRepository;
+import com.futurewei.common.logging.Logger;
+import com.futurewei.common.logging.LoggerFactory;
+import com.futurewei.common.repo.ICacheRepository;
 import com.futurewei.vpcmanager.entity.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;

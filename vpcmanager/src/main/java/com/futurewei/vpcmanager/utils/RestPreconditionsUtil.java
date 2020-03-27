@@ -1,10 +1,9 @@
 package com.futurewei.vpcmanager.utils;
 
-import com.futurewei.vpcmanager.config.OneBoxConfig;
-import com.futurewei.vpcmanager.comm.exception.*;
-import com.futurewei.vpcmanager.comm.logging.Logger;
-import com.futurewei.vpcmanager.comm.logging.LoggerFactory;
-import com.futurewei.vpcmanager.entity.CustomerResource;
+import com.futurewei.common.exception.*;
+import com.futurewei.common.logging.Logger;
+import com.futurewei.common.logging.LoggerFactory;
+import com.futurewei.common.entity.CustomerResource;
 import com.futurewei.vpcmanager.entity.VpcState;
 import org.thymeleaf.util.StringUtils;
 
@@ -68,54 +67,6 @@ public class RestPreconditionsUtil {
         } else if (!resourceVpcId.equalsIgnoreCase(vpcId)) {
             System.out.println("Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
             resource.setId(vpcId);
-        }
-    }
-
-    public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray) {
-        BufferedWriter timeStampWriter = OneBoxConfig.TIME_STAMP_WRITER;
-        Logger logger = LoggerFactory.getLogger();
-        try {
-            //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
-            timeStampWriter.newLine();
-
-            long timeElapsedInMsForDataPersistence = (T1 - T0) / 1000000;
-            long timeElapsedInMsForFirstMessaging = (timeArray[0] - T1) / 1000000;
-            timeStampWriter.write(resourceId + "," + timeElapsedInMsForDataPersistence + "," +
-                    timeElapsedInMsForFirstMessaging + ",");
-            for (int i = 0; i < timeArray.length - 1; i++) {
-                long timestampInMs = (timeArray[i + 1] - timeArray[i]) / 1000000;
-                timeStampWriter.write(timestampInMs + ",");
-            }
-            timeStampWriter.flush();
-
-            long elapseTimeInMs = (timeArray[timeArray.length - 1] - T0) / 1000000;
-            OneBoxConfig.TOTAL_TIME += elapseTimeInMs;
-            OneBoxConfig.TOTAL_REQUEST++;
-            if (elapseTimeInMs < OneBoxConfig.MIN_TIME) OneBoxConfig.MIN_TIME = elapseTimeInMs;
-            if (elapseTimeInMs > OneBoxConfig.MAX_TIME) OneBoxConfig.MAX_TIME = elapseTimeInMs;
-
-            if (OneBoxConfig.TOTAL_REQUEST == OneBoxConfig.epHosts.size() * OneBoxConfig.EP_PER_HOST) {
-                timeStampWriter.newLine();
-                timeStampWriter.write("," + OneBoxConfig.TOTAL_TIME / OneBoxConfig.TOTAL_REQUEST + "," + OneBoxConfig.MIN_TIME + "," + OneBoxConfig.MAX_TIME);
-                timeStampWriter.newLine();
-                timeStampWriter.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" +
-                        OneBoxConfig.TOTAL_TIME / OneBoxConfig.TOTAL_REQUEST + " ms");
-                timeStampWriter.newLine();
-                timeStampWriter.write("Time span: " + (System.nanoTime() - OneBoxConfig.APP_START_TS) / 1000000 + " ms");
-                timeStampWriter.flush();
-
-                if (timeStampWriter != null)
-                    timeStampWriter.close();
-            }
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-        } finally {
-            try {
-//                if(timeStampWriter != null)
-//                    timeStampWriter.close();
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Error in closing the BufferedWriter", ex);
-            }
         }
     }
 }

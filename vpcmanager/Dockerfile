@@ -9,8 +9,8 @@ EXPOSE 8080
 # VPC Manager admin process
 
 # Generate container image and run container
-COPY ./target/vpc-manager-0.0.1-SNAPSHOT.jar /app/vpc-manager-0.0.1.jar
-COPY ./config/machine.json /app/config/machine.json
+COPY ./target/vpc-manager-0.1.0-SNAPSHOT.jar /app/vpc-manager-0.1.0.jar
+#COPY ./config/machine.json /app/config/machine.json
 
-CMD ["java", "-jar", "/app/vpc-manager-0.0.1.jar"]
+CMD ["java", "-jar", "/app/vpc-manager-0.1.0.jar"]
 

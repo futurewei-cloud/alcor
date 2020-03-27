@@ -1,10 +1,10 @@
 package com.futurewei.vpcmanager.controller;
 
-import com.futurewei.vpcmanager.dao.Transaction;
+import com.futurewei.common.repo.Transaction;
 import com.futurewei.vpcmanager.dao.VpcRepository;
-import com.futurewei.vpcmanager.comm.exception.*;
-import com.futurewei.vpcmanager.comm.exception.CacheException;
-import com.futurewei.vpcmanager.entity.ResponseId;
+import com.futurewei.common.exception.*;
+import com.futurewei.common.exception.CacheException;
+import com.futurewei.common.entity.ResponseId;
 import com.futurewei.vpcmanager.entity.VpcState;
 import com.futurewei.vpcmanager.entity.VpcStateJson;
 import com.futurewei.vpcmanager.utils.RestPreconditionsUtil;
