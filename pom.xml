@@ -219,7 +219,7 @@
                             <sourceDirectory>${basedir}/docs</sourceDirectory>
                             <outputDirectory>target/generated-docs</outputDirectory>
                             <preserveDirectories>true</preserveDirectories>
-                            </configuration>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

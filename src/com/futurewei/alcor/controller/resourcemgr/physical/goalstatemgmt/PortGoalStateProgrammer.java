@@ -56,7 +56,7 @@ public class PortGoalStateProgrammer extends GoalStateProgrammer {
         if (!isFastPath) {
             this.setKafkaClient(new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory()));
         }
-        logger.log(Level.INFO,"EP :" + customerPortState.getId() + "|name:" + customerPortState.getName() + "| fastpath: " + isFastPath);
+        logger.log(Level.INFO, "EP :" + customerPortState.getId() + "|name:" + customerPortState.getName() + "| fastpath: " + isFastPath);
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: Go to EP host, update_endpoint

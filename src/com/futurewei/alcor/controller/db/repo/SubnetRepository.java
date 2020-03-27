@@ -59,7 +59,7 @@ public class SubnetRepository implements ICacheRepository<SubnetState> {
     }
 
     @Override
-    public void addItem(SubnetState newItem) throws CacheException{
+    public void addItem(SubnetState newItem) throws CacheException {
         logger.log(Level.INFO, "Subnet Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);
     }

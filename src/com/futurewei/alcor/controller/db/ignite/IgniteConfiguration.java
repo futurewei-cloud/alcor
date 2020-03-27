@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.Assert;
+
 import java.util.logging.Level;
 
 @Configuration
@@ -73,11 +74,9 @@ public class IgniteConfiguration {
 
         try {
             igniteClient = Ignition.startClient(cfg);
-        }
-        catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 

@@ -47,7 +47,7 @@ public class CacheFactory {
         return new IgniteCache<>(igniteClient, cacheName);
     }
 
-    public <K, V>ICache getRedisCache(Class<V> v, String cacheName) {
+    public <K, V> ICache getRedisCache(Class<V> v, String cacheName) {
 
         RedisTemplate<K, V> template = new RedisTemplate<K, V>();
         template.setConnectionFactory(lettuceConnectionFactory);
@@ -60,7 +60,7 @@ public class CacheFactory {
         return new RedisCache<>(template, cacheName);
     }
 
-    public <K, V>ICache getCache(Class<V> v) {
+    public <K, V> ICache getCache(Class<V> v) {
         if (igniteClient != null) {
             return getIgniteCache(v.getName());
         }
