@@ -14,10 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.service;
+package com.futurewei.alcor.common.service;
 
-import com.futurewei.common.logging.Logger;
-import com.futurewei.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;

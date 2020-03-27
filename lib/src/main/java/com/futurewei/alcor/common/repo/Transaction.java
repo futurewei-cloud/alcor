@@ -14,9 +14,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.repo;
+package com.futurewei.alcor.common.repo;
 
-import com.futurewei.common.exception.CacheException;
+import com.futurewei.alcor.common.exception.CacheException;
 
 public interface Transaction {
     void start() throws CacheException;

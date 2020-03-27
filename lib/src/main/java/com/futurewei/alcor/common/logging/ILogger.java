@@ -1,4 +1,4 @@
-package com.futurewei.common.logging;
+package com.futurewei.alcor.common.logging;
 
 import java.util.logging.Level;
 

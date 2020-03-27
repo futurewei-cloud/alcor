@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.exception;
+package com.futurewei.alcor.common.exception;
 
 public class ResourceNullException extends Exception {
 

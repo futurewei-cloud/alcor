@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.utils;
+package com.futurewei.alcor.common.utils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

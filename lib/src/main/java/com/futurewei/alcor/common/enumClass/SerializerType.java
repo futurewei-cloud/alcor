@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.enumClass;
+package com.futurewei.alcor.common.enumClass;
 
 public enum SerializerType {
     STRING,

@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.message;
+package com.futurewei.alcor.common.message;
 
-import com.futurewei.common.config.IKafkaConfiguration;
-import com.futurewei.common.logging.Logger;
-import com.futurewei.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.config.IKafkaConfiguration;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;

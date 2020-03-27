@@ -14,10 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.config;
+package com.futurewei.alcor.common.config;
 
-import com.futurewei.common.logging.Logger;
-import com.futurewei.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;

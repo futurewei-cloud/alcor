@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.entity;
+package com.futurewei.alcor.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

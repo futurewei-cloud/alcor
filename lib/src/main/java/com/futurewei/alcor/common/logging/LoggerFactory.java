@@ -18,7 +18,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 // sudo docker rmi $(sudo docker images -q)
 // sudo docker exec -it alcor-controller bash
 
-package com.futurewei.common.logging;
+package com.futurewei.alcor.common.logging;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

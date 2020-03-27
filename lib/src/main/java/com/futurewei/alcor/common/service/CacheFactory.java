@@ -14,9 +14,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.service;
+package com.futurewei.alcor.common.service;
 
-import com.futurewei.common.repo.ICache;
+import com.futurewei.alcor.common.repo.ICache;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

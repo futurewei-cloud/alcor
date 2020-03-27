@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.repo;
+package com.futurewei.alcor.common.repo;
 
 public interface AbstractFactory<T> {
     T Create();

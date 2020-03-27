@@ -14,9 +14,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.common.serialization;
+package com.futurewei.alcor.common.serialization;
 
-import com.futurewei.common.enumClass.SerializerType;
+import com.futurewei.alcor.common.enumClass.SerializerType;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
