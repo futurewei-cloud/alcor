@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.futurewei.alcor.vpcmanager</groupId>
-    <artifactId>vpc_manager</artifactId>
+    <artifactId>AlcorVpcManager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>vpc_manager</name>
     <description>VPC Manager Module</description>

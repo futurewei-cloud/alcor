@@ -7,7 +7,7 @@
     <artifactId>AlcorApiGateway</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>api-gateway</name>
+    <name>api_gateway</name>
     <description>Alcor API Gateway</description>
 
     <properties>

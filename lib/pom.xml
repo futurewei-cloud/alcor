@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.futurewei.alcor.common</groupId>
-    <artifactId>alcor_common_lib</artifactId>
+    <artifactId>AlcorCommonLib</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>alcor_common_lib</name>
     <description>Alcor common library</description>
