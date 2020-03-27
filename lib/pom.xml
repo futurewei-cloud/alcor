@@ -3,11 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.futurewei</groupId>
-    <artifactId>common</artifactId>
+    <groupId>com.futurewei.alcor.common</groupId>
+    <artifactId>alcor_common_lib</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>common</name>
-    <description>Common library</description>
+    <name>alcor_common_lib</name>
+    <description>Alcor common library</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
