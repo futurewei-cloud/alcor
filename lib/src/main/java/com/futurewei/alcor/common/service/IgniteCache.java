@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-
 public class IgniteCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
     private ClientCache<K, V> cache;

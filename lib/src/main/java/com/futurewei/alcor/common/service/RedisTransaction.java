@@ -24,7 +24,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.logging.Level;
 
-
 public class RedisTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
 
