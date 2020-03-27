@@ -1,7 +1,7 @@
 package com.futurewei.alcor.vpcmanager.utils;
 
-import com.futurewei.common.exception.*;
-import com.futurewei.common.entity.CustomerResource;
+import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.thymeleaf.util.StringUtils;
 

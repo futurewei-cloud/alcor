@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.entity;
 
-import com.futurewei.common.entity.CustomerResource;
+import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
 @Data

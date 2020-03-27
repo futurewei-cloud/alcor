@@ -17,11 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.vpcmanager.dao.VpcRedisRepository;
-import com.futurewei.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.common.exception.ResourceNotFoundException;
-import com.futurewei.common.exception.ResourceNullException;
-import com.futurewei.common.exception.ResourcePersistenceException;
-import com.futurewei.common.entity.ResponseId;
+import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNullException;
+import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;

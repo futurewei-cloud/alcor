@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.service;
 
-import com.futurewei.common.repo.ICachePublisher;
+import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

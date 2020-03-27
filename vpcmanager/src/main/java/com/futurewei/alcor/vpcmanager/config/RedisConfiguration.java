@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.config;
 
-import com.futurewei.common.repo.ICachePublisher;
-import com.futurewei.common.service.RedisListener;
+import com.futurewei.alcor.common.repo.ICachePublisher;
+import com.futurewei.alcor.common.service.RedisListener;
 import com.futurewei.alcor.vpcmanager.service.RedisPublisher;
 
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
@@ -36,7 +36,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan({"com.futurewei.alcor.vpcmanager.service", "com.futurewei.common.service"})
+@ComponentScan({"com.futurewei.alcor.vpcmanager.service", "com.futurewei.alcor.common.service"})
 @EntityScan({"com.futurewei.alcor.vpcmanager.entity}", "com.futurewei.common.entity"})
 public class RedisConfiguration {
 

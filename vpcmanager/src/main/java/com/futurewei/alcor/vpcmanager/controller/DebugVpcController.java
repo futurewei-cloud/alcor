@@ -1,10 +1,10 @@
 package com.futurewei.alcor.vpcmanager.controller;
 
-import com.futurewei.common.repo.Transaction;
+import com.futurewei.alcor.common.repo.Transaction;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
-import com.futurewei.common.exception.*;
-import com.futurewei.common.exception.CacheException;
-import com.futurewei.common.entity.ResponseId;
+import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
