@@ -68,3 +68,7 @@ fabric.properties
 
 # IntelliJ project config
 *.iml
+
+# Vpcmanager files
+vpcmanager/target/
+lib/target/
