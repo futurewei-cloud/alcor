@@ -6,6 +6,7 @@
 * xref:goal_state_model.adoc[Goal State Data Model]
 * xref:system_flow.adoc[Key System Flows]
 * xref:controller.adoc[Alcor Controller Subsystem Design]
+** xref:apigateway.adoc[API Gateway]
 * xref:data_store.adoc[Data Store and Cache Subsystem Design]
 * https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Alcor Control Agent Design]
 * xref:comm.adoc[Controller and Control Agent Communication]
