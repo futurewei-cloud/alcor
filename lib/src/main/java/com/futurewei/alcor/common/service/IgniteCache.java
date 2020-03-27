@@ -46,11 +46,9 @@ public class IgniteCache<K, V> implements ICache<K, V> {
 
         try {
             cache = igniteClient.getOrCreateCache(name);
-        }
-        catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for vpc failed:" + e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
@@ -63,7 +61,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
     public V get(K key) throws CacheException {
         try {
             return cache.get(key);
-        }catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -73,7 +71,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
     public void put(K key, V value) throws CacheException {
         try {
             cache.put(key, value);
-        }catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache put operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -83,7 +81,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
     public boolean containsKey(K key) throws CacheException {
         try {
             return cache.containsKey(key);
-        }catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -107,7 +105,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
     public void putAll(Map<? extends K, ? extends V> items) throws CacheException {
         try {
             cache.putAll(items);
-        }catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache putAll operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -117,7 +115,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
     public boolean remove(K key) throws CacheException {
         try {
             return cache.remove(key);
-        }catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }

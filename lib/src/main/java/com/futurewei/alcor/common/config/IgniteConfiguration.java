@@ -74,11 +74,9 @@ public class IgniteConfiguration {
 
         try {
             igniteClient = Ignition.startClient(cfg);
-        }
-        catch (ClientException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 

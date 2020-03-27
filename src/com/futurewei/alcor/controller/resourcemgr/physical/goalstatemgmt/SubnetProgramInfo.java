@@ -29,7 +29,7 @@ public class SubnetProgramInfo {
     private VpcState customerVpcState;
     private HostInfo[] transitRouterHosts;
 
-    public SubnetProgramInfo(SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, VpcState customerVpcState, HostInfo[] transitRouterHosts){
+    public SubnetProgramInfo(SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, VpcState customerVpcState, HostInfo[] transitRouterHosts) {
         this.customerSubnetState = customerSubnetState;
         this.transitSwitchHosts = transitSwitchHosts.clone();
         this.customerVpcState = customerVpcState;

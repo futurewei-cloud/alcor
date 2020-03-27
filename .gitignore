@@ -71,3 +71,4 @@ fabric.properties
 
 # Vpcmanager files
 vpcmanager/target/
+lib/target/
