@@ -6,7 +6,7 @@
     <groupId>com.futurewei.alcor.common</groupId>
     <artifactId>AlcorCommonLib</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>alcor_common_lib</name>
+    <name>AlcorCommonLib</name>
     <description>Alcor common library</description>
 
     <parent>
