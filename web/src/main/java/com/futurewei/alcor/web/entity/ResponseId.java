@@ -14,9 +14,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package main.java.apigateway.vpc;
+package com.futurewei.alcor.web.entity;
 
-public class VpcHandlers {
+import lombok.Data;
 
+@Data
+public class ResponseId {
+    private String id;
 
+    public ResponseId() {
+    }
+
+    public ResponseId(String id) {
+        this.id = id;
+    }
 }

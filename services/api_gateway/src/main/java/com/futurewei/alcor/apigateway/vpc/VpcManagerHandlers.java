@@ -14,25 +14,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.apigateway.vpc;
 
-public class ResourceNotFoundException extends Exception {
+import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
 
-//    private static final long serialVersionUID = 1L;
+public class VpcManagerHandlers {
 
-    public ResourceNotFoundException() {
+    private VpcManagerServiceProxy vpcManager;
+
+    public VpcManagerHandlers(VpcManagerServiceProxy vpcManager){
+        this.vpcManager = vpcManager;
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
 
 }

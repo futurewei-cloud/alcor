@@ -14,10 +14,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package main.java.apigateway.vpc;
+package com.futurewei.alcor.apigateway.vpc;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import javax.validation.constraints.NotNull;
+
+@Data
 @ConfigurationProperties(prefix = "order.destinations")
-public class VpcDestinations {
+public class VpcManagerDestinations {
+
+    @NotNull
+    private String vpcManagerServiceUrl;
+
 }

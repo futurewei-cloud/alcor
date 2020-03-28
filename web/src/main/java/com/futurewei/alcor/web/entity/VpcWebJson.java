@@ -14,25 +14,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.web.entity;
 
-public class ResourceNotFoundException extends Exception {
+import lombok.Data;
 
-//    private static final long serialVersionUID = 1L;
+@Data
+public class VpcWebJson {
 
-    public ResourceNotFoundException() {
+    private VpcWebObject vpcObject;
+
+    public VpcWebJson() {
+
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
+    public VpcWebJson(VpcWebObject vpcObject) {
+        this.vpcObject = vpcObject;
     }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
-
 }
+
