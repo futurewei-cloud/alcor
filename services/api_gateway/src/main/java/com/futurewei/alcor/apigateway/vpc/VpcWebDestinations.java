@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ConfigurationProperties(prefix = "order.destinations")
-public class VpcManagerDestinations {
+public class VpcWebDestinations {
 
     @NotNull
     private String vpcManagerServiceUrl;

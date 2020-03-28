@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway.vpc;
 
+import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -26,15 +27,27 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+
 @Configuration
-@EnableConfigurationProperties(VpcManagerDestinations.class)
-public class VpcManagerConfiguration {
+@EnableConfigurationProperties(VpcWebDestinations.class)
+public class VpcWebConfiguration {
 
     @Bean
-    public RouteLocator vpcProxyRouting(RouteLocatorBuilder builder, VpcManagerDestinations vpcManagerDestinations){
+    public RouteLocator vpcProxyRouting(RouteLocatorBuilder builder, VpcWebDestinations vpcWebDestinations) {
         return builder.routes()
-                .route(r -> r.path("/vpc").and().method("POST").uri(vpcManagerDestinations.getVpcManagerServiceUrl()))
+                .route(r -> r.path("/vpc").and().method("POST").uri(vpcWebDestinations.getVpcManagerServiceUrl()))
                 .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> orderHandlerRouting(VpcWebHandlers vpcWebHandlers) {
+        return RouterFunctions.route(GET("/project/{projectId}/vpc/{vpcId}"), vpcWebHandlers::getVpcDetails);
+    }
+
+    @Bean
+    public VpcWebHandlers vpcManagerHandlers(VpcManagerServiceProxy vpcManagerService) {
+        return new VpcWebHandlers(vpcManagerService);
     }
 
     @Bean
