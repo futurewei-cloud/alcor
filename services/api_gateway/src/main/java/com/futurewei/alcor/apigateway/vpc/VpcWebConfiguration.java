@@ -34,19 +34,12 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class VpcWebConfiguration {
 
     @Bean
-    public RouteLocator vpcProxyRouting(RouteLocatorBuilder builder, VpcWebDestinations vpcWebDestinations) {
-        return builder.routes()
-                .route(r -> r.path("/vpc").and().method("POST").uri(vpcWebDestinations.getVpcManagerServiceUrl()))
-                .build();
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> orderHandlerRouting(VpcWebHandlers vpcWebHandlers) {
+    public RouterFunction<ServerResponse> vpcHandlerRouting(VpcWebHandlers vpcWebHandlers) {
         return RouterFunctions.route(GET("/project/{projectId}/vpc/{vpcId}"), vpcWebHandlers::getVpcDetails);
     }
 
     @Bean
-    public VpcWebHandlers vpcManagerHandlers(VpcManagerServiceProxy vpcManagerService) {
+    public VpcWebHandlers vpcWebHandlers(VpcManagerServiceProxy vpcManagerService) {
         return new VpcWebHandlers(vpcManagerService);
     }
 
@@ -54,4 +47,29 @@ public class VpcWebConfiguration {
     public WebClient webClient() {
         return WebClient.create();
     }
+
+//    @Bean
+//    public RouteLocator myRoutes(RouteLocatorBuilder builder, UriConfiguration uriConfiguration) {
+//        String httpUri = uriConfiguration.getHttpbin();
+//        return builder.routes()
+//                .route(p -> p
+//                        .path("/get")
+//                        .filters(f -> f.addRequestHeader("Hello", "World"))
+//                        .uri(httpUri))
+//                .route(p -> p
+//                        .host("*.hystrix.com")
+//                        .filters(f -> f
+//                                .hystrix(config -> config
+//                                        .setName("mycmd")
+//                                        .setFallbackUri("forward:/fallback")))
+//                        .uri(httpUri))
+//                .build();
+//    }
+
+    // tag::fallback[]
+//    @RequestMapping("/fallback")
+//    public Mono<String> fallback() {
+//        return Mono.just("fallback");
+//    }
+//    // end::fallback[]
 }

@@ -22,10 +22,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ConfigurationProperties(prefix = "order.destinations")
+@ConfigurationProperties(prefix = "vpc.destinations")
 public class VpcWebDestinations {
+
+    private String defaultServiceUrl = "http://localhost:8081";
 
     @NotNull
     private String vpcManagerServiceUrl;
+
+    public String getVpcManagerServiceUrl() {
+        return this.vpcManagerServiceUrl == null ? defaultServiceUrl : this.vpcManagerServiceUrl;
+    }
 
 }

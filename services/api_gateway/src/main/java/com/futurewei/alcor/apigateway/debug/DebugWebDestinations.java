@@ -14,24 +14,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.web.exception;
+package com.futurewei.alcor.apigateway.debug;
 
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-public class VpcNotFoundException extends ResourceNotFoundException {
+import javax.validation.constraints.NotNull;
 
-    public VpcNotFoundException() {
+@Data
+@ConfigurationProperties(prefix = "debug.destinations")
+public class DebugWebDestinations {
+
+    private String defaultServiceUrl = "http://httpbin.org:80";
+
+    @NotNull
+    private String debugServiceUrl;
+
+    public String getDebugServiceUrl() {
+        return this.debugServiceUrl == null ? defaultServiceUrl : this.debugServiceUrl;
     }
 
-    public VpcNotFoundException(String message) {
-        super(message);
-    }
-
-    public VpcNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public VpcNotFoundException(Throwable cause) {
-        super(cause);
+    public void setDebugServiceUrl(String debugServiceUrl) {
+        this.debugServiceUrl = debugServiceUrl;
     }
 }
