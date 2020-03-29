@@ -26,6 +26,8 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 @EnableConfigurationProperties(VpcWebDestinations.class)
@@ -33,12 +35,14 @@ public class VpcWebConfiguration {
 
     @Bean
     public RouterFunction<ServerResponse> vpcHandlerRouting(VpcWebHandlers vpcWebHandlers) {
-        return RouterFunctions.route(GET("/project/{projectId}/vpc/{vpcId}"), vpcWebHandlers::getVpcDetails);
+        return
+                route(GET("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::getVpc)
+                .and(route(POST("/project/{projectId}/vpcs"), vpcWebHandlers::createVpc));
     }
 
     @Bean
     public RouterFunction<ServerResponse> vpcHandlerDebugRouting(VpcWebHandlers vpcWebHandlers) {
-        return RouterFunctions.route(GET("/vipmgr/actuator/health"), vpcWebHandlers::getVpcManagerHealthStatus);
+        return route(GET("/vipmgr/actuator/health"), vpcWebHandlers::getVpcManagerHealthStatus);
     }
 
     @Bean

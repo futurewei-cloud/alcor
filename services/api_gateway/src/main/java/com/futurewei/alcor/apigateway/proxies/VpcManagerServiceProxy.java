@@ -39,7 +39,7 @@ public class VpcManagerServiceProxy {
     public Mono<VpcWebJson> findVpcById(String projectId, String vpcId) {
         Mono<ClientResponse> response = webClient
                 .get()
-                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/projectId}/vpc/{vpcId}", projectId, vpcId)
+                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs/{vpcId}", projectId, vpcId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -52,6 +52,23 @@ public class VpcManagerServiceProxy {
             }
         });
      }
+
+    public Mono<VpcWebJson> createVpc(String projectId) {
+        Mono<ClientResponse> response = webClient
+                .post()
+                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs", projectId)
+                .exchange();
+        return response.flatMap(resp -> {
+            switch (resp.statusCode()) {
+                case OK:
+                    return resp.bodyToMono(VpcWebJson.class);
+                case NOT_FOUND:
+                    return Mono.error(new VpcNotFoundException());
+                default:
+                    return Mono.error(new RuntimeException("Unknown" + resp.statusCode()));
+            }
+        });
+    }
 
     public Mono<String> getHealthStatus() {
         Mono<ClientResponse> healthStatusResponse = webClient

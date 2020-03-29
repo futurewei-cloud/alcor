@@ -37,19 +37,32 @@ public class VpcWebHandlers {
     //  this.routeManage = routeManager;
     }
 
-    public Mono<ServerResponse> getVpcDetails(ServerRequest serverRequest) {
+    public Mono<ServerResponse> getVpc(ServerRequest serverRequest) {
         String projectId = serverRequest.pathVariable("projectId");
         String vpcId = serverRequest.pathVariable("vpcId");
 
-        Mono<VpcWebJson> orderInfo = vpcManager.findVpcById(projectId, vpcId);
+        Mono<VpcWebJson> vpcInfo = vpcManager.findVpcById(projectId, vpcId);
 
         // Add Route Manager here
 
-        return orderInfo.flatMap(od -> ServerResponse.ok()
+        return vpcInfo.flatMap(od -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(fromObject(od)))
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
+
+    public Mono<ServerResponse> createVpc(ServerRequest serverRequest) {
+
+        String projectId = serverRequest.pathVariable("projectId");
+
+        Mono<VpcWebJson> vpcInfo = vpcManager.findVpcById(projectId, null);
+
+        return vpcInfo.flatMap(od -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromObject(od)))
+                .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
+    }
+
 
     public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest serverRequest) {
 

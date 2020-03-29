@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix = "vpc.destinations")
 public class VpcWebDestinations {
 
-    private String defaultServiceUrl = "http://localhost:8081";
+    private String defaultServiceUrl = "http://127.0.0.1:8081";
 
     @NotNull
     private String vpcManagerServiceUrl;

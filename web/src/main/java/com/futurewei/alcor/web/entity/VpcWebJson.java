@@ -21,14 +21,14 @@ import lombok.Data;
 @Data
 public class VpcWebJson {
 
-    private VpcWebObject vpcObject;
+    private VpcWebObject vpc;
 
     public VpcWebJson() {
 
     }
 
     public VpcWebJson(VpcWebObject vpcObject) {
-        this.vpcObject = vpcObject;
+        this.vpc = vpcObject;
     }
 }
 
