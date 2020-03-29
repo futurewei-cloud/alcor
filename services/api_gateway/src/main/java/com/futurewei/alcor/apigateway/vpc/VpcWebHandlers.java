@@ -50,4 +50,14 @@ public class VpcWebHandlers {
                 .body(fromObject(od)))
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
+
+    public Mono<ServerResponse> getVpcDebugInfo(ServerRequest serverRequest) {
+
+        Mono<String> healthStatus = vpcManager.getVpcDebugInfo();
+
+        return healthStatus.flatMap(od -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromObject(od)))
+                .onErrorResume(e -> ServerResponse.notFound().build());
+    }
 }

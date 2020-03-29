@@ -18,8 +18,6 @@ package com.futurewei.alcor.apigateway.vpc;
 
 import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,6 +34,11 @@ public class VpcWebConfiguration {
     @Bean
     public RouterFunction<ServerResponse> vpcHandlerRouting(VpcWebHandlers vpcWebHandlers) {
         return RouterFunctions.route(GET("/project/{projectId}/vpc/{vpcId}"), vpcWebHandlers::getVpcDetails);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> vpcHandlerDebugRouting(VpcWebHandlers vpcWebHandlers) {
+        return RouterFunctions.route(GET("/vipmgr/actuator/health"), vpcWebHandlers::getVpcDebugInfo);
     }
 
     @Bean

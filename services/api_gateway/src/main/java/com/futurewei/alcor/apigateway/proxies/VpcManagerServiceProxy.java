@@ -51,5 +51,20 @@ public class VpcManagerServiceProxy {
                     return Mono.error(new RuntimeException("Unknown" + resp.statusCode()));
             }
         });
+     }
+
+    public Mono<String> getVpcDebugInfo() {
+        Mono<ClientResponse> healthStatusResponse = webClient
+                .get()
+                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/actuator/health")
+                .exchange();
+        return healthStatusResponse.flatMap(resp -> {
+            switch (resp.statusCode()) {
+                case OK:
+                    return resp.bodyToMono(String.class);
+                default:
+                    return Mono.error(new RuntimeException("Unknown" + resp.statusCode()));
+            }
+        });
     }
 }
