@@ -41,7 +41,7 @@ public class DebugController {
 
     @RequestMapping("/")
     public String index() {
-        return "Greetings from Alioth!";
+        return "Greetings from Alcor Vpc Manager!";
     }
 
     @RequestMapping(
