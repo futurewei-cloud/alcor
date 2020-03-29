@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway.vpc;
 
 import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.web.entity.VpcWebJson;
 import com.futurewei.alcor.web.exception.VpcNotFoundException;
 import org.springframework.http.MediaType;
@@ -63,6 +64,20 @@ public class VpcWebHandlers {
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
 
+    public Mono<ServerResponse> deleteVpc(ServerRequest serverRequest) {
+
+        String projectId = serverRequest.pathVariable("projectId");
+        String vpcId = serverRequest.pathVariable("vpcId");
+
+        Mono<ResponseId> responseWithId = vpcManager.deleteVpcById(projectId, vpcId);
+
+        // Add Route Manager here
+
+        return responseWithId.flatMap(od -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromObject(od)))
+                .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
+    }
 
     public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest serverRequest) {
 
