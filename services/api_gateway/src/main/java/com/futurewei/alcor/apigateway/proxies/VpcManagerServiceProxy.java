@@ -53,7 +53,7 @@ public class VpcManagerServiceProxy {
         });
      }
 
-    public Mono<String> getVpcDebugInfo() {
+    public Mono<String> getHealthStatus() {
         Mono<ClientResponse> healthStatusResponse = webClient
                 .get()
                 .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/actuator/health")

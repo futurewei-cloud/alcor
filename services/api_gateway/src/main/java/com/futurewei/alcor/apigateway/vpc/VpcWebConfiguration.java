@@ -38,7 +38,7 @@ public class VpcWebConfiguration {
 
     @Bean
     public RouterFunction<ServerResponse> vpcHandlerDebugRouting(VpcWebHandlers vpcWebHandlers) {
-        return RouterFunctions.route(GET("/vipmgr/actuator/health"), vpcWebHandlers::getVpcDebugInfo);
+        return RouterFunctions.route(GET("/vipmgr/actuator/health"), vpcWebHandlers::getVpcManagerHealthStatus);
     }
 
     @Bean

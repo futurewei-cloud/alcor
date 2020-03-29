@@ -51,9 +51,9 @@ public class VpcWebHandlers {
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> getVpcDebugInfo(ServerRequest serverRequest) {
+    public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest serverRequest) {
 
-        Mono<String> healthStatus = vpcManager.getVpcDebugInfo();
+        Mono<String> healthStatus = vpcManager.getHealthStatus();
 
         return healthStatus.flatMap(od -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
