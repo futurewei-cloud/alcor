@@ -16,14 +16,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest()
-class VpcManagerApplicationTests {
+public class VpcManagerApplicationTests {
 
     @Test
-    void contextLoads() {
+    public void contextLoadsTest() throws Exception {
     }
 
 }
