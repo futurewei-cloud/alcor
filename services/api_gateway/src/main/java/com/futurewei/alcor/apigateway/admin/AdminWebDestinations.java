@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.apigateway.debug;
+package com.futurewei.alcor.apigateway.admin;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,8 +22,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ConfigurationProperties(prefix = "debug.destinations")
-public class DebugWebDestinations {
+@ConfigurationProperties(prefix = "admin.destinations")
+public class AdminWebDestinations {
 
     private String defaultServiceUrl = "http://httpbin.org:80";
 

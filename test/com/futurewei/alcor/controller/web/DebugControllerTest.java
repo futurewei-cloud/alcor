@@ -55,7 +55,7 @@ public class DebugControllerTest {
 
     @Test
     public void debug_getDebugInfo() throws Exception {
-        this.mvc.perform(get("/debug"))
+        this.mvc.perform(get("/admin"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello")))

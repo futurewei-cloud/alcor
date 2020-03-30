@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.apigateway.debug;
+package com.futurewei.alcor.apigateway.admin;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -23,16 +23,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(DebugWebDestinations.class)
-public class DebugWebConfiguration {
+@EnableConfigurationProperties(AdminWebDestinations.class)
+public class AdminWebConfiguration {
 
     @Bean
-    public RouteLocator debugProxyRouting(RouteLocatorBuilder builder, DebugWebDestinations debugWebDestinations) {
+    public RouteLocator debugProxyRouting(RouteLocatorBuilder builder, AdminWebDestinations adminWebDestinations) {
         return builder.routes()
                 .route(r -> r
                         .path("/get")
                         .filters(f -> f.addRequestHeader("Hello", "Alcor"))
-                        .uri(debugWebDestinations.getDebugServiceUrl()))
+                        .uri(adminWebDestinations.getDebugServiceUrl()))
                 .build();
     }
 }
