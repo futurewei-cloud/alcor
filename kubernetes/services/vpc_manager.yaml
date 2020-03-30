@@ -15,7 +15,8 @@ spec:
         app: vpcmanager
     spec:
       containers:
-        - image: zhonghaolyu/repo:vpcKube2
+        #- image: zhonghaolyu/repo:vpcKube2
+        - image: fwnetworking/controller:vpcKube1
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent
           ports:

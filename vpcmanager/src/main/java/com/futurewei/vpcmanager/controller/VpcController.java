@@ -23,6 +23,7 @@ import com.futurewei.common.exception.ResourceNullException;
 import com.futurewei.common.exception.ResourcePersistenceException;
 import com.futurewei.common.entity.ResponseId;
 import com.futurewei.vpcmanager.entity.RouteWebJson;
+import com.futurewei.vpcmanager.entity.RouteWebObject;
 import com.futurewei.vpcmanager.entity.VpcState;
 import com.futurewei.vpcmanager.entity.VpcStateJson;
 import com.futurewei.vpcmanager.utils.RestPreconditionsUtil;
@@ -34,6 +35,8 @@ import org.springframework.web.client.RestTemplate;
 
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -71,8 +74,8 @@ public class VpcController {
 //            return "Not find VPC by vpcId";
 //        }
 
-        //String url = "http://192.168.137.1:8081/route/rule/" + vpcid; // for docker test
-        String url = "http://192.168.1.17:30003/route/rule/" + vpcid; // for kubernetes test
+        String url = "http://192.168.137.1:8081/route/rule/" + vpcid; // for docker test
+        //String url = "http://192.168.1.17:30003/route/rule/" + vpcid; // for kubernetes test
         return this.restTemplate.getForObject(url, String.class);
 
     }
@@ -124,16 +127,27 @@ public class VpcController {
                 throw new ResourcePersistenceException();
             }
 
-            String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            //String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            String routeManagerServiceUrl = "http://192.168.137.1:8081/vpcs/" + vpcState.getId() + "/routes"; // for docker test
             HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
             RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
+
+            // add RouteWebObject
+            if (response != null) {
+                List<RouteWebObject> routeWebObjectList = vpcState.getRouteWebObjectList();
+                if (routeWebObjectList == null) {
+                    routeWebObjectList = new ArrayList<>();
+                }
+                routeWebObjectList.add(response.getRoute());
+                vpcState.setRouteWebObjectList(routeWebObjectList);
+            }
+            this.vpcRedisRepository.addItem(inVpcState);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
-
         return new VpcStateJson(vpcState);
     }
 

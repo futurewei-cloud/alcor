@@ -15,7 +15,8 @@ spec:
         app: apimanager
     spec:
       containers:
-        - image: zhonghaolyu/repo:apiKube4
+        #- image: zhonghaolyu/repo:apiKube4
+        - image: fwnetworking/controller:apiKube1
           name: apimanager-web
           imagePullPolicy: IfNotPresent
           ports:

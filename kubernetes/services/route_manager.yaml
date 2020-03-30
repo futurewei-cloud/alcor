@@ -15,7 +15,8 @@ spec:
         app: routemanager
     spec:
       containers:
-        - image: zhonghaolyu/repo:routeKube
+        #- image: zhonghaolyu/repo:routeKube
+        - image: fwnetworking/controller:routeKube1
           name: routemanager-web
           imagePullPolicy: IfNotPresent
           ports:

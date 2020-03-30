@@ -28,7 +28,8 @@ spec:
         app: redis
     spec:
       containers:
-        - image: redis
+        #- image: redis
+        - image: fwnetworking/controller:redis
           name: redis
           imagePullPolicy: IfNotPresent
           ports:

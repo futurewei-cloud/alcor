@@ -34,4 +34,44 @@ public class RouteWebObject extends CustomerResource {
         this.associatedType = type;
         this.associatedTableId = tableId;
     }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public RouteTableType getAssociatedType() {
+        return associatedType;
+    }
+
+    public void setAssociatedType(RouteTableType associatedType) {
+        this.associatedType = associatedType;
+    }
+
+    public String getAssociatedTableId() {
+        return associatedTableId;
+    }
+
+    public void setAssociatedTableId(String associatedTableId) {
+        this.associatedTableId = associatedTableId;
+    }
 }

@@ -1,14 +1,15 @@
-2020-03-28 15:24:15.004  INFO 30284 --- [main] c.futurewei.route.RouteApplicationTests  : Starting RouteApplicationTests on zlyu-bwa01 with PID 30284 (started by zlyu in D:\Fork\route)
-2020-03-28 15:24:15.016  INFO 30284 --- [main] c.futurewei.route.RouteApplicationTests  : No active profile set, falling back to default profiles: default
-2020-03-28 15:24:16.301  INFO 30284 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!
-2020-03-28 15:24:16.306  INFO 30284 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-2020-03-28 15:24:16.359  INFO 30284 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 28ms. Found 0 Redis repository interfaces.
-2020-03-28 15:24:17.676  WARN 30284 --- [main] global                                   : Failed: Log Configuration
-2020-03-28 15:24:17.688  INFO 30284 --- [main] global                                   : RouteRepository init completed
-2020-03-28 15:24:18.744  INFO 30284 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
-2020-03-28 15:24:19.040  WARN 30284 --- [main] ion$DefaultTemplateResolverConfiguration : Cannot find template location: classpath:/templates/ (please add some templates or check your Thymeleaf configuration)
-2020-03-28 15:24:19.906  INFO 30284 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
-2020-03-28 15:24:20.132  INFO 30284 --- [redisContainer-1] io.lettuce.core.EpollProvider            : Starting without optional epoll library
-2020-03-28 15:24:20.136  INFO 30284 --- [redisContainer-1] io.lettuce.core.KqueueProvider           : Starting without optional kqueue library
-2020-03-28 15:24:25.002  INFO 30284 --- [main] c.futurewei.route.RouteApplicationTests  : Started RouteApplicationTests in 10.399 seconds (JVM running for 11.723)
-2020-03-28 15:24:25.432  INFO 30284 --- [SpringContextShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2020-03-30 00:54:03.456  INFO 8132 --- [main] c.futurewei.route.RouteApplicationTests  : Starting RouteApplicationTests on zlyu-bwa01 with PID 8132 (started by zlyu in D:\Fork\alcor\route)
+2020-03-30 00:54:03.468  INFO 8132 --- [main] c.futurewei.route.RouteApplicationTests  : No active profile set, falling back to default profiles: default
+2020-03-30 00:54:05.723  INFO 8132 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!
+2020-03-30 00:54:05.728  INFO 8132 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2020-03-30 00:54:05.776  INFO 8132 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 27ms. Found 0 Redis repository interfaces.
+2020-03-30 00:54:08.029  WARN 8132 --- [main] global                                   : Failed: Log Configuration
+2020-03-30 00:54:08.040  INFO 8132 --- [main] global                                   : RouteRepository init completed
+2020-03-30 00:54:09.184  INFO 8132 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-03-30 00:54:09.457  WARN 8132 --- [main] ion$DefaultTemplateResolverConfiguration : Cannot find template location: classpath:/templates/ (please add some templates or check your Thymeleaf configuration)
+2020-03-30 00:54:10.283  INFO 8132 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2020-03-30 00:54:10.496  INFO 8132 --- [redisContainer-1] io.lettuce.core.EpollProvider            : Starting without optional epoll library
+2020-03-30 00:54:10.499  INFO 8132 --- [redisContainer-1] io.lettuce.core.KqueueProvider           : Starting without optional kqueue library
+2020-03-30 00:54:14.758 ERROR 8132 --- [redisContainer-1] o.s.d.r.l.RedisMessageListenerContainer  : Connection failure occurred. Restarting subscription task after 5000 ms
+2020-03-30 00:54:15.343  INFO 8132 --- [main] c.futurewei.route.RouteApplicationTests  : Started RouteApplicationTests in 13.543 seconds (JVM running for 15.14)
+2020-03-30 00:54:15.863  INFO 8132 --- [SpringContextShutdownHook] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
