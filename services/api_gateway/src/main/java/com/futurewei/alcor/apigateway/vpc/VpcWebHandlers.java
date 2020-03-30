@@ -18,13 +18,16 @@ package com.futurewei.alcor.apigateway.vpc;
 
 import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.web.entity.VpcWebJson;
 import com.futurewei.alcor.web.exception.VpcNotFoundException;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
 public class VpcWebHandlers {
@@ -35,56 +38,62 @@ public class VpcWebHandlers {
 
     public VpcWebHandlers(VpcManagerServiceProxy vpcManager) {
         this.vpcManager = vpcManager;
-    //  this.routeManage = routeManager;
+        //  this.routeManage = routeManager;
     }
 
-    public Mono<ServerResponse> getVpc(ServerRequest serverRequest) {
-        String projectId = serverRequest.pathVariable("projectId");
-        String vpcId = serverRequest.pathVariable("vpcId");
+    public Mono<ServerResponse> getVpc(ServerRequest request) {
+        String projectId = request.pathVariable("projectId");
+        String vpcId = request.pathVariable("vpcId");
 
         Mono<VpcWebJson> vpcInfo = vpcManager.findVpcById(projectId, vpcId);
 
         // Add Route Manager here
 
         return vpcInfo.flatMap(od -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
                 .body(fromObject(od)))
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> createVpc(ServerRequest serverRequest) {
+    public Mono<ServerResponse> createVpc(ServerRequest request) {
 
-        String projectId = serverRequest.pathVariable("projectId");
+        final Mono<VpcWebJson> vpcObj = request.bodyToMono(VpcWebJson.class);
+        final UUID projectId = UUID.fromString(request.pathVariable("projectId"));
 
-        Mono<VpcWebJson> vpcInfo = vpcManager.findVpcById(projectId, null);
+        final UUID generatedVpcId = UUID.randomUUID();
+        Mono<VpcWebJson> newVpcObj = vpcObj.map(p ->
+                p.getVpc().getId().isEmpty() || !CommonUtil.isUUID(p.getVpc().getId()) ?
+                        new VpcWebJson(p.getVpc(), generatedVpcId) : new VpcWebJson(p.getVpc()));
 
-        return vpcInfo.flatMap(od -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
+        Mono<VpcWebJson> response = vpcManager.createVpc(projectId, newVpcObj);
+
+        return response.flatMap(od -> ServerResponse.ok()
+                .contentType(APPLICATION_JSON)
                 .body(fromObject(od)))
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> deleteVpc(ServerRequest serverRequest) {
+    public Mono<ServerResponse> deleteVpc(ServerRequest request) {
 
-        String projectId = serverRequest.pathVariable("projectId");
-        String vpcId = serverRequest.pathVariable("vpcId");
+        String projectId = request.pathVariable("projectId");
+        String vpcId = request.pathVariable("vpcId");
 
         Mono<ResponseId> responseWithId = vpcManager.deleteVpcById(projectId, vpcId);
 
         // Add Route Manager here
 
         return responseWithId.flatMap(od -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
                 .body(fromObject(od)))
                 .onErrorResume(VpcNotFoundException.class, e -> ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest serverRequest) {
+    public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest request) {
 
         Mono<String> healthStatus = vpcManager.getHealthStatus();
 
         return healthStatus.flatMap(od -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
                 .body(fromObject(od)))
                 .onErrorResume(e -> ServerResponse.notFound().build());
     }

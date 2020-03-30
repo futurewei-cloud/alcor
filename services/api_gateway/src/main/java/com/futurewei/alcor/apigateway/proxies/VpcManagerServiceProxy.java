@@ -25,6 +25,8 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Service
 public class VpcManagerServiceProxy {
 
@@ -52,16 +54,17 @@ public class VpcManagerServiceProxy {
                     return Mono.error(new RuntimeException("Unknown" + resp.statusCode()));
             }
         });
-     }
+    }
 
-    public Mono<VpcWebJson> createVpc(String projectId) {
+    public Mono<VpcWebJson> createVpc(UUID projectId, Mono<VpcWebJson> newVpcJson) {
         Mono<ClientResponse> response = webClient
                 .post()
                 .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs", projectId)
+                .body(newVpcJson, VpcWebJson.class)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
-                case OK:
+                case CREATED:
                     return resp.bodyToMono(VpcWebJson.class);
                 case NOT_FOUND:
                     return Mono.error(new VpcNotFoundException());

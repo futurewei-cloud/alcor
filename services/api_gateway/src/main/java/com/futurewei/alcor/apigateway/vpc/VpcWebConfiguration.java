@@ -22,9 +22,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -36,8 +36,8 @@ public class VpcWebConfiguration {
     public RouterFunction<ServerResponse> vpcHandlerRouting(VpcWebHandlers vpcWebHandlers) {
         return
                 route(GET("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::getVpc)
-                    .and(route(POST("/project/{projectId}/vpcs"), vpcWebHandlers::createVpc))
-                        .and(route(DELETE("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::deleteVpc));
+                        .andRoute(POST("/project/{projectId}/vpcs").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), vpcWebHandlers::createVpc)
+                        .andRoute(DELETE("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::deleteVpc);
     }
 
     @Bean
@@ -55,28 +55,4 @@ public class VpcWebConfiguration {
         return WebClient.create();
     }
 
-//    @Bean
-//    public RouteLocator myRoutes(RouteLocatorBuilder builder, UriConfiguration uriConfiguration) {
-//        String httpUri = uriConfiguration.getHttpbin();
-//        return builder.routes()
-//                .route(p -> p
-//                        .path("/get")
-//                        .filters(f -> f.addRequestHeader("Hello", "World"))
-//                        .uri(httpUri))
-//                .route(p -> p
-//                        .host("*.hystrix.com")
-//                        .filters(f -> f
-//                                .hystrix(config -> config
-//                                        .setName("mycmd")
-//                                        .setFallbackUri("forward:/fallback")))
-//                        .uri(httpUri))
-//                .build();
-//    }
-
-    // tag::fallback[]
-//    @RequestMapping("/fallback")
-//    public Mono<String> fallback() {
-//        return Mono.just("fallback");
-//    }
-//    // end::fallback[]
 }

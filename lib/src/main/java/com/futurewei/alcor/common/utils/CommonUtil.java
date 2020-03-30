@@ -19,6 +19,7 @@ package com.futurewei.alcor.common.utils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
+import java.util.UUID;
 
 public class CommonUtil {
     public static byte[] fromIpAddressStringToByteArray(String ipAddressString) throws UnknownHostException {
@@ -36,5 +37,14 @@ public class CommonUtil {
 
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
+    }
+
+    public static boolean isUUID(String string) {
+        try {
+            UUID.fromString(string);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

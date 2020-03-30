@@ -18,28 +18,28 @@ import static org.assertj.core.api.Assertions.*;
 @AutoConfigureWireMock(port = 0)
 public class AlcorApiGatewayApplicationTest {
 
-//    @Autowired
-//    private WebTestClient webClient;
-//
-//    @Test
-//    public void contextLoads() throws Exception {
-//        //Stubs
-//        stubFor(get(urlEqualTo("/get"))
-//                .willReturn(aResponse()
-//                        .withBody("{\"headers\":{\"Hello\":\"World\"}}")
-//                        .withHeader("Content-Type", "application/json")));
+    @Autowired
+    private WebTestClient webClient;
+
+    @Test
+    public void contextLoads() throws Exception {
+        //Stubs
+        stubFor(get(urlEqualTo("/get"))
+                .willReturn(aResponse()
+                        .withBody("{\"headers\":{\"Hello\":\"Alcor\"}}")
+                        .withHeader("Content-Type", "application/json")));
 //        stubFor(get(urlEqualTo("/delay/3"))
 //                .willReturn(aResponse()
 //                        .withBody("no fallback")
 //                        .withFixedDelay(3000)));
-//
-//        webClient
-//                .get().uri("/get")
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody()
-//                .jsonPath("$.headers.Hello").isEqualTo("World");
-//
+
+        webClient
+                .get().uri("/get")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.headers.Hello").isEqualTo("Alcor");
+
 //        webClient
 //                .get().uri("/delay/3")
 //                .header("Host", "www.hystrix.com")
@@ -48,5 +48,5 @@ public class AlcorApiGatewayApplicationTest {
 //                .expectBody()
 //                .consumeWith(
 //                        response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
-//    }
+    }
 }

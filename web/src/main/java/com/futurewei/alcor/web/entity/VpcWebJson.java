@@ -18,6 +18,8 @@ package com.futurewei.alcor.web.entity;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class VpcWebJson {
 
@@ -29,6 +31,11 @@ public class VpcWebJson {
 
     public VpcWebJson(VpcWebObject vpcObject) {
         this.vpc = vpcObject;
+    }
+
+    public VpcWebJson(VpcWebObject vpcObject, UUID genId) {
+        this.vpc = vpcObject;
+        this.vpc.setId(String.valueOf(genId));
     }
 }
 
