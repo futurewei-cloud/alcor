@@ -22,15 +22,20 @@ import com.futurewei.common.exception.ResourceNotFoundException;
 import com.futurewei.common.exception.ResourceNullException;
 import com.futurewei.common.exception.ResourcePersistenceException;
 import com.futurewei.common.entity.ResponseId;
+import com.futurewei.vpcmanager.entity.RouteWebJson;
 import com.futurewei.vpcmanager.entity.VpcState;
 import com.futurewei.vpcmanager.entity.VpcStateJson;
 import com.futurewei.vpcmanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import reactor.core.publisher.Mono;
+
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -118,6 +123,11 @@ public class VpcController {
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
+
+            String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
+            RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
+
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
