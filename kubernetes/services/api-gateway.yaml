@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apimanager
+  name: apimanager
+spec:
+  selector:
+    matchLabels:
+      app: apimanager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: apimanager
+    spec:
+      containers:
+        - image: zhonghaolyu/repo:apiKube4
+          name: apimanager-web
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apimanager-service
+  labels:
+    name: apimanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8002
+      targetPort: 8080
+      nodePort: 30004
+  selector:
+    app: apimanager
