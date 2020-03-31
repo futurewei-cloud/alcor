@@ -14,24 +14,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.apigateway;
 
-public class ResourceNotFoundException extends Exception {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.bind.annotation.RestController;
 
-//    private static final long serialVersionUID = 1L;
+@SpringBootApplication
+@RestController
+public class AlcorApiGatewayApplication {
 
-    public ResourceNotFoundException() {
-    }
-
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
+    public static void main(String[] args) {
+        SpringApplication.run(AlcorApiGatewayApplication.class, args);
     }
 }

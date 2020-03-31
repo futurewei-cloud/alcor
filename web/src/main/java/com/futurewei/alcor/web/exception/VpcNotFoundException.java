@@ -14,24 +14,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.web.exception;
 
-public class ResourceNotFoundException extends Exception {
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 
-//    private static final long serialVersionUID = 1L;
+public class VpcNotFoundException extends ResourceNotFoundException {
 
-    public ResourceNotFoundException() {
+    public VpcNotFoundException() {
     }
 
-    public ResourceNotFoundException(String message) {
+    public VpcNotFoundException(String message) {
         super(message);
     }
 
-    public ResourceNotFoundException(String message, Throwable cause) {
+    public VpcNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ResourceNotFoundException(Throwable cause) {
+    public VpcNotFoundException(Throwable cause) {
         super(cause);
     }
 }

@@ -14,24 +14,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.vpcmanager.entity;
 
-public class ResourceNotFoundException extends Exception {
+public class DebugInfo {
 
-//    private static final long serialVersionUID = 1L;
+    private final long id;
+    private final String content;
 
-    public ResourceNotFoundException() {
+    public DebugInfo(long id, String content) {
+        this.id = id;
+        this.content = content;
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
+    public long getId() {
+        return id;
     }
 
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
+    public String getContent() {
+        return content;
     }
 }

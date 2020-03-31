@@ -14,24 +14,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.apigateway.vpc;
 
-public class ResourceNotFoundException extends Exception {
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-//    private static final long serialVersionUID = 1L;
+import javax.validation.constraints.NotNull;
 
-    public ResourceNotFoundException() {
+@Data
+@ConfigurationProperties(prefix = "vpc.destinations")
+public class VpcWebDestinations {
+
+    private String defaultServiceUrl = "http://192.168.1.17:30001";
+
+    @NotNull
+    private String vpcManagerServiceUrl;
+
+    public String getVpcManagerServiceUrl() {
+        return this.vpcManagerServiceUrl == null ? defaultServiceUrl : this.vpcManagerServiceUrl;
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
 }

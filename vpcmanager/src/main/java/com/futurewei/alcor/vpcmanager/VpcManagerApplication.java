@@ -14,24 +14,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.vpcmanager;
 
-public class ResourceNotFoundException extends Exception {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//    private static final long serialVersionUID = 1L;
+@SpringBootApplication()
+public class VpcManagerApplication {
 
-    public ResourceNotFoundException() {
+    public static void main(String[] args) {
+        SpringApplication.run(VpcManagerApplication.class, args);
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
 }

@@ -14,24 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.vpcmanager.config;
 
-public class ResourceNotFoundException extends Exception {
+public class ControllerConfig {
 
-//    private static final long serialVersionUID = 1L;
+    public static String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
+    public static String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
+    private static int InitNumOfTransitSwitch = 3;
+    private static int InitNumOfTransitRouter = 1;
 
-    public ResourceNotFoundException() {
-    }
-
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
+    public static int epCounter = 0;
 }

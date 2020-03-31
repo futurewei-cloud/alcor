@@ -14,24 +14,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.apigateway.admin;
 
-public class ResourceNotFoundException extends Exception {
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-//    private static final long serialVersionUID = 1L;
+import javax.validation.constraints.NotNull;
 
-    public ResourceNotFoundException() {
+@Data
+@ConfigurationProperties(prefix = "admin.destinations")
+public class AdminWebDestinations {
+
+    private String defaultServiceUrl = "http://httpbin.org:80";
+
+    @NotNull
+    private String debugServiceUrl;
+
+    public String getDebugServiceUrl() {
+        return this.debugServiceUrl == null ? defaultServiceUrl : this.debugServiceUrl;
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
+    public void setDebugServiceUrl(String debugServiceUrl) {
+        this.debugServiceUrl = debugServiceUrl;
     }
 }
