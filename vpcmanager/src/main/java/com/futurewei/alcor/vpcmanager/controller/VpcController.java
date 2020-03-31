@@ -131,12 +131,12 @@ public class VpcController {
 
             // add RouteWebObject
             if (response != null) {
-                List<RouteWebObject> routeWebObjectList = vpcState.getRouteWebObjectList();
+                List<RouteWebObject> routeWebObjectList = vpcState.getRoutes();
                 if (routeWebObjectList == null) {
                     routeWebObjectList = new ArrayList<>();
                 }
                 routeWebObjectList.add(response.getRoute());
-                vpcState.setRouteWebObjectList(routeWebObjectList);
+                vpcState.setRoutes(routeWebObjectList);
             }
             this.vpcRedisRepository.addItem(vpcState);
 

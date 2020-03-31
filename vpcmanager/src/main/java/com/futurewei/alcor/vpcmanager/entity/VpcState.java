@@ -37,7 +37,7 @@ public class VpcState extends CustomerResource {
     }
 
     public VpcState(VpcState state) {
-        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(), state.getRouteWebObjectList());
+        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(), state.getRoutes());
     }
 
     public VpcState(String projectId, String id, String name, String cidr, String description, List<RouteWebObject> routeWebObjectList) {
@@ -53,14 +53,6 @@ public class VpcState extends CustomerResource {
 
     public void setCidr(String cidr) {
         this.cidr = cidr;
-    }
-
-    public List<RouteWebObject> getRouteWebObjectList() {
-        return routes;
-    }
-
-    public void setRouteWebObjectList(List<RouteWebObject> routeWebObjectList) {
-        this.routes = new ArrayList<>(routeWebObjectList);
     }
 }
 
