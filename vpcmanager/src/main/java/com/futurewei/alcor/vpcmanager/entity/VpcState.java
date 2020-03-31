@@ -19,6 +19,7 @@ package com.futurewei.alcor.vpcmanager.entity;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -59,7 +60,7 @@ public class VpcState extends CustomerResource {
     }
 
     public void setRouteWebObjectList(List<RouteWebObject> routeWebObjectList) {
-        this.routes = routeWebObjectList;
+        this.routes = new ArrayList<>(routeWebObjectList);
     }
 }
 

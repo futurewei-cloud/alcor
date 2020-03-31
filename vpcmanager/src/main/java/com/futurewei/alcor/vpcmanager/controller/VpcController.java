@@ -77,7 +77,6 @@ public class VpcController {
 
     }
 
-
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
