@@ -1,4 +1,4 @@
-package com.futurewei.route;
+package com.futurewei.alcor.route;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

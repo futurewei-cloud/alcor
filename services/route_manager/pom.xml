@@ -8,7 +8,7 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.futurewei.route</groupId>
+    <groupId>com.futurewei.alcor.route</groupId>
     <artifactId>AlcorRouteManager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>AlcorRouteManager</name>
@@ -140,7 +140,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.futurewei.route.RouteApplication</mainClass>
+                    <mainClass>com.futurewei.alcor.route.RouteApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -173,7 +173,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.futurewei.route.RouteApplication</mainClass>
+                            <mainClass>com.futurewei.alcor.route.RouteApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

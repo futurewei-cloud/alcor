@@ -1,10 +1,10 @@
-package com.futurewei.route.dao;
+package com.futurewei.alcor.route.dao;
 
 import com.futurewei.alcor.common.exception.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.route.entity.RouteState;
+import com.futurewei.alcor.route.entity.RouteState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;

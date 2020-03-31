@@ -1,4 +1,4 @@
-package com.futurewei.route;
+package com.futurewei.alcor.route;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

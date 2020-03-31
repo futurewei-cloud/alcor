@@ -13,28 +13,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.route.entity;
+package com.futurewei.alcor.route.config;
 
-import lombok.Data;
+public class ControllerConfig {
 
-@Data
-public class VpcStateJson {
-    private VpcState vpc;
+    private static int InitNumOfTransitSwitch = 3;
+    private static int InitNumOfTransitRouter = 1;
 
-    public VpcStateJson() {
-
-    }
-
-    public VpcStateJson(VpcState vpcState) {
-        this.vpc = vpcState;
-    }
-
-    public VpcState getVpc() {
-        return vpc;
-    }
-
-    public void setVpc(VpcState vpc) {
-        this.vpc = vpc;
-    }
+    public static int epCounter = 0;
 }
-

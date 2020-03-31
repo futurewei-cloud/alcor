@@ -14,10 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.route.service;
+package com.futurewei.alcor.route.service;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
-import com.futurewei.route.entity.RouteState;
+import com.futurewei.alcor.route.entity.RouteState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;

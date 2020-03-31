@@ -1,11 +1,11 @@
-package com.futurewei.route.controller;
+package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.route.dao.RouteRedisRepository;
-import com.futurewei.route.entity.RouteState;
-import com.futurewei.route.entity.RouteStateJson;
-import com.futurewei.route.entity.*;
-import com.futurewei.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.route.dao.RouteRedisRepository;
+import com.futurewei.alcor.route.entity.RouteState;
+import com.futurewei.alcor.route.entity.RouteStateJson;
+import com.futurewei.alcor.route.entity.*;
+import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

@@ -14,12 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.route.config;
+package com.futurewei.alcor.route.config;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.common.service.RedisListener;
-import com.futurewei.route.entity.RouteState;
-import com.futurewei.route.service.RedisPublisher;
+import com.futurewei.alcor.route.entity.RouteState;
+import com.futurewei.alcor.route.service.RedisPublisher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +35,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan({"com.futurewei.route.service", "com.futurewei.alcor.common.service"})
-@EntityScan({"com.futurewei.route.entity}", "com.futurewei.alcor.common.entity"})
+@ComponentScan({"com.futurewei.alcor.route.service", "com.futurewei.alcor.common.service"})
+@EntityScan({"com.futurewei.alcor.route.entity}", "com.futurewei.alcor.common.entity"})
 public class RedisConfiguration {
 
     @Value("${spring.redis.host}")

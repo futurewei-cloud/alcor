@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.route.entity;
+package com.futurewei.alcor.route.entity;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;

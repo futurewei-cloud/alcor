@@ -1,8 +1,8 @@
-package com.futurewei.route.utils;
+package com.futurewei.alcor.route.utils;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.exception.*;
-import com.futurewei.route.entity.RouteState;
+import com.futurewei.alcor.route.entity.RouteState;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {

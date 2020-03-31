@@ -1,4 +1,4 @@
-package com.futurewei.route.entity;
+package com.futurewei.alcor.route.entity;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
