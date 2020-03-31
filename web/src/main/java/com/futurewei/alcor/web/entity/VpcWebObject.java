@@ -18,34 +18,31 @@ package com.futurewei.alcor.web.entity;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class VpcWebObject extends CustomerResource {
 
     private String cidr;
 
+    private List<RouteWebObject> routes;
+
     public VpcWebObject() {
     }
 
-    public VpcWebObject(String projectId, String id, String name, String cidr) {
-        this(projectId, id, name, cidr, null);
+    public VpcWebObject(String projectId, String id, String name, String cidr, List<RouteWebObject> routeWebObjectList) {
+        this(projectId, id, name, cidr, null, routeWebObjectList);
     }
 
     public VpcWebObject(VpcWebObject state) {
-        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription());
+        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(), state.getRoutes());
     }
 
-    public VpcWebObject(String projectId, String id, String name, String cidr, String description) {
+    public VpcWebObject(String projectId, String id, String name, String cidr, String description, List<RouteWebObject> routeWebObjectList) {
 
         super(projectId, id, name, description);
         this.cidr = cidr;
-    }
-
-    public String getCidr() {
-        return cidr;
-    }
-
-    public void setCidr(String cidr) {
-        this.cidr = cidr;
+        this.routes = routeWebObjectList;
     }
 }
 
