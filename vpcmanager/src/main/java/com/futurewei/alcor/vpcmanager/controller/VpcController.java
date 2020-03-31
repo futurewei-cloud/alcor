@@ -25,10 +25,16 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
+import com.futurewei.alcor.vpcmanager.entity.RouteWebObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,6 +45,38 @@ public class VpcController {
 
     @Autowired
     private VpcRedisRepository vpcRedisRepository;
+
+    private RestTemplate restTemplate = new RestTemplate();
+
+    @RequestMapping(
+            method = GET,
+            value = {"/rule/{projectid}/vpcs/{vpcid}"})
+    public String getRuleByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+
+//        VpcState vpcState = null;
+//
+//        try {
+//            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+//            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+//            RestPreconditionsUtil.verifyResourceFound(projectid);
+//
+//            vpcState = this.vpcRedisRepository.findItem(vpcid);
+//        } catch (ParameterNullOrEmptyException e) {
+//            //TODO: REST error code
+//            throw new Exception(e);
+//        }
+//
+//        if (vpcState == null) {
+//            //TODO: REST error code
+//            return "Not find VPC by vpcId";
+//        }
+
+        String url = "http://192.168.137.1:8081/route/rule/" + vpcid; // for docker test
+        //String url = "http://192.168.1.17:30003/route/rule/" + vpcid; // for kubernetes test
+        return this.restTemplate.getForObject(url, String.class);
+
+    }
+
 
     @RequestMapping(
             method = GET,
@@ -86,6 +124,23 @@ public class VpcController {
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
+
+            //String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            String routeManagerServiceUrl = "http://192.168.137.1:8081/vpcs/" + vpcState.getId() + "/routes"; // for docker test
+            HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
+            RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
+
+            // add RouteWebObject
+            if (response != null) {
+                List<RouteWebObject> routeWebObjectList = vpcState.getRouteWebObjectList();
+                if (routeWebObjectList == null) {
+                    routeWebObjectList = new ArrayList<>();
+                }
+                routeWebObjectList.add(response.getRoute());
+                vpcState.setRouteWebObjectList(routeWebObjectList);
+            }
+            this.vpcRedisRepository.addItem(vpcState);
+
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {

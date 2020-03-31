@@ -19,26 +19,31 @@ package com.futurewei.alcor.vpcmanager.entity;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class VpcState extends CustomerResource {
 
     private String cidr;
 
+    private List<RouteWebObject> routes;
+
     public VpcState() {
     }
 
-    public VpcState(String projectId, String id, String name, String cidr) {
-        this(projectId, id, name, cidr, null);
+    public VpcState(String projectId, String id, String name, String cidr, List<RouteWebObject> routeWebObjectList) {
+        this(projectId, id, name, cidr, null, routeWebObjectList);
     }
 
     public VpcState(VpcState state) {
-        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription());
+        this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(), state.getRouteWebObjectList());
     }
 
-    public VpcState(String projectId, String id, String name, String cidr, String description) {
+    public VpcState(String projectId, String id, String name, String cidr, String description, List<RouteWebObject> routeWebObjectList) {
 
         super(projectId, id, name, description);
         this.cidr = cidr;
+        this.routes = routeWebObjectList;
     }
 
     public String getCidr() {
@@ -47,6 +52,14 @@ public class VpcState extends CustomerResource {
 
     public void setCidr(String cidr) {
         this.cidr = cidr;
+    }
+
+    public List<RouteWebObject> getRouteWebObjectList() {
+        return routes;
+    }
+
+    public void setRouteWebObjectList(List<RouteWebObject> routeWebObjectList) {
+        this.routes = routeWebObjectList;
     }
 }
 

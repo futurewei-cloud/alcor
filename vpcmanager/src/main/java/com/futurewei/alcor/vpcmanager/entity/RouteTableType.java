@@ -13,28 +13,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.vpcmanager.entity;
 
-import com.futurewei.vpcmanager.entity.VpcState;
-import lombok.Data;
+package com.futurewei.alcor.vpcmanager.entity;
 
-@Data
-public class VpcStateJson {
-    private VpcState vpc;
+public enum RouteTableType {
 
-    public VpcStateJson() {
+    // Main route table
+    MAIN,
 
-    }
+    // Customer route table
+    CUSTOM,
 
-    public VpcStateJson(VpcState vpcState) {
-        this.vpc = vpcState;
-    }
-
-    public VpcState getVpc() {
-        return vpc;
-    }
-
-    public void setVpc(VpcState vpc) {
-        this.vpc = vpc;
-    }
+    // Gateway route table
+    GATEWAY
 }

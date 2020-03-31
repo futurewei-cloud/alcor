@@ -13,14 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.vpcmanager.config;
 
-public class ControllerConfig {
+package com.futurewei.alcor.vpcmanager.entity;
 
-    public static String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
-    public static String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
-    private static int InitNumOfTransitSwitch = 3;
-    private static int InitNumOfTransitRouter = 1;
+import lombok.Data;
 
-    public static int epCounter = 0;
+@Data
+public class RouteWebJson {
+
+    private RouteWebObject route;
+
+    public RouteWebJson() {
+    }
+
+    public RouteWebJson(RouteWebObject route) {
+        this.route = route;
+    }
+
+    public RouteWebObject getRoute() {
+        return route;
+    }
+
+    public void setRoute(RouteWebObject route) {
+        this.route = route;
+    }
 }
