@@ -8,11 +8,11 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.futurewei</groupId>
-    <artifactId>route</artifactId>
+    <groupId>com.futurewei.route</groupId>
+    <artifactId>AlcorRouteManager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>route</name>
-    <description>Route Manager</description>
+    <name>AlcorRouteManager</name>
+    <description>Alcor Route Manager</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -53,13 +53,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.futurewei.alcor.common</groupId>
-            <artifactId>alcor_common_lib</artifactId>
-            <version>0.1.0</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/alcor_common_lib-0.1.0-SNAPSHOT.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

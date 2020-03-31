@@ -57,13 +57,6 @@
             <version>1.18.0</version>
         </dependency>
         <dependency>
-            <groupId>com.futurewei.alcor.common</groupId>
-            <artifactId>alcor_common_lib</artifactId>
-            <version>0.1.0</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/alcor_common_lib-0.1.0-SNAPSHOT.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
