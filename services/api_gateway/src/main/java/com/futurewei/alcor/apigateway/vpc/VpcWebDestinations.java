@@ -25,7 +25,8 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix = "vpc.destinations")
 public class VpcWebDestinations {
 
-    private String defaultServiceUrl = "http://192.168.1.17:30001";
+    private String defaultServiceUrl = "http://192.168.1.17:30001"; // Kubernetes
+    //private String defaultServiceUrl = "http://192.168.137.1:8080"; // DOcker
 
     @NotNull
     private String vpcManagerServiceUrl;
