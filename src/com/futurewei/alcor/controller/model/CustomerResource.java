@@ -19,8 +19,10 @@ package com.futurewei.alcor.controller.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class CustomerResource {
+public class CustomerResource implements Serializable {
 
     @JsonProperty("project_id")
     private String projectId;

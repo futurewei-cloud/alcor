@@ -8,9 +8,9 @@ sudo apt-get install libjsoncpp-dev
 
 #Deploy a VPC
 curl -H "Accept: application/json" -H "Content-Type:application/json" \
-	-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs" \
-	--data \
-	'{"vpc":
+-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs" \
+--data \
+'{"vpc":
 {"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
 	"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
 	"name": "test_vpc",
@@ -19,12 +19,11 @@ curl -H "Accept: application/json" -H "Content-Type:application/json" \
 
 curl -X GET "$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038" | json_pp
 
-
 #Deploy a subnet
 curl -H "Accept: application/json" -H "Content-Type:application/json" \
-	-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets" \
-	--data \
-	'{"subnet":
+-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets" \
+--data \
+'{"subnet":
 {"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
 	"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
 	"id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
@@ -42,9 +41,9 @@ curl -X GET "$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/a8
 
 #Deploy a port
 curl -H "Accept: application/json" -H "Content-Type:application/json" \
-	-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports" \
-	--data \
-	'{"port":
+-X POST "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports" \
+--data \
+'{"port":
 {"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
 	"id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
 	"name": "test_cni_port2",
@@ -71,10 +70,9 @@ curl -H "Accept: application/json" -H "Content-Type:application/json" \
 
 curl -X GET "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df" | json_pp
 
-if $3 ; then
-	echo "Clean up....."
-        curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df" | json_pp
-	curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/a87e0f87-a2d9-44ef-9194-9a62f178594e" | json_pp
-	curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038" | json_pp
+if $3; then
+  echo "Clean up....."
+  curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df" | json_pp
+  curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/a87e0f87-a2d9-44ef-9194-9a62f178594e" | json_pp
+  curl -X DELETE "http://$Host:$Port/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038" | json_pp
 fi
-
