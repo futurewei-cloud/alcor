@@ -62,8 +62,7 @@ public class RedisConfiguration {
         template.setValueSerializer(new Jackson2JsonRedisSerializer<RouteState>(RouteState.class));
         return template;
     }
-
-
+    
     @Bean
     MessageListenerAdapter redisListenerInstance() {
         return new MessageListenerAdapter(new RedisListener());

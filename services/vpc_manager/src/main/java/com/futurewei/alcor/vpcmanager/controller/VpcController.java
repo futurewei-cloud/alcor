@@ -50,35 +50,6 @@ public class VpcController {
 
     @RequestMapping(
             method = GET,
-            value = {"/rule/{projectid}/vpcs/{vpcid}"})
-    public String getRuleByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
-
-//        VpcState vpcState = null;
-//
-//        try {
-//            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-//            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
-//            RestPreconditionsUtil.verifyResourceFound(projectid);
-//
-//            vpcState = this.vpcRedisRepository.findItem(vpcid);
-//        } catch (ParameterNullOrEmptyException e) {
-//            //TODO: REST error code
-//            throw new Exception(e);
-//        }
-//
-//        if (vpcState == null) {
-//            //TODO: REST error code
-//            return "Not find VPC by vpcId";
-//        }
-
-        String url = "http://192.168.137.1:8081/route/rule/" + vpcid; // for docker test
-        //String url = "http://192.168.1.17:30003/route/rule/" + vpcid; // for kubernetes test
-        return this.restTemplate.getForObject(url, String.class);
-
-    }
-
-    @RequestMapping(
-            method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
     public VpcStateJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
