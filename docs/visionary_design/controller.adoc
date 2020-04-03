@@ -19,6 +19,26 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 
 == Micro-Service Framework
 
+. One controller instance is one Kubernetes application
+. One microservice is one Kubernetes service
+. One microservice could consist of multiple service instances (stateless or stateful) to improve availability, scalability and performance
+
+=== Total order under microservice framework
+
+Four types of concurrent network resource update:
+
+. Two resources are completely decoupled
+.. Example: resources under different/unpeered VPCs
+.. Approach: free to update simultaneously
+
+. Two resources are slightly coupled
+.. Example: two ports in the same subnet
+. Tightly coupled: Delete a VPC and create a subnet for an empty VPC
+
+. update the same resource
+.. Example:
+.. Approach: Ignite concurrency + timestamp versioning
+
 == Availability Zone Resilience
 
 == Service-to-Service Communication
