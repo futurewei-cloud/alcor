@@ -14,24 +14,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.exception;
+package com.futurewei.alcor.web.entity;
 
-public class ResourceNotFoundException extends Exception {
+public enum RouteTableType {
 
-//    private static final long serialVersionUID = 1L;
+    // Main route table
+    MAIN,
 
-    public ResourceNotFoundException() {
-    }
+    // Customer route table
+    CUSTOM,
 
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResourceNotFoundException(Throwable cause) {
-        super(cause);
-    }
+    // Gateway route table
+    GATEWAY
 }

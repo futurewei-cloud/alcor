@@ -14,35 +14,45 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.vpcmanager.entity;
 
+import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class VpcWebObject extends CustomerResource {
+public class VpcState extends CustomerResource {
 
     private String cidr;
 
     private List<RouteWebObject> routes;
 
-    public VpcWebObject() {
+    public VpcState() {
     }
 
-    public VpcWebObject(String projectId, String id, String name, String cidr, List<RouteWebObject> routeWebObjectList) {
+    public VpcState(String projectId, String id, String name, String cidr, List<RouteWebObject> routeWebObjectList) {
         this(projectId, id, name, cidr, null, routeWebObjectList);
     }
 
-    public VpcWebObject(VpcWebObject state) {
+    public VpcState(VpcState state) {
         this(state.getProjectId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(), state.getRoutes());
     }
 
-    public VpcWebObject(String projectId, String id, String name, String cidr, String description, List<RouteWebObject> routeWebObjectList) {
+    public VpcState(String projectId, String id, String name, String cidr, String description, List<RouteWebObject> routeWebObjectList) {
 
         super(projectId, id, name, description);
         this.cidr = cidr;
         this.routes = routeWebObjectList;
+    }
+
+    public String getCidr() {
+        return cidr;
+    }
+
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
     }
 }
 
