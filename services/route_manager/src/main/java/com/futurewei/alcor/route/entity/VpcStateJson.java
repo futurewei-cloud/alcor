@@ -13,26 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
-package com.futurewei.alcor.apigateway.vpc;
+package com.futurewei.alcor.route.entity;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import javax.validation.constraints.NotNull;
 
 @Data
-@ConfigurationProperties(prefix = "vpc.destinations")
-public class VpcWebDestinations {
+public class VpcStateJson {
+    private VpcState vpc;
 
-    private String defaultServiceUrl = "http://192.168.1.17:30001"; // Kubernetes
-    //private String defaultServiceUrl = "http://192.168.137.1:8080"; // DOcker
+    public VpcStateJson() {
 
-    @NotNull
-    private String vpcManagerServiceUrl;
-
-    public String getVpcManagerServiceUrl() {
-        return this.vpcManagerServiceUrl == null ? defaultServiceUrl : this.vpcManagerServiceUrl;
     }
 
+    public VpcStateJson(VpcState vpcState) {
+        this.vpc = vpcState;
+    }
+
+    public VpcState getVpc() {
+        return vpc;
+    }
+
+    public void setVpc(VpcState vpc) {
+        this.vpc = vpc;
+    }
 }
+
