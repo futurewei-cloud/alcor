@@ -16,8 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.macmanager.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ResourceNullException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.macmanager.dao.MacRedisRepository;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.entity.MacStateJson;
 import com.futurewei.alcor.macmanager.service.MacAddressService;
@@ -30,6 +33,7 @@ import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 
 @RestController
 public class MacController {
@@ -63,31 +67,6 @@ public class MacController {
     }
 
     @RequestMapping(
-            method = GET,
-            value = {"/project/{projectid}/vpcs/{vpcid}/port/{portid}", "/v4/{projectid}/vpcs/{vpcid}/port/{portid}"})
-    public MacStateJson getMacStateByVpcIdPort(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String portid) throws Exception {
-
-        MacState macState = null;
-        Map map = null;
-
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
-            RestPreconditionsUtil.verifyResourceFound(portid);
-            map = service.getMacStateByVpcIdPort(projectid, vpcid, portid);
-        } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            throw new Exception(e);
-        }
-
-        if (macState == null) {
-            //TODO: REST error code
-            return new MacStateJson();
-        }
-        return new MacStateJson(macState);
-    }
-
-    @RequestMapping(
             method = POST,
             value = {"/mac", "/v4/mac"})
     @ResponseStatus(HttpStatus.CREATED)
@@ -107,5 +86,21 @@ public class MacController {
             throw new Exception(e);
         }
         return new MacStateJson(macState);
+    }
+
+    @RequestMapping(
+            method = DELETE,
+            value = {"/mac/{macaddress}", "/v4/mac/{macaddress}"})
+    public ResponseId deleteMacState(@PathVariable String macaddress) throws Exception {
+        MacState macState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            RestPreconditionsUtil.verifyResourceFound(macaddress);
+            macState = service.releaseMac(macaddress);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+        return new ResponseId(macState.getMacAddress());
     }
 }

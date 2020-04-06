@@ -71,7 +71,11 @@ public class MacRedisRepository implements ICacheRepository<MacState> {
         hashOperations.delete(KEY, id);
     }
 
-    public Map findMacAddressesbyVpcPort(String portId) {
+    public void updateItem(MacState newItem) {
+        hashOperations.put(KEY, newItem.getMacAddress(), newItem);
+    }
+
+    public Map findMacAddressesbyVpcPort(String portId){
         return null;
     }
 
@@ -79,7 +83,8 @@ public class MacRedisRepository implements ICacheRepository<MacState> {
         return (MacState) hashOperations.get(KEY, id);
     }
 
-    public void setKey(String key) {
+    public void setKey(String key)
+    {
         KEY = key;
     }
 

@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MacAddressService {
 
     final String DELIMITER1 = "/";
-    final String DELIMITER2 = ":";
+    final String DELIMITER2 = "-";
     final int KEY_LENGTH = 8;
 
     @Autowired
@@ -44,11 +44,15 @@ public class MacAddressService {
         return macState;
     }
 
-    public Map getMacStateByVpcIdPort(String projectId, String vpcId, String portId) {
-        String hk = makeKey(projectId, vpcId, portId);
-        String oui = ouiRedisRepository.findOui(hk);
-        macRedisRepository.setKey(oui);
-        return macRedisRepository.findMacAddressesbyVpcPort(portId);
+    public MacState releaseMac(String macAddress) {
+        String key = getKey(macAddress);
+        macRedisRepository.setKey(key);
+        MacState macState = macRedisRepository.findItem(macAddress);
+        macState.setProjectId("");
+        macState.setVpcId("");
+        macState.setPortId("");
+        macRedisRepository.updateItem(macState);
+        return macState;
     }
 
     public MacState createMacState(MacState macState) throws Exception {
@@ -61,6 +65,13 @@ public class MacAddressService {
         macAddress = oui + DELIMITER2 + nic;
         macState.setMacAddress(macAddress);
         return macState;
+    }
+
+    public Map getMacStateByVpcIdPort(String projectId, String vpcId, String portId) {
+        String hk = makeKey(projectId, vpcId, portId);
+        String oui = ouiRedisRepository.findOui(hk);
+        macRedisRepository.setKey(oui);
+        return macRedisRepository.findMacAddressesbyVpcPort(portId);
     }
 
     private String generateOui(String projectId, String vpcId) {
@@ -98,8 +109,8 @@ public class MacAddressService {
 
     private String hexToMac(String hex) {
         hex = hex.toUpperCase();
-        while(hex.length() < (KEY_LENGTH - 2))
-            hex = "0"+hex;
+        while (hex.length() < (KEY_LENGTH - 2))
+            hex = "0" + hex;
         StringBuffer buffer = new StringBuffer(KEY_LENGTH);
         buffer.insert(0, hex);
         buffer.insert(2, ":");
