@@ -45,14 +45,13 @@ public class MacController {
 
     @RequestMapping(
             method = GET,
-            value = {"/macaddress/{macaddress}", "/v4/macaddress/{macaddress}"})
+            value = {"/macs/{macaddress}", "/v4/macaddress/{macaddress}"})
     public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
 
         MacState macState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            RestPreconditionsUtil.verifyResourceFound(macaddress);
             macState = this.service.getMacStateByMacAddress(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
@@ -68,7 +67,7 @@ public class MacController {
 
     @RequestMapping(
             method = POST,
-            value = {"/mac", "/v4/mac"})
+            value = {"/macs", "/v4/macs"})
     @ResponseStatus(HttpStatus.CREATED)
     public MacStateJson createMacState(@RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
@@ -90,13 +89,12 @@ public class MacController {
 
     @RequestMapping(
             method = DELETE,
-            value = {"/mac/{macaddress}", "/v4/mac/{macaddress}"})
+            value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
     public ResponseId deleteMacState(@PathVariable String macaddress) throws Exception {
         MacState macState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            RestPreconditionsUtil.verifyResourceFound(macaddress);
             macState = service.releaseMac(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
