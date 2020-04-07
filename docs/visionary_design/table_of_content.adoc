@@ -3,9 +3,10 @@
 ### Design
 
 * xref:high_level_design.adoc[High Level Design]
-* xref:goal_state_model.adoc[Goal State Data Model]
+** xref:keydiff.adoc[Key Differences with Neutron]
 * xref:system_flow.adoc[Key System Flows]
 * xref:controller.adoc[Alcor Controller Subsystem Design]
+** xref:../apis/index.adoc[API Spec]
 ** xref:apigateway.adoc[API Gateway]
 ** xref:vpcmanager.adoc[VPC Manager]
 ** xref:subnetmanager.adoc[Subnet Manager]
@@ -15,6 +16,7 @@
 ** xref:privateipmanager.adoc[Private IP Manager]
 * xref:data_store.adoc[Data Store and Cache Subsystem Design]
 * https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Alcor Control Agent Design]
+* xref:goal_state_model.adoc[Goal State Data Model]
 * xref:comm.adoc[Controller and Control Agent Communication]
 ** xref:fast_path.adoc[Fast Path]
 ** xref:normal_path.adoc[Normal Path]
@@ -24,7 +26,6 @@
 ** xref:controller_monitoring.adoc[Controller Service Monitoring]
 * Control Plane Security
 * Communication Protocol with Compute
-* xref:../apis/index.adoc[API Design]
 * xref:deployment.adoc[Deployment, Upgrade and Compatibility]
 * Roadmap and Release Plan
 
