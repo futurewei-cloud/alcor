@@ -1,3 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-configmap
+data:
+  application.properties: |
+    spring.application.name=alcor-api-gateway
+    logging.level.org.springframework.web=DEBUG
+    logging.level.org.springframework.cloud=DEBUG
+    logging.level.com.github.tomakehurst.wiremock=TRACE
+    management.endpoints.web.exposure.include=health,prometheus
+    spring.sleuth.sampler.probability=1.0
+    spring.sleuth.web.skipPattern=(^health.*)
+    microservices.vpc.service.url=http://192.168.1.17:30001
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,13 +30,27 @@ spec:
       labels:
         app: apimanager
     spec:
+      volumes:
+        - name: api-volume
+          configMap:
+            name: api-configmap
+            items:
+              - key: application.properties
+                path: application.properties
       containers:
         - image: fwnetworking/controller:api_gateway-v0.3.0
         #- image: zhonghaolyu/repo:apiKube6
           name: apimanager-web
           imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorApiGateway-0.1.0.jar", "--spring.config.location=/etc/api/application.properties"]
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: api-volume
+              mountPath: /etc/api
+          envFrom:
+            - configMapRef:
+                name: vpc-configmap
 ---
 apiVersion: v1
 kind: Service
