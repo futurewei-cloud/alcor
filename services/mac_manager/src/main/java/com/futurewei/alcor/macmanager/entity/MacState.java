@@ -33,6 +33,7 @@ public class MacState implements Serializable {
     private String vpcId;
 
     @JsonProperty("port_id")
+
     private String portId;
 
     public MacState() {

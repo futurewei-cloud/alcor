@@ -21,9 +21,31 @@ import com.futurewei.alcor.macmanager.entity.MacState;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {
+    public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
+        if (resource == null) throw new ResourceNotFoundException();
+
+        //TODO: Check resource exists in the repo
+
+        return resource;
+    }
+
+    public static <T> T verifyResourceNotExists(T resource) throws ResourcePreExistenceException {
+        if (resource == null) throw new ResourcePreExistenceException();
+
+        //TODO: Check resource does not exist in the repo
+
+        return resource;
+    }
+
     public static void verifyParameterNotNullorEmpty(String resourceId) throws ParameterNullOrEmptyException {
         if (StringUtils.isEmpty(resourceId)) {
             throw new ParameterNullOrEmptyException("Empty parameter");
+        }
+    }
+
+    public static void verifyParameterEqual(String expectedResourceId, String resourceId) throws ParameterUnexpectedValueException {
+        if (StringUtils.isEmpty(resourceId) || !resourceId.equalsIgnoreCase(expectedResourceId)) {
+            throw new ParameterUnexpectedValueException("Expeceted value: " + expectedResourceId + " | actual: " + resourceId);
         }
     }
 
