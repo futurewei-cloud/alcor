@@ -16,21 +16,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.entity;
 
-public class DebugInfo {
+import lombok.Data;
 
-    private final long id;
-    private final String content;
+@Data
+public class RouteWebJson {
 
-    public DebugInfo(long id, String content) {
-        this.id = id;
-        this.content = content;
+    private RouteWebObject route;
+
+    public RouteWebJson() {
     }
 
-    public long getId() {
-        return id;
+    public RouteWebJson(RouteWebObject route) {
+        this.route = route;
     }
 
-    public String getContent() {
-        return content;
+    public RouteWebObject getRoute() {
+        return route;
+    }
+
+    public void setRoute(RouteWebObject route) {
+        this.route = route;
     }
 }
