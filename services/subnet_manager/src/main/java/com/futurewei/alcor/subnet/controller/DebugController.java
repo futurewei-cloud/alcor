@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.subnet.controller;
 
 import com.futurewei.alcor.subnet.dao.SubnetRedisRepository;
+import com.futurewei.alcor.subnet.entity.DebugInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
