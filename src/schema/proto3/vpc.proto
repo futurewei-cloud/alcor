@@ -1,0 +1,58 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcorcontroller;
+
+option java_package = "com.futurewei.alcor.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcConfiguration {
+    int32 version = 1;
+
+    string project_id = 2;
+    string id = 3;
+    string name = 4;
+    string cidr = 5;
+    int64 tunnel_id = 6;
+
+    message SubnetId {
+        string id = 1;
+    }
+
+    message Route {
+        string destination = 1;
+        string next_hop = 2;
+    }
+
+    message TransitRouter {
+        string vpc_id = 1;
+        string ip_address = 2;
+        string mac_address = 3;
+    }
+
+    repeated SubnetId subnet_ids = 7;
+    repeated Route routes = 8;
+    repeated TransitRouter transit_routers = 9;
+}
+
+message VpcState {
+    OperationType operation_type = 1;
+    VpcConfiguration configuration = 2;
+}

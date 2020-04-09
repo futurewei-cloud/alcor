@@ -1,0 +1,788 @@
+= [big blue]*Alcor Controller APIs*
+
+The followings are the RESTful APIs of Alcor controller system.
+
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*Group* |*Method* |*Request*|*Response*
+
+|<<VPCController>>
+|GET
+|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|vpc state
+<<Vpc_Get,[sample]>>
+
+|
+|POST
+|/project/{projectid}/vpcs
+|vpc state
+<<Vpc_Post,[sample]>>
+
+|
+|PUT
+|/project/{projectid}/vpcs/{vpcid}
+|vpc state
+<<Vpc_Put,[sample]>>
+
+|
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}
+|deleted vpc id
+<<Vpc_Delete,[sample]>>
+
+|
+|GET
+|/project/{projectid}/vpcs
+|vpc states
+<<Vpc_Get2,[sample]>>
+
+|<<SubNetController>>
+|GET
+|/project/{projectid}/subnets/{subnetId}
+|subnet state
+<<Subnet_Get,[sample]>>
+|
+|POST
+|/project/{projectid}/subnets
+|subnet state
+<<Subnet_Post,[sample]>>
+|
+|PUT
+|/project/{projectid}/vpcs/{vpcid}/
+subnets/{subnetid}
+|subnet state
+<<Subnet_Put,[sample]>>
+
+|
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}/
+subnets/{subnetid}
+|deleted subnet id
+<<Subnet_Delete,[sample]>>
+|
+|GET
+|/project/{projectid}/vpcs/{vpcid}/subnets
+|subnet states
+<<Subnet_Get2,[sample]>>
+|<<PortController>>
+|GET
+|/project/{projectid}/ports/{portId}
+|port state
+<<Port_Get,[sample]>>
+|
+|POST
+|/project/{projectid}/ports
+|customer port state
+<<Port_Post,[sample]>>
+|
+|PUT
+|/project/{projectid}/ports/{portid}
+|current port state
+<<Port_Put,[sample]>>
+|
+|DELETE
+|/project/{projectid}/ports/{portid}
+|deleted port id
+<<Port_Delete,[sample]>>
+|
+|GET
+|/project/{projectid}/subnet/
+{subnetid}/ports
+|port states
+<<Port_Get2,[sample]>>
+|===
+
+[[VPCController]]
+=== [blue big]*VPC Controller*
+
+anchor:Vpc_Get[]
+**(1) Get Vpc State By Vpc Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+
+* Response: vpc state
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+
+Response:
+{
+  "vpc": {
+    "cidr": "10.0.0.0/16",
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "description": ""
+  }
+}
+....
+
+anchor:Vpc_Post[]
+**(2) Create Vpc State**
+
+* Method: `POST`
+
+* Request: `"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"`
+
+* Request Parameter: `@PathVariable String projectid, @RequestBody VpcStateJson resource`
+
+* Response: `vpc state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs?Accept=application/json&Content-Type=application/json
+Body:
+{
+  "vpc": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "description": "",
+    "cidr": "10.0.0.0/16"
+  }
+}
+
+Response:
+{
+  "vpc": {
+    "cidr": "10.0.0.0/16",
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "description": ""
+  }
+}
+
+....
+
+anchor:Vpc_Put[]
+**(3) Update Vpc State By Vpc Id**
+
+* Method: `PUT`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `String projectid, String vpcid, @RequestBody VpcStateJson resource`
+
+* Response: `vpc state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+Body:
+{
+  "vpc": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc_2",
+    "description: 2nd vpc": "",
+    "cidr": "10.0.0.0/16"
+  }
+}
+
+Response:
+{
+  "vpc": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc_2",
+    "description: 2nd vpc": "",
+    "cidr": "10.0.0.0/16"
+  }
+}
+....
+
+anchor:Vpc_Delete[]
+**(4) Delete Vpc State By Vpc Id**
+
+* Method: `DELETE`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource`
+
+* Response: `deleted vpc id`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+
+Response:
+{
+  "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+}
+....
+
+anchor:Vpc_Get2[]
+*(5) Get Vpc States By Project Id*
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs`
+* Request Parameter: `@PathVariable String projectid`
+* Response: `vpc states`
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs
+
+Response:
+{
+  "9192a4d4-ffff-4ece-b3f0-8d36e3d88038": {
+    "cidr": "10.0.0.0/16",
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "description": ""
+  },
+ "9192a4d4-ffff-4ece-b3f0-8d36e3d88039": {
+    "cidr": "10.0.0.0/16",
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88039",
+    "name": "test_vpc2",
+    "description": "2nd vpc"
+  }
+}
+....
+
+[[SubNetController]]
+=== [blue big]*Subnet Controller*
+
+anchor:Subnet_Get[]
+**(1) Get Subnet State By Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/subnets/{subnetId}, "/v4/{projectid}/subnets/{subnetId}"`
+
+* Request Parameter:
+
+* Response: `subnet state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/a87e0f87-a2d9-44ef-9194-9a62f178594e
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet",
+    "description": "",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "cidr": "10.0.0.0/20",
+    "availability_zone": "uswest-1",
+    "gateway_ip": "10.0.0.5",
+    "dhcp_enable": false,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+....
+
+anchor:Subnet_Post[]
+**(2) Create Subnet State**
+
+* Method: `POST`
+
+* Request: `"/project/{projectid}/subnets","v4/{projectid}/subnets"`
+
+* Request Parameter:
+
+* Response: `subnet state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
+Body:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet",
+    "description": "",
+    "cidr": "10.0.0.0/20",
+    "gateway_ip": "10.0.0.5",
+    "availability_zone": "uswest-1",
+    "dhcp_enable": false,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet",
+    "description": "",
+    "cidr": "10.0.0.0/20",
+    "gateway_ip": "10.0.0.5",
+    "availability_zone": "uswest-1",
+    "dhcp_enable": false,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+....
+
+anchor:Subnet_Put[]
+**(3) Update Subnet State**
+
+* Method: `PUT`
+
+* Request: `"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"`
+
+* Request Parameter:
+
+* Response: `subnet state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/a87e0f87-a2d9-44ef-9194-9a62f178594e
+Body:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet1",
+    "description": "",
+    "cidr": "10.0.0.0/20",
+    "gateway_ip": "10.0.0.5",
+    "availability_zone": "useast-2",
+    "dhcp_enable": true,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet1",
+    "description": "",
+    "cidr": "10.0.0.0/20",
+    "gateway_ip": "10.0.0.5",
+    "availability_zone": "useast-2",
+    "dhcp_enable": true,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+....
+
+anchor:Subnet_Delete[]
+**(4) Delete Subnet State**
+
+* Method: `DELETE`
+
+* Request: `"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}", "v4/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"`
+
+* Request Parameter:
+
+* Response: `deleted vpc id`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/a87e0f87-a2d9-44ef-9194-9a62f178594e
+
+Response:
+{
+  "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+}
+....
+
+anchor:Subnet_Get2[]
+**(5) Get Subnet States By Project Id And VpcId**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}/subnets`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+
+* Response: `subnet states`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets
+
+Response:
+{
+  "a87e0f87-a2d9-44ef-9194-9a62f178594e": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "name": "test_subnet1",
+    "description": "1st subnet",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "cidr": "10.0.0.0/20",
+    "availability_zone": "useast-2",
+    "gateway_ip": "10.0.0.5",
+    "dhcp_enable": false,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  },
+  "a87e0f87-a2d9-44ef-9194-9a62f178595a": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "a87e0f87-a2d9-44ef-9194-9a62f178595a",
+    "name": "test_subnet2",
+    "description": "2nd subnet",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "cidr": "10.0.0.0/20",
+    "availability_zone": "uswest-2",
+    "gateway_ip": "10.0.0.5",
+    "dhcp_enable": false,
+    "primary_dns": null,
+    "secondary_dns": null,
+    "dns_list": null
+  }
+}
+....
+
+[[PortController]]
+=== [blue big]*Port Controller*
+
+anchor:Port_Get[]
+**(1) Get Port State By Id**
+
+* Method: `GET`
+
+* Request: `"/project/{projectid}/ports/{portId}", "v4/{projectid}/ports/{portId}"`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String portId`
+
+* Response: `port state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/ f37810eb-7f83-45fa-a4d4-1b31e75399df
+
+Response:
+{
+  "port": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port2",
+    "description": "",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e", a
+                             87e0f87-a2d9-44ef-9194-9a62f178594e
+    "tenant_id": null,
+    "admin_state_up": true,
+    "mac_address": "0e:73:ae:c8:0:9",
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": null,
+    "device_owner": null,
+    "status": "UP",
+    "fixed_ips": [
+      {
+        "subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "ip_address": "10.0.0.9"
+      }
+    ],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  }
+}
+....
+
+anchor:Port_Post[]
+**(2) Create Port State**
+
+* Method: `POST`
+
+* Request: ``"/project/{projectid}/ports", "v4/{projectid}/ports"
+``
+* Request Parameter: `@PathVariable String projectid, @RequestBody PortStateJson resource`
+
+* Response: `customer port state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports?Accept=application/json&Content-Type=application/json
+Body:
+{
+  "port": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port2",
+    "description": "",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": null,
+    "admin_state_up": true,
+    "mac_address": null,
+    "veth_name": "veth0",
+    "device_id": null,
+    "device_owner": null,
+    "status": null,
+    "fixed_ips": [],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dnsName": null,
+    "dnsAssignment": null,
+    "fast_path": true
+  }
+}
+
+Response:
+{
+  "port": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port2",
+    "description": "",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": null,
+    "admin_state_up": true,
+    "mac_address": "0e:73:ae:c8:0:6",
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": null,
+    "device_owner": null,
+    "status": "UP",
+    "fixed_ips": [
+      {
+        "subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "ip_address": "10.0.0.6"
+      }
+    ],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  }
+}
+....
+
+anchor:Port_Put[]
+*(3) Update Port State*
+
+* Method: `PUT`
+
+* Request: `"/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}"`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String portid, @RequestBody PortStateJson resource`
+
+* Response: `current port state`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df?Accept=application/json&Content-Type=application/json
+Body:
+{
+  "port": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port3",
+    "description": "cni test port3",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": "tenent2",
+    "admin_state_up": true,
+    "mac_address": null,
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": "dev_futurewei.com",
+    "device_owner": "futurewei",
+    "status": null,
+    "fixed_ips": [],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  }
+}
+
+Response:
+{
+  "port": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port3",
+    "description": "cni test port3",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": "tenent2",
+    "admin_state_up": true,
+    "mac_address": null,
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": "dev_futurewei.com",
+    "device_owner": "futurewei",
+    "status": null,
+    "fixed_ips": [],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  }
+}
+
+....
+
+anchor:Port_Delete[]
+**(4) Delete Port State**
+
+* Method: `DELETE`
+
+* Request: `/project/{projectid}/ports/{portid}", "v4/{projectid}/ports/{portid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String portid`
+
+* Response: `deleted portid`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df
+
+Response:
+{
+  "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df"
+}
+....
+
+anchor:Port_Get2[]
+**(5) Get Port States By Project Id And SubnetId**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/subnet/{subnetid}/ports`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+
+* Response: `port states`
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnet/a87e0f87-a2d9-44ef-9194-9a62f178594e/ports
+Body:
+
+Response:
+{
+  "f37810eb-7f83-45fa-a4d4-1b31e75399df": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "name": "test_cni_port2",
+    "description": "",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": null,
+    "admin_state_up": true,
+    "mac_address": "0e:73:ae:c8:0:b",
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": null,
+    "device_owner": null,
+    "status": "UP",
+    "fixed_ips": [
+      {
+        "subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "ip_address": "10.0.0.11"
+      }
+    ],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  },
+  "f37810eb-7f83-45fa-a4d4-1b31e75aaaaa": {
+    "fastPath": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "f37810eb-7f83-45fa-a4d4-1b31e75aaaaa",
+    "name": "test_cni_port7",
+    "description": "",
+    "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+    "tenant_id": "tenant7",
+    "admin_state_up": true,
+    "mac_address": "0e:73:ae:c8:0:a",
+    "veth_name": "veth0",
+    "fast_path": true,
+    "device_id": null,
+    "device_owner": null,
+    "status": "UP",
+    "fixed_ips": [
+      {
+        "subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "ip_address": "10.0.0.10"
+      }
+    ],
+    "allowed_address_pairs": null,
+    "extra_dhcp_opts": null,
+    "security_groups": null,
+    "binding:host_id": "ephost_0",
+    "binding:profile": null,
+    "binding:vnic_type": null,
+    "network_ns": "/var/run/netns/test_netw_ns",
+    "dns_name": null,
+    "dns_assignment": null
+  }
+}
+....
