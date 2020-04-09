@@ -21,11 +21,19 @@ image::images/Create_workflow_option3.jpg["API Workflows of Creating VPC, subnet
 
 === Update Workflow
 
+To be updated..
+
 === Deletion Workflow
+
+To be updated..
 
 == Gateway/Router Workflow
 
+To be updated..
+
 == Security Group and Network ACL Workflow
+
+To be updated..
 
 == Reference: Neutron new port on compute host - High Level Flow
 
