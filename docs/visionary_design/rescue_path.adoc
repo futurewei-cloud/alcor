@@ -1,3 +1,0 @@
-= Rescue Path
-
-Skip local crashed agent and call neighbor agent to pass network configuration

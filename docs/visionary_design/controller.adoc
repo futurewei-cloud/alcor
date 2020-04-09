@@ -1,3 +1,0 @@
-= Control Design
-
-// image::images/controller.jpg["Controller architecture", width=1024, link="images/controller.jpg"]
