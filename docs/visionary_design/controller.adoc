@@ -2,7 +2,7 @@
 
 == Project Scope
 
-== Architecture
+== High-Level Architecture
 
 image::images/controller.JPG["Controller architecture", width=1024, link="images/controller.JPG"]
 
@@ -23,6 +23,34 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 . One microservice is one Kubernetes service
 . One microservice could consist of multiple service instances (stateless or stateful) to improve availability, scalability and performance
 
+[#ReviewDatabase]
+=== Micro-service Snapshot
+
+[width="100%",options="header"]
+|====================
+|Category|Name|Description|Type
+
+.8+^.^|Resource Management Services|VPC Manager| VPC lifecycle management|Stateless
+|Subnet Manager| Subnet lifecycle management |Stateless
+|Port Manager| Port lifecycle management |Stateless
+|Route Manager| Route table and rule management |Stateless
+|Private IP Manager| VPC private IP lifecycle management (IPv4/6) |Stateless
+|Virtual MAC Manager| Virtual MAC pool management |Stateless
+|DNS Manager| DNS/DHCP record management |Stateless
+|Virtual IP Manager| Public virtual IP management |Stateless
+
+.4+^.^|Infrastructure Services|Node Manager| |Stateless
+|Data Plane Manager| |Stateless
+|Gateway Manager| |Stateless
+|Resource Pre-Provisioning Manager| |Stateless
+
+.2+^.^|Messaging Services|API Gateway| |Stateless
+|Apache Kafka| |Stateful
+
+.1+^.^|Cache/Database Services|Apache Ignite| |Stateful
+
+|====================
+
 === Total order under microservice framework
 
 Four types of concurrent network resource update:
@@ -33,6 +61,7 @@ Four types of concurrent network resource update:
 
 . Two resources are slightly coupled
 .. Example: two ports in the same subnet
+
 . Tightly coupled: Delete a VPC and create a subnet for an empty VPC
 
 . update the same resource
