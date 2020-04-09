@@ -9,14 +9,15 @@ spec:
     matchLabels:
       app: routemanager
   replicas: 1
+  #replicas: 3
   template:
     metadata:
       labels:
         app: routemanager
     spec:
       containers:
-        #- image: zhonghaolyu/repo:routeKube
-        - image: fwnetworking/controller:routeKube1
+        #- image: zhonghaolyu/repo:routeKube3
+        - image: fwnetworking/controller:route_manager-v0.3.0
           name: routemanager-web
           imagePullPolicy: IfNotPresent
           ports:

@@ -18,12 +18,20 @@ package com.futurewei.alcor.common.exception;
 
 public class ResourceNotFoundException extends Exception {
 
-    public ResourceNotFoundException() {
+//    private static final long serialVersionUID = 1L;
 
+    public ResourceNotFoundException() {
     }
 
     public ResourceNotFoundException(String message) {
         super(message);
     }
-    //TODO: improve logging
+
+    public ResourceNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ResourceNotFoundException(Throwable cause) {
+        super(cause);
+    }
 }
