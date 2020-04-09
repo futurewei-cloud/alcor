@@ -17,7 +17,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway.vpc;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotNull;
@@ -26,10 +25,7 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix = "vpc.destinations")
 public class VpcWebDestinations {
 
-    @Value("${microservices.vpc.service.url}")
-    private String vpcUrl;
-
-    private String defaultServiceUrl = vpcUrl; // Kubernetes
+    private String defaultServiceUrl = "http://192.168.1.17:30001"; // Kubernetes
     //private String defaultServiceUrl = "http://192.168.137.1:8080"; // DOcker
 
     @NotNull
