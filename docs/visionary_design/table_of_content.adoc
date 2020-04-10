@@ -5,7 +5,7 @@
 * xref:high_level_design.adoc[High Level Design]
 ** Key Differences Compared with Neutron
 * xref:system_flow.adoc[Key System Flows]
-* xref:controller.adoc[Alcor Controller Subsystem Design]
+* xref:controller.adoc[Design of Alcor Controller Microservices]
 ** xref:../apis/index.adoc[API Spec]
 ** API Gateway
 ** VPC Manager
@@ -14,10 +14,10 @@
 ** Route Manager
 ** xref:mac_manager.adoc[Mac Manager]
 ** Private IP Manager
-* xref:data_store.adoc[Data Store and Cache Subsystem Design]
+** xref:data_store.adoc[Design of Database and Cache Services]
 * https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc[Alcor Control Agent Design]
-* xref:goal_state_model.adoc[Goal State Data Model]
 * xref:comm.adoc[Controller and Control Agent Communication]
+** xref:goal_state_model.adoc[Goal State Data Model]
 ** xref:fast_path.adoc[Fast Path]
 ** xref:normal_path.adoc[Normal Path]
 ** xref:rescue_path.adoc[Rescue path]
