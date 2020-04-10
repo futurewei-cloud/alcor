@@ -7,7 +7,7 @@
 * xref:system_flow.adoc[Key System Flows]
 * xref:controller.adoc[Alcor Controller Subsystem Design]
 ** xref:../apis/index.adoc[API Spec]
-** xref:apigateway.adoc[API Gateway]
+** xref:api_gateway.adoc[API Gateway]
 ** xref:vpcmanager.adoc[VPC Manager]
 ** xref:subnetmanager.adoc[Subnet Manager]
 ** xref:portmanager.adoc[Port Manager]
