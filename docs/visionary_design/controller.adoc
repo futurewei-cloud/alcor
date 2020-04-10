@@ -51,22 +51,39 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 
 |====================
 
-=== Total order under microservice framework
+=== Concurrency and Event Ordering
 
 Four types of concurrent network resource update:
 
-. Two resources are completely decoupled
-.. Example: resources under different/unpeered VPCs
-.. Approach: free to update simultaneously
+[width="100%",options="header"]
+|====================
+|Concurrent Event Types|Example|Approach
 
-. Two resources are slightly coupled
-.. Example: two ports in the same subnet
+| Operation on decoupled resources
+| CURD of resources under two different/unpeered VPCs
+| Free to update simultaneously
 
-. Tightly coupled: Delete a VPC and create a subnet for an empty VPC
+| Operation on loosely relevant resources
+| Add one port, and delete the other in the same subnet
+a|
+- No conflict on resource management
+- Network conf programming: Network conf versioning + version-awareness at ACA
 
-. update the same resource
-.. Example:
-.. Approach: Ignite concurrency + timestamp versioning
+| Operation on directly coupled resources
+| Delete a VPC and create a subnet for an empty VPC
+a|
+- Timestamp issues at API gateway
+- Check associated resource status
+- DB cleanup for unstaged transactions
+
+| Operation on the same resource
+| Update operation and delete operation on the same port
+a|
+- Customer experience: may have different experience if executed in different order
+- Resource management: no conflict (using DB concurrency + timestamp versioning)
+- Network configuration programming: no conflict
+
+|====================
 
 == Availability Zone Resilience
 
