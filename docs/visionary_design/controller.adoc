@@ -1,6 +1,6 @@
 = Alcor Regional Controller Design
 
-== Project Scope
+//== Project Scope
 
 == High-Level Architecture
 
@@ -87,31 +87,35 @@ a|
 
 == Availability Zone Resilience
 
+TBD
+
 == Service-to-Service Communication
 
-== Design Proposals
+TBD
 
-=== Proposal A: Database centric design
-
-OpenStack
-Various business logics (implemented via plugin) access to the same database.
-Each service accesses to SQL database with DAO/ADO library.
-
-=== Proposal B: API server centric design
-
-Kubenetes
-Various business logics access to one (partitioned) database through API services. 
-
-=== Proposal C: Service centric design
-
-Service mesh
-
-=== Proposal Comparison & Decision
-
-[width="100%",options="header"]
-|====================
-|Design|Pros|Cons
-|Option 1: Database centric design |Business logic coupling causing maintainence/upgrade challenges, business intra-interference and deep database coupling |
-|Option 2: API server centric design | | Simplied database access by standard API calls 
-|Option 3: Service centric design| |
-|====================
+//== Design Proposals
+//
+//=== Proposal A: Database centric design
+//
+//OpenStack
+//Various business logics (implemented via plugin) access to the same database.
+//Each service accesses to SQL database with DAO/ADO library.
+//
+//=== Proposal B: API server centric design
+//
+//Kubenetes
+//Various business logics access to one (partitioned) database through API services.
+//
+//=== Proposal C: Service centric design
+//
+//Service mesh
+//
+//=== Proposal Comparison & Decision
+//
+//[width="100%",options="header"]
+//|====================
+//|Design|Pros|Cons
+//|Option 1: Database centric design |Business logic coupling causing maintainence/upgrade challenges, business intra-interference and deep database coupling |
+//|Option 2: API server centric design | | Simplied database access by standard API calls
+//|Option 3: Service centric design| |
+//|====================
