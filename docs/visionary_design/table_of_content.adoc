@@ -8,12 +8,15 @@
 * xref:controller.adoc[Alcor Controller Microservices]
 ** xref:../apis/index.adoc[API Spec]
 ** API Gateway
-** VPC Manager
-** Subnet Manager
-** Port Manager
-** Route Manager
-** xref:mac_manager.adoc[Mac Manager]
-** Private IP Manager
+** Management Services
+//*** VPC Manager, Subnet Manager and Port Manager
+//*** Route Manager
+*** xref:mac_manager.adoc[Mac Manager]
+//*** Private IP Manager
+** Infrastructure Services
+//*** Node Manager
+//*** Data-Plane Manager
+//*** Gateway Manager
 ** xref:data_store.adoc[Database and Cache Services]
 * https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/table_of_content.adoc[Alcor Control Agent]
 ** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/high_level_design.adoc[High Level Design]
