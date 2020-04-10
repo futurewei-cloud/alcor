@@ -1,3 +1,78 @@
-= Rescue Path
+= Control Plane Rescue Path
 
 Skip local crashed agent and call neighbor agent to pass network configuration
+
+== Introduction
+
+A highly available network control plane is critical to public cloud offerings.
+As the user base of cloud provider grows at the rate of 10X in just a few years.
+The network control plane workload faces exponential growth which requires innovative architecture and revolutionary design to support the scale.
+With the lines of code increase to support complex requirements and customer features, a fail-safe mechanism is needed to handle software failures so that the network control plane can continue to function without customer visible impact.
+
+== Architecture
+
+The following diagram illustrates the architecture of the network control plane rescue path, 
+and how it communicate to peer compute host to help with network configuration and date plane programming:
+
+image::images/rescue_path.GIF["Rescue path architecture", width=1024, link="images/rescue_path.GIF"]
+
+== Design
+
+Even if the rate of software failure is 1 out of 1 million, a failure would happen every day in a large scale public cloud offering. The network control plane will leverage both a monitoring system (likely Prometheus) and direct indication from host to defect failure and invoke the rescue path. See health monitoring/failure detection design here: https://github.com/futurewei-cloud/alcor/blob/docs/design/docs/visionary_design/monitoring.adoc .
+
+All network control agent tasks were designed to have high throughput, and low latency when it is running on local compute host. The network control agent can also invoke tasks on a remote compute host with minimal additional cost. The additional cost would come from calling remote ssh vs local shell out call for network configuration, and doing remote RPC vs local RPC when programming Mizar dataplane.
+
+For remote host network configuration, a neighbor network control agent will simply invoke remote SSH to the other compute host using the TargetHostIP supplied in the GoalState message from network controller. For Mizar dataplane programming, network controller agent can use remote RPC to invoke Mizar dataplane API on the other compute host.
+
+During usage the network control plane rescue path, all existing customer deployments should continue to work without impact. Although the compute node will be marked as unhealthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visible performance degradation. 
+
+== Updated Contract between Controller and Agent
+
+TargetHostIP will be added to the GoalState protobuf message. "LocalHost" string will be used for network configuration in the local compute host machine, which represent most of the usage. TargetHostIP will be set to remote compute host IP address, for the rescue path operation when needed.
+
+*src/schema/proto3/goalstate.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+
+import "vpc.proto";
+import "subnet.proto";
+import "port.proto";
+import "securitygroup.proto";
+
+message GoalState {
+   string TargetHostIP = 1;
+   repeated VpcState vpc_states = 2;
+   repeated SubnetState subnet_states = 3;
+   repeated PortState port_states = 4;
+   repeated SecurityGroupState security_group_states = 5;
+}
+------------------------------------------------------------
+
+//=== Error Handling
+
+//response back to network controller using gsReply message
+
+
+== Proposed Changes
+
+The control plane rescue path would requires the following changes:
+
+[width="100%",options="header"]
+|====================
+|Index|Feature Description|Priority|Note
+|1|An additional field (TargetHostIP) in GoalState message to specify either "LocalHost" or remote host IP|P0|
+|2|Update Control Agent logic to use TargetHostIP .3+^.^|P0|
+|2.1|Control Agents to perform network configuration in Remote Host|
+|2.2|Control Agents to perform dataplace programming in Remote Host|
+|3|Update Network Controllor .3+^.^|P0|
+|3.1|work item 1|
+|3.2|work item 2|
+|4|E2E latency measurement for rescue path|P0|
+|5|Performance test to get scalability limit for remote network configuration|P1|
+|====================
