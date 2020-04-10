@@ -31,6 +31,7 @@
 ** xref:rescue_path.adoc[Rescue path]
 * xref:monitoring.adoc[System Monitoring and Failure Detection]
 ** xref:node_monitoring.adoc[Node Monitoring]
+** https://github.com/futurewei-cloud/alcor-int/wiki/Monitoring:-Netdata[Monitoring with NetData]
 ** xref:controller_monitoring.adoc[Controller Service Monitoring]
 * Control Plane Security
 * Communication Protocol with Compute
