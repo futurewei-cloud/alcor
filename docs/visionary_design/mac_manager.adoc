@@ -1,0 +1,377 @@
+= MAC Manager Design Specification
+Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+
+== Overview
+
+MAC manager is an Alcor microservice which manages the lifecycle of all MAC addresses.
+Its responsibilities include but not limited to, allocating a unique mac address for a given port,
+releasing the mac address when not needed, and onboarding a region-specific mac ranges.
+It interacts with Subnet Manager and Port Manager to allocate mac addresses for gateway ports and customer ports.
+
+== Service Requirements
+
+[arabic]
+. Allocate virtual MAC address for all the tenants/vpcs, e.g., (VPC 1, Port 1) -> MAC1
+. Release (port, MAC) association when a port is released
+. Guarantee uniqueness of MAC address in region scope. Each region has seperate Alcor controller.
+. Algorithm with random, but less conflict possibility
+. Reserved MAC address by IANA should be avoided <<iana>>
+. Fall back mechanism if there is a conflict among MAC addresses
+. Allow onboarding a list of MAC ranges for a region
+. Delete a list of MAC ranges for a region.
+. APIs to activate and deactivate a MAC address. MAC address has 3 states such as "allocated & activated", "allocated & deactivated", and "free (= not allocated yet)"
+. Working together with other services including subnet manager and port manager.
+. Concurrency control mechanism should be provided to process multiple concurrent MAC allocation requests.
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Verify MAC State
+|GET
+|/macs/{mac}, /v4/macs/{mac}
+|mac state
+<<Mac_Get,[sample]>>
+
+|Create MAC State
+|POST
+|/macs, /v4/macs
+|mac state
+<<Mac_Post,[sample]>>
+
+|Activate MAC Address
+|PUT
+|/macs/{mac}, /v4/macs/{mac}
+|mac state
+<<Mac_Put1,[sample]>>
+
+|Deactivate MAC Address
+|PUT
+|/macs/{mac}, /v4/macs/{mac}
+|vpc state
+<<Mac_Put2,[sample]>>
+
+|Release MAC State
+|DELETE
+|/macs/{mac}, /v4/macs/{mac}
+|mac state
+<<Mac_Delete,[sample]>>
+
+|Create MAC Range
+|POST
+|/macs/range, /v4/macs/range
+|Oui state
+<<Mac_Post2,[sample]>>
+
+|Change MAC Range
+|PUT
+|/macs/range, /v4/macs/range
+|oui state
+<<Mac_Put3,[sample]>>
+|===
+
+=== API Specification
+
+anchor:Mac_Get1[]
+**(1) Get/Verify MAC state by MAC address**
+
+* Method: `GET`
+
+* Request: `/macs/{mac}, /v4/macs/{mac}`
+
+* Request Parameter: `@PathVariable  String mac`
+
+* Response: mac state
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/macs/00-14-2A-3B-47-37
+
+Response:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "mac": "00-14-2A-3B-47-37",
+    “state” “activated”
+  }
+}
+....
+
+anchor:Mac_Post1[]
+**(2) Allocate MAC Address for Port**
+
+* Method: `POST`
+
+* Request: `"/macs", "/v4/macs"`
+
+* Request Parameter:
+
+* Response: `mac state`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/mac
+
+Body:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": " f37810eb-7f83-45fa-a4d4-1b31e75399df"
+    "mac": “null”,
+    “state”: “null”
+  }
+}
+
+Response:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": " f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "mac": "00-14-2A-3B-47-37",
+    “state” “activated”
+  }
+}
+....
+
+anchor:Mac_Put1[]
+**(3) Activate MAC Address**
+
+* Method: `PUT`
+
+* Request: `/macsss/{mac}", "/v4/macs/{mac}`
+
+* Request Parameter: `@PathVariable String mac`
+
+* Response: `mac state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/macs/00-14-2A-3B-47-37
+
+Response:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "mac": "00-14-2A-3B-47-37",
+    “state”: “activated”
+  }
+}
+....
+anchor:Mac_Put2[]
+**(4) Deactivate MAC Address**
+
+* Method: `PUT`
+
+* Request: `/macs/{mac}", "/v4/macs/{mac}`
+
+* Request Parameter: `@PathVariable String mac`
+
+* Response: `mac state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/macs/00-14-2A-3B-47-37
+
+Response:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "mac": "00-14-2A-3B-47-37",
+    “state”: “deactivated”
+  }
+}
+....
+anchor:Mac_Delete1[]
+**(5) Delete/Release MAC State By MAC Address**
+
+* Method: `DELETE`
+
+* Request: `/macs/{mac}", "/v4/macs/{mac}`
+
+* Request Parameter: `@PathVariable String mac`
+
+* Response: `mac state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/mac/{00-14-2A-3B-47-37}
+Body:
+{
+  "mac_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "port_id": " f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "mac": "00-14-2A-3B-47-37",
+    “state” “activated”
+  }
+}
+
+Response:
+{
+  "mac_state": {
+    "project_id": "null",
+    "vpc_id": "null",
+    "port_id": " null",
+    "mac": "00-14-2A-3B-47-37",
+    “state” “free”
+  }
+}
+....
+
+anchor:Mac_Post2[]
+**(6) Onboard MAC Range**
+
+* Method: `POST`
+* Request: `/macs/range`
+* Request Parameter:
+* Response: `mac range state`
+* Normal response codes: 201
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/mac/range
+
+Body:
+{
+  "mac_range": {
+    “id": "range1”,
+    "from": “00-14-2A-3B-47-00”,
+    "to": “00-14-2A-3B-47-FF”
+   }
+}
+
+Response:
+{
+  “mac_range”: [{
+    “id": "range0”,
+    "from": “00-14-2A-3B-47-00”,
+    "to": “00-14-2A-3B-47-FF”
+   },
+    {
+    “id": "range1”,
+    "from": “00-14-2A-3B-50-00”,
+    "to": “00-14-2A-3B-50-00”
+   }]
+}
+
+....
+anchor:Mac_Put3[]
+**(7) Remove MAC Range by Range Id**
+
+* Method: `PUT`
+* Request: `/macs/range/range1`
+* Request Parameter:
+* Response: ``mac range state`
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+Request:
+http://127.0.0.1:8080/mac/range
+
+Body:
+{
+  "oui_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    “mac_range”: {
+                   “from”: “00-14-2A-3B-47-00”,
+                   “to”: “00-14-2A-3B-47-FF”}
+   }
+}
+
+Response:
+{
+  "oui_state": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    “mac_range”: {
+                   “from”: “00-14-2A-3B-50-00”,
+                   “to”: “00-14-2A-3B-50-FF”}
+   }
+}
+
+....
+
+
+== Database Data Schema
+
+=== MAC Address State
+One MAC address falls into one of three states:
+
+[width="100%",cols="30%,70%"]
+|===
+|*State* |*Details*
+
+|Activated
+|MAC address is allocated to a port AND it is in use. This is default.
+
+|Deactivated
+|MAC address is allocated to a port AND it is NOT in use.
+
+|Free
+|MAC address is NOT allocated to a port yet.
+|===
+
+=== MAC Range
+
+image::images/Services_MacRange.png[]
+
+=== MAC State
+image::images/Services_MacState.png[]
+
+== Concurrency Handling
+
+TBD
+
+== Comparison with OpenStack Neutron
+
+TBD
+
+[bibliography]
+== References
+
+- [[[iana,1]]] https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
