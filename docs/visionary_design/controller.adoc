@@ -28,7 +28,7 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 
 [width="100%",options="header"]
 |====================
-|Category|Name|Description|Type
+|Category|Name|Short Description|Type
 
 .8+^.^|Resource Management Services|VPC Manager| VPC lifecycle management|Stateless
 |Subnet Manager| Subnet lifecycle management |Stateless
@@ -39,15 +39,15 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 |DNS Manager| DNS/DHCP record management |Stateless
 |Virtual IP Manager| Public virtual IP management |Stateless
 
-.4+^.^|Infrastructure Services|Node Manager| |Stateless
-|Data Plane Manager| |Stateless
-|Gateway Manager| |Stateless
-|Resource Pre-Provisioning Manager| |Stateless
+.4+^.^|Infrastructure Services|Node Manager|Physical nodes/machines management for control plane, including in/out of services, health status maint|Stateless
+|Data Plane Manager|Responsible of sending network configuration to nodes|Stateless
+|Gateway Manager|Responsible of managing gateway|Stateless
+|Resource Pre-Provisioning Manager| TBD |Stateless
 
-.2+^.^|Messaging Services|API Gateway| |Stateless
-|Apache Kafka| |Stateful
+.2+^.^|Messaging Services|API Gateway| Responsible of request routing, composition, and protocol translation |Stateless
+|Apache Kafka| Messaging services for controller and agent communication |Stateful
 
-.1+^.^|Cache/Database Services|Apache Ignite| |Stateful
+.1+^.^|Cache/Database Services|Apache Ignite| Database services to store resource states |Stateful
 
 |====================
 
@@ -72,7 +72,7 @@ a|
 | Operation on directly coupled resources
 | Delete a VPC and create a subnet for an empty VPC
 a|
-- Timestamp issues at API gateway
+- Timestamp issued by API gateway
 - Check associated resource status
 - DB cleanup for unstaged transactions
 
