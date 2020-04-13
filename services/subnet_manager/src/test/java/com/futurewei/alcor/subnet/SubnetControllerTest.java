@@ -1,26 +1,36 @@
 package com.futurewei.alcor.subnet;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.*;
 
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.dao.SubnetRedisRepository;
-import com.futurewei.alcor.subnet.entity.SubnetState;
+import com.futurewei.alcor.subnet.entity.*;
+import com.futurewei.alcor.subnet.service.SubnetRedisService;
+import com.futurewei.alcor.subnet.service.SubnetService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ai.grakn.redismock.RedisServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @RunWith(SpringRunner.class)
@@ -32,48 +42,151 @@ public class SubnetControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private SubnetRedisRepository subnetRedisRepository;
+    @MockBean
+    private SubnetRedisService subnetRedisService;
 
-    private static RedisServer server = null;
+    @MockBean
+    private SubnetService subnetService;
 
-    private SubnetState subnetState;
-
-    private String getUri = "/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000";
-    private String deleteUri = "project/dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000";
+    private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
+    private String creatwUri = "/project/" + UnitTestConfig.projectId + "/subnets";
+    private String getByProjectIdAndVpcIdUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/subnets";
+    private String deleteUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/subnets/" + UnitTestConfig.subnetId;
+    private String putUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/subnets/" + UnitTestConfig.subnetId;
 
     @Test
-    public void test () throws Exception {
-        Assert.assertEquals("test", "test");
+    public void subnetGetByIdTest1 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.cidr));
+        this.mockMvc.perform(get(getByIdUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
     }
 
     @Test
-    public void testSubnetGET () throws Exception {
-        this.mockMvc.perform(get(getUri)).andDo(print())
-                .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.subnet").value(null));
+    public void subnetGetByIdTest2 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId)).thenReturn(null);
+        String response = this.mockMvc.perform(get(getByIdUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        System.out.println("-----json returned = " + response);
+        assertEquals("{\"subnet\":null}", response);
     }
 
     @Test
-    public void testSubnetDELETE () throws Exception {
-        this.mockMvc.perform(get(deleteUri)).andDo(print())
-                .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.id").value(null));
+    public void subnetCreateTest1 () throws Exception {
+        SubnetState subnetState = new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.cidr);
+        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+
+        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        RouteWebJson routeWebJson = new RouteWebJson();
+
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(subnetState);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, subnetState))
+                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.prepeareRouteRule(subnetState, vpcStateJson))
+                .thenReturn(routeWebJson);
+        try {
+            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON).
+                    content(UnitTestConfig.resource))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
+        }catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
+    @Test
+    public void subnetUpdateTest1 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId)).
+                thenReturn(new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.cidr));
+        this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).
+                content(UnitTestConfig.resource))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
+    }
+
+    @Test
+    public void subnetUpdateTest2 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenThrow(new ResourceNotFoundException("Subnet not found : " + UnitTestConfig.subnetId));
+        try {
+            this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.resource))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }catch (Exception ex) {
+            //System.out.println(ex.getMessage());
+            assertEquals(UnitTestConfig.exception, ex.getMessage());
+        }
+
+    }
+
+    @Test
+    public void subnetGetByProjectIdAndVpcIdTest1 () throws Exception {
+        Map<String, SubnetState> subnetStates = new HashMap<>();
+        SubnetState subnetState = new SubnetState( UnitTestConfig.projectId,
+                UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.name,UnitTestConfig.cidr);
+        subnetStates.put("SubnetState", subnetState);
+        Mockito.when(subnetRedisService.getAllSubnets()).thenReturn(subnetStates);
+        this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void subnetGetByProjectIdAndVpcIdTest2 () throws Exception {
+        Map<String, SubnetState> subnetStates = new HashMap<>();
+        Mockito.when(subnetRedisService.getAllSubnets()).thenReturn(subnetStates);
+        this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void subnetDeleteTest1 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(new SubnetState( UnitTestConfig.projectId,
+                UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.name,UnitTestConfig.cidr));
+        this.mockMvc.perform(delete(deleteUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.subnetId));
+    }
+
+    @Test
+    public void subnetDeleteTest2 () throws Exception {
+        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(null);
+        String response = this.mockMvc.perform(delete(deleteUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        System.out.println("-----json returned = " + response);
+        assertEquals("{\"id\":null}", response);
     }
 
     @Before
     public void init() throws IOException {
-        server = RedisServer.newRedisServer(6379);  // bind to a random port
-        server.start();
-        String h = server.getHost();//0.0.0.0 bind host
-        subnetState = new SubnetState("3dda2801-d675-4688-a63f-dcda8d327f50","9192a4d4-ffff-4ece-b3f0-8d36e3d88038", "9192a4d4-ffff-4ece-b3f0-8d36e3d88000", "test_subnet","10.0.0.0/16");
-        this.subnetRedisRepository.addItem(subnetState);
         System.out.println("Start Test-----------------");
     }
 
     @After
     public void after() {
-        this.subnetRedisRepository.deleteItem("9192a4d4-ffff-4ece-b3f0-8d36e3d88000");
-        server.stop();
-        server = null;
         System.out.println("End Test-----------------");
     }
 }

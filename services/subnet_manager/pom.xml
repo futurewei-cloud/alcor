@@ -118,9 +118,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>ai.grakn</groupId>
-            <artifactId>redis-mock</artifactId>
-            <version>0.1.6</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
         </dependency>
     </dependencies>
 

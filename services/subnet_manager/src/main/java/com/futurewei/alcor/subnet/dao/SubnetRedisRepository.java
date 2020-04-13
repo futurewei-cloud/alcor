@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.dao;
 
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
@@ -49,7 +50,7 @@ public class SubnetRedisRepository implements ICacheRepository<SubnetState> {
     }
 
     @Override
-    public SubnetState findItem(String id) {
+    public SubnetState findItem (String id) throws ResourceNotFoundException {
         return (SubnetState) hashOperations.get(KEY, id);
     }
 
