@@ -116,7 +116,7 @@ public class CacheTest {
     }
 
     /**
-     * Since all test cases for this class need to be connected to the database,
+     * Since all test cases for this class need to connect to the database,
      * they cannot be executed at compile time, so add a switch canRun to this method,
      * which needs to be turned on when executing these test cases in the development environment.
      * @throws CacheException Exception of cache operation
