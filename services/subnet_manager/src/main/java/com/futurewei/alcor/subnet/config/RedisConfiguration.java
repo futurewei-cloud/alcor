@@ -16,9 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.config;
 
-import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.common.service.RedisListener;
-import com.futurewei.alcor.subnet.service.RedisPublisher;
 import com.futurewei.alcor.subnet.entity.SubnetState;
 
 import org.springframework.beans.factory.annotation.Value;

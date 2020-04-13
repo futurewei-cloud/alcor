@@ -20,6 +20,8 @@ import com.futurewei.alcor.subnet.dao.SubnetRedisRepository;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.subnet.entity.*;
+import com.futurewei.alcor.subnet.service.SubnetRedisService;
+import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,22 +39,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 public class SubnetController {
 
-    @Value("${microservices.vpc.service.url}")
-    private String vpcUrl;
-
-    @Value("${microservices.route.service.url}")
-    private String routeUrl;
-
-    @Value("${microservices.mac.service.url}")
-    private String macUrl;
-
-    @Value("${microservices.ip.service.url}")
-    private String ipUrl;
+    @Autowired
+    private SubnetRedisService subnetRedisService;
 
     @Autowired
-    private SubnetRedisRepository subnetRedisRepository;
-
-    private RestTemplate restTemplate = new RestTemplate();
+    private SubnetService subnetService;
 
     @RequestMapping(
             method = GET,
@@ -66,7 +57,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetId);
+            subnetState = this.subnetRedisService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -96,25 +87,21 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceFound(inSubnetState.getVpcId());
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
 
-            this.subnetRedisRepository.addItem(inSubnetState);
+            this.subnetRedisService.addSubnet(inSubnetState);
 
-            subnetState = this.subnetRedisRepository.findItem(inSubnetState.getId());
+            subnetState = this.subnetRedisService.getBySubnetId(inSubnetState.getId());
             if (subnetState == null) {
                 throw new ResourcePersistenceException();
             }
 
             // Verify VPC ID
-            String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + inSubnetState.getVpcId(); // for kubernetes test
-            //HttpEntity<SubnetStateJson> vpcRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
-            VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
+            VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState);
             if (vpcResponse == null) {
                 throw new ResourcePersistenceException();
             }
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            String routeManagerServiceUrl = routeUrl + inSubnetState.getId() + "/routes"; // for kubernetes test
-            HttpEntity<VpcStateJson> routeRequest = new HttpEntity<>(new VpcStateJson(vpcResponse.getVpc()));
-            RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
+            RouteWebJson routeResponse = this.subnetService.prepeareRouteRule(inSubnetState, vpcResponse);
             if (routeResponse == null) {
                 throw new ResourcePersistenceException();
             }
@@ -171,7 +158,7 @@ public class SubnetController {
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inSubnetState, vpcid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            subnetState = this.subnetRedisService.getBySubnetId(subnetid);
             if (subnetState == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetid);
             }
@@ -179,8 +166,8 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterEqual(subnetState.getProjectId(), projectid);
             RestPreconditionsUtil.verifyParameterEqual(subnetState.getVpcId(), vpcid);
 
-            this.subnetRedisRepository.addItem(inSubnetState);
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            this.subnetRedisService.addSubnet(inSubnetState);
+            subnetState = this.subnetRedisService.getBySubnetId(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -205,7 +192,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            subnetState = this.subnetRedisService.getBySubnetId(subnetid);
             if (subnetState == null) {
                 return new ResponseId();
             }
@@ -213,7 +200,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterEqual(subnetState.getProjectId(), projectid);
             RestPreconditionsUtil.verifyParameterEqual(subnetState.getVpcId(), vpcid);
 
-            subnetRedisRepository.deleteItem(subnetid);
+            this.subnetRedisService.deleteSubnet(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -227,7 +214,7 @@ public class SubnetController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/vpcs/{vpcid}/subnets")
-    public Map geSubnetStatesByProjectIdAndVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+    public Map getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         Map<String, SubnetState> subnetStates = null;
 
         try {
@@ -236,7 +223,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceFound(projectid);
             RestPreconditionsUtil.verifyResourceFound(vpcid);
 
-            subnetStates = this.subnetRedisRepository.findAllItems();
+            subnetStates = this.subnetRedisService.getAllSubnets();
             subnetStates = subnetStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
                             && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
