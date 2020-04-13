@@ -16,23 +16,25 @@ package com.futurewei.alcor.macmanager.entity;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class OuiState implements Serializable {
-    String ou;  //project_id+"/"+vpc_id
-    String oui;
+public class MacRangeJson {
 
-    public OuiState() {
+    private MacRange macRange;
+
+    public MacRangeJson() {
 
     }
 
-    public OuiState(OuiState state) {
-        this(state.ou, state.oui);
+    public MacRangeJson(MacRange macRange) {
+        this.macRange = macRange;
     }
 
-    public OuiState(String ou, String oui) {
-        this.ou = ou;
-        this.oui = oui;
+    public MacRange getMacRange() {
+        return macRange;
+    }
+
+    public void setMacRange(MacRange macRange) {
+        this.macRange = macRange;
     }
 }
+

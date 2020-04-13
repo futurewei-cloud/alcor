@@ -12,75 +12,60 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
 package com.futurewei.alcor.macmanager.dao;
 
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Repository
-public class MacRedisRepository implements ICacheRepository<MacState> {
+public class MacPoolRedisRepository implements ICacheRepository<String> {
 
-    private String KEY = "mac_state";
+    private static final String KEY = "mac_pool";
 
-    private RedisTemplate<String, MacState> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
-    private HashOperations hashOperations;
+    private SetOperations setOperations;
 
     @Autowired
-    public MacRedisRepository(RedisTemplate<String, MacState> redisTemplate) {
-
+    public MacPoolRedisRepository(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
     private void init() {
-        hashOperations = redisTemplate.opsForHash();
+        setOperations = redisTemplate.opsForSet();
     }
 
     @Override
-    public MacState findItem(String id) {
-
-        return (MacState) hashOperations.get(KEY, id);
+    public String findItem(String value) {
+        if (setOperations.isMember(KEY, value))
+            return value;
+        else
+            return null;
     }
 
     @Override
     public Map findAllItems() {
-        return hashOperations.entries(KEY);
+        return (Map) setOperations.members(KEY);
     }
 
     @Override
-    public void addItem(MacState newItem) {
-        hashOperations.put(KEY, newItem.getMacAddress(), newItem);
+    public void addItem(String newItem) {
+        setOperations.add(KEY, newItem);
     }
 
     @Override
-    public void deleteItem(String id) {
-        hashOperations.delete(KEY, id);
+    public void deleteItem(String value) {
+        setOperations.remove(KEY, value);
     }
 
-    public void updateItem(MacState newItem) {
-        hashOperations.put(KEY, newItem.getMacAddress(), newItem);
-    }
-
-    public MacState findMac(String id) {
-        return (MacState) hashOperations.get(KEY, id);
-    }
-
-    public void setKey(String key) {
-        KEY = key;
-    }
-
-    public boolean exisingOui(String oui) {
-
-        return redisTemplate.hasKey(oui);
+    public String getItem() {
+        return (String) setOperations.randomMember(KEY);
     }
 }
-

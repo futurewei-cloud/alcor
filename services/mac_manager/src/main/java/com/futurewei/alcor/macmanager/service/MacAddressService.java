@@ -14,124 +14,136 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.service;
 
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.macmanager.dao.MacPoolRedisRepository;
+import com.futurewei.alcor.macmanager.dao.MacRangeRedisRepository;
 import com.futurewei.alcor.macmanager.dao.MacRedisRepository;
-import com.futurewei.alcor.macmanager.dao.OuiRedisRepository;
+import com.futurewei.alcor.macmanager.entity.MacAddress;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.entity.OuiState;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class MacAddressService {
 
-    final String DELIMITER1 = "/";
-    final String DELIMITER2 = "-";
-    final int KEY_LENGTH = 8;
+    final String DELIMITER = "/";
 
     @Autowired
-    private OuiRedisRepository ouiRedisRepository;
+    private MacRangeRedisRepository macRangeRedisRepository;
+
+    @Autowired
+    private MacPoolRedisRepository macPoolRedisRepository;
 
     @Autowired
     private MacRedisRepository macRedisRepository;
 
+    @Value("${macmanager.oui}")
+    private String oui;
+
+    private HashMap<String, MacRange> macRanges = new HashMap<String, MacRange>();
+
     public MacState getMacStateByMacAddress(String macAddress) {
-        String key = getKey(macAddress);
-        macRedisRepository.setKey(key);
         MacState macState = macRedisRepository.findItem(macAddress);
         return macState;
     }
 
-    public MacState releaseMac(String macAddress) {
-        String key = getKey(macAddress);
-        macRedisRepository.setKey(key);
+    public String releaseMac(String macAddress) throws Exception {
         MacState macState = macRedisRepository.findItem(macAddress);
-        macState.setProjectId("");
-        macState.setVpcId("");
-        macState.setPortId("");
-        macRedisRepository.updateItem(macState);
-        return macState;
+        if (macState == null) {
+            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
+            throw e;
+        } else {
+            macPoolRedisRepository.addItem(macAddress);
+            macRedisRepository.deleteItem(macAddress);
+        }
+        return macAddress;
     }
 
     public MacState createMacState(MacState macState) throws Exception {
-        String macAddress;
+        MacAddress macAddress = new MacAddress();
         String projectId = macState.getProjectId();
         String vpcId = macState.getVpcId();
         String portId = macState.getPortId();
-        String oui = generateOui(projectId, vpcId);
-        String nic = generateNic(oui, projectId, vpcId, portId);
-        macAddress = oui + DELIMITER2 + nic;
-        macState.setMacAddress(macAddress);
+
+        String strMacAddress = allocateMacState(macState);
+        if (strMacAddress != null) {
+            macState.setMacAddress(strMacAddress);
+            macRedisRepository.addItem(macState);
+        } else {
+            String nic = generateNic();
+            macAddress.setOui(oui);
+            macAddress.setNic(nic);
+            macState.setMacAddress(macAddress.getMacAddress());
+            macRedisRepository.addItem(macState);
+        }
+
         return macState;
     }
 
-    public Map getMacStateByVpcIdPort(String projectId, String vpcId, String portId) {
-        String hk = makeKey(projectId, vpcId, portId);
-        String oui = ouiRedisRepository.findOui(hk);
-        macRedisRepository.setKey(oui);
-        return macRedisRepository.findMacAddressesbyVpcPort(portId);
-    }
-
-    private String generateOui(String projectId, String vpcId) {
-        long randomOui;
-        String hk = projectId + DELIMITER1 + vpcId;
-        String oui = ouiRedisRepository.findOui(hk);
-        if (oui == null) {
-            while (oui == null) {
-                randomOui = ThreadLocalRandom.current().nextLong(0, 2 ^ 24);
-                String ouiTemp = hexToMac(Long.toHexString(randomOui));
-                if (macRedisRepository.exisingOui(ouiTemp) == false)
-                    oui = ouiTemp;
-            }
-            ouiRedisRepository.addItem(new OuiState(projectId + DELIMITER1 + vpcId, oui));
+    private String allocateMacState(MacState macState) {
+        String strMacAddress = macPoolRedisRepository.getItem();
+        if (strMacAddress != null) {
+            macPoolRedisRepository.deleteItem(strMacAddress);
         }
-        return oui;
+        return strMacAddress;
     }
 
-    private String generateNic(String oui, String projectId, String vpcId, String portId) {
+    private String generateNic() {
         String nic = null;
+        MacAddress macAddress = new MacAddress();
         long randomNic;
+        Long from = (long) 0;
+        Long to = (long) Math.pow(2, MacAddress.NIC_LENGTH);
 
-        macRedisRepository.setKey(oui);
+        MacRange macRange = getMacRange();
+        if (macRange != null) {
+            from = MacAddress.macToLong(new MacAddress(macRange.getFrom()).getNic());
+            to = MacAddress.macToLong(new MacAddress(macRange.getTo()).getNic());
+        }
+
         while (nic == null) {
-            randomNic = ThreadLocalRandom.current().nextLong(0, 2 ^ 24);
-            String nicTemp = hexToMac(Long.toHexString(randomNic));
-            if (macRedisRepository.findMac(nicTemp) == null) {
-                String macAddress = oui + DELIMITER2 + nicTemp;
-                macRedisRepository.addItem(new MacState(macAddress, projectId, vpcId, portId));
+            randomNic = ThreadLocalRandom.current().nextLong(from, to);
+            String nicTemp = MacAddress.hexToMac(Long.toHexString(randomNic));
+            macAddress.setNic(nicTemp);
+            if (macRedisRepository.findMac(macAddress.getMacAddress()) == null && macPoolRedisRepository.findItem(macAddress.getMacAddress()) == null) {
                 nic = nicTemp;
             }
         }
         return nic;
     }
 
-    private String hexToMac(String hex) {
-        hex = hex.toUpperCase();
-        while (hex.length() < (KEY_LENGTH - 2))
-            hex = "0" + hex;
-        StringBuffer buffer = new StringBuffer(KEY_LENGTH);
-        buffer.insert(0, hex);
-        buffer.insert(2, ":");
-        buffer.insert(5, ":");
-
-        return buffer.toString();
+    private MacRange getMacRange() {
+        MacRange macRange = new MacRange();
+        Vector<MacRange> activeMacRanges = getActiveMacRanges();
+        int randomIndex = ThreadLocalRandom.current().nextInt(0, activeMacRanges.size());
+        return activeMacRanges.get(randomIndex);
     }
 
-    private String getKey(String macAddress) {
-        String key = macAddress.substring(0, KEY_LENGTH);
-        return key;
-    }
+    public Vector<MacRange> getActiveMacRanges() {
+        Vector<MacRange> activeMacRanges = new Vector<MacRange>();
 
-    private String makeKey(String projectid, String vpcid, String port) {
-        String key = projectid;
-        key = key.concat(DELIMITER1);
-        key = key.concat(vpcid);
-        key = key.concat(DELIMITER1);
-        key = key.concat(port);
-
-        return key;
+        macRanges = (HashMap<String, MacRange>) macRangeRedisRepository.findAllItems();
+        int nSize = macRanges.size();
+        if (nSize > 0) {
+            for (Map.Entry<String, MacRange> entry : macRanges.entrySet()) {
+                if (entry.getValue().getState().equals("Active")) {
+                    activeMacRanges.add(entry.getValue());
+                }
+            }
+        } else if (macRanges != null) {
+            MacRange newRange = new MacRange();
+            newRange.createDefault(oui);
+            macRangeRedisRepository.addItem(newRange);
+            activeMacRanges.add(newRange);
+        }
+        return activeMacRanges;
     }
 }
 

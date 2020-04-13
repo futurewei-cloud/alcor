@@ -20,7 +20,9 @@ package com.futurewei.alcor.macmanager.config;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.common.service.RedisListener;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.macmanager.service.RedisMacRangePublisher;
 import com.futurewei.alcor.macmanager.service.RedisPublisher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -62,9 +64,20 @@ public class RedisConfiguration {
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new Jackson2JsonRedisSerializer<MacState>(MacState.class));
         template.setValueSerializer(new Jackson2JsonRedisSerializer<MacState>(MacState.class));
+        template.setEnableTransactionSupport(true);
         return template;
     }
 
+    @Bean
+    public RedisTemplate<String, MacRange> redisMacRangeTemplate() {
+        final RedisTemplate<String, MacRange> templateMacRange = new RedisTemplate<String, MacRange>();
+        templateMacRange.setConnectionFactory(lettuceConnectionFactory());
+        templateMacRange.setKeySerializer(new StringRedisSerializer());
+        templateMacRange.setHashValueSerializer(new Jackson2JsonRedisSerializer<MacRange>(MacRange.class));
+        templateMacRange.setValueSerializer(new Jackson2JsonRedisSerializer<MacRange>(MacRange.class));
+        templateMacRange.setEnableTransactionSupport(true);
+        return templateMacRange;
+    }
 
     @Bean
     MessageListenerAdapter redisListenerInstance() {
@@ -82,6 +95,11 @@ public class RedisConfiguration {
     @Bean
     ICachePublisher redisMacPublisherInstance() {
         return new RedisPublisher(redisMacTemplate(), topic());
+    }
+
+    @Bean
+    ICachePublisher redisMacRangePublisherInstance() {
+        return new RedisMacRangePublisher(redisMacRangeTemplate(), topic());
     }
 
     @Bean

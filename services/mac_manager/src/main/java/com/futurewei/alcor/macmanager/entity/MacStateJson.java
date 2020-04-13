@@ -28,5 +28,13 @@ public class MacStateJson {
     public MacStateJson(MacState macState) {
         this.macState = macState;
     }
+
+    public MacState getMacState() {
+        return macState;
+    }
+
+    public void setMacState(MacState macState) {
+        this.macState = macState;
+    }
 }
 

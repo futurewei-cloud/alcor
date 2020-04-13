@@ -18,6 +18,7 @@ package com.futurewei.alcor.macmanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @Data
@@ -35,19 +36,23 @@ public class MacState implements Serializable {
     @JsonProperty("port_id")
     private String portId;
 
+    @JsonProperty("active")
+    private String active;
+
     public MacState() {
 
     }
 
     public MacState(MacState state) {
-        this(state.macAddress, state.projectId, state.vpcId, state.portId);
+        this(state.macAddress, state.projectId, state.vpcId, state.portId, state.active);
     }
 
-    public MacState(String macAddress, String projectId, String vpcId, String portId) {
+    public MacState(String macAddress, String projectId, String vpcId, String portId, String active) {
         this.macAddress = macAddress;
         this.projectId = projectId;
         this.vpcId = vpcId;
         this.portId = portId;
+        this.active = active;
     }
 }
 

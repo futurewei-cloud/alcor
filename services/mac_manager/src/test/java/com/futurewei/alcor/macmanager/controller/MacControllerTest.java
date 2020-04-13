@@ -55,7 +55,7 @@ public class MacControllerTest {
 
     @Before
     public void init() {
-        MacState macState = new MacState("", "project1", "vpc1", "port1");
+        MacState macState = new MacState("", "project1", "vpc1", "port1", "active");
         MacStateJson macStateJson = new MacStateJson(macState);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -77,8 +77,7 @@ public class MacControllerTest {
 
     @Test
     public void test_createMacState() throws Exception {
-        MacState macState = new MacState("", "project1", "vpc1", "port2");
-
+        MacState macState = new MacState("", "project1", "vpc1", "port2", "active");
         MacStateJson macStateJson = new MacStateJson(macState);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(macStateJson);

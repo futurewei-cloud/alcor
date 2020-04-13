@@ -18,41 +18,58 @@ package com.futurewei.alcor.macmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ResourceNullException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.macmanager.dao.MacRedisRepository;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.entity.MacStateJson;
 import com.futurewei.alcor.macmanager.service.MacAddressService;
 import com.futurewei.alcor.macmanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.Vector;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class MacController {
 
-    final String DELIMITER = "/";
-
     @Autowired
     private MacAddressService service;
 
+
     @RequestMapping(
             method = GET,
-            value = {"/macs/{macaddress}", "/v4/macaddress/{macaddress}"})
+            value = {"/macs/debug", "/v4/macs/debug"})
+    public MacStateJson getDebug1() throws Exception {
+        MacState macState = null;
+
+        if (macState == null) {
+            //TODO: REST error code
+            return new MacStateJson();
+        }
+        return new MacStateJson(macState);
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/macs/debug2", "/v4/macs/debug2"})
+    public Vector<MacRange> getDebug2() throws Exception {
+        Vector<MacRange> macRanges = null;
+        macRanges = service.getActiveMacRanges();
+
+        return macRanges;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
     public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
 
         MacState macState = null;
-
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            macState = this.service.getMacStateByMacAddress(macaddress);
+            macState = service.getMacStateByMacAddress(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -71,7 +88,6 @@ public class MacController {
     @ResponseStatus(HttpStatus.CREATED)
     public MacStateJson createMacState(@RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
-
         try {
             MacState inMacState = resource.getMacState();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
@@ -91,14 +107,13 @@ public class MacController {
             method = DELETE,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
     public ResponseId deleteMacState(@PathVariable String macaddress) throws Exception {
-        MacState macState = null;
-
+        String macAddress = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            macState = service.releaseMac(macaddress);
+            macAddress = service.releaseMac(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return new ResponseId(macState.getMacAddress());
+        return new ResponseId(macAddress);
     }
 }

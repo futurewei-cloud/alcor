@@ -14,10 +14,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.dao;
 
-import com.futurewei.alcor.common.logging.Logger;
-import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.OuiState;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,43 +23,41 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
-import java.util.logging.Level;
 
 @Repository
-public class OuiRedisRepository implements ICacheRepository<OuiState> {
+public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
 
-    private static final String KEY = "OuiState";
+    private String KEY = "mac_range";
 
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, MacRange> redisMacRangeTemplate;
 
     private HashOperations hashOperations;
 
     @Autowired
-    public OuiRedisRepository(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public MacRangeRedisRepository(RedisTemplate<String, MacRange> redisMacRangeTemplate) {
+
+        this.redisMacRangeTemplate = redisMacRangeTemplate;
     }
 
     @PostConstruct
     private void init() {
-        hashOperations = redisTemplate.opsForHash();
+        hashOperations = redisMacRangeTemplate.opsForHash();
     }
 
     @Override
-    public OuiState findItem(String id) {
+    public MacRange findItem(String id) {
 
-        return (OuiState) hashOperations.get(KEY, id);
+        return (MacRange) hashOperations.get(KEY, id);
     }
 
     @Override
-    public Map findAllItems() {
+    public Map<String, MacRange> findAllItems() {
         return hashOperations.entries(KEY);
     }
 
     @Override
-    public void addItem(OuiState newItem) {
-        Logger logger = LoggerFactory.getLogger();
-        logger.log(Level.INFO, "oui:" + newItem.getOu());
-        hashOperations.put(KEY, newItem.getOu(), newItem.getOui());
+    public void addItem(MacRange newItem) {
+        hashOperations.put(KEY, newItem.getRangeId(), newItem);
     }
 
     @Override
@@ -69,7 +65,8 @@ public class OuiRedisRepository implements ICacheRepository<OuiState> {
         hashOperations.delete(KEY, id);
     }
 
-    public String findOui(String ou) {
-        return (String) hashOperations.get(KEY, ou);
+    public void updateItem(MacRange newItem) {
+        hashOperations.put(KEY, newItem.getRangeId(), newItem);
     }
 }
+
