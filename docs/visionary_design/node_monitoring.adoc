@@ -1,0 +1,78 @@
+= Node Monitoring
+Eric Li <eli1@futurewei.com>
+v0.1, 2019-11-01
+:toc: right
+
+// == Introduction
+
+// TBD...
+
+== Architectural Design
+
+* Architectural diagram
+
+== Node Health Model
+
+* Agent health and heartbeats
+1. Host Netdata will monitor all Host Agents heartbeat very second, notify node manager directly through gRPC if there is issue with one or more Host Agent.
+2. Host Netdata heartbeat to node manager freqently (e.g. every a few seconds) through gRPC or Kafka.
+3. Host Netdata archive heartbeat data to prometheus (e.g. every 5 seconds) for longer term storage and viewing in Grafana.
+
+* Option 1: Configure Netdata to monitor target processes, below is a sample configuration file
+[source]
+------------------------------------------------------------
+template: aca_running
+families: *
+      on: apps.processes
+  lookup: min -1s unaligned of kubelet
+   units: processes
+   every: 1s
+    crit: $this == nan
+    info: check if aca is running
+   delay: down 5s multiplier 2 max 10m
+      to: sysadmin
+------------------------------------------------------------
+
+* Option 2: use Monit as process monitoring manager, use the available Monit plugin from Netdata to pull data from Monit.
+** Monit can provide a more powerful and richer capability to launch/monitor/relanch process/daemon.
+
+== Detection and Handling of Node Failure
+
+* Key workflow between different components
+
+== Detection of gRPC Queue Full
+
+== Detection and Recovery of Resource Provisioning Failure
+
+* VPC/Subnet/Port/Security Group etc..
+* What happen if dataplane programming failed? The error will propagate back to VPC controller and it should notify compute about the VM/Container setup failure. Compute should move on and pick another host.
+
+== Tenant VMs/Containers Health
+
+Tenant VMs/Containers Health will be monitored in two ways:
+
+1. The VM runtime or container runtime can provide information or hooks to expose VM/container status like state (stopped/running/paused) and device status (NIC disconnected/connection/paused). This is linux runtime dependent and does not require customer opt-in. This data can be streamed to host netdata without customer involvement.
+
+2. Customer can opt-into a 3rd party monitoring solution or opt into our Netdata solution. Once they enable Netdata for VM/container monitoring, the tenant Netdata will stream data to host netdata for quick analysis and archive to prometheus.
+
+// == Summary
+
+// do we need it?
+
+== Proposed Changes
+
+The Node Monitoring system would requires the following changes:
+
+[width="100%",options="header"]
+|====================
+|Index|Feature Description|Priority|Note
+|1|Node Monitoring research and investigation |P0|
+|2|Node Monitoring implementation .3+^.^|P0|
+|2.1|work item 1|
+|2.2|work item 2|
+|3|Update Node Manager .3+^.^|P0|
+|3.1|work item 1|
+|3.2|work item 2|
+|4|E2E latency measurement for monitoring plane|P0|
+|5|Performance test to get scalability limit for monitoring data|P1|
+|====================

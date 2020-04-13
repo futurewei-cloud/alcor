@@ -3,12 +3,6 @@ Liguang Xie <lxie@futurewei.com>
 v0.1, 2019-10-27
 :toc: right
 
-[width="100%",options="header"]
-|====================
-|Title|Authors|Version
-|Data Store and Cache Subsystem Design|@xieus|0.1
-|====================
-
 == Overview
 
 //[.lead]
@@ -420,6 +414,17 @@ Based on <<system-requirements>> and <<FeatureComp>>, Apache Ignite provides a v
 * Collocated joins and non-collocated joins
 * In-memory indexing
 
+Regarding performance and storage size,
+the benchmark results with Yardstick <<ignite_benchmark>> shows that Ignite could reach up to 1/3 million Ops and less than 1 millisecond latency with four average server machines (2x Xeon E5-2609 v4 1.7GHz, 96 GB RAM).
+The catch is that the benchmark is conducted by only one client node with 128 client threads, which does not consider network round trip time in the scenarios where 2-phase commit is applied.
+
+The comparison results with Cassandra <<ignite_cassandra>> used a more distributed benchmark YCSB with three server nodes (same server configuration as used in Yardstick).
+In a 256 client threads setup, Ignite could reach up to 300K READ Ops and 150K READ+UPDATE Ops.
+
+In short, Ignite fits into read-intensive and mixed workloads.
+With data shading support, the throughput and latency data is expected to meet our system requirements.
+Its maximum reliable dataset size could reach up to hundreds of TBs, which provides sufficient margin to support fast-growing pace of public cloud.
+
 TIP: To get more details about how to scale Ignite cluster to meet the storage requirements,
 refer to <<capacity>>.
 
@@ -756,3 +761,4 @@ Mythbusting Database Deployment Options for Big Data https://www.scylladb.com/wp
 - [[[ignite_affinity_apis,15]]] Apache Ignite AffinityFunction: https://ignite.apache.org/releases/latest/javadoc/org/apache/ignite/cache/affinity/AffinityFunction.html
 - [[[ignite_replication,16]]] Apache Ignite Partitioning and Replication: https://apacheignite.readme.io/docs/cache-modes
 - [[[ignite_capacity,17]]] Apache Ignite Capacity Planning: https://apacheignite.readme.io/docs/capacity-planning
+- [[[ignite_benchmark,18]]] GridGain Benchmarks Results: https://www.gridgain.com/resources/benchmarks/gridgain-benchmarks-results

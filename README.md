@@ -92,4 +92,3 @@ We will continue to integrate with other orchestration systems and data plane im
 
 As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
 which is a complementary project of Alcor.
-
