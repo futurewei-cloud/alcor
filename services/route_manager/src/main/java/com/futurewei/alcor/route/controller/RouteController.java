@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.route.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.route.dao.RouteRedisRepository;
 import com.futurewei.alcor.route.entity.RouteState;
@@ -28,8 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class RouteController {
@@ -91,4 +91,26 @@ public class RouteController {
         return new RouteStateJson(routeState);
     }
 
+    @RequestMapping(
+            method = DELETE,
+            value = {"/vpcs/{vpcId}/routes/{routeId}"})
+    public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
+
+            routeState = this.routeRedisRepository.findItem(routeId);
+            if (routeState == null) {
+                return new ResponseId();
+            }
+
+            this.routeRedisRepository.deleteItem(routeId);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new ResponseId(routeId);
+    }
 }
