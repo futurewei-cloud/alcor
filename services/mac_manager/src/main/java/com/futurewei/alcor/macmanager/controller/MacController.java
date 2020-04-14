@@ -19,15 +19,13 @@ package com.futurewei.alcor.macmanager.controller;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.entity.MacStateJson;
-import com.futurewei.alcor.macmanager.service.MacAddressService;
+import com.futurewei.alcor.macmanager.service.MacService;
 import com.futurewei.alcor.macmanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-
-import java.util.Vector;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -35,31 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class MacController {
 
     @Autowired
-    private MacAddressService service;
-
-
-    @RequestMapping(
-            method = GET,
-            value = {"/macs/debug", "/v4/macs/debug"})
-    public MacStateJson getDebug1() throws Exception {
-        MacState macState = null;
-
-        if (macState == null) {
-            //TODO: REST error code
-            return new MacStateJson();
-        }
-        return new MacStateJson(macState);
-    }
-
-    @RequestMapping(
-            method = GET,
-            value = {"/macs/debug2", "/v4/macs/debug2"})
-    public Vector<MacRange> getDebug2() throws Exception {
-        Vector<MacRange> macRanges = null;
-        macRanges = service.getActiveMacRanges();
-
-        return macRanges;
-    }
+    private MacService service;
 
     @RequestMapping(
             method = GET,

@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.macmanager.service;
+package com.futurewei.alcor.macmanager.service.implement;
 
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.macmanager.dao.MacPoolRedisRepository;
@@ -21,6 +21,8 @@ import com.futurewei.alcor.macmanager.dao.MacRedisRepository;
 import com.futurewei.alcor.macmanager.entity.MacAddress;
 import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.macmanager.exception.UniquenessViolationException;
+import com.futurewei.alcor.macmanager.service.MacService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,7 @@ import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-public class MacAddressService {
-
+public class MacRedisServiceImpl implements MacService {
     final String DELIMITER = "/";
 
     @Autowired
@@ -66,7 +67,7 @@ public class MacAddressService {
         return macAddress;
     }
 
-    public MacState createMacState(MacState macState) throws Exception {
+    public MacState createMacState(MacState macState) throws UniquenessViolationException, Exception {
         MacAddress macAddress = new MacAddress();
         String projectId = macState.getProjectId();
         String vpcId = macState.getVpcId();
@@ -81,7 +82,10 @@ public class MacAddressService {
             macAddress.setOui(oui);
             macAddress.setNic(nic);
             macState.setMacAddress(macAddress.getMacAddress());
-            macRedisRepository.addItem(macState);
+            if (macRedisRepository.findItem(macAddress.getMacAddress()) != null)
+                throw (new UniquenessViolationException("This mac address is not unique!!"));
+            else
+                macRedisRepository.addItem(macState);
         }
 
         return macState;
@@ -146,4 +150,3 @@ public class MacAddressService {
         return activeMacRanges;
     }
 }
-

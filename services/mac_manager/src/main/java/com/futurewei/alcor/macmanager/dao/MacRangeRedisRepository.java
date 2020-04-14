@@ -14,6 +14,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.dao;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacRange;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Repository
 public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
@@ -52,11 +55,14 @@ public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
 
     @Override
     public Map<String, MacRange> findAllItems() {
+        System.out.print("test" + KEY);
         return hashOperations.entries(KEY);
     }
 
     @Override
     public void addItem(MacRange newItem) {
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "mac address:" + newItem.getRangeId());
         hashOperations.put(KEY, newItem.getRangeId(), newItem);
     }
 

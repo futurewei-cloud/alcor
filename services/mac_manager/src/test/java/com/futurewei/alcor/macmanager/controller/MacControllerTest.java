@@ -18,7 +18,7 @@ package com.futurewei.alcor.macmanager.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.entity.MacStateJson;
-import com.futurewei.alcor.macmanager.service.MacAddressService;
+import com.futurewei.alcor.macmanager.service.MacService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ public class MacControllerTest {
 
     public MacState testMacState;
     @Autowired
-    MacAddressService service;
+    MacService service;
     String strTestMac = "";
     @Autowired
     private MockMvc mockMvc;
@@ -55,7 +55,7 @@ public class MacControllerTest {
 
     @Before
     public void init() {
-        MacState macState = new MacState("", "project1", "vpc1", "port1", "active");
+        MacState macState = new MacState("", "project1", "vpc1", "port1", "Active");
         MacStateJson macStateJson = new MacStateJson(macState);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -77,7 +77,7 @@ public class MacControllerTest {
 
     @Test
     public void test_createMacState() throws Exception {
-        MacState macState = new MacState("", "project1", "vpc1", "port2", "active");
+        MacState macState = new MacState("", "project1", "vpc1", "port2", "Active");
         MacStateJson macStateJson = new MacStateJson(macState);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(macStateJson);
@@ -107,5 +107,4 @@ public class MacControllerTest {
                 .andExpect(status().isOk());
     }
 }
-
 

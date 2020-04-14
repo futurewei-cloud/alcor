@@ -22,8 +22,8 @@ import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.common.service.RedisListener;
 import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.service.RedisMacRangePublisher;
-import com.futurewei.alcor.macmanager.service.RedisPublisher;
+import com.futurewei.alcor.macmanager.service.implement.RedisMacRangePublisherServiceImpl;
+import com.futurewei.alcor.macmanager.service.implement.RedisPublisherServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -94,12 +94,12 @@ public class RedisConfiguration {
 
     @Bean
     ICachePublisher redisMacPublisherInstance() {
-        return new RedisPublisher(redisMacTemplate(), topic());
+        return new RedisPublisherServiceImpl(redisMacTemplate(), topic());
     }
 
     @Bean
     ICachePublisher redisMacRangePublisherInstance() {
-        return new RedisMacRangePublisher(redisMacRangeTemplate(), topic());
+        return new RedisMacRangePublisherServiceImpl(redisMacRangeTemplate(), topic());
     }
 
     @Bean
@@ -107,3 +107,4 @@ public class RedisConfiguration {
         return new ChannelTopic("pubsub:queue");
     }
 }
+

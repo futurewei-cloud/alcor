@@ -14,6 +14,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.dao;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Repository
 public class MacPoolRedisRepository implements ICacheRepository<String> {
@@ -57,6 +60,8 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
 
     @Override
     public void addItem(String newItem) {
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, newItem);
         setOperations.add(KEY, newItem);
     }
 
@@ -66,6 +71,7 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     public String getItem() {
+
         return (String) setOperations.randomMember(KEY);
     }
 }

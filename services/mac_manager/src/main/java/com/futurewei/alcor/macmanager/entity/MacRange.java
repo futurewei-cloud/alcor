@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.macmanager.utils.MacUtil;
 import lombok.Data;
 
 
@@ -47,10 +48,10 @@ public class MacRange {
     }
 
     public void createDefault(String oui) {
-        rangeId = new String("range0");
+        rangeId = MacUtil.DEFAULT_RANGE;
         from = new MacAddress(oui, MacAddress.longToMac(0)).getMacAddress();
         to = new MacAddress(oui, MacAddress.longToMac(MacAddress.NIC_LENGTH)).getMacAddress();
-        state = new String("Active");
+        state = MacUtil.MAC_RANGE_STATE_ACTIVE;
     }
 }
 

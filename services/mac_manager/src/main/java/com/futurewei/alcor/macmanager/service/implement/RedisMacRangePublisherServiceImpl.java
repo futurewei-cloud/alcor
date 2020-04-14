@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.macmanager.service;
+package com.futurewei.alcor.macmanager.service.implement;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.macmanager.entity.MacRange;
@@ -22,17 +22,17 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisMacRangePublisher implements ICachePublisher {
+public class RedisMacRangePublisherServiceImpl implements ICachePublisher {
     @Autowired
     private RedisTemplate<String, MacRange> redisTemplate2;
 
     @Autowired
     private ChannelTopic topic2;
 
-    public RedisMacRangePublisher() {
+    public RedisMacRangePublisherServiceImpl() {
     }
 
-    public RedisMacRangePublisher(final RedisTemplate<String, MacRange> redisTemplate, final ChannelTopic topic2) {
+    public RedisMacRangePublisherServiceImpl(final RedisTemplate<String, MacRange> redisTemplate, final ChannelTopic topic2) {
         this.redisTemplate2 = redisTemplate;
         this.topic2 = topic2;
     }

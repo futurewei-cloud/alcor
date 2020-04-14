@@ -23,7 +23,6 @@ import java.io.Serializable;
 
 @Data
 public class MacState implements Serializable {
-
     @JsonProperty("mac_address")
     private String macAddress;
 

@@ -15,6 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.macmanager.dao;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Repository
 public class MacRedisRepository implements ICacheRepository<MacState> {
@@ -58,6 +61,8 @@ public class MacRedisRepository implements ICacheRepository<MacState> {
 
     @Override
     public void addItem(MacState newItem) {
+        Logger logger = LoggerFactory.getLogger();
+        logger.log(Level.INFO, "mac address:" + newItem.getMacAddress());
         hashOperations.put(KEY, newItem.getMacAddress(), newItem);
     }
 
