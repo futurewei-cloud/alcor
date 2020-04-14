@@ -3,9 +3,7 @@ package com.futurewei.alcor.subnet.service.implement;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.subnet.entity.RouteWebJson;
-import com.futurewei.alcor.subnet.entity.SubnetState;
-import com.futurewei.alcor.subnet.entity.VpcStateJson;
+import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -46,10 +44,35 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
-    public RouteWebJson prepeareRouteRule(String vpcId, VpcStateJson vpcResponse) {
+    public RouteWebJson createRouteRules(String vpcId, VpcStateJson vpcResponse) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes"; // for kubernetes test
         HttpEntity<VpcStateJson> routeRequest = new HttpEntity<>(new VpcStateJson(vpcResponse.getVpc()));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         return routeResponse;
+    }
+
+    @Override
+    public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) {
+        MacState macState = new MacState();
+        macState.setProjectId(projectId);
+        macState.setPortId(portId);
+        macState.setVpcId(vpcId);
+
+        HttpEntity<MacStateJson> macRequest = new HttpEntity<>(new MacStateJson(macState));
+        MacStateJson macResponse = restTemplate.postForObject(macUrl, macRequest, MacStateJson.class);
+        return macResponse;
+    }
+
+    @Override
+    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) {
+        IPState ipState = new IPState();
+        ipState.setSubnetId(subnetId);
+        ipState.setPortId(portId);
+        ipState.setSubnetCidr(cidr);
+
+        String ipManagerServiceUrl = ipUrl + subnetId + "/routes"; // for kubernetes test
+        HttpEntity<IPStateJson> ipRequest = new HttpEntity<>(new IPStateJson(ipState));
+        IPStateJson ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        return ipResponse;
     }
 }

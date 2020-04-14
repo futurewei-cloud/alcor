@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -74,6 +75,7 @@ public class SubnetController {
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetStateJson createSubnetState(@PathVariable String projectid, @RequestBody SubnetStateJson resource) throws Exception {
         SubnetState subnetState = null;
+        String portId = UUID.randomUUID().toString();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -88,43 +90,29 @@ public class SubnetController {
 
             subnetState = this.subnetDatabaseService.getBySubnetId(inSubnetState.getId());
             if (subnetState == null) {
-                throw new ResourcePersistenceException();
+                throw new Exception();
             }
 
             // Verify VPC ID
             VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
             if (vpcResponse == null) {
-                throw new ResourcePersistenceException();
+                throw new Exception();
             }
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            RouteWebJson routeResponse = this.subnetService.prepeareRouteRule(inSubnetState.getVpcId(), vpcResponse);
+            RouteWebJson routeResponse = this.subnetService.createRouteRules(inSubnetState.getVpcId(), vpcResponse);
             if (routeResponse == null) {
-                throw new ResourcePersistenceException();
+                throw new Exception();
             }
 
             //Allocate Gateway Mac
-//            MacState macState = new MacState();
-//            String portId = UUID.randomUUID().toString();
-//            macState.setProjectId(projectid);
-//            macState.setPortId(portId);
-//            macState.setVpcId(inSubnetState.getVpcId());
-//
-//            HttpEntity<MacStateJson> macRequest = new HttpEntity<>(new MacStateJson(macState));
-//            MacStateJson macResponse = restTemplate.postForObject(macUrl, macRequest, MacStateJson.class);
+//            MacStateJson macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
 //            if (macResponse == null) {
 //                throw new ResourcePersistenceException();
 //            }
 
             // Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
-//            IPState ipState = new IPState();
-//            ipState.setSubnetId(inSubnetState.getId());
-//            ipState.setPortId(portId);
-//            ipState.setSubnetCidr(inSubnetState.getCidr());
-//
-//            String ipManagerServiceUrl = ipUrl + inSubnetState.getId() + "/routes"; // for kubernetes test
-//            HttpEntity<IPStateJson> ipRequest = new HttpEntity<>(new IPStateJson(ipState));
-//            IPStateJson ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+//            IPStateJson ipResponse = this.subnetService.allocateIPGateway(inSubnetState.getId(), inSubnetState.getCidr(), portId);
 //            if (ipResponse == null) {
 //                throw new ResourcePersistenceException();
 //            }
@@ -138,7 +126,7 @@ public class SubnetController {
             subnetState.setRoutes(routes);
             //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
 
-        } catch (ResourceNullException e) {
+        } catch (Exception e) {
             // Route info of subnet rollback
             List<RouteWebObject> routes = resource.getSubnet().getRoutes();
             if (routes != null) {
