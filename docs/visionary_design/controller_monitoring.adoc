@@ -1,0 +1,38 @@
+= Controller Service Monitoring
+
+== Architectural Design
+
+* Architectural diagram
+
+=== Microservice Health Metrics
+
+* Counter
+* Gauge
+* Histogram
+* Summary
+
+== Service Mesh Monitoring
+
+* Distributed tracing with Istio/Prometheus
+** Enable Jaeger engine in Prometheus
+** Use trace/span for failure detection
+
+* Useful scenarios
+** Grey release
+** service governance
+** Service security
+
+== Configure Prometheus/Grafana
+
+Utilize the following dashboard for service monitoring:
+
+* Istio mesh dashboard
+* Istio service dashboard
+* Istio workload dashboard
+* Istio performance dashboard
+
+== Monitoring System Performance Tuning
+
+* Trade-off between collection frequency and performance impact
+
+== Summary
