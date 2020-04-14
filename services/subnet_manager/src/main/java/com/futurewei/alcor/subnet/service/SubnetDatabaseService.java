@@ -6,7 +6,7 @@ import com.futurewei.alcor.subnet.entity.SubnetState;
 
 import java.util.Map;
 
-public interface SubnetRedisService {
+public interface SubnetDatabaseService {
 
     public SubnetState getBySubnetId (String subnetId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllSubnets ();

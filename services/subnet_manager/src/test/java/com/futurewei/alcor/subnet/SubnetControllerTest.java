@@ -2,18 +2,15 @@ package com.futurewei.alcor.subnet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.Assert.*;
 
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.subnet.config.UnitTestConfig;
-import com.futurewei.alcor.subnet.dao.SubnetRedisRepository;
 import com.futurewei.alcor.subnet.entity.*;
-import com.futurewei.alcor.subnet.service.SubnetRedisService;
+import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +40,7 @@ public class SubnetControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SubnetRedisService subnetRedisService;
+    private SubnetDatabaseService subnetDatabaseService;
 
     @MockBean
     private SubnetService subnetService;
@@ -56,7 +53,7 @@ public class SubnetControllerTest {
 
     @Test
     public void subnetGetByIdTest1 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(new SubnetState(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr));
@@ -68,7 +65,7 @@ public class SubnetControllerTest {
 
     @Test
     public void subnetGetByIdTest2 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId)).thenReturn(null);
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId)).thenReturn(null);
         String response = this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -88,27 +85,53 @@ public class SubnetControllerTest {
         VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
         RouteWebJson routeWebJson = new RouteWebJson();
 
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
-        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, subnetState))
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcStateJson);
-        Mockito.when(subnetService.prepeareRouteRule(subnetState, vpcStateJson))
+        Mockito.when(subnetService.prepeareRouteRule(UnitTestConfig.vpcId, vpcStateJson))
+                .thenReturn(routeWebJson);
+
+        this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON).
+                content(UnitTestConfig.resource))
+                .andDo(print())
+                .andExpect(status().is(201))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
+    }
+
+    @Test
+    public void subnetCreateTest2 () throws Exception {
+        SubnetState subnetState = new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.cidr);
+        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+
+        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        RouteWebJson routeWebJson = new RouteWebJson();
+
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(subnetState);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(null);
+        Mockito.when(subnetService.prepeareRouteRule(UnitTestConfig.vpcId, vpcStateJson))
                 .thenReturn(routeWebJson);
         try {
             this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON).
                     content(UnitTestConfig.resource))
                     .andDo(print())
-                    .andExpect(status().isOk())
+                    .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            //System.out.println(ex.getMessage());
+            assertEquals(UnitTestConfig.createException, ex.getMessage());
         }
 
     }
 
     @Test
     public void subnetUpdateTest1 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId)).
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId)).
                 thenReturn(new SubnetState(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr));
@@ -121,7 +144,7 @@ public class SubnetControllerTest {
 
     @Test
     public void subnetUpdateTest2 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenThrow(new ResourceNotFoundException("Subnet not found : " + UnitTestConfig.subnetId));
         try {
             this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.resource))
@@ -142,7 +165,7 @@ public class SubnetControllerTest {
                 UnitTestConfig.subnetId,
                 UnitTestConfig.name,UnitTestConfig.cidr);
         subnetStates.put("SubnetState", subnetState);
-        Mockito.when(subnetRedisService.getAllSubnets()).thenReturn(subnetStates);
+        Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
         this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -150,14 +173,14 @@ public class SubnetControllerTest {
     @Test
     public void subnetGetByProjectIdAndVpcIdTest2 () throws Exception {
         Map<String, SubnetState> subnetStates = new HashMap<>();
-        Mockito.when(subnetRedisService.getAllSubnets()).thenReturn(subnetStates);
+        Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
         this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
     public void subnetDeleteTest1 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(new SubnetState( UnitTestConfig.projectId,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
@@ -170,7 +193,7 @@ public class SubnetControllerTest {
 
     @Test
     public void subnetDeleteTest2 () throws Exception {
-        Mockito.when(subnetRedisService.getBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(null);
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())

@@ -47,6 +47,9 @@ public class SubnetState extends CustomerResource {
     @JsonProperty("secondary_dns")
     private String secondaryDns;
 
+    @JsonProperty("routes")
+    private List<RouteWebObject> routes;
+
     @JsonProperty("dns_list")
     private List<String> dnsList;
 
@@ -54,20 +57,24 @@ public class SubnetState extends CustomerResource {
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr) {
-        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null);
+        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null, null);
+    }
+
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
+        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, routes, null);
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp) {
-        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null);
+        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null);
     }
 
     public SubnetState(SubnetState state) {
         this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
-                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getDnsList());
+                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList());
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String description, String availabilityZone,
-                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<String> dnsList) {
+                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes,List<String> dnsList) {
 
         super(projectId, id, name, description);
 
@@ -78,6 +85,7 @@ public class SubnetState extends CustomerResource {
         this.dhcpEnable = dhcpEnable;
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
+        this.routes = routes;
         this.dnsList = (dnsList == null ? null : new ArrayList<>(dnsList));
     }
 
@@ -143,5 +151,13 @@ public class SubnetState extends CustomerResource {
 
     public void setDnsList(List<String> dnsList) {
         this.dnsList = dnsList;
+    }
+
+    public List<RouteWebObject> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(List<RouteWebObject> routes) {
+        this.routes = routes;
     }
 }
