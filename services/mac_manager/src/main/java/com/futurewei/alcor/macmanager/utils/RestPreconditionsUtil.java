@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.utils;
 
 import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import org.thymeleaf.util.StringUtils;
 
@@ -28,6 +29,12 @@ public class RestPreconditionsUtil {
     }
 
     public static void verifyParameterNotNullorEmpty(MacState resource) throws ParameterNullOrEmptyException {
+        if (resource == null) {
+            throw new ParameterNullOrEmptyException("null parameter");
+        }
+    }
+
+    public static void verifyParameterNotNullorEmpty(MacRange resource) throws ParameterNullOrEmptyException {
         if (resource == null) {
             throw new ParameterNullOrEmptyException("null parameter");
         }

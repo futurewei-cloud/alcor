@@ -23,11 +23,13 @@ import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.exception.UniquenessViolationException;
 import com.futurewei.alcor.macmanager.service.MacService;
+import com.futurewei.alcor.macmanager.utils.MacUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
@@ -55,24 +57,8 @@ public class MacRedisServiceImpl implements MacService {
         return macState;
     }
 
-    public String releaseMac(String macAddress) throws Exception {
-        MacState macState = macRedisRepository.findItem(macAddress);
-        if (macState == null) {
-            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
-            throw e;
-        } else {
-            macPoolRedisRepository.addItem(macAddress);
-            macRedisRepository.deleteItem(macAddress);
-        }
-        return macAddress;
-    }
-
-    public MacState createMacState(MacState macState) throws UniquenessViolationException, Exception {
+    public MacState createMacState(MacState macState) throws Exception {
         MacAddress macAddress = new MacAddress();
-        String projectId = macState.getProjectId();
-        String vpcId = macState.getVpcId();
-        String portId = macState.getPortId();
-
         String strMacAddress = allocateMacState(macState);
         if (strMacAddress != null) {
             macState.setMacAddress(strMacAddress);
@@ -87,8 +73,81 @@ public class MacRedisServiceImpl implements MacService {
             else
                 macRedisRepository.addItem(macState);
         }
-
         return macState;
+    }
+
+    @Override
+    public MacState activateMacState(String macAddress) throws Exception {
+        MacState macState = macRedisRepository.findItem(macAddress);
+        if (macState == null) {
+            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
+            throw e;
+        } else {
+            macState.setActive(MacUtil.MAC_STATE_ACTIVE);
+            macRedisRepository.updateItem(macState);
+        }
+        return macState;
+    }
+
+    @Override
+    public MacState deactivateMacState(String macAddress) throws Exception {
+        MacState macState = macRedisRepository.findItem(macAddress);
+        if (macState == null) {
+            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
+            throw e;
+        } else {
+            macState.setActive(MacUtil.MAC_RANGE_STATE_INACTIVE);
+            macRedisRepository.updateItem(macState);
+        }
+        return macState;
+    }
+
+    public String releaseMacState(String macAddress) throws Exception {
+        MacState macState = macRedisRepository.findItem(macAddress);
+        if (macState == null) {
+            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
+            throw e;
+        } else {
+            macPoolRedisRepository.addItem(macAddress);
+            macRedisRepository.deleteItem(macAddress);
+        }
+        return macAddress;
+    }
+
+    @Override
+    public MacRange getMacRangeByMacRangeId(String macRangeId) {
+        MacRange macRange = macRangeRedisRepository.findItem(macRangeId);
+        return macRange;
+    }
+
+    @Override
+    public Map<String, MacRange> getAllMacRanges() {
+        Hashtable<String, MacRange> macRanges = (Hashtable<String, MacRange>) macRangeRedisRepository.findAllItems();
+        return macRanges;
+    }
+
+    @Override
+    public MacRange createMacRange(MacRange macRange) throws Exception {
+        if (macRange != null) {
+            macRangeRedisRepository.addItem(macRange);
+        }
+        return macRange;
+    }
+
+    @Override
+    public MacRange updateMacRange(MacRange macRange) throws Exception {
+        if (macRange != null) {
+            macRangeRedisRepository.updateItem(macRange);
+        }
+        return macRange;
+    }
+
+    @Override
+    public String deleteMacRange(String rangeId) throws Exception {
+        if (rangeId != null) {
+            macRangeRedisRepository.deleteItem(rangeId);
+        }
+        return rangeId;
     }
 
     private String allocateMacState(MacState macState) {

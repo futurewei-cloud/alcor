@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.entity.MacStateJson;
 import com.futurewei.alcor.macmanager.service.MacService;
@@ -32,6 +33,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Hashtable;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,15 +44,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MacControllerTest {
-
     private static final ObjectMapper om = new ObjectMapper();
-
     public MacState testMacState;
+    String strTestMac = "";
+
     @Autowired
     MacService service;
-    String strTestMac = "";
+
     @Autowired
     private MockMvc mockMvc;
+
     @MockBean
     private MacController mockController;
 
@@ -100,11 +104,35 @@ public class MacControllerTest {
     }
 
     @Test
-    public void test_deleteMacStateByMacAddress() throws Exception {
+    public void test_releaseMacStateByMacAddress() throws Exception {
         init();
         this.mockMvc.perform(delete("/macs/" + strTestMac))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void test_activateMacState(String macaddress) throws Exception {
+        init();
+        this.mockMvc.perform(delete("/macs/" + strTestMac))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    MacState activateMacState(String macaddress) throws Exception;
+
+    MacState deactivateMacState(String macaddress) throws Exception;
+
+    String releaseMacState(String macAddress) throws Exception;
+
+    MacRange getMacRangeByMacRangeId(String macRangeId);
+
+    Hashtable<String, MacRange> getAllMacRanges();
+
+    MacRange createMacRange(MacRange macRange) throws Exception;
+
+    MacRange updateMacRange(MacRange macRange) throws Exception;
+
+    String deleteMacRange(String rangeid) throws Exception;
 }
 
