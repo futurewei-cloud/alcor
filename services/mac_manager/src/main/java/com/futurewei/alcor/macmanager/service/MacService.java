@@ -13,9 +13,7 @@ public interface MacService {
 
     MacState createMacState(MacState macState) throws Exception;
 
-    MacState activateMacState(String macaddress) throws Exception;
-
-    MacState deactivateMacState(String macaddress) throws Exception;
+    MacState updateMacState(String macaddress, MacState macState) throws Exception;
 
     String releaseMacState(String macAddress) throws Exception;
 

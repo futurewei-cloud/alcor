@@ -84,26 +84,18 @@ public class MacController {
     @RequestMapping(
             method = PUT,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
-    public MacStateJson activateMacState(@PathVariable String macaddress) throws Exception {
+    public MacStateJson updateMacState(@PathVariable String macaddress, @RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            macState = service.activateMacState(macaddress);
+            MacState inMacState = resource.getMacState();
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            macState = service.updateMacState(macaddress, inMacState);
+            if (macState == null) {
+                throw new ResourcePersistenceException();
+            }
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
-        }
-        return new MacStateJson(macState);
-    }
-
-    @RequestMapping(
-            method = PUT,
-            value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
-    public MacStateJson deactivateMacState(@PathVariable String macaddress) throws Exception {
-        MacState macState = null;
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            macState = service.deactivateMacState(macaddress);
-        } catch (ParameterNullOrEmptyException e) {
+        } catch (Exception e) {
             throw new Exception(e);
         }
         return new MacStateJson(macState);
@@ -146,7 +138,7 @@ public class MacController {
 
     @RequestMapping(
             method = GET,
-            value = {"/macs/ranges/", "/v4/macs/ranges/"})
+            value = {"/macs/ranges", "/v4/macs/ranges"})
     public Map<String, MacRange> getAllMacRanges() throws Exception {
 
         Map<String, MacRange> macRanges = null;
