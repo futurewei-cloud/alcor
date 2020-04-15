@@ -22,7 +22,6 @@ public class SubnetStateJson {
     private SubnetState subnet;
 
     public SubnetStateJson() {
-
     }
 
     public SubnetStateJson(SubnetState subnetState) {

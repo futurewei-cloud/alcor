@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.Assert.*;
 
+import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.entity.*;
@@ -109,12 +110,14 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
+        RouteWebObject routeWebObject = new RouteWebObject();
+        routeWebJson.setRoute(routeWebObject);
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(null);
-        Mockito.when(subnetService.createRouteRules(UnitTestConfig.subnetId, subnetState))
+                .thenThrow(new FallbackException("fallback request"));
+        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
         try {
             this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
@@ -143,8 +146,8 @@ public class SubnetControllerTests {
                 .thenReturn(subnetState);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcStateJson);
-        Mockito.when(subnetService.createRouteRules(UnitTestConfig.subnetId, subnetState))
-                .thenReturn(null);
+        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
+                .thenThrow(new FallbackException("fallback request"));
         try {
             this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))

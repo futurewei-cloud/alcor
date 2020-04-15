@@ -86,24 +86,17 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceFound(inSubnetState.getVpcId());
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
 
-            this.subnetDatabaseService.addSubnet(inSubnetState);
-
-            subnetState = this.subnetDatabaseService.getBySubnetId(inSubnetState.getId());
-            if (subnetState == null) {
-                throw new ResourcePersistenceException();
-            }
-
             // Verify VPC ID
             VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
-            if (vpcResponse == null) {
-                throw new FallbackException("fallback request");
-            }
+//            if (vpcResponse == null) {
+////                throw new FallbackException("fallback request");
+////            }
 
             //Prepare Route Rule(IPv4/6) for Subnet
             RouteWebJson routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
-            if (routeResponse == null) {
-                throw new FallbackException("fallback request");
-            }
+//            if (routeResponse == null) {
+//                throw new FallbackException("fallback request");
+//            }
 
             //Allocate Gateway Mac
 //            MacStateJson macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
@@ -126,6 +119,15 @@ public class SubnetController {
             subnetState.setRoutes(routes);
             //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
 
+            this.subnetDatabaseService.addSubnet(inSubnetState);
+
+            subnetState = this.subnetDatabaseService.getBySubnetId(inSubnetState.getId());
+            if (subnetState == null) {
+                throw new ResourcePersistenceException();
+            }
+
+            return new SubnetStateJson(subnetState);
+
         } catch (ResourcePersistenceException e) {
             throw new Exception(e);
         } catch (FallbackException e) {
@@ -136,9 +138,9 @@ public class SubnetController {
                 this.subnetService.routeRollback(route.getId(), resource.getSubnet().getVpcId());
             }
             throw new Exception(e);
+        } catch (NullPointerException e) {
+            throw new Exception(e);
         }
-
-        return new SubnetStateJson(subnetState);
     }
 
     @RequestMapping(
