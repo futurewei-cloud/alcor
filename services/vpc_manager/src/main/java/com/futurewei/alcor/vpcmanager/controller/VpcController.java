@@ -95,8 +95,8 @@ public class VpcController {
                 throw new ResourcePersistenceException();
             }
 
-            String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
-            //String routeManagerServiceUrl = "http://192.168.137.1:8081/vpcs/" + vpcState.getId() + "/routes"; // for docker test
+            //String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            String routeManagerServiceUrl = "http://192.168.137.1:8082/vpcs/" + vpcState.getId() + "/routes"; // for docker test
             HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
             RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
 

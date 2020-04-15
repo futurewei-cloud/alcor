@@ -12,7 +12,7 @@ public interface SubnetService {
     public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String vpcId, VpcStateJson vpcResponse) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetState subnetState) throws Exception;
 
     // TODO : Allocate Gateway Mac
     public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId);
