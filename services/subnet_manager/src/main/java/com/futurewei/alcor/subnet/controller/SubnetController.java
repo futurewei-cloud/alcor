@@ -90,19 +90,19 @@ public class SubnetController {
 
             subnetState = this.subnetDatabaseService.getBySubnetId(inSubnetState.getId());
             if (subnetState == null) {
-                throw new Exception();
+                throw new ResourcePersistenceException();
             }
 
             // Verify VPC ID
             VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
             if (vpcResponse == null) {
-                throw new Exception();
+                throw new FallbackException("fallback request");
             }
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            RouteWebJson routeResponse = this.subnetService.createRouteRules(inSubnetState.getVpcId(), vpcResponse);
+            RouteWebJson routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
             if (routeResponse == null) {
-                throw new Exception();
+                throw new FallbackException("fallback request");
             }
 
             //Allocate Gateway Mac
@@ -126,7 +126,9 @@ public class SubnetController {
             subnetState.setRoutes(routes);
             //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
 
-        } catch (Exception e) {
+        } catch (ResourcePersistenceException e) {
+            throw new Exception(e);
+        } catch (FallbackException e) {
             // Route info of subnet rollback
             List<RouteWebObject> routes = resource.getSubnet().getRoutes();
             if (routes != null) {

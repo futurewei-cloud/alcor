@@ -41,12 +41,11 @@ public class SubnetServiceImp implements SubnetService {
         VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
         return vpcResponse;
     }
-
-    @Async
+    
     @Override
-    public RouteWebJson createRouteRules(String vpcId, VpcStateJson vpcResponse) {
-        String routeManagerServiceUrl = routeUrl + vpcId + "/routes"; // for kubernetes test
-        HttpEntity<VpcStateJson> routeRequest = new HttpEntity<>(new VpcStateJson(vpcResponse.getVpc()));
+    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) {
+        String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
+        HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         return routeResponse;
     }

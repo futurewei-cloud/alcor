@@ -92,6 +92,35 @@ public class RouteController {
     }
 
     @RequestMapping(
+            method = POST,
+            value = {"/subnets/{subnetId}/routes"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public RouteStateJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetStateJson resource) throws Exception {
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
+            SubnetState inSubnetState = resource.getSubnet();
+            RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
+
+            String id = UUID.randomUUID().toString();
+            String projectId = inSubnetState.getProjectId();
+            String destination = inSubnetState.getCidr();
+            String routeTableId = UUID.randomUUID().toString();
+
+            routeState = new RouteState(projectId, id, "default_route_rule", "",
+                    destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
+
+            this.routeRedisRepository.addItem(routeState);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new RouteStateJson(routeState);
+    }
+
+    @RequestMapping(
             method = DELETE,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
     public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {

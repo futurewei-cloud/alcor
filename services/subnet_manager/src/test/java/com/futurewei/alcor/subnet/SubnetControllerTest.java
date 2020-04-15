@@ -1,5 +1,6 @@
 package com.futurewei.alcor.subnet;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -89,11 +90,11 @@ public class SubnetControllerTest {
                 .thenReturn(subnetState);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcStateJson);
-        Mockito.when(subnetService.createRouteRules(UnitTestConfig.vpcId, vpcStateJson))
+        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
 
-        this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON).
-                content(UnitTestConfig.resource))
+        this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.resource))
                 .andDo(print())
                 .andExpect(status().is(201))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
@@ -114,11 +115,11 @@ public class SubnetControllerTest {
                 .thenReturn(subnetState);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(null);
-        Mockito.when(subnetService.createRouteRules(UnitTestConfig.vpcId, vpcStateJson))
+        Mockito.when(subnetService.createRouteRules(UnitTestConfig.subnetId, subnetState))
                 .thenReturn(routeWebJson);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON).
-                    content(UnitTestConfig.resource))
+            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+                    .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
@@ -135,8 +136,8 @@ public class SubnetControllerTest {
                 thenReturn(new SubnetState(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                         UnitTestConfig.name, UnitTestConfig.cidr));
-        this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).
-                content(UnitTestConfig.resource))
+        this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.resource))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
@@ -151,8 +152,8 @@ public class SubnetControllerTest {
                 .thenReturn(new SubnetState(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                         UnitTestConfig.updateName, UnitTestConfig.cidr));
-        this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).
-                content(UnitTestConfig.updateResource))
+        this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.updateResource))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.name").value(UnitTestConfig.updateName));
