@@ -15,13 +15,3 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: Build lib
-        run: mvn -B package --file lib/pom.xml
-      - name: Build web
-        run: mvn -B package --file web/pom.xml
-      - name: Build api gateway
-        run: mvn -B package --file services/api_gateway/pom.xml
-      - name: Build vpc manager
-        run: mvn -B package --file services/vpc_manager/pom.xml
-      - name: Build route manager
-        run: mvn -B package --file services/route_manager/pom.xml
