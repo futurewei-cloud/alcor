@@ -67,4 +67,12 @@ public class CacheFactory {
 
         return getRedisCache(v, v.getName());
     }
+
+    public <K, V> ICache getCache(Class<V> v, String cacheName) {
+        if (igniteClient != null) {
+            return getIgniteCache(cacheName);
+        }
+
+        return getRedisCache(v, cacheName);
+    }
 }
