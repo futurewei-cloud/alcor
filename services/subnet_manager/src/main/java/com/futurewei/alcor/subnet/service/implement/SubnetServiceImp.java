@@ -2,6 +2,7 @@ package com.futurewei.alcor.subnet.service.implement;
 
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -34,19 +35,27 @@ public class SubnetServiceImp implements SubnetService {
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
     }
 
+    @Async
     @Override
-    public VpcStateJson verifyVpcId(String projectid, String vpcId) {
+    public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId; // for kubernetes test
         //HttpEntity<SubnetStateJson> vpcRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
+        if (vpcResponse.getVpc() == null) {
+            throw new FallbackException("fallback request");
+        }
         return vpcResponse;
     }
-    
+
+    //@Async
     @Override
-    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) {
+    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
         HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
+        if (routeResponse == null) {
+            throw new FallbackException("fallback request");
+        }
         return routeResponse;
     }
 
