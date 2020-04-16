@@ -1,0 +1,704 @@
+= Private IP Manager Design Specification
+Piaoping Chen <chenpiaoping@yeah.net>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+
+== Overview
+
+Private IP manager is an Alcor microservice which manages the lifecycle of all Private IP addresses.
+Its responsibilities include but not limited to, allocating a unique IP address for a given port,
+releasing the IP address when not needed, and onboarding a IP range of a subnet.
+It interacts with Subnet Manager and Port Manager to allocate IP addresses for gateway ports and customer ports.
+
+== Service Requirements
+
+[arabic]
+. Allocate private IP address for all the ports, e.g., (Subnet 1, Port 1) -> IP1.
+. Release (port, IP) association when a port is released, or a port allocates a new IP.
+. Guarantee uniqueness of IP address in a subnet scope.
+. Fall back mechanism if there is a conflict among IP addresses.
+. Working together with other services including subnet manager and port manager.
+. Concurrency control mechanism should be provided to process multiple concurrent IP allocation requests.
+. Support allocation and release of a list of IP addresses.
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Verify IP State
+|GET
+|/ips/{ip}, /v4/ips/{ip}
+|ip state
+<<IP_Get,[sample]>>
+
+|List all allocated IP State
+|GET
+|/ips/, /v4/ips/
+|ip state list
+<<IP_List,[sample]>>
+
+|Create IP State
+|POST
+|/ips, /v4/ips
+|ip state
+<<IP_Post,[sample]>>
+
+|Create IP State Bulk
+|POST
+|/ips/bulk, /v4/ips/bulk
+|ip state list
+<<IP_Post_Bulk,[sample]>>
+
+|Activate IP Address
+|PUT
+|/ips, /v4/ips
+|ip state
+<<IP_Put1,[sample]>>
+
+|Activate IP Address Bulk
+|PUT
+|/ips/bulk, /v4/ips/bulk
+|ip state list
+<<IP_Put1_Bulk,[sample]>>
+
+|Deactivate IP Address
+|PUT
+|/ips/{ip}, /v4/ips/{ip}
+|ip state
+<<IP_Put2,[sample]>>
+
+|Deactivate IP Address Bulk
+|PUT
+|/ips/bulk, /v4/ips/bulk
+|ip state list
+<<IP_Put2_Bulk,[sample]>>
+
+|Release IP State
+|DELETE
+|/ips/{ip}, /v4/ips/{ip}
+|ip state
+<<IP_Delete,[sample]>>
+
+|Release IP State Bulk
+|DELETE
+|/ips/bulk, /v4/ips/bulk
+|ip state list
+<<IP_Delete_Bulk,[sample]>>
+
+|Create IP Range
+|POST
+|/ips/range, /v4/ips/range
+|Oui state
+<<IP_Range_Post,[sample]>>
+
+|Get IP Range
+|GET
+|/ips/range/{subnet_id}, /v4/ips/range/{subnet_id}
+|ip range
+<<IP_Range_Get,[sample]>>
+
+|List all IP Range
+|GET
+|/ips/range, /v4/ips/range
+|ip range list
+<<IP_Range_List,[sample]>>
+|===
+
+=== API Specification
+
+anchor:IP_Get[]
+**(1) Get/Verify IP state by IP address**
+
+* Method: `GET`
+
+* Request: `/ips/{subnet_id}/{ip}, /v4/ips/{subnet_id}/{ip}`
+
+* Request Parameter: `@PathVariable String subnetId, @PathVariable String ipv4Addr`
+
+* Response: ip state
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/v4/ips/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “activated”
+}
+
+....
+anchor:IP_List[]
+**(2) Get all allocated IP state**
+
+* Method: `GET`
+
+* Request: `/ips/, /v4/ips/`
+
+* Request Parameter: 
+
+* Response: ip state list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Response:
+[
+  {
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "11.11.11.76",
+    "state": "activated"
+  },
+  {
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "11.11.11.67",
+    "state": "activated"
+  },
+  {
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "11.11.11.156",
+    "state": "activated"
+  }
+]
+
+....
+anchor:IP_Post[]
+**(3) Allocate IP Address for Port**
+
+* Method: `POST`
+
+* Request: `"/ips", "/v4/ips"`
+
+* Request Parameter:
+
+* Response: `ip state`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Body:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": “null”,
+    “state”: “null”
+}
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “activated”
+}
+
+....
+anchor:IP_Post_Bulk[]
+**(4) Allocate multiple IP Addresses for Port**
+
+* Method: `POST`
+
+* Request: `"/ips/bulk", "/v4/ips/bulk"`
+
+* Request Parameter:
+
+* Response: `ip state list`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Body:
+{
+    "ipv4_addr_requests":
+    [
+        {
+        "subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+        "ipv4_addr": null,
+        "state": null
+        },
+        {
+        "subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+        "ipv4_addr": null,
+        "state": null
+        },
+        {
+        "subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+        "ipv4_addr": null,
+        "state": null
+        }
+    ]
+}
+
+Response:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "activated"
+    }
+  ]
+}
+
+....
+anchor:IP_Put1[]
+**(5) Activate IP Address**
+
+* Method: `PUT`
+
+* Request: `/ips/{ip}", "/v4/ips/{ip}`
+
+* Request Parameter: 
+
+* Response: `ip state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips/
+
+Body:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “activated”
+}
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “activated”
+}
+
+....
+anchor:IP_Put1_Bulk[]
+**(6) Activate multiple IP Addresses**
+
+* Method: `PUT`
+
+* Request: `/ips/bulk", "/v4/ips/bulk`
+
+* Request Parameter: 
+
+* Response: `ip state list`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips/
+
+Body:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "activated"
+    }
+  ]
+}
+
+Response:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "activated"
+    }
+  ]
+}
+
+....
+anchor:IP_Put2[]
+**(7) Deactivate IP Address**
+
+* Method: `PUT`
+
+* Request: `/ips/{ip}", "/v4/ips/{ip}`
+
+* Request Parameter:
+
+* Response: `ip state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Body:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “deactivated”
+}
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “deactivated”
+}
+
+....
+anchor:IP_Put2_Bulk[]
+**(8) Deactivate multiple IP Addresses**
+
+* Method: `PUT`
+
+* Request: `/ips/bulk", "/v4/ips/bulk`
+
+* Request Parameter:
+
+* Response: `ip state list`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Body:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "deactivated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "deactivated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "deactivated"
+    }
+  ]
+}
+
+Response:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "deactivated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "deactivated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "deactivated"
+    }
+  ]
+}
+
+....
+anchor:IP_Delete[]
+**(9) Delete/Release IP Address**
+
+* Method: `DELETE`
+
+* Request: `/ips/{ip}", "/v4/ips/{ip}`
+
+* Request Parameter: `@PathVariable String subnetId, @PathVariable String ipv4Addr`
+
+* Response: `ip state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ipv4_addr": "10.10.10.1",
+    “state” “free”
+}
+
+....
+anchor:IP_Delete_Bulk[]
+**(10) Delete/Release multiple IP Addresses**
+
+* Method: `DELETE`
+
+* Request: `/ips/bulk", "/v4/ips/bulk`
+
+* Request Parameter:
+
+* Response: `ip state list`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips/bulk
+
+Body:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "activated"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "activated"
+    }
+  ]
+}
+
+Response:
+{
+  "ipv4_addr_requests": [
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.28",
+      "state": "free"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.29",
+      "state": "free"
+    },
+    {
+      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ipv4_addr": "11.11.11.24",
+      "state": "free"
+    }
+  ]
+}
+
+....
+
+anchor:IP_Range_Post[]
+**(11) Onboard IP Range**
+
+* Method: `POST`
+* Request: `/ips/range", "/v4/ips/range`
+* Request Parameter:
+* Response: `ip range`
+* Normal response codes: 201
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/v4/ips/range
+
+Body:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "10.10.10.1",
+    “last_addr” “10.10.10.254”
+}
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "10.10.10.1",
+    “last_addr” “10.10.10.254”
+}
+
+....
+anchor:IP_Range_Put[]
+**(12) Remove IP Range by Subnet Id**
+
+* Method: `PUT`
+* Request: `/ips/range/{subnet_id}", "/v4/ips/range/{subnet_id}`
+* Request Parameter:
+* Response: `ip range`
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+Request:
+http://127.0.0.1:8080/v4/ips/range/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "10.10.10.1",
+    “last_addr” “10.10.10.254”
+}
+
+....
+anchor:IP_Range_Get[]
+**(13) Get IP range by Subnet Id**
+
+* Method: `GET`
+
+* Request: `/ips/range/{subnet_id}/, /v4/ips/range/{subnet_id}/`
+
+* Request Parameter: `@PathVariable String subnetId`
+
+* Response: ip range
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/v4/ips/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+
+Response:
+{
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "11.11.11.1",
+    "last_addr": "11.11.11.254"
+}
+
+....
+anchor:IP_Range_List[]
+**(14) Get all ranges**
+
+* Method: `GET`
+
+* Request: `/ips/range, /v4/ips/range`
+
+* Request Parameter: 
+
+* Response: ip range list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/v4/ips
+
+Response:
+[
+  {
+    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "11.11.11.1",
+    "last_addr": "11.11.11.254"
+  },
+  {
+    "subnet_id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
+    "first_addr": "12.12.12.1",
+    "last_addr": "12.12.12.254"
+  }
+]
+
+....
+== Database Data Schema
+
+=== IP Address State
+One IP address falls into one of three states:
+
+[width="100%",cols="30%,70%"]
+|===
+|*State* |*Details*
+
+|Activated
+|IP address is allocated to a port AND it is in use. This is default.
+
+|Deactivated
+|IP address is allocated to a port AND it is NOT in use.
+
+|Free
+|IP address is NOT allocated to a port yet.
+|===
+
+== Concurrency Handling
+
+TBD

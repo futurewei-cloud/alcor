@@ -316,18 +316,19 @@ public class Ipv4AddrServiceImpl implements Ipv4AddrService {
         return result;
     }
 
-    public Map listAllocatedIpv4Addr() {
+    public List<Ipv4AddrRequest> listAllocatedIpv4Addr() {
         LOG.debug("List ipv4 address");
 
         Map<String, Ipv4AddrAlloc> ipv4AddrMap = ipv4AddrRepo.findAllItems();
 
-        Map<String, Ipv4AddrRequest> result = new HashMap<>();
+        List<Ipv4AddrRequest> result = new ArrayList<>();
+
         ipv4AddrMap.forEach((k,v) -> {
             Ipv4AddrRequest ipv4Addr = new Ipv4AddrRequest();
             ipv4Addr.setSubnetId(v.getSubnetId());
             ipv4Addr.setIpv4Addr(v.getIpv4Addr());
-            ipv4Addr.setState(v.getState().toString());
-            result.put(k, ipv4Addr);
+            ipv4Addr.setState(v.getState());
+            result.add(ipv4Addr);
         });
 
         LOG.info("List ipv4 address success, result: {}", result);
@@ -400,18 +401,18 @@ public class Ipv4AddrServiceImpl implements Ipv4AddrService {
         return result;
     }
 
-    public Map listIpv4AddrRange() {
+    public List<Ipv4AddrRangeRequest> listIpv4AddrRange() {
         LOG.debug("List ipv4 address range");
 
         Map<String, Ipv4AddrRange> ipv4AddrRangeMap = ipv4AddrRangeRepo.findAllItems();
 
-        Map<String, Ipv4AddrRangeRequest> result = new HashMap<>();
+        List<Ipv4AddrRangeRequest> result = new ArrayList<>();
         ipv4AddrRangeMap.forEach((k,v) -> {
             Ipv4AddrRangeRequest range = new Ipv4AddrRangeRequest();
             range.setSubnetId(v.getSubnetId());
             range.setFirstAddr(v.getFirstAddr());
             range.setLastAddr(v.getLastAddr());
-            result.put(k, range);
+            result.add(range);
         });
 
         LOG.info("List ipv4 address range success, result: {}", result);

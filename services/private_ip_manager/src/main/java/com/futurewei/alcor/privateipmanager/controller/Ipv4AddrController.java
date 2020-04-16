@@ -28,6 +28,7 @@ import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -125,7 +126,7 @@ public class Ipv4AddrController {
 
     @GetMapping("/v4/ips")
     @ResponseBody
-    public Map listAllocatedIpv4Addr() {
+    public List<Ipv4AddrRequest> listAllocatedIpv4Addr() {
         return ipv4AddrServiceImpl.listAllocatedIpv4Addr();
     }
 
@@ -162,7 +163,7 @@ public class Ipv4AddrController {
 
     @GetMapping("/v4/ips/range")
     @ResponseBody
-    public Map listIpv4AddrRange() {
+    public List<Ipv4AddrRangeRequest> listIpv4AddrRange() {
         return ipv4AddrServiceImpl.listIpv4AddrRange();
     }
 }

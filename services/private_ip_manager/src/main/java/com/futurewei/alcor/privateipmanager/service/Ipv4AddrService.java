@@ -4,6 +4,7 @@ import com.futurewei.alcor.privateipmanager.http.Ipv4AddrRangeRequest;
 import com.futurewei.alcor.privateipmanager.http.Ipv4AddrRequest;
 import com.futurewei.alcor.privateipmanager.http.Ipv4AddrRequestBulk;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Ipv4AddrService {
@@ -22,7 +23,7 @@ public interface Ipv4AddrService {
 
     Ipv4AddrRequest getIpv4Addr(String subnetId, String ipv4Addr) throws Exception;
 
-    Map listAllocatedIpv4Addr();
+    List<Ipv4AddrRequest> listAllocatedIpv4Addr();
 
     Ipv4AddrRangeRequest createIpv4AddrRange(Ipv4AddrRangeRequest request) throws Exception;
 
@@ -30,5 +31,5 @@ public interface Ipv4AddrService {
 
     Ipv4AddrRangeRequest getIpv4AddrRange(String subnetId) throws Exception;
 
-    Map listIpv4AddrRange();
+    List<Ipv4AddrRangeRequest> listIpv4AddrRange();
 }
