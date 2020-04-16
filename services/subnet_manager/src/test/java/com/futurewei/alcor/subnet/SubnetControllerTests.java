@@ -112,7 +112,7 @@ public class SubnetControllerTests {
         VpcState vpcState = new VpcState(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
         MacState macState = new MacState();
-        macState.setMac(UnitTestConfig.macAddress);
+        macState.setMacAddress(UnitTestConfig.macAddress);
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteWebObject routeWebObject = new RouteWebObject();
         routeWebJson.setRoute(routeWebObject);

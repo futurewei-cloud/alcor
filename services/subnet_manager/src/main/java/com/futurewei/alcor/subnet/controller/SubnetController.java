@@ -97,7 +97,7 @@ public class SubnetController {
 
             //Allocate Gateway Mac
             macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
-            logger.info("macResponse: " + macResponse.getMacState().getMac());
+            logger.info("macResponse: " + macResponse.getMacState().getMacAddress());
 
             // Verify VPC ID
             VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
@@ -154,7 +154,7 @@ public class SubnetController {
             // Mac fallback
             logger.info("Mac fallback start");
             if (macResponse != null) {
-                this.subnetService.macFallback(macResponse.getMacState().getMac());
+                this.subnetService.macFallback(macResponse.getMacState().getMacAddress());
                 //this.subnetService.macFallback(UnitTestConfig.macAddress);
             }
             logger.info("Mac fallback end");
