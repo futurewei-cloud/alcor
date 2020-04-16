@@ -30,12 +30,18 @@ public class SubnetServiceImp implements SubnetService {
     private RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public void routeRollback(String routeId, String vpcId) {
+    public void routeFallback(String routeId, String vpcId) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
     }
 
-    @Async
+    @Override
+    public void macFallback(String macAddress) {
+        String macManagerServiceUrl = macUrl + "/" + macAddress;
+        restTemplate.delete(macManagerServiceUrl, ResponseId.class);
+    }
+
+    //@Async
     @Override
     public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId; // for kubernetes test
@@ -60,14 +66,18 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) {
+    public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) throws FallbackException {
+        String macManagerServiceUrl = macUrl + "?Accept=application/json&Content-Type=application/json";
         MacState macState = new MacState();
         macState.setProjectId(projectId);
         macState.setPortId(portId);
         macState.setVpcId(vpcId);
 
         HttpEntity<MacStateJson> macRequest = new HttpEntity<>(new MacStateJson(macState));
-        MacStateJson macResponse = restTemplate.postForObject(macUrl, macRequest, MacStateJson.class);
+        MacStateJson macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
+        if (macResponse == null) {
+            throw new FallbackException("fallback request");
+        }
         return macResponse;
     }
 

@@ -18,10 +18,14 @@ package com.futurewei.alcor.subnet.controller;
 
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
+
+import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +40,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class SubnetController {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SubnetDatabaseService subnetDatabaseService;
@@ -58,6 +64,7 @@ public class SubnetController {
             subnetState = this.subnetDatabaseService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
 
@@ -75,6 +82,8 @@ public class SubnetController {
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetStateJson createSubnetState(@PathVariable String projectid, @RequestBody SubnetStateJson resource) throws Exception {
         SubnetState subnetState = null;
+        RouteWebJson routeResponse = null;
+        MacStateJson macResponse = null;
         String portId = UUID.randomUUID().toString();
 
         try {
@@ -86,23 +95,18 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceFound(inSubnetState.getVpcId());
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
 
+            //Allocate Gateway Mac
+            macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
+            logger.info("macResponse: " + macResponse.getMacState().getMac());
+
             // Verify VPC ID
             VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
-//            if (vpcResponse == null) {
-////                throw new FallbackException("fallback request");
-////            }
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            RouteWebJson routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
-//            if (routeResponse == null) {
-//                throw new FallbackException("fallback request");
-//            }
+            routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
 
-            //Allocate Gateway Mac
-//            MacStateJson macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
-//            if (macResponse == null) {
-//                throw new ResourcePersistenceException();
-//            }
+
+
 
             // Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
 //            IPStateJson ipResponse = this.subnetService.allocateIPGateway(inSubnetState.getId(), inSubnetState.getCidr(), portId);
@@ -111,12 +115,12 @@ public class SubnetController {
 //            }
 
             // set up value of properties for subnetState
-            List<RouteWebObject> routes = subnetState.getRoutes();
+            List<RouteWebObject> routes = inSubnetState.getRoutes();
             if (routes == null) {
                 routes = new ArrayList<>();
             }
             routes.add(routeResponse.getRoute());
-            subnetState.setRoutes(routes);
+            inSubnetState.setRoutes(routes);
             //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
 
             this.subnetDatabaseService.addSubnet(inSubnetState);
@@ -129,16 +133,34 @@ public class SubnetController {
             return new SubnetStateJson(subnetState);
 
         } catch (ResourcePersistenceException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         } catch (FallbackException e) {
-            // Route info of subnet rollback
-            List<RouteWebObject> routes = resource.getSubnet().getRoutes();
-            if (routes != null) {
-                RouteWebObject route = routes.get(routes.size() - 1);
-                this.subnetService.routeRollback(route.getId(), resource.getSubnet().getVpcId());
+            logger.error(e.getMessage());
+
+            // Subnet fallback
+            logger.info("subnet fallback start");
+            this.subnetDatabaseService.deleteSubnet(resource.getSubnet().getId());
+            logger.info("subnet fallback end");
+
+            // Route fallback
+            logger.info("Route fallback start");
+            if (routeResponse != null) {
+                RouteWebObject route = routeResponse.getRoute();
+                this.subnetService.routeFallback(route.getId(), resource.getSubnet().getVpcId());
             }
+            logger.info("Route fallback end");
+
+            // Mac fallback
+            logger.info("Mac fallback start");
+            if (macResponse != null) {
+                this.subnetService.macFallback(macResponse.getMacState().getMac());
+                //this.subnetService.macFallback(UnitTestConfig.macAddress);
+            }
+            logger.info("Mac fallback end");
             throw new Exception(e);
         } catch (NullPointerException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
     }
@@ -171,10 +193,13 @@ public class SubnetController {
             subnetState = this.subnetDatabaseService.getBySubnetId(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         } catch (ResourceNotFoundException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         } catch (ParameterUnexpectedValueException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
 
@@ -204,8 +229,10 @@ public class SubnetController {
             this.subnetDatabaseService.deleteSubnet(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         } catch (ParameterUnexpectedValueException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
 
@@ -231,8 +258,10 @@ public class SubnetController {
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         } catch (ResourceNotFoundException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
 

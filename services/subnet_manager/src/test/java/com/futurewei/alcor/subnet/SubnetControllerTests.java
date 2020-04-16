@@ -86,6 +86,7 @@ public class SubnetControllerTests {
 
         VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
         RouteWebJson routeWebJson = new RouteWebJson();
+        MacStateJson macResponse = new MacStateJson();
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
@@ -93,6 +94,8 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
+        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+                .thenReturn(macResponse);
 
         this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
@@ -105,13 +108,15 @@ public class SubnetControllerTests {
     public void createSubnetState_canNotFindVpcState_notPass () throws Exception {
         SubnetState subnetState = new SubnetState(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-                UnitTestConfig.name, UnitTestConfig.cidr);
+                UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
         VpcState vpcState = new VpcState(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
-
+        MacState macState = new MacState();
+        macState.setMac(UnitTestConfig.macAddress);
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteWebObject routeWebObject = new RouteWebObject();
         routeWebJson.setRoute(routeWebObject);
+        MacStateJson macResponse = new MacStateJson(macState);
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
@@ -119,6 +124,8 @@ public class SubnetControllerTests {
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
+        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+                .thenReturn(macResponse);
         try {
             this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
@@ -141,12 +148,49 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
         VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        MacStateJson macResponse = new MacStateJson();
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
+                .thenThrow(new FallbackException("fallback request"));
+        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+                .thenReturn(macResponse);
+        try {
+            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+                    .content(UnitTestConfig.resource))
+                    .andDo(print())
+                    .andExpect(status().is(201))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
+        }catch (Exception ex) {
+            //System.out.println(ex.getMessage());
+            assertEquals(UnitTestConfig.createException, ex.getMessage());
+        }
+
+    }
+
+    @Test
+    public void createSubnetState_canNotFindMac_notPass () throws Exception {
+        SubnetState subnetState = new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.cidr);
+        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+
+        RouteWebJson routeWebJson = new RouteWebJson();
+        RouteWebObject routeWebObject = new RouteWebObject();
+        routeWebJson.setRoute(routeWebObject);
+        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(subnetState);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
+                .thenReturn(routeWebJson);
+        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
                 .thenThrow(new FallbackException("fallback request"));
         try {
             this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)

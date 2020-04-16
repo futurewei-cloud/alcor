@@ -23,6 +23,8 @@ import com.futurewei.alcor.route.entity.RouteState;
 import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class RouteController {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RouteRedisRepository routeRedisRepository;
@@ -137,9 +141,10 @@ public class RouteController {
 
             this.routeRedisRepository.deleteItem(routeId);
         } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
             throw new Exception(e);
         }
-
+        logger.info("delete successfully —— id: " + routeId);
         return new ResponseId(routeId);
     }
 }
