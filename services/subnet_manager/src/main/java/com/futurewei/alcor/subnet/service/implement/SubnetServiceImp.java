@@ -59,6 +59,10 @@ public class SubnetServiceImp implements SubnetService {
         String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
         HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
+        // retry if routeResponse is null
+        if (routeResponse == null) {
+            routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
+        }
         if (routeResponse == null) {
             throw new FallbackException("fallback request");
         }
@@ -67,7 +71,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) throws FallbackException {
-        String macManagerServiceUrl = macUrl + "?Accept=application/json&Content-Type=application/json";
+        String macManagerServiceUrl = macUrl;
         MacState macState = new MacState();
         macState.setProjectId(projectId);
         macState.setPortId(portId);
@@ -75,6 +79,10 @@ public class SubnetServiceImp implements SubnetService {
 
         HttpEntity<MacStateJson> macRequest = new HttpEntity<>(new MacStateJson(macState));
         MacStateJson macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
+        // retry if macResponse is null
+        if (macResponse == null) {
+            macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
+        }
         if (macResponse == null) {
             throw new FallbackException("fallback request");
         }
