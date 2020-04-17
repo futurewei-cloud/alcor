@@ -11,13 +11,16 @@ public interface SubnetService {
     // Mac info Fallback
     public void macFallback (String macAddress);
 
+    // Ip gateway Fallback
+    public void ipFallback (String ipGateway);
+
     // Verify VPC ID
-    public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
+    public void verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
     public RouteWebJson createRouteRules (String subnetId, SubnetState subnetState) throws Exception;
 
-    // TODO : Allocate Gateway Mac
+    // Allocate Gateway Mac
     public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId) throws Exception;
 
     // TODO : Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique

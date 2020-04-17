@@ -100,7 +100,7 @@ public class SubnetController {
             logger.info("macResponse: " + macResponse.getMacState().getMacAddress());
 
             // Verify VPC ID
-            VpcStateJson vpcResponse = this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
+            this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
 
             //Prepare Route Rule(IPv4/6) for Subnet
             routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);

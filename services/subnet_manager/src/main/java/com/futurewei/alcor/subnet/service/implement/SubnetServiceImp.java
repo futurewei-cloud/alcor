@@ -41,19 +41,22 @@ public class SubnetServiceImp implements SubnetService {
         restTemplate.delete(macManagerServiceUrl, ResponseId.class);
     }
 
-    //@Async
     @Override
-    public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
+    public void ipFallback(String ipGateway) {
+        String ipManagerServiceUrl = ipUrl + ipGateway;
+        restTemplate.delete(ipManagerServiceUrl, ResponseId.class);
+    }
+
+    @Override
+    public void verifyVpcId(String projectid, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId; // for kubernetes test
         //HttpEntity<SubnetStateJson> vpcRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
         if (vpcResponse.getVpc() == null) {
-            throw new FallbackException("fallback request");
+            throw new FallbackException("vpc fallback request");
         }
-        return vpcResponse;
     }
 
-    //@Async
     @Override
     public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
@@ -64,7 +67,7 @@ public class SubnetServiceImp implements SubnetService {
             routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         }
         if (routeResponse == null) {
-            throw new FallbackException("fallback request");
+            throw new FallbackException("route fallback request");
         }
         return routeResponse;
     }
@@ -84,21 +87,28 @@ public class SubnetServiceImp implements SubnetService {
             macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
         }
         if (macResponse == null) {
-            throw new FallbackException("fallback request");
+            throw new FallbackException("mac fallback request");
         }
         return macResponse;
     }
 
     @Override
-    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) {
+    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) throws FallbackException {
         IPState ipState = new IPState();
         ipState.setSubnetId(subnetId);
         ipState.setPortId(portId);
         ipState.setSubnetCidr(cidr);
 
-        String ipManagerServiceUrl = ipUrl + subnetId + "/routes"; // for kubernetes test
+        String ipManagerServiceUrl = ipUrl; // for kubernetes test
         HttpEntity<IPStateJson> ipRequest = new HttpEntity<>(new IPStateJson(ipState));
         IPStateJson ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        // retry if ipResponse is null
+        if (ipResponse == null) {
+            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        }
+        if (ipResponse == null) {
+            throw new FallbackException("ip gateway fallback request");
+        }
         return ipResponse;
     }
 }
