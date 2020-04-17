@@ -19,11 +19,11 @@ package com.futurewei.alcor.subnet.controller;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
-import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -81,9 +84,12 @@ public class SubnetController {
             value = {"/project/{projectid}/subnets", "v4/{projectid}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetStateJson createSubnetState(@PathVariable String projectid, @RequestBody SubnetStateJson resource) throws Exception {
+        long start = System.currentTimeMillis();
         SubnetState subnetState = null;
         RouteWebJson routeResponse = null;
         MacStateJson macResponse = null;
+        AtomicReference<RouteWebJson> routeResponseAtomic = new AtomicReference<>();
+        AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
         String portId = UUID.randomUUID().toString();
 
         try {
@@ -96,15 +102,37 @@ public class SubnetController {
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
 
             //Allocate Gateway Mac
-            macResponse = this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
-            logger.info("macResponse: " + macResponse.getMacState().getMacAddress());
+            CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+                macResponseAtomic.set(s);
+                return s;
+            });
 
             // Verify VPC ID
-            this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
+            CompletableFuture<VpcStateJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            routeResponse = this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
-
+            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+                routeResponseAtomic.set(s);
+                return s;
+            });;
 
 
 
@@ -113,6 +141,14 @@ public class SubnetController {
 //            if (ipResponse == null) {
 //                throw new ResourcePersistenceException();
 //            }
+
+            // Synchronous blocking
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture);
+            allFuture.join();
+
+            macResponse = macFuture.join();
+            routeResponse = routeFuture.join();
+            logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
             List<RouteWebObject> routes = inSubnetState.getRoutes();
@@ -135,7 +171,9 @@ public class SubnetController {
         } catch (ResourcePersistenceException e) {
             logger.error(e.getMessage());
             throw new Exception(e);
-        } catch (FallbackException e) {
+        } catch (CompletionException e) {
+            routeResponse = (RouteWebJson) routeResponseAtomic.get();
+            macResponse = (MacStateJson) macResponseAtomic.get();
             logger.error(e.getMessage());
 
             // Subnet fallback

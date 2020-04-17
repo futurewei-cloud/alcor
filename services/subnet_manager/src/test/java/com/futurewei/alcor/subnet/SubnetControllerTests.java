@@ -90,8 +90,8 @@ public class SubnetControllerTests {
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
-//        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-//                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
@@ -120,8 +120,8 @@ public class SubnetControllerTests {
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
-//        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-//                .thenThrow(new FallbackException("fallback request"));
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
@@ -152,8 +152,8 @@ public class SubnetControllerTests {
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
-//        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-//                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
@@ -186,8 +186,8 @@ public class SubnetControllerTests {
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
-//        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-//                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))

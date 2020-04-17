@@ -15,7 +15,7 @@ public interface SubnetService {
     public void ipFallback (String ipGateway);
 
     // Verify VPC ID
-    public void verifyVpcId (String projectId, String vpcId) throws Exception;
+    public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
     public RouteWebJson createRouteRules (String subnetId, SubnetState subnetState) throws Exception;

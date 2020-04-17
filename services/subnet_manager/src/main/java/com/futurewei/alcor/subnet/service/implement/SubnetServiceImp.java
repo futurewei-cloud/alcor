@@ -31,7 +31,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     public void routeFallback(String routeId, String vpcId) {
-        String routeManagerServiceUrl = routeUrl + vpcId + "/routes/" + routeId; // for kubernetes test
+        String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
     }
 
@@ -48,18 +48,19 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public void verifyVpcId(String projectid, String vpcId) throws FallbackException {
+    public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId; // for kubernetes test
         //HttpEntity<SubnetStateJson> vpcRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
         if (vpcResponse.getVpc() == null) {
-            throw new FallbackException("vpc fallback request");
+            throw new FallbackException("fallback request");
         }
+        return vpcResponse;
     }
 
     @Override
     public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
-        String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
+        String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes"; // for kubernetes test
         HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
@@ -67,7 +68,7 @@ public class SubnetServiceImp implements SubnetService {
             routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         }
         if (routeResponse == null) {
-            throw new FallbackException("route fallback request");
+            throw new FallbackException("fallback request");
         }
         return routeResponse;
     }
@@ -87,7 +88,7 @@ public class SubnetServiceImp implements SubnetService {
             macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
         }
         if (macResponse == null) {
-            throw new FallbackException("mac fallback request");
+            throw new FallbackException("fallback request");
         }
         return macResponse;
     }
@@ -107,7 +108,7 @@ public class SubnetServiceImp implements SubnetService {
             ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
         }
         if (ipResponse == null) {
-            throw new FallbackException("ip gateway fallback request");
+            throw new FallbackException("fallback request");
         }
         return ipResponse;
     }
