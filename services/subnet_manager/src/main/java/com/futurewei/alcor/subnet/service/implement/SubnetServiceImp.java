@@ -31,7 +31,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     public void routeFallback(String routeId, String vpcId) {
-        String routeManagerServiceUrl = routeUrl + vpcId + "/routes/" + routeId; // for kubernetes test
+        String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
     }
 
@@ -41,7 +41,12 @@ public class SubnetServiceImp implements SubnetService {
         restTemplate.delete(macManagerServiceUrl, ResponseId.class);
     }
 
-    //@Async
+    @Override
+    public void ipFallback(String ipGateway) {
+        String ipManagerServiceUrl = ipUrl + ipGateway;
+        restTemplate.delete(ipManagerServiceUrl, ResponseId.class);
+    }
+
     @Override
     public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId; // for kubernetes test
@@ -53,10 +58,9 @@ public class SubnetServiceImp implements SubnetService {
         return vpcResponse;
     }
 
-    //@Async
     @Override
     public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
-        String routeManagerServiceUrl = routeUrl + subnetId + "/routes"; // for kubernetes test
+        String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes"; // for kubernetes test
         HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
@@ -90,15 +94,22 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) {
+    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) throws FallbackException {
         IPState ipState = new IPState();
         ipState.setSubnetId(subnetId);
         ipState.setPortId(portId);
         ipState.setSubnetCidr(cidr);
 
-        String ipManagerServiceUrl = ipUrl + subnetId + "/routes"; // for kubernetes test
+        String ipManagerServiceUrl = ipUrl; // for kubernetes test
         HttpEntity<IPStateJson> ipRequest = new HttpEntity<>(new IPStateJson(ipState));
         IPStateJson ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        // retry if ipResponse is null
+        if (ipResponse == null) {
+            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        }
+        if (ipResponse == null) {
+            throw new FallbackException("fallback request");
+        }
         return ipResponse;
     }
 }
