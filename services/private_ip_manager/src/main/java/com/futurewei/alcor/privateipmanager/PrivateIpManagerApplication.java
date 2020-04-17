@@ -20,10 +20,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class IpManagerApplication {
+public class PrivateIpManagerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IpManagerApplication.class, args);
+        SpringApplication.run(PrivateIpManagerApplication.class, args);
     }
 
 }
