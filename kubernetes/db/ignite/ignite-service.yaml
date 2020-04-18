@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ignite-service
+  labels:
+    app: ignite
+spec:
+  ports:
+    - port: 10800
+      targetPort: 10800
+  selector:
+    app: ignite
+
