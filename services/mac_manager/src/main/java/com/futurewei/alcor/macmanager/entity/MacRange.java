@@ -49,8 +49,15 @@ public class MacRange {
 
     public void createDefault(String oui) {
         rangeId = MacUtil.DEFAULT_RANGE;
+<<<<<<< HEAD
+        String strFrom  = MacAddress.longToMac(0);
+        String strTo = MacAddress.longToMac((long)Math.pow(2,MacAddress.NIC_LENGTH) - 1);
+        from = new MacAddress(oui, strFrom).getMacAddress();
+        to = new MacAddress(oui, strTo).getMacAddress();
+=======
         from = new MacAddress(oui, MacAddress.longToMac(0)).getMacAddress();
-        to = new MacAddress(oui, MacAddress.longToMac(MacAddress.NIC_LENGTH)).getMacAddress();
+        to = new MacAddress(oui, MacAddress.longToMac((long)Math.pow(2,MacAddress.NIC_LENGTH))).getMacAddress();
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
         state = MacUtil.MAC_RANGE_STATE_ACTIVE;
     }
 }

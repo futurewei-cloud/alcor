@@ -59,6 +59,13 @@ public class MacRedisServiceImpl implements MacService {
 
     public MacState createMacState(MacState macState) throws Exception {
         MacAddress macAddress = new MacAddress();
+<<<<<<< HEAD
+        if (macState.getState() == null)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
+        else if (macState.getState().trim().length()==0)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
+=======
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
         String strMacAddress = allocateMacState(macState);
         if (strMacAddress != null) {
             macState.setMacAddress(strMacAddress);
@@ -68,8 +75,9 @@ public class MacRedisServiceImpl implements MacService {
             macAddress.setOui(oui);
             macAddress.setNic(nic);
             macState.setMacAddress(macAddress.getMacAddress());
+            MacState macState2 = macRedisRepository.findItem(macAddress.getMacAddress());
             if (macRedisRepository.findItem(macAddress.getMacAddress()) != null)
-                throw (new UniquenessViolationException("This mac address is not unique!!"));
+                throw (new UniquenessViolationException("This mac address is not unique!!"+macAddress.getMacAddress()+macState2.getProjectId()));
             else
                 macRedisRepository.addItem(macState);
         }
@@ -77,28 +85,9 @@ public class MacRedisServiceImpl implements MacService {
     }
 
     @Override
-    public MacState activateMacState(String macAddress) throws Exception {
-        MacState macState = macRedisRepository.findItem(macAddress);
-        if (macState == null) {
-            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
-            throw e;
-        } else {
-            macState.setActive(MacUtil.MAC_STATE_ACTIVE);
+    public MacState updateMacState(String macAddress, MacState macState) throws Exception {
+        if(macState != null)
             macRedisRepository.updateItem(macState);
-        }
-        return macState;
-    }
-
-    @Override
-    public MacState deactivateMacState(String macAddress) throws Exception {
-        MacState macState = macRedisRepository.findItem(macAddress);
-        if (macState == null) {
-            ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
-            throw e;
-        } else {
-            macState.setActive(MacUtil.MAC_RANGE_STATE_INACTIVE);
-            macRedisRepository.updateItem(macState);
-        }
         return macState;
     }
 
@@ -111,7 +100,12 @@ public class MacRedisServiceImpl implements MacService {
             macPoolRedisRepository.addItem(macAddress);
             macRedisRepository.deleteItem(macAddress);
         }
+<<<<<<< HEAD
+        return macState.getMacAddress();
+        //return new String ("{mac_address: " + macAddress+"}");
+=======
         return macAddress;
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
     }
 
     @Override
@@ -122,7 +116,11 @@ public class MacRedisServiceImpl implements MacService {
 
     @Override
     public Map<String, MacRange> getAllMacRanges() {
+<<<<<<< HEAD
+        Map<String, MacRange> macRanges = macRangeRedisRepository.findAllItems();
+=======
         Hashtable<String, MacRange> macRanges = (Hashtable<String, MacRange>) macRangeRedisRepository.findAllItems();
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
         return macRanges;
     }
 
@@ -148,6 +146,10 @@ public class MacRedisServiceImpl implements MacService {
             macRangeRedisRepository.deleteItem(rangeId);
         }
         return rangeId;
+<<<<<<< HEAD
+        //return new String ("{mac_range: " + rangeId+"}");
+=======
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
     }
 
     private String allocateMacState(MacState macState) {
