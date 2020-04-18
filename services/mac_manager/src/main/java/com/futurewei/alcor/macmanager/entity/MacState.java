@@ -35,23 +35,39 @@ public class MacState implements Serializable {
     @JsonProperty("port_id")
     private String portId;
 
+<<<<<<< HEAD
     @JsonProperty("state")
     private String state;
+=======
+    @JsonProperty("active")
+    private String active;
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
 
     public MacState() {
 
     }
 
     public MacState(MacState state) {
+<<<<<<< HEAD
         this(state.macAddress, state.projectId, state.vpcId, state.portId, state.state);
     }
 
     public MacState(String macAddress, String projectId, String vpcId, String portId, String state) {
+=======
+        this(state.macAddress, state.projectId, state.vpcId, state.portId, state.active);
+    }
+
+    public MacState(String macAddress, String projectId, String vpcId, String portId, String active) {
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
         this.macAddress = macAddress;
         this.projectId = projectId;
         this.vpcId = vpcId;
         this.portId = portId;
+<<<<<<< HEAD
         this.state = state;
+=======
+        this.active = active;
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
     }
 }
 

@@ -32,7 +32,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.PathVariable;
+=======
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Hashtable;
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -184,7 +192,11 @@ public class MacControllerTest {
                 .andExpect(status().isOk());
     }
 
+<<<<<<< HEAD
     public void test_getAllMacRanges(@PathVariable String rangeid) throws Exception {
+=======
+    public void test_getAllMacRanges(@PathVariable String rangeid) throws Exception{
+>>>>>>> 0817ce8198b91bfaca7c43abedc8995c5a3746a6
         MacRange macRange = new MacRange("range2", "00-AA-BB-11-22-22", "00-AA-BB-11-22-FF", "Active");
         String strRangeId = createMacRange(macRange);
         macRange = new MacRange("range3", "00-AA-BB-11-33-33", "00-AA-BB-11-FF", "Active");
