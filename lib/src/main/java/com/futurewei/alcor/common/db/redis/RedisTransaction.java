@@ -34,7 +34,7 @@ public class RedisTransaction implements Transaction {
         this.redisTemplate = redisTemplate;
     }
 
-    public void start() throws CacheException {
+    public Transaction start() throws CacheException {
         redisTemplate.setEnableTransactionSupport(true);
         try {
             redisTemplate.multi();
@@ -42,6 +42,8 @@ public class RedisTransaction implements Transaction {
             logger.log(Level.WARNING, "RedisTransaction start error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+
+        return this;
     }
 
     public void commit() throws CacheException {
@@ -62,6 +64,7 @@ public class RedisTransaction implements Transaction {
         }
     }
 
+    @Override
     public void close() {
         //Do nothing
     }

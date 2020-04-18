@@ -14,11 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.http;
+package com.futurewei.alcor.privateipmanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Ipv4AddrRangeRequest {
+public class IpAddrRangeRequest {
+    @JsonProperty("ip_version")
+    private int ipVersion;
+
     @JsonProperty("subnet_id")
     private String subnetId;
 
@@ -28,12 +31,21 @@ public class Ipv4AddrRangeRequest {
     @JsonProperty("last_addr")
     private String lastAddr;
 
-    public Ipv4AddrRangeRequest() {}
+    public IpAddrRangeRequest() {}
 
-    public Ipv4AddrRangeRequest(String subnetId, String firstAddr, String lastAddr) {
+    public IpAddrRangeRequest(int ipVersion, String subnetId, String firstAddr, String lastAddr) {
+        this.ipVersion = ipVersion;
         this.subnetId = subnetId;
         this.firstAddr = firstAddr;
         this.lastAddr = lastAddr;
+    }
+
+    public int getIpVersion() {
+        return ipVersion;
+    }
+
+    public void setIpVersion(int ipVersion) {
+        this.ipVersion = ipVersion;
     }
 
     public String getSubnetId() {

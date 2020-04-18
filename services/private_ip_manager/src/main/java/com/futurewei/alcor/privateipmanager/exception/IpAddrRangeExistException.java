@@ -14,24 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.entity;
+package com.futurewei.alcor.privateipmanager.exception;
 
-public enum Ipv4AddrState {
-    ACTIVATED("activated"),
-    DEACTIVATED("deactivated"),
-    FREE("free");
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    private String state;
-
-    Ipv4AddrState(String state) {
-        this.state = state;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="Ip address range already exists")
+public class IpAddrRangeExistException extends Exception {
 }

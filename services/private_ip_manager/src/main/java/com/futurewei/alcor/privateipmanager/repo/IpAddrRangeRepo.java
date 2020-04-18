@@ -1,0 +1,259 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+package com.futurewei.alcor.privateipmanager.repo;
+
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
+import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
+import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
+import com.futurewei.alcor.privateipmanager.exception.InternalDbOperationException;
+import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeNotFoundException;
+import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeExistException;
+import com.futurewei.alcor.privateipmanager.exception.SubnetNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Repository;
+import com.futurewei.alcor.common.db.CacheException;
+import javax.annotation.PostConstruct;
+import java.util.*;
+
+@ComponentScan(value="com.futurewei.alcor.common.db")
+@Repository
+public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
+    private static final Logger LOG = LoggerFactory.getLogger(IpAddrRangeRepo.class);
+    private ICache<String, IpAddrRange> ipAddrRangeCache;
+
+    @Autowired
+    public IpAddrRangeRepo(CacheFactory cacheFactory) {
+        ipAddrRangeCache = cacheFactory.getCache(IpAddrRange.class);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOG.info("Ipv4RangeRepository init done");
+    }
+
+    @Override
+    public synchronized IpAddrRange findItem(String subnetId) {
+        try {
+            return ipAddrRangeCache.get(subnetId);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("Ipv4RangeRepository findItem() exception:", e);
+        }
+
+        return null;
+    }
+
+    @Override
+    public synchronized Map<String, IpAddrRange> findAllItems() {
+        try {
+            return ipAddrRangeCache.getAll();
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("Ipv4RangeRepository findAllItems() exception:", e);
+        }
+
+        return new HashMap();
+    }
+
+    @Override
+    public synchronized void addItem(IpAddrRange ipAddrRange) {
+        LOG.error("Add ipv4Range:{}", ipAddrRange);
+
+        try {
+            ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("Ipv4RangeRepository addItem() exception:", e);
+        }
+    }
+
+    @Override
+    public synchronized void deleteItem(String subnetId) {
+        LOG.error("Delete ipv4Range, subnetId:{}", subnetId);
+
+        try {
+            ipAddrRangeCache.remove(subnetId);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("Ipv4RangeRepository deleteItem() exception:", e);
+        }
+    }
+
+    /**
+     * Allocate a ip address from IpAddrRange repository
+     * @param subnetId Assign ip addresses from this subnet
+     * @return Ip address assigned from subnet
+     * @throws Exception Db operation or ip address assignment exception
+     */
+    public synchronized String allocateIpAddr(String subnetId) throws Exception {
+        String ipAddr;
+
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+            if (ipAddrRange == null) {
+                throw new SubnetNotFoundException();
+            }
+
+            ipAddr = ipAddrRange.allocate();
+            ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+
+            tx.commit();
+        }
+
+        return ipAddr;
+    }
+
+    /**
+     * Assign multiple ip addresses from IpAddrRange repository
+     * @param subnetId Assign ip addresses from this subnet
+     * @param num Number of ip addresses requested
+     * @return Ip address list assigned from subnet
+     * @throws Exception Db operation or ip address assignment exception
+     */
+    public synchronized Map<String, List<String>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
+        Map<String, List<String>> result = new HashMap<>();
+
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            for (Map.Entry<String, Integer> entry: requests.entrySet()) {
+                IpAddrRange ipAddrRange = ipAddrRangeCache.get(entry.getKey());
+                if (ipAddrRange == null) {
+                    throw new SubnetNotFoundException();
+                }
+
+                List<String> ipAddrList = ipAddrRange.allocateBulk(entry.getValue());
+                ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+
+                result.put(entry.getKey(), ipAddrList);
+            }
+
+            tx.commit();
+        }
+
+        return result;
+    }
+
+    public synchronized void modifyIpAddrState(String subnetId, String ipAddr, String state) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+            if (ipAddrRange == null) {
+                throw new SubnetNotFoundException();
+            }
+
+            ipAddrRange.modifyIpAddrState(ipAddr, state);
+            ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+
+            tx.commit();
+        }
+    }
+
+    public synchronized void releaseIpAddr(String subnetId, String ipAddr) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+            if (ipAddrRange == null) {
+                throw new SubnetNotFoundException();
+            }
+
+            ipAddrRange.release(ipAddr);
+            ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+
+            tx.commit();
+        }
+    }
+
+    public synchronized void releaseIpAddrBulk(Map<String, List<String>> requests) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            for (Map.Entry<String, List<String>> entry: requests.entrySet()) {
+                IpAddrRange ipAddrRange = ipAddrRangeCache.get(entry.getKey());
+                if (ipAddrRange == null) {
+                    throw new SubnetNotFoundException();
+                }
+
+                ipAddrRange.releaseBulk(entry.getValue());
+                ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+            }
+
+            tx.commit();
+        }
+    }
+
+    public synchronized IpAddrAlloc getIpAddr(String subnetId, String ipAddr) throws Exception {
+        IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+        if (ipAddrRange == null) {
+            throw new SubnetNotFoundException();
+        }
+
+        return ipAddrRange.getIpAddr(ipAddr);
+    }
+
+    public synchronized Collection<IpAddrAlloc> getIpAddrBulk(String subnetId) throws Exception {
+        IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+        if (ipAddrRange == null) {
+            throw new SubnetNotFoundException();
+        }
+
+        return ipAddrRange.getIpAddrBulk();
+    }
+
+    public synchronized void createIpAddrRange(IpAddrRangeRequest request) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            if (ipAddrRangeCache.get(request.getSubnetId()) != null) {
+                LOG.warn("Create ip address range failed: IpAddressRange already exists");
+                throw new IpAddrRangeExistException();
+            }
+
+            IpAddrRange ipAddrRange = new IpAddrRange(request.getIpVersion(),
+                    request.getSubnetId(), request.getFirstAddr(), request.getLastAddr());
+
+            ipAddrRangeCache.put(request.getSubnetId(), ipAddrRange);
+
+            ipAddrRange = ipAddrRangeCache.get(request.getSubnetId());
+            if (ipAddrRange == null) {
+                LOG.warn("Create ip address range failed: Internal db operation error");
+                throw new InternalDbOperationException();
+            }
+
+            tx.commit();
+        }
+    }
+
+    public synchronized IpAddrRange deleteIpAddrRange(String subnetId) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+            if (ipAddrRange == null) {
+                LOG.warn("Delete ip address range failed: Ip address range not found");
+                throw new IpAddrRangeNotFoundException();
+            }
+
+            ipAddrRangeCache.remove(subnetId);
+
+            tx.commit();
+
+            return ipAddrRange;
+        }
+    }
+
+    public synchronized IpAddrRange getIpAddrRange(String subnetId) throws Exception {
+            return ipAddrRangeCache.get(subnetId);
+    }
+}

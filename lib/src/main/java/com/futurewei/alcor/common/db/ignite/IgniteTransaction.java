@@ -27,6 +27,9 @@ import org.apache.ignite.internal.client.thin.ClientServerError;
 
 import java.util.logging.Level;
 
+import static org.apache.ignite.transactions.TransactionConcurrency.PESSIMISTIC;
+import static org.apache.ignite.transactions.TransactionIsolation.SERIALIZABLE;
+
 public class IgniteTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -37,9 +40,9 @@ public class IgniteTransaction implements Transaction {
         this.igniteClient = igniteClient;
     }
 
-    public void start() throws CacheException {
+    public Transaction start() throws CacheException {
         try {
-            clientTransaction = igniteClient.transactions().txStart();
+            clientTransaction = igniteClient.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
         } catch (ClientServerError e) {
             logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -47,6 +50,8 @@ public class IgniteTransaction implements Transaction {
             logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+
+        return this;
     }
 
     public void commit() throws CacheException {
@@ -73,7 +78,10 @@ public class IgniteTransaction implements Transaction {
         }
     }
 
+    @Override
     public void close() {
-        clientTransaction.close();
+        if (clientTransaction != null) {
+            clientTransaction.close();
+        }
     }
 }

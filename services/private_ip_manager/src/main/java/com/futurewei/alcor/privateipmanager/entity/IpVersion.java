@@ -13,29 +13,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.privateipmanager.entity;
 
-package com.futurewei.alcor.privateipmanager.http;
+public enum  IpVersion {
+    IPV4(4),
+    IPV6(6);
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+    private int version;
 
-import java.util.List;
-
-public class Ipv4AddrRequestBulk {
-    @JsonProperty("ipv4_addr_requests")
-    private List<Ipv4AddrRequest> ipv4AddrRequests;
-
-    public Ipv4AddrRequestBulk() {
+    IpVersion(int version) {
+        this.version = version;
     }
 
-    public Ipv4AddrRequestBulk(List<Ipv4AddrRequest> ipv4AddrRequests) {
-        this.ipv4AddrRequests = ipv4AddrRequests;
+    public int getVersion() {
+        return version;
     }
 
-    public List<Ipv4AddrRequest> getIpv4AddrRequests() {
-        return ipv4AddrRequests;
-    }
-
-    public void setIpv4AddrRequests(List<Ipv4AddrRequest> ipv4AddrRequests) {
-        this.ipv4AddrRequests = ipv4AddrRequests;
+    public void setVersion(int version) {
+        this.version = version;
     }
 }

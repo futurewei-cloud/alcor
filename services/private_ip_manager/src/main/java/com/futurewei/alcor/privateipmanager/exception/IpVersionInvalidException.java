@@ -13,12 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
-package com.futurewei.alcor.privateipmanager.http.status;
+package com.futurewei.alcor.privateipmanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Subnet id invalid")
-public class SubnetIdInvalidException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Ip version invalid")
+public class IpVersionInvalidException extends Exception {
 }

@@ -17,37 +17,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.privateipmanager.entity;
 
 
-public class Ipv4AddrAlloc {
-    private String ipv4Addr;
-    private String state;
+public class IpAddrAlloc {
+    private int ipVersion;
     private String subnetId;
+    private String ipAddr;
+    private String state;
 
-    public Ipv4AddrAlloc() {
+    public IpAddrAlloc() {
     }
 
-    public Ipv4AddrAlloc(String ipv4Addr, String state, String subnetId) {
-        this.ipv4Addr = ipv4Addr;
-        this.state = state;
+    public IpAddrAlloc(int ipVersion, String subnetId, String ipAddr, String state) {
+        this.ipVersion = ipVersion;
         this.subnetId = subnetId;
-    }
-
-    public Ipv4AddrAlloc(Ipv4AddrAlloc ipv4AddrAlloc) {
-        this(ipv4AddrAlloc.getIpv4Addr(), ipv4AddrAlloc.getState(), ipv4AddrAlloc.getSubnetId());
-    }
-
-    public String getIpv4Addr() {
-        return ipv4Addr;
-    }
-
-    public void setIpv4Addr(String ipv4Addr) {
-        this.ipv4Addr = ipv4Addr;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
+        this.ipAddr = ipAddr;
         this.state = state;
     }
 
@@ -57,5 +39,29 @@ public class Ipv4AddrAlloc {
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
+    }
+
+    public int getIpVersion() {
+        return ipVersion;
+    }
+
+    public void setIpVersion(int ipVersion) {
+        this.ipVersion = ipVersion;
+    }
+
+    public String getIpAddr() {
+        return ipAddr;
+    }
+
+    public void setIpAddr(String ipAddr) {
+        this.ipAddr = ipAddr;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

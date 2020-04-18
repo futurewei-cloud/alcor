@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.http.status;
+package com.futurewei.alcor.privateipmanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Ipv4 address invalid")
-public class Ipv4AddrInvalidException extends Exception {
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Ip address range not Found")
+public class IpAddrRangeNotFoundException extends Exception {
 }

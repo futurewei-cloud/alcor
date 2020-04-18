@@ -14,13 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.db;
+package com.futurewei.alcor.privateipmanager.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public interface Transaction extends AutoCloseable{
-    Transaction start() throws CacheException;
-
-    void commit() throws CacheException;
-
-    void rollback() throws CacheException;
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Ip address invalid")
+public class IpAddrInvalidException extends Exception {
 }

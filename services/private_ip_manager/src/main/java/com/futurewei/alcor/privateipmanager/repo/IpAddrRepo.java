@@ -19,7 +19,7 @@ package com.futurewei.alcor.privateipmanager.repo;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.privateipmanager.entity.Ipv4AddrAlloc;
+import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +32,13 @@ import java.util.Map;
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
-public class Ipv4AddrRepo implements ICacheRepository<Ipv4AddrAlloc> {
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddrRepo.class);
-    private ICache<String, Ipv4AddrAlloc> cache;
+public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
+    private static final Logger LOG = LoggerFactory.getLogger(IpAddrRepo.class);
+    private ICache<String, IpAddrAlloc> cache;
 
     @Autowired
-    public Ipv4AddrRepo(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(Ipv4AddrAlloc.class);
+    public IpAddrRepo(CacheFactory cacheFactory) {
+        cache = cacheFactory.getCache(IpAddrAlloc.class);
     }
 
     @PostConstruct
@@ -47,7 +47,7 @@ public class Ipv4AddrRepo implements ICacheRepository<Ipv4AddrAlloc> {
     }
 
     @Override
-    public synchronized Ipv4AddrAlloc findItem(String Ipv4Address) {
+    public synchronized IpAddrAlloc findItem(String Ipv4Address) {
         try {
             return cache.get(Ipv4Address);
         } catch (CacheException e) {
@@ -71,11 +71,11 @@ public class Ipv4AddrRepo implements ICacheRepository<Ipv4AddrAlloc> {
     }
 
     @Override
-    public synchronized void addItem(Ipv4AddrAlloc ipv4AddrAlloc) {
-        LOG.error("Add ipAllocation:{}", ipv4AddrAlloc);
+    public synchronized void addItem(IpAddrAlloc ipAddrAlloc) {
+        LOG.error("Add ipAllocation:{}", ipAddrAlloc);
 
         try {
-            cache.put(ipv4AddrAlloc.getSubnetId() + ipv4AddrAlloc.getIpv4Addr(), ipv4AddrAlloc);
+            cache.put(ipAddrAlloc.getSubnetId() + ipAddrAlloc.getIpAddr(), ipAddrAlloc);
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("Ipv4Repository addItem() exception:", e);

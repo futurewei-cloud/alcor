@@ -14,11 +14,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.http.status;
+package com.futurewei.alcor.privateipmanager.entity;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Ipv4 address range not Found")
-public class Ipv4AddrRangeNotFoundException extends Exception {
+import java.util.List;
+
+public class IpAddrRequestBulk {
+    @JsonProperty("ipv4_addr_requests")
+    private List<IpAddrRequest> ipAddrRequests;
+
+    public IpAddrRequestBulk() {
+    }
+
+    public IpAddrRequestBulk(List<IpAddrRequest> ipAddrRequests) {
+        this.ipAddrRequests = ipAddrRequests;
+    }
+
+    public List<IpAddrRequest> getIpAddrRequests() {
+        return ipAddrRequests;
+    }
+
+    public void setIpAddrRequests(List<IpAddrRequest> ipAddrRequests) {
+        this.ipAddrRequests = ipAddrRequests;
+    }
 }

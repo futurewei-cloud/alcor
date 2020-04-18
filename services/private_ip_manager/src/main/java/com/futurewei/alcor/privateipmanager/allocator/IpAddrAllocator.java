@@ -13,14 +13,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.privateipmanager.allocator;
 
-package com.futurewei.alcor.common.db;
 
+import com.futurewei.alcor.privateipmanager.exception.IpAddrNotEnoughException;
 
-public interface Transaction extends AutoCloseable{
-    Transaction start() throws CacheException;
+import java.util.List;
 
-    void commit() throws CacheException;
+public interface IpAddrAllocator {
 
-    void rollback() throws CacheException;
+    String allocate() throws Exception;
+
+    List<String> allocateBulk(int num) throws IpAddrNotEnoughException, Exception;
+
+    void release(String ipAddr) throws Exception;
+
+    void releaseBulk(List<String> ipAddrList) throws Exception;
+
+    boolean valid(String ipv4Addr);
 }

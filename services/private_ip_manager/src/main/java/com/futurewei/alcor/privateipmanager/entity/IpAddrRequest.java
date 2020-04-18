@@ -16,23 +16,36 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Ipv4AddrRange {
+public class IpAddrRequest {
+    @JsonProperty("ip_version")
+    private int ipVersion;
+
+    @JsonProperty("subnet_id")
     private String subnetId;
-    private String firstAddr;
-    private String lastAddr;
 
-    public Ipv4AddrRange() {
-    }
+    @JsonProperty("ip_addr")
+    private String ipAddr;
 
-    public Ipv4AddrRange(String subnetId, String firstAddr, String lastAddr) {
+    @JsonProperty("state")
+    private String state;
+
+    public IpAddrRequest() {}
+
+    public IpAddrRequest(int ipVersion, String subnetId, String ipAddr, String state) {
+        this.ipVersion = ipVersion;
         this.subnetId = subnetId;
-        this.firstAddr = firstAddr;
-        this.lastAddr = lastAddr;
+        this.ipAddr = ipAddr;
+        this.state = state;
     }
 
-    public Ipv4AddrRange(Ipv4AddrRange ipv4AddrRange) {
-        this(ipv4AddrRange.getSubnetId(), ipv4AddrRange.getFirstAddr(), ipv4AddrRange.getLastAddr());
+    public int getIpVersion() {
+        return ipVersion;
+    }
+
+    public void setIpVersion(int ipVersion) {
+        this.ipVersion = ipVersion;
     }
 
     public String getSubnetId() {
@@ -43,19 +56,19 @@ public class Ipv4AddrRange {
         this.subnetId = subnetId;
     }
 
-    public String getFirstAddr() {
-        return firstAddr;
+    public String getIpAddr() {
+        return ipAddr;
     }
 
-    public void setFirstAddr(String firstAddr) {
-        this.firstAddr = firstAddr;
+    public void setIpAddr(String ipAddr) {
+        this.ipAddr = ipAddr;
     }
 
-    public String getLastAddr() {
-        return lastAddr;
+    public String getState() {
+        return state;
     }
 
-    public void setLastAddr(String lastAddr) {
-        this.lastAddr = lastAddr;
+    public void setState(String state) {
+        this.state = state;
     }
 }

@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.http.status;
+package com.futurewei.alcor.privateipmanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Internal db operation exception")
-public class InternalDbOperationException extends Exception {
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Subnet not found")
+public class SubnetNotFoundException extends Exception {
 }

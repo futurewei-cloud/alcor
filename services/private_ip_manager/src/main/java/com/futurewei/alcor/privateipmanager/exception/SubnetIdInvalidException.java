@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.privateipmanager.http.status;
+package com.futurewei.alcor.privateipmanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.CONFLICT, reason="Ipv4 address range already exists")
-public class Ipv4AddrRangeExistException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Subnet id invalid")
+public class SubnetIdInvalidException extends Exception {
 }

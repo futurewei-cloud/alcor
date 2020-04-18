@@ -13,12 +13,34 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.privateipmanager;
 
-package com.futurewei.alcor.privateipmanager.http.status;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Ipv4 address range invalid")
-public class Ipv4AddrRangeInvalidException extends Exception {
+import org.junit.Test;
+
+import java.util.BitSet;
+
+public class BitSetTest {
+
+    @Test
+    public void basicTest() {
+        BitSet bitSet = new BitSet();
+
+        int i = 0;
+        int clearBit = 0;
+
+        bitSet.set(1);
+        bitSet.set(2);
+        bitSet.set(3);
+        bitSet.set(4);
+        System.out.println(bitSet.size());
+        System.out.println(bitSet.length());
+        while (i < 1000000000) {
+            clearBit = bitSet.nextClearBit(clearBit + 1);
+            System.out.println(clearBit);
+            i++;
+        }
+
+    }
 }
