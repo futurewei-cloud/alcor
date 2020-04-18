@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.macmanager.controller;
 
-import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.macmanager.entity.MacRange;
@@ -29,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -104,7 +105,7 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
-    public ResponseId deleteMacAllocation(@PathVariable String macaddress) throws Exception {
+    public String deleteMacAllocation(@PathVariable String macaddress) throws Exception {
         String macAddress = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
@@ -112,7 +113,7 @@ public class MacController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return new ResponseId(macAddress);
+        return "{mac_address: " + macAddress + "}";
     }
 
     @RequestMapping(
@@ -139,12 +140,11 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/ranges", "/v4/macs/ranges"})
-    public Map<String, MacRange> getAllMacRanges() throws Exception {
-
-        Map<String, MacRange> macRanges = null;
+    public Map<String, Collection<MacRange>> getAllMacRanges() throws Exception {
+        Map<String, MacRange> macRanges;
+        HashMap<String, Collection<MacRange>> map = new HashMap<String, Collection<MacRange>>();
         try {
             macRanges = service.getAllMacRanges();
-
         } catch (Exception e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -152,9 +152,10 @@ public class MacController {
 
         if (macRanges == null) {
             //TODO: REST error code
-            return macRanges;
-        }
-        return macRanges;
+            map.put("mac_ranges", null);
+        } else
+            map.put("mac_ranges", macRanges.values());
+        return map;
     }
 
     @RequestMapping(
@@ -201,7 +202,7 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/ranges/{rangeid}", "/v4/macs/ranges/{rangeid}"})
-    public ResponseId deleteMacRange(@PathVariable String rangeid) throws Exception {
+    public String deleteMacRange(@PathVariable String rangeid) throws Exception {
         String rangeId = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
@@ -209,6 +210,6 @@ public class MacController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return new ResponseId(rangeid);
+        return "{mac_range: " + rangeId + "}";
     }
 }

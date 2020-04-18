@@ -24,20 +24,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class RedisMacRangePublisherServiceImpl implements ICachePublisher {
     @Autowired
-    private RedisTemplate<String, MacRange> redisTemplate2;
+    private RedisTemplate<String, MacRange> redisTemplate;
 
     @Autowired
-    private ChannelTopic topic2;
+    private ChannelTopic topic;
 
     public RedisMacRangePublisherServiceImpl() {
     }
 
     public RedisMacRangePublisherServiceImpl(final RedisTemplate<String, MacRange> redisTemplate, final ChannelTopic topic2) {
-        this.redisTemplate2 = redisTemplate;
-        this.topic2 = topic2;
+        this.redisTemplate = redisTemplate;
+        this.topic = topic2;
     }
 
     public void publish(final String message) {
-        redisTemplate2.convertAndSend(topic2.getTopic(), message);
+        redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 }

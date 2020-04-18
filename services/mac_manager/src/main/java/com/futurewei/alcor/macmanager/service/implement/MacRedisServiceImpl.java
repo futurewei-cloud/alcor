@@ -59,6 +59,10 @@ public class MacRedisServiceImpl implements MacService {
 
     public MacState createMacState(MacState macState) throws Exception {
         MacAddress macAddress = new MacAddress();
+        if (macState.getState() == null)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
+        else if (macState.getState().trim().length()==0)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
         String strMacAddress = allocateMacState(macState);
         if (strMacAddress != null) {
             macState.setMacAddress(strMacAddress);
@@ -93,7 +97,8 @@ public class MacRedisServiceImpl implements MacService {
             macPoolRedisRepository.addItem(macAddress);
             macRedisRepository.deleteItem(macAddress);
         }
-        return macAddress;
+        return macState.getMacAddress();
+        //return new String ("{mac_address: " + macAddress+"}");
     }
 
     @Override
@@ -104,7 +109,7 @@ public class MacRedisServiceImpl implements MacService {
 
     @Override
     public Map<String, MacRange> getAllMacRanges() {
-        Hashtable<String, MacRange> macRanges = (Hashtable<String, MacRange>) macRangeRedisRepository.findAllItems();
+        Map<String, MacRange> macRanges = macRangeRedisRepository.findAllItems();
         return macRanges;
     }
 
@@ -130,6 +135,7 @@ public class MacRedisServiceImpl implements MacService {
             macRangeRedisRepository.deleteItem(rangeId);
         }
         return rangeId;
+        //return new String ("{mac_range: " + rangeId+"}");
     }
 
     private String allocateMacState(MacState macState) {
