@@ -17,7 +17,7 @@ These creation workflow involves multiple microservice types:
 
 === Creation Workflow
 
-image::images/Create_workflow_option3.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option3.jpg"]
+image::images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/create_api_workflow.jpg"]
 
 === Update Workflow
 

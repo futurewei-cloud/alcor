@@ -11,7 +11,7 @@ Shared-nothing Micro-service Architecture
 * Shared-nothing architecture brings the following benefits:
 ** Eliminates contention of storage among services
 ** Reduce cache miss rate and hot cache removal due to noisy neighbors
-** Each service could scale on its own by adding new instances, cache instance and database tables.
+** Each service could scale on its own by adding new instances, cache instance and database tables
 ** No single point of failure issue since there is no central resource bottleneck in the system
 
 
@@ -20,7 +20,7 @@ Shared-nothing Micro-service Architecture
 === Large Scale
 
 * Support 1 M VM/containers with MQ layer and batch processing
-* Ability to process (potentially thousands) Goal State configuration in big batch for customers.
+* Ability to process (potentially thousands) Goal State configuration in big batch for customers
 
 === High Throughput
 
@@ -29,7 +29,7 @@ Shared-nothing Micro-service Architecture
 === Ultra-low Latency
 Fast provisioning: One-layer controller design with Goal State push model and fast path
 
-* Using gRPC for super-fast goal state update for certain customer scenarios like serverless.
+* Using gRPC for super-fast goal state update for certain customer scenarios like serverless
 * Goal state model consisting of network resource state and operation type,
 grouping of network configurations and instantaneous provisioning
 
@@ -52,6 +52,6 @@ grouping of network configurations and instantaneous provisioning
 === Compatibility
 
 * Compatibility with OpenStack, Kubernetes, and OPNFV
-* Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design).
+* Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design)
 ** Open driver framework at Controllers
 ** Plugin model at Alcor Control Agent
