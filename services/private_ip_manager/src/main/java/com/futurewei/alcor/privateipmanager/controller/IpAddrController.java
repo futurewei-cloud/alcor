@@ -26,6 +26,7 @@ import com.futurewei.alcor.privateipmanager.service.implement.IpAddrServiceImpl;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,6 +72,7 @@ public class IpAddrController {
 
     @PostMapping("/ips")
     @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
         checkSubnetId(request.getSubnetId());
 
@@ -79,6 +81,7 @@ public class IpAddrController {
 
     @PostMapping("/ips/bulk")
     @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequestBulk allocateIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
             checkSubnetId(request.getSubnetId());
@@ -150,6 +153,7 @@ public class IpAddrController {
 
     @PostMapping("/ips/range")
     @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
         checkSubnetId(request.getSubnetId());
         checkIpAddr(request.getFirstAddr(), request.getIpVersion());
