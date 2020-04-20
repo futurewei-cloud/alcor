@@ -255,20 +255,17 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = "/project/{projectId}/vpcs/{vpcId}/subnets")
-    public Map getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectId, @PathVariable String vpcId) throws Exception {
+            value = "/project/{projectId}/subnets")
+    public SubnetStateListJson getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectId) throws Exception {
         Map<String, SubnetState> subnetStates = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
             RestPreconditionsUtil.verifyResourceFound(projectId);
-            RestPreconditionsUtil.verifyResourceFound(vpcId);
 
             subnetStates = this.subnetDatabaseService.getAllSubnets();
             subnetStates = subnetStates.entrySet().stream()
-                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId())
-                            && vpcId.equalsIgnoreCase(state.getValue().getVpcId()))
+                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId()))
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {
@@ -279,7 +276,7 @@ public class SubnetController {
             throw new Exception(e);
         }
 
-        return subnetStates;
+        return new SubnetStateListJson(subnetStates);
     }
 
 

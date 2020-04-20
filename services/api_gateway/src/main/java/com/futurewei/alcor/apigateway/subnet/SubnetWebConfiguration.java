@@ -38,7 +38,9 @@ public class SubnetWebConfiguration {
                 route(GET("/project/{projectId}/subnets/{subnetId}"), subnetWebHandlers::getSubnet)
                         .andRoute(POST("/project/{projectId}/subnets").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), subnetWebHandlers::createSubnet)
                         .andRoute(PUT("/project/{projectId}/subnets/{subnetId}").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), subnetWebHandlers::updateSubnet)
-                        .andRoute(DELETE("/project/{projectId}/subnets/{subnetId}"), subnetWebHandlers::deleteSubnet);
+                        .andRoute(DELETE("/project/{projectId}/subnets/{subnetId}"), subnetWebHandlers::deleteSubnet)
+                        .andRoute(GET("/project/{projectId}/subnets"), subnetWebHandlers::getSubnets);
+//                        .addRoute(POST("/project/{projectId}/subnets"), subnetWebHandlers::bulkCreateSubnet);
     }
 
     @Bean

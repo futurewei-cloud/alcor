@@ -19,6 +19,7 @@ package com.futurewei.alcor.apigateway.proxies;
 import com.futurewei.alcor.apigateway.subnet.SubnetWebDestinations;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.web.entity.SubnetWebJson;
+import com.futurewei.alcor.web.entity.SubnetsWebJson;
 import com.futurewei.alcor.web.exception.SubnetNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -101,6 +102,23 @@ public class SubnetManagerServiceProxy {
             switch (resp.statusCode()) {
                 case OK:
                     return resp.bodyToMono(ResponseId.class);
+                case NOT_FOUND:
+                    return Mono.error(new SubnetNotFoundException());
+                default:
+                    return Mono.error(new RuntimeException("Unknown" + resp.statusCode()));
+            }
+        });
+    }
+
+    public Mono<SubnetsWebJson> findSubnets(UUID projectId) {
+        Mono<ClientResponse> response = webClient
+                .get()
+                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets", projectId)
+                .exchange();
+        return response.flatMap(resp -> {
+            switch (resp.statusCode()) {
+                case OK:
+                    return resp.bodyToMono(SubnetsWebJson.class);
                 case NOT_FOUND:
                     return Mono.error(new SubnetNotFoundException());
                 default:

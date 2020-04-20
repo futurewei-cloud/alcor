@@ -20,8 +20,8 @@ import com.futurewei.alcor.apigateway.proxies.SubnetManagerServiceProxy;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.web.entity.SubnetWebJson;
+import com.futurewei.alcor.web.entity.SubnetsWebJson;
 import com.futurewei.alcor.web.exception.SubnetNotFoundException;
-import com.futurewei.alcor.web.exception.VpcNotFoundException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -105,4 +105,16 @@ public class SubnetWebHandlers {
                 .body(fromObject(od)))
                 .onErrorResume(e -> ServerResponse.notFound().build());
     }
+
+    public Mono<ServerResponse> getSubnets(ServerRequest request) {
+        UUID projectId = UUID.fromString(request.pathVariable("projectId"));
+
+        Mono<SubnetsWebJson> subnetsInfo = subnetManagerServiceProxy.findSubnets(projectId);
+
+        return subnetsInfo.flatMap(od -> ServerResponse.ok()
+                .contentType(APPLICATION_JSON)
+                .body(fromObject(od)))
+                .onErrorResume(SubnetNotFoundException.class, e -> ServerResponse.notFound().build());
+    }
+
 }
