@@ -149,6 +149,8 @@ public class SubnetControllerTests {
 
         VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
+        MacState macState = new MacState();
+        macResponse.setMacState(macState);
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetState);
@@ -166,7 +168,7 @@ public class SubnetControllerTests {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
             //System.out.println(ex.getMessage());
-            assertEquals(UnitTestConfig.createException, ex.getMessage());
+            assertEquals(UnitTestConfig.createException2, ex.getMessage());
         }
 
     }
@@ -200,7 +202,7 @@ public class SubnetControllerTests {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
             //System.out.println(ex.getMessage());
-            assertEquals(UnitTestConfig.createException, ex.getMessage());
+            assertEquals(UnitTestConfig.createException2, ex.getMessage());
         }
 
     }
