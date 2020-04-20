@@ -28,14 +28,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class MacRedisServiceImpl implements MacService {
+    static public Hashtable<String, MacRange> activeMacRanges = new Hashtable<String, MacRange>();
     final String DELIMITER = "/";
 
     @Autowired
@@ -50,7 +52,8 @@ public class MacRedisServiceImpl implements MacService {
     @Value("${macmanager.oui}")
     private String oui;
 
-    private HashMap<String, MacRange> macRanges = new HashMap<String, MacRange>();
+    @Value("${macmanager.pool.size}")
+    private long nMacPoolSize;
 
     public MacState getMacStateByMacAddress(String macAddress) {
         MacState macState = macRedisRepository.findItem(macAddress);
@@ -61,7 +64,48 @@ public class MacRedisServiceImpl implements MacService {
         MacAddress macAddress = new MacAddress();
         if (macState.getState() == null)
             macState.setState(MacUtil.MAC_STATE_ACTIVE);
-        else if (macState.getState().trim().length()==0)
+        else if (macState.getState().trim().length() == 0)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
+        if (macPoolRedisRepository.getSize() < (nMacPoolSize - 10)) {
+            CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> {
+                long n = 0;
+                try {
+                    n = generateMacInPool(20);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return n;
+            });
+            long l = completableFuture.get();
+            completableFuture.thenAccept(System.out::println);
+            System.out.println(("# of new MAC: " + l));
+            completableFuture.join();
+        }
+
+        String strMacAddress = allocateMacState(macState);
+        if (strMacAddress != null) {
+            macState.setMacAddress(strMacAddress);
+            macRedisRepository.addItem(macState);
+        } else {
+            String nic = generateNic();
+            macAddress.setOui(oui);
+            macAddress.setNic(nic);
+            macState.setMacAddress(macAddress.getMacAddress());
+            MacState macState2 = macRedisRepository.findItem(macAddress.getMacAddress());
+            if (macRedisRepository.findItem(macAddress.getMacAddress()) != null)
+                throw (new UniquenessViolationException("This mac address is not unique!!" + macAddress.getMacAddress() + macState2.getProjectId()));
+            else
+                macRedisRepository.addItem(macState);
+        }
+
+        return macState;
+    }
+
+    public MacState createMacState1(MacState macState) throws Exception {
+        MacAddress macAddress = new MacAddress();
+        if (macState.getState() == null)
+            macState.setState(MacUtil.MAC_STATE_ACTIVE);
+        else if (macState.getState().trim().length() == 0)
             macState.setState(MacUtil.MAC_STATE_ACTIVE);
         String strMacAddress = allocateMacState(macState);
         if (strMacAddress != null) {
@@ -74,7 +118,7 @@ public class MacRedisServiceImpl implements MacService {
             macState.setMacAddress(macAddress.getMacAddress());
             MacState macState2 = macRedisRepository.findItem(macAddress.getMacAddress());
             if (macRedisRepository.findItem(macAddress.getMacAddress()) != null)
-                throw (new UniquenessViolationException("This mac address is not unique!!"+macAddress.getMacAddress()+macState2.getProjectId()));
+                throw (new UniquenessViolationException("This mac address is not unique!!" + macAddress.getMacAddress() + macState2.getProjectId()));
             else
                 macRedisRepository.addItem(macState);
         }
@@ -83,7 +127,7 @@ public class MacRedisServiceImpl implements MacService {
 
     @Override
     public MacState updateMacState(String macAddress, MacState macState) throws Exception {
-        if(macState != null)
+        if (macState != null)
             macRedisRepository.updateItem(macState);
         return macState;
     }
@@ -94,11 +138,10 @@ public class MacRedisServiceImpl implements MacService {
             ResourceNotFoundException e = new ResourceNotFoundException("MAC address Not Found");
             throw e;
         } else {
-            macPoolRedisRepository.addItem(macAddress);
             macRedisRepository.deleteItem(macAddress);
+            macPoolRedisRepository.addItem(macAddress);
         }
         return macState.getMacAddress();
-        //return new String ("{mac_address: " + macAddress+"}");
     }
 
     @Override
@@ -117,6 +160,8 @@ public class MacRedisServiceImpl implements MacService {
     public MacRange createMacRange(MacRange macRange) throws Exception {
         if (macRange != null) {
             macRangeRedisRepository.addItem(macRange);
+            if (macRange.getState().equals(MacUtil.MAC_RANGE_STATE_ACTIVE))
+                activeMacRanges.put(macRange.getRangeId(), macRange);
         }
         return macRange;
     }
@@ -125,6 +170,10 @@ public class MacRedisServiceImpl implements MacService {
     public MacRange updateMacRange(MacRange macRange) throws Exception {
         if (macRange != null) {
             macRangeRedisRepository.updateItem(macRange);
+            if (macRange.getState().equals(MacUtil.MAC_RANGE_STATE_INACTIVE) && activeMacRanges.containsKey(macRange.getRangeId()))
+                activeMacRanges.remove(macRange.getRangeId(), macRange);
+            else if (macRange.getState().equals(MacUtil.MAC_RANGE_STATE_ACTIVE) && activeMacRanges.containsKey(macRange.getRangeId()) == false)
+                activeMacRanges.put(macRange.getRangeId(), macRange);
         }
         return macRange;
     }
@@ -133,9 +182,9 @@ public class MacRedisServiceImpl implements MacService {
     public String deleteMacRange(String rangeId) throws Exception {
         if (rangeId != null) {
             macRangeRedisRepository.deleteItem(rangeId);
+            activeMacRanges.remove(rangeId);
         }
         return rangeId;
-        //return new String ("{mac_range: " + rangeId+"}");
     }
 
     private String allocateMacState(MacState macState) {
@@ -172,28 +221,48 @@ public class MacRedisServiceImpl implements MacService {
 
     private MacRange getMacRange() {
         MacRange macRange = new MacRange();
-        Vector<MacRange> activeMacRanges = getActiveMacRanges();
+        if (activeMacRanges.isEmpty())
+            getActiveMacRanges();
         int randomIndex = ThreadLocalRandom.current().nextInt(0, activeMacRanges.size());
-        return activeMacRanges.get(randomIndex);
+        Vector<String> vector = new Vector<String>(activeMacRanges.keySet());
+        return activeMacRanges.get(vector.elementAt(randomIndex));
     }
 
-    public Vector<MacRange> getActiveMacRanges() {
-        Vector<MacRange> activeMacRanges = new Vector<MacRange>();
-
-        macRanges = (HashMap<String, MacRange>) macRangeRedisRepository.findAllItems();
+    public void getActiveMacRanges() {
+        Hashtable<String, MacRange> macRanges = new Hashtable(macRangeRedisRepository.findAllItems());
+        if (macRanges == null)
+            macRanges = new Hashtable<String, MacRange>();
         int nSize = macRanges.size();
         if (nSize > 0) {
             for (Map.Entry<String, MacRange> entry : macRanges.entrySet()) {
-                if (entry.getValue().getState().equals("Active")) {
-                    activeMacRanges.add(entry.getValue());
+                if (entry.getValue().getState().equals(MacUtil.MAC_RANGE_STATE_ACTIVE)) {
+                    activeMacRanges.put(entry.getKey(), entry.getValue());
                 }
             }
         } else if (macRanges != null) {
             MacRange newRange = new MacRange();
             newRange.createDefault(oui);
             macRangeRedisRepository.addItem(newRange);
-            activeMacRanges.add(newRange);
+            activeMacRanges.put(newRange.getRangeId(), newRange);
         }
-        return activeMacRanges;
+    }
+
+    public long generateMacInPool(int n) throws Exception {
+        long nReturn = 0;
+        ArrayList<String> list = new ArrayList<String>();
+        if (n < 1) return nReturn;
+        MacAddress macAddress = new MacAddress();
+        for (int i = 0; i < n; i++) {
+            String nic = generateNic();
+            macAddress.setOui(oui);
+            macAddress.setNic(nic);
+            String strMacAddress = macAddress.getMacAddress();
+            MacState macState = macRedisRepository.findItem(strMacAddress);
+            if (macState == null) {
+                macPoolRedisRepository.addItem(strMacAddress);
+                nReturn++;
+            }
+        }
+        return nReturn;
     }
 }
