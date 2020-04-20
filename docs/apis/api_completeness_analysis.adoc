@@ -1,0 +1,54 @@
+=== Comparison with OpenStack Neutron
+[width="100%",cols="2,2,1,1,1,1,1", options="header"]
+|====================
+|API Category
+|Sub-category
+|OpenStack Networking v2
+3.1+^.^|Alcor VPC
+|HW VPC
+
+| | | | 4/30| 6/30| 9/30 |
+
+.6+^.^|Layer 2 Networking|Networks| X| X| | |
+|Network Segment Ranges| X | X | | |
+|Ports| X | X | | |
+|Segments| X | X | | |
+|Trunk networking| X | | | |
+|Trunk details extended attributes (ports)| X |  | | |
+
+.10+^.^|Layer 3 Networking|Address scopes|X|| | |
+|Routers Conntrack Helper (CT) target rules|X|| | |
+|Floating IPs|X|| X | |
+|Floating IP pools|X||X | |
+|Floating IPs port forwarding|X|| X| |
+|Routers|X|| | |
+|Subnets|X|X| | |
+|Subnet pool extension|X| X| | |
+|Subnet pool prefix operations|X|X| | |
+|Unified Gateway Management| | |  | X |
+
+.5+^.^|Security|Firewall| X  | | X | |
+|RBAC Policies| X || X | |
+|Security Groups rules| X || X ||
+|Security Groups| X ||X||
+|VPN | X | | | X |
+
+.7+^.^|Resource Management|Networking Flavors Framework v2.0| X | | | X |
+|Metering labels and rules| X | |  | X|
+|Network IP availability and usage stats| X | X |  | |
+|Quotas extension| X | |  | X|
+|Quotas details extension| X | |  | X|
+|Service providers| X | |  | X|
+|Tag extension| X | |  | X|
+
+.5+^.^|Quality of Service|QoS rule types| X | | |  X |
+|QoS Policies| X | |  | X|
+|QoS bandwidth limit rules| X | |  | X|
+|QoS DSCP marking rules| X | |  | X|
+|QoS minimum bandwidth rules| X | |  | X|
+
+.1+^.^|Router interface floating IP|Router interface floating IP| X | | |  X |
+
+//.1+^.^|BGP/MPLS VPN Interconnection|BGP VPN| X | | |  |
+
+|====================
