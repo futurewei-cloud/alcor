@@ -98,25 +98,30 @@ public class SubnetController {
 
             // TODO: Create a verification framework for all resources
             SubnetState inSubnetState = resource.getSubnet();
-            RestPreconditionsUtil.verifyResourceFound(inSubnetState.getVpcId());
+            String subnetId = inSubnetState.getId();
+            String vpcId = inSubnetState.getVpcId();
+            RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectid);
 
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateMacGateway(projectid, inSubnetState.getVpcId(), portId);
+                    return this.subnetService.allocateMacGateway(projectid, vpcId, portId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
                 macResponseAtomic.set(s);
+                if (e != null) {
+                    throw new CompletionException(e);
+                }
                 return s;
             });
 
             // Verify VPC ID
             CompletableFuture<VpcStateJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.verifyVpcId(projectid, inSubnetState.getVpcId());
+                    return this.subnetService.verifyVpcId(projectid, vpcId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
@@ -125,14 +130,17 @@ public class SubnetController {
             //Prepare Route Rule(IPv4/6) for Subnet
             CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.createRouteRules(inSubnetState.getId(), inSubnetState);
+                    return this.subnetService.createRouteRules(subnetId, inSubnetState);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
                 routeResponseAtomic.set(s);
+                if (e != null) {
+                    throw new CompletionException(e);
+                }
                 return s;
-            });;
+            });
 
 
 
@@ -151,51 +159,25 @@ public class SubnetController {
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
-            List<RouteWebObject> routes = inSubnetState.getRoutes();
-            if (routes == null) {
-                routes = new ArrayList<>();
-            }
+            List<RouteWebObject> routes = new ArrayList<>();
             routes.add(routeResponse.getRoute());
             inSubnetState.setRoutes(routes);
             //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
 
             this.subnetDatabaseService.addSubnet(inSubnetState);
 
-            subnetState = this.subnetDatabaseService.getBySubnetId(inSubnetState.getId());
-            if (subnetState == null) {
-                throw new ResourcePersistenceException();
-            }
+//            subnetState = this.subnetDatabaseService.getBySubnetId(subnetId);
+//            if (SubnetState == null) {
+//                throw new ResourcePersistenceException();
+//            }
 
-            return new SubnetStateJson(subnetState);
+            return new SubnetStateJson(inSubnetState);
 
-        } catch (ResourcePersistenceException e) {
-            logger.error(e.getMessage());
-            throw new Exception(e);
         } catch (CompletionException e) {
-            routeResponse = (RouteWebJson) routeResponseAtomic.get();
-            macResponse = (MacStateJson) macResponseAtomic.get();
-            logger.error(e.getMessage());
-
-            // Subnet fallback
-            logger.info("subnet fallback start");
-            this.subnetDatabaseService.deleteSubnet(resource.getSubnet().getId());
-            logger.info("subnet fallback end");
-
-            // Route fallback
-            logger.info("Route fallback start");
-            if (routeResponse != null) {
-                RouteWebObject route = routeResponse.getRoute();
-                this.subnetService.routeFallback(route.getId(), resource.getSubnet().getVpcId());
-            }
-            logger.info("Route fallback end");
-
-            // Mac fallback
-            logger.info("Mac fallback start");
-            if (macResponse != null) {
-                this.subnetService.macFallback(macResponse.getMacState().getMacAddress());
-                //this.subnetService.macFallback(UnitTestConfig.macAddress);
-            }
-            logger.info("Mac fallback end");
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
+            throw new Exception(e);
+        } catch (DatabaseAddException e) {
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
