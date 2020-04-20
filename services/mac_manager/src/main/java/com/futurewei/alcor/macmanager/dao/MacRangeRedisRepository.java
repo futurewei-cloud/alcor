@@ -63,7 +63,7 @@ public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
     public void addItem(MacRange newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, "mac address:" + newItem.getRangeId());
-        hashOperations.put(KEY, newItem.getRangeId(), newItem);
+        hashOperations.putIfAbsent(KEY, newItem.getRangeId(), newItem);
     }
 
     @Override

@@ -62,7 +62,8 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     public void addItem(String newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, newItem);
-        setOperations.add(KEY, newItem);
+        if (setOperations.isMember(KEY, newItem) == false)
+            setOperations.add(KEY, newItem);
     }
 
     @Override
@@ -71,7 +72,10 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     public String getItem() {
-
         return (String) setOperations.randomMember(KEY);
+    }
+
+    public long getSize() {
+        return setOperations.size(KEY);
     }
 }

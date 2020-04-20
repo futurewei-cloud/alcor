@@ -63,7 +63,7 @@ public class MacRedisRepository implements ICacheRepository<MacState> {
     public void addItem(MacState newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, "mac address:" + newItem.getMacAddress());
-        hashOperations.put(KEY, newItem.getMacAddress(), newItem);
+        hashOperations.putIfAbsent(KEY, newItem.getMacAddress(), newItem);
     }
 
     @Override
