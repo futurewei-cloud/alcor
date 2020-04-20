@@ -32,22 +32,17 @@ import static org.springframework.web.reactive.function.BodyInserters.fromObject
 
 public class VpcWebHandlers {
 
-    private VpcManagerServiceProxy vpcManager;
+    private VpcManagerServiceProxy vpcManagerServiceProxy;
 
-    //private RouteManagerServiceProxy routeManager;
-
-    public VpcWebHandlers(VpcManagerServiceProxy vpcManager) {
-        this.vpcManager = vpcManager;
-        //  this.routeManage = routeManager;
+    public VpcWebHandlers(VpcManagerServiceProxy vpcManagerServiceProxy) {
+        this.vpcManagerServiceProxy = vpcManagerServiceProxy;
     }
 
     public Mono<ServerResponse> getVpc(ServerRequest request) {
         String projectId = request.pathVariable("projectId");
         String vpcId = request.pathVariable("vpcId");
 
-        Mono<VpcWebJson> vpcInfo = vpcManager.findVpcById(projectId, vpcId);
-
-        // Add Route Manager here
+        Mono<VpcWebJson> vpcInfo = vpcManagerServiceProxy.findVpcById(projectId, vpcId);
 
         return vpcInfo.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -65,7 +60,7 @@ public class VpcWebHandlers {
                 p.getVpc().getId().isEmpty() || !CommonUtil.isUUID(p.getVpc().getId()) ?
                         new VpcWebJson(p.getVpc(), generatedVpcId) : new VpcWebJson(p.getVpc()));
 
-        Mono<VpcWebJson> response = vpcManager.createVpc(projectId, newVpcObj);
+        Mono<VpcWebJson> response = vpcManagerServiceProxy.createVpc(projectId, newVpcObj);
 
         return response.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -78,9 +73,7 @@ public class VpcWebHandlers {
         String projectId = request.pathVariable("projectId");
         String vpcId = request.pathVariable("vpcId");
 
-        Mono<ResponseId> responseWithId = vpcManager.deleteVpcById(projectId, vpcId);
-
-        // Add Route Manager here
+        Mono<ResponseId> responseWithId = vpcManagerServiceProxy.deleteVpcById(projectId, vpcId);
 
         return responseWithId.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -90,7 +83,7 @@ public class VpcWebHandlers {
 
     public Mono<ServerResponse> getVpcManagerHealthStatus(ServerRequest request) {
 
-        Mono<String> healthStatus = vpcManager.getHealthStatus();
+        Mono<String> healthStatus = vpcManagerServiceProxy.getHealthStatus();
 
         return healthStatus.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
