@@ -1,6 +1,6 @@
 package com.futurewei.alcor.subnet.service.implement;
 
-import com.futurewei.alcor.common.exception.DatabaseAddException;
+import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.subnet.dao.SubnetRedisRepository;
 import com.futurewei.alcor.subnet.entity.SubnetState;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -30,11 +30,11 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     }
 
     @Override
-    public void addSubnet(SubnetState subnetState) throws DatabaseAddException {
+    public void addSubnet(SubnetState subnetState) throws DatabasePersistenceException {
         try {
             this.subnetRedisRepository.addItem(subnetState);
         } catch (Exception e) {
-            throw new DatabaseAddException(e.getMessage());
+            throw new DatabasePersistenceException(e.getMessage());
         }
     }
 

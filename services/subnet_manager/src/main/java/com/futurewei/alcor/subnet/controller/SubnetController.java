@@ -176,7 +176,7 @@ public class SubnetController {
         } catch (CompletionException e) {
             this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
-        } catch (DatabaseAddException e) {
+        } catch (DatabasePersistenceException e) {
             this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (NullPointerException e) {

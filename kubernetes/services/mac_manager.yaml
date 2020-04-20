@@ -1,69 +1,69 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: vpc-configmap
+  name: mac-configmap
 data:
   application.properties: |
-    spring.redis.host=10.107.92.164
-    spring.redis.port=6379
+    spring.redis.host=10.111.70.101
+    spring.redis.port=6381
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.route.service.url=http://192.168.1.17:30003/vpcs/
+    macmanager.oui = 00-AA-BB
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vpcmanager
-  name: vpcmanager
+    app: macmanager
+  name: macmanager
 spec:
   selector:
     matchLabels:
-      app: vpcmanager
+      app: macmanager
   replicas: 1
   #replicas: 3
   template:
     metadata:
       labels:
-        app: vpcmanager
+        app: macmanager
     spec:
       volumes:
-        - name: vpc-volume
+        - name: mac-volume
           configMap:
-            name: vpc-configmap
+            name: mac-configmap
             items:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:vpcKube4
-        #- image: fwnetworking/controller:vpc_manager-v0.3.0
-          name: vpcmanager-web
+        - image: zhonghaolyu/repo:macKube1
+        #- image: fwnetworking/controller:mac_manager-v0.3.0
+          name: macmanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorVpcManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
+          command: ["java", "-jar", "/app/AlcorMacManager-0.1.0.jar", "--spring.config.location=/etc/mac/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
-            - name: vpc-volume
-              mountPath: /etc/app
+            - name: mac-volume
+              mountPath: /etc/mac
           envFrom:
             - configMapRef:
-                name: vpc-configmap
+                name: mac-configmap
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vpcmanager-service
+  name: macmanager-service
   labels:
-    name: vpcmanager-service
+    name: macmanager-service
 spec:
   type: NodePort
   ports:
-    - port: 8001
+    - port: 8003
       targetPort: 8080
-      nodePort: 30001
+      nodePort: 30005
   selector:
-    app: vpcmanager
+    app: macmanager
 
