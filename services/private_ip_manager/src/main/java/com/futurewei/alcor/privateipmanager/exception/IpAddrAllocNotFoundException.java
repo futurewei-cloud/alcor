@@ -19,6 +19,6 @@ package com.futurewei.alcor.privateipmanager.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Ipv4 address allocation not found")
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Ip address allocation not found")
 public class IpAddrAllocNotFoundException extends Exception {
 }

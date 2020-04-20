@@ -49,7 +49,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     @PostConstruct
     private void init() {
-        LOG.info("Ipv4RangeRepository init done");
+        LOG.info("IpRangeRepository init done");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             return ipAddrRangeCache.get(subnetId);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4RangeRepository findItem() exception:", e);
+            LOG.error("IpRangeRepository findItem() exception:", e);
         }
 
         return null;
@@ -70,7 +70,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             return ipAddrRangeCache.getAll();
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4RangeRepository findAllItems() exception:", e);
+            LOG.error("IpRangeRepository findAllItems() exception:", e);
         }
 
         return new HashMap();
@@ -78,25 +78,25 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     @Override
     public synchronized void addItem(IpAddrRange ipAddrRange) {
-        LOG.error("Add ipv4Range:{}", ipAddrRange);
+        LOG.error("Add ipAddrRange:{}", ipAddrRange);
 
         try {
             ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4RangeRepository addItem() exception:", e);
+            LOG.error("IpRangeRepository addItem() exception:", e);
         }
     }
 
     @Override
     public synchronized void deleteItem(String subnetId) {
-        LOG.error("Delete ipv4Range, subnetId:{}", subnetId);
+        LOG.error("Delete subnetId:{}", subnetId);
 
         try {
             ipAddrRangeCache.remove(subnetId);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4RangeRepository deleteItem() exception:", e);
+            LOG.error("IpRangeRepository deleteItem() exception:", e);
         }
     }
 
@@ -126,9 +126,8 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     /**
      * Assign multiple ip addresses from IpAddrRange repository
-     * @param subnetId Assign ip addresses from this subnet
-     * @param num Number of ip addresses requested
-     * @return Ip address list assigned from subnet
+     * @param requests The number of ip addresses that will be assigned from each ip range
+     * @return Number of ip addresses assigned each ip range
      * @throws Exception Db operation or ip address assignment exception
      */
     public synchronized Map<String, List<String>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {

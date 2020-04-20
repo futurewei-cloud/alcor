@@ -43,7 +43,7 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
 
     @PostConstruct
     private void init() {
-        LOG.info("Ipv4Repository init done");
+        LOG.info("IpAddrRepo init done");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
             return cache.get(Ipv4Address);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4Repository findItem() exception:", e);
+            LOG.error("IpAddrRepo findItem() exception:", e);
         }
 
         return null;
@@ -64,7 +64,7 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
             return cache.getAll();
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4Repository findAllItems() exception:", e);
+            LOG.error("IpAddrRepo findAllItems() exception:", e);
         }
 
         return new HashMap();
@@ -78,19 +78,19 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
             cache.put(ipAddrAlloc.getSubnetId() + ipAddrAlloc.getIpAddr(), ipAddrAlloc);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4Repository addItem() exception:", e);
+            LOG.error("IpAddrRepo addItem() exception:", e);
         }
     }
 
     @Override
-    public synchronized void deleteItem(String Ipv4Address) {
-        LOG.error("Delete ipAllocation, Ipv4Address:{}", Ipv4Address);
+    public synchronized void deleteItem(String IpAddress) {
+        LOG.error("Delete ipAllocation, IpAddress: {}", IpAddress);
 
         try {
-            cache.remove(Ipv4Address);
+            cache.remove(IpAddress);
         } catch (CacheException e) {
             e.printStackTrace();
-            LOG.error("Ipv4Repository deleteItem() exception:", e);
+            LOG.error("IpAddrRepo deleteItem() exception:", e);
         }
     }
 }

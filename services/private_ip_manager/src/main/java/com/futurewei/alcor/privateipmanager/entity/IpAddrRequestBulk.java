@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class IpAddrRequestBulk {
-    @JsonProperty("ipv4_addr_requests")
+    @JsonProperty("ip_addr_requests")
     private List<IpAddrRequest> ipAddrRequests;
 
     public IpAddrRequestBulk() {

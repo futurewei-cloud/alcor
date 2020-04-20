@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.privateipmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;

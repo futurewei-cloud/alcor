@@ -70,7 +70,7 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
 
         for (int bit: freeBits) {
             bitSet.set(bit);
-            String ipv6Addr = Ipv6AddrUtil.bigIntToIpv6(firstIp.add(BigInteger.valueOf(freeBit)));
+            String ipv6Addr = Ipv6AddrUtil.bigIntToIpv6(firstIp.add(BigInteger.valueOf(bit)));
             ipv6AddrList.add(ipv6Addr);
         }
 

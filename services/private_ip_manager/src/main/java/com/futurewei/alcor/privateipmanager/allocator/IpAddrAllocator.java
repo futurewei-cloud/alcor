@@ -24,11 +24,11 @@ public interface IpAddrAllocator {
 
     String allocate() throws Exception;
 
-    List<String> allocateBulk(int num) throws IpAddrNotEnoughException, Exception;
+    List<String> allocateBulk(int num) throws Exception;
 
     void release(String ipAddr) throws Exception;
 
     void releaseBulk(List<String> ipAddrList) throws Exception;
 
-    boolean valid(String ipv4Addr);
+    boolean valid(String ipAddr);
 }

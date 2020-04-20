@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.List;
 
 
@@ -160,10 +161,18 @@ public class IpAddrController {
         checkIpAddr(request.getLastAddr(), request.getIpVersion());
 
         //Check if first < last
-        long firstAddrLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstAddr());
-        long lastAddrLong = Ipv4AddrUtil.ipv4ToLong(request.getLastAddr());
-        if (firstAddrLong >= lastAddrLong) {
-            throw new IpAddrRangeInvalidException();
+        if (request.getIpVersion() == IpVersion.IPV4.getVersion()) {
+            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstAddr());
+            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(request.getLastAddr());
+            if (firstIpLong >= lastIpLong) {
+                throw new IpAddrRangeInvalidException();
+            }
+        } else {
+            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getFirstAddr());
+            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getLastAddr());
+            if (firstIpBigInt.compareTo(lastIpBigInt) > 0) {
+                throw new IpAddrRangeInvalidException();
+            }
         }
 
         return ipAddrService.createIpAddrRange(request);
