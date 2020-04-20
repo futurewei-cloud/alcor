@@ -28,8 +28,8 @@ spec:
         app: redis-route
     spec:
       containers:
-        #- image: redis
-        - image: fwnetworking/controller:redis
+        - image: redis
+        #- image: fwnetworking/controller:redis
           name: redis-route
           imagePullPolicy: IfNotPresent
           ports:

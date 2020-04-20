@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: subnet-configmap
+data:
+  application.properties: |
+    spring.redis.host=10.109.3.172
+    spring.redis.port=6382
+    logging.level.root=info
+    logging.level.org.springframework.web=info
+    logging.file.path=.
+    logging.type=file
+    apache.kafka.address=172.17.0.1:9092
+    microservices.vpc.service.url=http://192.168.1.17:30001/project/
+    microservices.mac.service.url=http://192.168.1.17:30005/macs
+    microservices.route.service.url=http://192.168.1.17:30003/
+    microservices.ip.service.url=http://192.168.1.17:30007/ips/
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: subnetmanager
+  name: subnetmanager
+spec:
+  selector:
+    matchLabels:
+      app: subnetmanager
+  replicas: 1
+  #replicas: 3
+  template:
+    metadata:
+      labels:
+        app: subnetmanager
+    spec:
+      volumes:
+        - name: subnet-volume
+          configMap:
+            name: subnet-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: zhonghaolyu/repo:subnetKube1
+        #- image: fwnetworking/controller:subnet_manager-v0.3.0
+          name: subnetmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/SubnetManager-0.1.0.jar", "--spring.config.location=/etc/subnet/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: subnet-volume
+              mountPath: /etc/subnet
+          envFrom:
+            - configMapRef:
+                name: subnet-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: subnetmanager-service
+  labels:
+    name: subnetmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8002
+      targetPort: 8080
+      nodePort: 30006
+  selector:
+    app: subnetmanager
+

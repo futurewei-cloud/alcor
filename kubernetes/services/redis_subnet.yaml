@@ -1,36 +1,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-vpc-sr
+  name: redis-subnet-sr
   labels:
-    name: redis-vpc
+    name: redis-subnet
 spec:
   ports:
-    - port: 6379
+    - port: 6382
       targetPort: 6379
   selector:
-    app: redis
+    app: redis-subnet
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: redis
-  name: redis-vpc
+    app: redis-subnet
+  name: redis-subnet
 spec:
   selector:
     matchLabels:
-      app: redis
+      app: redis-subnet
   replicas: 1
   template:
     metadata:
       labels:
-        app: redis
+        app: redis-subnet
     spec:
       containers:
         - image: redis
         #- image: fwnetworking/controller:redis
-          name: redis
+          name: redis-subnet
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 6379
