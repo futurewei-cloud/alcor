@@ -3,8 +3,8 @@
 |====================
 |API Category
 |Sub-category
-|OpenStack Networking v2
-3.1+^.^|Alcor VPC
+|OpenStack v2.0 <<Openstack_v2_api,1>>
+3.1+^.^|Alcor VPC <<Alcor_api,2>>
 | API count
 
 | | | | 4/30| 6/30| 9/30 | 187
@@ -44,7 +44,7 @@
 |Quotas details extension| X | |  | X| 1
 |Service providers| X | |  | X| 2
 |Tag extension| X | |  | X| 6
-//|Bandwitdh | | | | | X
+//|Bandwidth | | | | | X
 ||  |  |  | | 36
 
 .6+^.^|Quality of Service|QoS rule types| X | | |  X | 2
@@ -61,3 +61,10 @@
 //.1+^.^|BGP/MPLS VPN Interconnection|BGP VPN| X | | |  |
 
 |====================
+
+[bibliography]
+== References
+
+- [[Openstack_v2_api]] OpenStack Networking v2.0 APIs: https://docs.openstack.org/api-ref/network/v2/
+- [[Alcor_api]] Alcor APIs: xref:api.adoc[Link]
+
