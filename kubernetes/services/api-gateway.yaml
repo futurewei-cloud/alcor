@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: apimanager
-  replicas: 2
+  replicas: 1
   #replicas: 3
   template:
     metadata:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         #- image: fwnetworking/controller:api_gateway-v0.3.0
-        - image: zhonghaolyu/repo:apiKube6
+        - image: zhonghaolyu/repo:apiKube8
           name: apimanager-web
           imagePullPolicy: IfNotPresent
           ports:
@@ -32,7 +32,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8002
+    - port: 8004
       targetPort: 8080
       nodePort: 30004
   selector:

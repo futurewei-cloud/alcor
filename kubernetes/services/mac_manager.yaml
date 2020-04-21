@@ -38,7 +38,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:macKube1
+        - image: zhonghaolyu/repo:macKube2
         #- image: fwnetworking/controller:mac_manager-v0.3.0
           name: macmanager-web
           imagePullPolicy: IfNotPresent
