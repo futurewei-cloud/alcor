@@ -44,6 +44,12 @@ public class IpAddrController {
         }
     }
 
+    private void checkSubnetId(String subnetId) throws SubnetIdInvalidException {
+        if (subnetId == null || "".equals(subnetId)) {
+            throw new SubnetIdInvalidException();
+        }
+    }
+
     private void checkIpAddr(String ipAddr, int ipVersion) throws Exception {
         if (ipVersion == IpVersion.IPV4.getVersion()) {
             if (!Ipv4AddrUtil.formatCheck(ipAddr)) {
@@ -157,6 +163,7 @@ public class IpAddrController {
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
         checkRangeId(request.getId());
+        checkSubnetId(request.getSubnetId());
         checkIpAddr(request.getFirstAddr(), request.getIpVersion());
         checkIpAddr(request.getLastAddr(), request.getIpVersion());
 

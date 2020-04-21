@@ -221,7 +221,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 throw new IpAddrRangeExistException();
             }
 
-            IpAddrRange ipAddrRange = new IpAddrRange(request.getId(),
+            IpAddrRange ipAddrRange = new IpAddrRange(request.getId(), request.getSubnetId(),
                     request.getIpVersion(), request.getFirstAddr(), request.getLastAddr());
 
             ipAddrRangeCache.put(request.getId(), ipAddrRange);
@@ -231,6 +231,9 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 LOG.warn("Create ip address range failed: Internal db operation error");
                 throw new InternalDbOperationException();
             }
+
+            request.setUsedIps(ipAddrRange.getUsedIps());
+            request.setTotalIps(ipAddrRange.getTotalIps());
 
             tx.commit();
         }

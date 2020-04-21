@@ -209,8 +209,12 @@ public class IpAddrServiceImpl implements IpAddrService {
 
         IpAddrRangeRequest request = new IpAddrRangeRequest();
         request.setId(ipAddrRange.getId());
+        request.setSubnetId(ipAddrRange.getSubnetId());
+        request.setIpVersion(ipAddrRange.getIpVersion());
         request.setFirstAddr(ipAddrRange.getFirstAddr());
         request.setLastAddr(ipAddrRange.getLastAddr());
+        request.setUsedIps(ipAddrRange.getUsedIps());
+        request.setTotalIps(ipAddrRange.getTotalIps());
 
         LOG.info("Delete ip address range success, request: {}", request);
 
@@ -229,8 +233,12 @@ public class IpAddrServiceImpl implements IpAddrService {
 
         IpAddrRangeRequest result = new IpAddrRangeRequest();
         result.setId(ipAddrRange.getId());
+        result.setSubnetId(ipAddrRange.getSubnetId());
+        result.setIpVersion(ipAddrRange.getIpVersion());
         result.setFirstAddr(ipAddrRange.getFirstAddr());
         result.setLastAddr(ipAddrRange.getLastAddr());
+        result.setUsedIps(ipAddrRange.getUsedIps());
+        result.setTotalIps(ipAddrRange.getTotalIps());
 
         return result;
     }
@@ -244,8 +252,12 @@ public class IpAddrServiceImpl implements IpAddrService {
         ipAddrRangeMap.forEach((k,v) -> {
             IpAddrRangeRequest range = new IpAddrRangeRequest();
             range.setId(v.getId());
+            range.setSubnetId(v.getSubnetId());
+            range.setIpVersion(v.getIpVersion());
             range.setFirstAddr(v.getFirstAddr());
             range.setLastAddr(v.getLastAddr());
+            range.setUsedIps(v.getUsedIps());
+            range.setTotalIps(v.getTotalIps());
             result.add(range);
         });
 

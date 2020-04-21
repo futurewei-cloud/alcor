@@ -618,6 +618,7 @@ Body:
 {
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_addr": "10.10.10.1",
     “last_addr” “10.10.10.254”
 }
@@ -626,8 +627,11 @@ Response:
 {
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    “last_addr” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
@@ -652,8 +656,11 @@ Response:
 {
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    “last_addr” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
@@ -680,8 +687,11 @@ Response:
 {
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "11.11.11.1",
-    "last_addr": "11.11.11.254"
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_addr": "10.10.10.1",
+    “last_addr” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
@@ -709,14 +719,20 @@ Response:
   {
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_addr": "11.11.11.1",
     "last_addr": "11.11.11.254"
+	"used_ips": 0,
+    "total_ips": 5	
   },
   {
     "ip_version": 4, 
     "id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcac",
     "first_addr": "12.12.12.1",
     "last_addr": "12.12.12.254"
+	"used_ips": 0,
+    "total_ips": 5	
   }
 ]
 

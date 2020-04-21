@@ -46,7 +46,7 @@ public class IpAddrControllerTest {
 
     @Test
     public void createIpAddrRangeTest() throws Exception {
-        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest("range1", 4, "11.11.11.1", "11.11.11.254");
+        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest("range1", "subnet1", 4, "11.11.11.1", "11.11.11.254");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRangeJson = objectMapper.writeValueAsString(ipAddrRangeRequest);
 

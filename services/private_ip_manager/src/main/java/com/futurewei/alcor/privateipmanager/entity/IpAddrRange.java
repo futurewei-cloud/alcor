@@ -32,15 +32,19 @@ import java.util.Map;
 
 public class IpAddrRange {
     private String id;
+    private String subnetId;
     private int ipVersion;
     private String firstAddr;
     private String lastAddr;
+    private long usedIps;
+    private long totalIps;
 
     private IpAddrAllocator allocator;
     Map<String, IpAddrAlloc> allocated;
 
-    public IpAddrRange(String id, int ipVersion, String firstAddr, String lastAddr) {
+    public IpAddrRange(String id, String subnetId, int ipVersion, String firstAddr, String lastAddr) {
         this.id = id;
+        this.subnetId = subnetId;
         this.ipVersion = ipVersion;
         this.firstAddr = firstAddr;
         this.lastAddr = lastAddr;
@@ -49,12 +53,14 @@ public class IpAddrRange {
             long firstIpLong = Ipv4AddrUtil.ipv4ToLong(firstAddr);
             long lastIpLong = Ipv4AddrUtil.ipv4ToLong(lastAddr);
 
+            totalIps = lastIpLong - firstIpLong + 1;
             allocator = new Ipv4AddrAllocator(firstIpLong, lastIpLong);
         } else {
-            BigInteger firstIpLong = Ipv6AddrUtil.ipv6ToBitInt(firstAddr);
-            BigInteger lastIpLong = Ipv6AddrUtil.ipv6ToBitInt(lastAddr);
+            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(firstAddr);
+            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(lastAddr);
 
-            allocator = new Ipv6AddrAllocator(firstIpLong, lastIpLong);
+            totalIps = lastIpBigInt.subtract(firstIpBigInt).longValue() + 1;
+            allocator = new Ipv6AddrAllocator(firstIpBigInt, lastIpBigInt);
         }
 
         allocated = new HashMap<>();
@@ -65,6 +71,7 @@ public class IpAddrRange {
         IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
         allocated.put(ipAddr, ipAddrAlloc);
+        usedIps++;
 
         return ipAddr;
     }
@@ -76,6 +83,7 @@ public class IpAddrRange {
             IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
             allocated.put(ipAddr, ipAddrAlloc);
+            usedIps++;
         }
 
         return ipAddrList;
@@ -95,12 +103,14 @@ public class IpAddrRange {
     public void release(String ipAddr) throws Exception {
         allocator.release(ipAddr);
         allocated.remove(ipAddr);
+        usedIps--;
     }
 
     public void releaseBulk(List<String> ipAddrList) throws Exception {
         allocator.releaseBulk(ipAddrList);
         for (String ipAddr: ipAddrList) {
             allocated.remove(ipAddr);
+            usedIps--;
         }
     }
 
@@ -137,6 +147,14 @@ public class IpAddrRange {
         this.id = id;
     }
 
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
     public String getFirstAddr() {
         return firstAddr;
     }
@@ -159,5 +177,21 @@ public class IpAddrRange {
 
     public void setAllocator(IpAddrAllocator allocator) {
         this.allocator = allocator;
+    }
+
+    public long getUsedIps() {
+        return usedIps;
+    }
+
+    public void setUsedIps(int usedIps) {
+        this.usedIps = usedIps;
+    }
+
+    public long getTotalIps() {
+        return totalIps;
+    }
+
+    public void setTotalIps(int totalIps) {
+        this.totalIps = totalIps;
     }
 }
