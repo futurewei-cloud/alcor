@@ -30,5 +30,5 @@ public interface IpAddrAllocator {
 
     void releaseBulk(List<String> ipAddrList) throws Exception;
 
-    boolean valid(String ipAddr);
+    boolean validate(String ipAddr);
 }

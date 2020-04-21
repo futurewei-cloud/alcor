@@ -38,9 +38,9 @@ public class IpAddrController {
     @Autowired
     IpAddrServiceImpl ipAddrService;
 
-    private void checkSubnetId(String subnetId) throws SubnetIdInvalidException {
-        if (subnetId == null || "".equals(subnetId)) {
-            throw new SubnetIdInvalidException();
+    private void checkRangeId(String rangeId) throws IpRangeIdInvalidException {
+        if (rangeId == null || "".equals(rangeId)) {
+            throw new IpRangeIdInvalidException();
         }
     }
 
@@ -75,7 +75,7 @@ public class IpAddrController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
-        checkSubnetId(request.getSubnetId());
+        checkRangeId(request.getRangeId());
 
         return ipAddrService.allocateIpAddr(request);
     }
@@ -85,7 +85,7 @@ public class IpAddrController {
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequestBulk allocateIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
-            checkSubnetId(request.getSubnetId());
+            checkRangeId(request.getRangeId());
         }
 
         return ipAddrService.allocateIpAddrBulk(requestBulk);
@@ -94,7 +94,7 @@ public class IpAddrController {
     @PutMapping("/ips")
     @ResponseBody
     public IpAddrRequest modifyIpAddrState(@RequestBody IpAddrRequest request) throws Exception {
-        checkSubnetId(request.getSubnetId());
+        checkRangeId(request.getRangeId());
         checkIpAddr(request.getIpAddr(), request.getIpVersion());
         checkIpAddrState(request.getState());
 
@@ -105,58 +105,58 @@ public class IpAddrController {
     @ResponseBody
     public IpAddrRequestBulk modifyIpAddrStateBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
-            checkSubnetId(request.getSubnetId());
-            checkSubnetId(request.getIpAddr());
-            checkSubnetId(request.getState());
+            checkRangeId(request.getRangeId());
+            checkRangeId(request.getIpAddr());
+            checkRangeId(request.getState());
         }
 
         return ipAddrService.modifyIpAddrStateBulk(requestBulk);
     }
 
-    @DeleteMapping("/ips/{ip_version}/{subnet_id}/{ip}")
+    @DeleteMapping("/ips/{ip_version}/{range_id}/{ip}")
     @ResponseBody
     public IpAddrRequest releaseIpAddr(@PathVariable("ip_version") int ipVersion,
-                                         @PathVariable("subnet_id") String subnetId,
+                                         @PathVariable("range_id") String rangeId,
                                          @PathVariable("ip") String ipAddr) throws Exception {
-        checkSubnetId(subnetId);
+        checkRangeId(rangeId);
         checkIpAddr(ipAddr, ipVersion);
 
-        return ipAddrService.releaseIpAddr(ipVersion, subnetId, ipAddr);
+        return ipAddrService.releaseIpAddr(ipVersion, rangeId, ipAddr);
     }
 
     @DeleteMapping("/ips/bulk")
     @ResponseBody
     public IpAddrRequestBulk releaseIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
-            checkSubnetId(request.getSubnetId());
+            checkRangeId(request.getRangeId());
         }
 
         return ipAddrService.releaseIpAddrBulk(requestBulk);
     }
 
-    @GetMapping("/ips/{ip_version}/{subnet_id}/{ip}")
+    @GetMapping("/ips/{ip_version}/{range_id}/{ip}")
     @ResponseBody
     public IpAddrRequest getIpAddr(@PathVariable("ip_version") int ipVersion,
-                                     @PathVariable("subnet_id") String subnetId,
+                                     @PathVariable("range_id") String rangeId,
                                      @PathVariable("ip") String ipAddr) throws Exception {
-        checkSubnetId(subnetId);
+        checkRangeId(rangeId);
         checkIpAddr(ipAddr, ipVersion);
 
-        return ipAddrService.getIpAddr(ipVersion, subnetId, ipAddr);
+        return ipAddrService.getIpAddr(ipVersion, rangeId, ipAddr);
     }
 
-    @GetMapping("/ips/{ip_version}/{subnet_id}")
+    @GetMapping("/ips/{ip_version}/{range_id}")
     @ResponseBody
-    public List<IpAddrRequest> getIpAddrBulk(@PathVariable("ip_version") int ipVersion, @PathVariable("subnet_id") String subnetId) throws Exception {
+    public List<IpAddrRequest> getIpAddrBulk(@PathVariable("ip_version") int ipVersion, @PathVariable("range_id") String rangeId) throws Exception {
         checkIpVersion(ipVersion);
-        return ipAddrService.getIpAddrBulk(subnetId);
+        return ipAddrService.getIpAddrBulk(rangeId);
     }
 
     @PostMapping("/ips/range")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
-        checkSubnetId(request.getSubnetId());
+        checkRangeId(request.getId());
         checkIpAddr(request.getFirstAddr(), request.getIpVersion());
         checkIpAddr(request.getLastAddr(), request.getIpVersion());
 
@@ -178,18 +178,18 @@ public class IpAddrController {
         return ipAddrService.createIpAddrRange(request);
     }
 
-    @DeleteMapping("/ips/range/{subnet_id}")
+    @DeleteMapping("/ips/range/{range_id}")
     @ResponseBody
-    public IpAddrRangeRequest deleteIpAddrRange(@PathVariable("subnet_id") String subnetId) throws Exception {
-        return ipAddrService.deleteIpAddrRange(subnetId);
+    public IpAddrRangeRequest deleteIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
+        return ipAddrService.deleteIpAddrRange(rangeId);
     }
 
-    @GetMapping("/ips/range/{subnet_id}")
+    @GetMapping("/ips/range/{range_id}")
     @ResponseBody
-    public IpAddrRangeRequest getIpAddrRange(@PathVariable("subnet_id") String subnetId) throws Exception {
-        checkSubnetId(subnetId);
+    public IpAddrRangeRequest getIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
+        checkRangeId(rangeId);
 
-        return ipAddrService.getIpAddrRange(subnetId);
+        return ipAddrService.getIpAddrRange(rangeId);
     }
 
     @GetMapping("/ips/range")

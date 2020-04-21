@@ -19,11 +19,11 @@ package com.futurewei.alcor.privateipmanager.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IpAddrRangeRequest {
+    @JsonProperty("id")
+    private String id;
+
     @JsonProperty("ip_version")
     private int ipVersion;
-
-    @JsonProperty("subnet_id")
-    private String subnetId;
 
     @JsonProperty("first_addr")
     private String firstAddr;
@@ -33,9 +33,9 @@ public class IpAddrRangeRequest {
 
     public IpAddrRangeRequest() {}
 
-    public IpAddrRangeRequest(int ipVersion, String subnetId, String firstAddr, String lastAddr) {
+    public IpAddrRangeRequest(String id, int ipVersion, String firstAddr, String lastAddr) {
+        this.id = id;
         this.ipVersion = ipVersion;
-        this.subnetId = subnetId;
         this.firstAddr = firstAddr;
         this.lastAddr = lastAddr;
     }
@@ -48,12 +48,12 @@ public class IpAddrRangeRequest {
         this.ipVersion = ipVersion;
     }
 
-    public String getSubnetId() {
-        return subnetId;
+    public String getId() {
+        return id;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstAddr() {

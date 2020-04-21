@@ -88,7 +88,7 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
     }
 
     @Override
-    public boolean valid(String ipAddr) {
+    public boolean validate(String ipAddr) {
         long ipLong = Ipv4AddrUtil.ipv4ToLong(ipAddr);
 
         return ipLong >= firstIp && ipLong <= lastIp;

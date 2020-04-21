@@ -15,10 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.privateipmanager.allocator;
 
-
 import com.futurewei.alcor.privateipmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrNotEnoughException;
-import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
 
 import java.math.BigInteger;
@@ -95,7 +93,7 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
     }
 
     @Override
-    public boolean valid(String ipAddr) {
+    public boolean validate(String ipAddr) {
         BigInteger ipBigInt = Ipv6AddrUtil.ipv6ToBitInt(ipAddr);
 
         return ipBigInt.compareTo(firstIp) >= 0 && ipBigInt.compareTo(lastIp) <= 0;

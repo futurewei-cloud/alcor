@@ -75,7 +75,7 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
         LOG.error("Add ipAllocation:{}", ipAddrAlloc);
 
         try {
-            cache.put(ipAddrAlloc.getSubnetId() + ipAddrAlloc.getIpAddr(), ipAddrAlloc);
+            cache.put(ipAddrAlloc.getRangeId() + ipAddrAlloc.getIpAddr(), ipAddrAlloc);
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("IpAddrRepo addItem() exception:", e);

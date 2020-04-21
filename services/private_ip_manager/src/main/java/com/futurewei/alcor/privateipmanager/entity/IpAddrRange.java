@@ -31,17 +31,17 @@ import java.util.List;
 import java.util.Map;
 
 public class IpAddrRange {
+    private String id;
     private int ipVersion;
-    private String subnetId;
     private String firstAddr;
     private String lastAddr;
 
     private IpAddrAllocator allocator;
     Map<String, IpAddrAlloc> allocated;
 
-    public IpAddrRange(int ipVersion, String subnetId, String firstAddr, String lastAddr) {
+    public IpAddrRange(String id, int ipVersion, String firstAddr, String lastAddr) {
+        this.id = id;
         this.ipVersion = ipVersion;
-        this.subnetId = subnetId;
         this.firstAddr = firstAddr;
         this.lastAddr = lastAddr;
 
@@ -62,7 +62,7 @@ public class IpAddrRange {
 
     public String allocate() throws Exception {
         String ipAddr = allocator.allocate();
-        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.ACTIVATED.getState());
+        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
         allocated.put(ipAddr, ipAddrAlloc);
 
@@ -73,7 +73,7 @@ public class IpAddrRange {
         List<String> ipAddrList = allocator.allocateBulk(num);
 
         for (String ipAddr: ipAddrList) {
-            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.ACTIVATED.getState());
+            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
             allocated.put(ipAddr, ipAddrAlloc);
         }
@@ -110,8 +110,8 @@ public class IpAddrRange {
             return ipAddrAlloc;
         }
 
-        if (allocator.valid(ipAddr)) {
-            return new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.FREE.getState());
+        if (allocator.validate(ipAddr)) {
+            return new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.FREE.getState());
         }
 
         throw new IpAddrInvalidException();
@@ -129,12 +129,12 @@ public class IpAddrRange {
         this.ipVersion = ipVersion;
     }
 
-    public String getSubnetId() {
-        return subnetId;
+    public String getId() {
+        return id;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstAddr() {
