@@ -27,15 +27,6 @@ import javax.validation.constraints.NotNull;
 public class VpcWebDestinations {
 
     @Value("${microservices.vpc.service.url}")
-    private String vpcUrl;
-
-    private String defaultServiceUrl = vpcUrl;
-
     @NotNull
     private String vpcManagerServiceUrl;
-
-    public String getVpcManagerServiceUrl() {
-        return this.vpcManagerServiceUrl == null ? defaultServiceUrl : this.vpcManagerServiceUrl;
-    }
-
 }

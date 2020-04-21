@@ -27,15 +27,6 @@ import javax.validation.constraints.NotNull;
 public class SubnetWebDestinations {
 
     @Value("${microservices.subnet.service.url}")
-    private String subnetUrl;
-
-    private String defaultServiceUrl = subnetUrl;
-
     @NotNull
     private String subnetManagerServiceUrl;
-
-    public String getSubnetManagerServiceUrl() {
-        return this.subnetManagerServiceUrl == null ? defaultServiceUrl : this.subnetManagerServiceUrl;
-    }
-
 }
