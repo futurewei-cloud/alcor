@@ -5,53 +5,58 @@
 |Sub-category
 |OpenStack Networking v2
 3.1+^.^|Alcor VPC
-|HW VPC
+| API count
 
-| | | | 4/30| 6/30| 9/30 |
+| | | | 4/30| 6/30| 9/30 | 187
 
-.6+^.^|Layer 2 Networking|Networks/VPC| X| X | | | X
-|Ports| X | X | | | X
-|Segments| X | X | | | X (?)
-|Network Segment Ranges| X | X | | | X (?)
-|Trunk networking| X |  | X | | X
-|Trunk details extended attributes (ports)| X |  | X | | X
+.7+^.^|Layer 2 Networking|Networks/VPC| X| X | | | 6
+|Ports| X | X | | | 6
+|Segments| X | X | | | 5
+|Network Segment Ranges| X | X | | | 5
+|Trunk networking| X |  | X | | 8
+|Trunk details extended attributes (ports)| X |  | X | | 1
+||  |  |  | | 31
 
-.11+^.^|Layer 3 Networking|Address scopes|X|| | X |
-|Routers Conntrack Helper (CT) target rules|X|| | X|
-|Floating IPs|X|| X | | X
-|Floating IP pools|X||X | |
-|Floating IPs port forwarding|X|| X| |
-|Routers|X|| X |  | X
-|Subnets|X|X| | | X
-|Subnet pool extension|X| X| | |
-|Subnet pool prefix operations|X|X| | |
-|Fixed private IP| | | X | | X
-|VPC Peering| | | X | | X
+.10+^.^|Layer 3 Networking|Address scopes|X|| | X | 5
+|Routers Conntrack Helper (CT) target rules|X| | | | 5
+|Floating IPs|X|| X | | 5
+|Floating IP pools|X||X | | 1
+|Floating IPs port forwarding|X|| X| | 5
+|Routers|X|| X |  | 9
+|Subnets|X|X| | | 6
+|Subnet pool extension|X| X| | | 5
+|Subnet pool prefix operations|X|X| | | 2
+//|Fixed private IP| | | X | | X
+//|VPC Peering| | | X | | X
+||  |  |  | | 43
 
-.5+^.^|Security|Firewall| X  | | X | | X
-|RBAC Policies| X || X | |
-|Security Groups rules| X || X ||
-|Security Groups| X ||X||
-|VPN | X | | | X |
+.6+^.^|Security|Firewall| X  | | X | | 16
+|RBAC Policies| X || X | | 5
+|Security Groups rules| X || X || 4
+|Security Groups| X ||X|| 5
+|VPN | X | | | X | 25
+||  |  |  | | 55
 
-.8+^.^|Resource Management|Networking Flavors Framework v2.0| X | | | X |
-|Metering labels and rules| X | |  | X|
-|Network IP availability and usage stats| X | X |  | |
-|Quotas extension| X | |  | X| X
-|Quotas details extension| X | |  | X|
-|Service providers| X | |  | X|
-|Tag extension| X | |  | X| X
-|Bandwitdh | | | | | X
+.8+^.^|Resource Management|Networking Flavors Framework v2.0| X | | | X | 12
+|Metering labels and rules| X | |  | X| 8
+|Network IP availability and usage stats| X | X |  | | 2
+|Quotas extension| X | |  | X| 5
+|Quotas details extension| X | |  | X| 1
+|Service providers| X | |  | X| 2
+|Tag extension| X | |  | X| 6
+//|Bandwitdh | | | | | X
+||  |  |  | | 36
 
-.5+^.^|Quality of Service|QoS rule types| X | | |  X |
-|QoS Policies| X | |  | X|
-|QoS bandwidth limit rules| X | |  | X|
-|QoS DSCP marking rules| X | |  | X|
-|QoS minimum bandwidth rules| X | |  | X|
+.6+^.^|Quality of Service|QoS rule types| X | | |  X | 2
+|QoS Policies| X | |  | X| 5
+|QoS bandwidth limit rules| X | |  | X| 5
+|QoS DSCP marking rules| X | |  | X| 5
+|QoS minimum bandwidth rules| X | |  | X| 5
+||  |  |  | | 22
 
-.1+^.^|Router interface floating IP|Router interface floating IP| X | | |  X  |
+//.1+^.^|Router interface floating IP|Router interface floating IP| X | | |  X  |
 
-.1+^.^|Unified Gateway Management| Unified Gateway Management | |  |  | X |
+//.1+^.^|Unified Gateway Management| Unified Gateway Management | |  |  | X |
 
 //.1+^.^|BGP/MPLS VPN Interconnection|BGP VPN| X | | |  |
 
