@@ -33,17 +33,17 @@ import static org.springframework.web.reactive.function.BodyInserters.fromObject
 
 public class SubnetWebHandlers {
 
-    private SubnetManagerServiceProxy subnetManagerServiceProxy;
+    private SubnetManagerServiceProxy serviceProxy;
 
     public SubnetWebHandlers(SubnetManagerServiceProxy subnetManagerServiceProxy) {
-        this.subnetManagerServiceProxy = subnetManagerServiceProxy;
+        this.serviceProxy = subnetManagerServiceProxy;
     }
 
     public Mono<ServerResponse> getSubnet(ServerRequest request) {
         UUID projectId = UUID.fromString(request.pathVariable("projectId"));
         UUID subnetId = UUID.fromString(request.pathVariable("subnetId"));
 
-        Mono<SubnetWebJson> subnetInfo = subnetManagerServiceProxy.findSubnetById(projectId, subnetId);
+        Mono<SubnetWebJson> subnetInfo = serviceProxy.findSubnetById(projectId, subnetId);
 
         return subnetInfo.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -61,7 +61,7 @@ public class SubnetWebHandlers {
                 p.getSubnet().getId().isEmpty() || !CommonUtil.isUUID(p.getSubnet().getId()) ?
                         new SubnetWebJson(p.getSubnet(), generatedSubnetId) : new SubnetWebJson(p.getSubnet()));
 
-        Mono<SubnetWebJson> response = subnetManagerServiceProxy.createSubnet(projectId, newSubnetObj);
+        Mono<SubnetWebJson> response = serviceProxy.createSubnet(projectId, newSubnetObj);
 
         return response.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -75,7 +75,7 @@ public class SubnetWebHandlers {
         UUID projectId = UUID.fromString(request.pathVariable("projectId"));
         UUID subnetId = UUID.fromString(request.pathVariable("subnetId"));
 
-        Mono<SubnetWebJson> response = subnetManagerServiceProxy.updateSubnetById(projectId, subnetId, updatedSubnetObj);
+        Mono<SubnetWebJson> response = serviceProxy.updateSubnetById(projectId, subnetId, updatedSubnetObj);
 
         return response.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -88,7 +88,7 @@ public class SubnetWebHandlers {
         UUID projectId = UUID.fromString(request.pathVariable("projectId"));
         UUID subnetId = UUID.fromString(request.pathVariable("subnetId"));
 
-        Mono<ResponseId> responseWithId = subnetManagerServiceProxy.deleteSubnetById(projectId, subnetId);
+        Mono<ResponseId> responseWithId = serviceProxy.deleteSubnetById(projectId, subnetId);
 
         return responseWithId.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -98,7 +98,7 @@ public class SubnetWebHandlers {
 
     public Mono<ServerResponse> getSubnetManagerHealthStatus(ServerRequest request) {
 
-        Mono<String> healthStatus = subnetManagerServiceProxy.getHealthStatus();
+        Mono<String> healthStatus = serviceProxy.getHealthStatus();
 
         return healthStatus.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
@@ -109,7 +109,7 @@ public class SubnetWebHandlers {
     public Mono<ServerResponse> getSubnets(ServerRequest request) {
         UUID projectId = UUID.fromString(request.pathVariable("projectId"));
 
-        Mono<SubnetsWebJson> subnetsInfo = subnetManagerServiceProxy.findSubnets(projectId);
+        Mono<SubnetsWebJson> subnetsInfo = serviceProxy.findSubnets(projectId);
 
         return subnetsInfo.flatMap(od -> ServerResponse.ok()
                 .contentType(APPLICATION_JSON)

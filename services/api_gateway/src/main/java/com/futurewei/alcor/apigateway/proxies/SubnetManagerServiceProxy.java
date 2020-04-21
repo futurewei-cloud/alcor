@@ -31,19 +31,19 @@ import java.util.UUID;
 @Service
 public class SubnetManagerServiceProxy {
 
-    private SubnetWebDestinations subnetWebDestinations;
+    private SubnetWebDestinations webDestinations;
 
     private WebClient webClient;
 
-    public SubnetManagerServiceProxy(SubnetWebDestinations destinations, WebClient client) {
-        this.subnetWebDestinations = destinations;
-        this.webClient = client;
+    public SubnetManagerServiceProxy(SubnetWebDestinations destinations, WebClient subnetManagerWebClient) {
+        this.webDestinations = destinations;
+        this.webClient = subnetManagerWebClient;
     }
 
     public Mono<SubnetWebJson> findSubnetById(UUID projectId, UUID subnetId) {
         Mono<ClientResponse> response = webClient
                 .get()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -60,7 +60,7 @@ public class SubnetManagerServiceProxy {
     public Mono<SubnetWebJson> createSubnet(UUID projectId, Mono<SubnetWebJson> newSubnetJson) {
         Mono<ClientResponse> response = webClient
                 .post()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets", projectId)
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets", projectId)
                 .body(newSubnetJson, SubnetWebJson.class)
                 .exchange();
         return response.flatMap(resp -> {
@@ -78,7 +78,7 @@ public class SubnetManagerServiceProxy {
     public Mono<SubnetWebJson> updateSubnetById(UUID projectId, UUID subnetId, Mono<SubnetWebJson> updatedSubnetJson) {
         Mono<ClientResponse> response = webClient
                 .put()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
                 .body(updatedSubnetJson, SubnetWebJson.class)
                 .exchange();
         return response.flatMap(resp -> {
@@ -96,7 +96,7 @@ public class SubnetManagerServiceProxy {
     public Mono<ResponseId> deleteSubnetById(UUID projectId, UUID subnetId) {
         Mono<ClientResponse> response = webClient
                 .delete()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets/{subnetId}", projectId, subnetId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -113,7 +113,7 @@ public class SubnetManagerServiceProxy {
     public Mono<SubnetsWebJson> findSubnets(UUID projectId) {
         Mono<ClientResponse> response = webClient
                 .get()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets", projectId)
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/project/{projectId}/subnets", projectId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -130,7 +130,7 @@ public class SubnetManagerServiceProxy {
     public Mono<String> getHealthStatus() {
         Mono<ClientResponse> healthStatusResponse = webClient
                 .get()
-                .uri(subnetWebDestinations.getSubnetManagerServiceUrl() + "/actuator/health")
+                .uri(webDestinations.getSubnetManagerServiceUrl() + "/actuator/health")
                 .exchange();
         return healthStatusResponse.flatMap(resp -> {
             switch (resp.statusCode()) {
