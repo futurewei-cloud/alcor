@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,7 @@ public class IpAddrControllerTest {
         ipAddrRequests.add(ipAddrRequest3);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -138,7 +137,7 @@ public class IpAddrControllerTest {
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -173,7 +172,7 @@ public class IpAddrControllerTest {
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -202,7 +201,7 @@ public class IpAddrControllerTest {
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);

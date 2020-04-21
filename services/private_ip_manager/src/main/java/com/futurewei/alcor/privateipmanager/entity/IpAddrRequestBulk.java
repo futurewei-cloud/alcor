@@ -21,21 +21,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class IpAddrRequestBulk {
-    @JsonProperty("ip_addr_requests")
-    private List<IpAddrRequest> ipAddrRequests;
+    @JsonProperty("ip_requests")
+    private List<IpAddrRequest> ipRequests;
 
     public IpAddrRequestBulk() {
     }
 
-    public IpAddrRequestBulk(List<IpAddrRequest> ipAddrRequests) {
-        this.ipAddrRequests = ipAddrRequests;
+    public IpAddrRequestBulk(List<IpAddrRequest> ipRequests) {
+        this.ipRequests = ipRequests;
     }
 
-    public List<IpAddrRequest> getIpAddrRequests() {
-        return ipAddrRequests;
+    public List<IpAddrRequest> getIpRequests() {
+        return ipRequests;
     }
 
-    public void setIpAddrRequests(List<IpAddrRequest> ipAddrRequests) {
-        this.ipAddrRequests = ipAddrRequests;
+    public void setIpRequests(List<IpAddrRequest> ipRequests) {
+        this.ipRequests = ipRequests;
     }
 }

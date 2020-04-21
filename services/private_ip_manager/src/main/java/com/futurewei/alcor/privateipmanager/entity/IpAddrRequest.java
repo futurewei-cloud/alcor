@@ -25,18 +25,18 @@ public class IpAddrRequest {
     @JsonProperty("range_id")
     private String rangeId;
 
-    @JsonProperty("ip_addr")
-    private String ipAddr;
+    @JsonProperty("ip")
+    private String ip;
 
     @JsonProperty("state")
     private String state;
 
     public IpAddrRequest() {}
 
-    public IpAddrRequest(int ipVersion, String rangeId, String ipAddr, String state) {
+    public IpAddrRequest(int ipVersion, String rangeId, String ip, String state) {
         this.ipVersion = ipVersion;
         this.rangeId = rangeId;
-        this.ipAddr = ipAddr;
+        this.ip = ip;
         this.state = state;
     }
 
@@ -56,12 +56,12 @@ public class IpAddrRequest {
         this.rangeId = rangeId;
     }
 
-    public String getIpAddr() {
-        return ipAddr;
+    public String getIp() {
+        return ip;
     }
 
-    public void setIpAddr(String ipAddr) {
-        this.ipAddr = ipAddr;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public String getState() {

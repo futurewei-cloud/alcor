@@ -222,7 +222,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             }
 
             IpAddrRange ipAddrRange = new IpAddrRange(request.getId(), request.getSubnetId(),
-                    request.getIpVersion(), request.getFirstAddr(), request.getLastAddr());
+                    request.getIpVersion(), request.getFirstIp(), request.getLastIp());
 
             ipAddrRangeCache.put(request.getId(), ipAddrRange);
 

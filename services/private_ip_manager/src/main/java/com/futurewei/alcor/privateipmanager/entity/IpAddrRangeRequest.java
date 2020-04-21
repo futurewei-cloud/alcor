@@ -28,11 +28,11 @@ public class IpAddrRangeRequest {
     @JsonProperty("ip_version")
     private int ipVersion;
 
-    @JsonProperty("first_addr")
-    private String firstAddr;
+    @JsonProperty("first_ip")
+    private String firstIp;
 
-    @JsonProperty("last_addr")
-    private String lastAddr;
+    @JsonProperty("last_ip")
+    private String lastIp;
 
     @JsonProperty("used_ips")
     private long usedIps;
@@ -42,12 +42,12 @@ public class IpAddrRangeRequest {
 
     public IpAddrRangeRequest() {}
 
-    public IpAddrRangeRequest(String id, String subnetId, int ipVersion, String firstAddr, String lastAddr) {
+    public IpAddrRangeRequest(String id, String subnetId, int ipVersion, String firstIp, String lastIp) {
         this.id = id;
         this.subnetId = subnetId;
         this.ipVersion = ipVersion;
-        this.firstAddr = firstAddr;
-        this.lastAddr = lastAddr;
+        this.firstIp = firstIp;
+        this.lastIp = lastIp;
     }
 
     public int getIpVersion() {
@@ -74,20 +74,20 @@ public class IpAddrRangeRequest {
         this.subnetId = subnetId;
     }
 
-    public String getFirstAddr() {
-        return firstAddr;
+    public String getFirstIp() {
+        return firstIp;
     }
 
-    public void setFirstAddr(String firstAddr) {
-        this.firstAddr = firstAddr;
+    public void setFirstIp(String firstIp) {
+        this.firstIp = firstIp;
     }
 
-    public String getLastAddr() {
-        return lastAddr;
+    public String getLastIp() {
+        return lastIp;
     }
 
-    public void setLastAddr(String lastAddr) {
-        this.lastAddr = lastAddr;
+    public void setLastIp(String lastIp) {
+        this.lastIp = lastIp;
     }
 
     public long getUsedIps() {

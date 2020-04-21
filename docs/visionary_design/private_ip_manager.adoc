@@ -134,7 +134,7 @@ Response:
 {
 	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -163,19 +163,19 @@ Response:
   {
   	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.76",
+    "ip": "11.11.11.76",
     "state": "activated"
   },
   {
   	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.67",
+    "ip": "11.11.11.67",
     "state": "activated"
   },
   {
   	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.156",
+    "ip": "11.11.11.156",
     "state": "activated"
   }
 ]
@@ -205,7 +205,7 @@ Body:
 {
 	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": “null”,
+    "ip": “null”,
     “state”: “null”
 }
 
@@ -213,7 +213,7 @@ Response:
 {
 	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -240,24 +240,24 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-    "ip_addr_requests":
+    "ip_requests":
     [
         {
 			"ip_version": 4, 
 			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"ip": null,
 			"state": null
         },
         {
 			"ip_version": 4, 
 			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"ip": null,
 			"state": null
         },
         {
 			"ip_version": 4, 
 			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"ip": null,
 			"state": null
         }
     ]
@@ -265,23 +265,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 		"ip_version": 4, 
 		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.28",
+		"ip": "11.11.11.28",
 		"state": "activated"
     },
     {
 		"ip_version": 4, 
 		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.29",
+		"ip": "11.11.11.29",
 		"state": "activated"
     },
     {
 		"ip_version": 4, 
 		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.24",
+		"ip": "11.11.11.24",
 		"state": "activated"
     }
   ]
@@ -312,7 +312,7 @@ Body:
 {
 	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -320,7 +320,7 @@ Response:
 {
 	"ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -347,23 +347,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -371,23 +371,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -418,7 +418,7 @@ Body:
 {
     "ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “deactivated”
 }
 
@@ -426,7 +426,7 @@ Response:
 {
     "ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “deactivated”
 }
 
@@ -453,23 +453,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "deactivated"
     }
   ]
@@ -477,23 +477,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "deactivated"
     }
   ]
@@ -524,7 +524,7 @@ Response:
 {
     "ip_version": 4, 
     "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "ip": "10.10.10.1",
     “state” “free”
 }
 
@@ -551,23 +551,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -575,23 +575,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "ip": "11.11.11.28",
       "state": "free"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "ip": "11.11.11.29",
       "state": "free"
     },
     {
 	  "ip_version": 4, 
       "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "ip": "11.11.11.24",
       "state": "free"
     }
   ]
@@ -619,8 +619,8 @@ Body:
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”
 }
 
 Response:
@@ -628,8 +628,8 @@ Response:
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”,
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
 	"used_ips": 0,
     "total_ips": 254
 }
@@ -657,8 +657,8 @@ Response:
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”,
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
 	"used_ips": 0,
     "total_ips": 254
 }
@@ -688,8 +688,8 @@ Response:
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”,
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
 	"used_ips": 0,
     "total_ips": 254
 }
@@ -720,8 +720,8 @@ Response:
     "ip_version": 4, 
     "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_addr": "11.11.11.1",
-    "last_addr": "11.11.11.254"
+    "first_ip": "11.11.11.1",
+    "last_ip": "11.11.11.254"
 	"used_ips": 0,
     "total_ips": 5	
   },
@@ -729,8 +729,8 @@ Response:
     "ip_version": 4, 
     "id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcac",
-    "first_addr": "12.12.12.1",
-    "last_addr": "12.12.12.254"
+    "first_ip": "12.12.12.1",
+    "last_ip": "12.12.12.254"
 	"used_ips": 0,
     "total_ips": 5	
   }

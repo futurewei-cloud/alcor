@@ -90,7 +90,7 @@ public class IpAddrController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequestBulk allocateIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
-        for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
+        for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
         }
 
@@ -101,7 +101,7 @@ public class IpAddrController {
     @ResponseBody
     public IpAddrRequest modifyIpAddrState(@RequestBody IpAddrRequest request) throws Exception {
         checkRangeId(request.getRangeId());
-        checkIpAddr(request.getIpAddr(), request.getIpVersion());
+        checkIpAddr(request.getIp(), request.getIpVersion());
         checkIpAddrState(request.getState());
 
         return ipAddrService.modifyIpAddrState(request);
@@ -110,9 +110,9 @@ public class IpAddrController {
     @PutMapping("/ips/bulk")
     @ResponseBody
     public IpAddrRequestBulk modifyIpAddrStateBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
-        for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
+        for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
-            checkRangeId(request.getIpAddr());
+            checkRangeId(request.getIp());
             checkRangeId(request.getState());
         }
 
@@ -133,8 +133,9 @@ public class IpAddrController {
     @DeleteMapping("/ips/bulk")
     @ResponseBody
     public IpAddrRequestBulk releaseIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
-        for (IpAddrRequest request : requestBulk.getIpAddrRequests()) {
+        for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
+            checkIpAddr(request.getIp(), request.getIpVersion());
         }
 
         return ipAddrService.releaseIpAddrBulk(requestBulk);
@@ -164,19 +165,19 @@ public class IpAddrController {
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
         checkRangeId(request.getId());
         checkSubnetId(request.getSubnetId());
-        checkIpAddr(request.getFirstAddr(), request.getIpVersion());
-        checkIpAddr(request.getLastAddr(), request.getIpVersion());
+        checkIpAddr(request.getFirstIp(), request.getIpVersion());
+        checkIpAddr(request.getLastIp(), request.getIpVersion());
 
         //Check if first < last
         if (request.getIpVersion() == IpVersion.IPV4.getVersion()) {
-            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstAddr());
-            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(request.getLastAddr());
+            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstIp());
+            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(request.getLastIp());
             if (firstIpLong >= lastIpLong) {
                 throw new IpAddrRangeInvalidException();
             }
         } else {
-            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getFirstAddr());
-            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getLastAddr());
+            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getFirstIp());
+            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getLastIp());
             if (firstIpBigInt.compareTo(lastIpBigInt) > 0) {
                 throw new IpAddrRangeInvalidException();
             }
