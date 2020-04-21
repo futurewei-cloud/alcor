@@ -9,37 +9,39 @@
 
 | | | | 4/30| 6/30| 9/30 |
 
-.6+^.^|Layer 2 Networking|Networks| X| X| | |
-|Network Segment Ranges| X | X | | |
-|Ports| X | X | | |
-|Segments| X | X | | |
-|Trunk networking| X | | | |
-|Trunk details extended attributes (ports)| X |  | | |
+.6+^.^|Layer 2 Networking|Networks/VPC| X| X | | | X
+|Ports| X | X | | | X
+|Segments| X | X | | | X (?)
+|Network Segment Ranges| X | X | | | X (?)
+|Trunk networking| X |  | X | | X
+|Trunk details extended attributes (ports)| X |  | X | | X
 
-.10+^.^|Layer 3 Networking|Address scopes|X|| | |
-|Routers Conntrack Helper (CT) target rules|X|| | |
-|Floating IPs|X|| X | |
+.11+^.^|Layer 3 Networking|Address scopes|X|| | X |
+|Routers Conntrack Helper (CT) target rules|X|| | X|
+|Floating IPs|X|| X | | X
 |Floating IP pools|X||X | |
 |Floating IPs port forwarding|X|| X| |
-|Routers|X|| | |
-|Subnets|X|X| | |
+|Routers|X|| X |  | X
+|Subnets|X|X| | | X
 |Subnet pool extension|X| X| | |
 |Subnet pool prefix operations|X|X| | |
-|Unified Gateway Management| | |  | X |
+|Fixed private IP| | | X | | X
+|VPC Peering| | | X | | X
 
-.5+^.^|Security|Firewall| X  | | X | |
+.5+^.^|Security|Firewall| X  | | X | | X
 |RBAC Policies| X || X | |
 |Security Groups rules| X || X ||
 |Security Groups| X ||X||
 |VPN | X | | | X |
 
-.7+^.^|Resource Management|Networking Flavors Framework v2.0| X | | | X |
+.8+^.^|Resource Management|Networking Flavors Framework v2.0| X | | | X |
 |Metering labels and rules| X | |  | X|
 |Network IP availability and usage stats| X | X |  | |
-|Quotas extension| X | |  | X|
+|Quotas extension| X | |  | X| X
 |Quotas details extension| X | |  | X|
 |Service providers| X | |  | X|
-|Tag extension| X | |  | X|
+|Tag extension| X | |  | X| X
+|Bandwitdh | | | | | X
 
 .5+^.^|Quality of Service|QoS rule types| X | | |  X |
 |QoS Policies| X | |  | X|
@@ -47,7 +49,9 @@
 |QoS DSCP marking rules| X | |  | X|
 |QoS minimum bandwidth rules| X | |  | X|
 
-.1+^.^|Router interface floating IP|Router interface floating IP| X | | |  X |
+.1+^.^|Router interface floating IP|Router interface floating IP| X | | |  X  |
+
+.1+^.^|Unified Gateway Management| Unified Gateway Management | |  |  | X |
 
 //.1+^.^|BGP/MPLS VPN Interconnection|BGP VPN| X | | |  |
 
