@@ -38,7 +38,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:vpcKube4
+        - image: zhonghaolyu/repo:vpcKube5
         #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent

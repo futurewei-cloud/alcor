@@ -41,7 +41,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:subnetKube1
+        - image: zhonghaolyu/repo:subnetKube2
         #- image: fwnetworking/controller:subnet_manager-v0.3.0
           name: subnetmanager-web
           imagePullPolicy: IfNotPresent

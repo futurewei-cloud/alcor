@@ -36,7 +36,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:routeKube3
+        - image: zhonghaolyu/repo:routeKube4
         #- image: fwnetworking/controller:route_manager-v0.3.0
           name: routemanager-web
           imagePullPolicy: IfNotPresent

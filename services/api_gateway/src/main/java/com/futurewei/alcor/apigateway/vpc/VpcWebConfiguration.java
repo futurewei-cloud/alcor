@@ -51,7 +51,7 @@ public class VpcWebConfiguration {
     }
 
     @Bean
-    public WebClient webClient() {
+    public WebClient vpcManagerWebClient() {
         return WebClient.create();
     }
 
