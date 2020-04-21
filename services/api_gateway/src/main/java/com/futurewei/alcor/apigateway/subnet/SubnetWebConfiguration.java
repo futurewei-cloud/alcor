@@ -54,7 +54,7 @@ public class SubnetWebConfiguration {
     }
 
     @Bean
-    public WebClient webClient() {
+    public WebClient subnetManagerWebClient() {
         return WebClient.create();
     }
 

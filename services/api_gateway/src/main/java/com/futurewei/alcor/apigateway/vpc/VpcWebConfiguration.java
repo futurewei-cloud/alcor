@@ -46,12 +46,12 @@ public class VpcWebConfiguration {
     }
 
     @Bean
-    public VpcWebHandlers vpcWebHandlers(VpcManagerServiceProxy vpcManagerService) {
-        return new VpcWebHandlers(vpcManagerService);
+    public VpcWebHandlers vpcWebHandlers(VpcManagerServiceProxy vpcManagerServiceProxy) {
+        return new VpcWebHandlers(vpcManagerServiceProxy);
     }
 
     @Bean
-    public WebClient webClient() {
+    public WebClient vpcManagerWebClient() {
         return WebClient.create();
     }
 
