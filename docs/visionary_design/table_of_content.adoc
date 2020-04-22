@@ -11,8 +11,8 @@
 ** Management Services
 //*** VPC Manager, Subnet Manager and Port Manager
 //*** Route Manager
+*** xref:private_ip_manager.adoc[Private IP Manager]
 *** xref:mac_manager.adoc[Mac Manager]
-//*** Private IP Manager
 ** Infrastructure Services
 //*** Node Manager
 //*** Data-Plane Manager
