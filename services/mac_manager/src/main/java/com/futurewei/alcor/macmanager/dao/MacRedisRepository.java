@@ -49,43 +49,34 @@ public class MacRedisRepository implements ICacheRepository<MacState> {
     }
 
     @Override
-    public MacState findItem(String id) {
+    public synchronized MacState findItem(String id) {
 
         return (MacState) hashOperations.get(KEY, id);
     }
 
     @Override
-    public Map findAllItems() {
+    public synchronized Map findAllItems() {
         return hashOperations.entries(KEY);
     }
 
     @Override
-    public void addItem(MacState newItem) {
+    public synchronized void addItem(MacState newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, "mac address:" + newItem.getMacAddress());
         hashOperations.putIfAbsent(KEY, newItem.getMacAddress(), newItem);
     }
 
     @Override
-    public void deleteItem(String id) {
+    public synchronized void deleteItem(String id) {
         hashOperations.delete(KEY, id);
     }
 
-    public void updateItem(MacState newItem) {
+    public synchronized void updateItem(MacState newItem) {
         hashOperations.put(KEY, newItem.getMacAddress(), newItem);
     }
 
-    public MacState findMac(String id) {
+    public synchronized MacState findMac(String id) {
         return (MacState) hashOperations.get(KEY, id);
-    }
-
-    public void setKey(String key) {
-        KEY = key;
-    }
-
-    public boolean exisingOui(String oui) {
-
-        return redisTemplate.hasKey(oui);
     }
 }
 
