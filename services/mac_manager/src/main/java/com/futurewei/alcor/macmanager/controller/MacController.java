@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.macmanager.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.macmanager.entity.MacRange;
@@ -202,7 +203,7 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/ranges/{rangeid}", "/v4/macs/ranges/{rangeid}"})
-    public String deleteMacRange(@PathVariable String rangeid) throws Exception {
+    public ResponseId deleteMacRange(@PathVariable String rangeid) throws Exception {
         String rangeId = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
@@ -210,6 +211,6 @@ public class MacController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return "{mac_range: " + rangeId + "}";
+        return new ResponseId(rangeId);
     }
 }

@@ -48,30 +48,29 @@ public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
     }
 
     @Override
-    public MacRange findItem(String id) {
+    public synchronized MacRange findItem(String id) {
 
         return (MacRange) hashOperations.get(KEY, id);
     }
 
     @Override
-    public Map<String, MacRange> findAllItems() {
-        System.out.print("test" + KEY);
+    public synchronized Map<String, MacRange> findAllItems() {
         return hashOperations.entries(KEY);
     }
 
     @Override
-    public void addItem(MacRange newItem) {
+    public synchronized void addItem(MacRange newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, "mac address:" + newItem.getRangeId());
         hashOperations.putIfAbsent(KEY, newItem.getRangeId(), newItem);
     }
 
     @Override
-    public void deleteItem(String id) {
+    public synchronized void deleteItem(String id) {
         hashOperations.delete(KEY, id);
     }
 
-    public void updateItem(MacRange newItem) {
+    public synchronized void updateItem(MacRange newItem) {
         hashOperations.put(KEY, newItem.getRangeId(), newItem);
     }
 }

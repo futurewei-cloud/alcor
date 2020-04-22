@@ -46,7 +46,7 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     @Override
-    public String findItem(String value) {
+    public synchronized String findItem(String value) {
         if (setOperations.isMember(KEY, value))
             return value;
         else
@@ -54,12 +54,12 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     @Override
-    public Map findAllItems() {
+    public synchronized Map findAllItems() {
         return (Map) setOperations.members(KEY);
     }
 
     @Override
-    public void addItem(String newItem) {
+    public synchronized void addItem(String newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, newItem);
         if (setOperations.isMember(KEY, newItem) == false)
@@ -67,15 +67,15 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     @Override
-    public void deleteItem(String value) {
+    public synchronized void deleteItem(String value) {
         setOperations.remove(KEY, value);
     }
 
-    public String getItem() {
+    public synchronized String getItem() {
         return (String) setOperations.randomMember(KEY);
     }
 
-    public long getSize() {
+    public synchronized long getSize() {
         return setOperations.size(KEY);
     }
 }
