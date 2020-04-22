@@ -31,40 +31,51 @@ import java.util.List;
 import java.util.Map;
 
 public class IpAddrRange {
-    private int ipVersion;
+    private String id;
     private String subnetId;
-    private String firstAddr;
-    private String lastAddr;
+    private int ipVersion;
+    private String firstIp;
+    private String lastIp;
+    private long usedIps;
+    private long totalIps;
 
     private IpAddrAllocator allocator;
     Map<String, IpAddrAlloc> allocated;
 
-    public IpAddrRange(int ipVersion, String subnetId, String firstAddr, String lastAddr) {
-        this.ipVersion = ipVersion;
+    public IpAddrRange(String id, String subnetId, int ipVersion, String firstIp, String lastIp) {
+        this.id = id;
         this.subnetId = subnetId;
-        this.firstAddr = firstAddr;
-        this.lastAddr = lastAddr;
+        this.ipVersion = ipVersion;
+        this.firstIp = firstIp;
+        this.lastIp = lastIp;
 
         if (ipVersion == IpVersion.IPV4.getVersion()) {
-            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(firstAddr);
-            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(lastAddr);
+            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(firstIp);
+            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(lastIp);
 
+            totalIps = lastIpLong - firstIpLong + 1;
             allocator = new Ipv4AddrAllocator(firstIpLong, lastIpLong);
         } else {
-            BigInteger firstIpLong = Ipv6AddrUtil.ipv6ToBitInt(firstAddr);
-            BigInteger lastIpLong = Ipv6AddrUtil.ipv6ToBitInt(lastAddr);
+            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(firstIp);
+            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(lastIp);
 
-            allocator = new Ipv6AddrAllocator(firstIpLong, lastIpLong);
+            totalIps = lastIpBigInt.subtract(firstIpBigInt).longValue() + 1;
+            allocator = new Ipv6AddrAllocator(firstIpBigInt, lastIpBigInt);
         }
 
         allocated = new HashMap<>();
     }
 
+    private void updateUsedIps() {
+        usedIps = allocated.size();
+    }
+
     public String allocate() throws Exception {
         String ipAddr = allocator.allocate();
-        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.ACTIVATED.getState());
+        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
         allocated.put(ipAddr, ipAddrAlloc);
+        updateUsedIps();
 
         return ipAddr;
     }
@@ -73,10 +84,12 @@ public class IpAddrRange {
         List<String> ipAddrList = allocator.allocateBulk(num);
 
         for (String ipAddr: ipAddrList) {
-            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.ACTIVATED.getState());
+            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
             allocated.put(ipAddr, ipAddrAlloc);
         }
+
+        updateUsedIps();
 
         return ipAddrList;
     }
@@ -93,15 +106,27 @@ public class IpAddrRange {
     }
 
     public void release(String ipAddr) throws Exception {
+        if (allocated.get(ipAddr) == null) {
+            throw new IpAddrAllocNotFoundException();
+        }
+
         allocator.release(ipAddr);
         allocated.remove(ipAddr);
+
+        updateUsedIps();
     }
 
     public void releaseBulk(List<String> ipAddrList) throws Exception {
         allocator.releaseBulk(ipAddrList);
         for (String ipAddr: ipAddrList) {
+            if (allocated.get(ipAddr) == null) {
+                throw new IpAddrAllocNotFoundException();
+            }
+
             allocated.remove(ipAddr);
         }
+
+        updateUsedIps();
     }
 
     public IpAddrAlloc getIpAddr(String ipAddr) throws Exception {
@@ -110,8 +135,8 @@ public class IpAddrRange {
             return ipAddrAlloc;
         }
 
-        if (allocator.valid(ipAddr)) {
-            return new IpAddrAlloc(ipVersion, subnetId, ipAddr, IpAddrState.FREE.getState());
+        if (allocator.validate(ipAddr)) {
+            return new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.FREE.getState());
         }
 
         throw new IpAddrInvalidException();
@@ -129,6 +154,14 @@ public class IpAddrRange {
         this.ipVersion = ipVersion;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getSubnetId() {
         return subnetId;
     }
@@ -137,20 +170,20 @@ public class IpAddrRange {
         this.subnetId = subnetId;
     }
 
-    public String getFirstAddr() {
-        return firstAddr;
+    public String getFirstIp() {
+        return firstIp;
     }
 
-    public void setFirstAddr(String firstAddr) {
-        this.firstAddr = firstAddr;
+    public void setFirstIp(String firstIp) {
+        this.firstIp = firstIp;
     }
 
-    public String getLastAddr() {
-        return lastAddr;
+    public String getLastIp() {
+        return lastIp;
     }
 
-    public void setLastAddr(String lastAddr) {
-        this.lastAddr = lastAddr;
+    public void setLastIp(String lastIp) {
+        this.lastIp = lastIp;
     }
 
     public IpAddrAllocator getAllocator() {
@@ -159,5 +192,21 @@ public class IpAddrRange {
 
     public void setAllocator(IpAddrAllocator allocator) {
         this.allocator = allocator;
+    }
+
+    public long getUsedIps() {
+        return usedIps;
+    }
+
+    public void setUsedIps(int usedIps) {
+        this.usedIps = usedIps;
+    }
+
+    public long getTotalIps() {
+        return totalIps;
+    }
+
+    public void setTotalIps(int totalIps) {
+        this.totalIps = totalIps;
     }
 }

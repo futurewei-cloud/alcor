@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +44,8 @@ public class IpAddrControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void createIpAddrRangeTest() throws Exception {
-        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest(4, "subnet1", "11.11.11.1", "11.11.11.254");
+        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest("range1", "subnet1", 4, "11.11.11.1", "11.11.11.254");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRangeJson = objectMapper.writeValueAsString(ipAddrRangeRequest);
 
@@ -59,23 +57,20 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void deleteIpAddrRange() throws Exception {
-        this.mockMvc.perform(delete("/ips/range/subnet1"))
+        this.mockMvc.perform(delete("/ips/range/range1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void getIpAddrRangeTest() throws Exception {
-        this.mockMvc.perform(get("/ips/range/subnet1"))
+        this.mockMvc.perform(get("/ips/range/range1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void listIpAddrRangeTest() throws Exception {
         this.mockMvc.perform(get("/ips/range/"))
                 .andDo(print())
@@ -83,9 +78,8 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void allocateIpAddrTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "subnet1", null, null);
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", null, null);
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -97,11 +91,10 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void allocateIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "subnet1", null, null);
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "subnet1", null, null);
-        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4, "subnet2", null, null);
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", null, null);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", null, null);
+        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4, "range2", null, null);
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -109,7 +102,7 @@ public class IpAddrControllerTest {
         ipAddrRequests.add(ipAddrRequest3);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -122,9 +115,8 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void activateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "subnet1", "11.11.11.1", "activate");
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", "11.11.11.1", "activate");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -136,17 +128,16 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void activateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "subnet1", "11.11.11.1", "activate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "subnet1", "11.11.11.2", "activate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "activate");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "activate");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -159,9 +150,8 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void deactivateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "subnet1", "11.11.11.1", "deactivate");
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -173,17 +163,16 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void deactivateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "subnet1", "11.11.11.1", "deactivate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "subnet1", "11.11.11.2", "deactivate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "deactivate");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -196,25 +185,23 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void releaseIpAddrTest() throws Exception {
-        this.mockMvc.perform(delete("/ips/4/subnet1/11.11.11.1"))
+        this.mockMvc.perform(delete("/ips/4/range1/11.11.11.1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void releaseIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "subnet1", "11.11.11.1", "deactivate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "subnet1", "11.11.11.2", "deactivate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "deactivate");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
         ipAddrRequests.add(ipAddrRequest2);
 
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpAddrRequests(ipAddrRequests);
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
@@ -227,17 +214,15 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void getIpAddrTest() throws Exception {
-        this.mockMvc.perform(get("/ips/4/subnet1/11.11.11.1"))
+        this.mockMvc.perform(get("/ips/4/range1/11.11.11.1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Ignore(value = "I don't want you to be run at compile time.")
     public void listIpAddrTest() throws Exception {
-        this.mockMvc.perform(get("/ips/4/subnet1"))
+        this.mockMvc.perform(get("/ips/4/range1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

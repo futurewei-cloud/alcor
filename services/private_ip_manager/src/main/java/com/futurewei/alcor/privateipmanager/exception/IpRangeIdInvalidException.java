@@ -19,6 +19,6 @@ package com.futurewei.alcor.privateipmanager.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Subnet not found")
-public class SubnetNotFoundException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Ip range id invalid")
+public class IpRangeIdInvalidException extends Exception {
 }

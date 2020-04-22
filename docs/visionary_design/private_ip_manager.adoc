@@ -32,13 +32,13 @@ It interacts with Subnet Manager and Port Manager to allocate IP addresses for g
 
 |Verify IP State
 |GET
-|/ips/{ip_version}/{subnet_id}/{ip}
+|/ips/{ip_version}/{range_id}/{ip}
 |ip state
 <<IP_Get,[sample]>>
 
 |List all allocated IP State
 |GET
-|/ips/{ip_version}/{subnet_id}
+|/ips/{ip_version}/{range_id}
 |ip state list
 <<IP_List,[sample]>>
 
@@ -80,7 +80,7 @@ It interacts with Subnet Manager and Port Manager to allocate IP addresses for g
 
 |Release IP State
 |DELETE
-|/ips/{ip_version}/{subnet_id}/{ip}
+|/ips/{ip_version}/{range_id}/{ip}
 |ip state
 <<IP_Delete,[sample]>>
 
@@ -98,7 +98,7 @@ It interacts with Subnet Manager and Port Manager to allocate IP addresses for g
 
 |Get IP Range
 |GET
-|/ips/range/{subnet_id}
+|/ips/range/{range_id}
 |ip range
 <<IP_Range_Get,[sample]>>
 
@@ -116,9 +116,9 @@ anchor:IP_Get[]
 
 * Method: `GET`
 
-* Request: `/ips/{ip_version}/{subnet_id}/{ip}`
+* Request: `/ips/{ip_version}/{range_id}/{ip}`
 
-* Request Parameter: `@PathVariable int ipVersion, @PathVariable String subnetId, @PathVariable String ip`
+* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
 
 * Response: ip state
 * Normal response codes: 200
@@ -133,8 +133,8 @@ http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
 Response:
 {
 	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -144,9 +144,9 @@ anchor:IP_List[]
 
 * Method: `GET`
 
-* Request: `/ips/{ip_version}/{subnet_id}`
+* Request: `/ips/{ip_version}/{range_id}`
 
-* Request Parameter: `@PathVariable int ipVersion, @PathVariable String subnetId`
+* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId`
 
 * Response: ip state list
 * Normal response codes: 200
@@ -162,20 +162,20 @@ Response:
 [
   {
   	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.76",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "11.11.11.76",
     "state": "activated"
   },
   {
   	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.67",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "11.11.11.67",
     "state": "activated"
   },
   {
   	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "11.11.11.156",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "11.11.11.156",
     "state": "activated"
   }
 ]
@@ -204,16 +204,16 @@ http://127.0.0.1:8080/ips
 Body:
 {
 	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": “null”,
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": “null”,
     “state”: “null”
 }
 
 Response:
 {
 	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -240,24 +240,24 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-    "ip_addr_requests":
+    "ip_requests":
     [
         {
 			"ip_version": 4, 
-			"subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+			"ip": null,
 			"state": null
         },
         {
 			"ip_version": 4, 
-			"subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+			"ip": null,
 			"state": null
         },
         {
 			"ip_version": 4, 
-			"subnet_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip_addr": null,
+			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+			"ip": null,
 			"state": null
         }
     ]
@@ -265,23 +265,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 		"ip_version": 4, 
-		"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.28",
+		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+		"ip": "11.11.11.28",
 		"state": "activated"
     },
     {
 		"ip_version": 4, 
-		"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.29",
+		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+		"ip": "11.11.11.29",
 		"state": "activated"
     },
     {
 		"ip_version": 4, 
-		"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip_addr": "11.11.11.24",
+		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+		"ip": "11.11.11.24",
 		"state": "activated"
     }
   ]
@@ -311,16 +311,16 @@ http://127.0.0.1:8080/ips/
 Body:
 {
 	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
 Response:
 {
 	"ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “activated”
 }
 
@@ -347,23 +347,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -371,23 +371,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -417,16 +417,16 @@ http://127.0.0.1:8080/ips
 Body:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “deactivated”
 }
 
 Response:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “deactivated”
 }
 
@@ -453,23 +453,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "deactivated"
     }
   ]
@@ -477,23 +477,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "deactivated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "deactivated"
     }
   ]
@@ -505,9 +505,9 @@ anchor:IP_Delete[]
 
 * Method: `DELETE`
 
-* Request: `/ips/{ip_version}/{subnet_id}/{ip}`
+* Request: `/ips/{ip_version}/{range_id}/{ip}`
 
-* Request Parameter: `@PathVariable int ipVersion, @PathVariable String subnetId, @PathVariable String ip`
+* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
 
 * Response: `ip state`
 
@@ -523,8 +523,8 @@ http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
 Response:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip_addr": "10.10.10.1",
+    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "ip": "10.10.10.1",
     “state” “free”
 }
 
@@ -551,23 +551,23 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "activated"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "activated"
     }
   ]
@@ -575,23 +575,23 @@ Body:
 
 Response:
 {
-  "ip_addr_requests": [
+  "ip_requests": [
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.28",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.28",
       "state": "free"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.29",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.29",
       "state": "free"
     },
     {
 	  "ip_version": 4, 
-      "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip_addr": "11.11.11.24",
+      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+      "ip": "11.11.11.24",
       "state": "free"
     }
   ]
@@ -617,25 +617,29 @@ http://127.0.0.1:8080/ips/range
 Body:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”
 }
 
 Response:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
 anchor:IP_Range_Put[]
-**(12) Remove IP Range by Subnet Id**
+**(12) Remove IP Range by Range Id**
 
 * Method: `PUT`
-* Request: `/ips/range/{subnet_id}`
+* Request: `/ips/range/{range_id}`
 * Request Parameter:
 * Response: `ip range`
 * Normal response codes: 200
@@ -651,20 +655,23 @@ http://127.0.0.1:8080/ips/range/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
 Response:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "10.10.10.1",
-    “last_addr” “10.10.10.254”
+    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
 anchor:IP_Range_Get[]
-**(13) Get IP range by Subnet Id**
+**(13) Get IP range by Range Id**
 
 * Method: `GET`
 
 * Request: `/ips/range`
 
-* Request Parameter: `@PathVariable String subnetId`
+* Request Parameter: `@PathVariable String rangeId`
 
 * Response: ip range
 * Normal response codes: 200
@@ -674,14 +681,17 @@ anchor:IP_Range_Get[]
 
 ....
 Request:
-http://127.0.0.1:8080/ips/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+http://127.0.0.1:8080/ips/range/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
 
 Response:
 {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "11.11.11.1",
-    "last_addr": "11.11.11.254"
+    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_ip": "10.10.10.1",
+    “last_ip” “10.10.10.254”,
+	"used_ips": 0,
+    "total_ips": 254
 }
 
 ....
@@ -708,15 +718,21 @@ Response:
 [
   {
     "ip_version": 4, 
-    "subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "11.11.11.1",
-    "last_addr": "11.11.11.254"
+    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
+    "first_ip": "11.11.11.1",
+    "last_ip": "11.11.11.254"
+	"used_ips": 0,
+    "total_ips": 5	
   },
   {
     "ip_version": 4, 
-    "subnet_id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
-    "first_addr": "12.12.12.1",
-    "last_addr": "12.12.12.254"
+    "id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
+	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcac",
+    "first_ip": "12.12.12.1",
+    "last_ip": "12.12.12.254"
+	"used_ips": 0,
+    "total_ips": 5	
   }
 ]
 
@@ -744,17 +760,17 @@ One IP address falls into one of three states:
 
 There are multiple instances of private_ip_manager, and multiple instances may assign ip addresses from the same ip range at the same time. In order to ensure the uniqueness of the assigned ip addresses, we use transaction to ensure that the process of ip address allocation is mutually exclusive. The following is a code snippet for assigning an ip address:
 ....
-public synchronized String allocateIpAddr(String subnetId) throws Exception {
+public synchronized String allocateIpAddr(String rangeId) throws Exception {
 	String ipAddr;
 
 	try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-		IpAddrRange ipAddrRange = ipAddrRangeCache.get(subnetId);
+		IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
 		if (ipAddrRange == null) {
-			throw new SubnetNotFoundException();
+			throw new RangeNotFoundException();
 		}
 
 		ipAddr = ipAddrRange.allocate();
-		ipAddrRangeCache.put(ipAddrRange.getSubnetId(), ipAddrRange);
+		ipAddrRangeCache.put(ipAddrRange.getRangeId(), ipAddrRange);
 
 		tx.commit();
 	}
