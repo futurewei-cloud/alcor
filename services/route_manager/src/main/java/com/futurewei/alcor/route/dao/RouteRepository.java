@@ -1,14 +1,14 @@
 package com.futurewei.alcor.route.dao;
 
-import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.common.repo.ICache;
-import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.common.service.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.route.entity.RouteState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ConditionalOnBean(CacheFactory.class)
+@ComponentScan(value="com.futurewei.alcor.common.db")
 public class RouteRepository implements ICacheRepository<RouteState> {
     private static final Logger logger = LoggerFactory.getLogger();
 

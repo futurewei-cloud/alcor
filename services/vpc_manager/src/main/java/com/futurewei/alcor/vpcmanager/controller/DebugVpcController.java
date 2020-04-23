@@ -16,10 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.controller;
 
-import com.futurewei.alcor.common.repo.Transaction;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.common.exception.*;
-import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
