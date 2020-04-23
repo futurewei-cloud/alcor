@@ -51,7 +51,7 @@ public class SubnetState extends CustomerResource {
     private List<RouteWebObject> routes;
 
     @JsonProperty("mac_address")
-    private String macAddress;
+    private String gatewayMacAddress;
 
     @JsonProperty("dns_list")
     private List<String> dnsList;
@@ -69,8 +69,8 @@ public class SubnetState extends CustomerResource {
         this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null, null, null, null, null);
     }
 
-    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp, String macAddress) {
-        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, macAddress, null, null);
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp, String gatewayMacAddress) {
+        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, gatewayMacAddress, null, null);
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
@@ -83,11 +83,11 @@ public class SubnetState extends CustomerResource {
 
     public SubnetState(SubnetState state) {
         this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
-                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList(), state.getMacAddress(), state.getIpV4RangeId(), state.getIpV6RangeId());
+                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList(), state.getGatewayMacAddress(), state.getIpV4RangeId(), state.getIpV6RangeId());
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String description, String availabilityZone,
-                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes,List<String> dnsList, String macAddress, String ipV4RangeId, String ipV6RangeId) {
+                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes, List<String> dnsList, String gatewayMacAddress, String ipV4RangeId, String ipV6RangeId) {
 
         super(projectId, id, name, description);
 
@@ -99,7 +99,7 @@ public class SubnetState extends CustomerResource {
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
         this.routes = routes;
-        this.macAddress = macAddress;
+        this.gatewayMacAddress = gatewayMacAddress;
         this.dnsList = (dnsList == null ? null : new ArrayList<>(dnsList));
         this.ipV4RangeId = ipV4RangeId;
         this.ipV6RangeId = ipV6RangeId;
@@ -177,12 +177,12 @@ public class SubnetState extends CustomerResource {
         this.routes = routes;
     }
 
-    public String getMacAddress() {
-        return macAddress;
+    public String getGatewayMacAddress() {
+        return gatewayMacAddress;
     }
 
-    public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
+    public void setGatewayMacAddress(String gatewayMacAddress) {
+        this.gatewayMacAddress = gatewayMacAddress;
     }
 
     public String getIpV4RangeId() {

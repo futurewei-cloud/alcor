@@ -177,7 +177,7 @@ public class SubnetController {
 
             MacState macState = macResponse.getMacState();
             if (macState != null) {
-                inSubnetState.setMacAddress(macState.getMacAddress());
+                inSubnetState.setGatewayMacAddress(macState.getMacAddress());
             }
             inSubnetState.setGatewayIp(ipResponse.getIp());
             if (ipResponse.getIpVersion() == 4) {
