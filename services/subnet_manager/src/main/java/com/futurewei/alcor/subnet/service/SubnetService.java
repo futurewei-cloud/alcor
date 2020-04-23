@@ -14,11 +14,12 @@ public interface SubnetService {
     public void macFallback (String macAddress);
 
     // Ip gateway Fallback
-    public void ipFallback (String ipGateway);
+    public void ipFallback (int ipVersion, String rangeId, String ipAddr);
 
     // Fallback operation
     public void fallbackOperation (AtomicReference<RouteWebJson> routeResponseAtomic,
                                    AtomicReference<MacStateJson> macResponseAtomic,
+                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
                                    SubnetStateJson resource,
                                    String message);
 
@@ -32,6 +33,6 @@ public interface SubnetService {
     public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId) throws Exception;
 
     // TODO : Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
-    public IPStateJson allocateIPGateway (String subnetId, String cidr, String portId) throws Exception;
+    public IpAddrRequest allocateIPGateway (String subnetId) throws Exception;
 
 }

@@ -50,31 +50,44 @@ public class SubnetState extends CustomerResource {
     @JsonProperty("routes")
     private List<RouteWebObject> routes;
 
+    @JsonProperty("mac_address")
+    private String macAddress;
+
     @JsonProperty("dns_list")
     private List<String> dnsList;
+
+    @JsonProperty("ipv4_range_id")
+    private String ipV4RangeId;
+
+    @JsonProperty("ipv6_range_id")
+    private String ipV6RangeId;
 
     public SubnetState() {
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr) {
-        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null, null);
+        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null, null, null, null, null);
+    }
+
+    public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp, String macAddress) {
+        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, macAddress, null, null);
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
-        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, routes, null);
+        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, routes, null, null, null, null);
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp) {
-        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null);
+        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, null, null, null);
     }
 
     public SubnetState(SubnetState state) {
         this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
-                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList());
+                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList(), state.getMacAddress(), state.getIpV4RangeId(), state.getIpV6RangeId());
     }
 
     public SubnetState(String projectId, String vpcId, String id, String name, String cidr, String description, String availabilityZone,
-                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes,List<String> dnsList) {
+                       String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes,List<String> dnsList, String macAddress, String ipV4RangeId, String ipV6RangeId) {
 
         super(projectId, id, name, description);
 
@@ -86,7 +99,10 @@ public class SubnetState extends CustomerResource {
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
         this.routes = routes;
+        this.macAddress = macAddress;
         this.dnsList = (dnsList == null ? null : new ArrayList<>(dnsList));
+        this.ipV4RangeId = ipV4RangeId;
+        this.ipV6RangeId = ipV6RangeId;
     }
 
     public String getVpcId() {
@@ -159,5 +175,29 @@ public class SubnetState extends CustomerResource {
 
     public void setRoutes(List<RouteWebObject> routes) {
         this.routes = routes;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getIpV4RangeId() {
+        return ipV4RangeId;
+    }
+
+    public void setIpV4RangeId(String ipV4RangeId) {
+        this.ipV4RangeId = ipV4RangeId;
+    }
+
+    public String getIpV6RangeId() {
+        return ipV6RangeId;
+    }
+
+    public void setIpV6RangeId(String ipV6RangeId) {
+        this.ipV6RangeId = ipV6RangeId;
     }
 }

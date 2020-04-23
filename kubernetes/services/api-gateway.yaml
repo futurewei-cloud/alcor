@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         #- image: fwnetworking/controller:api_gateway-v0.3.0
-        - image: zhonghaolyu/repo:apiKube8
+        - image: zhonghaolyu/repo:apiKube10
           name: apimanager-web
           imagePullPolicy: IfNotPresent
           ports:
