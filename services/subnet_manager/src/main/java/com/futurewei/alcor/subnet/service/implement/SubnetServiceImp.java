@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -56,18 +58,20 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
-    public void ipFallback(String ipGateway) {
-        String ipManagerServiceUrl = ipUrl + ipGateway;
+    public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
+        String ipManagerServiceUrl = ipUrl + ipVersion + rangeId + ipAddr;
         restTemplate.delete(ipManagerServiceUrl, ResponseId.class);
     }
 
     @Override
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
+                                  AtomicReference<IpAddrRequest> ipResponseAtomic,
                                   SubnetStateJson resource,
                                   String message) {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
+        IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
         logger.error(message);
 
         // Subnet fallback
@@ -89,6 +93,13 @@ public class SubnetServiceImp implements SubnetService {
             this.macFallback(macResponse.getMacState().getMacAddress());
         }
         logger.info("Mac fallback end");
+
+        // IP fallback
+        logger.info("IP fallback start");
+        if (ipResponse != null) {
+            this.ipFallback(ipResponse.getIpVersion(), ipResponse.getRangeId(), ipResponse.getIp());
+        }
+        logger.info("IP fallback end");
     }
 
     @Override
@@ -137,22 +148,52 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IPStateJson allocateIPGateway(String subnetId, String cidr, String portId) throws FallbackException {
-        IPState ipState = new IPState();
-        ipState.setSubnetId(subnetId);
-        ipState.setPortId(portId);
-        ipState.setSubnetCidr(cidr);
-
+    public IpAddrRequest allocateIPGateway(String subnetId) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
-        HttpEntity<IPStateJson> ipRequest = new HttpEntity<>(new IPStateJson(ipState));
-        IPStateJson ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+        String ipManagerCreateRangeUrl = ipUrl + "range";
+        String ipAddressRangeId = UUID.randomUUID().toString();
+
+        // Create Ip Address Range
+        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest();
+        ipAddrRangeRequest.setId(ipAddressRangeId);
+        ipAddrRangeRequest.setSubnetId(subnetId);
+
+
+        HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
+                ipAddrRangeRequest.getId(),
+                ipAddrRangeRequest.getSubnetId(),
+                ipAddrRangeRequest.getIpVersion(),
+                ipAddrRangeRequest.getFirstIp(),
+                ipAddrRangeRequest.getLastIp()));
+        IpAddrRangeRequest ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+        // retry if ipRangeResponse is null
+        if (ipRangeResponse == null) {
+            ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+        }
+        if (ipRangeResponse == null) {
+            throw new FallbackException("fallback request");
+        }
+
+        // Allocate Ip Address
+        IpAddrRequest ipAddrRequest = new IpAddrRequest();
+        ipAddrRequest.setRangeId(ipRangeResponse.getId());
+        ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+
+        HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
+                ipAddrRequest.getIpVersion(),
+                ipAddrRequest.getRangeId(),
+                ipAddrRequest.getIp(),
+                ipAddrRequest.getState()));
+        IpAddrRequest ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
         // retry if ipResponse is null
         if (ipResponse == null) {
-            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IPStateJson.class);
+            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
         }
         if (ipResponse == null) {
             throw new FallbackException("fallback request");
         }
+
+
         return ipResponse;
     }
 }

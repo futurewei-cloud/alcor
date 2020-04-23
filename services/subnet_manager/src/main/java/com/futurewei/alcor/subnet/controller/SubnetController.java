@@ -88,8 +88,10 @@ public class SubnetController {
         SubnetState subnetState = null;
         RouteWebJson routeResponse = null;
         MacStateJson macResponse = null;
+        IpAddrRequest ipResponse = null;
         AtomicReference<RouteWebJson> routeResponseAtomic = new AtomicReference<>();
         AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
+        AtomicReference<IpAddrRequest> ipResponseAtomic = new AtomicReference<>();
         String portId = UUID.randomUUID().toString();
 
         try {
@@ -143,25 +145,46 @@ public class SubnetController {
             });
 
 
-            // Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
-//            IPStateJson ipResponse = this.subnetService.allocateIPGateway(inSubnetState.getId(), inSubnetState.getCidr(), portId);
-//            if (ipResponse == null) {
-//                throw new ResourcePersistenceException();
-//            }
+            // Verify/Allocate Gateway IP
+            CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.allocateIPGateway(subnetId);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+                ipResponseAtomic.set(s);
+                if (e != null) {
+                    throw new CompletionException(e);
+                }
+                return s;
+            });
 
             // Synchronous blocking
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
             allFuture.join();
 
             macResponse = macFuture.join();
             routeResponse = routeFuture.join();
+            ipResponse = ipFuture.join();
+
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
             List<RouteWebObject> routes = new ArrayList<>();
             routes.add(routeResponse.getRoute());
             inSubnetState.setRoutes(routes);
-            //subnetState.setGatewayIp(ipResponse.getIpState().getIp());
+
+            MacState macState = macResponse.getMacState();
+            if (macState != null) {
+                inSubnetState.setMacAddress(macState.getMacAddress());
+            }
+            inSubnetState.setGatewayIp(ipResponse.getIp());
+            if (ipResponse.getIpVersion() == 4) {
+                inSubnetState.setIpV4RangeId(ipResponse.getRangeId());
+            }else if (ipResponse.getIpVersion() == 6) {
+                inSubnetState.setIpV6RangeId(ipResponse.getRangeId());
+            }
 
             this.subnetDatabaseService.addSubnet(inSubnetState);
 
@@ -173,10 +196,10 @@ public class SubnetController {
             return new SubnetStateJson(inSubnetState);
 
         } catch (CompletionException e) {
-            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (DatabasePersistenceException e) {
-            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, resource, e.getMessage());
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
