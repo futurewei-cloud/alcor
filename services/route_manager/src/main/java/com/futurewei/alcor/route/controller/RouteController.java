@@ -18,7 +18,7 @@ package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.route.dao.RouteRedisRepository;
+import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.entity.RouteState;
 import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
@@ -39,7 +39,7 @@ public class RouteController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private RouteRedisRepository routeRedisRepository;
+    private RouteRepository routeRepository;
 
     @RequestMapping(
             method = GET,
@@ -52,7 +52,7 @@ public class RouteController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
 
-            routeState = this.routeRedisRepository.findItem(routeId);
+            routeState = this.routeRepository.findItem(routeId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -87,7 +87,7 @@ public class RouteController {
             routeState = new RouteState(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
-            this.routeRedisRepository.addItem(routeState);
+            this.routeRepository.addItem(routeState);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
