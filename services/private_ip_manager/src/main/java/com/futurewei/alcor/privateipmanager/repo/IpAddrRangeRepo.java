@@ -38,7 +38,7 @@ import java.util.*;
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
-public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
+public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrRangeRepo.class);
     private ICache<String, IpAddrRange> ipAddrRangeCache;
 

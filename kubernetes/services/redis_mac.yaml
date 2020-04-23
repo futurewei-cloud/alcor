@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-mac-sr
+  labels:
+    name: redis-mac
+spec:
+  ports:
+    - port: 6381
+      targetPort: 6379
+  selector:
+    app: redis-mac
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis-mac
+  name: redis-mac
+spec:
+  selector:
+    matchLabels:
+      app: redis-mac
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-mac
+    spec:
+      containers:
+        - image: redis
+        #- image: fwnetworking/controller:redis
+          name: redis-mac
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
