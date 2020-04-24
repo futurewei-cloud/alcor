@@ -24,6 +24,8 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
+import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
 import com.futurewei.alcor.vpcmanager.entity.RouteWebObject;
@@ -45,12 +47,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class VpcController {
 
     @Autowired
-    private VpcRepository vpcRepository;
+    private VpcDatabaseService vpcDatabaseService;
 
-    @Value("${microservices.route.service.url}")
-    private String routeUrl;
-
-    private RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private VpcService vpcService;
 
     @RequestMapping(
             method = GET,
@@ -64,7 +64,7 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -92,17 +92,15 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
-            this.vpcRepository.addItem(inVpcState);
+            this.vpcDatabaseService.addVpc(inVpcState);
 
-            vpcState = this.vpcRepository.findItem(inVpcState.getId());
+            vpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
 
-            //String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
-            String routeManagerServiceUrl = routeUrl + vpcState.getId() + "/routes";
-            HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
-            RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
+            // get route info
+            RouteWebJson response = this.vpcService.getRoute(vpcState.getId(), vpcState);
 
             // add RouteWebObject
             if (response != null) {
@@ -113,7 +111,7 @@ public class VpcController {
                 routeWebObjectList.add(response.getRoute());
                 vpcState.setRoutes(routeWebObjectList);
             }
-            this.vpcRepository.addItem(vpcState);
+            this.vpcDatabaseService.addVpc(vpcState);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -140,14 +138,14 @@ public class VpcController {
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcRepository.addItem(inVpcState);
+            this.vpcDatabaseService.addVpc(inVpcState);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -167,12 +165,12 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (vpcState == null) {
                 return new ResponseId();
             }
 
-            vpcRepository.deleteItem(vpcid);
+            vpcDatabaseService.deleteVpc(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
@@ -190,7 +188,7 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcStates = this.vpcRepository.findAllItems();
+            vpcStates = this.vpcDatabaseService.getAllVpcs();
             vpcStates = vpcStates.entrySet().stream()
                     .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId()))
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));

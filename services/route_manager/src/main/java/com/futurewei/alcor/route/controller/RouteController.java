@@ -22,6 +22,7 @@ import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.entity.RouteState;
 import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
+import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class RouteController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private RouteRepository routeRepository;
+    private RouteDatabaseService routeDatabaseService;
 
     @RequestMapping(
             method = GET,
@@ -52,7 +53,7 @@ public class RouteController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
 
-            routeState = this.routeRepository.findItem(routeId);
+            routeState = this.routeDatabaseService.getByRouteId(routeId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -87,7 +88,7 @@ public class RouteController {
             routeState = new RouteState(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
-            this.routeRepository.addItem(routeState);
+            this.routeDatabaseService.addRoute(routeState);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
@@ -116,7 +117,7 @@ public class RouteController {
             routeState = new RouteState(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
-            this.routeRedisRepository.addItem(routeState);
+            this.routeDatabaseService.addRoute(routeState);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
@@ -134,12 +135,12 @@ public class RouteController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
 
-            routeState = this.routeRedisRepository.findItem(routeId);
+            routeState = this.routeDatabaseService.getByRouteId(routeId);
             if (routeState == null) {
                 return new ResponseId();
             }
 
-            this.routeRedisRepository.deleteItem(routeId);
+            this.routeDatabaseService.deleteRoute(routeId);
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
             throw new Exception(e);
