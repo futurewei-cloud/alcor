@@ -48,7 +48,7 @@ public class SubnetControllerTests {
     private SubnetService subnetService;
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
-    private String creatwUri = "/project/" + UnitTestConfig.projectId + "/subnets";
+    private String createUri = "/project/" + UnitTestConfig.projectId + "/subnets";
     private String getByProjectIdAndVpcIdUri = "/project/" + UnitTestConfig.projectId + "/subnets";
     private String deleteUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
     private String putUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
@@ -100,7 +100,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetService.allocateIPGateway(anyString()))
                 .thenReturn(ipAddrRequest);
 
-        this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+        this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -133,7 +133,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -170,7 +170,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -207,7 +207,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -246,7 +246,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
                 .thenThrow(new FallbackException("fallback request"));
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))

@@ -44,7 +44,7 @@ public class VpcControllerTests {
     private VpcService vpcService;
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId;
-    private String creatwUri = "/project/" + UnitTestConfig.projectId + "/vpcs";
+    private String createUri = "/project/" + UnitTestConfig.projectId + "/vpcs";
 
     @Test
     public void vpcGetById_canFindVpc_pass () throws Exception {
