@@ -23,6 +23,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 public class DebugVpcController {
     @Autowired(required = false)
-    private VpcRepository vpcRepository;
+    private VpcDatabaseService vpcDatabaseService;
 
     @RequestMapping(
             method = GET,
@@ -50,7 +51,7 @@ public class DebugVpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -69,7 +70,7 @@ public class DebugVpcController {
             value = "/debug/project/all/vpcs")
     public Map getVpcCountAndAllVpcStates() throws CacheException {
         Map result = new HashMap<String, Object>();
-        Map dataItems = vpcRepository.findAllItems();
+        Map dataItems = vpcDatabaseService.getAllVpcs();
         result.put("Count", dataItems.size());
         result.put("Vpcs", dataItems);
 
@@ -81,7 +82,7 @@ public class DebugVpcController {
             value = "/debug/project/all/vpccount")
     public Map getVpcCount() throws CacheException {
         Map result = new HashMap<String, Object>();
-        Map dataItems = vpcRepository.findAllItems();
+        Map dataItems = vpcDatabaseService.getAllVpcs();
         result.put("Count", dataItems.size());
 
         return result;
@@ -101,11 +102,11 @@ public class DebugVpcController {
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
-            Transaction transaction = this.vpcRepository.getCache().getTransaction();
+            Transaction transaction = this.vpcDatabaseService.getCache().getTransaction();
             transaction.start();
 
-            this.vpcRepository.addItem(inVpcState);
-            vpcState = this.vpcRepository.findItem(inVpcState.getId());
+            this.vpcDatabaseService.addVpc(inVpcState);
+            vpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
 
             transaction.commit();
 
@@ -137,14 +138,14 @@ public class DebugVpcController {
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcRepository.addItem(inVpcState);
+            this.vpcDatabaseService.addVpc(inVpcState);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -164,12 +165,12 @@ public class DebugVpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRepository.findItem(vpcid);
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (vpcState == null) {
                 return new ResponseId();
             }
 
-            vpcRepository.deleteItem(vpcid);
+            vpcDatabaseService.deleteVpc(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
