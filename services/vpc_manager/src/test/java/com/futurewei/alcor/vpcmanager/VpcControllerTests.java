@@ -10,6 +10,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
+import com.futurewei.alcor.vpcmanager.entity.RouteWebObject;
 import com.futurewei.alcor.vpcmanager.entity.VpcState;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
@@ -22,11 +23,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -45,6 +51,9 @@ public class VpcControllerTests {
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId;
     private String createUri = "/project/" + UnitTestConfig.projectId + "/vpcs";
+    private String updateUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId;
+    private String deleteUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId;
+    private String getByProjectIdUri = "/project/" + UnitTestConfig.projectId + "/vpcs";
 
     @Test
     public void vpcGetById_canFindVpc_pass () throws Exception {
@@ -78,11 +87,105 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcState.class)))
                 .thenReturn(routeWebJson);
-        this.mockMvc.perform(get(getByIdUri))
+        this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                .andDo(print())
+                .andExpect(status().is(201))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.vpc.id").value(UnitTestConfig.vpcId));
+    }
+
+    @Test
+    public void createVpcState_canNotFindRoute_notPass () throws Exception {
+        List<RouteWebObject> routeWebObjectList = new ArrayList<>();
+        RouteWebObject routeWebObject = new RouteWebObject();
+        routeWebObject.setDestination(UnitTestConfig.cidr);
+        routeWebObjectList.add(routeWebObject);
+
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcState(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, routeWebObjectList));
+        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcState.class)))
+                .thenReturn(null);
+
+        try {
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                    .andDo(print())
+                    .andExpect(status().is(201))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.vpc.routes[0].destination").value(UnitTestConfig.cidr));
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void updateVpcStateByVpcId_noUpdate_pass () throws Exception {
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcState(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
+        this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.vpc.id").value(UnitTestConfig.vpcId));
+    }
 
+    @Test
+    public void updateVpcStateByVpcId_update_pass () throws Exception {
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcState(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null))
+                .thenReturn(new VpcState(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.updateName,
+                        UnitTestConfig.cidr, null));
+        this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.vpc.name").value(UnitTestConfig.updateName));
+    }
+
+    @Test
+    public void deleteVpcStateByVpcId_deleteWhenIdExist_pass () throws Exception {
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcState(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
+        this.mockMvc.perform(delete(deleteUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.vpcId));
+    }
+
+    @Test
+    public void deleteVpcStateByVpcId_deleteWhenIdNotExist_pass () throws Exception {
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(null);
+        String response = this.mockMvc.perform(delete(deleteUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        System.out.println("-----json returned = " + response);
+        assertEquals("{\"id\":null}", response);
+    }
+
+    @Test
+    public void getVpcStatesByProjectId_getMap_pass () throws Exception {
+        Map<String, VpcState> vpcStates = new HashMap<>();
+        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.name,
+                UnitTestConfig.cidr, null);
+        vpcStates.put("VpcState", vpcState);
+        Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
+        this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getVpcStatesByProjectId_getEmptyMap_pass () throws Exception {
+        Map<String, VpcState> vpcStates = new HashMap<>();
+        Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
+        this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Before
