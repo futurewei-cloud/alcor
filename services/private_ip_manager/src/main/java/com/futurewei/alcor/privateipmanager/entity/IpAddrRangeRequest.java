@@ -105,4 +105,17 @@ public class IpAddrRangeRequest {
     public void setTotalIps(long totalIps) {
         this.totalIps = totalIps;
     }
+
+    @Override
+    public String toString() {
+        return "IpAddrRangeRequest{" +
+                "id='" + id + '\'' +
+                ", subnetId='" + subnetId + '\'' +
+                ", ipVersion=" + ipVersion +
+                ", firstIp='" + firstIp + '\'' +
+                ", lastIp='" + lastIp + '\'' +
+                ", usedIps=" + usedIps +
+                ", totalIps=" + totalIps +
+                '}';
+    }
 }
