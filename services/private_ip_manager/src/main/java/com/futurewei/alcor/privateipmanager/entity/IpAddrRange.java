@@ -209,4 +209,19 @@ public class IpAddrRange {
     public void setTotalIps(int totalIps) {
         this.totalIps = totalIps;
     }
+
+    @Override
+    public String toString() {
+        return "IpAddrRange{" +
+                "id='" + id + '\'' +
+                ", subnetId='" + subnetId + '\'' +
+                ", ipVersion=" + ipVersion +
+                ", firstIp='" + firstIp + '\'' +
+                ", lastIp='" + lastIp + '\'' +
+                ", usedIps=" + usedIps +
+                ", totalIps=" + totalIps +
+                ", allocator=" + allocator +
+                ", allocated=" + allocated +
+                '}';
+    }
 }

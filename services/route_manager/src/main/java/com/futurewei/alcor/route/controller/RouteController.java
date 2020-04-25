@@ -16,23 +16,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.route.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.entity.RouteState;
 import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class RouteController {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RouteRepository routeRepository;
@@ -91,4 +95,56 @@ public class RouteController {
         return new RouteStateJson(routeState);
     }
 
+    @RequestMapping(
+            method = POST,
+            value = {"/subnets/{subnetId}/routes"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public RouteStateJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetStateJson resource) throws Exception {
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
+            SubnetState inSubnetState = resource.getSubnet();
+            RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
+
+            String id = UUID.randomUUID().toString();
+            String projectId = inSubnetState.getProjectId();
+            String destination = inSubnetState.getCidr();
+            String routeTableId = UUID.randomUUID().toString();
+
+            routeState = new RouteState(projectId, id, "default_route_rule", "",
+                    destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
+
+            this.routeRepository.addItem(routeState);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new RouteStateJson(routeState);
+    }
+
+    @RequestMapping(
+            method = DELETE,
+            value = {"/vpcs/{vpcId}/routes/{routeId}"})
+    public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
+
+            routeState = this.routeRepository.findItem(routeId);
+            if (routeState == null) {
+                return new ResponseId();
+            }
+
+            this.routeRepository.deleteItem(routeId);
+        } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+        logger.info("delete successfully —— id: " + routeId);
+        return new ResponseId(routeId);
+    }
 }

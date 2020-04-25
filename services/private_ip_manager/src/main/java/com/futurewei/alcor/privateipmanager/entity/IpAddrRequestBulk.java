@@ -38,4 +38,11 @@ public class IpAddrRequestBulk {
     public void setIpRequests(List<IpAddrRequest> ipRequests) {
         this.ipRequests = ipRequests;
     }
+
+    @Override
+    public String toString() {
+        return "IpAddrRequestBulk{" +
+                "ipRequests=" + ipRequests +
+                '}';
+    }
 }

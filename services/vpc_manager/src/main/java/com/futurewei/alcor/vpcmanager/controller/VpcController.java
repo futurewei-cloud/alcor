@@ -28,6 +28,7 @@ import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
 import com.futurewei.alcor.vpcmanager.entity.RouteWebObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,9 @@ public class VpcController {
 
     @Autowired
     private VpcRepository vpcRepository;
+
+    @Value("${microservices.route.service.url}")
+    private String routeUrl;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -95,8 +99,8 @@ public class VpcController {
                 throw new ResourcePersistenceException();
             }
 
-            String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
-            //String routeManagerServiceUrl = "http://192.168.137.1:8081/vpcs/" + vpcState.getId() + "/routes"; // for docker test
+            //String routeManagerServiceUrl = "http://192.168.1.17:30003/vpcs/" + vpcState.getId() + "/routes"; // for kubernetes test
+            String routeManagerServiceUrl = routeUrl + vpcState.getId() + "/routes";
             HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
             RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
 

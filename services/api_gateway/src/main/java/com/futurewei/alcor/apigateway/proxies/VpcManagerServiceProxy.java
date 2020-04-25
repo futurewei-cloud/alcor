@@ -30,19 +30,19 @@ import java.util.UUID;
 @Service
 public class VpcManagerServiceProxy {
 
-    private VpcWebDestinations vpcWebDestinations;
+    private VpcWebDestinations webDestinations;
 
     private WebClient webClient;
 
-    public VpcManagerServiceProxy(VpcWebDestinations destinations, WebClient client) {
-        this.vpcWebDestinations = destinations;
-        this.webClient = client;
+    public VpcManagerServiceProxy(VpcWebDestinations destinations, WebClient vpcManagerWebClient) {
+        this.webDestinations = destinations;
+        this.webClient = vpcManagerWebClient;
     }
 
     public Mono<VpcWebJson> findVpcById(String projectId, String vpcId) {
         Mono<ClientResponse> response = webClient
                 .get()
-                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs/{vpcId}", projectId, vpcId)
+                .uri(webDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs/{vpcId}", projectId, vpcId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -59,7 +59,7 @@ public class VpcManagerServiceProxy {
     public Mono<VpcWebJson> createVpc(UUID projectId, Mono<VpcWebJson> newVpcJson) {
         Mono<ClientResponse> response = webClient
                 .post()
-                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs", projectId)
+                .uri(webDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs", projectId)
                 .body(newVpcJson, VpcWebJson.class)
                 .exchange();
         return response.flatMap(resp -> {
@@ -77,7 +77,7 @@ public class VpcManagerServiceProxy {
     public Mono<ResponseId> deleteVpcById(String projectId, String vpcId) {
         Mono<ClientResponse> response = webClient
                 .delete()
-                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs/{vpcId}", projectId, vpcId)
+                .uri(webDestinations.getVpcManagerServiceUrl() + "/project/{projectId}/vpcs/{vpcId}", projectId, vpcId)
                 .exchange();
         return response.flatMap(resp -> {
             switch (resp.statusCode()) {
@@ -94,7 +94,7 @@ public class VpcManagerServiceProxy {
     public Mono<String> getHealthStatus() {
         Mono<ClientResponse> healthStatusResponse = webClient
                 .get()
-                .uri(vpcWebDestinations.getVpcManagerServiceUrl() + "/actuator/health")
+                .uri(webDestinations.getVpcManagerServiceUrl() + "/actuator/health")
                 .exchange();
         return healthStatusResponse.flatMap(resp -> {
             switch (resp.statusCode()) {

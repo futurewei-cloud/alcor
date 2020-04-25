@@ -32,4 +32,11 @@ public enum  IpVersion {
     public void setVersion(int version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "IpVersion{" +
+                "version=" + version +
+                '}';
+    }
 }

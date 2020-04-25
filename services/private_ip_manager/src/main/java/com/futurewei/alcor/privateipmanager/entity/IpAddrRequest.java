@@ -71,4 +71,14 @@ public class IpAddrRequest {
     public void setState(String state) {
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "IpAddrRequest{" +
+                "ipVersion=" + ipVersion +
+                ", rangeId='" + rangeId + '\'' +
+                ", ip='" + ip + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

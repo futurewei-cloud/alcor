@@ -64,4 +64,14 @@ public class IpAddrAlloc {
     public void setState(String state) {
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "IpAddrAlloc{" +
+                "ipVersion=" + ipVersion +
+                ", rangeId='" + rangeId + '\'' +
+                ", ipAddr='" + ipAddr + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }
