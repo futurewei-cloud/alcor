@@ -14,12 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.route.config;
+package com.futurewei.alcor.subnet.config;
 
-import com.futurewei.alcor.common.repo.ICachePublisher;
 import com.futurewei.alcor.common.service.RedisListener;
-import com.futurewei.alcor.route.entity.RouteState;
-import com.futurewei.alcor.route.service.RedisPublisher;
+import com.futurewei.alcor.subnet.entity.SubnetState;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +34,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ComponentScan({"com.futurewei.alcor.route.service", "com.futurewei.alcor.common.service"})
-@EntityScan({"com.futurewei.alcor.route.entity}", "com.futurewei.alcor.common.entity"})
+@ComponentScan({"com.futurewei.alcor.subnet.service", "com.futurewei.alcor.common.service"})
+@EntityScan({"com.futurewei.alcor.subnet.entity}", "com.futurewei.alcor.common.entity"})
 public class RedisConfiguration {
 
     @Value("${spring.redis.host}")
@@ -53,16 +52,18 @@ public class RedisConfiguration {
         return new LettuceConnectionFactory(configuration);
     }
 
+
     @Bean
-    public RedisTemplate<String, RouteState> redisRouteTemplate() {
-        final RedisTemplate<String, RouteState> template = new RedisTemplate<String, RouteState>();
+    public RedisTemplate<String, SubnetState> redisSubnetTemplate() {
+        final RedisTemplate<String, SubnetState> template = new RedisTemplate<String, SubnetState>();
         template.setConnectionFactory(lettuceConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(new Jackson2JsonRedisSerializer<RouteState>(RouteState.class));
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<RouteState>(RouteState.class));
+        template.setHashValueSerializer(new Jackson2JsonRedisSerializer<SubnetState>(SubnetState.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<SubnetState>(SubnetState.class));
         return template;
     }
-    
+
+
     @Bean
     MessageListenerAdapter redisListenerInstance() {
         return new MessageListenerAdapter(new RedisListener());
@@ -74,11 +75,6 @@ public class RedisConfiguration {
         container.setConnectionFactory(lettuceConnectionFactory());
         container.addMessageListener(redisListenerInstance(), topic());
         return container;
-    }
-
-    @Bean
-    ICachePublisher redisVpcPublisherInstance() {
-        return new RedisPublisher(redisRouteTemplate(), topic());
     }
 
 //    @Bean

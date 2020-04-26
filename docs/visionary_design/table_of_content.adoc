@@ -17,6 +17,7 @@
 //*** xref:subnet_manager.adoc[Subnet Manager]
 //*** xref:port_manager.adoc[Port Manager]
 //*** xref:route_manager.adoc[Route Manager]
+*** xref:private_ip_manager.adoc[Private IP Manager]
 *** xref:mac_manager.adoc[Mac Manager]
 //*** xref:private_ip_manager.adoc[Private IP Manager]
 //*** Private IP Manager
