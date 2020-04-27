@@ -13,19 +13,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.nodemanager.dao.file;
 
-package com.futurewei.alcor.common.repo;
+public class DataCenterConfig {
 
-import com.futurewei.alcor.common.db.CacheException;
-import java.util.Map;
-
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException, ResourceNotFoundException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
 }

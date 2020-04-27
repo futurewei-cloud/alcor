@@ -1,5 +1,4 @@
-/*
-Copyright 2019 The Alcor Authors.
+/*Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -13,19 +12,30 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.nodemanager.entity;
 
-package com.futurewei.alcor.common.repo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-import com.futurewei.alcor.common.db.CacheException;
-import java.util.Map;
+@Data
+public class NodeInfoJson {
 
-public interface ICacheRepository<T> {
+    @JsonProperty("host_info")
+    private NodeInfo nodeInfo;
 
-    T findItem(String id) throws CacheException, ResourceNotFoundException;
+    public NodeInfoJson() {
 
-    Map<String, T> findAllItems() throws CacheException;
+    }
 
-    void addItem(T newItem) throws CacheException;
+    public NodeInfoJson(NodeInfo nodeInfo) {
+        this.nodeInfo = nodeInfo;
+    }
 
-    void deleteItem(String id) throws CacheException;
+    public NodeInfo getNodeInfo() {
+        return nodeInfo;
+    }
+
+    public void setNodeInfo(NodeInfo nodeInfo) {
+        this.nodeInfo = nodeInfo;
+    }
 }

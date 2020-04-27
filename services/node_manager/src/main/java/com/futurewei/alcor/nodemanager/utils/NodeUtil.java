@@ -1,5 +1,4 @@
-/*
-Copyright 2019 The Alcor Authors.
+/*Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -13,19 +12,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.nodemanager.utils;
 
-package com.futurewei.alcor.common.repo;
-
-import com.futurewei.alcor.common.db.CacheException;
-import java.util.Map;
-
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException, ResourceNotFoundException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+public class NodeUtil {
+    public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";
+    public static final String NODE_EXCEPTION_NODE_IP_INVALID = "Invalid ip address";
 }
