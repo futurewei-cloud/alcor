@@ -4,13 +4,14 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    spring.redis.host=10.109.127.248
+    spring.redis.host=10.107.92.164
     spring.redis.port=6379
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
+    microservices.route.service.url=http://192.168.1.17:30003/vpcs/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,7 +23,7 @@ spec:
   selector:
     matchLabels:
       app: vpcmanager
-  replicas: 2
+  replicas: 1
   #replicas: 3
   template:
     metadata:
@@ -37,8 +38,8 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        #- image: zhonghaolyu/repo:vpcKube4
-        - image: fwnetworking/controller:vpc_manager-v0.3.0
+        - image: zhonghaolyu/repo:vpcKube5
+        #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorVpcManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
