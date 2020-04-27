@@ -32,7 +32,10 @@ public interface SubnetService {
     // Allocate Gateway Mac
     public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId) throws Exception;
 
-    // TODO : Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
-    public IpAddrRequest allocateIPGateway (String subnetId) throws Exception;
+    // Verify/Allocate Gateway IP
+    public IpAddrRequest allocateIPGateway (String subnetId, String cidr) throws Exception;
+
+    // Transfer cidr to first IP and last IP
+    public String[] cidrToFirstIpAndLastIp (String cidr);
 
 }

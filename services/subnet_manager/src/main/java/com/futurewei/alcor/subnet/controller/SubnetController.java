@@ -102,6 +102,7 @@ public class SubnetController {
             SubnetState inSubnetState = resource.getSubnet();
             String subnetId = inSubnetState.getId();
             String vpcId = inSubnetState.getVpcId();
+            String cidr = inSubnetState.getCidr();
             RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectId);
 
@@ -148,7 +149,7 @@ public class SubnetController {
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateIPGateway(subnetId);
+                    return this.subnetService.allocateIPGateway(subnetId, cidr);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }

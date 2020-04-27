@@ -5,7 +5,8 @@ FROM openjdk:8
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
 # Route Manager process
-EXPOSE 9000
+#EXPOSE 9000
+EXPOSE 8080
 # ROute Manager admin process
 
 # Generate container image and run container

@@ -4,9 +4,11 @@ package com.futurewei.alcor.subnet.service.implement;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,15 +150,22 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIPGateway(String subnetId) throws FallbackException {
+    public IpAddrRequest allocateIPGateway(String subnetId, String cidr) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
 
         // Create Ip Address Range
+        String[] ips = cidrToFirstIpAndLastIp(cidr);
+        if (ips == null || ips.length != 2) {
+            throw new FallbackException("cidr transfer to first/last ip failed");
+        }
         IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest();
         ipAddrRangeRequest.setId(ipAddressRangeId);
         ipAddrRangeRequest.setSubnetId(subnetId);
+        ipAddrRangeRequest.setIpVersion(IpVersionConfig.IPV4.getVersion());
+        ipAddrRangeRequest.setFirstIp(ips[0]);
+        ipAddrRangeRequest.setLastIp(ips[1]);
 
 
         HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
@@ -195,5 +204,21 @@ public class SubnetServiceImp implements SubnetService {
 
 
         return ipResponse;
+    }
+
+    @Override
+    public String[] cidrToFirstIpAndLastIp(String cidr) {
+        if (cidr == null) {
+            return null;
+        }
+        SubnetUtils utils = new SubnetUtils(cidr);
+        String[] address = utils.getInfo().getAllAddresses();
+        if (address == null || address.length < 1) {
+
+        }
+        String[] res = new String[2];
+        res[0] = address[0];
+        res[1] = address[address.length - 1];
+        return res;
     }
 }
