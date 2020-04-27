@@ -1,0 +1,142 @@
+
+[[_definitions]]
+== Definitions
+
+[[_debuginfo]]
+=== DebugInfo
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**content** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|**Example** : `0`|integer(int64)
+|===
+
+
+[[_link]]
+=== Link
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**href** +
+__optional__|**Example** : `"string"`|string
+|**templated** +
+__optional__|**Example** : `true`|boolean
+|===
+
+
+[[_53d375507d198e9157717964970e1987]]
+=== Map«string,Link»
+__Type__ : < string, <<_link,Link>> > map
+
+
+[[_modelandview]]
+=== ModelAndView
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**empty** +
+__optional__|**Example** : `true`|boolean
+|**model** +
+__optional__|**Example** : `"object"`|object
+|**modelMap** +
+__optional__|**Example** : `{
+  "string" : "object"
+}`|< string, object > map
+|**reference** +
+__optional__|**Example** : `true`|boolean
+|**status** +
+__optional__|**Example** : `"string"`|enum (100 CONTINUE, 101 SWITCHING_PROTOCOLS, 102 PROCESSING, 103 CHECKPOINT, 200 OK, 201 CREATED, 202 ACCEPTED, 203 NON_AUTHORITATIVE_INFORMATION, 204 NO_CONTENT, 205 RESET_CONTENT, 206 PARTIAL_CONTENT, 207 MULTI_STATUS, 208 ALREADY_REPORTED, 226 IM_USED, 300 MULTIPLE_CHOICES, 301 MOVED_PERMANENTLY, 302 FOUND, 302 MOVED_TEMPORARILY, 303 SEE_OTHER, 304 NOT_MODIFIED, 305 USE_PROXY, 307 TEMPORARY_REDIRECT, 308 PERMANENT_REDIRECT, 400 BAD_REQUEST, 401 UNAUTHORIZED, 402 PAYMENT_REQUIRED, 403 FORBIDDEN, 404 NOT_FOUND, 405 METHOD_NOT_ALLOWED, 406 NOT_ACCEPTABLE, 407 PROXY_AUTHENTICATION_REQUIRED, 408 REQUEST_TIMEOUT, 409 CONFLICT, 410 GONE, 411 LENGTH_REQUIRED, 412 PRECONDITION_FAILED, 413 PAYLOAD_TOO_LARGE, 413 REQUEST_ENTITY_TOO_LARGE, 414 URI_TOO_LONG, 414 REQUEST_URI_TOO_LONG, 415 UNSUPPORTED_MEDIA_TYPE, 416 REQUESTED_RANGE_NOT_SATISFIABLE, 417 EXPECTATION_FAILED, 418 I_AM_A_TEAPOT, 419 INSUFFICIENT_SPACE_ON_RESOURCE, 420 METHOD_FAILURE, 421 DESTINATION_LOCKED, 422 UNPROCESSABLE_ENTITY, 423 LOCKED, 424 FAILED_DEPENDENCY, 426 UPGRADE_REQUIRED, 428 PRECONDITION_REQUIRED, 429 TOO_MANY_REQUESTS, 431 REQUEST_HEADER_FIELDS_TOO_LARGE, 451 UNAVAILABLE_FOR_LEGAL_REASONS, 500 INTERNAL_SERVER_ERROR, 501 NOT_IMPLEMENTED, 502 BAD_GATEWAY, 503 SERVICE_UNAVAILABLE, 504 GATEWAY_TIMEOUT, 505 HTTP_VERSION_NOT_SUPPORTED, 506 VARIANT_ALSO_NEGOTIATES, 507 INSUFFICIENT_STORAGE, 508 LOOP_DETECTED, 509 BANDWIDTH_LIMIT_EXCEEDED, 510 NOT_EXTENDED, 511 NETWORK_AUTHENTICATION_REQUIRED)
+|**view** +
+__optional__|**Example** : `"<<_view>>"`|<<_view,View>>
+|**viewName** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_responseid]]
+=== ResponseId
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_routewebobject]]
+=== RouteWebObject
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**associatedTableId** +
+__optional__|**Example** : `"string"`|string
+|**associatedType** +
+__optional__|**Example** : `"string"`|enum (MAIN, CUSTOM, GATEWAY)
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**destination** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|**Example** : `"string"`|string
+|**name** +
+__optional__|**Example** : `"string"`|string
+|**priority** +
+__optional__|**Example** : `0`|integer(int32)
+|**project_id** +
+__optional__|**Example** : `"string"`|string
+|**target** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_view]]
+=== View
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**contentType** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_vpcstate]]
+=== VpcState
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**cidr** +
+__optional__|**Example** : `"string"`|string
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|**Example** : `"string"`|string
+|**name** +
+__optional__|**Example** : `"string"`|string
+|**project_id** +
+__optional__|**Example** : `"string"`|string
+|**routes** +
+__optional__|**Example** : `[ "<<_routewebobject>>" ]`|< <<_routewebobject,RouteWebObject>> > array
+|===
+
+
+[[_vpcstatejson]]
+=== VpcStateJson
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**vpc** +
+__optional__|**Example** : `"<<_vpcstate>>"`|<<_vpcstate,VpcState>>
+|===
+
+
+

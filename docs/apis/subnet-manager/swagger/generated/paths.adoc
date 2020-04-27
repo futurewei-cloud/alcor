@@ -1,0 +1,1469 @@
+
+[[_paths]]
+== Resources
+
+[[_basic-error-controller_resource]]
+=== Basic-error-controller
+Basic Error Controller
+
+
+[[_errorusingpost]]
+==== error
+....
+POST /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingget]]
+==== error
+....
+GET /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingput]]
+==== error
+....
+PUT /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingdelete]]
+==== error
+....
+DELETE /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingpatch]]
+==== error
+....
+PATCH /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusinghead]]
+==== error
+....
+HEAD /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingoptions]]
+==== error
+....
+OPTIONS /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_operation-handler_resource]]
+=== Operation-handler
+Operation Handler
+
+
+[[_handleusingget_1]]
+==== handle
+....
+GET /actuator/health
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget]]
+==== handle
+....
+GET /actuator/health/**
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health/**
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget_2]]
+==== handle
+....
+GET /actuator/info
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/info
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_subnet-controller_resource]]
+=== Subnet-controller
+Subnet Controller
+
+
+[[_createsubnetstateusingpost]]
+==== createSubnetState
+....
+POST /project/{projectId}/subnets
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Body**|**resource** +
+__required__|resource|<<_subnetstatejson,SubnetStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_subnetstatejson,SubnetStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/subnets
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_getsubnetstatesbyprojectidandvpcidusingget]]
+==== getSubnetStatesByProjectIdAndVpcId
+....
+GET /project/{projectId}/subnets
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_subnetstatelistjson,SubnetStateListJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/subnets
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "subnets" : [ {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  } ]
+}
+----
+
+
+[[_getsubnetstatebyidusingget]]
+==== getSubnetStateById
+....
+GET /project/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_subnetstatejson,SubnetStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/subnets/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_updatesubnetstateusingput]]
+==== updateSubnetState
+....
+PUT /project/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|**Body**|**resource** +
+__required__|resource|<<_subnetstatejson,SubnetStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_subnetstatejson,SubnetStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/subnets/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_deletesubnetstateusingdelete]]
+==== deleteSubnetState
+....
+DELETE /project/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/subnets/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_createsubnetstateusingpost_1]]
+==== createSubnetState
+....
+POST /v4/{projectId}/subnets
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Body**|**resource** +
+__required__|resource|<<_subnetstatejson,SubnetStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_subnetstatejson,SubnetStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/subnets
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_getsubnetstatebyidusingget_1]]
+==== getSubnetStateById
+....
+GET /v4/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_subnetstatejson,SubnetStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/subnets/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_updatesubnetstateusingput_1]]
+==== updateSubnetState
+....
+PUT /v4/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|**Body**|**resource** +
+__required__|resource|<<_subnetstatejson,SubnetStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_subnetstatejson,SubnetStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/subnets/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "subnet" : {
+    "availability_zone" : "string",
+    "cidr" : "string",
+    "description" : "string",
+    "dhcp_enable" : true,
+    "dns_list" : [ "string" ],
+    "gateway_ip" : "string",
+    "id" : "string",
+    "ipv4_range_id" : "string",
+    "ipv6_range_id" : "string",
+    "mac_address" : "string",
+    "name" : "string",
+    "primary_dns" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ],
+    "secondary_dns" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_deletesubnetstateusingdelete_1]]
+==== deleteSubnetState
+....
+DELETE /v4/{projectId}/subnets/{subnetId}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectId** +
+__required__|projectId|string
+|**Path**|**subnetId** +
+__required__|subnetId|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/subnets/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_web-mvc-links-handler_resource]]
+=== Web-mvc-links-handler
+Web Mvc Links Handler
+
+
+[[_linksusingget]]
+==== links
+....
+GET /actuator
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, < string, <<_link,Link>> > map > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+

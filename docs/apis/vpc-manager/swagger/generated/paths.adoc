@@ -1,0 +1,2416 @@
+
+[[_paths]]
+== Resources
+
+[[_basic-error-controller_resource]]
+=== Basic-error-controller
+Basic Error Controller
+
+
+[[_errorhtmlusingpost]]
+==== errorHtml
+....
+POST /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingget]]
+==== errorHtml
+....
+GET /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingput]]
+==== errorHtml
+....
+PUT /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingdelete]]
+==== errorHtml
+....
+DELETE /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingpatch]]
+==== errorHtml
+....
+PATCH /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusinghead]]
+==== errorHtml
+....
+HEAD /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingoptions]]
+==== errorHtml
+....
+OPTIONS /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_debug-controller_resource]]
+=== Debug-controller
+Debug Controller
+
+
+[[_indexusingpost]]
+==== index
+....
+POST /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusingget]]
+==== index
+....
+GET /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusingput]]
+==== index
+....
+PUT /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusingdelete]]
+==== index
+....
+DELETE /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusingpatch]]
+==== index
+....
+PATCH /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusinghead]]
+==== index
+....
+HEAD /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_indexusingoptions]]
+==== index
+....
+OPTIONS /
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|string
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"string"
+----
+
+
+[[_getdebuginfousingget]]
+==== getDebugInfo
+....
+GET /debug
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|**Query**|**name** +
+__optional__|name|string|`"World"`
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_debuginfo,DebugInfo>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "name" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "content" : "string",
+  "id" : 0
+}
+----
+
+
+[[_getvpccountusingget]]
+==== getVpcCount
+....
+GET /project/all/vpccount
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/all/vpccount
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_getvpccountandallvpcstatesusingget]]
+==== getVpcCountAndAllVpcStates
+....
+GET /project/all/vpcs
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/all/vpcs
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_debug-vpc-controller_resource]]
+=== Debug-vpc-controller
+Debug Vpc Controller
+
+
+[[_getvpccountusingget_1]]
+==== getVpcCount
+....
+GET /debug/project/all/vpccount
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/all/vpccount
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_getvpccountandallvpcstatesusingget_1]]
+==== getVpcCountAndAllVpcStates
+....
+GET /debug/project/all/vpcs
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/all/vpcs
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_createvpcstateusingpost]]
+==== createVpcState
+....
+POST /debug/project/{projectid}/vpcs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/string/vpcs
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_getvpcstatebyvpcidusingget]]
+==== getVpcStateByVpcId
+....
+GET /debug/project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_updatevpcstatebyvpcidusingput]]
+==== updateVpcStateByVpcId
+....
+PUT /debug/project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/string/vpcs/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_deletevpcstatebyvpcidusingdelete]]
+==== deleteVpcStateByVpcId
+....
+DELETE /debug/project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/debug/project/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_operation-handler_resource]]
+=== Operation-handler
+Operation Handler
+
+
+[[_handleusingget_2]]
+==== handle
+....
+GET /actuator/health
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget_1]]
+==== handle
+....
+GET /actuator/health/{component}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health/{component}
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget]]
+==== handle
+....
+GET /actuator/health/{component}/{instance}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health/{component}/{instance}
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget_3]]
+==== handle
+....
+GET /actuator/info
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/info
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_vpc-controller_resource]]
+=== Vpc-controller
+Vpc Controller
+
+
+[[_createvpcstateusingpost_1]]
+==== createVpcState
+....
+POST /project/{projectid}/vpcs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/vpcs
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_getvpcstatesbyprojectidusingget]]
+==== getVpcStatesByProjectId
+....
+GET /project/{projectid}/vpcs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/vpcs
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_getvpcstatebyvpcidusingget_1]]
+==== getVpcStateByVpcId
+....
+GET /project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_updatevpcstatebyvpcidusingput_1]]
+==== updateVpcStateByVpcId
+....
+PUT /project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/vpcs/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_deletevpcstatebyvpcidusingdelete_1]]
+==== deleteVpcStateByVpcId
+....
+DELETE /project/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/project/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_createvpcstateusingpost_2]]
+==== createVpcState
+....
+POST /v4/{projectid}/vpcs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/vpcs
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_getvpcstatebyvpcidusingget_2]]
+==== getVpcStateByVpcId
+....
+GET /v4/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_updatevpcstatebyvpcidusingput_2]]
+==== updateVpcStateByVpcId
+....
+PUT /v4/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|**Body**|**resource** +
+__required__|resource|<<_vpcstatejson,VpcStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_vpcstatejson,VpcStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/vpcs/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "vpc" : {
+    "cidr" : "string",
+    "description" : "string",
+    "id" : "string",
+    "name" : "string",
+    "project_id" : "string",
+    "routes" : [ {
+      "associatedTableId" : "string",
+      "associatedType" : "string",
+      "description" : "string",
+      "destination" : "string",
+      "id" : "string",
+      "name" : "string",
+      "priority" : 0,
+      "project_id" : "string",
+      "target" : "string"
+    } ]
+  }
+}
+----
+
+
+[[_deletevpcstatebyvpcidusingdelete_2]]
+==== deleteVpcStateByVpcId
+....
+DELETE /v4/{projectid}/vpcs/{vpcid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**projectid** +
+__required__|projectid|string
+|**Path**|**vpcid** +
+__required__|vpcid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/string/vpcs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_web-mvc-links-handler_resource]]
+=== Web-mvc-links-handler
+Web Mvc Links Handler
+
+
+[[_linksusingget]]
+==== links
+....
+GET /actuator
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, < string, <<_link,Link>> > map > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+

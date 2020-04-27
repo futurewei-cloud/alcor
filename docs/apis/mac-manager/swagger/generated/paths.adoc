@@ -1,0 +1,1890 @@
+
+[[_paths]]
+== Resources
+
+[[_basic-error-controller_resource]]
+=== Basic-error-controller
+Basic Error Controller
+
+
+[[_errorhtmlusingpost]]
+==== errorHtml
+....
+POST /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingget]]
+==== errorHtml
+....
+GET /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingput]]
+==== errorHtml
+....
+PUT /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingdelete]]
+==== errorHtml
+....
+DELETE /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingpatch]]
+==== errorHtml
+....
+PATCH /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusinghead]]
+==== errorHtml
+....
+HEAD /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_errorhtmlusingoptions]]
+==== errorHtml
+....
+OPTIONS /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_modelandview,ModelAndView>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `text/html`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "empty" : true,
+  "model" : "object",
+  "modelMap" : {
+    "string" : "object"
+  },
+  "reference" : true,
+  "status" : "string",
+  "view" : {
+    "contentType" : "string"
+  },
+  "viewName" : "string"
+}
+----
+
+
+[[_mac-controller_resource]]
+=== Mac-controller
+Mac Controller
+
+
+[[_createmacstateusingpost]]
+==== createMacState
+....
+POST /macs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**resource** +
+__required__|resource|<<_macstatejson,MacStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_macstatejson,MacStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_createmacrangeusingpost]]
+==== createMacRange
+....
+POST /macs/ranges
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**resource** +
+__required__|resource|<<_macrangejson,MacRangeJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_macrangejson,MacRangeJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/ranges
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_getallmacrangesusingget]]
+==== getAllMacRanges
+....
+GET /macs/ranges
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, <<_macrange,MacRange>> > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/ranges
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_getmacrangebymacrangeidusingget]]
+==== getMacRangeByMacRangeId
+....
+GET /macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macrangejson,MacRangeJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/ranges/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_updatemacrangeusingput]]
+==== updateMacRange
+....
+PUT /macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|**Body**|**resource** +
+__required__|resource|<<_macrangejson,MacRangeJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macrangejson,MacRangeJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/ranges/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_deletemacrangeusingdelete]]
+==== deleteMacRange
+....
+DELETE /macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/ranges/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_getmacstatebymacaddressusingget]]
+==== getMacStateByMacAddress
+....
+GET /macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macstatejson,MacStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_updatemacstateusingput]]
+==== updateMacState
+....
+PUT /macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|**Body**|**resource** +
+__required__|resource|<<_macstatejson,MacStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macstatejson,MacStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_deletemacallocationusingdelete]]
+==== deleteMacAllocation
+....
+DELETE /macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/macs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_createmacstateusingpost_1]]
+==== createMacState
+....
+POST /v4/macs
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**resource** +
+__required__|resource|<<_macstatejson,MacStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_macstatejson,MacStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_createmacrangeusingpost_1]]
+==== createMacRange
+....
+POST /v4/macs/ranges
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**resource** +
+__required__|resource|<<_macrangejson,MacRangeJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_macrangejson,MacRangeJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/ranges
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_getallmacrangesusingget_1]]
+==== getAllMacRanges
+....
+GET /v4/macs/ranges
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, <<_macrange,MacRange>> > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/ranges
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_getmacrangebymacrangeidusingget_1]]
+==== getMacRangeByMacRangeId
+....
+GET /v4/macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macrangejson,MacRangeJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/ranges/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_updatemacrangeusingput_1]]
+==== updateMacRange
+....
+PUT /v4/macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|**Body**|**resource** +
+__required__|resource|<<_macrangejson,MacRangeJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macrangejson,MacRangeJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/ranges/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macRange" : {
+    "from" : "string",
+    "range_id" : "string",
+    "state" : "string",
+    "to" : "string"
+  }
+}
+----
+
+
+[[_deletemacrangeusingdelete_1]]
+==== deleteMacRange
+....
+DELETE /v4/macs/ranges/{rangeid}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**rangeid** +
+__required__|rangeid|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/ranges/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_getmacstatebymacaddressusingget_1]]
+==== getMacStateByMacAddress
+....
+GET /v4/macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macstatejson,MacStateJson>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_updatemacstateusingput_1]]
+==== updateMacState
+....
+PUT /v4/macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|**Body**|**resource** +
+__required__|resource|<<_macstatejson,MacStateJson>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_macstatejson,MacStateJson>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/string
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "macState" : {
+    "active" : "string",
+    "mac_address" : "string",
+    "port_id" : "string",
+    "project_id" : "string",
+    "vpc_id" : "string"
+  }
+}
+----
+
+
+[[_deletemacallocationusingdelete_1]]
+==== deleteMacAllocation
+....
+DELETE /v4/macs/{macaddress}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**macaddress** +
+__required__|macaddress|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_responseid,ResponseId>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/v4/macs/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+[[_operation-handler_resource]]
+=== Operation-handler
+Operation Handler
+
+
+[[_handleusingget_1]]
+==== handle
+....
+GET /actuator/health
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget]]
+==== handle
+....
+GET /actuator/health/**
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health/**
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget_2]]
+==== handle
+....
+GET /actuator/info
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/info
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_web-mvc-links-handler_resource]]
+=== Web-mvc-links-handler
+Web Mvc Links Handler
+
+
+[[_linksusingget]]
+==== links
+....
+GET /actuator
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, < string, <<_link,Link>> > map > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+

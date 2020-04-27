@@ -1,0 +1,1412 @@
+
+[[_paths]]
+== Resources
+
+[[_basic-error-controller_resource]]
+=== Basic-error-controller
+Basic Error Controller
+
+
+[[_errorusingpost]]
+==== error
+....
+POST /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingget]]
+==== error
+....
+GET /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingput]]
+==== error
+....
+PUT /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingdelete]]
+==== error
+....
+DELETE /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingpatch]]
+==== error
+....
+PATCH /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusinghead]]
+==== error
+....
+HEAD /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_errorusingoptions]]
+==== error
+....
+OPTIONS /error
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, object > map
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/error
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_ip-addr-controller_resource]]
+=== Ip-addr-controller
+Ip Addr Controller
+
+
+[[_allocateipaddrusingpost]]
+==== allocateIpAddr
+....
+POST /ips
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**request** +
+__required__|request|<<_ipaddrrequest,IpAddrRequest>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_ipaddrrequest,IpAddrRequest>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+[[_modifyipaddrstateusingput]]
+==== modifyIpAddrState
+....
+PUT /ips
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**request** +
+__required__|request|<<_ipaddrrequest,IpAddrRequest>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrequest,IpAddrRequest>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+[[_allocateipaddrbulkusingpost]]
+==== allocateIpAddrBulk
+....
+POST /ips/bulk
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**requestBulk** +
+__required__|requestBulk|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/bulk
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+[[_modifyipaddrstatebulkusingput]]
+==== modifyIpAddrStateBulk
+....
+PUT /ips/bulk
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**requestBulk** +
+__required__|requestBulk|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|**201**|Created|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/bulk
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+[[_releaseipaddrbulkusingdelete]]
+==== releaseIpAddrBulk
+....
+DELETE /ips/bulk
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**requestBulk** +
+__required__|requestBulk|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrequestbulk,IpAddrRequestBulk>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/bulk
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "ip_requests" : [ {
+    "ip" : "string",
+    "ip_version" : 0,
+    "range_id" : "string",
+    "state" : "string"
+  } ]
+}
+----
+
+
+[[_createipaddrrangeusingpost]]
+==== createIpAddrRange
+....
+POST /ips/range
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**request** +
+__required__|request|<<_ipaddrrangerequest,IpAddrRangeRequest>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**201**|Created|<<_ipaddrrangerequest,IpAddrRangeRequest>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/range
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "first_ip" : "string",
+  "id" : "string",
+  "ip_version" : 0,
+  "last_ip" : "string",
+  "subnet_id" : "string",
+  "total_ips" : 0,
+  "used_ips" : 0
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 201
+[source,json]
+----
+{
+  "first_ip" : "string",
+  "id" : "string",
+  "ip_version" : 0,
+  "last_ip" : "string",
+  "subnet_id" : "string",
+  "total_ips" : 0,
+  "used_ips" : 0
+}
+----
+
+
+[[_listipaddrrangeusingget]]
+==== listIpAddrRange
+....
+GET /ips/range
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< <<_ipaddrrangerequest,IpAddrRangeRequest>> > array
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/range
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"array"
+----
+
+
+[[_getipaddrrangeusingget]]
+==== getIpAddrRange
+....
+GET /ips/range/{range_id}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**range_id** +
+__required__|range_id|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrangerequest,IpAddrRangeRequest>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/range/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "first_ip" : "string",
+  "id" : "string",
+  "ip_version" : 0,
+  "last_ip" : "string",
+  "subnet_id" : "string",
+  "total_ips" : 0,
+  "used_ips" : 0
+}
+----
+
+
+[[_deleteipaddrrangeusingdelete]]
+==== deleteIpAddrRange
+....
+DELETE /ips/range/{range_id}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**range_id** +
+__required__|range_id|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrangerequest,IpAddrRangeRequest>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/range/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "first_ip" : "string",
+  "id" : "string",
+  "ip_version" : 0,
+  "last_ip" : "string",
+  "subnet_id" : "string",
+  "total_ips" : 0,
+  "used_ips" : 0
+}
+----
+
+
+[[_getipaddrbulkusingget]]
+==== getIpAddrBulk
+....
+GET /ips/{ip_version}/{range_id}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**ip_version** +
+__required__|ip_version|integer(int32)
+|**Path**|**range_id** +
+__required__|range_id|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< <<_ipaddrrequest,IpAddrRequest>> > array
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/0/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"array"
+----
+
+
+[[_getipaddrusingget]]
+==== getIpAddr
+....
+GET /ips/{ip_version}/{range_id}/{ip}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**ip** +
+__required__|ip|string
+|**Path**|**ip_version** +
+__required__|ip_version|integer(int32)
+|**Path**|**range_id** +
+__required__|range_id|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrequest,IpAddrRequest>>
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/0/string/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+[[_releaseipaddrusingdelete]]
+==== releaseIpAddr
+....
+DELETE /ips/{ip_version}/{range_id}/{ip}
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**ip** +
+__required__|ip|string
+|**Path**|**ip_version** +
+__required__|ip_version|integer(int32)
+|**Path**|**range_id** +
+__required__|range_id|string
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|<<_ipaddrrequest,IpAddrRequest>>
+|**204**|No Content|No Content
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `*/*`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/ips/0/string/string
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "ip" : "string",
+  "ip_version" : 0,
+  "range_id" : "string",
+  "state" : "string"
+}
+----
+
+
+[[_operation-handler_resource]]
+=== Operation-handler
+Operation Handler
+
+
+[[_handleusingget_1]]
+==== handle
+....
+GET /actuator/health
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget]]
+==== handle
+....
+GET /actuator/health/**
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/health/**
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_handleusingget_2]]
+==== handle
+....
+GET /actuator/info
+....
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**body** +
+__optional__|body|< string, string > map
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|object
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator/info
+----
+
+
+====== Request body
+[source,json]
+----
+{ }
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+[[_web-mvc-links-handler_resource]]
+=== Web-mvc-links-handler
+Web Mvc Links Handler
+
+
+[[_linksusingget]]
+==== links
+....
+GET /actuator
+....
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|OK|< string, < string, <<_link,Link>> > map > map
+|**401**|Unauthorized|No Content
+|**403**|Forbidden|No Content
+|**404**|Not Found|No Content
+|===
+
+
+===== Consumes
+
+* `application/json`
+
+
+===== Produces
+
+* `application/vnd.spring-boot.actuator.v3+json`
+* `application/json`
+* `application/vnd.spring-boot.actuator.v2+json`
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/actuator
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+"object"
+----
+
+
+
