@@ -1,0 +1,9 @@
+[source,http,options="nowrap"]
+----
+POST /macs HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 107
+Host: localhost:8080
+
+{"macState":{"mac_address":"","project_id":"project3","vpc_id":"vpc3","port_id":"port3","active":"Active"}}
+----

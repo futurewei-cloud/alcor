@@ -1,0 +1,6 @@
+[source,http,options="nowrap"]
+----
+GET /project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets HTTP/1.1
+Host: localhost:8080
+
+----

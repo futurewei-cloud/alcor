@@ -1,0 +1,6 @@
+[source,http,options="nowrap"]
+----
+GET /get HTTP/1.1
+Host: localhost:53297
+
+----

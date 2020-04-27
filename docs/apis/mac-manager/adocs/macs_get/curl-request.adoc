@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/macs/00-AA-BB-11-11-54' -i -X GET
+----

@@ -1,0 +1,9 @@
+[source,http,options="nowrap"]
+----
+PUT /macs/00-AA-BB-FB-97-A4 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 126
+Host: localhost:8080
+
+{"macState":{"mac_address":"00-AA-BB-FB-97-A4","project_id":"project1","vpc_id":"vpc1","port_id":"port7","active":"Inactive"}}
+----

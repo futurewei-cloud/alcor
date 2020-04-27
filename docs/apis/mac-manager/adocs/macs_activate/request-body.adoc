@@ -1,0 +1,4 @@
+[source,options="nowrap"]
+----
+{"macState":{"mac_address":"00-AA-BB-11-11-29","project_id":"project1","vpc_id":"vpc1","port_id":"port5","active":"Active"}}
+----

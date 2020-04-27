@@ -1,0 +1,5 @@
+[source,bash]
+----
+$ echo '{"macState":{"mac_address":"","project_id":"project3","vpc_id":"vpc3","port_id":"port3","active":"Active"}}' | http POST 'http://localhost:8080/macs' \
+    'Content-Type:application/json;charset=UTF-8'
+----

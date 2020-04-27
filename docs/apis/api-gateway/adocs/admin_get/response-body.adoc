@@ -1,0 +1,21 @@
+[source,options="nowrap"]
+----
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Accept-Encoding": "gzip", 
+    "Content-Length": "0", 
+    "Forwarded": "proto=http;host=\"localhost:53297\";for=\"127.0.0.1:53298\"", 
+    "Hello": "Alcor", 
+    "Host": "httpbin.org", 
+    "User-Agent": "ReactorNetty/0.8.9.RELEASE", 
+    "Webtestclient-Request-Id": "1", 
+    "X-Amzn-Trace-Id": "Root=1-5ea6d58b-9d864cc739bf0c97b01a0f3e", 
+    "X-Forwarded-Host": "localhost:53297"
+  }, 
+  "origin": "127.0.0.1, 119.8.36.238", 
+  "url": "http://localhost:53297/get"
+}
+
+----

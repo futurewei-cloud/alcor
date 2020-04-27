@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000' -i -X GET
+----

@@ -1,0 +1,6 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/macs/00-AA-BB-11-11-29' -i -X PUT \
+    -H 'Content-Type: application/json;charset=UTF-8' \
+    -d '{"macState":{"mac_address":"00-AA-BB-11-11-29","project_id":"project1","vpc_id":"vpc1","port_id":"port5","active":"Active"}}'
+----

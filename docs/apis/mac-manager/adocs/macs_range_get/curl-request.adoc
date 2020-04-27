@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/macs/ranges/range1' -i -X GET
+----
