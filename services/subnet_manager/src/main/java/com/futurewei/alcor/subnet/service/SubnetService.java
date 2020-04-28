@@ -33,10 +33,10 @@ public interface SubnetService {
     public RouteWebJson createRouteRules (String subnetId, SubnetState subnetState) throws Exception;
 
     // Allocate Gateway Mac
-    public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId) throws Exception;
+    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
 
     // Verify/Allocate Gateway IP
-    public IpAddrRequest allocateIPGateway (String subnetId, String cidr) throws Exception;
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws Exception;
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);

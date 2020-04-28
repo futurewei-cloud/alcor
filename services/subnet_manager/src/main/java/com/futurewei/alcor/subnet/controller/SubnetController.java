@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.controller;
 
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
@@ -110,7 +109,7 @@ public class SubnetController {
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateMacGateway(projectId, vpcId, portId);
+                    return this.subnetService.allocateMacAddressForGatewayPort(projectId, vpcId, portId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
@@ -150,7 +149,7 @@ public class SubnetController {
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateIPGateway(subnetId, cidr);
+                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }

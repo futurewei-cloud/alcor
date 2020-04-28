@@ -4,7 +4,7 @@ metadata:
   name: mac-configmap
 data:
   application.properties: |
-    spring.redis.host=10.109.217.22
+    spring.redis.host=10.111.70.101
     spring.redis.port=6381
     logging.level.root=info
     logging.level.org.springframework.web=info

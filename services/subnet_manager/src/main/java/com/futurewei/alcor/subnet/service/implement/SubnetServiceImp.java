@@ -63,7 +63,9 @@ public class SubnetServiceImp implements SubnetService {
     @Override
     public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
         String ipManagerServiceUrl = ipUrl + ipVersion + rangeId + ipAddr;
-        restTemplate.delete(ipManagerServiceUrl, ResponseId.class);
+        restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
+        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId ;
+        restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
     }
 
     @Override
@@ -131,7 +133,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) throws FallbackException {
+    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws FallbackException {
         String macManagerServiceUrl = macUrl;
         MacState macState = new MacState();
         macState.setProjectId(projectId);
@@ -151,7 +153,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIPGateway(String subnetId, String cidr) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();

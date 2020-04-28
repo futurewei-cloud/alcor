@@ -95,9 +95,9 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(anyString(), anyString()))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(anyString(), anyString()))
                 .thenReturn(ipAddrRequest);
 
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
@@ -128,9 +128,9 @@ public class SubnetControllerTests {
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId, UnitTestConfig.cidr))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
@@ -165,9 +165,9 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenThrow(new FallbackException("fallback request"));
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId, UnitTestConfig.cidr))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
@@ -202,9 +202,9 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenThrow(new FallbackException("fallback request"));
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId, UnitTestConfig.cidr))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
@@ -241,9 +241,9 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId, UnitTestConfig.cidr))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenThrow(new FallbackException("fallback request"));
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
@@ -280,9 +280,9 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId, UnitTestConfig.invalidCidr))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.invalidCidr))
                 .thenReturn(ipAddrRequest);
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)

@@ -4,7 +4,7 @@ metadata:
   name: route-configmap
 data:
   application.properties: |
-    spring.redis.host=10.104.15.13
+    spring.redis.host=10.107.65.124
     spring.redis.port=6380
     logging.level.root=info
     logging.level.org.springframework.web=info
