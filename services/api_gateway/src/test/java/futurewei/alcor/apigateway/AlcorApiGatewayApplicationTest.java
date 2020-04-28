@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway;
 
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,16 @@ public class AlcorApiGatewayApplicationTest {
     @Autowired
     private WebTestClient webClient;
 
+    private WebTestClient client;
+
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
+    @Before
+    public void init(){
+        this.client = this.webClient.mutate().filter(documentationConfiguration(restDocumentation)).build();
+    }
+    
     @Test
     public void contextLoads() throws Exception {
         //Stubs
@@ -59,8 +67,7 @@ public class AlcorApiGatewayApplicationTest {
 //                        .withBody("no fallback")
 //                        .withFixedDelay(3000)));
 
-        WebTestClient client = this.webClient.mutate().filter(documentationConfiguration(restDocumentation)).build();
-        client
+        this.client
                 .get().uri("/get")
                 .exchange()
                 .expectStatus().isOk()
