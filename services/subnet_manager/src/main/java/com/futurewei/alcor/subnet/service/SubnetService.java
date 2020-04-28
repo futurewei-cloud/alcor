@@ -1,5 +1,8 @@
 package com.futurewei.alcor.subnet.service;
 
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.exception.FallbackException;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.subnet.entity.*;
 
@@ -21,7 +24,7 @@ public interface SubnetService {
                                    AtomicReference<MacStateJson> macResponseAtomic,
                                    AtomicReference<IpAddrRequest> ipResponseAtomic,
                                    SubnetStateJson resource,
-                                   String message);
+                                   String message) throws CacheException;
 
     // Verify VPC ID
     public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
@@ -37,5 +40,8 @@ public interface SubnetService {
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);
+
+    // Verify cidr block
+    public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
 
 }

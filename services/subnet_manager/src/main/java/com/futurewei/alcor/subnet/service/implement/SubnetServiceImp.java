@@ -1,9 +1,10 @@
 package com.futurewei.alcor.subnet.service.implement;
 
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -70,7 +71,7 @@ public class SubnetServiceImp implements SubnetService {
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
                                   SubnetStateJson resource,
-                                  String message) {
+                                  String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
         IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
@@ -156,6 +157,12 @@ public class SubnetServiceImp implements SubnetService {
         String ipAddressRangeId = UUID.randomUUID().toString();
 
         // Create Ip Address Range
+        // Verify cidr block
+        boolean isCidrValid = verifyCidrBlock(cidr);
+        if (!isCidrValid) {
+            throw new FallbackException("cidr is invalid : " + cidr);
+        }
+
         String[] ips = cidrToFirstIpAndLastIp(cidr);
         if (ips == null || ips.length != 2) {
             throw new FallbackException("cidr transfer to first/last ip failed");
@@ -212,13 +219,53 @@ public class SubnetServiceImp implements SubnetService {
             return null;
         }
         SubnetUtils utils = new SubnetUtils(cidr);
-        String[] address = utils.getInfo().getAllAddresses();
-        if (address == null || address.length < 1) {
-
+        String highIp = utils.getInfo().getHighAddress();
+        String lowIp = utils.getInfo().getLowAddress();
+        if (highIp == null || lowIp == null) {
+            return null;
         }
         String[] res = new String[2];
-        res[0] = address[0];
-        res[1] = address[address.length - 1];
+        res[0] = lowIp;
+        res[1] = highIp;
         return res;
     }
+
+    @Override
+    public boolean verifyCidrBlock(String cidr) throws FallbackException {
+        if (cidr == null) {
+            return false;
+        }
+        String[] cidrs = cidr.split("\\/", -1);
+        // verify cidr suffix
+        if (cidrs.length > 2 || cidrs.length == 0) {
+            return false;
+        } else if (cidrs.length == 2) {
+            if (!ControllerUtil.isPositive(cidrs[1])) {
+                return false;
+            }
+            int suffix = Integer.parseInt(cidrs[1]);
+            if (suffix < 16 || suffix > 28) {
+                return false;
+            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
+                return false;
+            }
+        }
+        // verify cidr prefix
+        String[] addr = cidrs[0].split("\\." , -1);
+        if (addr.length != 4) {
+            return false;
+        }
+        for (String f : addr) {
+            if (!ControllerUtil.isPositive(f)) {
+                return false;
+            }
+            int n = Integer.parseInt(f);
+            if (n < 0 || n > 255) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
 }
