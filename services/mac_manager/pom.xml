@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.futurewei.alcor.macmanager</groupId>
     <artifactId>AlcorMacManager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>AlcorMacManager</name>
     <description>Virtual MAC Address Manager Module</description>
 

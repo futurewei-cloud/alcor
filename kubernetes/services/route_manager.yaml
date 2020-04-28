@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: route-configmap
+data:
+  application.properties: |
+    spring.redis.host=10.107.65.124
+    spring.redis.port=6380
+    logging.level.root=info
+    logging.level.org.springframework.web=info
+    logging.file.path=.
+    logging.type=file
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,13 +28,27 @@ spec:
       labels:
         app: routemanager
     spec:
+      volumes:
+        - name: route-volume
+          configMap:
+            name: route-configmap
+            items:
+              - key: application.properties
+                path: application.properties
       containers:
-        #- image: zhonghaolyu/repo:routeKube3
-        - image: fwnetworking/controller:route_manager-v0.3.0
+        - image: zhonghaolyu/repo:routeKube4
+        #- image: fwnetworking/controller:route_manager-v0.3.0
           name: routemanager-web
           imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorRouteManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: route-volume
+              mountPath: /etc/app
+          envFrom:
+            - configMapRef:
+                name: route-configmap
 ---
 apiVersion: v1
 kind: Service
