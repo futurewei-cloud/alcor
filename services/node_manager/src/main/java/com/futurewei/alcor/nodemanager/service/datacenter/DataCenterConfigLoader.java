@@ -14,9 +14,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.nodemanager.dao.file;
+package com.futurewei.alcor.nodemanager.service.datacenter;
 
-import com.futurewei.alcor.controller.utilities.Common;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,32 +27,37 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+@Component
 public class DataCenterConfigLoader {
     private static final Logger logger = LoggerFactory.getLogger(DataCenterConfigLoader.class);
 
     @Autowired
     private ResourceLoader resourceLoader;
 
-    @Value("${alcor.machine.config:app/config/machine.json}")
+    @Value("${alcor.machine.config:.\\machine.json}")
     private String machineConfigFile;
 
-    String getPropertyFile() {
-        return resourceLoader.getResource(this.machineConfigFile).getFilename();
-    }
+    //String getPropertyFile() {
+    //    return resourceLoader.getResource(this.machineConfigFile).getFilename();
+    //}
 
     public List<NodeInfo> loadAndGetHostNodeList() {
         logger.info("Loading node from " + this.machineConfigFile);
         return this.loadAndGetHostNodeList(this.machineConfigFile);
     }
 
+    @JsonIgnore
     public List<NodeInfo> loadAndGetHostNodeList(String machineConfigFilePath) {
         JSONParser jsonParser = new JSONParser();
         List<NodeInfo> nodeInfos = new ArrayList<>();
@@ -75,19 +80,33 @@ public class DataCenterConfigLoader {
         return nodeInfos;
     }
 
+    @JsonIgnore
     private NodeInfo parseNodeObject(JSONObject node) {
         String id = (String) node.get("id");
         String ip = (String) node.get("ip");
         String mac = (String) node.get("mac");
-        System.out.println("Node ID:" + id + "|IP:" + ip + "|MAC:" + mac);
-
         byte[] ipByteArray;
         try {
-            ipByteArray = Common.fromIpAddressStringToByteArray(ip);
+            ipByteArray = fromIpAddressStringToByteArray(ip);
             return new NodeInfo(id, id, ipByteArray, mac);
         } catch (UnknownHostException e) {
             logger.error("UnknownHostException");
         }
         return null;
+    }
+
+    @JsonIgnore
+    public byte[] fromIpAddressStringToByteArray(String ipAddressString) throws UnknownHostException {
+        InetAddress ip = InetAddress.getByName(ipAddressString);
+        byte[] bytes = ip.getAddress();
+        return bytes;
+    }
+
+    public int getRandomNumberInRange(int min, int max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("Max must be greater than min");
+        }
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 }

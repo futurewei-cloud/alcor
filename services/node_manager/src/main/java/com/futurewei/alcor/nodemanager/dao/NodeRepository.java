@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.nodemanager.dao.repository;
+package com.futurewei.alcor.nodemanager.dao;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
@@ -71,6 +71,12 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         cache.remove(id);
     }
 
+    /**
+     * add a new node info to node repository
+     * @param nodeInfo new node information
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     public void addItemTransaction(NodeInfo nodeInfo) throws Exception {
         logger.info("Add node, Node Id:" + nodeInfo.getId());
         cache.put(nodeInfo.getId(), nodeInfo);

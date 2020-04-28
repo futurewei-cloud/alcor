@@ -14,6 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.nodemanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.nodemanager.utils.NodeUtil;
 import lombok.Data;
@@ -27,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+        setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public class NodeInfo implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(NodeInfo.class);
 
@@ -53,34 +56,39 @@ public class NodeInfo implements Serializable {
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
-        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.gRPCServerPort);
+        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort);
     }
 
-    public NodeInfo(String id, String name, InetAddress localIp, String macAddress, int gRPCServerPort) {
+    public NodeInfo(String id, String name, InetAddress localIp, String macAddress, String veth, int gRPCServerPort) {
         this.id = id;
         this.name = name;
         this.localIp = localIp;
         this.macAddress = macAddress;
+        this.veth = veth;
         this.gRPCServerPort = gRPCServerPort;
     }
 
     public NodeInfo(String nodeId, String nodeName, byte[] ipAddress, String macAddress, int gRPCServerPort) {
         this(nodeId, nodeName, ipAddress, macAddress);
+        this.veth = "";
         this.gRPCServerPort = gRPCServerPort;
     }
 
     public NodeInfo(String nodeId, String nodeName, byte[] ipAddress, String macAddress) {
         this.id = nodeId;
+        this.name = nodeName;
         try {
-            this.localIp = InetAddress.getByAddress(nodeName, ipAddress);
+            this.localIp = InetAddress.getByAddress(ipAddress);
             if (this.validate(macAddress)) {
                 this.macAddress = macAddress;
             } else {
-                this.macAddress = null;
+                this.macAddress = "";
             }
         } catch (UnknownHostException e) {
             logger.error(NodeUtil.NODE_EXCEPTION_NODE_IP_INVALID + ipAddress, e);
         }
+        this.veth = "";
+        this.gRPCServerPort = NodeUtil.GRPC_SERVER_PORT;
     }
 
     private boolean validate(String mac) {

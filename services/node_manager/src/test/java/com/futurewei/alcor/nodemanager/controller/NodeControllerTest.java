@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package controller;
+package com.futurewei.alcor.nodemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.nodemanager.controller.NodeController;
@@ -57,7 +57,7 @@ public class NodeControllerTest {
     @Before
     public void init() {
         byte[] ip = new byte[]{10,0,0,1};
-        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00", 9000);
+        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -68,13 +68,6 @@ public class NodeControllerTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void test_index() throws Exception {
-        this.mockMvc.perform(get("/start.html"))
-                .andDo(print())
-                .andExpect(status().isOk());
     }
 
     public String createNodeInfo(NodeInfo nodeInfo) {
@@ -91,24 +84,48 @@ public class NodeControllerTest {
         return strTestNodeId;
     }
 
-    public void updateNodeInfo() throws Exception {
-        InetAddress address2 = InetAddress.getByName("10.0.0.1");
+    @Test
+    public void test_index() throws Exception {
+        this.mockMvc.perform(get("/start.html"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void test_createNodeInfo() throws Exception {
         byte[] ip = new byte[]{10,0,0,1};
-        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00", 9000);
+        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
 
-        this.mockMvc.perform(put("/macs/nodes/h01")
+        this.mockMvc.perform(post("/nodes")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
 
+    @Test
+    public void updateNodeInfo() throws Exception {
+        InetAddress address2 = InetAddress.getByName("10.0.0.2");
+        byte[] ip = new byte[]{10,0,0,2};
+        NodeInfo nodeInfo = new NodeInfo("h01", "host2", ip, "AA-BB-CC-DD-EE-99");
+        NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(nodeInfoJson);
+
+        this.mockMvc.perform(put("/nodes/h01")
+                .content(json)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
     public void deleteNodeInfo() throws Exception {
         byte[] ip = new byte[]{10,0,0,2};
-        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00", 1000);
+        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-00");
         String strNodeId = createNodeInfo(nodeInfo);
         System.out.println(strNodeId);
         this.mockMvc.perform(delete("/nodes/" + strNodeId))

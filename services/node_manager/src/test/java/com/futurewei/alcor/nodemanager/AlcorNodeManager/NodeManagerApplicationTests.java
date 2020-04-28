@@ -3,6 +3,7 @@ package com.futurewei.alcor.nodemanager.AlcorNodeManager;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,9 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
+@RunWith(SpringRunner.class)
+@AutoConfigureMockMvc
 class NodeManagerApplicationTests {
+
 	@Autowired
 	public MockMvc mvc;
 
@@ -28,6 +31,6 @@ class NodeManagerApplicationTests {
 		this.mvc.perform(get("/start.html"))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(content().string(containsString("NodeManager")));
+				.andExpect(content().string(containsString("Node Manager")));
 	}
 }

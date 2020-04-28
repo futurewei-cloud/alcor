@@ -24,6 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
@@ -50,6 +54,42 @@ public class NodeController {
             return new NodeInfoJson();
         }
         return new NodeInfoJson(hostInfo);
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/nodes", "/v4/nodes"})
+    public Hashtable getAllNodes() throws Exception {
+        Hashtable nodes = null;
+        try {
+             nodes = service.getAllNodes();
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+        if (nodes == null) {
+            //TODO: REST error code
+            return new Hashtable();
+        }
+        return nodes;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/nodeslist", "/v4/nodeslist"})
+    public List<NodeInfo> getAllNodesList() throws Exception {
+        List<NodeInfo> nodes = null;
+        try {
+            nodes = service.getAllNodesList();
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+        if (nodes == null) {
+            //TODO: REST error code
+            return new ArrayList();
+        }
+        return nodes;
     }
 
     @RequestMapping(
