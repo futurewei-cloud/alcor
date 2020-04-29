@@ -7,7 +7,7 @@ Please follow the following instruction to set up your development environment a
 
 The Alcor controller project currently uses _Apache Maven_ to manage the dependencies and its build.
 We recommend using an Ubuntu, Mac OS X or Windows OS for development and functionality testing.
-To set up your local development environment, we recommend to use fork-and-branch git workflow. 
+To set up your local development environment, we recommend to use fork-and-branch git workflow.
 
 1. Fork Alcor Github repository by clicking the Fork button on the upper right-hand side of Alcor home page.
 2. Make a local clone:
@@ -50,7 +50,7 @@ You will need approval from at least one maintainer, who will merge your codes t
 
 ## Building Alcor
 
-To compile, run, and test Alcor, please follow the following steps: 
+To compile, run, and test Alcor, please follow the following steps:
 
 Run the build script to install all needed packages, and clean install the project for development.
 ```
@@ -70,7 +70,7 @@ $ mvn test
 
 ## Deploying Alcor Controller
 
-NOTE: This section is outdated. Please follow up with the community on [Alcor Slack](https://alcor-networking.slack.com/) channels 
+NOTE: This section is outdated. Please follow up with the community on [Alcor Slack](https://alcor-networking.slack.com/) channels
 for latest instruction before the instructions get updated.
 
 The previous steps allow you to compile and install Alcor.

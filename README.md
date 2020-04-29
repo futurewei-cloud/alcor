@@ -13,6 +13,7 @@ In this README:
 - [Introduction](#introduction)
 - [Key Features](#key-features)
 - [Repositories](#repositories)
+- [Directory Structure](#directory-structure)
 
 ## Introduction
 Cloud computing means scale and on-demand resource provisioning.
@@ -93,3 +94,15 @@ We will continue to integrate with other orchestration systems and data plane im
 
 - [alcor/meeting](https://github.com/futurewei-cloud/alcor-meeting):
 The meeting repository is used to store all the meeting notes and recorded video clips for the Alcor Open Source project.
+
+## Directory Structure
+This main repository of Alcor Regional Controller is organized as follows:
+* docs: design, test and api documentation
+* lib: common libraries shared among various microservices.
+* services: api gateway and multiple microservices. Each sub-directory includes both source and testing codes.
+* web: define customer-facing web objects.
+* schema: define protobuf schema for agent-control communication.
+* config: configuration files used by controllers.
+* scripts: build, deployment and testing scripts
+* kubernetes: yaml files used for controller deployment in a Kubernetes cluster.
+* legacy: legacy codes of controller that has been retired
