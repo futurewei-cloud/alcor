@@ -6,7 +6,8 @@ Please follow the following instruction to set up your development environment a
 ## Setting up a Development Environment
 
 The Alcor controller project currently uses _Apache Maven_ to manage the dependencies and its build.
-We recommend using an Ubuntu, Mac OS X or Windows OS for development and functionality testing.
+For development and functionality testing, we recommend using Ubuntu 18.04, or Windows 10 
+as Mac OS X is not fully tested.
 To set up your local development environment, we recommend to use fork-and-branch git workflow.
 
 1. Fork Alcor Github repository by clicking the Fork button on the upper right-hand side of Alcor home page.
@@ -50,7 +51,7 @@ You will need approval from at least one maintainer, who will merge your codes t
 
 ## Building Alcor
 
-To compile, run, and test Alcor, please follow the following steps:
+To compile, run and test Alcor, please follow the following steps:
 
 Run the build script to install all needed packages, and clean install the project for development.
 ```
@@ -60,6 +61,10 @@ PS > .\scripts\build.ps1
 Ubuntu or Mac OS X:
 $ ./scripts/build.sh
 ```
+
+You could expect to see _BUILD SUCCESS_ at the end of the build console.
+
+![Alcor Build](design/images/alcor_build.JPG)
 
 Compile and run tests.
 The make test step will run both unit and functional test.
