@@ -31,40 +31,37 @@ import java.util.concurrent.ThreadLocalRandom;
 @Component
 public class NodeManager {
     private static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
+
     @Autowired
     public DataCenterConfigLoader dataCenterConfigLoader;
 
-    private List<NodeInfo> nodes;
+    //private List<NodeInfo> nodes;
     private Hashtable<String, NodeInfo> nodeTable;
 
     public NodeManager() {
+        nodeTable = null;
     }
 
     public NodeManager(List<NodeInfo> nodes) {
-        this.nodes = LoadNodes();
-        for (NodeInfo host : nodes) {
-            logger.info("Log:" + host);
+        nodeTable = null;
+        for (NodeInfo node : nodes) {
+            logger.info("Log:" + node);
         }
-        this.BuildTableFromNodeIdToInfo(this.nodes);
+        this.BuildTableFromNodeIdToInfo(nodes);
     }
 
     private List<NodeInfo> LoadNodes() {
-        if (nodes == null)
-        {
-            nodes = dataCenterConfigLoader.loadAndGetHostNodeList();
-            BuildTableFromNodeIdToInfo(this.nodes);
-        }
-        else if (nodes.size() == 0){
-            nodes = dataCenterConfigLoader.loadAndGetHostNodeList();
-            BuildTableFromNodeIdToInfo(this.nodes);
+        if (nodeTable == null) {
+            List<NodeInfo> nodes = dataCenterConfigLoader.loadAndGetHostNodeList();
+            BuildTableFromNodeIdToInfo(nodes);
         }
         return new ArrayList(nodeTable.values());
     }
 
-    public NodeInfo getNodeInfoById(String hostId) {
+    public NodeInfo getNodeInfoById(String nodeId) {
         LoadNodes();
         if (this.nodeTable != null) {
-            return this.nodeTable.get(hostId);
+            return this.nodeTable.get(nodeId);
         } else
             return null;
     }
@@ -75,8 +72,8 @@ public class NodeManager {
     }
 
     public List<NodeInfo> getAllNodesList() {
-        nodes = LoadNodes();
-        return this.nodes;
+        LoadNodes();
+        return new ArrayList(nodeTable.values());
     }
 
     public Collection<NodeInfo> getAllNodes2() {
@@ -117,9 +114,6 @@ public class NodeManager {
     private void BuildTableFromNodeIdToInfo(List<NodeInfo> nodes) {
         nodeTable = new Hashtable<String, NodeInfo>();
         if (nodes != null) {
-            if (this.nodeTable == null) {
-                this.nodeTable = new Hashtable<String, NodeInfo>();
-            }
             logger.info("nodes size : " + nodes.size());
             for (NodeInfo node : nodes) {
                 this.nodeTable.put(node.getId(), node);

@@ -8,9 +8,7 @@ import java.util.List;
 public interface NodeService {
     NodeInfo getNodeInfoById(String nodeId) throws Exception;
 
-    Hashtable getAllNodes() throws Exception;
-
-    List getAllNodesList() throws Exception;
+    List getAllNodes() throws Exception;
 
     NodeInfo createNodeInfo(NodeInfo nodeInfo) throws Exception;
 

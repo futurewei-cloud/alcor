@@ -19,18 +19,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class NodeManagerApplicationTests {
 
-	@Autowired
-	public MockMvc mvc;
+    @Autowired
+    public MockMvc mvc;
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
-	@Test
-	public void test_index() throws Exception {
-		this.mvc.perform(get("/start.html"))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(content().string(containsString("Node Manager")));
-	}
+    @Test
+    public void test_index() throws Exception {
+        this.mvc.perform(get("/start.html"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Node Manager")));
+    }
 }
