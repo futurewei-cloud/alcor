@@ -7,14 +7,50 @@ Please follow the following instruction to set up your development environment a
 
 The Alcor controller project currently uses _Apache Maven_ to manage the dependencies and its build.
 We recommend using an Ubuntu, Mac OS X or Windows OS for development and functionality testing.
-To compile, run, and test Alcor, please follow the following steps:
+To set up your local development environment, we recommend to use fork-and-branch git workflow. 
 
-Clone the Alcor repository.
-```
-$ git clone https://github.com/futurewei-cloud/alcor.git ~/alcor
-$ cd ~/alcor
-$ git submodule update --init --recursive
-```
+1. Fork Alcor Github repository by clicking the Fork button on the upper right-hand side of Alcor home page.
+2. Make a local clone:
+    ```
+    $ git clone https://github.com/<your_github_username>/alcor.git ~/alcor
+    $ cd ~/alcor
+    $ git submodule update --init --recursive
+    ```
+3. Add a remote pointing back to the Alcor Official repository
+    ```
+    $ git remote add upstream https://github.com/futurewei-cloud/alcor.git
+    ```
+4. Always keep your forked repo (both local and remote) in sync with upstream. Try to run the following commands daily:
+    ```
+    $ git checkout master
+    $ git pull upstream master
+    $ git push origin master
+    ```
+5. Work in a feature branch
+    ```
+    $ git checkout -b <new_branch_name>
+    $ ... (make changes in your branch)
+    $ git add .
+    & git commit -m "commit message"
+    ```
+6. Push changes to your remote fork
+    ```
+    $ git push origin <new_branch_name>
+    ```
+7. Open a Pull Request on Alcor home page, notify community on [Alcor Slack](https://alcor-networking.slack.com/) channels.
+You will need approval from at least one maintainer, who will merge your codes to Alcor master.
+8. Clean up after a merged Pull Request
+    ```
+    $ git checkout master
+    $ git pull upstream master
+    $ git push origin master
+    $ git branch -d <branch_name>
+    $ git push --delete origin <branch_name>
+    ```
+
+## Building Alcor
+
+To compile, run, and test Alcor, please follow the following steps: 
 
 Run the build script to install all needed packages, and clean install the project for development.
 ```
@@ -33,6 +69,9 @@ $ mvn test
 ```
 
 ## Deploying Alcor Controller
+
+NOTE: This section is outdated. Please follow up with the community on [Alcor Slack](https://alcor-networking.slack.com/) channels 
+for latest instruction before the instructions get updated.
 
 The previous steps allow you to compile and install Alcor.
 If you are interested in deploy alcor controller and its associated components (e.g. DB and cache) as docker containers,
@@ -57,7 +96,7 @@ curl localhost:8080/actuator/health
 Now you are ready to use Alcor Controller.
 
 
-## Create First VPC
+## Creating First VPC
 
 To create your first VPC, you can deploy a sample VPC with one subnet and one port with the following script.
 ```
@@ -67,6 +106,6 @@ $ ./scripts/sampeVpcTest.sh localhost 8080 false
 
 Next Step:
 - [Install Control Agents](https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md)
-- [API Document](../docs/apis/index.adoc)
-- [Alcor Design Documents](../docs/visionary_design/table_of_content.adoc)
-- [Kubernetes cluster setup guide with Mizar-MP](https://github.com/futurewei-cloud/mizar-mp/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
+- [API Document](./apis/index.adoc)
+- [Alcor Design Documents](./design/table_of_content.adoc)
+- [Kubernetes cluster setup guide](https://github.com/futurewei-cloud/alcor-int/wiki/K8s-Cluster-Setup-Guide-with-Mizar-MP)
