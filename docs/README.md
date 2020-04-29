@@ -51,23 +51,16 @@ You will need approval from at least one maintainer, who will merge your codes t
 
 ## Building Alcor
 
-To compile, run and test Alcor, please follow the following steps:
-
-Run the build script to install all needed packages, and clean install the project for development.
+To compile, run and test Alcor, please run mvn command to clean install the project for development.
 ```
-Windows:
-PS > .\scripts\build.ps1
-
-Ubuntu or Mac OS X:
-$ ./scripts/build.sh
+$  mvn clean install
 ```
 
 You could expect to see _BUILD SUCCESS_ at the end of the build console.
 
 ![Alcor Build](design/images/alcor_build.JPG)
 
-Compile and run tests.
-The make test step will run both unit and functional test.
+Compile and run unit tests.
 If this step passes, then you have everything needed to develop, test, and run Alcor.
 ```
 $ mvn test
