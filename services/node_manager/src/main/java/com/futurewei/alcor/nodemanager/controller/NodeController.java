@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -59,28 +58,10 @@ public class NodeController {
     @RequestMapping(
             method = GET,
             value = {"/nodes", "/v4/nodes"})
-    public Hashtable getAllNodes() throws Exception {
-        Hashtable nodes = null;
-        try {
-             nodes = service.getAllNodes();
-        } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            throw new Exception(e);
-        }
-        if (nodes == null) {
-            //TODO: REST error code
-            return new Hashtable();
-        }
-        return nodes;
-    }
-
-    @RequestMapping(
-            method = GET,
-            value = {"/nodeslist", "/v4/nodeslist"})
-    public List<NodeInfo> getAllNodesList() throws Exception {
+    public List<NodeInfo> getAllNodes() throws Exception {
         List<NodeInfo> nodes = null;
         try {
-            nodes = service.getAllNodesList();
+            nodes = service.getAllNodes();
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -121,6 +102,7 @@ public class NodeController {
         try {
             NodeInfo inNodeInfo = resource.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
+            RestPreconditionsUtil.verifyParameterValid(nodeid, inNodeInfo);
             hostInfo = service.updateNodeInfo(nodeid, inNodeInfo);
             if (hostInfo == null) {
                 throw new ResourcePersistenceException();

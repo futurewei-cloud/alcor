@@ -18,6 +18,10 @@ public class NodeUtil {
     public static final int NODE_INFO_FILE = 1;
     public static final int NODE_INFO_REPOSITOTY = 2;
     public static final int GRPC_SERVER_PORT = 50001;
+
+    //Exception Messages
     public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";
     public static final String NODE_EXCEPTION_NODE_IP_INVALID = "Invalid ip address";
+    public static final String NODE_EXCEPTION_NODE_NOT_EXISTING = "The node to update or delete is not existing.";
+    public static final String NODE_EXCEPTION_NODE_ALREADY_EXISTING = "The node to create is already existing.";
 }

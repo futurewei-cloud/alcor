@@ -9,5 +9,4 @@ public class NodeManagerApplication {
     public static void main(String[] args) {
         SpringApplication.run(NodeManagerApplication.class, args);
     }
-
 }

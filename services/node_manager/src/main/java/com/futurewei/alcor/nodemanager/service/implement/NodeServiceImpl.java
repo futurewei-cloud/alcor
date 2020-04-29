@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.nodemanager.service.datacenter.DataCenterConfigLoader;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.service.NodeService;
@@ -47,14 +46,18 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo getNodeInfoById(String nodeId) throws Exception {
+        if (nodeId == null)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo nodeInfo = null;
         try {
-            switch(nodeInfoLocation){
+            switch (nodeInfoLocation) {
                 case NodeUtil.NODE_INFO_FILE: {
                     nodeInfo = nodeManager.getNodeInfoById(nodeId);
+                    break;
                 }
                 case NodeUtil.NODE_INFO_REPOSITOTY: {
                     nodeInfo = nodeRepository.findItem(nodeId);
+                    break;
                 }
             }
         } catch (Exception e) {
@@ -64,29 +67,10 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public Hashtable<String, NodeInfo> getAllNodes() throws Exception {
-        Hashtable<String, NodeInfo> nodes = new Hashtable<String, NodeInfo>();
-        try {
-            switch(nodeInfoLocation){
-                case NodeUtil.NODE_INFO_FILE: {
-                    nodes = nodeManager.getAllNodes();
-                    break;
-                }
-                case NodeUtil.NODE_INFO_REPOSITOTY: {
-                    nodes.putAll(nodeRepository.findAllItems());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            throw e;
-        }
-        return nodes;
-    }
-
-    public List<NodeInfo> getAllNodesList() throws Exception {
+    public List<NodeInfo> getAllNodes() throws Exception {
         List<NodeInfo> nodes = new ArrayList<NodeInfo>();
         try {
-            switch(nodeInfoLocation){
+            switch (nodeInfoLocation) {
                 case NodeUtil.NODE_INFO_FILE: {
                     nodes = nodeManager.getAllNodesList();
                     break;
@@ -104,14 +88,23 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo createNodeInfo(NodeInfo nodeInfo) throws Exception {
+        if (nodeInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        NodeInfo node = getNodeInfoById(nodeInfo.getId());
+        if (node != null) {
+            if (nodeInfo.getId().equals(node.getId()))
+                throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_ALREADY_EXISTING));
+        }
         if (nodeInfo != null) {
             try {
-                switch(nodeInfoLocation){
+                switch (nodeInfoLocation) {
                     case NodeUtil.NODE_INFO_FILE: {
                         nodeManager.putNode(nodeInfo);
+                        break;
                     }
                     case NodeUtil.NODE_INFO_REPOSITOTY: {
                         nodeRepository.addItem(nodeInfo);
+                        break;
                     }
                 }
             } catch (Exception e) {
@@ -123,14 +116,24 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo updateNodeInfo(String nodeId, NodeInfo nodeInfo) throws Exception {
+        if (nodeId == null || nodeInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        NodeInfo node = getNodeInfoById(nodeId);
+        if (node == null)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+        else if (nodeId.equals(node.getId()) == false) {
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+        }
         if (nodeInfo != null) {
             try {
-                switch(nodeInfoLocation){
+                switch (nodeInfoLocation) {
                     case NodeUtil.NODE_INFO_FILE: {
                         nodeManager.putNode(nodeInfo);
+                        break;
                     }
                     case NodeUtil.NODE_INFO_REPOSITOTY: {
                         nodeRepository.addItem(nodeInfo);
+                        break;
                     }
                 }
             } catch (Exception e) {
@@ -144,13 +147,20 @@ public class NodeServiceImpl implements NodeService {
     public String deleteNodeInfo(String nodeId) throws Exception {
         if (nodeId == null)
             throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        NodeInfo node = getNodeInfoById(nodeId);
+        if (node == null)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+        else if (nodeId.equals(node.getId()) == false)
+            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
-            switch(nodeInfoLocation){
+            switch (nodeInfoLocation) {
                 case NodeUtil.NODE_INFO_FILE: {
                     nodeManager.deleteNode(nodeId);
+                    break;
                 }
                 case NodeUtil.NODE_INFO_REPOSITOTY: {
                     nodeRepository.deleteItem(nodeId);
+                    break;
                 }
             }
         } catch (Exception e) {
