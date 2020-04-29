@@ -6,6 +6,7 @@ MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
 # Route Manager process
 EXPOSE 9000
+
 # ROute Manager admin process
 
 # Generate container image and run container

@@ -25,4 +25,20 @@ public class ControllerUtil {
     private static String GenereateIpAddress(int index) {
         return "10.0." + (index + 6) / 256 + "." + (index + 6) % 256;
     }
+
+    public static boolean isPositive(String val) {
+        if (val == null || val.length() == 0) {
+            return false;
+        }
+        int n = val.length();
+        if (n == 0 || n > 3) {  // ex. 127.0.0.00001 is wrong
+            return false;
+        }
+        for (int i = 0; i < n; i++) {
+            if (!Character.isDigit(val.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
