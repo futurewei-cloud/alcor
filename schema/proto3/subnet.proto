@@ -1,0 +1,71 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+option java_outer_classname = "Subnet";
+
+import "common.proto";
+
+message SubnetConfiguration {
+    int32 version = 1;
+
+    string project_id = 2;
+    string vpc_id = 3;
+    string id = 4;
+    string name = 5;
+    string cidr = 6;
+    int64 tunnel_id = 7;
+
+    message Gateway {
+        string vpc_id = 1;
+        string subnet_id = 2;
+        string ip_address = 3;
+        string mac_address = 4;
+    }
+
+    Gateway gateway = 8;
+    bool dhcp_enable = 9;
+    string availability_zone = 10;
+    string primary_dns = 11;
+    string secondary_dns = 12;
+
+    message DnsEntry {
+        string entry = 1;
+    }
+
+    message SecurityGroupId {
+        string id = 1;
+    }
+
+    message TransitSwitch {
+        string vpc_id = 1;
+        string subnet_id = 2;
+        string ip_address = 3;
+        string mac_address = 4;
+    }
+
+    repeated DnsEntry dns_list = 13;
+    repeated SecurityGroupId security_group_ids = 14;
+    repeated TransitSwitch transit_switches = 15;
+}
+message SubnetState {
+    OperationType operation_type = 1;
+    SubnetConfiguration configuration = 2;
+}
