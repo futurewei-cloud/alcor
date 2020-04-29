@@ -50,18 +50,8 @@ public class IpAddrController {
         }
     }
 
-    private void checkIpAddr(String ipAddr, int ipVersion) throws Exception {
-        if (ipVersion == IpVersion.IPV4.getVersion()) {
-            if (!Ipv4AddrUtil.formatCheck(ipAddr)) {
-                throw new IpAddrInvalidException();
-            }
-        } else if (ipVersion == IpVersion.IPV6.getVersion()) {
-            if (!Ipv6AddrUtil.formatCheck(ipAddr)) {
-                throw new IpAddrInvalidException();
-            }
-        } else {
-            throw new IpAddrInvalidException();
-        }
+    private void checkIpAddr(String ipAddr) throws Exception {
+        checkIpVersion(ipAddr);
     }
 
     private void checkIpAddrState(String state) throws IpAddrStateInvalidException {
@@ -77,11 +67,25 @@ public class IpAddrController {
         }
     }
 
+    private int checkIpVersion(String ipAddress) throws Exception {
+        if (Ipv4AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV4.getVersion();
+        } else if (Ipv6AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV6.getVersion();
+        } else {
+            throw new IpAddrInvalidException();
+        }
+    }
+
     @PostMapping("/ips")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
         checkRangeId(request.getRangeId());
+
+        if (request.getIp() != null) {
+            checkIpAddr(request.getIp());
+        }
 
         return ipAddrService.allocateIpAddr(request);
     }
@@ -101,7 +105,7 @@ public class IpAddrController {
     @ResponseBody
     public IpAddrRequest modifyIpAddrState(@RequestBody IpAddrRequest request) throws Exception {
         checkRangeId(request.getRangeId());
-        checkIpAddr(request.getIp(), request.getIpVersion());
+        checkIpAddr(request.getIp());
         checkIpAddrState(request.getState());
 
         return ipAddrService.modifyIpAddrState(request);
@@ -119,43 +123,40 @@ public class IpAddrController {
         return ipAddrService.modifyIpAddrStateBulk(requestBulk);
     }
 
-    @DeleteMapping("/ips/{ip_version}/{range_id}/{ip}")
+    @DeleteMapping("/ips/{range_id}/{ip}")
     @ResponseBody
-    public IpAddrRequest releaseIpAddr(@PathVariable("ip_version") int ipVersion,
-                                         @PathVariable("range_id") String rangeId,
-                                         @PathVariable("ip") String ipAddr) throws Exception {
+    public void releaseIpAddr(@PathVariable("range_id") String rangeId,
+                              @PathVariable("ip") String ipAddr) throws Exception {
         checkRangeId(rangeId);
-        checkIpAddr(ipAddr, ipVersion);
+        checkIpAddr(ipAddr);
 
-        return ipAddrService.releaseIpAddr(ipVersion, rangeId, ipAddr);
+        ipAddrService.releaseIpAddr(rangeId, ipAddr);
     }
 
     @DeleteMapping("/ips/bulk")
     @ResponseBody
-    public IpAddrRequestBulk releaseIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
+    public void releaseIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
-            checkIpAddr(request.getIp(), request.getIpVersion());
+            checkIpAddr(request.getIp());
         }
 
-        return ipAddrService.releaseIpAddrBulk(requestBulk);
+        ipAddrService.releaseIpAddrBulk(requestBulk);
     }
 
-    @GetMapping("/ips/{ip_version}/{range_id}/{ip}")
+    @GetMapping("/ips/{range_id}/{ip}")
     @ResponseBody
-    public IpAddrRequest getIpAddr(@PathVariable("ip_version") int ipVersion,
-                                     @PathVariable("range_id") String rangeId,
-                                     @PathVariable("ip") String ipAddr) throws Exception {
+    public IpAddrRequest getIpAddr(@PathVariable("range_id") String rangeId,
+                                   @PathVariable("ip") String ipAddr) throws Exception {
         checkRangeId(rangeId);
-        checkIpAddr(ipAddr, ipVersion);
+        checkIpAddr(ipAddr);
 
-        return ipAddrService.getIpAddr(ipVersion, rangeId, ipAddr);
+        return ipAddrService.getIpAddr(rangeId, ipAddr);
     }
 
-    @GetMapping("/ips/{ip_version}/{range_id}")
+    @GetMapping("/ips/{range_id}")
     @ResponseBody
-    public List<IpAddrRequest> getIpAddrBulk(@PathVariable("ip_version") int ipVersion, @PathVariable("range_id") String rangeId) throws Exception {
-        checkIpVersion(ipVersion);
+    public List<IpAddrRequest> getIpAddrBulk(@PathVariable("range_id") String rangeId) throws Exception {
         return ipAddrService.getIpAddrBulk(rangeId);
     }
 
@@ -165,8 +166,9 @@ public class IpAddrController {
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
         checkRangeId(request.getId());
         checkSubnetId(request.getSubnetId());
-        checkIpAddr(request.getFirstIp(), request.getIpVersion());
-        checkIpAddr(request.getLastIp(), request.getIpVersion());
+        checkIpAddr(request.getFirstIp());
+        checkIpAddr(request.getLastIp());
+        checkIpVersion(request.getIpVersion());
 
         //Check if first < last
         if (request.getIpVersion() == IpVersion.IPV4.getVersion()) {
@@ -188,8 +190,8 @@ public class IpAddrController {
 
     @DeleteMapping("/ips/range/{range_id}")
     @ResponseBody
-    public IpAddrRangeRequest deleteIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
-        return ipAddrService.deleteIpAddrRange(rangeId);
+    public void deleteIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
+        ipAddrService.deleteIpAddrRange(rangeId);
     }
 
     @GetMapping("/ips/range/{range_id}")

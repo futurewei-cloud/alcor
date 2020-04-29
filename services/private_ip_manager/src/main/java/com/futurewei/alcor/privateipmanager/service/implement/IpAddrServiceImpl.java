@@ -38,10 +38,13 @@ public class IpAddrServiceImpl implements IpAddrService {
     public IpAddrRequest allocateIpAddr(IpAddrRequest request) throws Exception {
         LOG.debug("Allocate ip address, request: {}", request);
 
-        String ipAddr = ipAddrRangeRepo.allocateIpAddr(request.getRangeId());
+        IpAddrAlloc ipAddrAlloc = ipAddrRangeRepo.allocateIpAddr(request);
 
-        request.setIp(ipAddr);
-        request.setState(IpAddrState.ACTIVATED.getState());
+        request.setIpVersion(ipAddrAlloc.getIpVersion());
+        request.setSubnetId(ipAddrAlloc.getSubnetId());
+        request.setRangeId(ipAddrAlloc.getRangeId());
+        request.setIp(ipAddrAlloc.getIpAddr());
+        request.setState(ipAddrAlloc.getState());
 
         LOG.info("Allocate ip address success, request: {}", request);
 
@@ -52,7 +55,6 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.debug("Allocate ip address bulk, requestBulk: {}", requestBulk);
 
         Map<String, Integer> rangeToNum = new HashMap<>();
-        Map<String, Integer> rangeToIpVersion = new HashMap<>();
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
 
         for (IpAddrRequest request: requestBulk.getIpRequests()) {
@@ -63,18 +65,17 @@ public class IpAddrServiceImpl implements IpAddrService {
             }
 
             rangeToNum.put(request.getRangeId(), num);
-            rangeToIpVersion.put(request.getRangeId(), request.getIpVersion());
         }
 
-        Map<String, List<String>> result = ipAddrRangeRepo.allocateIpAddrBulk(rangeToNum);
+        Map<String, List<IpAddrAlloc>> result = ipAddrRangeRepo.allocateIpAddrBulk(rangeToNum);
 
-        for (Map.Entry<String, List<String>> entry: result.entrySet()) {
-            for (String ipAddr: entry.getValue()) {
+        for (Map.Entry<String, List<IpAddrAlloc>> entry: result.entrySet()) {
+            for (IpAddrAlloc ipAddrAlloc: entry.getValue()) {
                 IpAddrRequest ipAddrRequest = new IpAddrRequest();
-                ipAddrRequest.setIpVersion(rangeToIpVersion.get(entry.getKey()));
-                ipAddrRequest.setRangeId(entry.getKey());
-                ipAddrRequest.setIp(ipAddr);
-                ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
+                ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
+                ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
+                ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
+                ipAddrRequest.setState(ipAddrAlloc.getState());
                 ipAddrRequests.add(ipAddrRequest);
             }
         }
@@ -111,23 +112,15 @@ public class IpAddrServiceImpl implements IpAddrService {
         return requestBulk;
     }
 
-    public IpAddrRequest releaseIpAddr(int ipVersion, String rangeId, String ipAddr) throws Exception {
+    public void releaseIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Release ip address, ipAddr: {}", ipAddr);
 
         ipAddrRangeRepo.releaseIpAddr(rangeId, ipAddr);
 
-        IpAddrRequest result = new IpAddrRequest();
-        result.setIpVersion(ipVersion);
-        result.setRangeId(rangeId);
-        result.setIp(ipAddr);
-        result.setState(IpAddrState.FREE.getState());
-
-        LOG.info("Release ip address success, result: {}", result);
-
-        return result;
+        LOG.info("Release ip address success, result: {}", ipAddr);
     }
 
-    public IpAddrRequestBulk releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
+    public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
 
         Map<String, List<String>> rangeToIpAddrList = new HashMap<>();
@@ -147,21 +140,16 @@ public class IpAddrServiceImpl implements IpAddrService {
         ipAddrRangeRepo.releaseIpAddrBulk(rangeToIpAddrList);
 
         LOG.info("Release ip address bulk done, requestBulk: {}", requestBulk);
-
-        return requestBulk;
     }
 
-    public IpAddrRequest getIpAddr(int ipVersion, String rangeId, String ipAddr) throws Exception {
+    public IpAddrRequest getIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Get ip address, rangeId: {}, ipAddr: {}", rangeId, ipAddr);
 
         IpAddrAlloc ipAddrAlloc = ipAddrRangeRepo.getIpAddr(rangeId, ipAddr);
-        if (ipAddrAlloc.getIpVersion() != ipVersion) {
-            throw new IpVersionInvalidException();
-        }
 
         IpAddrRequest result = new IpAddrRequest();
-
         result.setIpVersion(ipAddrAlloc.getIpVersion());
+        result.setSubnetId(ipAddrAlloc.getSubnetId());
         result.setRangeId(ipAddrAlloc.getRangeId());
         result.setIp(ipAddrAlloc.getIpAddr());
         result.setState(ipAddrAlloc.getState());
@@ -202,23 +190,12 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
-    public IpAddrRangeRequest deleteIpAddrRange(String rangeId) throws Exception {
+    public void deleteIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
         IpAddrRange ipAddrRange = ipAddrRangeRepo.deleteIpAddrRange(rangeId);
 
-        IpAddrRangeRequest request = new IpAddrRangeRequest();
-        request.setId(ipAddrRange.getId());
-        request.setSubnetId(ipAddrRange.getSubnetId());
-        request.setIpVersion(ipAddrRange.getIpVersion());
-        request.setFirstIp(ipAddrRange.getFirstIp());
-        request.setLastIp(ipAddrRange.getLastIp());
-        request.setUsedIps(ipAddrRange.getUsedIps());
-        request.setTotalIps(ipAddrRange.getTotalIps());
-
-        LOG.info("Delete ip address range success, request: {}", request);
-
-        return request;
+        LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
 
     public IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception {

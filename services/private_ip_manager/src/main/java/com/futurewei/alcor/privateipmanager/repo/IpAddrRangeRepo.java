@@ -20,9 +20,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
+import com.futurewei.alcor.privateipmanager.entity.*;
 import com.futurewei.alcor.privateipmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeNotFoundException;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeExistException;
@@ -102,26 +100,24 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     /**
      * Allocate a ip address from IpAddrRange repository
-     * @param rangeId Assign ip addresses from this ip range
+     * @param request Assign ip address request
      * @return Ip address assigned from ip range
      * @throws Exception Db operation or ip address assignment exception
      */
-    public synchronized String allocateIpAddr(String rangeId) throws Exception {
-        String ipAddr;
-
+    public synchronized IpAddrAlloc allocateIpAddr(IpAddrRequest request) throws Exception {
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(request.getRangeId());
             if (ipAddrRange == null) {
                 throw new IpRangeNotFoundException();
             }
 
-            ipAddr = ipAddrRange.allocate();
+            IpAddrAlloc ipAddrAlloc = ipAddrRange.allocate(request.getIp());
             ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
 
             tx.commit();
-        }
 
-        return ipAddr;
+            return ipAddrAlloc;
+        }
     }
 
     /**
@@ -130,8 +126,8 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
      * @return Number of ip addresses assigned each ip range
      * @throws Exception Db operation or ip address assignment exception
      */
-    public synchronized Map<String, List<String>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
-        Map<String, List<String>> result = new HashMap<>();
+    public synchronized Map<String, List<IpAddrAlloc>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
+        Map<String, List<IpAddrAlloc>> result = new HashMap<>();
 
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
             for (Map.Entry<String, Integer> entry: requests.entrySet()) {
@@ -140,10 +136,10 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                     throw new IpRangeNotFoundException();
                 }
 
-                List<String> ipAddrList = ipAddrRange.allocateBulk(entry.getValue());
+                List<IpAddrAlloc> ipAddrAllocs = ipAddrRange.allocateBulk(entry.getValue());
                 ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
 
-                result.put(entry.getKey(), ipAddrList);
+                result.put(entry.getKey(), ipAddrAllocs);
             }
 
             tx.commit();

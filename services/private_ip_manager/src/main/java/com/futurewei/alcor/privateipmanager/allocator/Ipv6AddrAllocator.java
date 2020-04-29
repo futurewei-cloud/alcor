@@ -39,11 +39,22 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
 
 
     @Override
-    public String allocate() throws Exception {
-        int freeBit = bitSet.nextClearBit(0);
+    public String allocate(String ipAddr) throws Exception {
+        int freeBit;
 
-        if (freeBit < 0 || freeBit >= ipAddrNum) {
-            throw new IpAddrNotEnoughException();
+        if (ipAddr != null) {
+            BigInteger ipBigInt = Ipv6AddrUtil.ipv6ToBitInt(ipAddr);
+            if (ipBigInt.compareTo(firstIp) < 0 || ipBigInt.compareTo(lastIp) > 0) {
+                throw new IpAddrInvalidException();
+            }
+
+            freeBit = (int)(ipBigInt.subtract(firstIp).longValue());
+        } else {
+            freeBit = bitSet.nextClearBit(0);
+
+            if (freeBit < 0 || freeBit >= ipAddrNum) {
+                throw new IpAddrNotEnoughException();
+            }
         }
 
         bitSet.set(freeBit);

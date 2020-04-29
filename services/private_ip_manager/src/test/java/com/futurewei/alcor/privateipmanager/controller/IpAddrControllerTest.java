@@ -79,7 +79,7 @@ public class IpAddrControllerTest {
 
     @Test
     public void allocateIpAddrTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", null, null);
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", null, null);
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -92,9 +92,9 @@ public class IpAddrControllerTest {
 
     @Test
     public void allocateIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", null, null);
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", null, null);
-        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4, "range2", null, null);
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", null, null);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", null, null);
+        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4, null, "range2", null, null);
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -116,7 +116,7 @@ public class IpAddrControllerTest {
 
     @Test
     public void activateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", "11.11.11.1", "activate");
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", "11.11.11.1", "activated");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -129,8 +129,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void activateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "activate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "activate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "activated");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "activated");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -151,7 +151,7 @@ public class IpAddrControllerTest {
 
     @Test
     public void deactivateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivated");
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
@@ -164,8 +164,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void deactivateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "deactivate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivated");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "deactivated");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -193,8 +193,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void releaseIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, "range1", "11.11.11.1", "deactivate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, "range1", "11.11.11.2", "deactivate");
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivate");
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "deactivate");
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);

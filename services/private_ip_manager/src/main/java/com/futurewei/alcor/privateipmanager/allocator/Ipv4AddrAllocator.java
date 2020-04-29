@@ -35,11 +35,22 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
     }
 
     @Override
-    public String allocate() throws Exception {
-        int freeBit = bitSet.nextClearBit(0);
+    public String allocate(String ipAddr) throws Exception {
+        int freeBit;
 
-        if (freeBit < 0 || freeBit >= ipAddrNum) {
-            throw new IpAddrNotEnoughException();
+        if (ipAddr != null) {
+            long ipLong = Ipv4AddrUtil.ipv4ToLong(ipAddr);
+            if (ipLong < firstIp || ipLong > lastIp) {
+                throw new IpAddrInvalidException();
+            }
+
+            freeBit = (int)(ipLong - firstIp);
+        } else {
+            freeBit = bitSet.nextClearBit(0);
+
+            if (freeBit < 0 || freeBit >= ipAddrNum) {
+                throw new IpAddrNotEnoughException();
+            }
         }
 
         bitSet.set(freeBit);
