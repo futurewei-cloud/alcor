@@ -36,7 +36,7 @@ public class SwaggerConfig{
             .apiInfo(apiInfo())
             .select()
             .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.regex("(?!/error).+")):web
+            .paths(PathSelectors.regex("(?!/error).+"))
             .paths(PathSelectors.regex("(?!/actuator).+"))
             .build();
     }
