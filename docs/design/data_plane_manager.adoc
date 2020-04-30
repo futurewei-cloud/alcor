@@ -1,13 +1,43 @@
-*Data Plane Manager*
+== Table of Contents
 
-*Summary* +
+link:#_Toc39136191[Data Plane Manager 1]
+
+link:#summary[Summary 2]
+
+link:#user-cases[User Cases 2]
+
+link:#basic-requirements[Basic Requirements 2]
+
+link:#advanced-requirements[Advanced Requirements 3]
+
+link:#design[Design 3]
+
+link:#system-structure[(1) System Structure 3]
+
+link:#data-schema[(2) Data Schema 4]
+
+link:#rest-apis-on-going[(3) REST APIs (on-going) 4]
+
+link:#get-port-info-by-port-id[(1) Get Port Info By port Id 5]
+
+link:#create-ports-in-batch[(2) Create Ports in Batch 6]
+
+link:#reference[Reference 7]
+
+== 
+
+== 
+
+== Summary
+
 The Data-plane manager is a control plane component responsible of driving network configuration down to the control agents installed on the physical hosts. It provides a flexible plugin framework which allows different data-plane extension.
 
-*User Cases* +
-(1) Port Manger wants to send one new port information to every hosts in the VPC +
+=== User Cases
+
+{empty}(1) Port Manger wants to send one new port information to every hosts in the VPC +
 (2) Security Group Manager wants to send one new security group to hosts in the VPC
 
-*Basic Requirements*
+=== Basic Requirements
 
 [arabic]
 . Provide a flexible plugin framework which allows different data-plane extensions.
@@ -17,20 +47,22 @@ The Data-plane manager is a control plane component responsible of driving netwo
 . Working together with other services including port manager and security group manager.
 . Concurrency control mechanism should be provided to process multiple concurrent network configuration programming requests.
 
-*Advanced Requirements* +
+=== Advanced Requirements
+
 Fall back mechanism from one path to the other, for example, from fast path to normal path, or from normal path to rescue path
 
-*Design*
+== Design
 
-*(1) System Structure*
+=== (1) System Structure
 
 * Node manager (Node Client) requests the state of every node (Node Server) periodically and each node returns through health check command (e.g. top)
 * Configuration: Health check duration
 
-image:images/dpm.png[image,width=660,height=384]
+image:extracted-media/media/image1.emf[image,width=660,height=384]
+
 [Figure 1] Data Plane Manager Structure
 
-*(2) Data Schema*
+=== (2) Data Schema 
 
 (2.1) Goal_State Schema
 
@@ -44,14 +76,14 @@ State could contains more same type data as array
 
 * DataPlaneManager would deploy the goal state configuration in batch to the aca grouply in parallel then wait for the response and do next accordingly
 
-*(3) REST APIs (on-going)*
+=== (3) REST APIs (on-going)
 
 * Get
 * Create
 * Update
 * Delete
 
-*(1) Get Port Info By port Id*
+==== (1) Get Port Info By port Id
 
 * {blank}
 +
@@ -153,9 +185,9 @@ Response:
 
 "dns_assignment": null
 
-}
+}}
 
-} *(2) Create Ports in Batch*
+====  (2) Create Ports in Batch
 
 * {blank}
 +
@@ -308,7 +340,7 @@ Response:
 
 }
 
-*Reference*
+== Reference
 
 [arabic]
 . https://github.com/futurewei-cloud/alcor/issues/166
