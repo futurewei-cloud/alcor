@@ -24,6 +24,9 @@ import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.VpcWebJson;
+import com.futurewei.alcor.web.entity.VpcWebRequestObject;
+import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,18 +74,17 @@ public class RouteController {
             method = POST,
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
-    public RouteStateJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcStateJson resource) throws Exception {
+    public RouteStateJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
         RouteState routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-
-            VpcState inVpcState = resource.getVpc();
-            RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
+            VpcWebResponseObject vpcWebResponseObject = resource.getNetwork();
+            RestPreconditionsUtil.verifyResourceNotNull(vpcWebResponseObject);
 
             String id = UUID.randomUUID().toString();
-            String projectId = inVpcState.getProjectId();
-            String destination = inVpcState.getCidr();
+            String projectId = vpcWebResponseObject.getProjectId();
+            String destination = vpcWebResponseObject.getCidr();
             String routeTableId = UUID.randomUUID().toString();
 
             routeState = new RouteState(projectId, id, "default_route_rule", "",

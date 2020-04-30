@@ -1,9 +1,9 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
-import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
-import com.futurewei.alcor.vpcmanager.entity.VpcState;
-import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
+import com.futurewei.alcor.web.entity.RouteWebJson;
+import com.futurewei.alcor.web.entity.VpcWebJson;
+import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +22,9 @@ public class VpcServiceIml implements VpcService {
     private RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public RouteWebJson getRoute(String vpcId, VpcState vpcState) {
+    public RouteWebJson getRoute(String vpcId, VpcWebResponseObject vpcState) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
-        HttpEntity<VpcStateJson> request = new HttpEntity<>(new VpcStateJson(vpcState));
+        HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
         RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
         return response;
     }

@@ -21,20 +21,14 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNullException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.entity.ResponseId;
-import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
-import com.futurewei.alcor.vpcmanager.entity.VpcState;
-import com.futurewei.alcor.vpcmanager.entity.VpcStateJson;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.vpcmanager.entity.RouteWebJson;
-import com.futurewei.alcor.vpcmanager.entity.RouteWebObject;
+import com.futurewei.alcor.web.entity.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +49,9 @@ public class VpcController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
-    public VpcStateJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+    public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
-        VpcState vpcState = null;
+        VpcWebResponseObject vpcState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -72,46 +66,54 @@ public class VpcController {
 
         if (vpcState == null) {
             //TODO: REST error code
-            return new VpcStateJson();
+            return new VpcWebJson();
         }
 
-        return new VpcStateJson(vpcState);
+        return new VpcWebJson(vpcState);
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/vpcs/bulk", "/v4/{projectid}/vpcs/bulk"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public VpcsWebJson createVpcStateBulk(@PathVariable String projectid, @RequestBody VpcsWebJson resource) throws Exception {
+        return new VpcsWebJson();
     }
 
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
-    public VpcStateJson createVpcState(@PathVariable String projectid, @RequestBody VpcStateJson resource) throws Exception {
-        VpcState vpcState = null;
+    public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
+        VpcWebResponseObject inVpcState = new VpcWebResponseObject();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-
-            VpcState inVpcState = resource.getVpc();
+            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
+            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
             this.vpcDatabaseService.addVpc(inVpcState);
 
-            vpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
-            if (vpcState == null) {
+            inVpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
+            if (inVpcState == null) {
                 throw new ResourcePersistenceException();
             }
 
             // get route info
-            RouteWebJson response = this.vpcService.getRoute(vpcState.getId(), vpcState);
+            RouteWebJson response = this.vpcService.getRoute(inVpcState.getId(), inVpcState);
 
             // add RouteWebObject
             if (response != null) {
-                List<RouteWebObject> routeWebObjectList = vpcState.getRoutes();
+                List<RouteWebObject> routeWebObjectList = inVpcState.getRoutes();
                 if (routeWebObjectList == null) {
                     routeWebObjectList = new ArrayList<>();
                 }
                 routeWebObjectList.add(response.getRoute());
-                vpcState.setRoutes(routeWebObjectList);
+                inVpcState.setRoutes(routeWebObjectList);
             }
-            this.vpcDatabaseService.addVpc(vpcState);
+            this.vpcDatabaseService.addVpc(inVpcState);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -119,46 +121,47 @@ public class VpcController {
             throw new Exception(e);
         }
 
-        return new VpcStateJson(vpcState);
+        return new VpcWebJson(inVpcState);
     }
 
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
-    public VpcStateJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcStateJson resource) throws Exception {
+    public VpcWebJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource) throws Exception {
 
-        VpcState vpcState = null;
+        VpcWebResponseObject inVpcState = new VpcWebResponseObject();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
 
-            VpcState inVpcState = resource.getVpc();
+            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
+            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            if (vpcState == null) {
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
             this.vpcDatabaseService.addVpc(inVpcState);
 
-            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
-        return new VpcStateJson(vpcState);
+        return new VpcWebJson(inVpcState);
     }
 
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
     public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
-        VpcState vpcState = null;
+        VpcWebResponseObject vpcState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -182,7 +185,7 @@ public class VpcController {
             method = GET,
             value = "/project/{projectid}/vpcs")
     public Map getVpcStatesByProjectId(@PathVariable String projectid) throws Exception {
-        Map<String, VpcState> vpcStates = null;
+        Map<String, VpcWebResponseObject> vpcStates = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);

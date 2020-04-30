@@ -9,6 +9,10 @@ import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.web.entity.RouteWebJson;
+import com.futurewei.alcor.web.entity.RouteWebObject;
+import com.futurewei.alcor.web.entity.SubnetWebJson;
+import com.futurewei.alcor.web.entity.SubnetWebObject;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -72,7 +75,7 @@ public class SubnetServiceImp implements SubnetService {
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetStateJson resource,
+                                  SubnetWebJson resource,
                                   String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
@@ -118,9 +121,9 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
+    public RouteWebJson createRouteRules(String subnetId, SubnetWebObject subnetWebObject) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
+        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetWebObject));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
         if (routeResponse == null) {
