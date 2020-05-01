@@ -101,6 +101,13 @@ public class VpcController {
                 throw new ResourcePersistenceException();
             }
 
+            // Create default segment if there is no segments
+            List<SegmentWebResponseObject> segments = inVpcState.getSegments();
+            if (segments == null) {
+                segments = new ArrayList<>();
+            }
+
+
             // get route info
             RouteWebJson response = this.vpcService.getRoute(inVpcState.getId(), inVpcState);
 

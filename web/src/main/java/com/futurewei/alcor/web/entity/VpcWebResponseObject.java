@@ -1,6 +1,5 @@
 package com.futurewei.alcor.web.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
@@ -43,7 +42,7 @@ public class VpcWebResponseObject extends CustomerResource {
     private boolean routerExternal;
 
     @JsonProperty("segments")
-    private List<SegmentWebObject> segments;
+    private List<SegmentWebResponseObject> segments;
 
     @JsonProperty("shared")
     private boolean shared;
@@ -102,7 +101,7 @@ public class VpcWebResponseObject extends CustomerResource {
         this.routes = routes;
     }
 
-    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentWebObject> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, String tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebObject> subnets, String cidr) {
+    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentWebResponseObject> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, String tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebObject> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routes = routes;
         this.adminStateUp = adminStateUp;

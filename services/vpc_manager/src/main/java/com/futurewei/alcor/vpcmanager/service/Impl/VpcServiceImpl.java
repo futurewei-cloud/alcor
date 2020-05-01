@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class VpcServiceIml implements VpcService {
+public class VpcServiceImpl implements VpcService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

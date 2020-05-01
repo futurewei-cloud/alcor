@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.web.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
@@ -57,7 +56,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private boolean routerExternal;
 
     @JsonProperty("segments")
-    private List<SegmentWebObject> segments;
+    private List<SegmentWebRequestObject> segments;
 
     @JsonProperty("shared")
     private boolean shared;

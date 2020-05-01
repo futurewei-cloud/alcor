@@ -18,6 +18,7 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
 import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import org.thymeleaf.util.StringUtils;
 
@@ -77,6 +78,20 @@ public class RestPreconditionsUtil {
         } else if (!resourceVpcId.equalsIgnoreCase(vpcId)) {
             System.out.println("Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
             resource.setId(vpcId);
+        }
+    }
+
+    public static void populateResourceSegmentId(CustomerResource resource, String segmentId) {
+        String resourceSegmentId = null;
+        if (resource instanceof SegmentWebResponseObject) {
+            resourceSegmentId = resource.getId();
+        }
+
+        if (StringUtils.isEmpty(resourceSegmentId)) {
+            resource.setId(segmentId);
+        } else if (!resourceSegmentId.equalsIgnoreCase(segmentId)) {
+            System.out.println("Resource segment id not matched " + resourceSegmentId + " : " + segmentId);
+            resource.setId(segmentId);
         }
     }
 }
