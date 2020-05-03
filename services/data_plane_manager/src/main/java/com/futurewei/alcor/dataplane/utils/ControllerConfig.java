@@ -13,11 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.web.util;
+package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.model.HostInfo;
 import com.futurewei.alcor.dataplane.model.SubnetState;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.nodemgmt.DataCenterConfig;
+import com.futurewei.alcor.dataplane.service.nodemgmt.DataCenterConfig;
 
 public class ControllerConfig {
 

@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.web.util;
+package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.logging.Logger;
 import com.futurewei.alcor.dataplane.logging.LoggerFactory;
@@ -21,11 +21,11 @@ import com.futurewei.alcor.dataplane.model.HostInfo;
 import com.futurewei.alcor.dataplane.model.PortState;
 import com.futurewei.alcor.dataplane.model.SubnetState;
 import com.futurewei.alcor.dataplane.model.VpcState;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt.PortGoalStateProgrammer;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt.PortProgramInfo;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt.SubnetGoalStateProgrammer;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt.SubnetProgramInfo;
-import com.futurewei.alcor.dataplane.resourcemgr.physical.nodemgmt.DataCenterConfig;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.impl.PortGoalStateProgrammer;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.PortProgramInfo;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.impl.SubnetGoalStateProgrammer;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.SubnetProgramInfo;
+import com.futurewei.alcor.dataplane.service.nodemgmt.DataCenterConfig;
 
 import java.util.logging.Level;
 

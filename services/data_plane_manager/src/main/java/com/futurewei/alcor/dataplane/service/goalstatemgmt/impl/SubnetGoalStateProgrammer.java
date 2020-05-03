@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt;
+package com.futurewei.alcor.dataplane.service.goalstatemgmt.impl;
 
 import com.futurewei.alcor.dataplane.comm.config.IKafkaConfiguration;
 import com.futurewei.alcor.dataplane.comm.grpc.GoalStateProvisionerClient;
@@ -25,17 +25,37 @@ import com.futurewei.alcor.dataplane.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.model.HostInfo;
 import com.futurewei.alcor.dataplane.model.SubnetState;
 import com.futurewei.alcor.dataplane.model.VpcState;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.GoalStateProgrammer;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.SubnetProgramInfo;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.dataplane.utilities.GoalStateUtil;
 
 import java.util.logging.Level;
 
-public class SubnetGoalStateProgrammer extends GoalStateProgrammer {
+public class SubnetGoalStateProgrammer implements GoalStateProgrammer {
 
     private SubnetProgramInfo subnetProgramInfo;
     private boolean isFastPath;
+    GoalStateProvisionerClient gRpcClientForEpHost = null;
 
+    public GoalStateProvisionerClient getGRpcClientForEpHost() {
+        return gRpcClientForEpHost;
+    }
+
+    public void setGRpcClientForEpHost(GoalStateProvisionerClient gRpcClientForEpHost) {
+        this.gRpcClientForEpHost = gRpcClientForEpHost;
+    }
+
+    public MessageClient getKafkaClient() {
+        return kafkaClient;
+    }
+
+    public void setKafkaClient(MessageClient kafkaClient) {
+        this.kafkaClient = kafkaClient;
+    }
+
+    MessageClient kafkaClient = null;
     public SubnetGoalStateProgrammer(SubnetProgramInfo subnetProgramInfo) {
         this.subnetProgramInfo = subnetProgramInfo;
         this.isFastPath = true;

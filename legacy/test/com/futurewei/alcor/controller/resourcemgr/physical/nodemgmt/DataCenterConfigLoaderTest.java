@@ -26,7 +26,7 @@ public class DataCenterConfigLoaderTest {
 
     @Test
     public void machineConfigFileLoadTest() {
-        List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("./test/com/futurewei/alcor/controller/resourcemgr/physical/nodemgmt/machine.json");
+        List<HostInfo> hostNodeList = new DataCenterConfigLoader().loadAndGetHostNodeList("./test/com/futurewei/alcor/controller/resourcemgr/service/nodemgmt/machine.json");
 
         Assert.assertEquals("incorrect number of nodes", 200, hostNodeList.size());
 

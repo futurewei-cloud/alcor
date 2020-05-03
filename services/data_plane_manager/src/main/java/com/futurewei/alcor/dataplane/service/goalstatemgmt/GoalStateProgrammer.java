@@ -13,24 +13,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.dataplane.service.goalstatemgmt;
 
-package com.futurewei.alcor.dataplane.web;
+import com.futurewei.alcor.dataplane.comm.grpc.GoalStateProvisionerClient;
+import com.futurewei.alcor.dataplane.comm.message.MessageClient;
+import lombok.Data;
 
-public class DebugInfo {
+public interface  GoalStateProgrammer {
 
-    private final long id;
-    private final String content;
-
-    public DebugInfo(long id, String content) {
-        this.id = id;
-        this.content = content;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getContent() {
-        return content;
-    }
+    long[] SendGoalStateToHosts();
 }

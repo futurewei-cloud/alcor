@@ -1,4 +1,4 @@
-package com.futurewei.alcor.dataplane.web;
+package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.dataplane.db.repo.VpcRepository;
 import com.futurewei.alcor.dataplane.exception.CacheException;
@@ -7,7 +7,7 @@ import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.model.ResponseId;
 import com.futurewei.alcor.dataplane.model.VpcState;
 import com.futurewei.alcor.dataplane.model.VpcStateJson;
-import com.futurewei.alcor.dataplane.web.util.RestPreconditions;
+import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

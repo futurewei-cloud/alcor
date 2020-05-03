@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.dataplane.web;
+package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.dataplane.db.repo.SubnetRedisRepository;
 import com.futurewei.alcor.dataplane.db.repo.VpcRedisRepository;
@@ -23,8 +23,8 @@ import com.futurewei.alcor.dataplane.model.ResponseId;
 import com.futurewei.alcor.dataplane.model.SubnetState;
 import com.futurewei.alcor.dataplane.model.SubnetStateJson;
 import com.futurewei.alcor.dataplane.model.VpcState;
-import com.futurewei.alcor.dataplane.web.util.ControllerUtil;
-import com.futurewei.alcor.dataplane.web.util.RestPreconditions;
+import com.futurewei.alcor.dataplane.utils.ControllerUtil;
+import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import com.futurewei.alcor.dataplane.app.onebox.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

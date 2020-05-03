@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 == Table of Contents
 
 link:#_Toc39136191[Data Plane Manager 1]
@@ -36,6 +37,19 @@ The Data-plane manager is a control plane component responsible of driving netwo
 
 {empty}(1) Port Manger wants to send one new port information to every hosts in the VPC +
 (2) Security Group Manager wants to send one new security group to hosts in the VPC
+=======
+= Data-Plane Manager Design Specification
+Xiaodong Zhang <xzhang2@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-30
+:toc: right
+
+== Overview
+
+The Data-plane manager is a control plane component responsible of driving network configuration down to the control agents installed on the physical hosts.
+It provides a flexible plugin framework which allows different data-plane extension.
+
+== Service Requirements
+>>>>>>> ae4023e6c088340ab375f53230210b03a2f624c1
 
 === Basic Requirements
 
@@ -47,6 +61,7 @@ The Data-plane manager is a control plane component responsible of driving netwo
 . Working together with other services including port manager and security group manager.
 . Concurrency control mechanism should be provided to process multiple concurrent network configuration programming requests.
 
+<<<<<<< HEAD
 === Advanced Requirements
 
 Fall back mechanism from one path to the other, for example, from fast path to normal path, or from normal path to rescue path
@@ -54,6 +69,14 @@ Fall back mechanism from one path to the other, for example, from fast path to n
 == Design
 
 === (1) System Structure
+=======
+*Advanced Requirements* +
+Fall back mechanism from one path to the other, for example, from fast path to normal path, or from normal path to rescue path.
+
+== System Design
+
+=== Data-Plane Manager Architecture
+>>>>>>> ae4023e6c088340ab375f53230210b03a2f624c1
 
 * Node manager (Node Client) requests the state of every node (Node Server) periodically and each node returns through health check command (e.g. top)
 * Configuration: Health check duration
@@ -62,7 +85,45 @@ image:extracted-media/media/image1.emf[image,width=660,height=384]
 
 [Figure 1] Data Plane Manager Structure
 
+<<<<<<< HEAD
 === (2) Data Schema 
+=======
+=== Extensible Design to Support Various Data-Plane
+
+Upstream microservices doesn't need to know about the actual data-plane implementation.
+
+. OVS Extension
+. Mizar Gateway Extension (later)
+
+=== Key Worfklow
+
+. Create first port in a subnet
+. Create a port in an existing subnet
+. Update a port
+. Get a port
+. Delete a port
+
+=== Concurrency Control
+
+How to process multiple concurrent network configuration programming requests.
+
+== Communication with Agent
+
+=== Message Design
+Full or delta?
+
+=== Multi-path Control Logic
+
+. Normal Path
+. Fast Path
+. Rescue Path
+
+Logic:
+. When and how trigger each path
+. Switch among different paths
+
+== Database Schema
+>>>>>>> ae4023e6c088340ab375f53230210b03a2f624c1
 
 (2.1) Goal_State Schema
 
@@ -74,7 +135,52 @@ image:extracted-media/media/image1.emf[image,width=660,height=384]
 
 State could contains more same type data as array
 
-* DataPlaneManager would deploy the goal state configuration in batch to the aca grouply in parallel then wait for the response and do next accordingly
+* DataPlaneManager would deploy the goal state configuration in batch to the aca grouply in parallel then wait for the response and do next accordingly.
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+//|Verify IP State
+//|GET
+//|/ips/{ip_version}/{range_id}/{ip}
+//|ip state
+//<<IP_Get,[sample]>>
+
+|===
+
+=== API Specification
+
+//anchor:IP_Get[]
+//**(1) Get/Verify IP state by IP address**
+//
+//* Method: `GET`
+//
+//* Request: `/ips/{ip_version}/{range_id}/{ip}`
+//
+//* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
+//
+//* Response: ip state
+//* Normal response codes: 200
+//* Error response codes: 400, 412, 500
+//
+//* Example
+//
+//....
+//Request:
+//http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
+//
+//Response:
+//{
+//	"ip_version": 4,
+//    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+//    "ip": "10.10.10.1",
+//    “state” “activated”
+//}
 
 === (3) REST APIs (on-going)
 
@@ -340,7 +446,11 @@ Response:
 
 }
 
+<<<<<<< HEAD
 == Reference
+=======
+[bibliography]
+== References
+>>>>>>> ae4023e6c088340ab375f53230210b03a2f624c1
 
-[arabic]
-. https://github.com/futurewei-cloud/alcor/issues/166
+- [[[fw_issue,1]]] https://github.com/futurewei-cloud/alcor/issues/166

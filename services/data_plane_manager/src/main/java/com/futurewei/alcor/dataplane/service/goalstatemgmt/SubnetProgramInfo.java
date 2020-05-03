@@ -13,25 +13,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt;
+package com.futurewei.alcor.dataplane.service.goalstatemgmt;
 
 import com.futurewei.alcor.dataplane.model.HostInfo;
-import com.futurewei.alcor.dataplane.model.PortState;
 import com.futurewei.alcor.dataplane.model.SubnetState;
+import com.futurewei.alcor.dataplane.model.VpcState;
 import lombok.Data;
 
 @Data
-public class PortProgramInfo {
+public class SubnetProgramInfo {
 
-    private PortState customerPortState;
-    private HostInfo epHost;
     private SubnetState customerSubnetState;
     private HostInfo[] transitSwitchHosts;
+    private VpcState customerVpcState;
+    private HostInfo[] transitRouterHosts;
 
-    public PortProgramInfo(PortState portState, HostInfo epHost, SubnetState subnetState, HostInfo[] transitSwitchHostsForSubnet) {
-        this.customerPortState = portState;
-        this.epHost = epHost;
-        this.customerSubnetState = subnetState;
-        this.transitSwitchHosts = transitSwitchHostsForSubnet.clone();
+    public SubnetProgramInfo(SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, VpcState customerVpcState, HostInfo[] transitRouterHosts) {
+        this.customerSubnetState = customerSubnetState;
+        this.transitSwitchHosts = transitSwitchHosts.clone();
+        this.customerVpcState = customerVpcState;
+        this.transitRouterHosts = transitRouterHosts.clone();
     }
 }

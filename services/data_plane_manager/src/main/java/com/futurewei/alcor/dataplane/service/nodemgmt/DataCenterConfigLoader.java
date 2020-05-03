@@ -14,12 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.dataplane.resourcemgr.physical.nodemgmt;
+package com.futurewei.alcor.dataplane.service.nodemgmt;
 
 import com.futurewei.alcor.dataplane.logging.Logger;
 import com.futurewei.alcor.dataplane.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.model.HostInfo;
-import com.futurewei.alcor.dataplane.utilities.Common;
+import com.futurewei.alcor.dataplane.utils.Common;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

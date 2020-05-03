@@ -23,7 +23,7 @@ import com.futurewei.alcor.dataplane.comm.message.MessageClient;
 import com.futurewei.alcor.dataplane.model.*;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.dataplane.utilities.GoalStateUtil;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 
 import java.util.ArrayList;
 import java.util.List;

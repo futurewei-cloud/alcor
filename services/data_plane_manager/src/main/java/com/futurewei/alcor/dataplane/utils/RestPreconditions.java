@@ -1,4 +1,4 @@
-package com.futurewei.alcor.dataplane.web.util;
+package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.app.onebox.OneBoxConfig;
 import com.futurewei.alcor.dataplane.exception.*;

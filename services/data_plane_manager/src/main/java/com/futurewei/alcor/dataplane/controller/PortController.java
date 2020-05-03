@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.dataplane.web;
+package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.dataplane.app.onebox.*;
 import com.futurewei.alcor.dataplane.db.repo.PortRedisRepository;
@@ -25,8 +25,8 @@ import com.futurewei.alcor.dataplane.exception.ParameterUnexpectedValueException
 import com.futurewei.alcor.dataplane.exception.ResourceNotFoundException;
 import com.futurewei.alcor.dataplane.exception.ResourceNullException;
 import com.futurewei.alcor.dataplane.model.*;
-import com.futurewei.alcor.dataplane.web.util.ControllerUtil;
-import com.futurewei.alcor.dataplane.web.util.RestPreconditions;
+import com.futurewei.alcor.dataplane.utils.ControllerUtil;
+import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

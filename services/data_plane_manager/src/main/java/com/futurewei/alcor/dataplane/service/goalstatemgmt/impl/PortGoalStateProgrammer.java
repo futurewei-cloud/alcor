@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt;
+package com.futurewei.alcor.dataplane.service.goalstatemgmt.impl;
 
 import com.futurewei.alcor.dataplane.comm.config.IKafkaConfiguration;
 import com.futurewei.alcor.dataplane.comm.grpc.GoalStateProvisionerClient;
@@ -25,9 +25,11 @@ import com.futurewei.alcor.dataplane.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.model.HostInfo;
 import com.futurewei.alcor.dataplane.model.PortState;
 import com.futurewei.alcor.dataplane.model.SubnetState;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.GoalStateProgrammer;
+import com.futurewei.alcor.dataplane.service.goalstatemgmt.PortProgramInfo;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.dataplane.utilities.GoalStateUtil;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -37,11 +39,29 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Data
-public class PortGoalStateProgrammer extends GoalStateProgrammer {
+public class PortGoalStateProgrammer implements GoalStateProgrammer {
 
     private PortProgramInfo portProgramInfo;
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
+    public GoalStateProvisionerClient getGRpcClientForEpHost() {
+        return gRpcClientForEpHost;
+    }
+
+    public void setGRpcClientForEpHost(GoalStateProvisionerClient gRpcClientForEpHost) {
+        this.gRpcClientForEpHost = gRpcClientForEpHost;
+    }
+
+    public MessageClient getKafkaClient() {
+        return kafkaClient;
+    }
+
+    public void setKafkaClient(MessageClient kafkaClient) {
+        this.kafkaClient = kafkaClient;
+    }
+
+    GoalStateProvisionerClient gRpcClientForEpHost = null;
+    MessageClient kafkaClient = null;
     public PortGoalStateProgrammer(PortProgramInfo portProgramInfo) {
         this.portProgramInfo = portProgramInfo;
     }

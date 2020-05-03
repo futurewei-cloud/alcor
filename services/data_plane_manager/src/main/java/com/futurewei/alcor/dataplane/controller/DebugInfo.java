@@ -13,8 +13,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.resourcemgr.physical.nodemgmt;
 
-public class DataCenterConfig {
-    public static NodeManager nodeManager = null;
+package com.futurewei.alcor.dataplane.controller;
+
+public class DebugInfo {
+
+    private final long id;
+    private final String content;
+
+    public DebugInfo(long id, String content) {
+        this.id = id;
+        this.content = content;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
 }

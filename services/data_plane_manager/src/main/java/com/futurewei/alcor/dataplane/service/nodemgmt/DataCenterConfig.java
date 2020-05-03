@@ -13,16 +13,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.resourcemgr.physical.goalstatemgmt;
+package com.futurewei.alcor.dataplane.service.nodemgmt;
 
-import com.futurewei.alcor.dataplane.comm.grpc.GoalStateProvisionerClient;
-import com.futurewei.alcor.dataplane.comm.message.MessageClient;
-import lombok.Data;
-
-@Data
-public abstract class GoalStateProgrammer {
-    private GoalStateProvisionerClient gRpcClientForEpHost;
-    private MessageClient kafkaClient;
-
-    public abstract long[] SendGoalStateToHosts();
+public class DataCenterConfig {
+    public static NodeManager nodeManager = null;
 }
