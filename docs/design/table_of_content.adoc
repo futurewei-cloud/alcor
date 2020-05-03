@@ -15,7 +15,7 @@
 *** xref:mac_manager.adoc[Mac Manager]
 ** Infrastructure Services
 //*** Node Manager
-//*** Data-Plane Manager
+*** xref:data_plane_manager.adoc[Data-Plane Manager]
 //*** Gateway Manager
 ** xref:data_store.adoc[Database and Cache Services]
 * https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/table_of_content.adoc[Alcor Control Agent]
