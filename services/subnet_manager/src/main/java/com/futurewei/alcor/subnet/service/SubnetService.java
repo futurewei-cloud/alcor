@@ -1,7 +1,12 @@
 package com.futurewei.alcor.subnet.service;
 
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.exception.FallbackException;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.subnet.entity.*;
+import com.futurewei.alcor.web.entity.RouteWebJson;
+import com.futurewei.alcor.web.entity.SubnetWebJson;
+import com.futurewei.alcor.web.entity.SubnetWebObject;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,19 +25,25 @@ public interface SubnetService {
     public void fallbackOperation (AtomicReference<RouteWebJson> routeResponseAtomic,
                                    AtomicReference<MacStateJson> macResponseAtomic,
                                    AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                   SubnetStateJson resource,
-                                   String message);
+                                   SubnetWebJson resource,
+                                   String message) throws CacheException;
 
     // Verify VPC ID
     public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String subnetId, SubnetState subnetState) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetWebObject subnetWebObject) throws Exception;
 
     // Allocate Gateway Mac
-    public MacStateJson allocateMacGateway (String projectId, String vpcId, String portId) throws Exception;
+    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
 
-    // TODO : Verify/Allocate Gateway IP, subnet id, port id, subnet cidr, response:IP - unique
-    public IpAddrRequest allocateIPGateway (String subnetId) throws Exception;
+    // Verify/Allocate Gateway IP
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws Exception;
+
+    // Transfer cidr to first IP and last IP
+    public String[] cidrToFirstIpAndLastIp (String cidr);
+
+    // Verify cidr block
+    public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
 
 }

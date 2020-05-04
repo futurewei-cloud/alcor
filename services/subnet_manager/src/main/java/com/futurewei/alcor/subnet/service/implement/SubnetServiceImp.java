@@ -1,12 +1,19 @@
 package com.futurewei.alcor.subnet.service.implement;
 
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.web.entity.RouteWebJson;
+import com.futurewei.alcor.web.entity.RouteWebObject;
+import com.futurewei.alcor.web.entity.SubnetWebJson;
+import com.futurewei.alcor.web.entity.SubnetWebObject;
+import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -60,15 +66,17 @@ public class SubnetServiceImp implements SubnetService {
     @Override
     public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
         String ipManagerServiceUrl = ipUrl + ipVersion + rangeId + ipAddr;
-        restTemplate.delete(ipManagerServiceUrl, ResponseId.class);
+        restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
+        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId ;
+        restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
     }
 
     @Override
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetStateJson resource,
-                                  String message) {
+                                  SubnetWebJson resource,
+                                  String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
         IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
@@ -113,9 +121,9 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
+    public RouteWebJson createRouteRules(String subnetId, SubnetWebObject subnetWebObject) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
+        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetWebObject));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
         if (routeResponse == null) {
@@ -128,7 +136,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public MacStateJson allocateMacGateway(String projectId, String vpcId, String portId) throws FallbackException {
+    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws FallbackException {
         String macManagerServiceUrl = macUrl;
         MacState macState = new MacState();
         macState.setProjectId(projectId);
@@ -148,15 +156,28 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIPGateway(String subnetId) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
 
         // Create Ip Address Range
+        // Verify cidr block
+        boolean isCidrValid = verifyCidrBlock(cidr);
+        if (!isCidrValid) {
+            throw new FallbackException("cidr is invalid : " + cidr);
+        }
+
+        String[] ips = cidrToFirstIpAndLastIp(cidr);
+        if (ips == null || ips.length != 2) {
+            throw new FallbackException("cidr transfer to first/last ip failed");
+        }
         IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest();
         ipAddrRangeRequest.setId(ipAddressRangeId);
         ipAddrRangeRequest.setSubnetId(subnetId);
+        ipAddrRangeRequest.setIpVersion(IpVersionConfig.IPV4.getVersion());
+        ipAddrRangeRequest.setFirstIp(ips[0]);
+        ipAddrRangeRequest.setLastIp(ips[1]);
 
 
         HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
@@ -196,4 +217,60 @@ public class SubnetServiceImp implements SubnetService {
 
         return ipResponse;
     }
+
+    @Override
+    public String[] cidrToFirstIpAndLastIp(String cidr) {
+        if (cidr == null) {
+            return null;
+        }
+        SubnetUtils utils = new SubnetUtils(cidr);
+        String highIp = utils.getInfo().getHighAddress();
+        String lowIp = utils.getInfo().getLowAddress();
+        if (highIp == null || lowIp == null) {
+            return null;
+        }
+        String[] res = new String[2];
+        res[0] = lowIp;
+        res[1] = highIp;
+        return res;
+    }
+
+    @Override
+    public boolean verifyCidrBlock(String cidr) throws FallbackException {
+        if (cidr == null) {
+            return false;
+        }
+        String[] cidrs = cidr.split("\\/", -1);
+        // verify cidr suffix
+        if (cidrs.length > 2 || cidrs.length == 0) {
+            return false;
+        } else if (cidrs.length == 2) {
+            if (!ControllerUtil.isPositive(cidrs[1])) {
+                return false;
+            }
+            int suffix = Integer.parseInt(cidrs[1]);
+            if (suffix < 16 || suffix > 28) {
+                return false;
+            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
+                return false;
+            }
+        }
+        // verify cidr prefix
+        String[] addr = cidrs[0].split("\\." , -1);
+        if (addr.length != 4) {
+            return false;
+        }
+        for (String f : addr) {
+            if (!ControllerUtil.isPositive(f)) {
+                return false;
+            }
+            int n = Integer.parseInt(f);
+            if (n < 0 || n > 255) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
 }

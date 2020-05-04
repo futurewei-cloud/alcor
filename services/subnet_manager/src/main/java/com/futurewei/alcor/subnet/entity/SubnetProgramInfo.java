@@ -15,25 +15,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.subnet.entity;
 
+import com.futurewei.alcor.web.entity.SubnetWebObject;
 import lombok.Data;
 
 @Data
 public class SubnetProgramInfo {
 
-    private SubnetState customerSubnetState;
+    private SubnetWebObject customerSubnetWebObject;
     private VpcState customerVpcState;
 
-    public SubnetProgramInfo(SubnetState customerSubnetState, VpcState customerVpcState) {
-        this.customerSubnetState = customerSubnetState;
+    public SubnetProgramInfo(SubnetWebObject customerSubnetWebObject, VpcState customerVpcState) {
+        this.customerSubnetWebObject = customerSubnetWebObject;
         this.customerVpcState = customerVpcState;
     }
 
-    public SubnetState getCustomerSubnetState() {
-        return customerSubnetState;
+    public SubnetWebObject getCustomerSubnetWebObject() {
+        return customerSubnetWebObject;
     }
 
-    public void setCustomerSubnetState(SubnetState customerSubnetState) {
-        this.customerSubnetState = customerSubnetState;
+    public void setCustomerSubnetWebObject(SubnetWebObject customerSubnetWebObject) {
+        this.customerSubnetWebObject = customerSubnetWebObject;
     }
 
     public VpcState getCustomerVpcState() {
