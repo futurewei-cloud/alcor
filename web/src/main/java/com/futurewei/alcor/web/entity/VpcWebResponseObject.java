@@ -57,10 +57,10 @@ public class VpcWebResponseObject extends CustomerResource {
     private boolean isDefault;
 
     @JsonProperty("availability_zone_hints")
-    private List availabilityZoneHints;
+    private List<String> availabilityZoneHints;
 
     @JsonProperty("availability_zones")
-    private List availabilityZones;
+    private List<String> availabilityZones;
 
     @JsonProperty("qos_policy_id")
     private List qosPolicyId;

@@ -31,6 +31,8 @@ public class SegmentWebRequestObject extends CustomerResource {
     @JsonProperty("sort_key")
     private String sortKey;
 
+    public SegmentWebRequestObject () {}
+
     public SegmentWebRequestObject(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String fields, String sortDir, String sortKey) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;

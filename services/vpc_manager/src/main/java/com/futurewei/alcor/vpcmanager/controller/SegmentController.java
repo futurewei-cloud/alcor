@@ -1,6 +1,7 @@
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNullException;
@@ -71,6 +72,16 @@ public class SegmentController {
             BeanUtils.copyProperties(segmentWebRequestObject, segmentWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentWebResponseObject, projectid);
+
+            // verify network type
+            String networkType = segmentWebRequestObject.getNetworkType();
+            if (networkType.equals(NetworkTypeEnum.VXLAN)) {
+
+            } else if (networkType.equals(NetworkTypeEnum.VLAN)) {
+
+            }else if (networkType.equals(NetworkTypeEnum.GRE)) {
+
+            }
 
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);
 
