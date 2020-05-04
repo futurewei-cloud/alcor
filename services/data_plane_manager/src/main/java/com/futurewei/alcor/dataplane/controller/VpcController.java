@@ -19,14 +19,14 @@ package com.futurewei.alcor.dataplane.controller;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.futurewei.alcor.dataplane.db.repo.VpcRedisRepository;
+import com.futurewei.alcor.dataplane.dao.repo.VpcRedisRepository;
 import com.futurewei.alcor.dataplane.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.dataplane.exception.ResourceNotFoundException;
 import com.futurewei.alcor.dataplane.exception.ResourceNullException;
 import com.futurewei.alcor.dataplane.exception.ResourcePersistenceException;
-import com.futurewei.alcor.dataplane.model.ResponseId;
-import com.futurewei.alcor.dataplane.model.VpcState;
-import com.futurewei.alcor.dataplane.model.VpcStateJson;
+import com.futurewei.alcor.dataplane.entity.ResponseId;
+import com.futurewei.alcor.dataplane.entity.VpcState;
+import com.futurewei.alcor.dataplane.entity.VpcStateJson;
 import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

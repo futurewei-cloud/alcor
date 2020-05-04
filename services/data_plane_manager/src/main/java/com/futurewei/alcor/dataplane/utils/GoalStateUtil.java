@@ -16,21 +16,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.dataplane.app.onebox.OneBoxConfig;
-import com.futurewei.alcor.dataplane.model.HostInfo;
-import com.futurewei.alcor.dataplane.model.PortState;
-import com.futurewei.alcor.dataplane.model.SubnetState;
-import com.futurewei.alcor.dataplane.model.VpcState;
-import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.schema.Goalstate.GoalState;
+import com.futurewei.alcor.dataplane.config.env.AppConfig;
+import com.futurewei.alcor.dataplane.entity.*;
+import com.futurewei.alcor.dataplane.service.NodeManager;
+import com.futurewei.alcor.dataplane.service.impl.PortGoalStateServiceImpl;
+import com.futurewei.alcor.dataplane.service.impl.SubnetGoalStateServiceImpl;
+import com.futurewei.alcor.dataplane.utils.logging.Logger;
+import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.schema.Vpc;
-import com.futurewei.alcor.schema.Vpc.VpcConfiguration;
+
+import java.util.logging.Level;
+
+import com.futurewei.alcor.common.constants.Common;
 
 public class GoalStateUtil {
-    public static GoalState CreateGoalState(
-            Common.OperationType option,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType option,
             VpcState customerVpcState,
             HostInfo[] transitRouterHosts) {
         final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
@@ -38,18 +42,18 @@ public class GoalStateUtil {
                 customerVpcState,
                 transitRouterHosts);
 
-        GoalState goalstate = GoalState.newBuilder()
+        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
                 .addVpcStates(vpcState)
                 .build();
 
         return goalstate;
     }
 
-    public static GoalState CreateGoalState(
-            Common.OperationType option,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType option,
             SubnetState[] customerSubnetStates,
             HostInfo[][] transitSwitchHosts) {
-        GoalState.Builder goalstate = GoalState.newBuilder();
+        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder();
 
         for (int i = 0; i < customerSubnetStates.length; i++) {
             final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
@@ -63,11 +67,11 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static GoalState CreateGoalState(
-            Common.OperationType vpcOption,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType vpcOption,
             VpcState customerVpcState,
             HostInfo[] transitRouterHosts,
-            Common.OperationType subnetOption,
+            com.futurewei.alcor.schema.Common.OperationType subnetOption,
             SubnetState[] customerSubnetStates,
             HostInfo[][] transitSwitchHosts) {
         final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
@@ -75,7 +79,7 @@ public class GoalStateUtil {
                 customerVpcState,
                 transitRouterHosts);
 
-        GoalState.Builder goalState = GoalState.newBuilder().addVpcStates(vpcState);
+        Goalstate.GoalState.Builder goalState = Goalstate.GoalState.newBuilder().addVpcStates(vpcState);
 
         for (int i = 0; i < customerSubnetStates.length; i++) {
             final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
@@ -89,11 +93,11 @@ public class GoalStateUtil {
         return goalState.build();
     }
 
-    public static GoalState CreateGoalState(
-            Common.OperationType subnetOption,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType subnetOption,
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts,
-            Common.OperationType portOption,
+            com.futurewei.alcor.schema.Common.OperationType portOption,
             PortState[] customerPortStates,
             HostInfo[] portHosts) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
@@ -101,7 +105,7 @@ public class GoalStateUtil {
                 customerSubnetState,
                 transitSwitchHosts);
 
-        GoalState.Builder goalstate = GoalState.newBuilder().addSubnetStates(gsSubnetState);
+        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
 
         for (int i = 0; i < customerPortStates.length; i++) {
             final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
@@ -115,11 +119,11 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static GoalState CreateGoalState(
-            Common.OperationType subnetOption,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType subnetOption,
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts,
-            Common.OperationType portOption,
+            com.futurewei.alcor.schema.Common.OperationType portOption,
             PortState[] customerPortStates,
             HostInfo portHost) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
@@ -127,7 +131,7 @@ public class GoalStateUtil {
                 customerSubnetState,
                 transitSwitchHosts);
 
-        GoalState.Builder goalstate = GoalState.newBuilder().addSubnetStates(gsSubnetState);
+        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
 
         for (int i = 0; i < customerPortStates.length; i++) {
             final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
@@ -141,11 +145,11 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static GoalState CreateGoalState(
-            Common.OperationType subnetOption,
+    public static Goalstate.GoalState CreateGoalState(
+            com.futurewei.alcor.schema.Common.OperationType subnetOption,
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts,
-            Common.OperationType portOption,
+            com.futurewei.alcor.schema.Common.OperationType portOption,
             PortState customerPortState,
             HostInfo portHost) {
         final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
@@ -158,7 +162,7 @@ public class GoalStateUtil {
                 customerPortState,
                 portHost);
 
-        GoalState goalstate = GoalState.newBuilder()
+        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
                 .addSubnetStates(gsSubnetState)
                 .addPortStates(gsPortState)
                 .build();
@@ -167,38 +171,39 @@ public class GoalStateUtil {
     }
 
     public static Vpc.VpcState CreateGSVpcState(
-            Common.OperationType option,
+
+            com.futurewei.alcor.schema.Common.OperationType option,
             String project_id,
             String vpc_id,
             String vpc_name,
             String cidr) {
         return Vpc.VpcState.newBuilder()
                 .setOperationType(option)
-                .setConfiguration(VpcConfiguration.newBuilder()
+                .setConfiguration(Vpc.VpcConfiguration.newBuilder()
                         .setProjectId(project_id)
                         .setId(vpc_id)
                         .setName(vpc_name)
                         .setCidr(cidr)
-                        .setTunnelId(OneBoxConfig.Tunnel_Id))
+                        .setTunnelId(AppConfig.Tunnel_Id))
                 .build();
     }
 
     public static Vpc.VpcState CreateGSVpcState(
-            Common.OperationType option,
+            com.futurewei.alcor.schema.Common.OperationType option,
             VpcState customerVpcState,
             HostInfo[] transitRouterHosts) {
         String vpcId = customerVpcState.getId();
-        VpcConfiguration.Builder vpcConfiguration = VpcConfiguration.newBuilder();
+        Vpc.VpcConfiguration.Builder vpcConfiguration = Vpc.VpcConfiguration.newBuilder();
 
         vpcConfiguration.setProjectId(customerVpcState.getProjectId())
                 .setId(vpcId)
                 .setName(customerVpcState.getName())
                 .setCidr(customerVpcState.getCidr())
-                .setTunnelId(OneBoxConfig.Tunnel_Id);
+                .setTunnelId(AppConfig.Tunnel_Id);
 
         for (HostInfo routerHost : transitRouterHosts) {
             vpcConfiguration.addTransitRouters(
-                    VpcConfiguration.TransitRouter.newBuilder()
+                    Vpc.VpcConfiguration.TransitRouter.newBuilder()
                             .setVpcId(vpcId)
                             .setIpAddress(routerHost.getHostIpAddress())
                             .setMacAddress(routerHost.getHostMacAddress()));
@@ -213,7 +218,7 @@ public class GoalStateUtil {
     }
 
     public static Subnet.SubnetState CreateGSSubnetState(
-            Common.OperationType option,
+            com.futurewei.alcor.schema.Common.OperationType option,
             SubnetState customerSubnetState,
             HostInfo[] transitSwitchHosts) {
         String vpcId = customerSubnetState.getVpcId();
@@ -225,14 +230,14 @@ public class GoalStateUtil {
                 .setId(subnetId)
                 .setName(customerSubnetState.getName())
                 .setCidr(customerSubnetState.getCidr())
-                .setTunnelId(OneBoxConfig.Tunnel_Id);
+                .setTunnelId(AppConfig.Tunnel_Id);
 
         subnetConfiguration.setGateway(
                 Subnet.SubnetConfiguration.Gateway.newBuilder()
                         .setVpcId(vpcId)
                         .setSubnetId(subnetId)
                         .setIpAddress(customerSubnetState.getGatewayIp())
-                        .setMacAddress(OneBoxConfig.GATEWAY_MAC_ADDRESS));
+                        .setMacAddress(AppConfig.GATEWAY_MAC_ADDRESS));
 
         for (HostInfo switchHost : transitSwitchHosts) {
             subnetConfiguration.addTransitSwitches(
@@ -252,7 +257,7 @@ public class GoalStateUtil {
     }
 
     public static Port.PortState CreateGSPortState(
-            Common.OperationType option,
+            com.futurewei.alcor.schema.Common.OperationType option,
             PortState customerPortState,
             HostInfo portHost) {
         Port.PortConfiguration.Builder portConfiguration = Port.PortConfiguration.newBuilder();
@@ -279,5 +284,57 @@ public class GoalStateUtil {
                 .setOperationType(option)
                 .setConfiguration(portConfiguration)
                 .build();
+    }
+
+    public static PortState CreatePort(PortState portState) {
+        Logger logger = LoggerFactory.getLogger();
+
+        PortState customerPortState = AssignVipMacToPort(portState, ControllerConfig.epCounter);
+        HostInfo epHost = NodeManager.nodeManager.getHostInfoById(portState.getBindingHostId());
+        SubnetState customerSubnetState = ControllerConfig.customerSubnetState;
+        HostInfo[] transitSwitchHostsForSubnet = ControllerConfig.transitSwitchHosts;
+
+        logger.log(Level.INFO, "EP counter: " + ControllerConfig.epCounter);
+        ControllerConfig.epCounter++;
+        logger.log(Level.INFO, "EP :" + customerPortState);
+        logger.log(Level.INFO, "Host :" + epHost);
+
+        PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
+        PortGoalStateServiceImpl gsProgrammer = new PortGoalStateServiceImpl(portProgramInfo);
+        gsProgrammer.SendGoalStateToHosts();
+
+        return customerPortState;
+    }
+
+    public static void CreateSubnet(SubnetState subnetState, VpcState vpcState) {
+
+        SubnetState customerSubnetState = new SubnetState(subnetState);
+        HostInfo[] transitSwitchHosts = ControllerConfig.transitSwitchHosts;
+        VpcState customerVpcState = vpcState;
+        HostInfo[] transitRouterHosts = ControllerConfig.transitRouterHosts;
+
+        SubnetProgramInfo subnetProgramInfo = new SubnetProgramInfo(customerSubnetState, transitSwitchHosts, customerVpcState, transitRouterHosts);
+        SubnetGoalStateServiceImpl gsProgrammer = new SubnetGoalStateServiceImpl(subnetProgramInfo);
+        gsProgrammer.SendGoalStateToHosts();
+    }
+
+    public static PortState AssignVipMacToPort(PortState portState, int epIndex) {
+
+        PortState state = new PortState(portState);
+
+        state.setMacAddress(GenereateMacAddress(epIndex));
+        String[] vpcIps = new String[]{GenereateIpAddress(epIndex)};
+        state.setFixedIps(PortState.convertToFixedIps(vpcIps, portState.getNetworkId()));
+        state.setStatus("UP");
+
+        return state;
+    }
+
+    private static String GenereateMacAddress(int index) {
+        return "0e:73:ae:c8:" + Integer.toHexString((index + 6) / 256) + ":" + Integer.toHexString((index + 6) % 256);
+    }
+
+    private static String GenereateIpAddress(int index) {
+        return "10.0." + (index + 6) / 256 + "." + (index + 6) % 256;
     }
 }

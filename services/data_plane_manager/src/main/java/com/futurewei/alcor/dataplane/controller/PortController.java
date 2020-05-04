@@ -16,17 +16,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
-import com.futurewei.alcor.dataplane.app.onebox.*;
-import com.futurewei.alcor.dataplane.db.repo.PortRedisRepository;
-import com.futurewei.alcor.dataplane.db.repo.SubnetRedisRepository;
-import com.futurewei.alcor.dataplane.db.repo.VpcRedisRepository;
+import com.futurewei.alcor.common.message.MessageClient;
+import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.dataplane.config.env.AppConfig;
+import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
+import com.futurewei.alcor.dataplane.config.message.GoalStateMessageConsumerFactory;
+import com.futurewei.alcor.dataplane.config.message.GoalStateMessageProducerFactory;
+import com.futurewei.alcor.dataplane.dao.repo.PortRedisRepository;
+import com.futurewei.alcor.dataplane.dao.repo.SubnetRedisRepository;
+import com.futurewei.alcor.dataplane.dao.repo.VpcRedisRepository;
 import com.futurewei.alcor.dataplane.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.dataplane.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.dataplane.exception.ResourceNotFoundException;
 import com.futurewei.alcor.dataplane.exception.ResourceNullException;
-import com.futurewei.alcor.dataplane.model.*;
-import com.futurewei.alcor.dataplane.utils.ControllerUtil;
+import com.futurewei.alcor.dataplane.entity.*;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.dataplane.utils.RestPreconditions;
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.Goalstate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -99,13 +107,7 @@ public class PortController {
 
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_K8S) {
-                customerPortState = ControllerUtil.CreatePort(portState);
-            } else if (OneBoxConfig.IS_Onebox) {
-                long[] times = OneBoxUtil.CreatePort(portState);
-                RestPreconditions.recordRequestTimeStamp(portState.getId(), T0, T1, times);
-                customerPortState = portState;
-            }
+                customerPortState = GoalStateUtil.CreatePort(portState);
 
             this.portRedisRepository.addItem(customerPortState);
 
@@ -209,6 +211,165 @@ public class PortController {
         return portStates;
     }
 
+
+    private static PortState GeneretePortState(HostInfo hostInfo, int epIndex) {
+        return new PortState(AppConfig.projectId,
+                AppConfig.subnetId,
+                epIndex + "_" + hostInfo.getId(),
+                epIndex + "_" + hostInfo.getId(),
+                GenereateMacAddress(epIndex),
+                AppConfig.VETH_NAME,
+                new String[]{GenereateIpAddress(epIndex)});
+    }
+
+    private static String GenereateMacAddress(int index) {
+        return "0e:73:ae:c8:" + Integer.toHexString((index + 6) / 256) + ":" + Integer.toHexString((index + 6) % 256);
+    }
+
+    private static String GenereateIpAddress(int index) {
+        return "10.0." + (index + 6) / 256 + "." + (index + 6) % 256;
+    }
+
+    public static long[] CreatePorts(List<PortState> portStates, int hostIndex, int epStartIndex, int epEndIndex) {
+
+        System.out.println("EP host index :" + hostIndex + "; EP start index: " + epStartIndex + "; end index: " + epEndIndex);
+        long[] recordedTimeStamp = new long[3];
+        boolean isFastPath = true; //portStates.get(0).isFastPath();
+
+        SubnetState customerSubnetState = AppConfig.customerSubnetState;
+        HostInfo[] transitSwitchHostsForSubnet = AppConfig.transitSwitchHosts;
+        PortState[] customerPortStates = new PortState[epEndIndex - epStartIndex];
+        HostInfo epHost = AppConfig.epHosts.get(hostIndex);
+
+        for (int i = 0; i < epEndIndex - epStartIndex; i++) {
+            int epIndex = epStartIndex + i;
+            PortState customerPortState = GeneretePortState(epHost, epIndex);
+            customerPortStates[i] = customerPortState;
+        }
+
+        GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(AppConfig.gRPCServerIp, epHost.getGRPCServerPort());
+        MessageClient kafkaClient = new MessageClient(new GoalStateMessageConsumerFactory(), new GoalStateMessageProducerFactory());
+        String topicForEndpoint = AppConfig.HOST_ID_PREFIX + epHost.getId();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 1: Go to EP host, update_endpoint
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsPortState = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.CREATE,
+                customerPortStates,
+                epHost);
+
+        if (isFastPath) {
+            System.out.println("Sending " + customerPortStates.length + " ports with fast path");
+            System.out.println("Sending: " + gsPortState);
+            gRpcClientForEpHost.PushNetworkResourceStates(gsPortState);
+        } else {
+            kafkaClient.runProducer(topicForEndpoint, gsPortState);
+        }
+
+        recordedTimeStamp[0] = System.nanoTime();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 2: Go to switch hosts in current subnet, update_ep and update_substrate
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsPortStateForSwitch = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.CREATE_UPDATE_SWITCH,
+                customerPortStates,
+                epHost);
+
+        for (HostInfo switchForSubnet : transitSwitchHostsForSubnet) {
+            if (isFastPath) {
+                System.out.println("Sending " + customerPortStates.length + " ports to transit switch with fast path");
+                System.out.println("Sending: " + gsPortStateForSwitch);
+                GoalStateProvisionerClient gRpcClientForSwitchHost = new GoalStateProvisionerClient(AppConfig.gRPCServerIp, switchForSubnet.getGRPCServerPort());
+                gRpcClientForSwitchHost.PushNetworkResourceStates(gsPortStateForSwitch);
+            } else {
+                String topicForSwitch = AppConfig.HOST_ID_PREFIX + switchForSubnet.getId();
+                kafkaClient.runProducer(topicForSwitch, gsPortStateForSwitch);
+            }
+        }
+
+        recordedTimeStamp[1] = System.nanoTime();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 3: Go to EP host, update_agent_md and update_agent_ep
+        ////////////////////////////////////////////////////////////////////////////
+        final Goalstate.GoalState gsFinalizedPortState = GoalStateUtil.CreateGoalState(
+                Common.OperationType.INFO,
+                customerSubnetState,
+                transitSwitchHostsForSubnet,
+                Common.OperationType.FINALIZE,
+                customerPortStates,
+                epHost);
+
+        if (isFastPath) {
+            System.out.println("Sending " + customerPortStates.length + " with fast path");
+            gRpcClientForEpHost.PushNetworkResourceStates(gsFinalizedPortState);
+        } else {
+            kafkaClient.runProducer(topicForEndpoint, gsFinalizedPortState);
+        }
+
+        recordedTimeStamp[2] = System.nanoTime();
+
+        return recordedTimeStamp;
+    }
+
+    private static long[][] CreatePortGroup(PortStateGroup portStateGroup) {
+        List<PortState> portStates = portStateGroup.getPortStates();
+        int portCount = portStates.size();
+        int epHostCount = AppConfig.epHosts.size();
+        int portCountPerHost = portCount / epHostCount > 0 ? portCount / epHostCount : 1;
+
+        long[][] results = new long[epHostCount][];
+
+        ExecutorService executor = Executors.newFixedThreadPool(AppConfig.THREADS_LIMIT);
+        CompletionService<long[]> goalStateProgrammingService = new ExecutorCompletionService<long[]>(executor);
+
+        for (int i = 0; i < epHostCount; i++) {
+
+            if (AppConfig.IS_PARALLEL) {
+                final int nodeIndex = i;
+
+                goalStateProgrammingService.submit(new Callable<long[]>() {
+                    @Override
+                    public long[] call() throws IllegalStateException {
+                        String name = Thread.currentThread().getName();
+                        System.out.println("Running on thread " + name);
+
+                        return PortController.CreatePorts(portStates, nodeIndex, nodeIndex * portCountPerHost, (nodeIndex + 1) * portCountPerHost);
+                    }
+                });
+            } else {
+                long[] times = PortController.CreatePorts(portStates, i, i * portCountPerHost, (i + 1) * portCountPerHost);
+                results[i] = times;
+            }
+        }
+
+        int received = 0;
+        boolean errors = false;
+
+        while (AppConfig.IS_PARALLEL && received < epHostCount && !errors) {
+            try {
+                Future<long[]> resultFuture = goalStateProgrammingService.take();
+                long[] result = resultFuture.get();
+                results[received] = result;
+                received++;
+            } catch (Exception e) {
+                e.printStackTrace();
+                errors = true;
+            }
+        }
+
+        return results;
+    }
+
+
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/portgroup"},
@@ -231,8 +392,7 @@ public class PortController {
             }
             long T1 = System.nanoTime();
 
-            if (OneBoxConfig.IS_Onebox) {
-                long[][] elapsedTimes = OneBoxUtil.CreatePortGroup(resourceGroup);
+                long[][] elapsedTimes = CreatePortGroup(resourceGroup);
                 int hostCount = elapsedTimes.length;
 
                 long averageElapseTime = 0, minElapseTime = Long.MAX_VALUE, maxElapseTime = Long.MIN_VALUE;
@@ -245,14 +405,13 @@ public class PortController {
                     RestPreconditions.recordRequestTimeStamp(resourceGroup.getPortState(i).getId(), T0, T1, elapsedTimes[i]);
                 }
 
-                OneBoxConfig.TIME_STAMP_WRITER.newLine();
-                OneBoxConfig.TIME_STAMP_WRITER.write("," + averageElapseTime / (1000000 * hostCount) + "," + minElapseTime / 1000000 + "," + maxElapseTime / 1000000);
-                OneBoxConfig.TIME_STAMP_WRITER.newLine();
-                OneBoxConfig.TIME_STAMP_WRITER.write("Average time of " + OneBoxConfig.TOTAL_REQUEST + " requests :" + OneBoxConfig.TOTAL_TIME / OneBoxConfig.TOTAL_REQUEST + " ms");
-                if (OneBoxConfig.TIME_STAMP_WRITER != null)
-                    OneBoxConfig.TIME_STAMP_WRITER.close();
+                AppConfig.TIME_STAMP_WRITER.newLine();
+                AppConfig.TIME_STAMP_WRITER.write("," + averageElapseTime / (1000000 * hostCount) + "," + minElapseTime / 1000000 + "," + maxElapseTime / 1000000);
+                AppConfig.TIME_STAMP_WRITER.newLine();
+                AppConfig.TIME_STAMP_WRITER.write("Average time of " + AppConfig.TOTAL_REQUEST + " requests :" + AppConfig.TOTAL_TIME / AppConfig.TOTAL_REQUEST + " ms");
+                if (AppConfig.TIME_STAMP_WRITER != null)
+                    AppConfig.TIME_STAMP_WRITER.close();
 
-            }
         } catch (Exception e) {
             throw e;
         }

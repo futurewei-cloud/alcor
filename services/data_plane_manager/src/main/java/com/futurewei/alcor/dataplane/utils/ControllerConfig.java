@@ -15,9 +15,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.dataplane.model.HostInfo;
-import com.futurewei.alcor.dataplane.model.SubnetState;
-import com.futurewei.alcor.dataplane.service.nodemgmt.DataCenterConfig;
+import com.futurewei.alcor.dataplane.entity.HostInfo;
+import com.futurewei.alcor.dataplane.entity.SubnetState;
+import com.futurewei.alcor.dataplane.service.NodeManager;
 
 public class ControllerConfig {
 
@@ -35,8 +35,8 @@ public class ControllerConfig {
             "10.0.0.0/20",
             "10.0.0.5");
 
-    public static HostInfo[] transitSwitchHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch));
-    public static HostInfo[] transitRouterHosts = (DataCenterConfig.nodeManager == null ? null : DataCenterConfig.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter));
+    public static HostInfo[] transitSwitchHosts = (NodeManager.nodeManager == null ? null : NodeManager.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitSwitch));
+    public static HostInfo[] transitRouterHosts = (NodeManager.nodeManager == null ? null : NodeManager.nodeManager.getRandomHosts(ControllerConfig.InitNumOfTransitRouter));
 
     public static int epCounter = 0;
 }

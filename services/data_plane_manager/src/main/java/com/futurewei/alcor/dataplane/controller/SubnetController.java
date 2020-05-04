@@ -16,16 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
-import com.futurewei.alcor.dataplane.db.repo.SubnetRedisRepository;
-import com.futurewei.alcor.dataplane.db.repo.VpcRedisRepository;
+import com.futurewei.alcor.dataplane.dao.repo.SubnetRedisRepository;
+import com.futurewei.alcor.dataplane.dao.repo.VpcRedisRepository;
+import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.dataplane.model.ResponseId;
-import com.futurewei.alcor.dataplane.model.SubnetState;
-import com.futurewei.alcor.dataplane.model.SubnetStateJson;
-import com.futurewei.alcor.dataplane.model.VpcState;
-import com.futurewei.alcor.dataplane.utils.ControllerUtil;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.dataplane.utils.RestPreconditions;
-import com.futurewei.alcor.dataplane.app.onebox.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -97,12 +93,7 @@ public class SubnetController {
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
-
-            if (OneBoxConfig.IS_K8S) {
-                ControllerUtil.CreateSubnet(subnetState, vpcState);
-            } else if (OneBoxConfig.IS_Onebox) {
-                OneBoxUtil.CreateSubnet(subnetState);
-            }
+            GoalStateUtil.CreateSubnet(subnetState, vpcState);
         } catch (ResourceNullException e) {
             throw new Exception(e);
         }
@@ -147,6 +138,9 @@ public class SubnetController {
 
         return new SubnetStateJson(subnetState);
     }
+
+
+
 
     @RequestMapping(
             method = DELETE,
