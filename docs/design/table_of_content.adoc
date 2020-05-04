@@ -48,8 +48,8 @@
 * Roadmap and Release Plan
 
 ### Development
-* xref:../../src/README.md[Getting Started]
-* https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md[Install Control Agents]
+* xref:../README.md[Getting Started with Controller Development]
+* https://github.com/futurewei-cloud/alcor-control-agent/blob/master/src/README.md[Build and Deploy Control Agents]
 
 ### Test
 * xref:../test/e2eTestSetup.adoc[E2E Test Setup 1]

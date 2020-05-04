@@ -48,7 +48,7 @@ public class SubnetControllerTests {
     private SubnetService subnetService;
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
-    private String creatwUri = "/project/" + UnitTestConfig.projectId + "/subnets";
+    private String createUri = "/project/" + UnitTestConfig.projectId + "/subnets";
     private String getByProjectIdAndVpcIdUri = "/project/" + UnitTestConfig.projectId + "/subnets";
     private String deleteUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
     private String putUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId;
@@ -95,12 +95,12 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(anyString()))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(anyString(), anyString()))
                 .thenReturn(ipAddrRequest);
 
-        this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+        this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -128,12 +128,12 @@ public class SubnetControllerTests {
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -165,12 +165,12 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenThrow(new FallbackException("fallback request"));
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -202,12 +202,12 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenThrow(new FallbackException("fallback request"));
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenReturn(ipAddrRequest);
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
                     .andExpect(status().is(201))
@@ -241,13 +241,52 @@ public class SubnetControllerTests {
                 .thenReturn(vpcStateJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(subnetService.allocateMacGateway(anyString(), anyString(), anyString()))
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
                 .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIPGateway(UnitTestConfig.subnetId))
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr))
                 .thenThrow(new FallbackException("fallback request"));
         try {
-            this.mockMvc.perform(post(creatwUri).contentType(MediaType.APPLICATION_JSON)
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
+                    .andDo(print())
+                    .andExpect(status().is(201))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
+        }catch (Exception ex) {
+            //System.out.println(ex.getMessage());
+            assertEquals(UnitTestConfig.createFallbackException, ex.getMessage());
+        }
+    }
+
+    @Test
+    public void createSubnetState_invalidCidr_notPass () throws Exception {
+        SubnetState subnetState = new SubnetState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                UnitTestConfig.name, UnitTestConfig.invalidCidr);
+        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.invalidCidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+
+        RouteWebJson routeWebJson = new RouteWebJson();
+        RouteWebObject routeWebObject = new RouteWebObject();
+        routeWebJson.setRoute(routeWebObject);
+        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        MacStateJson macResponse = new MacStateJson();
+        MacState macState = new MacState();
+        macResponse.setMacState(macState);
+        IpAddrRequest ipAddrRequest = new IpAddrRequest();
+
+        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(subnetState);
+        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcStateJson);
+        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetState.class)))
+                .thenReturn(routeWebJson);
+        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
+                .thenReturn(macResponse);
+        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.invalidCidr))
+                .thenReturn(ipAddrRequest);
+        try {
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
+                    .content(UnitTestConfig.invalidCidrResource))
                     .andDo(print())
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));

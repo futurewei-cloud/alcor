@@ -19,6 +19,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.vpcmanager.entity.DebugInfo;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +38,7 @@ public class DebugController {
     private final AtomicLong counter = new AtomicLong();
 
     @Autowired
-    private VpcRepository vpcRepository;
+    private VpcDatabaseService vpcDatabaseService;
 
 
     @RequestMapping("/")
@@ -47,18 +48,10 @@ public class DebugController {
 
     @RequestMapping(
             method = GET,
-            value = "/debug")
-    public DebugInfo getDebugInfo(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new DebugInfo(counter.incrementAndGet(),
-                String.format(template, name));
-    }
-
-    @RequestMapping(
-            method = GET,
             value = "/project/all/vpcs")
     public Map getVpcCountAndAllVpcStates() throws CacheException {
         Map result = new HashMap<String, Object>();
-        Map dataItems = this.vpcRepository.findAllItems();
+        Map dataItems = this.vpcDatabaseService.getAllVpcs();
         result.put("Count", dataItems.size());
         result.put("Vpcs", dataItems);
 
@@ -70,7 +63,7 @@ public class DebugController {
             value = "/project/all/vpccount")
     public Map getVpcCount() throws CacheException {
         Map result = new HashMap<String, Object>();
-        Map dataItems = this.vpcRepository.findAllItems();
+        Map dataItems = this.vpcDatabaseService.getAllVpcs();
         result.put("Count", dataItems.size());
 
         return result;
