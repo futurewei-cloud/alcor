@@ -102,13 +102,14 @@ public class SubnetController {
             SubnetState inSubnetState = resource.getSubnet();
             String subnetId = inSubnetState.getId();
             String vpcId = inSubnetState.getVpcId();
+            String cidr = inSubnetState.getCidr();
             RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetState, projectId);
 
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateMacGateway(projectId, vpcId, portId);
+                    return this.subnetService.allocateMacAddressForGatewayPort(projectId, vpcId, portId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
@@ -148,7 +149,7 @@ public class SubnetController {
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateIPGateway(subnetId);
+                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }

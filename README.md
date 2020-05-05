@@ -1,7 +1,7 @@
 # Alcor
 A Hyperscale Cloud Native SDN Platform
 
-* For information about how to use Alcor, visit [Getting Started](src/README.md)
+* For information about how to use Alcor, visit [Getting Started](docs/README.md)
 * To ask questions, raise feature requests and get assistance from our community, join [Alcor Slack](https://alcor-networking.slack.com/) channels ([invitation](https://join.slack.com/t/alcor-networking/shared_invite/zt-cudckviu-hcsMI4LWB4cRWy4hn3N3oQ) for first-time participant) or [Google Group](https://groups.google.com/forum/#!forum/alcor-dev)
 * To report an issue, visit [Issues page](https://github.com/futurewei-cloud/Alcor/issues)
 * To find many useful documents, visit our [Wiki](https://github.com/futurewei-cloud/Alcor/wiki).
@@ -13,6 +13,7 @@ In this README:
 - [Introduction](#introduction)
 - [Key Features](#key-features)
 - [Repositories](#repositories)
+- [Directory Structure](#directory-structure)
 
 ## Introduction
 Cloud computing means scale and on-demand resource provisioning.
@@ -34,12 +35,12 @@ application aware fast path when provisioning containers and serverless applicat
 
 The following diagram illustrates the high-level architecture of Alcor control plane.
 
-![Alcor architecture](docs/visionary_design/images/alcor_architecture.PNG)
+![Alcor architecture](docs/design/images/alcor_architecture.PNG)
 
 Detailed design docs:
 
-- [Alcor high level design](/docs/visionary_design/table_of_content.adoc)
-- [Alcor regional controllers](/docs/visionary_design/controller.adoc)
+- [Alcor high level design](/docs/design/table_of_content.adoc)
+- [Alcor regional controllers](/docs/design/controller.adoc)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
 
 ## Key Features
@@ -66,29 +67,42 @@ This channel bypasses a message queueing system like Kafka, and utilizes gRPC to
 
 ### Planned Features
 
-The planned features are listed in our current roadmap:
+A list of planned features is included our current [roadmap](https://github.com/futurewei-cloud/alcor/wiki/Roadmap).
+Some highlighted items:
 1. Major VPC features (e.g., security group, ACL, QoS)
-2. Intelligent network function placement and auto-scaling
+2. Controller services break-down
 3. Compatibility with OVS
-4. Controller Grey release
-5. New resource tagging framework, and many more...
+4. Controller grey release
+5. Performance comparison with Neutron and many more...
 
 ## Repositories
 The Alcor project is divided across a few GitHub repositories.
 
-- [alcor/alcor](https://github.com/futurewei-cloud/Alcor):
+- [alcor/alcor](https://github.com/futurewei-cloud/alcor):
 This is the main repository of Alcor Regional Controller that you are currently looking at.
 It hosts controllers' source codes, build and deployment instructions, and various documents that detail the design of Alcor.
 
-- [alcor/alcorcontrolagent](https://github.com/futurewei-cloud/AlcorControlAgent):
+- [alcor/alcor_control_agent](https://github.com/futurewei-cloud/alcor-control-agent):
 This repository contains source codes for a host-level stateless agent that connects regional controllers to the host data-plane component.
 It is responsible for programming on-host data plane with various network configuration for CURD of _VPC, subnet, port, Security group etc._,
  and monitoring network health of containers and VMs on the host.
 
-- [alcor/integration](https://github.com/futurewei-cloud/mizar-mp)
+- [alcor/integration](https://github.com/futurewei-cloud/alcor-int):
 The integration repository contains codes and scripts for end-to-end integration of Alcor control plane with popular orchestration platforms and data plane implementations.
 We currently support integration with Kubernetes (via CNI plugin) and Mizar Data Plane.
 We will continue to integrate with other orchestration systems and data plane implementations.
 
-As a reference, Alcor supports a high performance cloud data plane [Mizar](https://github.com/futurewei-cloud/Mizar),
-which is a complementary project of Alcor.
+- [alcor/meeting](https://github.com/futurewei-cloud/alcor-meeting):
+The meeting repository is used to store all the meeting notes and recorded video clips for the Alcor Open Source project.
+
+## Directory Structure
+This main repository of Alcor Regional Controller is organized as follows:
+* docs: design, test and api documentation
+* lib: common libraries shared among various microservices.
+* services: api gateway and multiple microservices. Each sub-directory includes both source and testing codes.
+* web: define customer-facing web objects.
+* schema: define protobuf schema for agent-control communication.
+* config: configuration files used by controllers.
+* scripts: build, deployment and testing scripts
+* kubernetes: yaml files used for controller deployment in a Kubernetes cluster.
+* legacy: legacy codes of controller that has been retired
