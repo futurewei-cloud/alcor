@@ -7,10 +7,10 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   sudo apt-get install maven
   sudo apt-get install openjdk-8-jdk
 
-  echo "Clean build controller project"
-  mvn clean
-  mvn compile
-  mvn install
+#  echo "Clean build legacy controller project"
+#  mvn clean
+#  mvn compile
+#  mvn install
 
   echo "Clean build common library project"
   cd lib
@@ -44,10 +44,10 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   brew install maven
 
-  echo "Clean build controller project"
-  mvn clean
-  mvn compile
-  mvn install -DskipTests
+#  echo "Clean build legacy controller project"
+#  mvn clean
+#  mvn compile
+#  mvn install -DskipTests
 
   echo "Clean build common library project"
   cd lib

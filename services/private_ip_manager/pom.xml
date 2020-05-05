@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>PrivateIpManager</artifactId>
+    <artifactId>AlcorPrivateIpManager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>PrivateIpManager</name>
+    <name>AlcorPrivateIpManager</name>
     <description>Alcor Private Ip Manager Module</description>
 
     <properties>
