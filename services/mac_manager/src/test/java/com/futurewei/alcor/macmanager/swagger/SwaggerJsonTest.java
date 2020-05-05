@@ -33,13 +33,16 @@ import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-//import org.springframework.test.context.web.WebAppConfiguration;
+
+import io.github.swagger2markup.Swagger2MarkupConverter;
+import io.github.swagger2markup.Swagger2MarkupProperties;
+import io.github.swagger2markup.Swagger2MarkupConfig;
+import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-//@WebAppConfiguration
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +53,6 @@ public class SwaggerJsonTest{
 
     @Test
     public void createSpringfoxSwaggerJson() throws Exception{
-        //String outputDir = System.getProperty("io.springfox.staticdocs.outputDir");
         String outputDir = System.getProperty("io.springfox.staticdocs.outputDir");
         MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
             .accept(MediaType.APPLICATION_JSON))
@@ -63,6 +65,15 @@ public class SwaggerJsonTest{
         try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputDir, "swagger.json"), StandardCharsets.UTF_8)){
             writer.write(swaggerJson);
         }
+
+        Swagger2MarkupConfig config = new Swagger2MarkupConfigBuilder()
+            .withGeneratedExamples()
+            .withInterDocumentCrossReferences()
+            .build();
+        Swagger2MarkupConverter.from(Paths.get(outputDir,"swagger.json"))
+            .withConfig(config)
+            .build()
+            .toFile(Paths.get(outputDir, "swagger"));
     }
 
 }
