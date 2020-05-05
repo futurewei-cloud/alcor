@@ -16,29 +16,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.futurewei.alcor.dataplane.dao.repo.VpcRedisRepository;
-import com.futurewei.alcor.dataplane.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.dataplane.exception.ResourceNotFoundException;
-import com.futurewei.alcor.dataplane.exception.ResourceNullException;
-import com.futurewei.alcor.dataplane.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNullException;
+import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.dataplane.dao.repo.VpcRepository;
 import com.futurewei.alcor.dataplane.entity.ResponseId;
-import com.futurewei.alcor.dataplane.entity.VpcState;
 import com.futurewei.alcor.dataplane.entity.VpcStateJson;
 import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.schema.Vpc.VpcState;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 public class VpcController {
 
     @Autowired
-    private VpcRedisRepository vpcRedisRepository;
+    private VpcRepository vpcRepository;
 
     @RequestMapping(
             method = GET,
@@ -52,7 +51,7 @@ public class VpcController {
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -80,9 +79,9 @@ public class VpcController {
             RestPreconditions.verifyResourceNotNull(inVpcState);
             RestPreconditions.populateResourceProjectId(inVpcState, projectid);
 
-            this.vpcRedisRepository.addItem(inVpcState);
+            this.vpcRepository.addItem(inVpcState);
 
-            vpcState = this.vpcRedisRepository.findItem(inVpcState.getId());
+            vpcState = this.vpcRepository.findItem(inVpcState.getConfiguration().getId());
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
@@ -111,14 +110,14 @@ public class VpcController {
             RestPreconditions.populateResourceProjectId(inVpcState, projectid);
             RestPreconditions.populateResourceVpcId(inVpcState, vpcid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            this.vpcRedisRepository.addItem(inVpcState);
+            this.vpcRepository.addItem(inVpcState);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -138,12 +137,12 @@ public class VpcController {
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyResourceFound(projectid);
 
-            vpcState = this.vpcRedisRepository.findItem(vpcid);
+            vpcState = this.vpcRepository.findItem(vpcid);
             if (vpcState == null) {
                 return new ResponseId();
             }
 
-            vpcRedisRepository.deleteItem(vpcid);
+            vpcRepository.deleteItem(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
@@ -161,9 +160,9 @@ public class VpcController {
             RestPreconditions.verifyParameterNotNullorEmpty(projectid);
             RestPreconditions.verifyResourceFound(projectid);
 
-            vpcStates = this.vpcRedisRepository.findAllItems();
+            vpcStates = this.vpcRepository.findAllItems();
             vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId()))
+                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getConfiguration().getProjectId()))
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {

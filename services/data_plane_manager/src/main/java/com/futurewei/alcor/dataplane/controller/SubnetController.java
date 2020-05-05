@@ -16,10 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
-import com.futurewei.alcor.dataplane.dao.repo.SubnetRedisRepository;
-import com.futurewei.alcor.dataplane.dao.repo.VpcRedisRepository;
-import com.futurewei.alcor.dataplane.entity.*;
-import com.futurewei.alcor.dataplane.exception.*;
+import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.dataplane.dao.repo.SubnetRepository;
+import com.futurewei.alcor.dataplane.dao.repo.VpcRepository;
+import com.futurewei.alcor.dataplane.entity.ResponseId;
+import com.futurewei.alcor.dataplane.entity.SubnetStateJson;
 import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.dataplane.utils.RestPreconditions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +30,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+import static com.futurewei.alcor.schema.Vpc.VpcState;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
-
 @RestController
 public class SubnetController {
 
     @Autowired
-    private VpcRedisRepository vpcRedisRepository;
+    private VpcRepository vpcRepository;
 
     @Autowired
-    private SubnetRedisRepository subnetRedisRepository;
+    private SubnetRepository subnetRepository;
 
     @RequestMapping(
             method = GET,
@@ -52,7 +54,7 @@ public class SubnetController {
             RestPreconditions.verifyParameterNotNullorEmpty(subnetId);
             RestPreconditions.verifyResourceFound(projectid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetId);
+            subnetState = this.subnetRepository.findItem(subnetId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -79,17 +81,17 @@ public class SubnetController {
 
             // TODO: Create a verification framework for all resources
             SubnetState inSubnetState = resource.getSubnet();
-            RestPreconditions.verifyResourceFound(inSubnetState.getVpcId());
+            RestPreconditions.verifyResourceFound(inSubnetState.getConfiguration().getVpcId());
             RestPreconditions.populateResourceProjectId(inSubnetState, projectid);
 
-            this.subnetRedisRepository.addItem(inSubnetState);
+            this.subnetRepository.addItem(inSubnetState);
 
-            subnetState = this.subnetRedisRepository.findItem(inSubnetState.getId());
+            subnetState = this.subnetRepository.findItem(inSubnetState.getConfiguration().getId());
             if (subnetState == null) {
                 throw new ResourcePersistenceException();
             }
 
-            VpcState vpcState = this.vpcRedisRepository.findItem(inSubnetState.getVpcId());
+            VpcState vpcState = this.vpcRepository.findItem(inSubnetState.getConfiguration().getVpcId());
             if (vpcState == null) {
                 throw new ResourcePersistenceException();
             }
@@ -117,16 +119,16 @@ public class SubnetController {
             RestPreconditions.populateResourceProjectId(inSubnetState, projectid);
             RestPreconditions.populateResourceVpcId(inSubnetState, vpcid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            subnetState = this.subnetRepository.findItem(subnetid);
             if (subnetState == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetid);
             }
 
-            RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
-            RestPreconditions.verifyParameterEqual(subnetState.getVpcId(), vpcid);
+            RestPreconditions.verifyParameterEqual(subnetState.getConfiguration().getProjectId(), projectid);
+            RestPreconditions.verifyParameterEqual(subnetState.getConfiguration().getVpcId(), vpcid);
 
-            this.subnetRedisRepository.addItem(inSubnetState);
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            this.subnetRepository.addItem(inSubnetState);
+            subnetState = this.subnetRepository.findItem(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -154,15 +156,15 @@ public class SubnetController {
             RestPreconditions.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditions.verifyParameterNotNullorEmpty(subnetid);
 
-            subnetState = this.subnetRedisRepository.findItem(subnetid);
+            subnetState = this.subnetRepository.findItem(subnetid);
             if (subnetState == null) {
                 return new ResponseId();
             }
 
-            RestPreconditions.verifyParameterEqual(subnetState.getProjectId(), projectid);
-            RestPreconditions.verifyParameterEqual(subnetState.getVpcId(), vpcid);
+            RestPreconditions.verifyParameterEqual(subnetState.getConfiguration().getProjectId(), projectid);
+            RestPreconditions.verifyParameterEqual(subnetState.getConfiguration().getVpcId(), vpcid);
 
-            subnetRedisRepository.deleteItem(subnetid);
+            subnetRepository.deleteItem(subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -185,10 +187,10 @@ public class SubnetController {
             RestPreconditions.verifyResourceFound(projectid);
             RestPreconditions.verifyResourceFound(vpcid);
 
-            subnetStates = this.subnetRedisRepository.findAllItems();
+            subnetStates = this.subnetRepository.findAllItems();
             subnetStates = subnetStates.entrySet().stream()
-                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId())
-                            && vpcid.equalsIgnoreCase(state.getValue().getVpcId()))
+                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getConfiguration().getProjectId())
+                            && vpcid.equalsIgnoreCase(state.getValue().getConfiguration().getVpcId()))
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {

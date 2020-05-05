@@ -16,8 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.config.serialization;
 
-import com.futurewei.alcor.schema.Goalstate.GoalState;
 import org.apache.kafka.common.serialization.Serializer;
+
+import static com.futurewei.alcor.schema.Goalstate.GoalState;
 
 public class GoalStateSerializer implements Serializer<GoalState> {
 

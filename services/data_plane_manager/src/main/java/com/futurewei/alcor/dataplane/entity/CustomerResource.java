@@ -29,6 +29,48 @@ public class CustomerResource implements Serializable {
 
     @JsonProperty("id")
     private String id;
+    @JsonProperty("fast_path")
+    private boolean isFastPath;
+
+    public boolean isFastPath() {
+        return isFastPath;
+    }
+
+    public void setFastPath(boolean fastPath) {
+        isFastPath = fastPath;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @JsonProperty("name")
     private String name;

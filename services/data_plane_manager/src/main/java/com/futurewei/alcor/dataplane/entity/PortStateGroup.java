@@ -20,10 +20,20 @@ import lombok.Data;
 
 import java.util.List;
 
+import static com.futurewei.alcor.schema.Port.PortState;
+
 @Data
 public class PortStateGroup {
 
     private List<PortState> portStates;
+
+    public List<PortState> getPortStates() {
+        return portStates;
+    }
+
+    public void setPortStates(List<PortState> portStates) {
+        this.portStates = portStates;
+    }
 
     public PortStateGroup() {
 

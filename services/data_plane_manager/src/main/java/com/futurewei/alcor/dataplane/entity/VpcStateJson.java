@@ -17,9 +17,19 @@ package com.futurewei.alcor.dataplane.entity;
 
 import lombok.Data;
 
+import static com.futurewei.alcor.schema.Vpc.VpcState;
+
 @Data
 public class VpcStateJson {
     private VpcState vpc;
+
+    public VpcState getVpc() {
+        return vpc;
+    }
+
+    public void setVpc(VpcState vpc) {
+        this.vpc = vpc;
+    }
 
     public VpcStateJson() {
 

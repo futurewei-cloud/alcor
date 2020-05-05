@@ -16,12 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.ignite;
 
-import com.futurewei.alcor.dataplane.dao.ICache;
-import com.futurewei.alcor.dataplane.dao.Transaction;
-import com.futurewei.alcor.dataplane.exception.CacheException;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.repo.ICache;
+import com.futurewei.alcor.common.repo.Transaction;
 import org.apache.ignite.cache.query.Query;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.client.ClientCache;
@@ -33,7 +33,6 @@ import javax.cache.Cache;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
 
 public class IgniteCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();

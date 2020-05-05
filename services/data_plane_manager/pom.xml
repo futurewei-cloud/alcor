@@ -112,7 +112,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.futurewei.alcor.dataplane.app.AlcorControllerApp</mainClass>
+                    <mainClass>com.futurewei.alcor.dataplane.app.DataPlaneManager</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -145,7 +145,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.futurewei.alcor.dataplane.app.AlcorControllerApp</mainClass>
+                            <mainClass>com.futurewei.alcor.dataplane.app.DataPlaneManager</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -17,9 +17,19 @@ package com.futurewei.alcor.dataplane.entity;
 
 import lombok.Data;
 
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+
 @Data
 public class SubnetStateJson {
     private SubnetState subnet;
+
+    public SubnetState getSubnet() {
+        return subnet;
+    }
+
+    public void setSubnet(SubnetState subnet) {
+        this.subnet = subnet;
+    }
 
     public SubnetStateJson() {
 

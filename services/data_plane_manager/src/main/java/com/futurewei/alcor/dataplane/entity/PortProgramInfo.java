@@ -15,14 +15,55 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.entity;
 
-import com.futurewei.alcor.dataplane.entity.HostInfo;
-import com.futurewei.alcor.dataplane.entity.PortState;
-import com.futurewei.alcor.dataplane.entity.SubnetState;
+import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import lombok.Data;
+
+import static com.futurewei.alcor.schema.Port.PortState;
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
 
 @Data
 public class PortProgramInfo {
+    public PortState getCustomerPortState() {
+        return customerPortState;
+    }
 
+    public void setCustomerPortState(PortState customerPortState) {
+        this.customerPortState = customerPortState;
+    }
+
+    public HostInfo getEpHost() {
+        return epHost;
+    }
+
+    public void setEpHost(HostInfo epHost) {
+        this.epHost = epHost;
+    }
+
+    public SubnetState getCustomerSubnetState() {
+        return customerSubnetState;
+    }
+
+    public void setCustomerSubnetState(SubnetState customerSubnetState) {
+        this.customerSubnetState = customerSubnetState;
+    }
+
+    public HostInfo[] getTransitSwitchHosts() {
+        return transitSwitchHosts;
+    }
+
+    public void setTransitSwitchHosts(HostInfo[] transitSwitchHosts) {
+        this.transitSwitchHosts = transitSwitchHosts;
+    }
+
+    public boolean isFastPath() {
+        return isFastPath;
+    }
+
+    public void setFastPath(boolean fastPath) {
+        isFastPath = fastPath;
+    }
+
+    private boolean isFastPath=false;
     private PortState customerPortState;
     private HostInfo epHost;
     private SubnetState customerSubnetState;

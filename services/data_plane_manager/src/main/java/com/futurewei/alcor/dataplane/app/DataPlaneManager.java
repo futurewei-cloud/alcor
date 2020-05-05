@@ -14,16 +14,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.dataplane.config.env;
+package com.futurewei.alcor.dataplane.app;
 
-public interface IKafkaConfiguration {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.RestController;
 
-    public static String CONSUMER_GROUP_ID = "vpc_controller_c2";
-    public static Integer MAX_NO_MESSAGE_FOUND_COUNT = 10;
+@SpringBootApplication
+@RestController
+public class DataPlaneManager {
 
-    public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";
+    public static void main(String[] args) {
+        SpringApplication.run(DataPlaneManager.class, args);
+    }
 
-    public static String OFFSET_RESET_LATEST = "latest";
-    public static String OFFSET_RESET_EARLIER = "earliest";
-    public static Integer MAX_POLL_RECORDS = 1;
 }

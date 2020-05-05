@@ -1,17 +1,18 @@
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.dataplane.config.env.AppConfig;
-import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
+import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.CustomerResource;
-import com.futurewei.alcor.dataplane.entity.SubnetState;
-import com.futurewei.alcor.dataplane.entity.VpcState;
 import org.thymeleaf.util.StringUtils;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.logging.Level;
+
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+import static com.futurewei.alcor.schema.Vpc.VpcState;
 
 public class RestPreconditions {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
@@ -22,16 +23,8 @@ public class RestPreconditions {
         return resource;
     }
 
-    public static <T> T verifyResourceNotExists(T resource) throws ResourcePreExistenceException {
-        if (resource == null) throw new ResourcePreExistenceException();
-
-        //TODO: Check resource does not exist in the repo
-
-        return resource;
-    }
-
-    public static void verifyResourceNotNull(CustomerResource resource) throws ResourceNullException {
-        if (resource == null || StringUtils.isEmpty(resource.getId())) {
+    public static void verifyResourceNotNull(Object resource) throws ResourceNullException {
+        if (resource == null || StringUtils.isEmpty(((CustomerResource)resource).getId())) {
             throw new ResourceNullException("Empty resource id");
         }
     }
@@ -48,34 +41,34 @@ public class RestPreconditions {
         }
     }
 
-    public static void populateResourceProjectId(CustomerResource resource, String projectId) {
-        String resourceProjectId = resource.getProjectId();
+    public static void populateResourceProjectId(Object resource, String projectId) {
+        String resourceProjectId = ((CustomerResource)resource).getProjectId();
         if (StringUtils.isEmpty(resourceProjectId)) {
-            resource.setProjectId(projectId);
+            ((CustomerResource)resource).setProjectId(projectId);
         } else if (!resourceProjectId.equalsIgnoreCase(projectId)) {
             System.out.println("Resource id not matched " + resourceProjectId + " : " + projectId);
-            resource.setProjectId(projectId);
+            ((CustomerResource)resource).setProjectId(projectId);
         }
     }
 
-    public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
+    public static void populateResourceVpcId(Object resource, String vpcId) {
         String resourceVpcId = null;
         if (resource instanceof VpcState) {
-            resourceVpcId = resource.getId();
+            resourceVpcId = ((VpcState) resource).getConfiguration().getId();
         } else if (resource instanceof SubnetState) {
-            resourceVpcId = ((SubnetState) resource).getVpcId();
+            resourceVpcId = ((SubnetState) resource).getConfiguration().getVpcId();
         }
 
         if (StringUtils.isEmpty(resourceVpcId)) {
-            resource.setId(vpcId);
+            ((CustomerResource)resource).setId(vpcId);
         } else if (!resourceVpcId.equalsIgnoreCase(vpcId)) {
             System.out.println("Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
-            resource.setId(vpcId);
+            ((CustomerResource)resource).setId(vpcId);
         }
     }
 
     public static void recordRequestTimeStamp(String resourceId, long T0, long T1, long[] timeArray) {
-        BufferedWriter timeStampWriter = AppConfig.TIME_STAMP_WRITER;
+        BufferedWriter timeStampWriter = Config.TIME_STAMP_WRITER;
         Logger logger = LoggerFactory.getLogger();
         try {
             //timeStampWriter = new BufferedWriter(TIME_STAMP_FILE);
@@ -92,19 +85,19 @@ public class RestPreconditions {
             timeStampWriter.flush();
 
             long elapseTimeInMs = (timeArray[timeArray.length - 1] - T0) / 1000000;
-            AppConfig.TOTAL_TIME += elapseTimeInMs;
-            AppConfig.TOTAL_REQUEST++;
-            if (elapseTimeInMs < AppConfig.MIN_TIME) AppConfig.MIN_TIME = elapseTimeInMs;
-            if (elapseTimeInMs > AppConfig.MAX_TIME) AppConfig.MAX_TIME = elapseTimeInMs;
+            Config.TOTAL_TIME += elapseTimeInMs;
+            Config.TOTAL_REQUEST++;
+            if (elapseTimeInMs < Config.MIN_TIME) Config.MIN_TIME = elapseTimeInMs;
+            if (elapseTimeInMs > Config.MAX_TIME) Config.MAX_TIME = elapseTimeInMs;
 
-            if (AppConfig.TOTAL_REQUEST == AppConfig.epHosts.size() * AppConfig.EP_PER_HOST) {
+            if (Config.TOTAL_REQUEST == Config.epHosts.size() * Config.EP_PER_HOST) {
                 timeStampWriter.newLine();
-                timeStampWriter.write("," + AppConfig.TOTAL_TIME / AppConfig.TOTAL_REQUEST + "," + AppConfig.MIN_TIME + "," + AppConfig.MAX_TIME);
+                timeStampWriter.write("," + Config.TOTAL_TIME / Config.TOTAL_REQUEST + "," + Config.MIN_TIME + "," + Config.MAX_TIME);
                 timeStampWriter.newLine();
-                timeStampWriter.write("Average time of " + AppConfig.TOTAL_REQUEST + " requests :" +
-                        AppConfig.TOTAL_TIME / AppConfig.TOTAL_REQUEST + " ms");
+                timeStampWriter.write("Average time of " + Config.TOTAL_REQUEST + " requests :" +
+                        Config.TOTAL_TIME / Config.TOTAL_REQUEST + " ms");
                 timeStampWriter.newLine();
-                timeStampWriter.write("Time span: " + (System.nanoTime() - AppConfig.APP_START_TS) / 1000000 + " ms");
+                timeStampWriter.write("Time span: " + (System.nanoTime() - Config.APP_START_TS) / 1000000 + " ms");
                 timeStampWriter.flush();
 
                 if (timeStampWriter != null)
@@ -114,8 +107,6 @@ public class RestPreconditions {
             logger.log(Level.SEVERE, e.getMessage());
         } finally {
             try {
-//                if(timeStampWriter != null)
-//                    timeStampWriter.close();
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Error in closing the BufferedWriter", ex);
             }

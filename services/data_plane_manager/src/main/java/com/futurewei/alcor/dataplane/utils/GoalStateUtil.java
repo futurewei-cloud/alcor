@@ -16,50 +16,43 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.dataplane.config.env.AppConfig;
-import com.futurewei.alcor.dataplane.entity.*;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.entity.PortProgramInfo;
+import com.futurewei.alcor.dataplane.entity.SubnetProgramInfo;
 import com.futurewei.alcor.dataplane.service.NodeManager;
 import com.futurewei.alcor.dataplane.service.impl.PortGoalStateServiceImpl;
 import com.futurewei.alcor.dataplane.service.impl.SubnetGoalStateServiceImpl;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Subnet;
-import com.futurewei.alcor.schema.Vpc;
+import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
-import com.futurewei.alcor.common.constants.Common;
+import static com.futurewei.alcor.schema.Common.OperationType;
+import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
+import static com.futurewei.alcor.schema.Port.PortState;
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+import static com.futurewei.alcor.schema.Vpc.VpcConfiguration;
+import static com.futurewei.alcor.schema.Vpc.VpcState;
+
 
 public class GoalStateUtil {
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType option,
-            VpcState customerVpcState,
-            HostInfo[] transitRouterHosts) {
-        final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
-                option,
-                customerVpcState,
-                transitRouterHosts);
 
-        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
-                .addVpcStates(vpcState)
-                .build();
-
-        return goalstate;
-    }
-
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType option,
-            SubnetState[] customerSubnetStates,
-            HostInfo[][] transitSwitchHosts) {
-        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder();
+    public static Goalstate.GoalState CreateGoalState(OperationType option,
+                                                      Subnet.SubnetState[] customerSubnetStates, HostInfo[][] transitSwitchHosts) {
+        Goalstate.GoalState.Builder goalstate =
+                Goalstate.GoalState.newBuilder();
 
         for (int i = 0; i < customerSubnetStates.length; i++) {
-            final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                    option,
-                    customerSubnetStates[i],
-                    transitSwitchHosts[i]);
+            final Subnet.SubnetState gsSubnetState =
+                    GoalStateUtil.CreateGSSubnetState(option,
+                            customerSubnetStates[i], transitSwitchHosts[i]);
 
             goalstate.addSubnetStates(gsSubnetState);
         }
@@ -67,25 +60,19 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType vpcOption,
-            VpcState customerVpcState,
-            HostInfo[] transitRouterHosts,
-            com.futurewei.alcor.schema.Common.OperationType subnetOption,
-            SubnetState[] customerSubnetStates,
-            HostInfo[][] transitSwitchHosts) {
-        final Vpc.VpcState vpcState = GoalStateUtil.CreateGSVpcState(
-                vpcOption,
-                customerVpcState,
-                transitRouterHosts);
+    public static Goalstate.GoalState CreateGoalState(OperationType vpcOption
+            , VpcState customerVpcState, HostInfo[] transitRouterHosts,
+                                                      OperationType subnetOption, Subnet.SubnetState[] customerSubnetStates, HostInfo[][] transitSwitchHosts) {
+        final VpcState vpcState = GoalStateUtil.CreateGSVpcState(vpcOption,
+                customerVpcState, transitRouterHosts);
 
-        Goalstate.GoalState.Builder goalState = Goalstate.GoalState.newBuilder().addVpcStates(vpcState);
+        Goalstate.GoalState.Builder goalState =
+                Goalstate.GoalState.newBuilder().addVpcStates(vpcState);
 
         for (int i = 0; i < customerSubnetStates.length; i++) {
-            final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                    subnetOption,
-                    customerSubnetStates[i],
-                    transitSwitchHosts[i]);
+            final Subnet.SubnetState gsSubnetState =
+                    GoalStateUtil.CreateGSSubnetState(subnetOption,
+                            customerSubnetStates[i], transitSwitchHosts[i]);
 
             goalState.addSubnetStates(gsSubnetState);
         }
@@ -93,25 +80,18 @@ public class GoalStateUtil {
         return goalState.build();
     }
 
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType subnetOption,
-            SubnetState customerSubnetState,
-            HostInfo[] transitSwitchHosts,
-            com.futurewei.alcor.schema.Common.OperationType portOption,
-            PortState[] customerPortStates,
-            HostInfo[] portHosts) {
-        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                subnetOption,
-                customerSubnetState,
-                transitSwitchHosts);
+    public static Goalstate.GoalState CreateGoalState(OperationType subnetOption, Subnet.SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, OperationType portOption, PortState[] customerPortStates, HostInfo[] portHosts) {
+        final Subnet.SubnetState gsSubnetState =
+                GoalStateUtil.CreateGSSubnetState(subnetOption,
+                        customerSubnetState, transitSwitchHosts);
 
-        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
+        Goalstate.GoalState.Builder goalstate =
+                Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
 
         for (int i = 0; i < customerPortStates.length; i++) {
-            final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
-                    portOption,
-                    customerPortStates[i],
-                    portHosts[i]);
+            final PortState gsPortState =
+                    GoalStateUtil.CreateGSPortState(portOption,
+                            customerPortStates[i], portHosts[i]);
 
             goalstate.addPortStates(gsPortState);
         }
@@ -119,25 +99,18 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType subnetOption,
-            SubnetState customerSubnetState,
-            HostInfo[] transitSwitchHosts,
-            com.futurewei.alcor.schema.Common.OperationType portOption,
-            PortState[] customerPortStates,
-            HostInfo portHost) {
-        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                subnetOption,
-                customerSubnetState,
-                transitSwitchHosts);
+    public static Goalstate.GoalState CreateGoalState(OperationType subnetOption, Subnet.SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, OperationType portOption, PortState[] customerPortStates, HostInfo portHost) {
+        final Subnet.SubnetState gsSubnetState =
+                GoalStateUtil.CreateGSSubnetState(subnetOption,
+                        customerSubnetState, transitSwitchHosts);
 
-        Goalstate.GoalState.Builder goalstate = Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
+        Goalstate.GoalState.Builder goalstate =
+                Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState);
 
         for (int i = 0; i < customerPortStates.length; i++) {
-            final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
-                    portOption,
-                    customerPortStates[i],
-                    portHost);
+            final PortState gsPortState =
+                    GoalStateUtil.CreateGSPortState(portOption,
+                            customerPortStates[i], portHost);
 
             goalstate.addPortStates(gsPortState);
         }
@@ -145,189 +118,154 @@ public class GoalStateUtil {
         return goalstate.build();
     }
 
-    public static Goalstate.GoalState CreateGoalState(
-            com.futurewei.alcor.schema.Common.OperationType subnetOption,
-            SubnetState customerSubnetState,
-            HostInfo[] transitSwitchHosts,
-            com.futurewei.alcor.schema.Common.OperationType portOption,
-            PortState customerPortState,
-            HostInfo portHost) {
-        final Subnet.SubnetState gsSubnetState = GoalStateUtil.CreateGSSubnetState(
-                subnetOption,
-                customerSubnetState,
-                transitSwitchHosts);
+    public static Goalstate.GoalState CreateGoalState(OperationType subnetOption, Subnet.SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, OperationType portOption, PortState customerPortState, HostInfo portHost) {
+        final Subnet.SubnetState gsSubnetState =
+                GoalStateUtil.CreateGSSubnetState(subnetOption,
+                        customerSubnetState, transitSwitchHosts);
 
-        final Port.PortState gsPortState = GoalStateUtil.CreateGSPortState(
-                portOption,
-                customerPortState,
-                portHost);
+        final PortState gsPortState =
+                GoalStateUtil.CreateGSPortState(portOption, customerPortState
+                        , portHost);
 
-        Goalstate.GoalState goalstate = Goalstate.GoalState.newBuilder()
-                .addSubnetStates(gsSubnetState)
-                .addPortStates(gsPortState)
-                .build();
+        Goalstate.GoalState goalstate =
+                Goalstate.GoalState.newBuilder().addSubnetStates(gsSubnetState).addPortStates(gsPortState).build();
 
         return goalstate;
     }
 
-    public static Vpc.VpcState CreateGSVpcState(
 
-            com.futurewei.alcor.schema.Common.OperationType option,
-            String project_id,
-            String vpc_id,
-            String vpc_name,
-            String cidr) {
-        return Vpc.VpcState.newBuilder()
-                .setOperationType(option)
-                .setConfiguration(Vpc.VpcConfiguration.newBuilder()
-                        .setProjectId(project_id)
-                        .setId(vpc_id)
-                        .setName(vpc_name)
-                        .setCidr(cidr)
-                        .setTunnelId(AppConfig.Tunnel_Id))
-                .build();
-    }
+    public static VpcState CreateGSVpcState(OperationType option,
+                                            VpcState customerVpcState,
+                                            HostInfo[] transitRouterHosts) {
+        String vpcId = customerVpcState.getConfiguration().getId();
+        VpcConfiguration.Builder vpcConfiguration =
+                VpcConfiguration.newBuilder();
 
-    public static Vpc.VpcState CreateGSVpcState(
-            com.futurewei.alcor.schema.Common.OperationType option,
-            VpcState customerVpcState,
-            HostInfo[] transitRouterHosts) {
-        String vpcId = customerVpcState.getId();
-        Vpc.VpcConfiguration.Builder vpcConfiguration = Vpc.VpcConfiguration.newBuilder();
-
-        vpcConfiguration.setProjectId(customerVpcState.getProjectId())
-                .setId(vpcId)
-                .setName(customerVpcState.getName())
-                .setCidr(customerVpcState.getCidr())
-                .setTunnelId(AppConfig.Tunnel_Id);
+        vpcConfiguration.setProjectId(customerVpcState.getConfiguration().getProjectId()).setId(vpcId).setName(customerVpcState.getConfiguration().getName()).setCidr(customerVpcState.getConfiguration().getCidr()).setTunnelId(Config.Tunnel_Id);
 
         for (HostInfo routerHost : transitRouterHosts) {
-            vpcConfiguration.addTransitRouters(
-                    Vpc.VpcConfiguration.TransitRouter.newBuilder()
-                            .setVpcId(vpcId)
-                            .setIpAddress(routerHost.getHostIpAddress())
-                            .setMacAddress(routerHost.getHostMacAddress()));
+            vpcConfiguration.addTransitRouters(VpcConfiguration.TransitRouter.newBuilder().setVpcId(vpcId).setIpAddress(routerHost.getIpAddress()).setMacAddress(routerHost.getMacAddress()));
         }
 
         vpcConfiguration.build();
 
-        return Vpc.VpcState.newBuilder()
-                .setOperationType(option)
-                .setConfiguration(vpcConfiguration)
-                .build();
+        return VpcState.newBuilder().setOperationType(option).setConfiguration(vpcConfiguration).build();
     }
 
-    public static Subnet.SubnetState CreateGSSubnetState(
-            com.futurewei.alcor.schema.Common.OperationType option,
-            SubnetState customerSubnetState,
-            HostInfo[] transitSwitchHosts) {
-        String vpcId = customerSubnetState.getVpcId();
-        String subnetId = customerSubnetState.getId();
-        Subnet.SubnetConfiguration.Builder subnetConfiguration = Subnet.SubnetConfiguration.newBuilder();
+    public static Subnet.SubnetState CreateGSSubnetState(OperationType option
+            , Subnet.SubnetState customerSubnetState, HostInfo[] transitSwitchHosts) {
+        String vpcId = customerSubnetState.getConfiguration().getVpcId();
+        String subnetId = customerSubnetState.getConfiguration().getId();
+        Subnet.SubnetConfiguration.Builder subnetConfiguration =
+                Subnet.SubnetConfiguration.newBuilder();
 
-        subnetConfiguration.setProjectId(customerSubnetState.getProjectId())
-                .setVpcId(vpcId)
-                .setId(subnetId)
-                .setName(customerSubnetState.getName())
-                .setCidr(customerSubnetState.getCidr())
-                .setTunnelId(AppConfig.Tunnel_Id);
+        subnetConfiguration.setProjectId(customerSubnetState.getConfiguration().getProjectId()).setVpcId(vpcId).setId(subnetId).setName(customerSubnetState.getConfiguration().getName()).setCidr(customerSubnetState.getConfiguration().getCidr()).setTunnelId(Config.Tunnel_Id);
 
-        subnetConfiguration.setGateway(
-                Subnet.SubnetConfiguration.Gateway.newBuilder()
-                        .setVpcId(vpcId)
-                        .setSubnetId(subnetId)
-                        .setIpAddress(customerSubnetState.getGatewayIp())
-                        .setMacAddress(AppConfig.GATEWAY_MAC_ADDRESS));
+        subnetConfiguration.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setVpcId(vpcId).setSubnetId(subnetId).setIpAddress(customerSubnetState.getConfiguration().getGateway().getIpAddress()).setMacAddress(Config.GATEWAY_MAC_ADDRESS));
 
         for (HostInfo switchHost : transitSwitchHosts) {
-            subnetConfiguration.addTransitSwitches(
-                    Subnet.SubnetConfiguration.TransitSwitch.newBuilder()
-                            .setVpcId(vpcId)
-                            .setSubnetId(subnetId)
-                            .setIpAddress(switchHost.getHostIpAddress())
-                            .setMacAddress(switchHost.getHostMacAddress()));
+            subnetConfiguration.addTransitSwitches(Subnet.SubnetConfiguration.TransitSwitch.newBuilder().setVpcId(vpcId).setSubnetId(subnetId).setIpAddress(switchHost.getIpAddress()).setMacAddress(switchHost.getMacAddress()));
         }
 
         subnetConfiguration.build();
 
-        return Subnet.SubnetState.newBuilder()
-                .setOperationType(option)
-                .setConfiguration(subnetConfiguration)
-                .build();
+        return Subnet.SubnetState.newBuilder().setOperationType(option).setConfiguration(subnetConfiguration).build();
     }
 
-    public static Port.PortState CreateGSPortState(
-            com.futurewei.alcor.schema.Common.OperationType option,
-            PortState customerPortState,
-            HostInfo portHost) {
-        Port.PortConfiguration.Builder portConfiguration = Port.PortConfiguration.newBuilder();
+    public static PortState CreateGSPortState(OperationType option,
+                                              PortState customerPortState,
+                                              HostInfo portHost) {
+        Port.PortConfiguration.Builder portConfiguration =
+                Port.PortConfiguration.newBuilder();
 
-        portConfiguration.setProjectId(customerPortState.getProjectId())
-                .setNetworkId(customerPortState.getNetworkId())
-                .setId(customerPortState.getId())
-                .setName(customerPortState.getName())
-                .setMacAddress(customerPortState.getMacAddress())
-                .setVethName(customerPortState.getVethName())
-                .setNetworkNs(customerPortState.getNetworkNamespace())
-                .setHostInfo(Port.PortConfiguration.HostInfo.newBuilder()
-                        .setIpAddress(portHost.getHostIpAddress())
-                        .setMacAddress(portHost.getHostMacAddress()));
+        portConfiguration.setProjectId(customerPortState.getConfiguration().getProjectId()).setNetworkId(customerPortState.getConfiguration().getNetworkId()).setId(customerPortState.getConfiguration().getId()).setName(customerPortState.getConfiguration().getName()).setMacAddress(customerPortState.getConfiguration().getMacAddress()).setVethName(customerPortState.getConfiguration().getVethName()).setNetworkNs(customerPortState.getConfiguration().getNetworkNs()).setHostInfo(HostInfo.newBuilder().setIpAddress(portHost.getIpAddress()).setMacAddress(portHost.getMacAddress()));
 
-        for (PortState.FixedIp fixedIp : customerPortState.getFixedIps()) {
-            portConfiguration.addFixedIps(
-                    Port.PortConfiguration.FixedIp.newBuilder()
-                            .setIpAddress(fixedIp.getIpAddress())
-                            .setSubnetId(fixedIp.getSubnetId()));
+        for (Port.PortConfiguration.FixedIp fixedIp :
+                customerPortState.getConfiguration().getFixedIpsList()) {
+            portConfiguration.addFixedIps(Port.PortConfiguration.FixedIp.newBuilder().setIpAddress(fixedIp.getIpAddress()).setSubnetId(fixedIp.getSubnetId()));
         }
 
-        return Port.PortState.newBuilder()
-                .setOperationType(option)
-                .setConfiguration(portConfiguration)
-                .build();
+        return PortState.newBuilder().setOperationType(option).setConfiguration(portConfiguration).build();
     }
 
     public static PortState CreatePort(PortState portState) {
         Logger logger = LoggerFactory.getLogger();
 
-        PortState customerPortState = AssignVipMacToPort(portState, ControllerConfig.epCounter);
-        HostInfo epHost = NodeManager.nodeManager.getHostInfoById(portState.getBindingHostId());
-        SubnetState customerSubnetState = ControllerConfig.customerSubnetState;
-        HostInfo[] transitSwitchHostsForSubnet = ControllerConfig.transitSwitchHosts;
+        PortState customerPortState = AssignVipMacToPort(portState,
+                Config.epCounter);
+        HostInfo epHost =
+                NodeManager.nodeManager.getHostInfoById(portState.getConfiguration().getId()); // not sure
+        SubnetState customerSubnetState = Config.customerSubnetState;
+        HostInfo[] transitSwitchHostsForSubnet = Config.transitSwitchHosts;
 
-        logger.log(Level.INFO, "EP counter: " + ControllerConfig.epCounter);
-        ControllerConfig.epCounter++;
+        logger.log(Level.INFO, "EP counter: " + Config.epCounter);
+        Config.epCounter++;
         logger.log(Level.INFO, "EP :" + customerPortState);
         logger.log(Level.INFO, "Host :" + epHost);
 
-        PortProgramInfo portProgramInfo = new PortProgramInfo(customerPortState, epHost, customerSubnetState, transitSwitchHostsForSubnet);
-        PortGoalStateServiceImpl gsProgrammer = new PortGoalStateServiceImpl(portProgramInfo);
+        PortProgramInfo portProgramInfo =
+                new PortProgramInfo(customerPortState, epHost,
+                        customerSubnetState, transitSwitchHostsForSubnet);
+        PortGoalStateServiceImpl gsProgrammer =
+                new PortGoalStateServiceImpl(portProgramInfo);
         gsProgrammer.SendGoalStateToHosts();
 
         return customerPortState;
     }
 
-    public static void CreateSubnet(SubnetState subnetState, VpcState vpcState) {
+    public static void CreateSubnet(SubnetState subnetState,
+                                    VpcState vpcState) {
 
-        SubnetState customerSubnetState = new SubnetState(subnetState);
-        HostInfo[] transitSwitchHosts = ControllerConfig.transitSwitchHosts;
+        SubnetState customerSubnetState = subnetState;
+        HostInfo[] transitSwitchHosts = Config.transitSwitchHosts;
         VpcState customerVpcState = vpcState;
-        HostInfo[] transitRouterHosts = ControllerConfig.transitRouterHosts;
+        HostInfo[] transitRouterHosts = Config.transitRouterHosts;
 
-        SubnetProgramInfo subnetProgramInfo = new SubnetProgramInfo(customerSubnetState, transitSwitchHosts, customerVpcState, transitRouterHosts);
-        SubnetGoalStateServiceImpl gsProgrammer = new SubnetGoalStateServiceImpl(subnetProgramInfo);
+        SubnetProgramInfo subnetProgramInfo =
+                new SubnetProgramInfo(customerSubnetState, transitSwitchHosts
+                        , customerVpcState, transitRouterHosts);
+        SubnetGoalStateServiceImpl gsProgrammer =
+                new SubnetGoalStateServiceImpl(subnetProgramInfo);
         gsProgrammer.SendGoalStateToHosts();
     }
 
-    public static PortState AssignVipMacToPort(PortState portState, int epIndex) {
+    public static PortState AssignVipMacToPort(PortState portState,
+                                               int epIndex) {
 
-        PortState state = new PortState(portState);
-
-        state.setMacAddress(GenereateMacAddress(epIndex));
+        Port.PortConfiguration.Builder conf =
+                portState.getConfiguration().newBuilder();
+        conf.setMacAddress(GenereateMacAddress(epIndex));
         String[] vpcIps = new String[]{GenereateIpAddress(epIndex)};
-        state.setFixedIps(PortState.convertToFixedIps(vpcIps, portState.getNetworkId()));
-        state.setStatus("UP");
+        try {
 
-        return state;
+            List<FixedIp> fixedIps = convertToFixedIps(vpcIps,
+                    portState.getConfiguration().getNetworkId());
+            for (FixedIp fip : fixedIps) {
+                conf.addFixedIps(fip);
+            }
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+//        conf.setStatus("UP"); // not sure
+        PortState.Builder builder = portState.newBuilderForType();
+        builder.setConfiguration(conf);
+        return builder.build();
+    }
+
+    public static List<FixedIp> convertToFixedIps(String[] vpcIps,
+                                                  String subnetId) throws InvalidProtocolBufferException {
+
+        List<FixedIp> fixedIps = new ArrayList<>();
+        if (vpcIps != null) {
+            for (String vpcIp : vpcIps) {
+                FixedIp.Builder builder = FixedIp.newBuilder();
+                FixedIp build =
+                        builder.setSubnetId(subnetId).setIpAddress(vpcIp).build();
+                fixedIps.add(build);
+            }
+        }
+
+        return fixedIps;
     }
 
     private static String GenereateMacAddress(int index) {

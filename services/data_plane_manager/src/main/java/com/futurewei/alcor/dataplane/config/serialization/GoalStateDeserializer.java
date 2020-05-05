@@ -16,10 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.config.serialization;
 
-import com.futurewei.alcor.schema.Goalstate.GoalState;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
+
+import static com.futurewei.alcor.schema.Goalstate.GoalState;
 
 public class GoalStateDeserializer implements Deserializer<GoalState> {
 

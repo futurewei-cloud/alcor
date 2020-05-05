@@ -16,12 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.repo;
 
-import com.futurewei.alcor.dataplane.dao.CacheFactory;
-import com.futurewei.alcor.dataplane.dao.ICache;
-import com.futurewei.alcor.dataplane.exception.CacheException;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
-import com.futurewei.alcor.dataplane.entity.SubnetState;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.repo.ICache;
+import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.service.CacheFactory;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.schema.Subnet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.logging.Level;
 
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
 @Repository
 @ConditionalOnBean(CacheFactory.class)
 public class SubnetRepository implements ICacheRepository<SubnetState> {
@@ -60,8 +61,8 @@ public class SubnetRepository implements ICacheRepository<SubnetState> {
 
     @Override
     public void addItem(SubnetState newItem) throws CacheException {
-        logger.log(Level.INFO, "Subnet Id:" + newItem.getId());
-        cache.put(newItem.getId(), newItem);
+        logger.log(Level.INFO, "Subnet Id:" + newItem.getConfiguration().getId());
+        cache.put(newItem.getConfiguration().getId(), newItem);
     }
 
     @Override

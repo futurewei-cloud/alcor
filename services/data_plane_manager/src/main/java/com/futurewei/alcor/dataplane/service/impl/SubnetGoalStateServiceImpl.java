@@ -15,24 +15,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.message.MessageClient;
-import com.futurewei.alcor.dataplane.config.env.IKafkaConfiguration;
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.config.message.GoalStateMessageConsumerFactory;
 import com.futurewei.alcor.dataplane.config.message.GoalStateMessageProducerFactory;
-import com.futurewei.alcor.dataplane.entity.HostInfo;
 import com.futurewei.alcor.dataplane.entity.SubnetProgramInfo;
-import com.futurewei.alcor.dataplane.entity.SubnetState;
-import com.futurewei.alcor.dataplane.entity.VpcState;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
+import com.futurewei.alcor.dataplane.service.NodeManager;
 import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 
 import java.util.logging.Level;
 
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+import static com.futurewei.alcor.schema.Vpc.VpcState;
 public class SubnetGoalStateServiceImpl implements GoalStateService {
 
     private SubnetProgramInfo subnetProgramInfo;
@@ -89,13 +90,13 @@ public class SubnetGoalStateServiceImpl implements GoalStateService {
 
         for (HostInfo transitSwitch : transitSwitchHosts) {
             if (this.isFastPath) {
-                System.out.println("Send Subnet id :" + customerSubnetState.getId() + " with fast path to switch host" + transitSwitch);
+                System.out.println("Send Subnet id :" + customerSubnetState.getConfiguration().getId() + " with fast path to switch host" + transitSwitch);
                 System.out.println("GS: " + gsVpcState.toString());
-                GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(transitSwitch.getHostIpAddress(), transitSwitch.getGRPCServerPort());
+                GoalStateProvisionerClient gRpcClientForEpHost = new GoalStateProvisionerClient(transitSwitch.getIpAddress(), NodeManager.GRPC_SERVER_PORT);
                 gRpcClientForEpHost.PushNetworkResourceStates(gsVpcState);
             } else {
                 // This block is reserved for future usage
-                String topic = IKafkaConfiguration.PRODUCER_CLIENT_ID + transitSwitch.getId();
+                String topic = Config.PRODUCER_CLIENT_ID + transitSwitch.getIpAddress();
                 this.getKafkaClient().runProducer(topic, gsVpcState);
             }
         }
@@ -112,12 +113,12 @@ public class SubnetGoalStateServiceImpl implements GoalStateService {
         Logger logger = LoggerFactory.getLogger();
         for (HostInfo transitRouter : transitRouterHosts) {
             if (this.isFastPath) {
-                logger.log(Level.INFO, "Send VPC id :" + customerSubnetState.getVpcId() + " with fast path");
-                GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(transitRouter.getHostIpAddress(), transitRouter.getGRPCServerPort());
+                logger.log(Level.INFO, "Send VPC id :" + customerSubnetState.getConfiguration().getVpcId() + " with fast path");
+                GoalStateProvisionerClient gRpcClient = new GoalStateProvisionerClient(transitRouter.getIpAddress(), NodeManager.GRPC_SERVER_PORT);
                 gRpcClient.PushNetworkResourceStates(gsSubnetState);
             } else {
                 // This block is reserved for future usage
-                String topic = IKafkaConfiguration.PRODUCER_CLIENT_ID + transitRouter.getId();
+                String topic = Config.PRODUCER_CLIENT_ID + transitRouter.getIpAddress();
                 this.getKafkaClient().runProducer(topic, gsSubnetState);
             }
         }

@@ -17,9 +17,19 @@ package com.futurewei.alcor.dataplane.entity;
 
 import lombok.Data;
 
+import static com.futurewei.alcor.schema.Port.PortState;
+
 @Data
 public class PortStateJson {
     private PortState port;
+
+    public PortState getPort() {
+        return port;
+    }
+
+    public void setPort(PortState port) {
+        this.port = port;
+    }
 
     public PortStateJson() {
 

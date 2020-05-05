@@ -16,11 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.ignite;
 
-import com.futurewei.alcor.dataplane.exception.CacheException;
-import com.futurewei.alcor.dataplane.dao.Transaction;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.repo.Transaction;
 import org.apache.ignite.client.ClientException;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.client.ClientTransaction;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.internal.client.thin.ClientServerError;

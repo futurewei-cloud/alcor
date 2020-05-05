@@ -16,12 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.repo;
 
-import com.futurewei.alcor.dataplane.dao.CacheFactory;
-import com.futurewei.alcor.dataplane.dao.ICache;
-import com.futurewei.alcor.dataplane.exception.CacheException;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
-import com.futurewei.alcor.dataplane.entity.PortState;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.repo.ICache;
+import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.service.CacheFactory;
+import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Repository;
@@ -30,16 +31,17 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.logging.Level;
 
+import static com.futurewei.alcor.schema.Port.PortState;
 @Repository
 @ConditionalOnBean(CacheFactory.class)
-public class PortRepository implements ICacheRepository<PortState> {
+public class PortRepository implements ICacheRepository<Port.PortState> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    private ICache<String, PortState> cache;
+    private ICache<String, Port.PortState> cache;
 
     @Autowired
     public PortRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(PortState.class);
+        cache = cacheFactory.getCache(Port.PortState.class);
     }
 
     @PostConstruct
@@ -48,7 +50,7 @@ public class PortRepository implements ICacheRepository<PortState> {
     }
 
     @Override
-    public PortState findItem(String id) throws CacheException {
+    public Port.PortState findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
@@ -57,10 +59,11 @@ public class PortRepository implements ICacheRepository<PortState> {
         return cache.getAll();
     }
 
+
     @Override
     public void addItem(PortState newItem) throws CacheException {
-        logger.log(Level.INFO, "Port Id:" + newItem.getId());
-        cache.put(newItem.getId(), newItem);
+        logger.log(Level.INFO, "Port Id:" + newItem.getConfiguration().getId());
+        cache.put(newItem.getConfiguration().getId(), newItem);
     }
 
     @Override

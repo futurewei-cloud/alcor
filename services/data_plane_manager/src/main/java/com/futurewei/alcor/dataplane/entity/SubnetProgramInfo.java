@@ -15,10 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.entity;
 
-import com.futurewei.alcor.dataplane.entity.HostInfo;
-import com.futurewei.alcor.dataplane.entity.SubnetState;
-import com.futurewei.alcor.dataplane.entity.VpcState;
+import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import lombok.Data;
+
+import static com.futurewei.alcor.schema.Subnet.SubnetState;
+import static com.futurewei.alcor.schema.Vpc.VpcState;
 
 @Data
 public class SubnetProgramInfo {
@@ -27,6 +28,38 @@ public class SubnetProgramInfo {
     private HostInfo[] transitSwitchHosts;
     private VpcState customerVpcState;
     private HostInfo[] transitRouterHosts;
+
+    public SubnetState getCustomerSubnetState() {
+        return customerSubnetState;
+    }
+
+    public void setCustomerSubnetState(SubnetState customerSubnetState) {
+        this.customerSubnetState = customerSubnetState;
+    }
+
+    public HostInfo[] getTransitSwitchHosts() {
+        return transitSwitchHosts;
+    }
+
+    public void setTransitSwitchHosts(HostInfo[] transitSwitchHosts) {
+        this.transitSwitchHosts = transitSwitchHosts;
+    }
+
+    public VpcState getCustomerVpcState() {
+        return customerVpcState;
+    }
+
+    public void setCustomerVpcState(VpcState customerVpcState) {
+        this.customerVpcState = customerVpcState;
+    }
+
+    public HostInfo[] getTransitRouterHosts() {
+        return transitRouterHosts;
+    }
+
+    public void setTransitRouterHosts(HostInfo[] transitRouterHosts) {
+        this.transitRouterHosts = transitRouterHosts;
+    }
 
     public SubnetProgramInfo(SubnetState customerSubnetState, HostInfo[] transitSwitchHosts, VpcState customerVpcState, HostInfo[] transitRouterHosts) {
         this.customerSubnetState = customerSubnetState;

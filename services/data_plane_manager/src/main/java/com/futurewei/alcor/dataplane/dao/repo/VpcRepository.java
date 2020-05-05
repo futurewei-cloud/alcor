@@ -16,19 +16,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.repo;
 
-import com.futurewei.alcor.dataplane.dao.CacheFactory;
-import com.futurewei.alcor.dataplane.dao.ICache;
-import com.futurewei.alcor.dataplane.exception.CacheException;
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
-import com.futurewei.alcor.dataplane.entity.VpcState;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.repo.ICache;
+import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.service.CacheFactory;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.logging.Level;
+
+import static com.futurewei.alcor.schema.Vpc.VpcState;
 
 @Repository
 @ConditionalOnBean(CacheFactory.class)
@@ -63,8 +64,8 @@ public class VpcRepository implements ICacheRepository<VpcState> {
 
     @Override
     public void addItem(VpcState vpcState) throws CacheException {
-        logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
-        cache.put(vpcState.getId(), vpcState);
+        logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getConfiguration().getId());
+        cache.put(vpcState.getConfiguration().getId(), vpcState);
     }
 
     @Override

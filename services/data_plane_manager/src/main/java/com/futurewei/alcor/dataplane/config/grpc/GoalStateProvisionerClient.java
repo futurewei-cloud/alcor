@@ -16,10 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.config.grpc;
 
-import com.futurewei.alcor.dataplane.utils.logging.Logger;
-import com.futurewei.alcor.dataplane.utils.logging.LoggerFactory;
-import com.futurewei.alcor.schema.Goalstate.GoalState;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -56,7 +56,7 @@ public class GoalStateProvisionerClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public void PushNetworkResourceStates(GoalState state) {
+    public void PushNetworkResourceStates(Goalstate.GoalState state) {
         Logger alcorLog = LoggerFactory.getLogger();
         alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
