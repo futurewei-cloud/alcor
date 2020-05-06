@@ -33,9 +33,6 @@ Fall back mechanism from one path to the other, for example, from fast path to n
 
 === Architecture
 
-* Node manager (Node Client) requests the state of every node (Node Server) periodically and each node returns through health check command (e.g. top)
-* Configuration: Health check duration
-
 image:images/dpm.png[image,width=660,height=384]
 
 [Figure 1] Data Plane Manager Structure
@@ -57,12 +54,13 @@ Upstream microservices doesn't need to know about the actual data-plane implemen
 
 === Concurrency Control
 
-How to process multiple concurrent network configuration programming requests.
+Data plane manger service would do the provision work concurrently using multithread technology.
 
 == Communication with Agent
 
 === Message Design
-Full or delta?
+* For initial data we would do full update with nfs support and notification on messaging Q
+* We would use delta update for small amount of update to deploy
 
 === Multi-path Control Logic
 
@@ -71,8 +69,9 @@ Full or delta?
 . Rescue Path
 
 Logic:
-. When and how trigger each path
-. Switch among different paths
+. Initially we would use fast path (grpc) to tell agent the info about next step
+. We would normally use normal path to do agent provision and nfs for big file (3GB file with gzip would cost about 3s)
+. Rescue path?
 
 == Database Schema
 
@@ -84,7 +83,7 @@ Logic:
 
 State could contains more same type data as array
 
-* DataPlaneManager would deploy the goal state configuration in batch to the aca grouply in parallel then wait for the response and do next accordingly.
+* DataPlaneManager would deploy the goal state configuration in batch to the ACA grouply in parallel then wait for the response and do next accordingly.
 
 == REST APIs
 
