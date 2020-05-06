@@ -36,7 +36,7 @@ Fall back mechanism from one path to the other, for example, from fast path to n
 * Node manager (Node Client) requests the state of every node (Node Server) periodically and each node returns through health check command (e.g. top)
 * Configuration: Health check duration
 
-image:extracted-media/media/image1.emf[image,width=660,height=384]
+image:images/dpm.png[image,width=660,height=384]
 
 [Figure 1] Data Plane Manager Structure
 
