@@ -69,9 +69,15 @@ Data plane manger service would do the provision work concurrently using multith
 . Rescue Path
 
 Logic:
+
 . Initially we would use fast path (grpc) to tell agent the info about next step
 . We would normally use normal path to do agent provision and nfs for big file (3GB file with gzip would cost about 3s)
-. Rescue path?
+. When heart beat loss decteted (via Netdata) , data plane manager would send out rescue message to MessagingQ to let adjacent ovs do remote rescue
+
+==== Problems solution:
+
+. To solve the misorder data, use transaction and retry on producer side of mq , use the tag to make sure you could delete the once you wanted to.
+. RocketMQ could support way more topic number, fine tune the parameter for dirty page and memory usage
 
 == Database Schema
 
