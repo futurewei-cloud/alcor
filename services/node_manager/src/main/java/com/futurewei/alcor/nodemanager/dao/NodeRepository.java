@@ -27,6 +27,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -79,13 +80,38 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
      */
     public void addItemTransaction(NodeInfo nodeInfo) throws Exception {
         logger.info("Add node, Node Id:" + nodeInfo.getId());
-        cache.put(nodeInfo.getId(), nodeInfo);
-        String ipAddr;
-
         try (Transaction tx = cache.getTransaction().start()) {
             cache.put(nodeInfo.getId(), nodeInfo);
             tx.commit();
         } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /**
+     * add a new node info to node repository
+     * @param nodes new nodes list
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
+    public void addItemBulkTransaction(List<NodeInfo> nodes) throws Exception {
+        logger.info("Add nodes: " + nodes.size());
+        try (Transaction tx = cache.getTransaction().start()) {
+            for(NodeInfo node: nodes){
+                cache.put(node.getId(), node);
+            }
+            tx.commit();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public void deleteItemTransaction(String id) throws Exception {
+        logger.info("Delete node, Node Id:" + id);
+        try (Transaction tx = cache.getTransaction().start()) {
+            cache.remove(id);
+            tx.commit();
+        } catch (CacheException e) {
             throw e;
         }
     }

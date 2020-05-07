@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.nodemanager.service.datacenter;
+package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
@@ -38,26 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Component
 public class DataCenterConfigLoader {
     private static final Logger logger = LoggerFactory.getLogger(DataCenterConfigLoader.class);
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Value("${alcor.machine.config:.\\machine.json}")
-    private String machineConfigFile;
-
-    //String getPropertyFile() {
-    //    return resourceLoader.getResource(this.machineConfigFile).getFilename();
-    //}
-
-    public List<NodeInfo> loadAndGetHostNodeList() {
-        logger.info("Loading node from " + this.machineConfigFile);
-        return this.loadAndGetHostNodeList(this.machineConfigFile);
+    public DataCenterConfigLoader() {
     }
 
-    @JsonIgnore
     public List<NodeInfo> loadAndGetHostNodeList(String machineConfigFilePath) {
         JSONParser jsonParser = new JSONParser();
         List<NodeInfo> nodeInfos = new ArrayList<>();
@@ -80,7 +66,6 @@ public class DataCenterConfigLoader {
         return nodeInfos;
     }
 
-    @JsonIgnore
     private NodeInfo parseNodeObject(JSONObject node) {
         String id = (String) node.get("id");
         String ip = (String) node.get("ip");
@@ -95,7 +80,6 @@ public class DataCenterConfigLoader {
         return null;
     }
 
-    @JsonIgnore
     public byte[] fromIpAddressStringToByteArray(String ipAddressString) throws UnknownHostException {
         InetAddress ip = InetAddress.getByName(ipAddressString);
         byte[] bytes = ip.getAddress();

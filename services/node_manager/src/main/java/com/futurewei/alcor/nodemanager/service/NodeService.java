@@ -6,6 +6,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 public interface NodeService {
+    int getNodeInfoFromFile(String path) throws Exception;
+
     NodeInfo getNodeInfoById(String nodeId) throws Exception;
 
     List getAllNodes() throws Exception;

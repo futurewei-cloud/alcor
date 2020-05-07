@@ -23,7 +23,9 @@ import com.futurewei.alcor.nodemanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.HandlerMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,23 @@ public class NodeController {
 
     @Autowired
     private NodeService service;
+
+    @RequestMapping(
+            method = GET,
+            value = {"/nodes/path/{path}/**", "/v4/nodes/path/{path}/**"})
+    public String getNodeInfoFromFile(@PathVariable String path, HttpServletRequest request) throws Exception {
+        int nNode = 0;
+        String restOfTheUrl = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String strPath = restOfTheUrl.substring(12);
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(strPath);
+            nNode = service.getNodeInfoFromFile(strPath);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+        return "{Total nodes: " + nNode + "}";
+    }
 
     @RequestMapping(
             method = GET,

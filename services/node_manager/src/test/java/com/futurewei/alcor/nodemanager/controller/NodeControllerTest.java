@@ -93,6 +93,13 @@ public class NodeControllerTest {
     }
 
     @Test
+    public void test_getNodeInfoFromFile() throws Exception {
+        this.mockMvc.perform(get("/nodes/path/D:/dev/alcor/config/machine.json"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void test_createNodeInfo() throws Exception {
         byte[] ip = new byte[]{10,0,0,1};
         NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
