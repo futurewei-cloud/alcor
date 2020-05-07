@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -59,5 +60,5 @@ public class SegmentRepository implements ICacheRepository<SegmentWebResponseObj
         logger.log(Level.INFO, "Delete segment, Segment Id:" + id);
         cache.remove(id);
     }
-
 }
+

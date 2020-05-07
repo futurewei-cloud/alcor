@@ -3,10 +3,14 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.exception.VlanNotFoundException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.web.allocator.VlanKeyAllocator;
 import com.futurewei.alcor.web.entity.NetworkVlanType;
+import com.futurewei.alcor.web.entity.VlanKeyAlloc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -26,6 +30,7 @@ public class VlanRepository implements ICacheRepository<NetworkVlanType> {
     }
 
     private ICache<String, NetworkVlanType> cache;
+
 
     @Autowired
     public VlanRepository(CacheFactory cacheFactory) {
@@ -49,8 +54,8 @@ public class VlanRepository implements ICacheRepository<NetworkVlanType> {
 
     @Override
     public void addItem(NetworkVlanType newItem) throws CacheException {
-        logger.log(Level.INFO, "Add Vlan, Vlan Id:" + newItem.getId());
-        cache.put(newItem.getId(), newItem);
+        logger.log(Level.INFO, "Add Vlan, Vlan Id:" + newItem.getVlanId());
+        cache.put(newItem.getVlanId(), newItem);
     }
 
     @Override

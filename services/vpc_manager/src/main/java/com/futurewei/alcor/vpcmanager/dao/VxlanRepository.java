@@ -49,8 +49,8 @@ public class VxlanRepository implements ICacheRepository<NetworkVxlanType> {
 
     @Override
     public void addItem(NetworkVxlanType newItem) throws CacheException {
-        logger.log(Level.INFO, "Add Vxlan, Vxlan Id:" + newItem.getId());
-        cache.put(newItem.getId(), newItem);
+        logger.log(Level.INFO, "Add Vxlan, Vxlan Id:" + newItem.getVxlanId());
+        cache.put(newItem.getVxlanId(), newItem);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNullException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
+import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -30,6 +32,9 @@ public class SegmentController {
 
     @Autowired
     private SegmentDatabaseService segmentDatabaseService;
+
+    @Autowired
+    private SegmentService segmentService;
 
     @RequestMapping(
             method = GET,
@@ -65,6 +70,7 @@ public class SegmentController {
     public SegmentWebResponseJson createSegment(@PathVariable String projectid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentWebResponseObject segmentWebResponseObject = new SegmentWebResponseObject();
+        String networkTypeId = UUID.randomUUID().toString();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -75,13 +81,17 @@ public class SegmentController {
 
             // verify network type
             String networkType = segmentWebRequestObject.getNetworkType();
-            if (networkType.equals(NetworkTypeEnum.VXLAN)) {
-
-            } else if (networkType.equals(NetworkTypeEnum.VLAN)) {
-
-            }else if (networkType.equals(NetworkTypeEnum.GRE)) {
-
+            Long key = null;
+            if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
+                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId());
+            } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
+                key = segmentService.addVlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
+            }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
+                key = segmentService.addGreEntity(segmentWebRequestObject.getId());
             }
+
+            segmentWebResponseObject.setSegmentationId(Integer.parseInt(String.valueOf(key)));
+            segmentWebResponseObject.setSegmentationUUId(networkTypeId);
 
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);
 
@@ -150,7 +160,19 @@ public class SegmentController {
                 return new ResponseId();
             }
 
+            // Release Network Type
+            String networkType = segmentWebResponseObject.getNetworkType();
+            Long key = Long.parseLong(String.valueOf(segmentWebResponseObject.getSegmentationId()));
+            if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
+
+            } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
+                this.segmentService.releaseVlanEntity(segmentWebResponseObject.getSegmentationUUId(), key);
+            }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
+
+            }
+
             segmentDatabaseService.deleteSegment(segmentid);
+
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }

@@ -57,8 +57,8 @@ public class VpcWebHandlers {
 
         final UUID generatedVpcId = UUID.randomUUID();
         Mono<VpcWebJson> newVpcObj = vpcObj.map(p ->
-                p.getVpc().getId().isEmpty() || !CommonUtil.isUUID(p.getVpc().getId()) ?
-                        new VpcWebJson(p.getVpc(), generatedVpcId) : new VpcWebJson(p.getVpc()));
+                p.getNetwork().getId().isEmpty() || !CommonUtil.isUUID(p.getNetwork().getId()) ?
+                        new VpcWebJson(p.getNetwork(), generatedVpcId) : new VpcWebJson(p.getNetwork()));
 
         Mono<VpcWebJson> response = serviceProxy.createVpc(projectId, newVpcObj);
 

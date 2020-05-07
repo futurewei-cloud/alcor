@@ -49,8 +49,8 @@ public class GreRepository implements ICacheRepository<NetworkVGREType> {
 
     @Override
     public void addItem(NetworkVGREType newItem) throws CacheException {
-        logger.log(Level.INFO, "Add Gre, Gre Id:" + newItem.getId());
-        cache.put(newItem.getId(), newItem);
+        logger.log(Level.INFO, "Add Gre, Gre Id:" + newItem.getGreId());
+        cache.put(newItem.getGreId(), newItem);
     }
 
     @Override

@@ -3,16 +3,23 @@ package com.futurewei.alcor.web.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Data
 public class NetworkVxlanType {
 
-    @JsonProperty("id")
-    private String id;
+    @Id
+    private Long key;
+
+    @JsonProperty("vxlan_id")
+    private String vxlanId;
 
     @JsonProperty("name")
     private String name;
+
+    @JsonProperty("segment_id")
+    private String segmentId;
 
     @JsonProperty("mtu")
     private String mtu;
