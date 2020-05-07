@@ -55,3 +55,9 @@ grouping of network configurations and instantaneous provisioning
 * Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design)
 ** Open driver framework at Controllers
 ** Plugin model at Alcor Control Agent
+
+== Inside the Big Picture
+
+
+
+plantuml::puml/vm_create.puml[format="svg", align="center"]

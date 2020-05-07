@@ -1,5 +1,3 @@
- @startuml
-
 ' Copyright 2019 The Alcor Authors.
 
 ' Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +11,9 @@
 '        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 '        See the License for the specific language governing permissions and
 '        limitations under the License.
-		
+
+@startuml
+
 title Workflow of VPC/Network
 
 skinparam monochrome true
@@ -28,44 +28,42 @@ collections Data_Plane_Manager
 collections Node_Manager
 collections Hosts
 
-==GET a VPC/Network==
+==Get a VPC/Network==
 autonumber
 rnote over API_Gateway: ==GET /project/{project_id}/networks
-API_Gateway -> API_Gateway: Authentication, authorization, throttling
-API_Gateway -> VPC_Manager: Create a VPC
-VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
-VPC_Manager -> Route_Manager: Create default route rules
-Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
-VPC_Manager -> API_Gateway: Persist vpc states and return
+API_Gateway -> API_Gateway: Authentication, authorization,\nand throttling
+API_Gateway -> VPC_Manager: Get a VPC state
+VPC_Manager -> VPC_Manager: Query Database by VPC ID
+VPC_Manager -> API_Gateway: Return VPC state
 
 ==Create a VPC/Network==
 autonumber
 rnote over API_Gateway: ==POST /project/{project_id}/networks
-API_Gateway -> API_Gateway: Authentication, authorization, throttling
+API_Gateway -> API_Gateway: Authentication, authorization,\nand throttling
 API_Gateway -> VPC_Manager: Create a VPC
-VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
+VPC_Manager -> VPC_Manager: Assign uuid, and allocate network\nsegment based on network type
 VPC_Manager -> Route_Manager: Create default route rules
-Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
+Route_Manager -> VPC_Manager: Allocate/return default route\nrules (IPv4/6)
 VPC_Manager -> API_Gateway: Persist vpc states and return
 
 ==Update a VPC/Network==
 autonumber
 rnote over API_Gateway: ==PUT /project/{project_id}/networks
-API_Gateway -> API_Gateway: Authentication, authorization, throttling
+API_Gateway -> API_Gateway: Authentication, authorization,\nand throttling
 API_Gateway -> VPC_Manager: Create a VPC
-VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
+VPC_Manager -> VPC_Manager: Assign uuid, and allocate network\nsegment based on network type
 VPC_Manager -> Route_Manager: Create default route rules
-Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
+Route_Manager -> VPC_Manager: Allocate/return default route\nrules (IPv4/6)
 VPC_Manager -> API_Gateway: Persist vpc states and return
 
 ==Delete a VPC/Network==
 autonumber
 rnote over API_Gateway: ==DELETE /project/{project_id}/networks
-API_Gateway -> API_Gateway: Authentication, authorization, throttling
+API_Gateway -> API_Gateway: Authentication, authorization,\nand throttling
 API_Gateway -> VPC_Manager: Create a VPC
-VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
+VPC_Manager -> VPC_Manager: Assign uuid, and allocate network\nsegment based on network type
 VPC_Manager -> Route_Manager: Create default route rules
-Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
+Route_Manager -> VPC_Manager: Allocate/return default route\nrules (IPv4/6)
 VPC_Manager -> API_Gateway: Persist vpc states and return
 
 @enduml
