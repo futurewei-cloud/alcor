@@ -12,12 +12,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.macmanager.dao;
+
+package com.futurewei.alcor.macmanager.dao.redis;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacRange;
+import com.futurewei.alcor.macmanager.entity.MacState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,51 +29,54 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-public class MacRangeRedisRepository implements ICacheRepository<MacRange> {
+public class MacStateRedisRepository implements ICacheRepository<MacState> {
 
-    private String KEY = "mac_range";
+    private String KEY = "mac_state";
 
-    private RedisTemplate<String, MacRange> redisMacRangeTemplate;
+    private RedisTemplate<String, MacState> redisTemplate;
 
     private HashOperations hashOperations;
 
     @Autowired
-    public MacRangeRedisRepository(RedisTemplate<String, MacRange> redisMacRangeTemplate) {
+    public MacStateRedisRepository(RedisTemplate<String, MacState> redisTemplate) {
 
-        this.redisMacRangeTemplate = redisMacRangeTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
     private void init() {
-        hashOperations = redisMacRangeTemplate.opsForHash();
+        hashOperations = redisTemplate.opsForHash();
     }
 
     @Override
-    public MacRange findItem(String id) {
+    public synchronized MacState findItem(String id) {
 
-        return (MacRange) hashOperations.get(KEY, id);
+        return (MacState) hashOperations.get(KEY, id);
     }
 
     @Override
-    public Map<String, MacRange> findAllItems() {
-        System.out.print("test" + KEY);
+    public synchronized Map findAllItems() {
         return hashOperations.entries(KEY);
     }
 
     @Override
-    public void addItem(MacRange newItem) {
+    public synchronized void addItem(MacState newItem) {
         Logger logger = LoggerFactory.getLogger();
-        logger.log(Level.INFO, "mac address:" + newItem.getRangeId());
-        hashOperations.put(KEY, newItem.getRangeId(), newItem);
+        logger.log(Level.INFO, "mac address:" + newItem.getMacAddress());
+        hashOperations.putIfAbsent(KEY, newItem.getMacAddress(), newItem);
     }
 
     @Override
-    public void deleteItem(String id) {
+    public synchronized void deleteItem(String id) {
         hashOperations.delete(KEY, id);
     }
 
-    public void updateItem(MacRange newItem) {
-        hashOperations.put(KEY, newItem.getRangeId(), newItem);
+    public synchronized void updateItem(MacState newItem) {
+        hashOperations.put(KEY, newItem.getMacAddress(), newItem);
+    }
+
+    public synchronized MacState findMac(String id) {
+        return (MacState) hashOperations.get(KEY, id);
     }
 }
 

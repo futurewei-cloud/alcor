@@ -80,7 +80,7 @@ public class IgniteConfiguration {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
-        Assert.notNull(igniteClient, "IgniteClient is null");
+        //Assert.notNull(igniteClient, "IgniteClient is null");
 
         return igniteClient;
     }
