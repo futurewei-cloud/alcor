@@ -15,11 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.rollback;
 
-import com.futurewei.alcor.common.entity.IpAddrRequest;
-import com.futurewei.alcor.common.rest.IpAddressRest;
-import org.springframework.stereotype.Component;
+import com.futurewei.alcor.web.entity.IpAddrRequest;
+import com.futurewei.alcor.web.rest.IpAddressRest;
 
-@Component
+
 public class AllocateIpAddrRollback extends AbstractIpAddrRollback {
 
     public AllocateIpAddrRollback(IpAddressRest ipAddressRest) {

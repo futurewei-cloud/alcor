@@ -19,5 +19,4 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Release ip address bulk error")
-public class ReleaseIpAddrBulkException extends Exception {
-}
+public class ReleaseIpAddrBulkException extends Exception {}

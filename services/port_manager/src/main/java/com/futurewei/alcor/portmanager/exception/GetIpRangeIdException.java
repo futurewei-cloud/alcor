@@ -19,5 +19,4 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Get ip range id error")
-public class GetIpRangeIdException extends Exception {
-}
+public class GetIpRangeIdException extends Exception {}

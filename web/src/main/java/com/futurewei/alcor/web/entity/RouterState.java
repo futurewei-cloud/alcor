@@ -13,11 +13,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.entity;
+package com.futurewei.alcor.web.entity;
 
-public class HostState {
-    private String hostIp;
-    private String dpType;
+public class RouterState {
+    private String tenantId;
 
+    public RouterState(String tenantId) {
+        this.tenantId = tenantId;
+    }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
 }

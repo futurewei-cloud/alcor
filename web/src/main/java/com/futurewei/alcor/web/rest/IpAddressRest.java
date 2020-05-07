@@ -13,11 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.rest;
+package com.futurewei.alcor.web.rest;
 
-import com.futurewei.alcor.common.entity.IpAddrRequest;
-import com.futurewei.alcor.common.entity.IpAddrRequestBulk;
-import com.futurewei.alcor.common.entity.IpAddrState;
+import com.futurewei.alcor.web.entity.IpAddrRequest;
+import com.futurewei.alcor.web.entity.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.IpAddrState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

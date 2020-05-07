@@ -16,16 +16,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 
-import com.futurewei.alcor.common.entity.*;
-import com.futurewei.alcor.common.rest.IpAddressRest;
-import com.futurewei.alcor.common.rest.MacAddressRest;
-import com.futurewei.alcor.common.rest.VpcRest;
+import com.futurewei.alcor.portmanager.executor.AsyncExecutor;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.restwrap.IpAddressRestWrap;
+import com.futurewei.alcor.portmanager.restwrap.MacAddressRestWrap;
+import com.futurewei.alcor.portmanager.restwrap.VpcRestWrap;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
-import com.futurewei.alcor.portmanager.utils.Ipv4AddrUtil;
-import com.futurewei.alcor.portmanager.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.rest.IpAddressRest;
+import com.futurewei.alcor.web.rest.MacAddressRest;
+import com.futurewei.alcor.web.rest.VpcRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +35,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
-@ComponentScan(value="com.futurewei.alcor.common.rest")
+@ComponentScan(value="com.futurewei.alcor.web.rest")
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -51,94 +54,6 @@ public class PortServiceImpl implements PortService {
     @Autowired
     private VpcRest vpcRest;
 
-    private int getIpVersion(String ipAddress) throws Exception {
-        if (Ipv4AddrUtil.formatCheck(ipAddress)) {
-            return IpVersion.IPV4.getVersion();
-        } else if (Ipv6AddrUtil.formatCheck(ipAddress)) {
-            return IpVersion.IPV6.getVersion();
-        } else {
-            throw new IpAddrInvalidException();
-        }
-    }
-
-    private String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
-        if (IpVersion.IPV4.getVersion() == ipVersion) {
-            return subnetId; //FIXME:return the right rangeId get from subnet manager
-        } else if (IpVersion.IPV6.getVersion() == ipVersion) {
-            return subnetId; //FIXME:return the right rangeId get from subnet manager
-        }
-
-        throw new IpVersionInvalidException();
-    }
-
-    private void verifyIpAddresses(List<PortState.FixedIp> fixedIps, Stack<PortStateRollback> rollbacks) throws Exception {
-        for (PortState.FixedIp fixedIp: fixedIps) {
-            int ipVersion = getIpVersion(fixedIp.getIpAddress());
-            String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
-
-            IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, fixedIp.getIpAddress());
-
-            AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
-            ipAddressRollback.putAllocatedIpAddress(result);
-            rollbacks.push(ipAddressRollback);
-        }
-    }
-
-    private String getRangeIdForPort(String vpcId) {
-        return "range1";
-    }
-
-    private void allocateIpAddress(PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
-        String rangeId = getRangeIdForPort(portState.getVpcId());
-
-        IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, null);
-
-        List<PortState.FixedIp> fixedIps = new ArrayList<>();
-        PortState.FixedIp fixedIp = new PortState.FixedIp();
-
-        fixedIp.setSubnetId(result.getSubnetId());
-        fixedIp.setIpAddress(result.getIp());
-        fixedIps.add(fixedIp);
-
-        portState.setFixedIps(fixedIps);
-
-        AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
-        ipAddressRollback.putAllocatedIpAddress(result);
-        rollbacks.push(ipAddressRollback);
-    }
-
-    private void allocateMacAddress(String projectId, PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
-        MacStateJson result = macAddressRest.allocateMacAddress(projectId, portState.getVpcId(), portState.getId());
-        portState.setMacAddress(result.getMacState().getMacAddress());
-
-        MacState macState = new MacState();
-        macState.setProjectId(projectId);
-        macState.setVpcId(portState.getVpcId());
-        macState.setMacAddress(portState.getMacAddress());
-
-        AllocateMacAddrRollback rollback = new AllocateMacAddrRollback(macAddressRest);
-        rollback.putAllocatedMacAddress(macState);
-
-        rollbacks.push(rollback);
-    }
-
-    private void verifyMacAddress(String projectId, PortState portState, Stack<PortStateRollback> rollbacks) {
-        //FIXME: Not support yet
-    }
-
-    private void releaseMacAddress(String projectId, PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
-        macAddressRest.releaseMacAddress(portState.getMacAddress());
-
-        MacState macState = new MacState();
-        macState.setProjectId(projectId);
-        macState.setVpcId(portState.getVpcId());
-        macState.setMacAddress(portState.getMacAddress());
-
-        ReleaseMacAddrRollback rollback = new ReleaseMacAddrRollback(macAddressRest);
-        rollback.putReleasedMacAddress(macState);
-
-        rollbacks.push(rollback);
-    }
 
     private void getDefaultSecurityGroup(PortState portState) {
         //FIXME: send get tenant default security group
@@ -186,100 +101,18 @@ public class PortServiceImpl implements PortService {
         //FIXME: Add port to Host
     }
 
-    private void setDefaultValue(PortState portState) {
-        if (portState.getId() == null) {
-            portState.setId("");
-        }
+    private void tryCreatePortState(PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
+        //Verify VPC ID
+        VpcRestWrap vpcRestWrap = new VpcRestWrap(vpcRest, rollbacks);
+        CompletableFuture vpcFuture = AsyncExecutor.execute(vpcRestWrap::verifyVpc, portState);
 
-        if (portState.getProjectId() == null) {
-            portState.setProjectId("");
-        }
-
-        if (portState.getName() == null) {
-            portState.setName("");
-        }
-        if (portState.getDescription() == null) {
-            portState.setDescription("");
-        }
-        if (portState.getVpcId() == null) {
-            portState.setVpcId("");
-        }
-
-        if (portState.getTenantId() == null) {
-            portState.setTenantId("");
-        }
-
-        if (portState.getMacAddress() == null) {
-            portState.setMacAddress("");
-        }
-
-        if (portState.getVethName() == null) {
-            portState.setVethName("");
-        }
-
-        if (portState.getDeviceId() == null) {
-            portState.setDeviceId("");
-        }
-
-        if (portState.getDeviceOwner() == null) {
-            portState.setDeviceOwner("");
-        }
-
-        if (portState.getStatus() == null) {
-            portState.setStatus("");
-        }
+        CompletableFuture ipFuture;
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
 
         if (portState.getFixedIps() == null) {
-            portState.setFixedIps(new ArrayList<>());
-        }
-
-        if (portState.getAllowedAddressPairs() == null) {
-            portState.setAllowedAddressPairs(new ArrayList<>());
-        }
-
-        if (portState.getExtraDhcpOpts() == null) {
-            portState.setExtraDhcpOpts(new ArrayList<>());
-        }
-
-        if (portState.getSecurityGroups() == null) {
-            portState.setSecurityGroups(new ArrayList<>());
-        }
-
-        if (portState.getBindingHostId() == null) {
-            portState.setBindingHostId("");
-        }
-
-        if (portState.getBindingProfile() == null) {
-            portState.setBindingProfile("");
-        }
-
-        if (portState.getBindingVnicType() == null) {
-            portState.setBindingVnicType("");
-        }
-
-        if (portState.getNetworkNamespace() == null) {
-            portState.setNetworkNamespace("");
-        }
-
-        if (portState.getDnsName() == null) {
-            portState.setDnsName("");
-        }
-
-        if (portState.getDnsAssignment() == null) {
-            portState.setDnsAssignment(new ArrayList<>());
-        }
-    }
-
-    private PortStateJson tryCreatePortState(String projectId, PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
-        //Ensure that the vpc exists
-        vpcRest.verifyVpc(projectId, portState.getVpcId());
-
-        //Allocate ip address for port
-        List<PortState.FixedIp> fixedIps = portState.getFixedIps();
-        if (fixedIps == null) {
-            allocateIpAddress(portState, rollbacks);
+            ipFuture = AsyncExecutor.execute(ipAddressRestWrap::allocateIpAddress, portState);
         } else {
-            verifyIpAddresses(fixedIps, rollbacks);
+            ipFuture = AsyncExecutor.execute(ipAddressRestWrap::verifyIpAddresses, portState.getFixedIps());
         }
 
         //Generate uuid for port
@@ -287,41 +120,36 @@ public class PortServiceImpl implements PortService {
             portState.setId(UUID.randomUUID().toString());
         }
 
-        //Allocate mac address for port
+        CompletableFuture macFuture;
+        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(macAddressRest, rollbacks);
+
         if (portState.getMacAddress() == null) {
-            allocateMacAddress(projectId, portState, rollbacks);
+            macFuture = AsyncExecutor.execute(macAddressRestWrap::allocateMacAddress, portState);
         } else {
-            verifyMacAddress(projectId, portState, rollbacks);
+            macFuture = AsyncExecutor.execute(macAddressRestWrap::verifyMacAddress, portState);
         }
 
         //Verify security group
-        List<String> securityGroups = portState.getSecurityGroups();
-        if (securityGroups == null) {
-            getDefaultSecurityGroup(portState);
-        } else {
-            bindSecurityGroups(portState);
-        }
 
         //If port binds host, to send it's information to host
-        String bindingHostId = portState.getBindingHostId();
-        if (bindingHostId != null) {
-            addPortToHost(bindingHostId);
-        }
 
-        portState.setProjectId(projectId);
-        setDefaultValue(portState);
+        //Wait for all async functions to finish
+        CompletableFuture.allOf(vpcFuture, ipFuture, macFuture).join();
 
+        //Persist portState
         portRepository.addItem(portState);
-
-        return new PortStateJson(portState);
     }
+
 
     public PortStateJson createPortState(String projectId, PortStateJson portStateJson) throws Exception {
         LOG.debug("Create port state, projectId: {}, PortStateJson: {}", projectId, portStateJson);
+
         Stack<PortStateRollback> rollbacks = new Stack<>();
+        PortState portState = portStateJson.getPortState();
+        portState.setProjectId(projectId);
 
         try {
-            tryCreatePortState(projectId, portStateJson.getPortState(), rollbacks);
+            tryCreatePortState(portState, rollbacks);
         } catch (Exception e) {
             rollBackAllOperations(rollbacks);
             throw e;
@@ -383,36 +211,6 @@ public class PortServiceImpl implements PortService {
         return addFixedIps;
     }
 
-    private void releaseIpAddressBulk(List<PortState.FixedIp> fixedIps, Stack<PortStateRollback> rollbacks) throws Exception {
-        for (PortState.FixedIp fixedIp: fixedIps) {
-            ipAddressRest.releaseIpAddress(fixedIp.getSubnetId(), fixedIp.getIpAddress());
-
-            IpAddrRequest ipAddrRequest = new IpAddrRequest();
-
-            int ipVersion = getIpVersion(fixedIp.getIpAddress());
-            String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
-            ipAddrRequest.setRangeId(rangeId);
-            ipAddrRequest.setIp(fixedIp.getIpAddress());
-
-            ReleaseIpAddrRollback ipAddressRollback = new ReleaseIpAddrRollback(ipAddressRest);
-            ipAddressRollback.putReleasedIpAddress(ipAddrRequest);
-            rollbacks.push(ipAddressRollback);
-        }
-    }
-
-    private void updateIpAddress(PortState portState, PortState portStateOld, Stack<PortStateRollback> rollbacks) throws Exception {
-        List<PortState.FixedIp> fixedIps = portState.getFixedIps();
-        List<PortState.FixedIp> oldFixedIps = portStateOld.getFixedIps();
-
-        List<PortState.FixedIp> addFixedIps = fixedIpsCompare(fixedIps, oldFixedIps);
-        List<PortState.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
-
-        releaseIpAddressBulk(delFixedIps, rollbacks);
-
-        verifyIpAddresses(addFixedIps, rollbacks);
-
-        portStateOld.setFixedIps(fixedIps);
-    }
 
     private void updateSecurityGroup(PortState portState, PortState oldPortState) throws Exception {
         String deviceOwner = portState.getDeviceOwner();
@@ -442,7 +240,7 @@ public class PortServiceImpl implements PortService {
 
     }
 
-    private PortStateJson tryUpdatePortState(String projectId, String portId, PortStateJson portStateJson, Stack<PortStateRollback> rollbacks) throws Exception {
+    private void tryUpdatePortState(String projectId, String portId, PortStateJson portStateJson, Stack<PortStateRollback> rollbacks) throws Exception {
         PortState portState = portStateJson.getPortState();
         PortState oldPortState = portRepository.findItem(portId);
 
@@ -450,11 +248,11 @@ public class PortServiceImpl implements PortService {
             throw new PortStateNotFoundException();
         }
 
-        //Port not changed, nothing to do
         portState.setProjectId(projectId);
-        setDefaultValue(portState);
+
+        //Port not changed, nothing to do
         if (portState.equals(oldPortState)) {
-            return portStateJson;
+            return;
         }
 
         //Update mac_address
@@ -472,9 +270,32 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update fixed_ips
-        if (portState.getFixedIps() != null) {
-            updateIpAddress(portState, oldPortState, rollbacks);
+        CompletableFuture ipReleaseFuture = null;
+        CompletableFuture ipVerifyFuture = null;
+        List<PortState.FixedIp> fixedIps = portState.getFixedIps();
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
+
+        if (fixedIps != null) {
+            List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
+
+            List<PortState.FixedIp> addFixedIps = fixedIpsCompare(fixedIps, oldFixedIps);
+            List<PortState.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
+
+            //releaseIpAddressBulk(delFixedIps, rollbacks);
+            if (delFixedIps.size() > 0) {
+                ipReleaseFuture = AsyncExecutor.execute(ipAddressRestWrap::releaseIpAddressBulk, delFixedIps);
+            }
+
+            //verifyIpAddresses(addFixedIps, rollbacks);
+            if (addFixedIps.size() > 0) {
+                ipVerifyFuture = AsyncExecutor.execute(ipAddressRestWrap::verifyIpAddresses, addFixedIps);
+            }
+        } else {
+            List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
+            ipVerifyFuture = AsyncExecutor.execute(ipAddressRestWrap::releaseIpAddressBulk, oldFixedIps);
         }
+
+        oldPortState.setFixedIps(fixedIps);
 
         //Update security_groups
         updateSecurityGroup(oldPortState, portState);
@@ -488,9 +309,17 @@ public class PortServiceImpl implements PortService {
         //Update port to host
         updatePortToHost(portState);
 
-        portRepository.addItem(oldPortState);
+        //Wait for all async functions to finish
+        if (ipReleaseFuture != null) {
+            ipReleaseFuture.join();
+        }
 
-        return portStateJson;
+        if (ipVerifyFuture != null) {
+            ipVerifyFuture.join();
+        }
+
+        portRepository.addItem(oldPortState);
+        portStateJson.setPortState(oldPortState);
     }
 
     public PortStateJson updatePortState(String projectId, String portId, PortStateJson portStateJson) throws Exception {
@@ -511,15 +340,35 @@ public class PortServiceImpl implements PortService {
         return portStateJson;
     }
 
-    private void tryDeletePortState(PortState portState, String projectId, String portId, Stack<PortStateRollback> rollbacks) throws Exception {
+    private void tryDeletePortState(PortState portState, String portId, Stack<PortStateRollback> rollbacks) throws Exception {
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
+        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(macAddressRest, rollbacks);
+
         //Release ip address
-        releaseIpAddressBulk(portState.getFixedIps(), rollbacks);
+        //releaseIpAddressBulk(portState.getFixedIps(), rollbacks);
+        CompletableFuture ipFuture = null;
+        if (portState.getFixedIps() != null && portState.getFixedIps().size() > 0) {
+            ipFuture = AsyncExecutor.execute(ipAddressRestWrap::releaseIpAddressBulk, portState.getFixedIps());
+        }
 
         //Release mac address
-        releaseMacAddress(projectId, portState, rollbacks);
+        //releaseMacAddress(projectId, portState, rollbacks);
+        CompletableFuture macFuture = null;
+        if (portState.getMacAddress() != null && !"".equals(portState.getMacAddress())) {
+            macFuture = AsyncExecutor.execute(macAddressRestWrap::releaseMacAddress, portState);
+        }
 
         //Unbind security groups
         unbindSecurityGroups(portState);
+
+        //Wait for all async functions to finish
+        if (ipFuture != null) {
+            ipFuture.join();
+        }
+
+        if (macFuture != null) {
+            macFuture.join();
+        }
 
         portRepository.deleteItem(portId);
     }
@@ -534,7 +383,7 @@ public class PortServiceImpl implements PortService {
         }
 
         try {
-            tryDeletePortState(portState, projectId, portId, rollbacks);
+            tryDeletePortState(portState, portId, rollbacks);
         } catch (Exception e) {
             rollBackAllOperations(rollbacks);
             throw e;

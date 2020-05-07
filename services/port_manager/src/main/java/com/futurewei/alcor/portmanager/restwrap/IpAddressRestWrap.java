@@ -1,0 +1,131 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+package com.futurewei.alcor.portmanager.restwrap;
+
+import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
+import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.web.entity.IpAddrRequest;
+import com.futurewei.alcor.web.entity.IpVersion;
+import com.futurewei.alcor.web.entity.PortState;
+import com.futurewei.alcor.web.rest.IpAddressRest;
+import com.futurewei.alcor.portmanager.exception.IpAddrInvalidException;
+import com.futurewei.alcor.portmanager.exception.IpVersionInvalidException;
+import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
+import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
+import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class IpAddressRestWrap {
+    private IpAddressRest ipAddressRest;
+    private Stack<PortStateRollback> rollbacks;
+
+    public IpAddressRestWrap(IpAddressRest ipAddressRest, Stack<PortStateRollback> rollbacks) {
+        this.ipAddressRest = ipAddressRest;
+        this.rollbacks = rollbacks;
+    }
+
+    private static String getRangeIdForPort(String vpcId) {
+        return "range1";
+    }
+
+    private static int getIpVersion(String ipAddress) throws Exception {
+        if (Ipv4AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV4.getVersion();
+        } else if (Ipv6AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV6.getVersion();
+        } else {
+            throw new IpAddrInvalidException();
+        }
+    }
+
+    private static String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
+        if (IpVersion.IPV4.getVersion() == ipVersion) {
+            return subnetId; //FIXME:return the right rangeId get from subnet manager
+        } else if (IpVersion.IPV6.getVersion() == ipVersion) {
+            return subnetId; //FIXME:return the right rangeId get from subnet manager
+        }
+
+        throw new IpVersionInvalidException();
+    }
+
+    public List<IpAddrRequest> allocateIpAddress(Object args) throws Exception {
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        PortState portState = (PortState)args;
+        String rangeId = getRangeIdForPort(portState.getVpcId());
+
+        IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, null);
+
+        List<PortState.FixedIp> fixedIps = new ArrayList<>();
+        PortState.FixedIp fixedIp = new PortState.FixedIp(result.getSubnetId(), result.getIp());
+
+        fixedIps.add(fixedIp);
+        portState.setFixedIps(fixedIps);
+
+        AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
+        ipAddressRollback.putAllocatedIpAddress(result);
+        rollbacks.push(ipAddressRollback);
+        ipAddrRequests.add(result);
+
+        return ipAddrRequests;
+    }
+
+    public List<IpAddrRequest> verifyIpAddresses(Object args) throws Exception {
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
+
+        for (PortState.FixedIp fixedIp: fixedIps) {
+            int ipVersion = getIpVersion(fixedIp.getIpAddress());
+            String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
+
+            IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, fixedIp.getIpAddress());
+
+            AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
+            ipAddressRollback.putAllocatedIpAddress(result);
+            rollbacks.push(ipAddressRollback);
+
+            ipAddrRequests.add(result);
+        }
+
+        return ipAddrRequests;
+    }
+
+    public List<IpAddrRequest> releaseIpAddressBulk(Object args) throws Exception {
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
+
+        for (PortState.FixedIp fixedIp: fixedIps) {
+            ipAddressRest.releaseIpAddress(fixedIp.getSubnetId(), fixedIp.getIpAddress());
+
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+
+            int ipVersion = getIpVersion(fixedIp.getIpAddress());
+            String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
+            ipAddrRequest.setRangeId(rangeId);
+            ipAddrRequest.setIp(fixedIp.getIpAddress());
+
+            ReleaseIpAddrRollback ipAddressRollback = new ReleaseIpAddrRollback(ipAddressRest);
+            ipAddressRollback.putReleasedIpAddress(ipAddrRequest);
+            rollbacks.push(ipAddressRollback);
+
+            ipAddrRequests.add(ipAddrRequest);
+        }
+
+        return ipAddrRequests;
+    }
+}

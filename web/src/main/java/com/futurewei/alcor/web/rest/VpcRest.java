@@ -13,9 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.rest;
+package com.futurewei.alcor.web.rest;
 
-import com.futurewei.alcor.common.entity.VpcStateJson;
+import com.futurewei.alcor.web.entity.VpcStateJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,11 +35,13 @@ public class VpcRest {
         return new VpcRest();
     }
 
-    public void verifyVpc(String projectId, String vpcId) throws Exception {
+    public VpcStateJson verifyVpc(String projectId, String vpcId) throws Exception {
         String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;
         VpcStateJson vpcState = restTemplate.getForObject(url, VpcStateJson.class);
         if (vpcState == null) {
             throw new Exception("verify vpc failed");
         }
+
+        return vpcState;
     }
 }

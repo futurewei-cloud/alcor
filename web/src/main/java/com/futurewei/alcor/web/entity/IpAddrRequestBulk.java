@@ -13,30 +13,36 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.entity;
 
-public enum IpVersion {
-    IPV4(4),
-    IPV6(6);
+package com.futurewei.alcor.web.entity;
 
-    private int version;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    IpVersion(int version) {
-        this.version = version;
+import java.util.List;
+
+public class IpAddrRequestBulk {
+    @JsonProperty("ip_requests")
+    private List<IpAddrRequest> ipRequests;
+
+    public IpAddrRequestBulk() {
     }
 
-    public int getVersion() {
-        return version;
+    public IpAddrRequestBulk(List<IpAddrRequest> ipRequests) {
+        this.ipRequests = ipRequests;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public List<IpAddrRequest> getIpRequests() {
+        return ipRequests;
+    }
+
+    public void setIpRequests(List<IpAddrRequest> ipRequests) {
+        this.ipRequests = ipRequests;
     }
 
     @Override
     public String toString() {
-        return "IpVersion{" +
-                "version=" + version +
+        return "IpAddrRequestBulk{" +
+                "ipRequests=" + ipRequests +
                 '}';
     }
 }

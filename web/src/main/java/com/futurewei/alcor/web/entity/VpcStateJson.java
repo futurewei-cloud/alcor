@@ -13,25 +13,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity;
 
-package com.futurewei.alcor.common.entity;
+import lombok.Data;
 
-public enum IpAddrState {
-    ACTIVATED("activated"),
-    DEACTIVATED("deactivated"),
-    FREE("free");
+@Data
+public class VpcStateJson {
+    private VpcState vpc;
 
-    private String state;
+    public VpcStateJson() {
 
-    IpAddrState(String state) {
-        this.state = state;
     }
 
-    public String getState() {
-        return state;
+    public VpcStateJson(VpcState vpcState) {
+        this.vpc = vpcState;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public VpcState getVpc() {
+        return vpc;
+    }
+
+    public void setVpc(VpcState vpc) {
+        this.vpc = vpc;
     }
 }

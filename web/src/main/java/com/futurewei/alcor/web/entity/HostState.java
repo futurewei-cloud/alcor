@@ -13,17 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity;
 
-package com.futurewei.alcor.common.entity;
-
-public enum RouteTableType {
-
-    // Main route table
-    MAIN,
-
-    // Customer route table
-    CUSTOM,
-
-    // Gateway route table
-    GATEWAY
+public class HostState {
+    private String hostIp;
+    private String dpType;
 }

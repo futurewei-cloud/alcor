@@ -1,4 +1,4 @@
-package com.futurewei.alcor.common.entity;
+package com.futurewei.alcor.web.entity;
 
 public enum DeviceOwner {
     NOVA("compute:nova"),

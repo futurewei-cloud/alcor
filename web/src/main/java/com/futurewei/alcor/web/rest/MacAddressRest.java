@@ -13,10 +13,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.rest;
+package com.futurewei.alcor.web.rest;
 
-import com.futurewei.alcor.common.entity.MacState;
-import com.futurewei.alcor.common.entity.MacStateJson;
+import com.futurewei.alcor.web.entity.MacState;
+import com.futurewei.alcor.web.entity.MacStateJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

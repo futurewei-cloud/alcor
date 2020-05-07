@@ -15,11 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.rollback;
 
-import com.futurewei.alcor.common.entity.MacState;
-import com.futurewei.alcor.common.rest.MacAddressRest;
-
+import com.futurewei.alcor.web.entity.MacState;
+import com.futurewei.alcor.web.rest.MacAddressRest;
 import java.util.ArrayList;
 import java.util.List;
+
 
 abstract class AbstractMacAddrRollback implements PortStateRollback {
     protected MacAddressRest macAddressRest;

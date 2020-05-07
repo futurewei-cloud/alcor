@@ -19,5 +19,4 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Allocate mac address error")
-public class AllocateMacAddrException extends Exception {
-}
+public class AllocateMacAddrException extends Exception {}

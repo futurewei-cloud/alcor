@@ -14,9 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.entity;
+package com.futurewei.alcor.web.entity;
 
 import lombok.Data;
+
 import java.util.List;
 
 @Data

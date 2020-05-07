@@ -13,10 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.entity;
+package com.futurewei.alcor.web.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Strings;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -69,6 +68,12 @@ public class PortState extends CustomerResource {
     @JsonProperty("binding:profile")
     private String bindingProfile;
 
+    @JsonProperty("binding:vif_details")
+    private String bindingVifDetails; //port_filter, ovs_hybrid_plug
+
+    @JsonProperty("binding:vif_type")
+    private String bindingVifType;  //ovs, bridge, macvtap, hw_veb, hostdev_physical, vhostuser, distributed, other
+
     @JsonProperty("binding:vnic_type")
     private String bindingVnicType;  //normal, macvtap, direct, baremetal, direct-physical
 
@@ -84,7 +89,7 @@ public class PortState extends CustomerResource {
     public PortState() {
     }
 
-    public PortState(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortState(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         this.vpcId = vpcId;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
@@ -100,13 +105,15 @@ public class PortState extends CustomerResource {
         this.securityGroups = securityGroups;
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
+        this.bindingVifDetails = bindingVifDetails;
+        this.bindingVifType = bindingVifType;
         this.bindingVnicType = bindingVnicType;
         this.networkNamespace = networkNamespace;
         this.dnsName = dnsName;
         this.dnsAssignment = dnsAssignment;
     }
 
-    public PortState(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortState(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         super(state);
         this.vpcId = vpcId;
         this.tenantId = tenantId;
@@ -123,13 +130,15 @@ public class PortState extends CustomerResource {
         this.securityGroups = securityGroups;
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
+        this.bindingVifDetails = bindingVifDetails;
+        this.bindingVifType = bindingVifType;
         this.bindingVnicType = bindingVnicType;
         this.networkNamespace = networkNamespace;
         this.dnsName = dnsName;
         this.dnsAssignment = dnsAssignment;
     }
 
-    public PortState(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortState(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.tenantId = tenantId;
@@ -146,6 +155,8 @@ public class PortState extends CustomerResource {
         this.securityGroups = securityGroups;
         this.bindingHostId = bindingHostId;
         this.bindingProfile = bindingProfile;
+        this.bindingVifDetails = bindingVifDetails;
+        this.bindingVifType = bindingVifType;
         this.bindingVnicType = bindingVnicType;
         this.networkNamespace = networkNamespace;
         this.dnsName = dnsName;
@@ -475,6 +486,22 @@ public class PortState extends CustomerResource {
 
     public String getBindingProfile() {
         return bindingProfile;
+    }
+
+    public String getBindingVifDetails() {
+        return bindingVifDetails;
+    }
+
+    public void setBindingVifDetails(String bindingVifDetails) {
+        this.bindingVifDetails = bindingVifDetails;
+    }
+
+    public String getBindingVifType() {
+        return bindingVifType;
+    }
+
+    public void setBindingVifType(String bindingVifType) {
+        this.bindingVifType = bindingVifType;
     }
 
     public void setBindingProfile(String bindingProfile) {

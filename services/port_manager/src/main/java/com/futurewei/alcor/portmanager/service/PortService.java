@@ -15,7 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service;
 
-import com.futurewei.alcor.common.entity.PortStateJson;
+
+import com.futurewei.alcor.web.entity.PortStateJson;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.common.entity.PortState;
+import com.futurewei.alcor.web.entity.PortState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
