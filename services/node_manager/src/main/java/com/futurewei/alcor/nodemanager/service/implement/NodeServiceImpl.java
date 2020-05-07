@@ -18,7 +18,6 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.service.NodeService;
-import com.futurewei.alcor.nodemanager.service.datacenter.NodeManager;
 import com.futurewei.alcor.nodemanager.utils.NodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +32,21 @@ import java.util.List;
 @Service
 public class NodeServiceImpl implements NodeService {
     private static final Logger logger = LoggerFactory.getLogger(NodeServiceImpl.class);
-    public Hashtable<String, NodeInfo> Nodes = new Hashtable<String, NodeInfo>();
-
-    @Value("${nodemanager.nodeinfo.location}")
-    private int nodeInfoLocation;
 
     @Autowired
     private NodeRepository nodeRepository;
 
-    @Autowired
-    private NodeManager nodeManager;
+    @Override
+    public int getNodeInfoFromFile(String path) throws Exception {
+        int nReturn = 0;
+        DataCenterConfigLoader dataCenterConfigLoader = new DataCenterConfigLoader();
+        List<NodeInfo> nodeList = dataCenterConfigLoader.loadAndGetHostNodeList(path);
+        if(nodeList != null){
+            nodeRepository.addItemBulkTransaction(nodeList);
+            nReturn = nodeList.size();
+        }
+        return nReturn;
+    }
 
     @Override
     public NodeInfo getNodeInfoById(String nodeId) throws Exception {
@@ -50,16 +54,7 @@ public class NodeServiceImpl implements NodeService {
             throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo nodeInfo = null;
         try {
-            switch (nodeInfoLocation) {
-                case NodeUtil.NODE_INFO_FILE: {
-                    nodeInfo = nodeManager.getNodeInfoById(nodeId);
-                    break;
-                }
-                case NodeUtil.NODE_INFO_REPOSITOTY: {
-                    nodeInfo = nodeRepository.findItem(nodeId);
-                    break;
-                }
-            }
+            nodeInfo = nodeRepository.findItem(nodeId);
         } catch (Exception e) {
             throw e;
         }
@@ -70,16 +65,7 @@ public class NodeServiceImpl implements NodeService {
     public List<NodeInfo> getAllNodes() throws Exception {
         List<NodeInfo> nodes = new ArrayList<NodeInfo>();
         try {
-            switch (nodeInfoLocation) {
-                case NodeUtil.NODE_INFO_FILE: {
-                    nodes = nodeManager.getAllNodesList();
-                    break;
-                }
-                case NodeUtil.NODE_INFO_REPOSITOTY: {
-                    nodes = new ArrayList(nodeRepository.findAllItems().values());
-                    break;
-                }
-            }
+            nodes = new ArrayList(nodeRepository.findAllItems().values());
         } catch (Exception e) {
             throw e;
         }
@@ -97,16 +83,7 @@ public class NodeServiceImpl implements NodeService {
         }
         if (nodeInfo != null) {
             try {
-                switch (nodeInfoLocation) {
-                    case NodeUtil.NODE_INFO_FILE: {
-                        nodeManager.putNode(nodeInfo);
-                        break;
-                    }
-                    case NodeUtil.NODE_INFO_REPOSITOTY: {
-                        nodeRepository.addItem(nodeInfo);
-                        break;
-                    }
-                }
+                nodeRepository.addItemTransaction(nodeInfo);
             } catch (Exception e) {
                 throw e;
             }
@@ -126,16 +103,7 @@ public class NodeServiceImpl implements NodeService {
         }
         if (nodeInfo != null) {
             try {
-                switch (nodeInfoLocation) {
-                    case NodeUtil.NODE_INFO_FILE: {
-                        nodeManager.putNode(nodeInfo);
-                        break;
-                    }
-                    case NodeUtil.NODE_INFO_REPOSITOTY: {
-                        nodeRepository.addItem(nodeInfo);
-                        break;
-                    }
-                }
+                nodeRepository.addItemTransaction(nodeInfo);
             } catch (Exception e) {
                 throw e;
             }
@@ -153,16 +121,7 @@ public class NodeServiceImpl implements NodeService {
         else if (nodeId.equals(node.getId()) == false)
             throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
-            switch (nodeInfoLocation) {
-                case NodeUtil.NODE_INFO_FILE: {
-                    nodeManager.deleteNode(nodeId);
-                    break;
-                }
-                case NodeUtil.NODE_INFO_REPOSITOTY: {
-                    nodeRepository.deleteItem(nodeId);
-                    break;
-                }
-            }
+            nodeRepository.deleteItem(nodeId);
         } catch (Exception e) {
             throw e;
         }
