@@ -26,4 +26,4 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Maven
-        run: .github/workflows/build.sh
+        run: scripts/test-prep.sh
