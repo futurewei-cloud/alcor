@@ -16,17 +16,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.controller.resourcemgr.physical.nodemgmt;
 
+<<<<<<< HEAD:legacy/src/com/futurewei/alcor/controller/resourcemgr/physical/nodemgmt/DataCenterConfigLoader.java
 import com.futurewei.alcor.controller.logging.Logger;
 import com.futurewei.alcor.controller.logging.LoggerFactory;
 import com.futurewei.alcor.controller.model.HostInfo;
 import com.futurewei.alcor.controller.utilities.Common;
+=======
+import com.futurewei.alcor.nodemanager.entity.NodeInfo;
+>>>>>>> [Microservices] Node manager - (1) added API that read machine config file, (2) removed memory repository part:services/node_manager/src/main/java/com/futurewei/alcor/nodemanager/service/implement/DataCenterConfigLoader.java
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+<<<<<<< HEAD:legacy/src/com/futurewei/alcor/controller/resourcemgr/physical/nodemgmt/DataCenterConfigLoader.java
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+=======
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+>>>>>>> [Microservices] Node manager - (1) added API that read machine config file, (2) removed memory repository part:services/node_manager/src/main/java/com/futurewei/alcor/nodemanager/service/implement/DataCenterConfigLoader.java
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
