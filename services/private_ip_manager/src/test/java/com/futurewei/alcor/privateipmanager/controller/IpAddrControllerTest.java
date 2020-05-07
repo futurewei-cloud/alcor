@@ -57,7 +57,7 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    public void deleteIpAddrRange() throws Exception {
+    public void deleteIpAddrRangeTest() throws Exception {
         this.mockMvc.perform(delete("/ips/range/range1"))
                 .andDo(print())
                 .andExpect(status().isOk());

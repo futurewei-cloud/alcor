@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>port_manager</artifactId>
+    <artifactId>AlcorPortManager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>AlcorPortManager</name>
     <description>Alcor Port Manager Module</description>
