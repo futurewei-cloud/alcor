@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.nodemanager.service.implement;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -24,10 +23,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

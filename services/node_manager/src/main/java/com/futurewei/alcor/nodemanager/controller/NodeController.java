@@ -63,12 +63,10 @@ public class NodeController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
             hostInfo = service.getNodeInfoById(nodeid);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new Exception(e);
         }
 
         if (hostInfo == null) {
-            //TODO: REST error code
             return new NodeInfoJson();
         }
         return new NodeInfoJson(hostInfo);
@@ -82,11 +80,9 @@ public class NodeController {
         try {
             nodes = service.getAllNodes();
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new Exception(e);
         }
         if (nodes == null) {
-            //TODO: REST error code
             return new ArrayList();
         }
         return nodes;

@@ -74,6 +74,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
 
     /**
      * add a new node info to node repository
+     *
      * @param nodeInfo new node information
      * @return void
      * @throws Exception Db or cache operation exception
@@ -90,6 +91,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
 
     /**
      * add a new node info to node repository
+     *
      * @param nodes new nodes list
      * @return void
      * @throws Exception Db or cache operation exception
@@ -97,7 +99,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
     public void addItemBulkTransaction(List<NodeInfo> nodes) throws Exception {
         logger.info("Add nodes: " + nodes.size());
         try (Transaction tx = cache.getTransaction().start()) {
-            for(NodeInfo node: nodes){
+            for (NodeInfo node : nodes) {
                 cache.put(node.getId(), node);
             }
             tx.commit();

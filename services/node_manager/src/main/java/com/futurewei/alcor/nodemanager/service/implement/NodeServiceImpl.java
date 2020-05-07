@@ -22,11 +22,9 @@ import com.futurewei.alcor.nodemanager.utils.NodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 @Service
@@ -41,7 +39,7 @@ public class NodeServiceImpl implements NodeService {
         int nReturn = 0;
         DataCenterConfigLoader dataCenterConfigLoader = new DataCenterConfigLoader();
         List<NodeInfo> nodeList = dataCenterConfigLoader.loadAndGetHostNodeList(path);
-        if(nodeList != null){
+        if (nodeList != null) {
             nodeRepository.addItemBulkTransaction(nodeList);
             nReturn = nodeList.size();
         }
