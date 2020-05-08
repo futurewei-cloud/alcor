@@ -16,7 +16,7 @@ package com.futurewei.alcor.nodemanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.nodemanager.utils.NodeUtil;
+import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,10 +85,10 @@ public class NodeInfo implements Serializable {
                 this.macAddress = "";
             }
         } catch (UnknownHostException e) {
-            logger.error(NodeUtil.NODE_EXCEPTION_NODE_IP_INVALID + ipAddress, e);
+            logger.error(NodeManagerConstant.NODE_EXCEPTION_NODE_IP_INVALID + ipAddress, e);
         }
         this.veth = "";
-        this.gRPCServerPort = NodeUtil.GRPC_SERVER_PORT;
+        this.gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
     }
 
     private boolean validate(String mac) {

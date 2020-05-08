@@ -19,10 +19,12 @@ import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
+import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.nodemanager.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,22 @@ public class NodeController {
     private NodeService service;
 
     @RequestMapping(
+            method = POST,
+            value = {"/nodes/upload", "/v4/nodes/upload"})
+    public String uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
+        int nNode = 0;
+        if (file == null) {
+            return NodeManagerConstant.NODE_EXCEPTION_FILE_EMPTY;
+        }
+        try {
+            nNode = service.getNodeInfoFromUpload(file);
+        } catch (Exception e) {
+            throw e;
+        }
+        return "{Total nodes: " + nNode + "}";
+    }
+
+    @RequestMapping(
             method = GET,
             value = {"/nodes/path/{path}/**", "/v4/nodes/path/{path}/**"})
     public String getNodeInfoFromFile(@PathVariable String path, HttpServletRequest request) throws Exception {
@@ -48,7 +66,6 @@ public class NodeController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(strPath);
             nNode = service.getNodeInfoFromFile(strPath);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new Exception(e);
         }
         return "{Total nodes: " + nNode + "}";
@@ -65,7 +82,6 @@ public class NodeController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-
         if (hostInfo == null) {
             return new NodeInfoJson();
         }

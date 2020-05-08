@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.nodemanager.utils;
 
-public class NodeUtil {
+public class NodeManagerConstant {
     public static final int NODE_INFO_FILE = 1;
     public static final int NODE_INFO_REPOSITOTY = 2;
     public static final int GRPC_SERVER_PORT = 50001;
@@ -24,4 +24,6 @@ public class NodeUtil {
     public static final String NODE_EXCEPTION_NODE_IP_INVALID = "Invalid ip address";
     public static final String NODE_EXCEPTION_NODE_NOT_EXISTING = "The node to update or delete is not existing.";
     public static final String NODE_EXCEPTION_NODE_ALREADY_EXISTING = "The node to create is already existing.";
+    public static final String NODE_EXCEPTION_FILE_EMPTY = "The file is empty";
 }
+

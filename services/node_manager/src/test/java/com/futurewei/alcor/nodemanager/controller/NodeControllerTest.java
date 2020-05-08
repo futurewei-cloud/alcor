@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.nodemanager.controller.NodeController;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
@@ -28,9 +27,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.InetAddress;
 
@@ -57,7 +57,7 @@ public class NodeControllerTest {
 
     @Before
     public void init() {
-        byte[] ip = new byte[]{10,0,0,1};
+        byte[] ip = new byte[]{10, 0, 0, 1};
         NodeInfo nodeInfo = new NodeInfo("h00", "host0", ip, "AA-BB-CC-DD-EE-00");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -93,15 +93,17 @@ public class NodeControllerTest {
     }
 
     @Test
-    public void test_getNodeInfoFromFile() throws Exception {
-        this.mockMvc.perform(get("/nodes/path/D:/dev/alcor/config/machine.json"))
+    public void test_getNodeInfoFromUpload() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "@/mnt/dev/alcor/config/machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}" .getBytes());
+        this.mockMvc.perform(MockMvcRequestBuilders.multipart("/nodes/upload")
+                .file(file))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
     public void test_createNodeInfo() throws Exception {
-        byte[] ip = new byte[]{10,0,0,1};
+        byte[] ip = new byte[]{10, 0, 0, 1};
         NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -117,7 +119,7 @@ public class NodeControllerTest {
     @Test
     public void updateNodeInfo() throws Exception {
         InetAddress address2 = InetAddress.getByName("10.0.0.2");
-        byte[] ip = new byte[]{10,0,0,2};
+        byte[] ip = new byte[]{10, 0, 0, 2};
         NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -132,7 +134,7 @@ public class NodeControllerTest {
 
     @Test
     public void test_getNodeInfoByNodeId() throws Exception {
-        byte[] ip = new byte[]{10,0,0,3};
+        byte[] ip = new byte[]{10, 0, 0, 3};
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", ip, "AA-BB-CC-03-03-03");
         String strNodeId = createNodeInfo(nodeInfo);
         this.mockMvc.perform(get("/nodes/" + strNodeId))
@@ -142,11 +144,11 @@ public class NodeControllerTest {
 
     @Test
     public void test_getAllNodes() throws Exception {
-        byte[] ip1 = new byte[]{10,0,0,4};
-        NodeInfo nodeInfo1 = new NodeInfo("h04", "host4", ip1, "AA-BB-CC-04-04-04");
-       createNodeInfo(nodeInfo1);
-        byte[] ip2 = new byte[]{10,0,0,5};
-        NodeInfo nodeInfo2 = new NodeInfo("h05", "host5", ip2, "AA-BB-CC-05-05-05");
+        byte[] ip1 = new byte[]{10, 0, 0, 5};
+        NodeInfo nodeInfo1 = new NodeInfo("h05", "host5", ip1, "AA-BB-CC-05-05-05");
+        createNodeInfo(nodeInfo1);
+        byte[] ip2 = new byte[]{10, 0, 0, 6};
+        NodeInfo nodeInfo2 = new NodeInfo("h06", "host6", ip2, "AA-BB-CC-06-06-06");
         createNodeInfo(nodeInfo2);
         this.mockMvc.perform(get("/nodes"))
                 .andDo(print())

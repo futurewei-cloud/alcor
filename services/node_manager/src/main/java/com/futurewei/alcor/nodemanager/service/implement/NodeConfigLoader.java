@@ -27,16 +27,39 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DataCenterConfigLoader {
-    private static final Logger logger = LoggerFactory.getLogger(DataCenterConfigLoader.class);
+public class NodeConfigLoader {
+    private static final Logger logger = LoggerFactory.getLogger(NodeConfigLoader.class);
 
-    public DataCenterConfigLoader() {
+    public NodeConfigLoader() {
+    }
+
+    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) {
+        JSONParser jsonParser = new JSONParser();
+        List<NodeInfo> nodeInfos = new ArrayList<>();
+        logger.info(this.getClass().getName(), "getHostNodeListFromUpload");
+        try {
+            JSONObject obj = (JSONObject) jsonParser.parse(reader);
+            JSONArray nodeList = (JSONArray) obj.get("Hosts");
+
+            nodeList.forEach(node -> {
+                NodeInfo hostNode = this.parseNodeObject((JSONObject) node);
+                if (hostNode != null) nodeInfos.add(hostNode);
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return nodeInfos;
     }
 
     public List<NodeInfo> loadAndGetHostNodeList(String machineConfigFilePath) {
