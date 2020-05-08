@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.repo;
 
-import com.futurewei.alcor.common.exception.CacheException;
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 
 import java.util.Map;
