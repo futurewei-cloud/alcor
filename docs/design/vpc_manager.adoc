@@ -26,17 +26,21 @@ image::images/network_type_gre.PNG[]
 
 === API Snapshot
 
-[width="100%",cols="22%,12%,50%,17%"]
-|===
-|*API Name* |*Method* |*Request*|*Response*
 
-//|Verify MAC State
-//|GET
-//|/macs/{mac}, /v4/macs/{mac}
-//|mac state
-//<<Mac_Get,[sample]>>
-|===
-
-=== API Specification
-
-
+include::../../services/vpc_manager/target/swagger/swagger.adoc[]
+//== REST APIs
+//
+//=== API Snapshot
+//
+//[width="100%",cols="22%,12%,50%,17%"]
+//|===
+//|*API Name* |*Method* |*Request*|*Response*
+//
+////|Verify MAC State
+////|GET
+////|/macs/{mac}, /v4/macs/{mac}
+////|mac state
+////<<Mac_Get,[sample]>>
+//|===
+//
+//=== API Specification
