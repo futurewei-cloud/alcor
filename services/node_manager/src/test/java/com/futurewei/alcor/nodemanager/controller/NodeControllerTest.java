@@ -144,11 +144,11 @@ public class NodeControllerTest {
 
     @Test
     public void test_getAllNodes() throws Exception {
-        byte[] ip1 = new byte[]{10, 0, 0, 4};
-        NodeInfo nodeInfo1 = new NodeInfo("h04", "host4", ip1, "AA-BB-CC-04-04-04");
+        byte[] ip1 = new byte[]{10, 0, 0, 5};
+        NodeInfo nodeInfo1 = new NodeInfo("h05", "host5", ip1, "AA-BB-CC-05-05-05");
         createNodeInfo(nodeInfo1);
-        byte[] ip2 = new byte[]{10, 0, 0, 5};
-        NodeInfo nodeInfo2 = new NodeInfo("h05", "host5", ip2, "AA-BB-CC-05-05-05");
+        byte[] ip2 = new byte[]{10, 0, 0, 6};
+        NodeInfo nodeInfo2 = new NodeInfo("h06", "host6", ip2, "AA-BB-CC-06-06-06");
         createNodeInfo(nodeInfo2);
         this.mockMvc.perform(get("/nodes"))
                 .andDo(print())
