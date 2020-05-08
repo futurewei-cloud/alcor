@@ -18,6 +18,7 @@ package com.futurewei.alcor.macmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacState;
 import org.slf4j.Logger;
@@ -74,10 +75,18 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         return hashMap;
     }
 
+    /**
+     * add a new MAC-port allocation state to node repository
+     *
+     * @param macState MAC state
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     @Override
-    public void addItem(MacState macState) throws CacheException {
-        try {
+    public void addItem(MacState macState) throws Exception {
+        try (Transaction tx = cache.getTransaction().start()) {
             cache.put(macState.getMacAddress(), macState);
+            tx.commit();
             logger.info("MacStateRepository addItem() {}: ", macState.getMacAddress());
         } catch (CacheException e) {
             logger.error("MacStateRepository addItem() exception:", e);
@@ -85,10 +94,18 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         }
     }
 
+    /**
+     * delete a MAC-port allocation state from node repository
+     *
+     * @param macAddress MAC address
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     @Override
-    public void deleteItem(String macAddress) throws CacheException {
-        try {
+    public void deleteItem(String macAddress) throws Exception {
+        try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(macAddress);
+            tx.commit();
             logger.info("MacStateRepository deleteItem() {}: ", macAddress);
         } catch (CacheException e) {
             logger.error("MacStateRepository deleteItem() exception:", e);
