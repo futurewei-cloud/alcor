@@ -18,12 +18,17 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.service.NodeService;
-import com.futurewei.alcor.nodemanager.utils.NodeUtil;
+import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +39,27 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private NodeRepository nodeRepository;
 
+    public int getNodeInfoFromUpload(MultipartFile file) throws Exception {
+        int nReturn = 0;
+        List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
+        try {
+            Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            NodeConfigLoader dataCenterConfigLoader = new NodeConfigLoader();
+            nodeList = dataCenterConfigLoader.getHostNodeListFromUpload(reader);
+            if (nodeList != null) {
+                nodeRepository.addItemBulkTransaction(nodeList);
+                nReturn = nodeList.size();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return nReturn;
+    }
+
     @Override
     public int getNodeInfoFromFile(String path) throws Exception {
         int nReturn = 0;
-        DataCenterConfigLoader dataCenterConfigLoader = new DataCenterConfigLoader();
+        NodeConfigLoader dataCenterConfigLoader = new NodeConfigLoader();
         List<NodeInfo> nodeList = dataCenterConfigLoader.loadAndGetHostNodeList(path);
         if (nodeList != null) {
             nodeRepository.addItemBulkTransaction(nodeList);
@@ -49,7 +71,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public NodeInfo getNodeInfoById(String nodeId) throws Exception {
         if (nodeId == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo nodeInfo = null;
         try {
             nodeInfo = nodeRepository.findItem(nodeId);
@@ -73,12 +95,12 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public NodeInfo createNodeInfo(NodeInfo nodeInfo) throws Exception {
         if (nodeInfo == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeInfo.getId());
-        if (node != null) {
-            if (nodeInfo.getId().equals(node.getId()))
-                throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_ALREADY_EXISTING));
-        }
+//        if (node != null) {
+//            if (nodeInfo.getId().equals(node.getId()))
+//                throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_ALREADY_EXISTING));
+//        }
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItemTransaction(nodeInfo);
@@ -92,12 +114,12 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public NodeInfo updateNodeInfo(String nodeId, NodeInfo nodeInfo) throws Exception {
         if (nodeId == null || nodeInfo == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeId);
         if (node == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         else if (nodeId.equals(node.getId()) == false) {
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         }
         if (nodeInfo != null) {
             try {
@@ -112,12 +134,12 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public String deleteNodeInfo(String nodeId) throws Exception {
         if (nodeId == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeId);
         if (node == null)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         else if (nodeId.equals(node.getId()) == false)
-            throw (new ParameterNullOrEmptyException(NodeUtil.NODE_EXCEPTION_NODE_NOT_EXISTING));
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
             nodeRepository.deleteItem(nodeId);
         } catch (Exception e) {

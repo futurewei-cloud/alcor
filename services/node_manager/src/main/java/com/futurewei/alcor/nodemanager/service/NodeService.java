@@ -1,12 +1,14 @@
 package com.futurewei.alcor.nodemanager.service;
 
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Hashtable;
 import java.util.List;
 
 public interface NodeService {
-    int getNodeInfoFromFile(String path) throws Exception;
+    int getNodeInfoFromFile(String strPath) throws Exception;
+
+    int getNodeInfoFromUpload(MultipartFile file) throws Exception;
 
     NodeInfo getNodeInfoById(String nodeId) throws Exception;
 
