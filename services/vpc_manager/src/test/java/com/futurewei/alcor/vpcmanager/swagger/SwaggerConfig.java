@@ -43,8 +43,8 @@ public class SwaggerConfig{
 
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-            .title("VPC Manager")
-            .description("VPC lifecycle management")
+            .title("VPC Manager APIs")
+            .description("Management APIs of VPC lifecycles")
             .license("Apache 2.0")
             .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
             .build();

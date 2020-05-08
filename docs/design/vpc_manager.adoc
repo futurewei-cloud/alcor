@@ -20,21 +20,22 @@ v0.1, 2020-05-04
 image::images/network_type_vlan.PNG[]
 === Network Vxlan Range and Vlan State
 image::images/network_type_vxlan.PNG[]
-== REST APIs
-
-=== API Snapshot
-
-[width="100%",cols="22%,12%,50%,17%"]
-|===
-|*API Name* |*Method* |*Request*|*Response*
-
-//|Verify MAC State
-//|GET
-//|/macs/{mac}, /v4/macs/{mac}
-//|mac state
-//<<Mac_Get,[sample]>>
-|===
-
-=== API Specification
 
 
+include::../../services/vpc_manager/target/swagger/swagger.adoc[]
+//== REST APIs
+//
+//=== API Snapshot
+//
+//[width="100%",cols="22%,12%,50%,17%"]
+//|===
+//|*API Name* |*Method* |*Request*|*Response*
+//
+////|Verify MAC State
+////|GET
+////|/macs/{mac}, /v4/macs/{mac}
+////|mac state
+////<<Mac_Get,[sample]>>
+//|===
+//
+//=== API Specification
