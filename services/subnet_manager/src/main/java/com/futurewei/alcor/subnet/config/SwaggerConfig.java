@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.macmanager.swagger;
+package com.futurewei.alcor.subnet.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +43,8 @@ public class SwaggerConfig{
 
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-            .title("Virtual MAC Manager")
-            .description("Virtual MAC pool management")
+            .title("Subnet Manager")
+            .description("Subnet lifecycle management")
             .license("Apache 2.0")
             .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
             .build();
