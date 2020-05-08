@@ -27,6 +27,7 @@ import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.*;
 import com.futurewei.alcor.web.rest.IpAddressRest;
 import com.futurewei.alcor.web.rest.MacAddressRest;
+import com.futurewei.alcor.web.rest.SubnetRest;
 import com.futurewei.alcor.web.rest.VpcRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,9 @@ public class PortServiceImpl implements PortService {
 
     @Autowired
     private IpAddressRest ipAddressRest;
+
+    @Autowired
+    private SubnetRest subnetRest;
 
     @Autowired
     private MacAddressRest macAddressRest;
@@ -107,7 +111,7 @@ public class PortServiceImpl implements PortService {
         CompletableFuture vpcFuture = AsyncExecutor.execute(vpcRestWrap::verifyVpc, portState);
 
         CompletableFuture ipFuture;
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, portState.getProjectId());
 
         if (portState.getFixedIps() == null) {
             ipFuture = AsyncExecutor.execute(ipAddressRestWrap::allocateIpAddress, portState);
@@ -273,7 +277,7 @@ public class PortServiceImpl implements PortService {
         CompletableFuture ipReleaseFuture = null;
         CompletableFuture ipVerifyFuture = null;
         List<PortState.FixedIp> fixedIps = portState.getFixedIps();
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, projectId);
 
         if (fixedIps != null) {
             List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
@@ -341,7 +345,7 @@ public class PortServiceImpl implements PortService {
     }
 
     private void tryDeletePortState(PortState portState, String portId, Stack<PortStateRollback> rollbacks) throws Exception {
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, rollbacks);
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, portState.getProjectId());
         MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(macAddressRest, rollbacks);
 
         //Release ip address

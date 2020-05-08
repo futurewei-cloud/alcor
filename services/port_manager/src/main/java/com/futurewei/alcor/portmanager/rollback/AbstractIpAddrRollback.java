@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-abstract class AbstractIpAddrRollback implements PortStateRollback {
+public abstract class AbstractIpAddrRollback implements PortStateRollback {
     protected IpAddressRest ipAddressRest;
 
     protected List<IpAddrRequest> allocatedIps = new ArrayList<>();

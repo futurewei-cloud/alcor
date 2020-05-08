@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-abstract class AbstractMacAddrRollback implements PortStateRollback {
+public abstract class AbstractMacAddrRollback implements PortStateRollback {
     protected MacAddressRest macAddressRest;
 
     protected List<MacState> allocatedMacs = new ArrayList<>();

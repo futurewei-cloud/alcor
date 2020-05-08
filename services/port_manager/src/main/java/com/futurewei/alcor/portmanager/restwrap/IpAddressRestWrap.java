@@ -17,15 +17,19 @@ package com.futurewei.alcor.portmanager.restwrap;
 
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
+import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
 import com.futurewei.alcor.web.entity.IpAddrRequest;
 import com.futurewei.alcor.web.entity.IpVersion;
 import com.futurewei.alcor.web.entity.PortState;
+import com.futurewei.alcor.web.entity.SubnetStateJson;
 import com.futurewei.alcor.web.rest.IpAddressRest;
 import com.futurewei.alcor.portmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.portmanager.exception.IpVersionInvalidException;
 import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
+import com.futurewei.alcor.web.rest.SubnetRest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +37,23 @@ import java.util.Stack;
 
 public class IpAddressRestWrap {
     private IpAddressRest ipAddressRest;
+    private SubnetRest subnetRest;
     private Stack<PortStateRollback> rollbacks;
+    private String projectId;
 
-    public IpAddressRestWrap(IpAddressRest ipAddressRest, Stack<PortStateRollback> rollbacks) {
+    public IpAddressRestWrap(IpAddressRest ipAddressRest, SubnetRest subnetRest,
+                             Stack<PortStateRollback> rollbacks, String projectId) {
         this.ipAddressRest = ipAddressRest;
+        this.subnetRest = subnetRest;
         this.rollbacks = rollbacks;
+        this.projectId = projectId;
     }
 
-    private static String getRangeIdForPort(String vpcId) {
-        return "range1";
+    private String getRangeIdForPort(String vpcId) {
+        return "range1";//FIXME: Get a suitable Range ID
     }
 
-    private static int getIpVersion(String ipAddress) throws Exception {
+    private int getIpVersion(String ipAddress) throws Exception {
         if (Ipv4AddrUtil.formatCheck(ipAddress)) {
             return IpVersion.IPV4.getVersion();
         } else if (Ipv6AddrUtil.formatCheck(ipAddress)) {
@@ -54,14 +63,29 @@ public class IpAddressRestWrap {
         }
     }
 
-    private static String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
+    private String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
+        SubnetStateJson subnetStateJson = subnetRest.getSubnetState(projectId, subnetId);
+        if (subnetStateJson == null || subnetStateJson.getSubnet() == null) {
+            throw new VerifySubnetException();
+        }
+
         if (IpVersion.IPV4.getVersion() == ipVersion) {
-            return subnetId; //FIXME:return the right rangeId get from subnet manager
+            return subnetStateJson.getSubnet().getIpV4RangeId();
         } else if (IpVersion.IPV6.getVersion() == ipVersion) {
-            return subnetId; //FIXME:return the right rangeId get from subnet manager
+            return subnetStateJson.getSubnet().getIpV4RangeId();
         }
 
         throw new IpVersionInvalidException();
+    }
+
+    private void addIpAddrRollback(AbstractIpAddrRollback rollback, IpAddrRequest ipAddr) {
+        if (rollback instanceof AllocateIpAddrRollback) {
+            rollback.putAllocatedIpAddress(ipAddr);
+        } else {
+            rollback.putReleasedIpAddress(ipAddr);
+        }
+
+        rollbacks.push(rollback);
     }
 
     public List<IpAddrRequest> allocateIpAddress(Object args) throws Exception {
@@ -77,9 +101,8 @@ public class IpAddressRestWrap {
         fixedIps.add(fixedIp);
         portState.setFixedIps(fixedIps);
 
-        AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
-        ipAddressRollback.putAllocatedIpAddress(result);
-        rollbacks.push(ipAddressRollback);
+        addIpAddrRollback(new AllocateIpAddrRollback(ipAddressRest), result);
+
         ipAddrRequests.add(result);
 
         return ipAddrRequests;
@@ -95,9 +118,7 @@ public class IpAddressRestWrap {
 
             IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, fixedIp.getIpAddress());
 
-            AllocateIpAddrRollback ipAddressRollback = new AllocateIpAddrRollback(ipAddressRest);
-            ipAddressRollback.putAllocatedIpAddress(result);
-            rollbacks.push(ipAddressRollback);
+            addIpAddrRollback(new AllocateIpAddrRollback(ipAddressRest), result);
 
             ipAddrRequests.add(result);
         }
@@ -119,9 +140,7 @@ public class IpAddressRestWrap {
             ipAddrRequest.setRangeId(rangeId);
             ipAddrRequest.setIp(fixedIp.getIpAddress());
 
-            ReleaseIpAddrRollback ipAddressRollback = new ReleaseIpAddrRollback(ipAddressRest);
-            ipAddressRollback.putReleasedIpAddress(ipAddrRequest);
-            rollbacks.push(ipAddressRollback);
+            addIpAddrRollback(new ReleaseIpAddrRollback(ipAddressRest), ipAddrRequest);
 
             ipAddrRequests.add(ipAddrRequest);
         }

@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.rest;
 
-import com.futurewei.alcor.web.entity.VpcStateJson;
+import com.futurewei.alcor.web.entity.SubnetStateJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,22 +23,23 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Configuration
-public class VpcRest extends AbstractRest {
-    @Value("${microservices.vpc.service.url:#{\"\"}}")
-    private String vpcManagerUrl;
+public class SubnetRest extends AbstractRest {
+    @Value("${microservices.subnet.service.url:#{\"\"}}")
+    private String subnetManagerUrl;
 
     @Bean
-    public VpcRest vpcRestInstance() {
-        return new VpcRest();
+    public SubnetRest subnetRestInstance() {
+        return new SubnetRest();
     }
 
-    public VpcStateJson verifyVpc(String projectId, String vpcId) throws Exception {
-        String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;
-        VpcStateJson vpcState = restTemplate.getForObject(url, VpcStateJson.class);
-        if (vpcState == null) {
-            throw new Exception("verify vpc failed");
+    public SubnetStateJson getSubnetState(String projectId, String subnetId) throws Exception {
+        String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;
+
+        SubnetStateJson subnetStateJson = restTemplate.getForObject(url, SubnetStateJson.class);
+        if (subnetStateJson == null) {
+            throw new Exception("Get subnet failed");
         }
 
-        return vpcState;
+        return subnetStateJson;
     }
 }

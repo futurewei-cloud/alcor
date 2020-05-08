@@ -24,17 +24,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Component
 @Configuration
-public class IpAddressRest {
+public class IpAddressRest extends AbstractRest {
     @Value("${microservices.ip.service.url:#{\"\"}}")
     private String ipManagerUrl;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     @Bean
     public IpAddressRest ipAddressRestInstance() {

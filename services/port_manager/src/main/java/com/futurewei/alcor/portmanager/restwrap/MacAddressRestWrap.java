@@ -15,13 +15,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.restwrap;
 
+import com.futurewei.alcor.portmanager.rollback.*;
+import com.futurewei.alcor.web.entity.IpAddrRequest;
 import com.futurewei.alcor.web.entity.MacState;
 import com.futurewei.alcor.web.entity.MacStateJson;
 import com.futurewei.alcor.web.entity.PortState;
 import com.futurewei.alcor.web.rest.MacAddressRest;
-import com.futurewei.alcor.portmanager.rollback.AllocateMacAddrRollback;
-import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
-import com.futurewei.alcor.portmanager.rollback.ReleaseMacAddrRollback;
 
 import java.util.Stack;
 
@@ -35,6 +34,16 @@ public class MacAddressRestWrap {
         this.rollbacks = rollbacks;
     }
 
+    private void addMacAddrRollback(AbstractMacAddrRollback rollback, MacState macState) {
+        if (rollback instanceof AllocateMacAddrRollback) {
+            rollback.putAllocatedMacAddress(macState);
+        } else {
+            rollback.putReleasedMacAddress(macState);
+        }
+
+        rollbacks.push(rollback);
+    }
+
     public MacStateJson allocateMacAddress(Object args) throws Exception {
         PortState portState = (PortState)args;
 
@@ -46,9 +55,7 @@ public class MacAddressRestWrap {
         macState.setVpcId(portState.getVpcId());
         macState.setMacAddress(portState.getMacAddress());
 
-        AllocateMacAddrRollback rollback = new AllocateMacAddrRollback(macAddressRest);
-        rollback.putAllocatedMacAddress(macState);
-        rollbacks.push(rollback);
+        addMacAddrRollback(new AllocateMacAddrRollback(macAddressRest), macState);
 
         return result;
     }
@@ -68,10 +75,7 @@ public class MacAddressRestWrap {
         macState.setVpcId(portState.getVpcId());
         macState.setMacAddress(portState.getMacAddress());
 
-        ReleaseMacAddrRollback rollback = new ReleaseMacAddrRollback(macAddressRest);
-        rollback.putReleasedMacAddress(macState);
-
-        rollbacks.push(rollback);
+        addMacAddrRollback(new ReleaseMacAddrRollback(macAddressRest), macState);
 
         return new MacStateJson(macState);
     }
