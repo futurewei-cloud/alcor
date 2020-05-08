@@ -17,6 +17,7 @@ package com.futurewei.alcor.macmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
@@ -75,22 +76,38 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
         return hashMap;
     }
 
+    /**
+     * add a MAC range to MAC range repository
+     *
+     * @param macRange MAC range
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     @Override
-    public void addItem(MacRange macRange) throws CacheException {
-        try {
+    public void addItem(MacRange macRange) throws Exception {
+        try (Transaction tx = cache.getTransaction().start()) {
             cache.put(macRange.getRangeId(), macRange);
             logger.info("MacRangeRepository addItem() {}: ", macRange.getRangeId());
+            tx.commit();
         } catch (CacheException e) {
             logger.error("MacRangeRepository addItem() exception:", e);
             throw e;
         }
     }
 
+    /**
+     * delete a MAC range from MAC range repository
+     *
+     * @param rangeId MAC range identifier
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     @Override
-    public void deleteItem(String rangeId) throws CacheException {
-        try {
+    public void deleteItem(String rangeId) throws CacheException, Exception {
+        try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(rangeId);
             logger.info("MacRangeRepository deleteItem() {}: ", rangeId);
+            tx.commit();
         } catch (CacheException e) {
             logger.error("MacRangeRepository deleteItem() exception:", e);
             throw e;
