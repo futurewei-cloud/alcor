@@ -27,6 +27,9 @@ public class SegmentServiceImpl implements SegmentService {
     private VxlanRangeRepository vxlanRangeRepository;
 
     @Autowired
+    private GreRangeRepository greRangeRepository;
+
+    @Autowired
     private VlanRepository vlanRepository;
 
     @Autowired
@@ -75,7 +78,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public Long addVxlanEntity(String segmentId, String vlanId, String networkType) throws Exception {
+    public Long addVxlanEntity(String segmentId, String vxlanId, String networkType) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -107,7 +110,7 @@ public class SegmentServiceImpl implements SegmentService {
 
             key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
             vxlan.setSegmentId(segmentId);
-            vxlan.setVxlanId(vlanId);
+            vxlan.setVxlanId(vxlanId);
             vxlan.setKey(key);
 
             this.vxlanRepository.addItem(vxlan);
@@ -115,24 +118,57 @@ public class SegmentServiceImpl implements SegmentService {
             return key;
 
         } catch (Exception e) {
-            this.vxlanRepository.deleteItem(vlanId);
+            this.vxlanRepository.deleteItem(vxlanId);
             this.vxlanRangeRepository.releaseVxlanKey(rangeId,key);
-            logger.info("Allocate vlan key or db operation failed");
+            logger.info("Allocate vxlan key or db operation failed");
             throw new DatabasePersistenceException(e.getMessage());
         }
     }
 
     @Override
-    public Long addGreEntity(String segmentId, String vlanId, String networkType) throws DatabasePersistenceException {
+    public Long addGreEntity(String segmentId, String greId, String networkType) throws Exception {
+
+        Long key = null;
+        String rangeId = null;
+        Random ran = new Random();
+        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
+
         try {
-            String greId = UUID.randomUUID().toString();
-            NetworkVGREType gre = new NetworkVGREType();
+            NetworkGREType gre = new NetworkGREType();
+
+            // Find all partitions exist in db
+            Map<String, NetworkGRERange> map = this.greRangeRepository.findAllItems();
+            for (Map.Entry<String, NetworkGRERange> entry : map.entrySet()) {
+                int temp_partition = entry.getValue().getPartition();
+                String temp_rangeId = entry.getValue().getId();
+                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
+            }
+
+            // Randomly allocate a partition and check if the partition exist in db
+            int partition = ran.nextInt(NetworkType.GRE_PARTITION);
+            if (!partitionsAndRangeIds.containsKey(partition)) {
+                rangeId = UUID.randomUUID().toString();
+                int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
+                int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, partition, firstKey, lastKey);
+                this.greRangeRepository.createRange(request);
+            }else {
+                rangeId = partitionsAndRangeIds.get(partition);
+            }
+
+            key = this.greRangeRepository.allocateGreKey(rangeId);
             gre.setSegmentId(segmentId);
             gre.setGreId(greId);
+            gre.setKey(key);
 
             this.greRepository.addItem(gre);
-            return null;
+            logger.info("Allocate gre key success, key: " + key);
+            return key;
+
         } catch (Exception e) {
+            this.greRepository.deleteItem(greId);
+            this.greRangeRepository.releaseGreKey(rangeId,key);
+            logger.info("Allocate gre key or db operation failed");
             throw new DatabasePersistenceException(e.getMessage());
         }
     }
@@ -178,6 +214,31 @@ public class SegmentServiceImpl implements SegmentService {
 
             this.vxlanRangeRepository.releaseVxlanKey(rangeId, key);
             this.vxlanRepository.deleteItem(vxlanId);
+        } catch (Exception e) {
+            throw new DatabasePersistenceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void releaseGreEntity(String greId, Long key) throws DatabasePersistenceException {
+        try {
+            Map<String, NetworkGRERange> map = this.greRangeRepository.findAllItems();
+            if (map.size() == 0) {
+                // TO DO: throw exception
+                return;
+            }
+
+            String rangeId = "";
+            for (Map.Entry<String, NetworkGRERange> entry : map.entrySet()) {
+                rangeId = entry.getKey();
+                NetworkGRERange range = entry.getValue();
+                if (range.getFirstKey() <= key && range.getLastKey() >= key) {
+                    break;
+                }
+            }
+
+            this.greRangeRepository.releaseGreKey(rangeId, key);
+            this.greRepository.deleteItem(greId);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }

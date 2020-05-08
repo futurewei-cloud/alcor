@@ -11,9 +11,10 @@ public interface SegmentService {
 
     public Long addVlanEntity (String segmentId, String vlanId, String networkType) throws Exception;
     public Long addVxlanEntity (String segmentId, String vlanId, String networkType) throws Exception;
-    public Long addGreEntity (String segmentId, String vlanId, String networkType) throws DatabasePersistenceException;
+    public Long addGreEntity (String segmentId, String vlanId, String networkType) throws DatabasePersistenceException, CacheException, Exception;
     public void releaseVlanEntity (String vlanId, Long key) throws DatabasePersistenceException;
     public void releaseVxlanEntity (String vxlanId, Long key) throws DatabasePersistenceException;
+    public void releaseGreEntity (String greId, Long key) throws DatabasePersistenceException;
     public VlanKeyRequest allocateVlan(VlanKeyRequest request) throws Exception;
     public VlanKeyRequest releaseVlan(String networkType, String rangeId, Long key) throws Exception;
     public VlanKeyRequest getVlan(String networkType, String rangeId, Long key) throws Exception;

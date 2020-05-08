@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.GreRepository;
 import com.futurewei.alcor.vpcmanager.service.GreDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkVGREType;
+import com.futurewei.alcor.web.entity.NetworkGREType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     GreRepository greRepository;
 
     @Override
-    public NetworkVGREType getByGreId(String greId) {
+    public NetworkGREType getByGreId(String greId) {
         try {
             return this.greRepository.findItem(greId);
         }catch (Exception e) {
@@ -32,7 +32,7 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     }
 
     @Override
-    public void addGre(NetworkVGREType gre) throws DatabasePersistenceException {
+    public void addGre(NetworkGREType gre) throws DatabasePersistenceException {
         try {
             this.greRepository.addItem(gre);
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     }
 
     @Override
-    public ICache<String, NetworkVGREType> getCache() {
+    public ICache<String, NetworkGREType> getCache() {
         return this.greRepository.getCache();
     }
 }

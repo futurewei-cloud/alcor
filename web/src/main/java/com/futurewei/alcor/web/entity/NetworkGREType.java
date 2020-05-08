@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.util.Map;
 
 @Data
-public class NetworkVGREType {
+public class NetworkGREType {
 
     @Id
     private Long key;
@@ -32,7 +32,7 @@ public class NetworkVGREType {
     private String updated_at;
 
 
-    public NetworkVGREType() {
+    public NetworkGREType() {
     }
 
 }

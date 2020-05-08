@@ -168,7 +168,7 @@ public class SegmentController {
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
                 this.segmentService.releaseVlanEntity(segmentWebResponseObject.getSegmentationUUID(), key);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-
+                this.segmentService.releaseGreEntity(segmentWebResponseObject.getSegmentationUUID(), key);
             }
 
             segmentDatabaseService.deleteSegment(segmentid);
