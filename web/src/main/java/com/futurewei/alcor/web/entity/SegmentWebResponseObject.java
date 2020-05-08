@@ -22,7 +22,7 @@ public class SegmentWebResponseObject extends CustomerResource {
     private Integer segmentationId;
 
     @JsonProperty("segmentation_uuid")
-    private String segmentationUUId;
+    private String segmentationUUID;
 
     @JsonProperty("revision_number")
     private Integer revisionNumber;
@@ -42,7 +42,7 @@ public class SegmentWebResponseObject extends CustomerResource {
         this.vpcId = vpcId;
     }
 
-    public SegmentWebResponseObject(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String created_at, String updated_at, String segmentationUUId) {
+    public SegmentWebResponseObject(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String created_at, String updated_at, String segmentationUUID) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.physicalNetwork = physicalNetwork;
@@ -51,6 +51,6 @@ public class SegmentWebResponseObject extends CustomerResource {
         this.revisionNumber = revisionNumber;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        this.segmentationUUId = segmentationUUId;
+        this.segmentationUUID = segmentationUUID;
     }
 }

@@ -5,22 +5,15 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.common.exception.VlanRangeNotFoundException;
-import com.futurewei.alcor.vpcmanager.dao.GreRepository;
-import com.futurewei.alcor.vpcmanager.dao.VlanRangeRepository;
-import com.futurewei.alcor.vpcmanager.dao.VlanRepository;
-import com.futurewei.alcor.vpcmanager.dao.VxlanRepository;
+import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
-import com.futurewei.alcor.web.allocator.VlanKeyAllocator;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class SegmentServiceImpl implements SegmentService {
@@ -29,6 +22,9 @@ public class SegmentServiceImpl implements SegmentService {
 
     @Autowired
     private VlanRangeRepository vlanRangeRepository;
+
+    @Autowired
+    private VxlanRangeRepository vxlanRangeRepository;
 
     @Autowired
     private VlanRepository vlanRepository;
@@ -40,23 +36,26 @@ public class SegmentServiceImpl implements SegmentService {
     private GreRepository greRepository;
 
     @Override
-    public Long addVlanEntity(String segmentId, String vlanId, String networkType) throws DatabasePersistenceException, CacheException {
+    public Long addVlanEntity(String segmentId, String vlanId, String networkType) throws Exception {
+
+        Long key = null;
+        String rangeId = null;
+
         try {
             NetworkVlanType vlan = new NetworkVlanType();
             // check if range exist in db
             Map<String, NetworkVlanRange> map = this.vlanRangeRepository.findAllItems();
             if (map.size() == 0) {
-                String rangeId = UUID.randomUUID().toString();
-                NetworkVlanRangeRequest request = new NetworkVlanRangeRequest(rangeId, segmentId, networkType, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
+                rangeId = UUID.randomUUID().toString();
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, NetworkType.VLAN_PARTITION, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
                 this.vlanRangeRepository.createRange(request);
+                map = this.vlanRangeRepository.findAllItems();
             }
-
-            String rangeId = "";
             for (Map.Entry<String, NetworkVlanRange> entry : map.entrySet()) {
                 rangeId = entry.getKey();
             }
 
-            Long key = this.vlanRangeRepository.allocateVlanKey(rangeId);
+            key = this.vlanRangeRepository.allocateVlanKey(rangeId);
 
             //vlan.setMtu(mtu);
             vlan.setSegmentId(segmentId);
@@ -66,32 +65,65 @@ public class SegmentServiceImpl implements SegmentService {
             this.vlanRepository.addItem(vlan);
             logger.info("Allocate vlan key success, key: " + key);
             return key;
+
         } catch (Exception e) {
             this.vlanRepository.deleteItem(vlanId);
-            logger.info("Allocate vlan key failed");
+            this.vlanRangeRepository.releaseVlanKey(rangeId,key);
+            logger.info("Allocate vlan key or db operation failed");
             throw new DatabasePersistenceException(e.getMessage());
         }
-
     }
 
     @Override
-    public Long addVxlanEntity(String segmentId) throws DatabasePersistenceException {
+    public Long addVxlanEntity(String segmentId, String vlanId, String networkType) throws Exception {
+
+        Long key = null;
+        String rangeId = null;
+        Random ran = new Random();
+        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
+
         try {
-            String vxlanId = UUID.randomUUID().toString();
             NetworkVxlanType vxlan = new NetworkVxlanType();
-            //vxlan.setMtu(mtu);
+
+            // Find all partitions exist in db
+            Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
+            for (Map.Entry<String, NetworkVxlanRange> entry : map.entrySet()) {
+                int temp_partition = entry.getValue().getPartition();
+                String temp_rangeId = entry.getValue().getId();
+                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
+            }
+
+            // Randomly allocate a partition and check if the partition exist in db
+            int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
+            if (!partitionsAndRangeIds.containsKey(partition)) {
+                rangeId = UUID.randomUUID().toString();
+                int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+                int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, partition, firstKey, lastKey);
+                this.vxlanRangeRepository.createRange(request);
+            }else {
+                rangeId = partitionsAndRangeIds.get(partition);
+            }
+
+            key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
             vxlan.setSegmentId(segmentId);
-            vxlan.setVxlanId(vxlanId);
+            vxlan.setVxlanId(vlanId);
+            vxlan.setKey(key);
 
             this.vxlanRepository.addItem(vxlan);
-            return null;
+            logger.info("Allocate vxlan key success, key: " + key);
+            return key;
+
         } catch (Exception e) {
+            this.vxlanRepository.deleteItem(vlanId);
+            this.vxlanRangeRepository.releaseVxlanKey(rangeId,key);
+            logger.info("Allocate vlan key or db operation failed");
             throw new DatabasePersistenceException(e.getMessage());
         }
     }
 
     @Override
-    public Long addGreEntity(String segmentId) throws DatabasePersistenceException {
+    public Long addGreEntity(String segmentId, String vlanId, String networkType) throws DatabasePersistenceException {
         try {
             String greId = UUID.randomUUID().toString();
             NetworkVGREType gre = new NetworkVGREType();
@@ -121,6 +153,31 @@ public class SegmentServiceImpl implements SegmentService {
 
             this.vlanRangeRepository.releaseVlanKey(rangeId, key);
             this.vlanRepository.deleteItem(vlanId);
+        } catch (Exception e) {
+            throw new DatabasePersistenceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void releaseVxlanEntity(String vxlanId, Long key) throws DatabasePersistenceException {
+        try {
+            Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
+            if (map.size() == 0) {
+                // TO DO: throw exception
+                return;
+            }
+
+            String rangeId = "";
+            for (Map.Entry<String, NetworkVxlanRange> entry : map.entrySet()) {
+                rangeId = entry.getKey();
+                NetworkVxlanRange range = entry.getValue();
+                if (range.getFirstKey() <= key && range.getLastKey() >= key) {
+                    break;
+                }
+            }
+
+            this.vxlanRangeRepository.releaseVxlanKey(rangeId, key);
+            this.vxlanRepository.deleteItem(vxlanId);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }
@@ -159,16 +216,16 @@ public class SegmentServiceImpl implements SegmentService {
     public VlanKeyRequest getVlan(String networkType, String rangeId, Long key) throws Exception {
         logger.debug("Get vlan key, rangeId: {}, ipAddr: {}", rangeId, key);
 
-        VlanKeyAlloc vlanKeyAlloc = vlanRangeRepository.getVlanKeyAlloc(rangeId, key);
-        if (vlanKeyAlloc.getNetworkType() != networkType) {
+        KeyAlloc keyAlloc = vlanRangeRepository.getVlanKeyAlloc(rangeId, key);
+        if (keyAlloc.getNetworkType() != networkType) {
             throw new NetworkTypeInvalidException();
         }
 
         VlanKeyRequest result = new VlanKeyRequest();
 
-        result.setNetworkType(vlanKeyAlloc.getNetworkType());
-        result.setRangeId(vlanKeyAlloc.getRangeId());
-        result.setKey(vlanKeyAlloc.getKey());
+        result.setNetworkType(keyAlloc.getNetworkType());
+        result.setRangeId(keyAlloc.getRangeId());
+        result.setKey(keyAlloc.getKey());
 
         logger.info("Get vlan key success, result: {}", result);
 
@@ -176,7 +233,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public NetworkVlanRangeRequest createRange(NetworkVlanRangeRequest request) throws Exception {
+    public NetworkRangeRequest createRange(NetworkRangeRequest request) throws Exception {
         logger.debug("Create vlan range, request: {}", request);
 
         vlanRangeRepository.createRange(request);
@@ -187,12 +244,12 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public NetworkVlanRangeRequest deleteRange(String rangeId) throws Exception {
+    public NetworkRangeRequest deleteRange(String rangeId) throws Exception {
         logger.debug("Delete vlan range, rangeId: {}", rangeId);
 
         NetworkVlanRange networkVlanRange = vlanRangeRepository.deleteRange(rangeId);
 
-        NetworkVlanRangeRequest request = new NetworkVlanRangeRequest();
+        NetworkRangeRequest request = new NetworkRangeRequest();
         request.setId(networkVlanRange.getId());
         request.setSegmentId(networkVlanRange.getSegmentId());
         request.setNetworkType(networkVlanRange.getNetworkType());
@@ -207,7 +264,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public NetworkVlanRangeRequest getRange(String rangeId) throws Exception {
+    public NetworkRangeRequest getRange(String rangeId) throws Exception {
         logger.debug("Delete vlan range, rangeId: {}", rangeId);
 
         NetworkVlanRange networkVlanRange = vlanRangeRepository.getRange(rangeId);
@@ -216,7 +273,7 @@ public class SegmentServiceImpl implements SegmentService {
         }
         logger.info("Get vlan range success, ipAddressRange: {}", networkVlanRange);
 
-        NetworkVlanRangeRequest request = new NetworkVlanRangeRequest();
+        NetworkRangeRequest request = new NetworkRangeRequest();
         request.setId(networkVlanRange.getId());
         request.setSegmentId(networkVlanRange.getSegmentId());
         request.setNetworkType(networkVlanRange.getNetworkType());
@@ -229,14 +286,14 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public List<NetworkVlanRangeRequest> listRanges() {
+    public List<NetworkRangeRequest> listRanges() {
         logger.debug("List vlan range");
 
         Map<String, NetworkVlanRange> ipAddrRangeMap = vlanRangeRepository.findAllItems();
 
-        List<NetworkVlanRangeRequest> result = new ArrayList<>();
+        List<NetworkRangeRequest> result = new ArrayList<>();
         ipAddrRangeMap.forEach((k,v) -> {
-            NetworkVlanRangeRequest range = new NetworkVlanRangeRequest();
+            NetworkRangeRequest range = new NetworkRangeRequest();
             range.setId(v.getId());
             range.setSegmentId(v.getSegmentId());
             range.setNetworkType(v.getNetworkType());

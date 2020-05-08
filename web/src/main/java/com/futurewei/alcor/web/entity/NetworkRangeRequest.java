@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class NetworkVlanRangeRequest {
+public class NetworkRangeRequest {
 
     @JsonProperty("id")
     private String id;
@@ -14,6 +14,9 @@ public class NetworkVlanRangeRequest {
 
     @JsonProperty("network_type")
     private String networkType;
+
+    @JsonProperty("partition")
+    private int partition;
 
     @JsonProperty("first_key")
     private int firstKey;
@@ -27,12 +30,13 @@ public class NetworkVlanRangeRequest {
     @JsonProperty("total_keys")
     private int totalKeys;
 
-    public NetworkVlanRangeRequest () {}
+    public NetworkRangeRequest() {}
 
-    public NetworkVlanRangeRequest(String id, String segmentId, String networkType, int firstKey, int lastKey) {
+    public NetworkRangeRequest(String id, String segmentId, String networkType,int partition, int firstKey, int lastKey) {
         this.id = id;
         this.segmentId = segmentId;
         this.networkType = networkType;
+        this.partition = partition;
         this.firstKey = firstKey;
         this.lastKey = lastKey;
     }

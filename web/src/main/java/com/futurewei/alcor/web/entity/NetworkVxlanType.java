@@ -24,9 +24,6 @@ public class NetworkVxlanType {
     @JsonProperty("mtu")
     private String mtu;
 
-    @JsonProperty("vlan_id")
-    private String vlanId;
-
     @CreatedDate
     @JsonProperty("created_at")
     private String created_at;

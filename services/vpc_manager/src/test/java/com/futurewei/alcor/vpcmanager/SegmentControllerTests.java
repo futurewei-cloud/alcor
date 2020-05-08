@@ -121,7 +121,7 @@ public class SegmentControllerTests {
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
                 .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
-                        UnitTestConfig.cidr, UnitTestConfig.vpcId));
+                        UnitTestConfig.cidr, UnitTestConfig.vpcId){{setSegmentationId(1);}});
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())

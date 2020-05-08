@@ -2,10 +2,12 @@ package com.futurewei.alcor.web.allocator;
 
 import com.futurewei.alcor.common.exception.KeyInvalidException;
 import com.futurewei.alcor.common.exception.KeyNotEnoughException;
+import lombok.Data;
 
 import java.util.BitSet;
 
-public class VlanKeyAllocator implements KeyAllocator {
+@Data
+public class NetworkKeyAllocator implements KeyAllocator {
 
     private BitSet bitSet;
     private int firstKey;
@@ -13,7 +15,7 @@ public class VlanKeyAllocator implements KeyAllocator {
     private int keyNum;
     private Long key;
 
-    public VlanKeyAllocator (int firstKey, int lastKey) {
+    public NetworkKeyAllocator(int firstKey, int lastKey) {
         this.firstKey = firstKey;
         this.lastKey = lastKey;
         keyNum = lastKey - firstKey + 1;

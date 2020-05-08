@@ -9,11 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class NetworkVlanRange {
+public class NetworkVxlanRange {
 
     private String id;
     private String segmentId;
     private String networkType;
+    private int partition;
     private int firstKey;
     private int lastKey;
     private int usedKeys;
@@ -22,10 +23,11 @@ public class NetworkVlanRange {
     private NetworkKeyAllocator allocator;
     public Map allocated;
 
-    public NetworkVlanRange(String id, String segmentId, String networkType, int firstKey, int lastKey) {
+    public NetworkVxlanRange(String id, String segmentId, String networkType,int partition, int firstKey, int lastKey) {
         this.id = id;
         this.segmentId = segmentId;
         this.networkType = networkType;
+        this.partition = partition;
         this.firstKey = firstKey;
         this.lastKey = lastKey;
         totalKeys = lastKey - firstKey + 1;
@@ -69,4 +71,5 @@ public class NetworkVlanRange {
 
         throw new KeyInvalidException();
     }
+
 }

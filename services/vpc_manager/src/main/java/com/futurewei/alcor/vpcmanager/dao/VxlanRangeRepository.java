@@ -6,9 +6,10 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.web.entity.KeyAlloc;
 import com.futurewei.alcor.web.entity.NetworkVlanRange;
 import com.futurewei.alcor.web.entity.NetworkRangeRequest;
-import com.futurewei.alcor.web.entity.KeyAlloc;
+import com.futurewei.alcor.web.entity.NetworkVxlanRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,91 +22,86 @@ import java.util.Map;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
+public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ICache<String, NetworkVlanRange> getCache() {
+    public ICache<String, NetworkVxlanRange> getCache() {
         return cache;
     }
 
-    private ICache<String, NetworkVlanRange> cache;
+    private ICache<String, NetworkVxlanRange> cache;
 
 
     @Autowired
-    public VlanRangeRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(NetworkVlanRange.class);
+    public VxlanRangeRepository(CacheFactory cacheFactory) {
+        cache = cacheFactory.getCache(NetworkVxlanRange.class);
     }
 
     @PostConstruct
     private void init() {
-        logger.info( "VlanRangeRepository init completed");
+        logger.info( "VxlanRangeRepository init completed");
     }
 
+
     @Override
-    public synchronized NetworkVlanRange findItem(String id) {
+    public NetworkVxlanRange findItem(String id) {
         try {
             return cache.get(id);
         } catch (CacheException e) {
             e.printStackTrace();
-            logger.error("VlanRangeRepository findItem() exception:", e);
+            logger.error("VxlanRangeRepository findItem() exception:", e);
         }
         return null;
     }
 
     @Override
-    public synchronized Map<String, NetworkVlanRange> findAllItems() {
+    public Map<String, NetworkVxlanRange> findAllItems() {
         try {
             return cache.getAll();
         } catch (CacheException e) {
             e.printStackTrace();
-            logger.error("VlanRangeRepository findAllItems() exception:", e);
+            logger.error("VxlanRangeRepository findAllItems() exception:", e);
         }
 
         return new HashMap();
     }
 
     @Override
-    public synchronized void addItem(NetworkVlanRange networkVlanRange){
-        logger.error("Add networkVlanRange:{}", networkVlanRange);
+    public void addItem(NetworkVxlanRange networkVxlanRange) {
+        logger.error("Add networkVxlanRange:{}", networkVxlanRange);
 
         try {
-            cache.put(networkVlanRange.getId(), networkVlanRange);
+            cache.put(networkVxlanRange.getId(), networkVxlanRange);
         } catch (CacheException e) {
             e.printStackTrace();
-            logger.error("VlanRangeRepository addItem() exception:", e);
+            logger.error("VxlanRangeRepository addItem() exception:", e);
         }
     }
 
     @Override
-    public synchronized void deleteItem(String id) {
+    public void deleteItem(String id) {
         logger.error("Delete rangeId:{}", id);
 
         try {
             cache.remove(id);
         } catch (CacheException e) {
             e.printStackTrace();
-            logger.error("VlanRangeRepository deleteItem() exception:", e);
+            logger.error("VxlanRangeRepository deleteItem() exception:", e);
         }
     }
 
-    /**
-     * Allocate a key from VlanRange repository
-     * @param rangeId
-     * @return range key in db
-     * @throws Exception Db operation or key assignment exception
-     */
-    public synchronized Long allocateVlanKey (String rangeId) throws Exception {
+    public synchronized Long allocateVxlanKey (String rangeId) throws Exception {
         Long key;
 
         try (Transaction tx = cache.getTransaction().start()) {
-            NetworkVlanRange networkVlanRange = cache.get(rangeId);
-            if (networkVlanRange == null) {
+            NetworkVxlanRange networkVxlanRange = cache.get(rangeId);
+            if (networkVxlanRange == null) {
                 throw new VlanNotFoundException();
             }
 
-            key = networkVlanRange.allocateKey();
-            cache.put(networkVlanRange.getId(), networkVlanRange);
+            key = networkVxlanRange.allocateKey();
+            cache.put(networkVxlanRange.getId(), networkVxlanRange);
 
             tx.commit();
         }
@@ -113,27 +109,27 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
         return key;
     }
 
-    public synchronized void releaseVlanKey(String rangId, Long key) throws Exception {
+    public synchronized void releaseVxlanKey(String rangId, Long key) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
-            NetworkVlanRange networkVlanRange = cache.get(rangId);
-            if (networkVlanRange == null) {
+            NetworkVxlanRange networkVxlanRange = cache.get(rangId);
+            if (networkVxlanRange == null) {
                 throw new VlanNotFoundException();
             }
 
-            networkVlanRange.release(key);
-            cache.put(networkVlanRange.getId(), networkVlanRange);
+            networkVxlanRange.release(key);
+            cache.put(networkVxlanRange.getId(), networkVxlanRange);
 
             tx.commit();
         }
     }
 
     public synchronized KeyAlloc getVlanKeyAlloc(String rangeId, Long key) throws Exception {
-        NetworkVlanRange networkVlanRange = cache.get(rangeId);
-        if (networkVlanRange == null) {
+        NetworkVxlanRange networkVxlanRange = cache.get(rangeId);
+        if (networkVxlanRange == null) {
             throw new VlanNotFoundException();
         }
 
-        return networkVlanRange.getNetworkKey(key);
+        return networkVxlanRange.getNetworkKey(key);
     }
 
     public synchronized void createRange(NetworkRangeRequest request) throws Exception {
@@ -143,8 +139,8 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
                 throw new NetworkRangeExistException();
             }
 
-            NetworkVlanRange range = new NetworkVlanRange(request.getId(), request.getSegmentId(),
-                    request.getNetworkType(), request.getFirstKey(), request.getLastKey());
+            NetworkVxlanRange range = new NetworkVxlanRange(request.getId(), request.getSegmentId(),
+                    request.getNetworkType(), request.getPartition(), request.getFirstKey(), request.getLastKey());
 
             cache.put(request.getId(), range);
 
@@ -162,10 +158,10 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
 
     }
 
-    public synchronized NetworkVlanRange deleteRange(String rangeId) throws Exception {
+    public synchronized NetworkVxlanRange deleteRange(String rangeId) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
-            NetworkVlanRange networkVlanRange = cache.get(rangeId);
-            if (networkVlanRange == null) {
+            NetworkVxlanRange networkVxlanRange = cache.get(rangeId);
+            if (networkVxlanRange == null) {
                 logger.warn("Delete network range failed: network range not found");
                 throw new NetworkRangeNotFoundException();
             }
@@ -174,11 +170,11 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
 
             tx.commit();
 
-            return networkVlanRange;
+            return networkVxlanRange;
         }
     }
 
-    public synchronized NetworkVlanRange getRange(String rangeId) throws Exception {
+    public synchronized NetworkVxlanRange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
     }
 }

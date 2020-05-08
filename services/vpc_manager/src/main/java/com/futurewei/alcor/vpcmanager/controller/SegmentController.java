@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -83,15 +81,17 @@ public class SegmentController {
             String networkType = segmentWebRequestObject.getNetworkType();
             Long key = null;
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId());
+                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
                 key = segmentService.addVlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(segmentWebRequestObject.getId());
+                key = segmentService.addGreEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
             }
 
-            segmentWebResponseObject.setSegmentationId(Integer.parseInt(String.valueOf(key)));
-            segmentWebResponseObject.setSegmentationUUId(networkTypeId);
+            if (key != null) {
+                segmentWebResponseObject.setSegmentationId(Integer.parseInt(String.valueOf(key)));
+            }
+            segmentWebResponseObject.setSegmentationUUID(networkTypeId);
 
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);
 
@@ -164,9 +164,9 @@ public class SegmentController {
             String networkType = segmentWebResponseObject.getNetworkType();
             Long key = Long.parseLong(String.valueOf(segmentWebResponseObject.getSegmentationId()));
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-
+                this.segmentService.releaseVxlanEntity(segmentWebResponseObject.getSegmentationUUID(), key);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                this.segmentService.releaseVlanEntity(segmentWebResponseObject.getSegmentationUUId(), key);
+                this.segmentService.releaseVlanEntity(segmentWebResponseObject.getSegmentationUUID(), key);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
 
             }
