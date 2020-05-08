@@ -20,8 +20,21 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
+        <swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
+        <swagger2markup.version>1.2.0</swagger2markup.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jcenter-releases</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+    
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +77,17 @@
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-mockmvc</artifactId>
+            <version>2.6.1</version>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.swagger2markup</groupId>
+            <artifactId>swagger2markup-spring-restdocs-ext</artifactId>
+            <version>${swagger2markup.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -95,6 +119,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
+                    <systemPropertyVariables>
+                        <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
