@@ -14,11 +14,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class MacRangeJson {
 
+    @JsonProperty("mac_range")
     private MacRange macRange;
 
     public MacRangeJson() {
