@@ -60,9 +60,10 @@ You could expect to see _BUILD SUCCESS_ at the end of the build console.
 
 ![Alcor Build](design/images/alcor_build.JPG)
 
-Compile and run unit tests.
+Deploy an Ignite database for local testing and run unit tests.
 If this step passes, then you have everything needed to develop, test, and run Alcor.
 ```
+$ ./scripts/test-prep.sh
 $ mvn test
 ```
 

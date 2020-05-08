@@ -2,14 +2,11 @@ package com.futurewei.alcor.macmanager.service;
 
 import com.futurewei.alcor.macmanager.entity.MacRange;
 import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.exception.UniquenessViolationException;
 
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.Vector;
 
 public interface MacService {
-    MacState getMacStateByMacAddress(String macAddress);
+    MacState getMacStateByMacAddress(String macAddress) throws Exception;
 
     MacState createMacState(MacState macState) throws Exception;
 
@@ -17,9 +14,9 @@ public interface MacService {
 
     String releaseMacState(String macAddress) throws Exception;
 
-    MacRange getMacRangeByMacRangeId(String macRangeId);
+    MacRange getMacRangeByMacRangeId(String macRangeId) throws Exception;
 
-    Map<String, MacRange> getAllMacRanges();
+    Map<String, MacRange> getAllMacRanges() throws Exception;
 
     MacRange createMacRange(MacRange macRange) throws Exception;
 

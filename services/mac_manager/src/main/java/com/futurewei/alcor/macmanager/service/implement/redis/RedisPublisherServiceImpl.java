@@ -1,4 +1,5 @@
-/*Copyright 2019 The Alcor Authors.
+/*
+Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -12,32 +13,33 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.macmanager.service.implement;
+
+package com.futurewei.alcor.macmanager.service.implement.redis;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
-import com.futurewei.alcor.macmanager.entity.MacRange;
+import com.futurewei.alcor.macmanager.entity.MacState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisMacRangePublisherServiceImpl implements ICachePublisher {
+public class RedisPublisherServiceImpl implements ICachePublisher {
     @Autowired
-    private RedisTemplate<String, MacRange> redisTemplate2;
+    private RedisTemplate<String, MacState> redisTemplate;
 
     @Autowired
-    private ChannelTopic topic2;
+    private ChannelTopic topic;
 
-    public RedisMacRangePublisherServiceImpl() {
+    public RedisPublisherServiceImpl() {
     }
 
-    public RedisMacRangePublisherServiceImpl(final RedisTemplate<String, MacRange> redisTemplate, final ChannelTopic topic2) {
-        this.redisTemplate2 = redisTemplate;
-        this.topic2 = topic2;
+    public RedisPublisherServiceImpl(final RedisTemplate<String, MacState> redisTemplate, final ChannelTopic topic) {
+        this.redisTemplate = redisTemplate;
+        this.topic = topic;
     }
 
     public void publish(final String message) {
-        redisTemplate2.convertAndSend(topic2.getTopic(), message);
+        redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 }

@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.macmanager.dao;
+package com.futurewei.alcor.macmanager.dao.redis;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -46,7 +46,7 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     @Override
-    public String findItem(String value) {
+    public synchronized String findItem(String value) {
         if (setOperations.isMember(KEY, value))
             return value;
         else
@@ -54,24 +54,28 @@ public class MacPoolRedisRepository implements ICacheRepository<String> {
     }
 
     @Override
-    public Map findAllItems() {
+    public synchronized Map findAllItems() {
         return (Map) setOperations.members(KEY);
     }
 
     @Override
-    public void addItem(String newItem) {
+    public synchronized void addItem(String newItem) {
         Logger logger = LoggerFactory.getLogger();
         logger.log(Level.INFO, newItem);
-        setOperations.add(KEY, newItem);
+        if (setOperations.isMember(KEY, newItem) == false)
+            setOperations.add(KEY, newItem);
     }
 
     @Override
-    public void deleteItem(String value) {
+    public synchronized void deleteItem(String value) {
         setOperations.remove(KEY, value);
     }
 
-    public String getItem() {
-
+    public synchronized String getItem() {
         return (String) setOperations.randomMember(KEY);
+    }
+
+    public synchronized long getSize() {
+        return setOperations.size(KEY);
     }
 }

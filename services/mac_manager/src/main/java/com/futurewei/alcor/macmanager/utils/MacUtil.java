@@ -16,10 +16,18 @@ package com.futurewei.alcor.macmanager.utils;
 
 public class MacUtil {
     public static final String MAC_STATE_ACTIVE = "Active";
-    public static final String MAC_STATE_INACTIVE= "Inactive";
+    public static final String MAC_STATE_INACTIVE = "Inactive";
 
     public static final String DEFAULT_RANGE = "range0";
     public static final String MAC_RANGE_STATE_ACTIVE = "Active";
     public static final String MAC_RANGE_STATE_INACTIVE = "Inactive";
     public static final String MAC_RANGE_STATE_EXCLUDE = "Exclude";
+
+    public static final String MAC_EXCEPTION_UNIQUENESSSS_VILOATION = "This mac address is not unique!!";
+    public static final String MAC_EXCEPTION_RETRY_LIMIT_EXCEED = "It exceeded the limit of retry for to create a MAC. Please check active MAC ranges.";
+    public static final String MAC_EXCEPTION_RANGE_VALUE_INVALID = "MAC range is not vaild. Ranges' start value should be less than end value.";
+    public static final String MAC_EXCEPTION_MAC_NOT_EXISTING = "Non existing MAC address.";
+    public static final String MAC_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";
+    public static final String MAC_EXCEPTION_PARAMETER_INVALID = "Parameter data format or value is not valid";
+
 }
