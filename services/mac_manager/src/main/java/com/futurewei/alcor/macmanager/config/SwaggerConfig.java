@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.route.swagger;
+package com.futurewei.alcor.macmanager.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +43,8 @@ public class SwaggerConfig{
 
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-            .title("Route Manager")
-            .description("Route lifecycle management")
+            .title("Virtual MAC Manager")
+            .description("Virtual MAC pool management")
             .license("Apache 2.0")
             .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
             .build();
