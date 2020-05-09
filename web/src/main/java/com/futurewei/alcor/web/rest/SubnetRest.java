@@ -17,20 +17,12 @@ package com.futurewei.alcor.web.rest;
 
 import com.futurewei.alcor.web.entity.SubnetStateJson;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
-@Component
 @Configuration
 public class SubnetRest extends AbstractRest {
     @Value("${microservices.subnet.service.url:#{\"\"}}")
     private String subnetManagerUrl;
-
-    @Bean
-    public SubnetRest subnetRestInstance() {
-        return new SubnetRest();
-    }
 
     public SubnetStateJson getSubnetState(String projectId, String subnetId) throws Exception {
         String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;

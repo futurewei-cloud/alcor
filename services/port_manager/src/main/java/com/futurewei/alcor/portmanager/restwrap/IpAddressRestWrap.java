@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
 import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
+import com.futurewei.alcor.portmanager.utils.BeanUtil;
 import com.futurewei.alcor.web.entity.IpAddrRequest;
 import com.futurewei.alcor.web.entity.IpVersion;
 import com.futurewei.alcor.web.entity.PortState;
@@ -30,7 +31,6 @@ import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
 import com.futurewei.alcor.web.rest.SubnetRest;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -41,10 +41,9 @@ public class IpAddressRestWrap {
     private Stack<PortStateRollback> rollbacks;
     private String projectId;
 
-    public IpAddressRestWrap(IpAddressRest ipAddressRest, SubnetRest subnetRest,
-                             Stack<PortStateRollback> rollbacks, String projectId) {
-        this.ipAddressRest = ipAddressRest;
-        this.subnetRest = subnetRest;
+    public IpAddressRestWrap(Stack<PortStateRollback> rollbacks, String projectId) {
+        ipAddressRest = BeanUtil.getBean(IpAddressRest.class);
+        subnetRest = BeanUtil.getBean(SubnetRest.class);
         this.rollbacks = rollbacks;
         this.projectId = projectId;
     }

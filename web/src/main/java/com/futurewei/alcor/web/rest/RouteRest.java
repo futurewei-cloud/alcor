@@ -16,18 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.rest;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
-@Component
 @Configuration
 public class RouteRest extends AbstractRest {
     @Value("${microservices.route.service.url:#{\"\"}}")
     private String routeManagerUrl;
-
-    @Bean
-    public RouteRest routeRestInstance() {
-        return new RouteRest();
-    }
 }

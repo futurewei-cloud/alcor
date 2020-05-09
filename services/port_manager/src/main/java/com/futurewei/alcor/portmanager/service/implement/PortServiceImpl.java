@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service.implement;
 
-
 import com.futurewei.alcor.portmanager.executor.AsyncExecutor;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
@@ -25,16 +24,11 @@ import com.futurewei.alcor.portmanager.restwrap.VpcRestWrap;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.*;
-import com.futurewei.alcor.web.rest.IpAddressRest;
-import com.futurewei.alcor.web.rest.MacAddressRest;
-import com.futurewei.alcor.web.rest.SubnetRest;
-import com.futurewei.alcor.web.rest.VpcRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,19 +39,6 @@ public class PortServiceImpl implements PortService {
 
     @Autowired
     private PortRepository portRepository;
-
-    @Autowired
-    private IpAddressRest ipAddressRest;
-
-    @Autowired
-    private SubnetRest subnetRest;
-
-    @Autowired
-    private MacAddressRest macAddressRest;
-
-    @Autowired
-    private VpcRest vpcRest;
-
 
     private void getDefaultSecurityGroup(PortState portState) {
         //FIXME: send get tenant default security group
@@ -107,11 +88,11 @@ public class PortServiceImpl implements PortService {
 
     private void tryCreatePortState(PortState portState, Stack<PortStateRollback> rollbacks) throws Exception {
         //Verify VPC ID
-        VpcRestWrap vpcRestWrap = new VpcRestWrap(vpcRest, rollbacks);
+        VpcRestWrap vpcRestWrap = new VpcRestWrap(rollbacks);
         CompletableFuture vpcFuture = AsyncExecutor.execute(vpcRestWrap::verifyVpc, portState);
 
         CompletableFuture ipFuture;
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, portState.getProjectId());
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, portState.getProjectId());
 
         if (portState.getFixedIps() == null) {
             ipFuture = AsyncExecutor.execute(ipAddressRestWrap::allocateIpAddress, portState);
@@ -125,7 +106,7 @@ public class PortServiceImpl implements PortService {
         }
 
         CompletableFuture macFuture;
-        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(macAddressRest, rollbacks);
+        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(rollbacks);
 
         if (portState.getMacAddress() == null) {
             macFuture = AsyncExecutor.execute(macAddressRestWrap::allocateMacAddress, portState);
@@ -143,7 +124,6 @@ public class PortServiceImpl implements PortService {
         //Persist portState
         portRepository.addItem(portState);
     }
-
 
     public PortStateJson createPortState(String projectId, PortStateJson portStateJson) throws Exception {
         LOG.debug("Create port state, projectId: {}, PortStateJson: {}", projectId, portStateJson);
@@ -215,7 +195,6 @@ public class PortServiceImpl implements PortService {
         return addFixedIps;
     }
 
-
     private void updateSecurityGroup(PortState portState, PortState oldPortState) throws Exception {
         String deviceOwner = portState.getDeviceOwner();
 
@@ -277,7 +256,7 @@ public class PortServiceImpl implements PortService {
         CompletableFuture ipReleaseFuture = null;
         CompletableFuture ipVerifyFuture = null;
         List<PortState.FixedIp> fixedIps = portState.getFixedIps();
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, projectId);
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, projectId);
 
         if (fixedIps != null) {
             List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
@@ -345,8 +324,8 @@ public class PortServiceImpl implements PortService {
     }
 
     private void tryDeletePortState(PortState portState, String portId, Stack<PortStateRollback> rollbacks) throws Exception {
-        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(ipAddressRest, subnetRest, rollbacks, portState.getProjectId());
-        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(macAddressRest, rollbacks);
+        IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, portState.getProjectId());
+        MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(rollbacks);
 
         //Release ip address
         //releaseIpAddressBulk(portState.getFixedIps(), rollbacks);

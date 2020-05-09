@@ -18,21 +18,13 @@ package com.futurewei.alcor.web.rest;
 import com.futurewei.alcor.web.entity.MacState;
 import com.futurewei.alcor.web.entity.MacStateJson;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
-import org.springframework.stereotype.Component;
 
-@Component
 @Configuration
 public class MacAddressRest extends AbstractRest {
     @Value("${microservices.mac.service.url:#{\"\"}}")
     private String macManagerUrl;
-
-    @Bean
-    public MacAddressRest macAddressRestInstance() {
-        return new MacAddressRest();
-    }
 
     private void verifyAllocatedMacAddress(MacStateJson result) throws Exception {
         if (result == null || result.getMacState() == null ||

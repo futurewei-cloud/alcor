@@ -16,21 +16,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.restwrap;
 
 import com.futurewei.alcor.portmanager.rollback.*;
-import com.futurewei.alcor.web.entity.IpAddrRequest;
+import com.futurewei.alcor.portmanager.utils.BeanUtil;
 import com.futurewei.alcor.web.entity.MacState;
 import com.futurewei.alcor.web.entity.MacStateJson;
 import com.futurewei.alcor.web.entity.PortState;
 import com.futurewei.alcor.web.rest.MacAddressRest;
-
 import java.util.Stack;
-
 
 public class MacAddressRestWrap {
     private MacAddressRest macAddressRest;
     private Stack<PortStateRollback> rollbacks;
 
-    public MacAddressRestWrap(MacAddressRest macAddressRest, Stack<PortStateRollback> rollbacks) {
-        this.macAddressRest = macAddressRest;
+    public MacAddressRestWrap(Stack<PortStateRollback> rollbacks) {
+        macAddressRest = BeanUtil.getBean(MacAddressRest.class);
         this.rollbacks = rollbacks;
     }
 

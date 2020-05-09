@@ -17,20 +17,12 @@ package com.futurewei.alcor.web.rest;
 
 import com.futurewei.alcor.web.entity.VpcStateJson;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
-@Component
 @Configuration
 public class VpcRest extends AbstractRest {
     @Value("${microservices.vpc.service.url:#{\"\"}}")
     private String vpcManagerUrl;
-
-    @Bean
-    public VpcRest vpcRestInstance() {
-        return new VpcRest();
-    }
 
     public VpcStateJson verifyVpc(String projectId, String vpcId) throws Exception {
         String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;

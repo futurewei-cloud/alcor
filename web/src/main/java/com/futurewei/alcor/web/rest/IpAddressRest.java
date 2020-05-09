@@ -19,24 +19,15 @@ import com.futurewei.alcor.web.entity.IpAddrRequest;
 import com.futurewei.alcor.web.entity.IpAddrRequestBulk;
 import com.futurewei.alcor.web.entity.IpAddrState;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 
-@Component
 @Configuration
 public class IpAddressRest extends AbstractRest {
     @Value("${microservices.ip.service.url:#{\"\"}}")
     private String ipManagerUrl;
-
-    @Bean
-    public IpAddressRest ipAddressRestInstance() {
-        return new IpAddressRest();
-    }
 
     private void verifyAllocatedIpAddr(IpAddrRequest result) throws Exception {
         if (result == null || result.getIp() == null ||
