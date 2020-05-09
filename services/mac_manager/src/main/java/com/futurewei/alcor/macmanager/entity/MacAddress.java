@@ -85,6 +85,8 @@ public class MacAddress {
         return Long.valueOf(mac, 16);
     }
 
+
+
     public String getMacAddress() {
         String strMacAddress = oui + MAC_DELIMITER + nic;
         return strMacAddress;
