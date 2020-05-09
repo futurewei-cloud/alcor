@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.restwrap.IpAddressRestWrap;
 import com.futurewei.alcor.portmanager.restwrap.MacAddressRestWrap;
+import com.futurewei.alcor.portmanager.restwrap.NodeRestWrap;
 import com.futurewei.alcor.portmanager.restwrap.VpcRestWrap;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
@@ -116,7 +117,11 @@ public class PortServiceImpl implements PortService {
 
         //Verify security group
 
-        //If port binds host, to send it's information to host
+        //Verify Binding Host ID
+        if (portState.getBindingHostId() != null) {
+            NodeRestWrap nodeRestWrap = new NodeRestWrap(rollbacks);
+            nodeRestWrap.verifyHost(portState.getBindingHostId());
+        }
 
         //Wait for all async functions to finish
         CompletableFuture.allOf(vpcFuture, ipFuture, macFuture).join();
@@ -264,12 +269,10 @@ public class PortServiceImpl implements PortService {
             List<PortState.FixedIp> addFixedIps = fixedIpsCompare(fixedIps, oldFixedIps);
             List<PortState.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
 
-            //releaseIpAddressBulk(delFixedIps, rollbacks);
             if (delFixedIps.size() > 0) {
                 ipReleaseFuture = AsyncExecutor.execute(ipAddressRestWrap::releaseIpAddressBulk, delFixedIps);
             }
 
-            //verifyIpAddresses(addFixedIps, rollbacks);
             if (addFixedIps.size() > 0) {
                 ipVerifyFuture = AsyncExecutor.execute(ipAddressRestWrap::verifyIpAddresses, addFixedIps);
             }
@@ -289,8 +292,13 @@ public class PortServiceImpl implements PortService {
         //Update extra_dhcp_opts
         UpdateExtraDhcpOpts(portState, oldPortState);
 
-        //Update port to host
-        updatePortToHost(portState);
+        //Update binding:host_id
+        if (portState.getBindingHostId() != null) {
+            NodeRestWrap nodeRestWrap = new NodeRestWrap(rollbacks);
+            nodeRestWrap.verifyHost(portState.getBindingHostId());
+        }
+
+        oldPortState.setBindingHostId(portState.getBindingHostId());
 
         //Wait for all async functions to finish
         if (ipReleaseFuture != null) {
@@ -328,14 +336,12 @@ public class PortServiceImpl implements PortService {
         MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(rollbacks);
 
         //Release ip address
-        //releaseIpAddressBulk(portState.getFixedIps(), rollbacks);
         CompletableFuture ipFuture = null;
         if (portState.getFixedIps() != null && portState.getFixedIps().size() > 0) {
             ipFuture = AsyncExecutor.execute(ipAddressRestWrap::releaseIpAddressBulk, portState.getFixedIps());
         }
 
         //Release mac address
-        //releaseMacAddress(projectId, portState, rollbacks);
         CompletableFuture macFuture = null;
         if (portState.getMacAddress() != null && !"".equals(portState.getMacAddress())) {
             macFuture = AsyncExecutor.execute(macAddressRestWrap::releaseMacAddress, portState);
