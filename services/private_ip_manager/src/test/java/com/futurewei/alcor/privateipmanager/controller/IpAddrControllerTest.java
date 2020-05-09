@@ -16,11 +16,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.privateipmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
+import com.futurewei.alcor.privateipmanager.config.UnitTestConfig;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,17 +43,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-public class IpAddrControllerTest {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class IpAddrControllerTest extends MockIgniteServer {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void createIpAddrRangeTest() throws Exception {
-        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest("range1", "subnet1", 4, "11.11.11.1", "11.11.11.254");
+    public void Test01_createIpAddrRangeTest() throws Exception {
+        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest(
+                UnitTestConfig.rangeId,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.firstIp,
+                UnitTestConfig.lastIp);
+
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRangeJson = objectMapper.writeValueAsString(ipAddrRangeRequest);
 
-        this.mockMvc.perform(post("/ips/range/")
+        this.mockMvc.perform(post(UnitTestConfig.ipRangeUrl)
                 .content(ipAddrRangeJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -57,44 +68,108 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    public void deleteIpAddrRangeTest() throws Exception {
-        this.mockMvc.perform(delete("/ips/range/range1"))
+    public void Test02_getIpAddrRangeTest() throws Exception {
+        this.mockMvc.perform(get(UnitTestConfig.ipRangeUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void getIpAddrRangeTest() throws Exception {
-        this.mockMvc.perform(get("/ips/range/range1"))
+    public void Test03_listIpAddrRangeTest() throws Exception {
+        this.mockMvc.perform(get(UnitTestConfig.ipRangeUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void listIpAddrRangeTest() throws Exception {
-        this.mockMvc.perform(get("/ips/range/"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    public void Test04_allocateIpAddrTest() throws Exception {
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                null,
+                null);
 
-    @Test
-    public void allocateIpAddrTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", null, null);
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
 
-        this.mockMvc.perform(post("/ips")
+        this.mockMvc.perform(post(UnitTestConfig.ipAddrUrl)
                 .content(ipAddrRequestJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
 
+
     @Test
-    public void allocateIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", null, null);
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", null, null);
-        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4, null, "range2", null, null);
+    public void Test05_getIpAddrTest() throws Exception {
+        this.mockMvc.perform(get(UnitTestConfig.ipAddrUrl + "/" +
+                UnitTestConfig.rangeId + "/" + UnitTestConfig.ip1))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Test06_deactivateIpAddrStateTest() throws Exception {
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip1,
+                UnitTestConfig.deactivated);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
+
+        this.mockMvc.perform(put(UnitTestConfig.ipAddrUrl)
+                .content(ipAddrRequestJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test07_activateIpAddrStateTest() throws Exception {
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip1,
+                UnitTestConfig.activated);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
+
+        this.mockMvc.perform(put(UnitTestConfig.ipAddrUrl)
+                .content(ipAddrRequestJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test08_releaseIpAddrTest() throws Exception {
+        this.mockMvc.perform(delete(UnitTestConfig.ipAddrUrl + "/" +
+                UnitTestConfig.rangeId + "/" + UnitTestConfig.ip1))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Test09_allocateIpAddrBulkTest() throws Exception {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                null,
+                null);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                null,
+                null);
+        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                null,
+                null);
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -107,7 +182,7 @@ public class IpAddrControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
 
-        this.mockMvc.perform(post("/ips/bulk")
+        this.mockMvc.perform(post(UnitTestConfig.ipAddrBulkUrl)
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -115,86 +190,26 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    public void activateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", "11.11.11.1", "activated");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
-
-        this.mockMvc.perform(put("/ips")
-                .content(ipAddrRequestJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void activateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "activated");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "activated");
-
-        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        ipAddrRequests.add(ipAddrRequest1);
-        ipAddrRequests.add(ipAddrRequest2);
-
-        IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
-
-        this.mockMvc.perform(put("/ips/bulk")
-                .content(ipAddrRequestBulkJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void deactivateIpAddrStateTest() throws Exception {
-        IpAddrRequest ipAddrRequest = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivated");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String ipAddrRequestJson = objectMapper.writeValueAsString(ipAddrRequest);
-
-        this.mockMvc.perform(put("/ips")
-                .content(ipAddrRequestJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void deactivateIpAddrStateBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivated");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "deactivated");
-
-        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        ipAddrRequests.add(ipAddrRequest1);
-        ipAddrRequests.add(ipAddrRequest2);
-
-        IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
-        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
-
-        this.mockMvc.perform(put("/ips/bulk")
-                .content(ipAddrRequestBulkJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void releaseIpAddrTest() throws Exception {
-        this.mockMvc.perform(delete("/ips/4/range1/11.11.11.1"))
+    public void Test10_listIpAddrTest() throws Exception {
+        this.mockMvc.perform(get(UnitTestConfig.ipAddrUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void releaseIpAddrBulkTest() throws Exception {
-        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4, null, "range1", "11.11.11.1", "deactivate");
-        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4, null, "range1", "11.11.11.2", "deactivate");
+    public void Test11_deactivateIpAddrStateBulkTest() throws Exception {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip2,
+                UnitTestConfig.deactivated);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip3,
+                UnitTestConfig.deactivated);
 
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         ipAddrRequests.add(ipAddrRequest1);
@@ -206,7 +221,7 @@ public class IpAddrControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
 
-        this.mockMvc.perform(delete("/ips/bulk")
+        this.mockMvc.perform(put(UnitTestConfig.ipAddrBulkUrl)
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -214,15 +229,72 @@ public class IpAddrControllerTest {
     }
 
     @Test
-    public void getIpAddrTest() throws Exception {
-        this.mockMvc.perform(get("/ips/4/range1/11.11.11.1"))
-                .andDo(print())
-                .andExpect(status().isOk());
+    public void Test12_activateIpAddrStateBulkTest() throws Exception {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip2,
+                UnitTestConfig.activated);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip3,
+                UnitTestConfig.activated);
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        ipAddrRequests.add(ipAddrRequest1);
+        ipAddrRequests.add(ipAddrRequest2);
+
+        IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
+
+        this.mockMvc.perform(put(UnitTestConfig.ipAddrBulkUrl)
+                .content(ipAddrRequestBulkJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
     @Test
-    public void listIpAddrTest() throws Exception {
-        this.mockMvc.perform(get("/ips/4/range1"))
+    public void Test13_releaseIpAddrBulkTest() throws Exception {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip2,
+                null);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
+                UnitTestConfig.ipVersion,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip3,
+                null);
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        ipAddrRequests.add(ipAddrRequest1);
+        ipAddrRequests.add(ipAddrRequest2);
+
+        IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
+
+        this.mockMvc.perform(delete(UnitTestConfig.ipAddrBulkUrl)
+                .content(ipAddrRequestBulkJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test14_deleteIpAddrRangeTest() throws Exception {
+        this.mockMvc.perform(delete(UnitTestConfig.ipRangeUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
