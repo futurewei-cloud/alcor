@@ -109,4 +109,36 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
 
         return ipBigInt.compareTo(firstIp) >= 0 && ipBigInt.compareTo(lastIp) <= 0;
     }
+
+    public BitSet getBitSet() {
+        return bitSet;
+    }
+
+    public void setBitSet(BitSet bitSet) {
+        this.bitSet = bitSet;
+    }
+
+    public BigInteger getFirstIp() {
+        return firstIp;
+    }
+
+    public void setFirstIp(BigInteger firstIp) {
+        this.firstIp = firstIp;
+    }
+
+    public BigInteger getLastIp() {
+        return lastIp;
+    }
+
+    public void setLastIp(BigInteger lastIp) {
+        this.lastIp = lastIp;
+    }
+
+    public long getIpAddrNum() {
+        return ipAddrNum;
+    }
+
+    public void setIpAddrNum(long ipAddrNum) {
+        this.ipAddrNum = ipAddrNum;
+    }
 }

@@ -104,4 +104,36 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
 
         return ipLong >= firstIp && ipLong <= lastIp;
     }
+
+    public BitSet getBitSet() {
+        return bitSet;
+    }
+
+    public void setBitSet(BitSet bitSet) {
+        this.bitSet = bitSet;
+    }
+
+    public long getFirstIp() {
+        return firstIp;
+    }
+
+    public void setFirstIp(long firstIp) {
+        this.firstIp = firstIp;
+    }
+
+    public long getLastIp() {
+        return lastIp;
+    }
+
+    public void setLastIp(long lastIp) {
+        this.lastIp = lastIp;
+    }
+
+    public long getIpAddrNum() {
+        return ipAddrNum;
+    }
+
+    public void setIpAddrNum(long ipAddrNum) {
+        this.ipAddrNum = ipAddrNum;
+    }
 }
