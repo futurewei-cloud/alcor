@@ -15,12 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import com.futurewei.alcor.nodemanager.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
-import com.futurewei.alcor.nodemanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -133,7 +134,7 @@ public class NodeController {
         try {
             NodeInfo inNodeInfo = resource.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
-            RestPreconditionsUtil.verifyParameterValid(nodeid, inNodeInfo);
+            RestPreconditionsUtil.verifyParameterValid(nodeid, inNodeInfo.getId());
             hostInfo = service.updateNodeInfo(nodeid, inNodeInfo);
             if (hostInfo == null) {
                 throw new ResourcePersistenceException();

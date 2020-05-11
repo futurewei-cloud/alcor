@@ -94,7 +94,7 @@ public class NodeControllerTest {
 
     @Test
     public void test_getNodeInfoFromUpload() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "@/mnt/dev/alcor/config/machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}" .getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "@./machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}" .getBytes());
         this.mockMvc.perform(MockMvcRequestBuilders.multipart("/nodes/upload")
                 .file(file))
                 .andDo(print())
@@ -112,8 +112,7 @@ public class NodeControllerTest {
         this.mockMvc.perform(post("/nodes")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andDo(print());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -128,8 +127,7 @@ public class NodeControllerTest {
         this.mockMvc.perform(put("/nodes/h01")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -143,23 +141,36 @@ public class NodeControllerTest {
     }
 
     @Test
-    public void test_getAllNodes() throws Exception {
-        byte[] ip1 = new byte[]{10, 0, 0, 5};
-        NodeInfo nodeInfo1 = new NodeInfo("h05", "host5", ip1, "AA-BB-CC-05-05-05");
-        createNodeInfo(nodeInfo1);
-        byte[] ip2 = new byte[]{10, 0, 0, 6};
-        NodeInfo nodeInfo2 = new NodeInfo("h06", "host6", ip2, "AA-BB-CC-06-06-06");
-        createNodeInfo(nodeInfo2);
-        this.mockMvc.perform(get("/nodes"))
-                .andDo(print())
+    public void deleteNodeInfo() throws Exception {
+        String strNodeId = "h00";
+        this.mockMvc.perform(delete("/nodes/" + strNodeId))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void deleteNodeInfo() throws Exception {
-        String strNodeId = "h00";
-        this.mockMvc.perform(delete("/nodes/" + strNodeId))
-                .andDo(print())
-                .andExpect(status().isOk());
+    public void test_createNodeInfo_invalidInput() throws Exception {
+        byte[] ip = new byte[]{10, 0, 0, 1};
+        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
+        NodeInfoJson nodeInfoJson = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(nodeInfoJson);
+        this.mockMvc.perform(post("/nodes")
+                .content(json)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateNodeInfo_invalidInput() throws Exception {
+        InetAddress address2 = InetAddress.getByName("10.0.0.2");
+        byte[] ip = new byte[]{10, 0, 0, 2};
+        NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
+        NodeInfoJson nodeInfoJson = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(nodeInfoJson);
+        this.mockMvc.perform(put("/nodes/h01")
+                .content(json)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

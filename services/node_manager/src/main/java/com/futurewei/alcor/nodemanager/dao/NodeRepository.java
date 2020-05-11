@@ -60,17 +60,17 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         return cache.getAll();
     }
 
-    @Override
-    public void addItem(NodeInfo nodeInfo) throws CacheException {
-        logger.info("Add node, Node Id:" + nodeInfo.getId());
-        cache.put(nodeInfo.getId(), nodeInfo);
-    }
-
-    @Override
-    public void deleteItem(String id) throws CacheException {
-        logger.info("Delete node, Node Id:" + id);
-        cache.remove(id);
-    }
+//    @Override
+//    public void addItem(NodeInfo nodeInfo) throws CacheException {
+//        logger.info("Add node, Node Id:" + nodeInfo.getId());
+//        cache.put(nodeInfo.getId(), nodeInfo);
+//    }
+//
+//    @Override
+//    public void deleteItem(String id) throws CacheException {
+//        logger.info("Delete node, Node Id:" + id);
+//        cache.remove(id);
+//    }
 
     /**
      * add a new node info to node repository
@@ -79,13 +79,15 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
      * @return void
      * @throws Exception Db or cache operation exception
      */
-    public void addItemTransaction(NodeInfo nodeInfo) throws Exception {
+    @Override
+    public void addItem(NodeInfo nodeInfo) throws CacheException {
         logger.info("Add node, Node Id:" + nodeInfo.getId());
         try (Transaction tx = cache.getTransaction().start()) {
             cache.put(nodeInfo.getId(), nodeInfo);
             tx.commit();
-        } catch (Exception e) {
+        } catch (CacheException e) {
             throw e;
+        } catch (Exception e) {
         }
     }
 
@@ -96,25 +98,30 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
      * @return void
      * @throws Exception Db or cache operation exception
      */
-    public void addItemBulkTransaction(List<NodeInfo> nodes) throws Exception {
+    public void addItemBulkTransaction(List<NodeInfo> nodes) throws CacheException {
         logger.info("Add nodes: " + nodes.size());
         try (Transaction tx = cache.getTransaction().start()) {
             for (NodeInfo node : nodes) {
                 cache.put(node.getId(), node);
             }
             tx.commit();
-        } catch (Exception e) {
+        } catch (CacheException e) {
             throw e;
+        }catch (Exception e) {
+
         }
     }
 
-    public void deleteItemTransaction(String id) throws Exception {
+    @Override
+    public void deleteItem(String id) throws CacheException {
         logger.info("Delete node, Node Id:" + id);
         try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(id);
             tx.commit();
         } catch (CacheException e) {
             throw e;
+        }catch(Exception e) {
+
         }
     }
 }

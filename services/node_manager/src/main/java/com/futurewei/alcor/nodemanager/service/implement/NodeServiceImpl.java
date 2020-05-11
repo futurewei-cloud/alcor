@@ -44,7 +44,7 @@ public class NodeServiceImpl implements NodeService {
         List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
         try {
             Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            NodeConfigLoader dataCenterConfigLoader = new NodeConfigLoader();
+            NodeFileLoader dataCenterConfigLoader = new NodeFileLoader();
             nodeList = dataCenterConfigLoader.getHostNodeListFromUpload(reader);
             if (nodeList != null) {
                 nodeRepository.addItemBulkTransaction(nodeList);
@@ -59,7 +59,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public int getNodeInfoFromFile(String path) throws Exception {
         int nReturn = 0;
-        NodeConfigLoader dataCenterConfigLoader = new NodeConfigLoader();
+        NodeFileLoader dataCenterConfigLoader = new NodeFileLoader();
         List<NodeInfo> nodeList = dataCenterConfigLoader.loadAndGetHostNodeList(path);
         if (nodeList != null) {
             nodeRepository.addItemBulkTransaction(nodeList);
@@ -97,13 +97,9 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeInfo.getId());
-//        if (node != null) {
-//            if (nodeInfo.getId().equals(node.getId()))
-//                throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_ALREADY_EXISTING));
-//        }
         if (nodeInfo != null) {
             try {
-                nodeRepository.addItemTransaction(nodeInfo);
+                nodeRepository.addItem(nodeInfo);
             } catch (Exception e) {
                 throw e;
             }
@@ -123,7 +119,7 @@ public class NodeServiceImpl implements NodeService {
         }
         if (nodeInfo != null) {
             try {
-                nodeRepository.addItemTransaction(nodeInfo);
+                nodeRepository.addItem(nodeInfo);
             } catch (Exception e) {
                 throw e;
             }

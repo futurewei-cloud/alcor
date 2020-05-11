@@ -34,10 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class NodeConfigLoader {
-    private static final Logger logger = LoggerFactory.getLogger(NodeConfigLoader.class);
+public class NodeFileLoader {
+    private static final Logger logger = LoggerFactory.getLogger(NodeFileLoader.class);
 
-    public NodeConfigLoader() {
+    public NodeFileLoader() {
     }
 
     public List<NodeInfo> getHostNodeListFromUpload(Reader reader) {

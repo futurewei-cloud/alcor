@@ -14,11 +14,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.nodemanager.utils;
+package com.futurewei.alcor.common.utils;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
-import com.futurewei.alcor.nodemanager.entity.NodeInfo;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {
@@ -28,14 +27,14 @@ public class RestPreconditionsUtil {
         }
     }
 
-    public static void verifyParameterNotNullorEmpty(NodeInfo resource) throws ParameterNullOrEmptyException {
+    public static void verifyParameterNotNullorEmpty(Object resource) throws ParameterNullOrEmptyException {
         if (resource == null) {
             throw new ParameterNullOrEmptyException("null parameter");
         }
     }
 
-    public static void verifyParameterValid(String id, NodeInfo resource) throws ParameterUnexpectedValueException {
-        if (id.equals(resource.getId()) == false) {
+    public static void verifyParameterValid(String parameterId, String resourceId) throws ParameterUnexpectedValueException {
+        if (parameterId.equals(resourceId) == false) {
             throw new ParameterUnexpectedValueException("parameter values are not valid: parameter id and request body resource id  should be same.");
         }
     }
