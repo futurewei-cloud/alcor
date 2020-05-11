@@ -48,7 +48,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
-    public RouteStateJson getRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
+    public RouteStateJson getRuleByVpcId(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
 
         RouteState routeState = null;
 
@@ -68,6 +68,32 @@ public class RouteController {
         }
 
         return new RouteStateJson(routeState);
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/subnrts/{subnetId}/routes/{routeId}"})
+    public RouteStateJson getRuleBySubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
+
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
+
+            routeState = this.routeDatabaseService.getByRouteId(routeId);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+
+        if (routeState == null) {
+            //TODO: REST error code
+            return new RouteStateJson();
+        }
+
+        return new RouteStateJson(routeState);
+
     }
 
     @RequestMapping(
