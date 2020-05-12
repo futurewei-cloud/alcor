@@ -12,18 +12,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.nodemanager.entity;
+package com.futurewei.alcor.web.entity;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +37,7 @@ public class NodeInfo implements Serializable {
     private String name;
 
     @JsonProperty("local_ip")
-    private InetAddress localIp;
+    private String localIp;
 
     @JsonProperty("mac_address")
     private String macAddress;
@@ -59,41 +56,45 @@ public class NodeInfo implements Serializable {
         this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort);
     }
 
-    public NodeInfo(String id, String name, InetAddress localIp, String macAddress, String veth, int gRPCServerPort) {
-        this.id = id;
-        this.name = name;
-        this.localIp = localIp;
-        this.macAddress = macAddress;
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort) {
+        this(id, name, localIp, macAddress);
         this.veth = veth;
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, byte[] ipAddress, String macAddress, int gRPCServerPort) {
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort) {
         this(nodeId, nodeName, ipAddress, macAddress);
         this.veth = "";
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, byte[] ipAddress, String macAddress) {
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress) {
         this.id = nodeId;
         this.name = nodeName;
-        try {
-            this.localIp = InetAddress.getByAddress(ipAddress);
-            if (this.validate(macAddress)) {
-                this.macAddress = macAddress;
-            } else {
-                this.macAddress = "";
-            }
-        } catch (UnknownHostException e) {
-            logger.error(NodeManagerConstant.NODE_EXCEPTION_NODE_IP_INVALID + ipAddress, e);
+        if (this.validateIp(ipAddress)) {
+            this.localIp = ipAddress;
+        } else {
+            this.localIp = "";
+        }
+
+        if (this.validateMac(macAddress)) {
+            this.macAddress = macAddress;
+        } else {
+            this.macAddress = "";
         }
         this.veth = "";
-        this.gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
+        this.gRPCServerPort = 0;
     }
 
-    private boolean validate(String mac) {
+    public boolean validateMac(String mac) {
         Pattern p = Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$");
         Matcher m = p.matcher(mac);
+        return m.find();
+    }
+
+    public boolean validateIp(String ip) {
+        Pattern p = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+        Matcher m = p.matcher(ip);
         return m.find();
     }
 }

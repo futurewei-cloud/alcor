@@ -16,7 +16,7 @@ package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
-import com.futurewei.alcor.nodemanager.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.*;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import org.slf4j.Logger;
@@ -52,18 +52,6 @@ public class NodeServiceImpl implements NodeService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return nReturn;
-    }
-
-    @Override
-    public int getNodeInfoFromFile(String path) throws Exception {
-        int nReturn = 0;
-        NodeFileLoader dataCenterConfigLoader = new NodeFileLoader();
-        List<NodeInfo> nodeList = dataCenterConfigLoader.loadAndGetHostNodeList(path);
-        if (nodeList != null) {
-            nodeRepository.addItemBulkTransaction(nodeList);
-            nReturn = nodeList.size();
         }
         return nReturn;
     }

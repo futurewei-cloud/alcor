@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.nodemanager.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +60,6 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         return cache.getAll();
     }
 
-//    @Override
-//    public void addItem(NodeInfo nodeInfo) throws CacheException {
-//        logger.info("Add node, Node Id:" + nodeInfo.getId());
-//        cache.put(nodeInfo.getId(), nodeInfo);
-//    }
-//
-//    @Override
-//    public void deleteItem(String id) throws CacheException {
-//        logger.info("Delete node, Node Id:" + id);
-//        cache.remove(id);
-//    }
-
     /**
      * add a new node info to node repository
      *
@@ -107,7 +95,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
             tx.commit();
         } catch (CacheException e) {
             throw e;
-        }catch (Exception e) {
+        } catch (Exception e) {
 
         }
     }
@@ -120,7 +108,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
             tx.commit();
         } catch (CacheException e) {
             throw e;
-        }catch(Exception e) {
+        } catch (Exception e) {
 
         }
     }

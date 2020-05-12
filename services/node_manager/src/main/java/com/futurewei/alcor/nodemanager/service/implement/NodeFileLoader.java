@@ -16,7 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.nodemanager.service.implement;
 
-import com.futurewei.alcor.nodemanager.entity.NodeInfo;
+import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
+import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -25,14 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class NodeFileLoader {
     private static final Logger logger = LoggerFactory.getLogger(NodeFileLoader.class);
@@ -49,7 +47,12 @@ public class NodeFileLoader {
             JSONArray nodeList = (JSONArray) obj.get("Hosts");
 
             nodeList.forEach(node -> {
-                NodeInfo hostNode = this.parseNodeObject((JSONObject) node);
+                NodeInfo hostNode = null;
+                try {
+                    hostNode = this.parseNodeObject((JSONObject) node);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 if (hostNode != null) nodeInfos.add(hostNode);
             });
         } catch (FileNotFoundException e) {
@@ -62,53 +65,29 @@ public class NodeFileLoader {
         return nodeInfos;
     }
 
-    public List<NodeInfo> loadAndGetHostNodeList(String machineConfigFilePath) {
-        JSONParser jsonParser = new JSONParser();
-        List<NodeInfo> nodeInfos = new ArrayList<>();
-        logger.info(this.getClass().getName(), "loadAndGetHostNodeList(String machineConfigFilePath)");
-        try (FileReader reader = new FileReader(machineConfigFilePath)) {
-            JSONObject obj = (JSONObject) jsonParser.parse(reader);
-            JSONArray nodeList = (JSONArray) obj.get("Hosts");
-
-            nodeList.forEach(node -> {
-                NodeInfo hostNode = this.parseNodeObject((JSONObject) node);
-                if (hostNode != null) nodeInfos.add(hostNode);
-            });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return nodeInfos;
-    }
-
-    private NodeInfo parseNodeObject(JSONObject node) {
-        String id = (String) node.get("id");
-        String ip = (String) node.get("ip");
-        String mac = (String) node.get("mac");
-        byte[] ipByteArray;
+    private NodeInfo parseNodeObject(JSONObject nodeJson) throws InvalidDataException {
+        NodeInfo node = null;
+        String id = (String) nodeJson.get("id");
+        String ip = (String) nodeJson.get("ip");
+        String mac = (String) nodeJson.get("mac");
+        String veth = (String) nodeJson.get("veth");
+        int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
-            ipByteArray = fromIpAddressStringToByteArray(ip);
-            return new NodeInfo(id, id, ipByteArray, mac);
-        } catch (UnknownHostException e) {
-            logger.error("UnknownHostException");
+            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort);
+            String message = "";
+            if (node.validateIp(ip) == false)
+                message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
+            if (node.validateMac(mac) == false) ;
+            {
+                if (message != null)
+                    message.concat(" & ");
+                message.concat(NodeManagerConstant.NODE_EXCEPTION_MAC_FORMAT_INVALID);
+            }
+            if (message != null)
+                throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
+        } catch (Exception e) {
+            throw e;
         }
-        return null;
-    }
-
-    public byte[] fromIpAddressStringToByteArray(String ipAddressString) throws UnknownHostException {
-        InetAddress ip = InetAddress.getByName(ipAddressString);
-        byte[] bytes = ip.getAddress();
-        return bytes;
-    }
-
-    public int getRandomNumberInRange(int min, int max) {
-        if (min >= max) {
-            throw new IllegalArgumentException("Max must be greater than min");
-        }
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
+        return node;
     }
 }

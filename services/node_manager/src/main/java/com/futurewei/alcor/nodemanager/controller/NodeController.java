@@ -15,10 +15,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.nodemanager.entity.NodeInfo;
-import com.futurewei.alcor.nodemanager.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
@@ -52,22 +51,6 @@ public class NodeController {
             nNode = service.getNodeInfoFromUpload(file);
         } catch (Exception e) {
             throw e;
-        }
-        return "{Total nodes: " + nNode + "}";
-    }
-
-    @RequestMapping(
-            method = GET,
-            value = {"/nodes/path/{path}/**", "/v4/nodes/path/{path}/**"})
-    public String getNodeInfoFromFile(@PathVariable String path, HttpServletRequest request) throws Exception {
-        int nNode = 0;
-        String restOfTheUrl = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String strPath = restOfTheUrl.substring(12);
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(strPath);
-            nNode = service.getNodeInfoFromFile(strPath);
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
         }
         return "{Total nodes: " + nNode + "}";
     }

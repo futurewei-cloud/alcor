@@ -21,9 +21,10 @@ public class NodeManagerConstant {
 
     //Exception Messages
     public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";
-    public static final String NODE_EXCEPTION_NODE_IP_INVALID = "Invalid ip address";
     public static final String NODE_EXCEPTION_NODE_NOT_EXISTING = "The node to update or delete is not existing.";
     public static final String NODE_EXCEPTION_NODE_ALREADY_EXISTING = "The node to create is already existing.";
     public static final String NODE_EXCEPTION_FILE_EMPTY = "The file is empty";
+    public static final String NODE_EXCEPTION_IP_FORMAT_INVALID = "Invalid IP address format";
+    public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
 }
 

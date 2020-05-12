@@ -12,30 +12,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.nodemanager.entity;
+package com.futurewei.alcor.nodemanager.exception;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
-@Data
-public class NodeInfoJson {
-
-    @JsonProperty("host_info")
-    private NodeInfo nodeInfo;
-
-    public NodeInfoJson() {
-
+public class InvalidDataException extends Exception {
+    public InvalidDataException() {
     }
 
-    public NodeInfoJson(NodeInfo nodeInfo) {
-        this.nodeInfo = nodeInfo;
+    public InvalidDataException(String message) {
+        super(message);
     }
 
-    public NodeInfo getNodeInfo() {
-        return nodeInfo;
+    public InvalidDataException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void setNodeInfo(NodeInfo nodeInfo) {
-        this.nodeInfo = nodeInfo;
+    public InvalidDataException(Throwable cause) {
+        super(cause);
     }
 }
