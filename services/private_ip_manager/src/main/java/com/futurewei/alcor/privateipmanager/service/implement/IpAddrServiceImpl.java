@@ -183,6 +183,10 @@ public class IpAddrServiceImpl implements IpAddrService {
     public IpAddrRangeRequest createIpAddrRange(IpAddrRangeRequest request) throws Exception {
         LOG.debug("Create ip address range, request: {}", request);
 
+        if (request.getId() == null) {
+            request.setId(UUID.randomUUID().toString());
+        }
+
         ipAddrRangeRepo.createIpAddrRange(request);
 
         LOG.info("Create ip address range success, request: {}", request);
@@ -193,7 +197,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     public void deleteIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
-        IpAddrRange ipAddrRange = ipAddrRangeRepo.deleteIpAddrRange(rangeId);
+        ipAddrRangeRepo.deleteIpAddrRange(rangeId);
 
         LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
@@ -210,6 +214,7 @@ public class IpAddrServiceImpl implements IpAddrService {
 
         IpAddrRangeRequest result = new IpAddrRangeRequest();
         result.setId(ipAddrRange.getId());
+        result.setVpcId(ipAddrRange.getVpcId());
         result.setSubnetId(ipAddrRange.getSubnetId());
         result.setIpVersion(ipAddrRange.getIpVersion());
         result.setFirstIp(ipAddrRange.getFirstIp());
@@ -229,6 +234,7 @@ public class IpAddrServiceImpl implements IpAddrService {
         ipAddrRangeMap.forEach((k,v) -> {
             IpAddrRangeRequest range = new IpAddrRangeRequest();
             range.setId(v.getId());
+            range.setVpcId(v.getVpcId());
             range.setSubnetId(v.getSubnetId());
             range.setIpVersion(v.getIpVersion());
             range.setFirstIp(v.getFirstIp());

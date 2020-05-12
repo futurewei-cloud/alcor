@@ -70,10 +70,13 @@ public class PortServiceImpl implements PortService {
         //FIXME: Not support yet
     }
 
-    private void rollBackAllOperations(Stack<PortStateRollback> rollbacks)
-            throws Exception {
+    private void rollBackAllOperations(Stack<PortStateRollback> rollbacks) {
         while (!rollbacks.isEmpty()) {
-            rollbacks.pop().doRollback();
+            try {
+                rollbacks.pop().doRollback();
+            } catch (Exception e) {
+                LOG.error("Roll back failed: {}", e);
+            }
         }
     }
 

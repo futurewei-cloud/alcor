@@ -19,6 +19,7 @@ public class UnitTestConfig {
     public static String ipAddrUrl = "/ips";
     public static String ipAddrBulkUrl = "/ips/bulk";
     public static String ipRangeUrl = "/ips/range";
+    public static String vpcId = "3d53801c-32ce-4e97-9572-bb966fab628";
     public static String subnetId = "3d53801c-32ce-4e97-9572-bb966f4d175e";
     public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f476ec";
     public static String activated = "activated";

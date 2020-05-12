@@ -38,6 +38,12 @@ public class IpAddrController {
     @Autowired
     IpAddrServiceImpl ipAddrService;
 
+    private void checkVpcId(String vpcId) throws VpcIdInvalidException {
+        if (vpcId == null || "".equals(vpcId)) {
+            throw new VpcIdInvalidException();
+        }
+    }
+
     private void checkRangeId(String rangeId) throws IpRangeIdInvalidException {
         if (rangeId == null || "".equals(rangeId)) {
             throw new IpRangeIdInvalidException();
@@ -81,10 +87,21 @@ public class IpAddrController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
-        checkRangeId(request.getRangeId());
+        if (request.getVpcId() == null && request.getRangeId() == null) {
+            throw new IpRangeIdInvalidException();
+        }
 
-        if (request.getIp() != null) {
-            checkIpAddr(request.getIp());
+        if (request.getVpcId() != null) {
+            checkVpcId(request.getVpcId());
+            checkIpVersion(request.getIpVersion());
+        }
+
+        if (request.getRangeId() != null) {
+            checkRangeId(request.getRangeId());
+
+            if (request.getIp() != null) {
+                checkIpAddr(request.getIp());
+            }
         }
 
         return ipAddrService.allocateIpAddr(request);
@@ -164,7 +181,7 @@ public class IpAddrController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
-        checkRangeId(request.getId());
+        checkVpcId(request.getVpcId());
         checkSubnetId(request.getSubnetId());
         checkIpAddr(request.getFirstIp());
         checkIpAddr(request.getLastIp());

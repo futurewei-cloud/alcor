@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.rest;
 import com.futurewei.alcor.web.entity.IpAddrRequest;
 import com.futurewei.alcor.web.entity.IpAddrRequestBulk;
 import com.futurewei.alcor.web.entity.IpAddrState;
+import com.futurewei.alcor.web.entity.IpVersion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -45,10 +46,23 @@ public class IpAddressRest extends AbstractRest {
         }
     }
 
-    public IpAddrRequest allocateIpAddress(String rangeId, String ipAddr) throws Exception {
+    public IpAddrRequest allocateIpAddress(IpVersion ipVersion, String vpcId, String rangeId, String ipAddr) throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
-        ipAddrRequest.setRangeId(rangeId);
-        ipAddrRequest.setIp(ipAddr);
+        if (ipVersion != null) {
+            ipAddrRequest.setIpVersion(ipVersion.getVersion());
+        }
+
+        if (vpcId != null) {
+            ipAddrRequest.setVpcId(vpcId);
+        }
+
+        if (rangeId != null) {
+            ipAddrRequest.setRangeId(rangeId);
+        }
+
+        if (ipAddr != null) {
+            ipAddrRequest.setIp(ipAddr);
+        }
 
         HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
         IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);

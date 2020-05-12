@@ -30,6 +30,7 @@ import java.util.*;
 
 public class IpAddrRange {
     private String id;
+    private String vpcId;
     private String subnetId;
     private int ipVersion;
     private String firstIp;
@@ -40,8 +41,9 @@ public class IpAddrRange {
     private IpAddrAllocator allocator;
     Map<String, IpAddrAlloc> allocatedIps;
 
-    public IpAddrRange(String id, String subnetId, int ipVersion, String firstIp, String lastIp) {
+    public IpAddrRange(String id, String vpcId, String subnetId, int ipVersion, String firstIp, String lastIp) {
         this.id = id;
+        this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.ipVersion = ipVersion;
         this.firstIp = firstIp;
@@ -164,6 +166,14 @@ public class IpAddrRange {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
     }
 
     public String getSubnetId() {

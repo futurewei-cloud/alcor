@@ -50,6 +50,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test01_createIpAddrRangeTest() throws Exception {
         IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest(
                 UnitTestConfig.rangeId,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.ipVersion,
                 UnitTestConfig.firstIp,
@@ -83,6 +84,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test04_allocateIpAddrTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 null,
@@ -111,6 +113,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test06_deactivateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip1,
@@ -129,6 +132,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test07_activateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip1,
@@ -155,16 +159,19 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test09_allocateIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4,
                 UnitTestConfig.subnetId,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4,
                 UnitTestConfig.subnetId,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
         IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4,
                 UnitTestConfig.subnetId,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
@@ -198,12 +205,14 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test11_deactivateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.deactivated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip3,
@@ -230,12 +239,14 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test12_activateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.activated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip3,
@@ -262,12 +273,14 @@ public class IpAddrControllerTest extends MockIgniteServer {
     public void Test13_releaseIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 null);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
                 UnitTestConfig.ipVersion,
+                UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip3,

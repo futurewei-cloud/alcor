@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.restwrap;
 
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.portmanager.exception.RangeIdNotFoundException;
 import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
 import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
 import com.futurewei.alcor.portmanager.utils.BeanUtil;
@@ -46,10 +47,6 @@ public class IpAddressRestWrap {
         subnetRest = BeanUtil.getBean(SubnetRest.class);
         this.rollbacks = rollbacks;
         this.projectId = projectId;
-    }
-
-    private String getRangeIdForPort(String vpcId) {
-        return "range1";//FIXME: Get a suitable Range ID
     }
 
     private int getIpVersion(String ipAddress) throws Exception {
@@ -90,9 +87,9 @@ public class IpAddressRestWrap {
     public List<IpAddrRequest> allocateIpAddress(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         PortState portState = (PortState)args;
-        String rangeId = getRangeIdForPort(portState.getVpcId());
 
-        IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, null);
+        IpAddrRequest result = ipAddressRest.allocateIpAddress(IpVersion.IPV4,
+                portState.getVpcId(), null, null);
 
         List<PortState.FixedIp> fixedIps = new ArrayList<>();
         PortState.FixedIp fixedIp = new PortState.FixedIp(result.getSubnetId(), result.getIp());
@@ -114,8 +111,12 @@ public class IpAddressRestWrap {
         for (PortState.FixedIp fixedIp: fixedIps) {
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
+            if (rangeId == null) {
+                throw new RangeIdNotFoundException();
+            }
 
-            IpAddrRequest result = ipAddressRest.allocateIpAddress(rangeId, fixedIp.getIpAddress());
+            IpAddrRequest result = ipAddressRest.allocateIpAddress(null,
+                    null, rangeId, fixedIp.getIpAddress());
 
             addIpAddrRollback(new AllocateIpAddrRollback(ipAddressRest), result);
 
@@ -136,6 +137,10 @@ public class IpAddressRestWrap {
 
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
+            if (rangeId == null) {
+                throw new RangeIdNotFoundException();
+            }
+
             ipAddrRequest.setRangeId(rangeId);
             ipAddrRequest.setIp(fixedIp.getIpAddress());
 
