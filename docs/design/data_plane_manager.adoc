@@ -47,6 +47,15 @@ Upstream microservices doesn't need to know about the actual data-plane implemen
 === Key Worfklow
 
 . Create first port in a subnet
+
+image:images/dpm2.png[image,width=660,height=384]
+
+[Figure 2] create first port 
+
+image:images/dpm3.png[image,width=660,height=384]
+
+[Figure 3] create first port 
+
 . Create a port in an existing subnet
 . Update a port
 . Get a port
@@ -59,8 +68,9 @@ Data plane manger service would do the provision work concurrently using multith
 == Communication with Agent
 
 === Message Design
-* For initial data we would do full update with nfs support and notification on messaging Q
+* For initial data we would do full update with nfs* support and notification on messaging Q
 * We would use delta update for small amount of update to deploy
+* NFS could support up to 30G/s speed and we could use advanced nfs to get half of response time with bypassing kernel 
 
 === Multi-path Control Logic
 
@@ -76,8 +86,34 @@ Logic:
 
 ==== Problems solution:
 
-. To solve the misorder data, use transaction and retry on producer side of mq , use the tag to make sure you could delete the once you wanted to.
-. RocketMQ could support way more topic number, fine tune the parameter for dirty page and memory usage
+. To solve the misorder data, put them in same queue
+. Use the tag to filter msg.
+. RocketMQ could support way more topic number with stable performance, we need to fine tune the parameter for dirty page and memory usage
+. Use bond to get more bandwidth for storm
+image:images/bond.png[image,width=400,height=240]
+
+[Figure 4] IP Bond
+
+. Since Kafka would drop lots of performance when topic number is higher, RocketMQ is stable
+image:images/dpm-mq3.png[image,width=550,height=270]
+
+[Figure 5] Performance drop when topics nubmer is greater
+
+image:images/dpm-mq1.png[image,width=400,height=240]
+
+[Figure 6] Performance drop when topics nubmer is greater
+
+. When message body is greater than 4k , the performance would drop greatly
+image:images/dpm-mq2.png[image,width=400,height=240]
+
+[Figure 7] Message size and the performance drop
+
+. Here is the Neutron way to start ovs and do processing
+image:images/neutron-dpm.png[image,width=660,height=384]
+
+[Figure 8] Neutron way to start ovs and do processing
+
+. GRPC is not fit for transfering big file since it basically focus more on the assumption of small numbers in the data
 
 == Database Schema
 
@@ -155,7 +191,7 @@ Request: 
 ____
 
 ____
-/project/\{projectid}/ports/\{portid},/v4/\{projectid}/ports/\{portid}
+/project/\{projectid}/goalstates/\{goalstateid},/v4/\{projectid}/goalstates/\{goalstateid}
 ____
 
 * {blank}
@@ -177,75 +213,76 @@ ____
 
 Request:
 
-http://serverIP:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports/f37810eb-7f83-45fa-a4d4-1b31e75399df
+http://serverIP:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/goalstate/f37810eb-7f83-45fa-a4d4-1b31e75399df
 
 Response:
 
-\{
-
-"port": \{
-
-"fastPath": true,
-
-"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-
-"id": "22222222-7f83-45fa-a4d4-1b31e7539922",
-
-"name": "test_cni_port22",
-
-"description": "",
-
-"network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-
-"tenant_id": null,
-
-"admin_state_up": true,
-
-"mac_address": "0e:73:ae:c8:0:9",
-
-"veth_name": "veth0",
-
-"fast_path": true,
-
-"device_id": null,
-
-"device_owner": null,
-
-"status": "UP",
-
-"fixed_ips": [
-
-\{
-
-"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-
-"ip_address": "10.0.0.9"
-
+[source,c++]
+------------------------------------------------------------
+{
+  "goalstate": {
+    "vpc": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "name": "test_vpc",
+      "description": "",
+      "cidr": "10.0.0.0/16"
+    },
+    "subnet": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "name": "test_subnet",
+      "description": "",
+      "cidr": "10.0.0.0/20",
+      "gateway_ip": "10.0.0.5",
+      "availability_zone": "uswest-1",
+      "dhcp_enable": false,
+      "primary_dns": null,
+      "secondary_dns": null,
+      "dns_list": null
+    },
+    "port": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_cni_port2",
+      "description": "",
+      "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "tenant_id": null,
+      "admin_state_up": true,
+      "mac_address": null,
+      "veth_name": "veth0",
+      "device_id": null,
+      "device_owner": null,
+      "status": null,
+      "fixed_ips": [
+        
+      ],
+      "allowed_address_pairs": null,
+      "extra_dhcp_opts": null,
+      "security_groups": null,
+      "binding:host_id": "ephost_0",
+      "binding:profile": null,
+      "binding:vnic_type": null,
+      "network_ns": "/var/run/netns/test_netw_ns",
+      "dnsName": null,
+      "dnsAssignment": null,
+      "fast_path": true
+    },
+    "security_group": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "version": 0,
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_security_group1",
+      "security_group_rules": null
+    }
+  }
 }
+------------------------------------------------------------
 
-],
 
-"allowed_address_pairs": null,
-
-"extra_dhcp_opts": null,
-
-"security_groups": null,
-
-"binding:host_id": "ephost_1",
-
-"binding:profile": null,
-
-"binding:vnic_type": null,
-
-"network_ns": "/var/run/netns/test_netw_ns2",
-
-"dns_name": null,
-
-"dns_assignment": null
-
-}}
-
-====  (2) Create Ports in Batch
+====  (2) Deploy GoalState
 
 * {blank}
 +
@@ -255,14 +292,14 @@ ____
 * {blank}
 +
 ____
-Request: /project/\{projectid}/ports", "v4/\{projectid}/ports
+Request: /project/\{projectid}/goalstates", "v4/\{projectid}/goalstates
 ____
 * {blank}
 +
 ____
 Request Parameter: 
 ____
-** @PathVariable String projectid, @PathVariable String portid, @RequestBody PortStateJson resource
+** @PathVariable String projectid, @PathVariable String gsid, @RequestBody GoalStateJson resource
 * {blank}
 +
 ____
@@ -276,127 +313,83 @@ ____
 
 Request:
 
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/goalstates
 
 Body:
 
-\{"port":
-
-\{"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-
-"id": "22222222-7f83-45fa-a4d4-1b31e7539922",
-
-"name": "test_cni_port22",
-
-"description": "",
-
-"network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-
-"tenant_id": null,
-
-"admin_state_up": true,
-
-"mac_address": null,
-
-"veth_name": "veth0",
-
-"device_id": null,
-
-"device_owner": null,
-
-"status": null,
-
-"fixed_ips": [],
-
-"allowed_address_pairs": null,
-
-"extra_dhcp_opts": null,
-
-"security_groups": null,
-
-"binding:host_id": "ephost_1",
-
-"binding:profile": null,
-
-"binding:vnic_type": null,
-
-"network_ns": "/var/run/netns/test_netw_ns2",
-
-"dnsName": null,
-
-"dnsAssignment": null,
-
-"fast_path": true }
-
+------------------------------------------------------------
+{
+  "goalstate": {
+    "vpc": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "name": "test_vpc",
+      "description": "",
+      "cidr": "10.0.0.0/16"
+    },
+    "subnet": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "name": "test_subnet",
+      "description": "",
+      "cidr": "10.0.0.0/20",
+      "gateway_ip": "10.0.0.5",
+      "availability_zone": "uswest-1",
+      "dhcp_enable": false,
+      "primary_dns": null,
+      "secondary_dns": null,
+      "dns_list": null
+    },
+    "port": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_cni_port2",
+      "description": "",
+      "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "tenant_id": null,
+      "admin_state_up": true,
+      "mac_address": null,
+      "veth_name": "veth0",
+      "device_id": null,
+      "device_owner": null,
+      "status": null,
+      "fixed_ips": [
+        
+      ],
+      "allowed_address_pairs": null,
+      "extra_dhcp_opts": null,
+      "security_groups": null,
+      "binding:host_id": "ephost_0",
+      "binding:profile": null,
+      "binding:vnic_type": null,
+      "network_ns": "/var/run/netns/test_netw_ns",
+      "dnsName": null,
+      "dnsAssignment": null,
+      "fast_path": true
+    },
+    "security_group": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "version": 0,
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_security_group1",
+      "security_group_rules": null
+    }
+  }
 }
+------------------------------------------------------------
 
+[source,c++]
+------------------------------------------------------------
 Response:
-
-\{
-
-"port": \{
-
-"fastPath": true,
-
-"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-
-"id": "22222222-7f83-45fa-a4d4-1b31e7539922",
-
-"name": "test_cni_port22",
-
-"description": "",
-
-"network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-
-"tenant_id": null,
-
-"admin_state_up": true,
-
-"mac_address": "0e:73:ae:c8:0:9",
-
-"veth_name": "veth0",
-
-"fast_path": true,
-
-"device_id": null,
-
-"device_owner": null,
-
-"status": "UP",
-
-"fixed_ips": [
-
-\{
-
-"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-
-"ip_address": "10.0.0.9"
-
+{
+"code":200
+"desc":null
 }
 
-],
+------------------------------------------------------------
 
-"allowed_address_pairs": null,
-
-"extra_dhcp_opts": null,
-
-"security_groups": null,
-
-"binding:host_id": "ephost_1",
-
-"binding:profile": null,
-
-"binding:vnic_type": null,
-
-"network_ns": "/var/run/netns/test_netw_ns2",
-
-"dns_name": null,
-
-"dns_assignment": null
-
-}
-
-}
 
 [bibliography]
 == References
