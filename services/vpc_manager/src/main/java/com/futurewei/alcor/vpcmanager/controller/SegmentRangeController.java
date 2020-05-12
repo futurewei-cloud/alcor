@@ -42,12 +42,10 @@ public class SegmentRangeController {
 
             segmentRangeWebResponseObject = this.segmentRangeDatabaseService.getBySegmentRangeId(network_segment_range_id);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new Exception(e);
         }
 
         if (segmentRangeWebResponseObject == null) {
-            //TODO: REST error code
             return new NetworkSegmentRangeWebResponseJson();
         }
 

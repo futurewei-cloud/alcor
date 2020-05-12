@@ -1,12 +1,12 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.common.exception.VlanRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,11 @@ public class SegmentServiceImpl implements SegmentService {
     @Autowired
     private GreRepository greRepository;
 
+    @Autowired
+    private VpcDatabaseService vpcDatabaseService;
+
     @Override
-    public Long addVlanEntity(String segmentId, String vlanId, String networkType) throws Exception {
+    public Long addVlanEntity(String segmentId, String vlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -60,7 +63,11 @@ public class SegmentServiceImpl implements SegmentService {
 
             key = this.vlanRangeRepository.allocateVlanKey(rangeId);
 
-            //vlan.setMtu(mtu);
+            if (vpcId != null) {
+                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                Integer mtu = vpc.getMtu();
+                vlan.setMtu(mtu);
+            }
             vlan.setSegmentId(segmentId);
             vlan.setVlanId(vlanId);
             vlan.setKey(key);
@@ -78,7 +85,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public Long addVxlanEntity(String segmentId, String vxlanId, String networkType) throws Exception {
+    public Long addVxlanEntity(String segmentId, String vxlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -109,6 +116,12 @@ public class SegmentServiceImpl implements SegmentService {
             }
 
             key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
+
+            if (vpcId != null) {
+                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                Integer mtu = vpc.getMtu();
+                vxlan.setMtu(mtu);
+            }
             vxlan.setSegmentId(segmentId);
             vxlan.setVxlanId(vxlanId);
             vxlan.setKey(key);
@@ -126,7 +139,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
-    public Long addGreEntity(String segmentId, String greId, String networkType) throws Exception {
+    public Long addGreEntity(String segmentId, String greId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -157,6 +170,12 @@ public class SegmentServiceImpl implements SegmentService {
             }
 
             key = this.greRangeRepository.allocateGreKey(rangeId);
+
+            if (vpcId != null) {
+                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                Integer mtu = vpc.getMtu();
+                gre.setMtu(mtu);
+            }
             gre.setSegmentId(segmentId);
             gre.setGreId(greId);
             gre.setKey(key);

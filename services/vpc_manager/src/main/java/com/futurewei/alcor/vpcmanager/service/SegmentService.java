@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface SegmentService {
 
-    public Long addVlanEntity (String segmentId, String vlanId, String networkType) throws Exception;
-    public Long addVxlanEntity (String segmentId, String vlanId, String networkType) throws Exception;
-    public Long addGreEntity (String segmentId, String vlanId, String networkType) throws DatabasePersistenceException, CacheException, Exception;
+    public Long addVlanEntity (String segmentId, String vlanId, String networkType, String vpcId) throws Exception;
+    public Long addVxlanEntity (String segmentId, String vlanId, String networkType, String vpcId) throws Exception;
+    public Long addGreEntity (String segmentId, String vlanId, String networkType, String vpcId) throws DatabasePersistenceException, CacheException, Exception;
     public void releaseVlanEntity (String vlanId, Long key) throws DatabasePersistenceException;
     public void releaseVxlanEntity (String vxlanId, Long key) throws DatabasePersistenceException;
     public void releaseGreEntity (String greId, Long key) throws DatabasePersistenceException;

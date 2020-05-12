@@ -22,7 +22,7 @@ public class NetworkVlanType {
     private String segmentId;
 
     @JsonProperty("mtu")
-    private String mtu; // 1500 - 18190
+    private Integer mtu; // 1500 - 18190
 
     @JsonProperty("status")
     private String status; // active/suspend

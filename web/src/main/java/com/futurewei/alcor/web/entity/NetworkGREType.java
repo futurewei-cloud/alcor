@@ -20,6 +20,9 @@ public class NetworkGREType {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("mtu")
+    private Integer mtu;
+
     @JsonProperty("segment_id")
     private String segmentId;
 

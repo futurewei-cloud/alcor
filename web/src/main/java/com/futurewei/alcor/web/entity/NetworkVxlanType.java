@@ -22,7 +22,7 @@ public class NetworkVxlanType {
     private String segmentId;
 
     @JsonProperty("mtu")
-    private String mtu;
+    private Integer mtu;
 
     @CreatedDate
     @JsonProperty("created_at")

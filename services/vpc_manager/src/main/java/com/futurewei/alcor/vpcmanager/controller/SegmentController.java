@@ -48,12 +48,10 @@ public class SegmentController {
 
             segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new Exception(e);
         }
 
         if (segmentWebResponseObject == null) {
-            //TODO: REST error code
             return new SegmentWebResponseJson();
         }
 
@@ -81,11 +79,11 @@ public class SegmentController {
             String networkType = segmentWebRequestObject.getNetworkType();
             Long key = null;
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
+                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
+                key = segmentService.addVlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(segmentWebRequestObject.getId(), networkTypeId, networkType);
+                key = segmentService.addGreEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             }
 
             if (key != null) {
