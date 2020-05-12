@@ -28,7 +28,7 @@ public class ReleaseIpAddrRollback extends AbstractIpAddrRollback {
     @Override
     public void doRollback() throws Exception {
         for (IpAddrRequest request: releasedIps) {
-            ipAddressRest.allocateIpAddress(request.getRangeId(), request.getIp());
+            ipAddressRest.allocateIpAddress(null, null, request.getRangeId(), request.getIp());
         }
     }
 }

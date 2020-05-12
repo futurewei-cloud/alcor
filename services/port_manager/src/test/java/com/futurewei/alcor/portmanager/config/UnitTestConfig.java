@@ -18,10 +18,24 @@ package com.futurewei.alcor.portmanager.config;
 public class UnitTestConfig {
     public static String portId = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String projectId = "3d53801c-32ce-4e97-9572-bb966f4de79c";
+    public static int ipVersion = 4;
     public static String vpcId = "3d53801c-32ce-4e97-9572-bb966f4d175e";
     public static String tenantId = "3d53801c-32ce-4e97-9572-bb966f476ec";
     public static String subnetId = "3d53801c-32ce-4e97-9572-bb966f4056b";
-    public static String ipAddress1 = "11.11.11.100";
-    public static String ipAddress2 = "11.11.11.101";
+    public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f6ba29";
+    public static String vpcCidr = "11.11.1.0/24";
+    public static String ip1 = "11.11.11.100";
+    public static String ip2 = "11.11.11.101";
+    public static String mac1 = "00:01:6C:06:A6:29";
+    public static String mac2 = "00:01:6C:06:A6:30";
     public static String securityGroup = "3d53801c-32ce-4e97-9572-bb966f4d45ca";
+    public static String portStateStr = "{\n" +
+            "    \"port_state\": {\n" +
+            "        \"vpc_id\":\"vpc1\",\n" +
+            "        \"tenant_id\":\"tenant1\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"range1\", \"ip_address\":\"11.11.11.101\"}],\n" +
+            "        \"security_groups\": [\"securitygroup1\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"11.11.11.1\", \"mac_address\":\"00:01:6C:06:A6:29\"}]\n" +
+            "    }\n" +
+            "}";
 }
