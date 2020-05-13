@@ -36,8 +36,11 @@ public class VpcWebConfiguration {
     public RouterFunction<ServerResponse> vpcHandlerRouting(VpcWebHandlers vpcWebHandlers) {
         return
                 route(GET("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::getVpc)
+                        .andRoute(GET("/project/{projectId}/network/{vpcId}"), vpcWebHandlers::getVpc)
                         .andRoute(POST("/project/{projectId}/vpcs").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), vpcWebHandlers::createVpc)
-                        .andRoute(DELETE("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::deleteVpc);
+                        .andRoute(POST("/project/{projectId}/networks").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), vpcWebHandlers::createVpc)
+                        .andRoute(DELETE("/project/{projectId}/vpcs/{vpcId}"), vpcWebHandlers::deleteVpc)
+                        .andRoute(DELETE("/project/{projectId}/networks/{vpcId}"), vpcWebHandlers::deleteVpc);
     }
 
     @Bean
