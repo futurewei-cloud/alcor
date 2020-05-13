@@ -15,8 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.utils;
 
 public class NodeManagerConstant {
-    public static final int NODE_INFO_FILE = 1;
-    public static final int NODE_INFO_REPOSITOTY = 2;
+    public static final String JSON_HOST = "Hosts";
+    public static final String JSON_ID = "id";
+    public static final String JSON_IP = "ip";
+    public static final String JSON_MAC = "mac";
+    public static final String JSON_VETH = "veth";
     public static final int GRPC_SERVER_PORT = 50001;
 
     //Exception Messages

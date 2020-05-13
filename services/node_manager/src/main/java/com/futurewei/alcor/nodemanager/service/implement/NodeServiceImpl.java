@@ -41,7 +41,15 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private NodeRepository nodeRepository;
 
+    /**
+     * read bulk nodes' information from file
+     *
+     * @param file nodes' file, e.g.) machine.json
+     * @return total nodes number
+     * @throws IOException file read exception, NodeRepositoryException exception caused by Repository
+     */
     public int getNodeInfoFromUpload(MultipartFile file) throws IOException, NodeRepositoryException, Exception {
+        String strMethodName = "getNodeInfoFromUpload";
         int nReturn = 0;
         List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
         try {
@@ -53,16 +61,26 @@ public class NodeServiceImpl implements NodeService {
                 nReturn = nodeList.size();
             }
         } catch (IOException e) {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         catch (CacheException e) {
+            logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
         }
         return nReturn;
     }
 
+    /**
+     * get a node's information from repository
+     *
+     * @param nodeId node's id
+     * @return node's information
+     * @throws IOException NodeRepositoryException exception caused by Repository
+     */
     @Override
     public NodeInfo getNodeInfoById(String nodeId) throws NodeRepositoryException, Exception {
+        String strMethodName = "getNodeInfoById";
         if (nodeId == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo nodeInfo = null;
@@ -72,13 +90,22 @@ public class NodeServiceImpl implements NodeService {
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
         }catch (Exception e)
         {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         return nodeInfo;
     }
 
+    /**
+     * get all nodes information from repository
+     *
+     * @param
+     * @return nodes list
+     * @throws IOException NodeRepositoryException exception caused by Repository
+     */
     @Override
     public List<NodeInfo> getAllNodes() throws Exception {
+        String strMethodName = "getAllNodes";
         List<NodeInfo> nodes = new ArrayList<NodeInfo>();
         try {
             nodes = new ArrayList(nodeRepository.findAllItems().values());
@@ -86,13 +113,22 @@ public class NodeServiceImpl implements NodeService {
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
         }catch (Exception e)
         {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         return nodes;
     }
 
+    /**
+     * create a new node information
+     *
+     * @param nodeInfo new node's information
+     * @return new node's information
+     * @throws ParameterNullOrEmptyException node information input is not valid, NodeRepositoryException exception caused by Repository
+     */
     @Override
     public NodeInfo createNodeInfo(NodeInfo nodeInfo) throws ParameterNullOrEmptyException, NodeRepositoryException,Exception {
+        String strMethodName = "createNodeInfo";
         if (nodeInfo == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeInfo.getId());
@@ -100,17 +136,27 @@ public class NodeServiceImpl implements NodeService {
             try {
                 nodeRepository.addItem(nodeInfo);
             } catch (CacheException e) {
+                logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
             }catch (Exception e)
             {
+                logger.error(strMethodName+e.getMessage());
                 throw e;
             }
         }
         return nodeInfo;
     }
 
+    /**
+     * update an existing node's information
+     *
+     * @param nodeId node's id nodeInfo node's information, nodeId should be equal to nodeInfo's id
+     * @return node's information
+     * @throws ParameterNullOrEmptyException node inormation is input not valid, NodeRepositoryException exception caused by Repository
+     */
     @Override
     public NodeInfo updateNodeInfo(String nodeId, NodeInfo nodeInfo) throws ParameterNullOrEmptyException, NodeRepositoryException, Exception {
+        String strMethodName = "updateNodeInfo";
         if (nodeId == null || nodeInfo == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeId);
@@ -123,17 +169,27 @@ public class NodeServiceImpl implements NodeService {
             try {
                 nodeRepository.addItem(nodeInfo);
             } catch (CacheException e) {
+                logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
             }catch (Exception e)
             {
+                logger.error(strMethodName+e.getMessage());
                 throw e;
             }
         }
         return nodeInfo;
     }
 
+    /**
+     * delete an existing node's information
+     *
+     * @param nodeId node's id
+     * @return node's id
+     * @throws ParameterNullOrEmptyException node inormation is input not valid, NodeRepositoryException exception caused by Repository
+     */
     @Override
     public String deleteNodeInfo(String nodeId) throws ParameterNullOrEmptyException, NodeRepositoryException, Exception {
+        String strMethodName = "deleteNodeInfo";
         if (nodeId == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         NodeInfo node = getNodeInfoById(nodeId);
@@ -144,9 +200,11 @@ public class NodeServiceImpl implements NodeService {
         try {
             nodeRepository.deleteItem(nodeId);
         } catch (CacheException e) {
+            logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
         }catch (Exception e)
         {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         return nodeId;

@@ -38,14 +38,21 @@ public class NodeFileLoader {
     public NodeFileLoader() {
     }
 
-    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws IOException, ParseException{
+    /**
+     * make nodes' list from uploaded node file
+     *
+     * @param reader file reader
+     * @return total nodes number
+     * @throws FileNotFoundException invalid file name, IOException file read exception, Parseexception json parsing exception
+     */
+    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws FileNotFoundException, IOException, ParseException{
+        String strMethodName = "getHostNodeListFromUpload";
         JSONParser jsonParser = new JSONParser();
         List<NodeInfo> nodeInfos = new ArrayList<>();
-        logger.info(this.getClass().getName(), "getHostNodeListFromUpload");
+        logger.info(this.getClass().getName(), strMethodName);
         try {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
-            JSONArray nodeList = (JSONArray) obj.get("Hosts");
-
+            JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOST);
             nodeList.forEach(node -> {
                 NodeInfo hostNode = null;
                 try {
@@ -56,21 +63,32 @@ public class NodeFileLoader {
                 if (hostNode != null) nodeInfos.add(hostNode);
             });
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(strMethodName+e.getMessage());
+            throw e;
         } catch (IOException e) {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         } catch (ParseException e) {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         return nodeInfos;
     }
 
+    /**
+     * parse json file and create a new NodeInfo object
+     *
+     * @param nodeJson json format input data
+     * @return NodeInfo objects
+     * @throws InvalidDataException invalid json data
+     */
     private NodeInfo parseNodeObject(JSONObject nodeJson) throws InvalidDataException {
+        String strMethodName = "parseNodeObject";
         NodeInfo node = null;
-        String id = (String) nodeJson.get("id");
-        String ip = (String) nodeJson.get("ip");
-        String mac = (String) nodeJson.get("mac");
-        String veth = (String) nodeJson.get("veth");
+        String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID);
+        String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP);
+        String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC);
+        String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
             node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort);
@@ -83,9 +101,12 @@ public class NodeFileLoader {
                     message.concat(" & ");
                 message.concat(NodeManagerConstant.NODE_EXCEPTION_MAC_FORMAT_INVALID);
             }
-            if (message != null)
+            if (message != null){
+                logger.error(strMethodName+NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
                 throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
+            }
         } catch (Exception e) {
+            logger.error(strMethodName+e.getMessage());
             throw e;
         }
         return node;
