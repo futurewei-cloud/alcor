@@ -29,13 +29,55 @@ public class UnitTestConfig {
     public static String mac1 = "00:01:6C:06:A6:29";
     public static String mac2 = "00:01:6C:06:A6:30";
     public static String securityGroup = "3d53801c-32ce-4e97-9572-bb966f4d45ca";
-    public static String portStateStr = "{\n" +
+    public static String portStateWithFixedIps = "{\n" +
             "    \"port_state\": {\n" +
-            "        \"vpc_id\":\"vpc1\",\n" +
-            "        \"tenant_id\":\"tenant1\",\n" +
-            "        \"fixed_ips\":[{\"subnet_id\":\"range1\", \"ip_address\":\"11.11.11.101\"}],\n" +
-            "        \"security_groups\": [\"securitygroup1\"],\n" +
-            "        \"allowed_address_pairs\":[{\"ip_address\":\"11.11.11.1\", \"mac_address\":\"00:01:6C:06:A6:29\"}]\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
+            "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+    public static String portStateWithoutFixedIps = "{\n" +
+            "    \"port_state\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+    public static String portStateWithMacAddress = "{\n" +
+            "    \"port_state\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"mac_address\":\"" + mac1 + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
+            "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+    public static String portStateWithoutMacAddress = "{\n" +
+            "    \"port_state\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
+            "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+
+    public static String updateFixedIps = "{\n" +
+            "    \"port_state\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip2 + "\"}],\n" +
+            "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    }\n" +
             "}";
 }
