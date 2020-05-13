@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 public class NetworkVlanType {
 
     @Id
-    private Long key; // 1 - 4094
+    private Long key; // Valid value range: 1 - 4094, 0 and 4095 are reserved
 
     @JsonProperty("vlan_id")
     private String vlanId;
