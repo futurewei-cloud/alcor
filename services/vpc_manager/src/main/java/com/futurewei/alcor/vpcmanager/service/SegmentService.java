@@ -2,8 +2,8 @@ package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
-import com.futurewei.alcor.web.entity.NetworkRangeRequest;
-import com.futurewei.alcor.web.entity.VlanKeyRequest;
+import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
+import com.futurewei.alcor.vpcmanager.entity.VlanKeyRequest;
 
 import java.util.List;
 

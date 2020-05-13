@@ -1,8 +1,8 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.vpcmanager.entity;
 
-import com.futurewei.alcor.common.exception.NetworkKeyAllocNotFoundException;
-import com.futurewei.alcor.common.exception.NetworkKeyInvalidException;
-import com.futurewei.alcor.web.allocator.NetworkKeyAllocator;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyAllocNotFoundException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyInvalidException;
+import com.futurewei.alcor.vpcmanager.allocator.NetworkKeyAllocator;
 import lombok.Data;
 
 import java.util.HashMap;

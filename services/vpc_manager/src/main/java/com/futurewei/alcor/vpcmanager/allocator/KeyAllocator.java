@@ -1,6 +1,4 @@
-package com.futurewei.alcor.web.allocator;
-
-import java.util.List;
+package com.futurewei.alcor.vpcmanager.allocator;
 
 public interface KeyAllocator {
 

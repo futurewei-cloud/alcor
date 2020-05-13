@@ -1,18 +1,19 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.vpcmanager.entity;
 
-import com.futurewei.alcor.common.exception.NetworkKeyAllocNotFoundException;
-import com.futurewei.alcor.common.exception.NetworkKeyInvalidException;
-import com.futurewei.alcor.web.allocator.NetworkKeyAllocator;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyAllocNotFoundException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyInvalidException;
+import com.futurewei.alcor.vpcmanager.allocator.NetworkKeyAllocator;
 import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class NetworkVlanRange {
+public class NetworkGRERange {
 
     private String id;
     private String networkType;
+    private int partition;
     private int firstKey;
     private int lastKey;
     private int usedKeys;
@@ -21,9 +22,10 @@ public class NetworkVlanRange {
     private NetworkKeyAllocator allocator;
     public Map allocated;
 
-    public NetworkVlanRange(String id, String networkType, int firstKey, int lastKey) {
+    public NetworkGRERange(String id, String networkType,int partition, int firstKey, int lastKey) {
         this.id = id;
         this.networkType = networkType;
+        this.partition = partition;
         this.firstKey = firstKey;
         this.lastKey = lastKey;
         totalKeys = lastKey - firstKey + 1;

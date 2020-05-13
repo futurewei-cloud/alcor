@@ -2,6 +2,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.vpcmanager.entity.*;
 import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.dao.*;

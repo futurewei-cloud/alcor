@@ -1,7 +1,7 @@
-package com.futurewei.alcor.web.allocator;
+package com.futurewei.alcor.vpcmanager.allocator;
 
-import com.futurewei.alcor.common.exception.NetworkKeyInvalidException;
-import com.futurewei.alcor.common.exception.NetworkKeyNotEnoughException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyInvalidException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import lombok.Data;
 
 import java.util.BitSet;

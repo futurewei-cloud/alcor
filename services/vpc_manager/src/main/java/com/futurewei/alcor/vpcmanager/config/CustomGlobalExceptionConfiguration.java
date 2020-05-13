@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.common.config;
+package com.futurewei.alcor.vpcmanager.config;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;

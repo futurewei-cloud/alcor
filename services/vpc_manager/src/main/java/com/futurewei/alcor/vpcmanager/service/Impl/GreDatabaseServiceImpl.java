@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.GreRepository;
 import com.futurewei.alcor.vpcmanager.service.GreDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkGREType;
+import com.futurewei.alcor.vpcmanager.entity.NetworkGREType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

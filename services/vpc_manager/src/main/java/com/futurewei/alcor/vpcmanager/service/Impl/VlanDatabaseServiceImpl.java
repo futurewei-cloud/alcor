@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.VlanRepository;
 import com.futurewei.alcor.vpcmanager.service.VlanDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkVlanType;
+import com.futurewei.alcor.vpcmanager.entity.NetworkVlanType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
