@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -151,14 +150,13 @@ public class NodeControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
         Mockito.when(mockController.updateNodeInfo("h01", nodeInfoJson)).thenThrow(new ParameterUnexpectedValueException());
-        try{
+        try {
             this.mockMvc.perform(put("/nodes/h01")
                     .content(json)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                     .andDo(print())
                     .andExpect(status().isInternalServerError());
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterUnexpectedValueException"));
         }
     }

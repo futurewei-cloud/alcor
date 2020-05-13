@@ -26,5 +26,6 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_FILE_EMPTY = "The file is empty";
     public static final String NODE_EXCEPTION_IP_FORMAT_INVALID = "Invalid IP address format";
     public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
+    public static final String NODE_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for service to call repository";
 }
 

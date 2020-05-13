@@ -38,7 +38,7 @@ public class NodeFileLoader {
     public NodeFileLoader() {
     }
 
-    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) {
+    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws IOException, ParseException{
         JSONParser jsonParser = new JSONParser();
         List<NodeInfo> nodeInfos = new ArrayList<>();
         logger.info(this.getClass().getName(), "getHostNodeListFromUpload");
@@ -58,9 +58,9 @@ public class NodeFileLoader {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw e;
         }
         return nodeInfos;
     }

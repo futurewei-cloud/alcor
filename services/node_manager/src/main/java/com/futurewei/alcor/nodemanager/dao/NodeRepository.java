@@ -50,11 +50,25 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         logger.info("NodeRepository init completed");
     }
 
+    /**
+     * add a new node info to node repository
+     *
+     * @param id node id
+     * @return node information
+     * @throws Exception Db or cache operation exception
+     */
     @Override
     public NodeInfo findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
+    /**
+     * find all nodes' information
+     *
+     * @param
+     * @return nodes map
+     * @throws Exception Db or cache operation exception
+     */
     @Override
     public Map findAllItems() throws CacheException {
         return cache.getAll();
@@ -69,18 +83,19 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
      */
     @Override
     public void addItem(NodeInfo nodeInfo) throws CacheException {
-        logger.info("Add node, Node Id:" + nodeInfo.getId());
+        logger.info("Add a node, Node Id:" + nodeInfo.getId());
         try (Transaction tx = cache.getTransaction().start()) {
             cache.put(nodeInfo.getId(), nodeInfo);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
+            logger.error("Add a node error: "+e.getMessage());
         }
     }
 
     /**
-     * add a new node info to node repository
+     * add multiple nodes' information to node repository
      *
      * @param nodes new nodes list
      * @return void
@@ -96,12 +111,19 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-
+            logger.error("Add bulk nodes error: "+e.getMessage());
         }
     }
 
+    /**
+     * delete a node from repository
+     *
+     * @param id   node's id
+     * @return void
+     * @throws Exception Db or cache operation exception
+     */
     @Override
-    public void deleteItem(String id) throws CacheException {
+    public void deleteItem(String id) throws CacheException{
         logger.info("Delete node, Node Id:" + id);
         try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(id);
@@ -109,7 +131,7 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-
+            logger.error("delete a node error: "+e.getMessage());
         }
     }
 }
