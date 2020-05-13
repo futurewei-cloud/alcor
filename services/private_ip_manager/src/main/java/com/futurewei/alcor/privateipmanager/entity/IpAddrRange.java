@@ -24,6 +24,8 @@ import com.futurewei.alcor.privateipmanager.exception.IpAddrConflictException;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.web.entity.ip.IpAddrState;
+import com.futurewei.alcor.web.entity.ip.IpVersion;
 
 import java.math.BigInteger;
 import java.util.*;

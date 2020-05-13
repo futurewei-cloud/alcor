@@ -13,30 +13,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.privateipmanager.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
-public enum  IpVersion {
-    IPV4(4),
-    IPV6(6);
+import lombok.Data;
 
-    private int version;
+@Data
+public class VpcStateJson {
+    private VpcState vpc;
 
-    IpVersion(int version) {
-        this.version = version;
+    public VpcStateJson() {
+
     }
 
-    public int getVersion() {
-        return version;
+    public VpcStateJson(VpcState vpcState) {
+        this.vpc = vpcState;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public VpcState getVpc() {
+        return vpc;
     }
 
-    @Override
-    public String toString() {
-        return "IpVersion{" +
-                "version=" + version +
-                '}';
+    public void setVpc(VpcState vpc) {
+        this.vpc = vpc;
     }
 }

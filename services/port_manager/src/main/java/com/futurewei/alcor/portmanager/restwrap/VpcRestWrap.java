@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.restwrap;
 
 import com.futurewei.alcor.portmanager.utils.BeanUtil;
-import com.futurewei.alcor.web.entity.PortState;
-import com.futurewei.alcor.web.entity.VpcStateJson;
+import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.rest.VpcRest;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import java.util.Stack;

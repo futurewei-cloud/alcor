@@ -16,11 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.controller;
 
-import com.futurewei.alcor.privateipmanager.entity.IpAddrState;
-import com.futurewei.alcor.privateipmanager.entity.IpVersion;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.exception.*;
 import com.futurewei.alcor.privateipmanager.service.implement.IpAddrServiceImpl;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;

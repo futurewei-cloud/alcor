@@ -17,7 +17,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 
 import com.futurewei.alcor.portmanager.service.PortService;
-import com.futurewei.alcor.web.entity.PortStateJson;
+import com.futurewei.alcor.web.entity.port.PortStateJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

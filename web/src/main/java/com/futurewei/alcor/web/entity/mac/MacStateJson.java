@@ -13,32 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.mac;
 
-package com.futurewei.alcor.privateipmanager.entity;
+import lombok.Data;
 
-public enum IpAddrState {
-    ACTIVATED("activated"),
-    DEACTIVATED("deactivated"),
-    FREE("free");
+@Data
+public class MacStateJson {
+    private MacState macState;
 
-    private String state;
+    public MacStateJson() {
 
-    IpAddrState(String state) {
-        this.state = state;
     }
 
-    public String getState() {
-        return state;
+    public MacStateJson(MacState macState) {
+        this.macState = macState;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public MacState getMacState() {
+        return macState;
     }
 
-    @Override
-    public String toString() {
-        return "IpAddrState{" +
-                "state='" + state + '\'' +
-                '}';
+    public void setMacState(MacState macState) {
+        this.macState = macState;
     }
 }
+

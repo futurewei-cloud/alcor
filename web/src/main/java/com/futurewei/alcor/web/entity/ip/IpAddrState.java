@@ -14,28 +14,31 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.ip;
 
-import lombok.Data;
+public enum IpAddrState {
+    ACTIVATED("activated"),
+    DEACTIVATED("deactivated"),
+    FREE("free");
 
-import java.util.UUID;
+    private String state;
 
-@Data
-public class VpcWebJson {
-
-    private VpcWebResponseObject network;
-
-    public VpcWebJson() {
-
+    IpAddrState(String state) {
+        this.state = state;
     }
 
-    public VpcWebJson(VpcWebResponseObject vpcObject) {
-        this.network = vpcObject;
+    public String getState() {
+        return state;
     }
 
-    public VpcWebJson(VpcWebResponseObject vpcObject, UUID genId) {
-        this.network = vpcObject;
-        this.network.setId(String.valueOf(genId));
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    @Override
+    public String toString() {
+        return "IpAddrState{" +
+                "state='" + state + '\'' +
+                '}';
     }
 }
-

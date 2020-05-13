@@ -15,10 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.rest;
 
-import com.futurewei.alcor.web.entity.IpAddrRequest;
-import com.futurewei.alcor.web.entity.IpAddrRequestBulk;
-import com.futurewei.alcor.web.entity.IpAddrState;
-import com.futurewei.alcor.web.entity.IpVersion;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.ip.IpAddrState;
+import com.futurewei.alcor.web.entity.ip.IpVersion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -80,7 +80,7 @@ public class IpAddressRest extends AbstractRest {
         HttpEntity<IpAddrRequestBulk> request = new HttpEntity<>(ipAddrRequestBulk);
         IpAddrRequestBulk result = restTemplate.postForObject(url , request, IpAddrRequestBulk.class);
 
-        for (IpAddrRequest ipAddrRequest: result.getIpRequests()) {
+        for (IpAddrRequest ipAddrRequest : result.getIpRequests()) {
             verifyAllocatedIpAddr(ipAddrRequest);
         }
 

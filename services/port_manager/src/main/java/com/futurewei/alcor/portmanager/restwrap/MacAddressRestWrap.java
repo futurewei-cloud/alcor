@@ -17,9 +17,9 @@ package com.futurewei.alcor.portmanager.restwrap;
 
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.utils.BeanUtil;
-import com.futurewei.alcor.web.entity.MacState;
-import com.futurewei.alcor.web.entity.MacStateJson;
-import com.futurewei.alcor.web.entity.PortState;
+import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.port.PortState;
 import com.futurewei.alcor.web.rest.MacAddressRest;
 import java.util.Stack;
 

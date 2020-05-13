@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
 import lombok.Data;
 

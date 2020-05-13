@@ -2,8 +2,8 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.VpcWebJson;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

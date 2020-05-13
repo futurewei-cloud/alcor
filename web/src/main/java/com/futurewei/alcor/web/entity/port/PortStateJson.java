@@ -13,28 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.port;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class MacStateJson {
-    private MacState macState;
+public class PortStateJson {
+    @JsonProperty("port_state")
+    private PortState portState;
 
-    public MacStateJson() {
+    public PortStateJson() {
 
     }
 
-    public MacStateJson(MacState macState) {
-        this.macState = macState;
+    public PortStateJson(PortState portState) {
+        this.portState = portState;
     }
 
-    public MacState getMacState() {
-        return macState;
+    public PortState getPortState() {
+        return portState;
     }
 
-    public void setMacState(MacState macState) {
-        this.macState = macState;
+    public void setPortState(PortState portState) {
+        this.portState = portState;
     }
 }
-

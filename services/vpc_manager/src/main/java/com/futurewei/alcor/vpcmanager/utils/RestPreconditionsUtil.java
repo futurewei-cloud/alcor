@@ -22,7 +22,7 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
 import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.thymeleaf.util.StringUtils;
 
 import java.util.logging.Level;

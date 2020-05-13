@@ -1,8 +1,6 @@
 package com.futurewei.alcor.privateipmanager.service;
 
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.ip.*;
 
 import java.util.List;
 

@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.rollback;
 
-import com.futurewei.alcor.web.entity.MacState;
+import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.rest.MacAddressRest;
 
 

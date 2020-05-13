@@ -13,29 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.futurewei.alcor.web.entity.vpc;
+
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-public class PortStateJson {
-    @JsonProperty("port_state")
-    private PortState portState;
+public class VpcWebJson {
 
-    public PortStateJson() {
+    private VpcWebResponseObject network;
+
+    public VpcWebJson() {
 
     }
 
-    public PortStateJson(PortState portState) {
-        this.portState = portState;
+    public VpcWebJson(VpcWebResponseObject vpcObject) {
+        this.network = vpcObject;
     }
 
-    public PortState getPortState() {
-        return portState;
-    }
-
-    public void setPortState(PortState portState) {
-        this.portState = portState;
+    public VpcWebJson(VpcWebResponseObject vpcObject, UUID genId) {
+        this.network = vpcObject;
+        this.network.setId(String.valueOf(genId));
     }
 }
+

@@ -14,10 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.web.entity.RouteWebObject;
+import com.futurewei.alcor.web.entity.SegmentWebRequestObject;
 import lombok.Data;
 
 import java.util.List;

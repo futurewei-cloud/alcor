@@ -13,25 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.host;
 
-package com.futurewei.alcor.web.entity;
-
-public enum IpAddrState {
-    ACTIVATED("activated"),
-    DEACTIVATED("deactivated"),
-    FREE("free");
-
-    private String state;
-
-    IpAddrState(String state) {
-        this.state = state;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
+public class HostState {
+    private String hostIp;
+    private String dpType;
 }
