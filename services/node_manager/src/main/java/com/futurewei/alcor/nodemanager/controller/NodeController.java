@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
@@ -45,7 +46,7 @@ public class NodeController {
     public String uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
         int nNode = 0;
         if (file == null) {
-            return NodeManagerConstant.NODE_EXCEPTION_FILE_EMPTY;
+            throw new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_FILE_EMPTY);
         }
         try {
             nNode = service.getNodeInfoFromUpload(file);
@@ -58,7 +59,7 @@ public class NodeController {
     @RequestMapping(
             method = GET,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
-    public NodeInfoJson getNodeInfoByMacAddress(@PathVariable String nodeid) throws Exception {
+    public NodeInfoJson getNodeInfoById(@PathVariable String nodeid) throws Exception {
         NodeInfo hostInfo = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
@@ -123,8 +124,11 @@ public class NodeController {
                 throw new ResourcePersistenceException();
             }
         } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        } catch (Exception e) {
+            throw e;
+        } catch (ParameterUnexpectedValueException e){
+            throw e;
+        }
+        catch (Exception e) {
             throw new Exception(e);
         }
         return new NodeInfoJson(hostInfo);
@@ -133,7 +137,7 @@ public class NodeController {
     @RequestMapping(
             method = DELETE,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
-    public String deleteMacAllocation(@PathVariable String nodeid) throws Exception {
+    public String deleteNodeInfo(@PathVariable String nodeid) throws Exception {
         String macAddress = null;
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
