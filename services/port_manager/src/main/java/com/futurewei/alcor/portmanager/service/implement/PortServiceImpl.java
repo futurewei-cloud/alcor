@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @ComponentScan(value="com.futurewei.alcor.web.rest")
@@ -72,10 +71,12 @@ public class PortServiceImpl implements PortService {
 
     private void rollBackAllOperations(Stack<PortStateRollback> rollbacks) {
         while (!rollbacks.isEmpty()) {
+            PortStateRollback rollback = rollbacks.pop();
+
             try {
-                rollbacks.pop().doRollback();
+                rollback.doRollback();
             } catch (Exception e) {
-                LOG.error("Roll back failed: {}", e);
+                LOG.error("{} roll back failed: {}", rollback, e);
             }
         }
     }

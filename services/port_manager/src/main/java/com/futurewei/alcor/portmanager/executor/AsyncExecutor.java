@@ -76,7 +76,7 @@ public class AsyncExecutor {
             try {
                 future.join();
             } catch (Exception e) {
-                LOG.error("{}} join exception: {}", future, e);
+                LOG.error("{} join exception: {}", future, e);
             }
         }
     }

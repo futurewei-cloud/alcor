@@ -32,13 +32,13 @@ It interacts with Subnet Manager and Port Manager to allocate IP addresses for g
 
 |Verify IP State
 |GET
-|/ips/{ip_version}/{range_id}/{ip}
+|/ips/{range_id}/{ip}
 |ip state
 <<IP_Get,[sample]>>
 
 |List all allocated IP State
 |GET
-|/ips/{ip_version}/{range_id}
+|/ips/{range_id}
 |ip state list
 <<IP_List,[sample]>>
 
@@ -80,7 +80,7 @@ It interacts with Subnet Manager and Port Manager to allocate IP addresses for g
 
 |Release IP State
 |DELETE
-|/ips/{ip_version}/{range_id}/{ip}
+|/ips/{range_id}/{ip}
 |ip state
 <<IP_Delete,[sample]>>
 
@@ -116,7 +116,7 @@ anchor:IP_Get[]
 
 * Method: `GET`
 
-* Request: `/ips/{ip_version}/{range_id}/{ip}`
+* Request: `/ips/{range_id}/{ip}`
 
 * Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
 
@@ -128,14 +128,16 @@ anchor:IP_Get[]
 
 ....
 Request:
-http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
+http://127.0.0.1:8080/ips/3d53801c-32ce-4e97-9572-bb966f476ec/11.11.11.1
 
 Response:
 {
-	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “activated”
+	"ip_version": 4,
+	"vpc_id": null,
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.1",
+	"state": "activated"
 }
 
 ....
@@ -144,7 +146,7 @@ anchor:IP_List[]
 
 * Method: `GET`
 
-* Request: `/ips/{ip_version}/{range_id}`
+* Request: `/ips/{range_id}`
 
 * Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId`
 
@@ -156,29 +158,31 @@ anchor:IP_List[]
 
 ....
 Request:
-http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+http://127.0.0.1:8080/ips/3d53801c-32ce-4e97-9572-bb966f476ec
 
 Response:
-[
-  {
-  	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "11.11.11.76",
-    "state": "activated"
-  },
-  {
-  	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "11.11.11.67",
-    "state": "activated"
-  },
-  {
-  	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "11.11.11.156",
-    "state": "activated"
-  }
-]
+[{
+	"ip_version": 4,
+	"vpc_id": null,
+	"subnet_id": null,
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.2",
+	"state": "activated"
+}, {
+	"ip_version": 4,
+	"vpc_id": null,
+	"subnet_id": null,
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.3",
+	"state": "activated"
+}, {
+	"ip_version": 4,
+	"vpc_id": null,
+	"subnet_id": null,
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.4",
+	"state": "activated"
+}]
 
 ....
 anchor:IP_Post[]
@@ -203,18 +207,22 @@ http://127.0.0.1:8080/ips
 
 Body:
 {
-	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": “null”,
-    “state”: “null”
+	"ip_version":4,
+	"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip":null,
+	"state":null
 }
 
 Response:
 {
-	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “activated”
+	"ip_version":4,
+	"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip":"11.11.11.1",
+	"state":"activated"
 }
 
 ....
@@ -240,51 +248,63 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-    "ip_requests":
-    [
-        {
-			"ip_version": 4, 
-			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip": null,
-			"state": null
-        },
-        {
-			"ip_version": 4, 
-			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip": null,
-			"state": null
-        },
-        {
-			"ip_version": 4, 
-			"range_id":"174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-			"ip": null,
-			"state": null
-        }
-    ]
+	"ip_requests":
+	[
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":null,"state":null
+		},
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":null,
+			"state":null
+		},
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":null,
+			"state":null
+		}
+	]
 }
 
 Response:
 {
-  "ip_requests": [
-    {
-		"ip_version": 4, 
-		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip": "11.11.11.28",
-		"state": "activated"
-    },
-    {
-		"ip_version": 4, 
-		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip": "11.11.11.29",
-		"state": "activated"
-    },
-    {
-		"ip_version": 4, 
-		"range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-		"ip": "11.11.11.24",
-		"state": "activated"
-    }
-  ]
+	"ip_requests":
+	[
+		{
+			"ip_version":4,
+			"vpc_id":null,
+			"subnet_id":null,
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.2",
+			"state":"activated"
+		},
+		{
+			"ip_version":4,
+			"vpc_id":null,
+			"subnet_id":null,
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.3",
+			"state":"activated"
+		},
+		{
+			"ip_version":4,
+			"vpc_id":null,
+			"subnet_id":null,
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.4",
+			"state":"activated"
+		}
+	]
 }
 
 ....
@@ -310,20 +330,23 @@ http://127.0.0.1:8080/ips/
 
 Body:
 {
-	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “activated”
+	"ip_version":4,
+	"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip":"11.11.11.1",
+	"state":"activated"
 }
 
 Response:
 {
-	"ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “activated”
+	"ip_version":4,
+	"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip":"11.11.11.1",
+	"state":"activated"
 }
-
 ....
 anchor:IP_Put1_Bulk[]
 **(6) Activate multiple IP Addresses**
@@ -347,50 +370,48 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "activated"
-    }
-  ]
+	"ip_requests":
+	[
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.2",
+			"state":"activated"
+		},
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.3",
+			"state":"activated"
+		}
+	]
 }
 
 Response:
 {
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "activated"
-    }
-  ]
+	"ip_requests":
+	[
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.2",
+			"state":"activated"
+		},
+		{
+			"ip_version":4,
+			"vpc_id":"3d53801c-32ce-4e97-9572-bb966fab628",
+			"subnet_id":"3d53801c-32ce-4e97-9572-bb966f4d175e",
+			"range_id":"3d53801c-32ce-4e97-9572-bb966f476ec",
+			"ip":"11.11.11.3",
+			"state":"activated"
+		}
+	]
 }
 
 ....
@@ -416,18 +437,22 @@ http://127.0.0.1:8080/ips
 
 Body:
 {
-    "ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “deactivated”
+	"ip_version": 4,
+	"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.1",
+	"state": "deactivated"
 }
 
 Response:
 {
-    "ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “deactivated”
+	"ip_version": 4,
+	"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.1",
+	"state": "deactivated"
 }
 
 ....
@@ -453,50 +478,40 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "deactivated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "deactivated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "deactivated"
-    }
-  ]
+	"ip_requests": [{
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.2",
+		"state": "deactivated"
+	}, {
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.3",
+		"state": "deactivated"
+	}]
 }
 
 Response:
 {
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "deactivated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "deactivated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "deactivated"
-    }
-  ]
+	"ip_requests": [{
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.2",
+		"state": "deactivated"
+	}, {
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.3",
+		"state": "deactivated"
+	}]
 }
 
 ....
@@ -505,7 +520,7 @@ anchor:IP_Delete[]
 
 * Method: `DELETE`
 
-* Request: `/ips/{ip_version}/{range_id}/{ip}`
+* Request: `/ips/{range_id}/{ip}`
 
 * Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
 
@@ -518,15 +533,10 @@ anchor:IP_Delete[]
 * Example
 ....
 Request:
-http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
+http://127.0.0.1:8080/ips/3d53801c-32ce-4e97-9572-bb966f476ec/11.11.11.1
 
 Response:
-{
-    "ip_version": 4, 
-    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-    "ip": "10.10.10.1",
-    “state” “free”
-}
+none
 
 ....
 anchor:IP_Delete_Bulk[]
@@ -551,51 +561,25 @@ http://127.0.0.1:8080/ips/bulk
 
 Body:
 {
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "activated"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "activated"
-    }
-  ]
+	"ip_requests": [{
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.2",
+		"state": null
+	}, {
+		"ip_version": 4,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"ip": "11.11.11.3",
+		"state": null
+	}]
 }
 
 Response:
-{
-  "ip_requests": [
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.28",
-      "state": "free"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.29",
-      "state": "free"
-    },
-    {
-	  "ip_version": 4, 
-      "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-      "ip": "11.11.11.24",
-      "state": "free"
-    }
-  ]
-}
+none
 
 ....
 
@@ -616,22 +600,26 @@ http://127.0.0.1:8080/ips/range
 
 Body:
 {
-    "ip_version": 4, 
-    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_ip": "10.10.10.1",
-    “last_ip” “10.10.10.254”
+	"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"ip_version": 4,
+	"first_ip": "11.11.11.1",
+	"last_ip": "11.11.11.254",
+	"used_ips": 0,
+	"total_ips": 0
 }
 
 Response:
 {
-    "ip_version": 4, 
-    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_ip": "10.10.10.1",
-    “last_ip” “10.10.10.254”,
+	"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"ip_version": 4,
+	"first_ip": "11.11.11.1",
+	"last_ip": "11.11.11.254",
 	"used_ips": 0,
-    "total_ips": 254
+	"total_ips": 254
 }
 
 ....
@@ -649,19 +637,11 @@ anchor:IP_Range_Put[]
 ....
 Request:
 Request:
-http://127.0.0.1:8080/ips/range/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+http://127.0.0.1:8080/ips/range/3d53801c-32ce-4e97-9572-bb966f476ec
 
 
 Response:
-{
-    "ip_version": 4, 
-    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_ip": "10.10.10.1",
-    “last_ip” “10.10.10.254”,
-	"used_ips": 0,
-    "total_ips": 254
-}
+none
 
 ....
 anchor:IP_Range_Get[]
@@ -681,17 +661,18 @@ anchor:IP_Range_Get[]
 
 ....
 Request:
-http://127.0.0.1:8080/ips/range/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b
+http://127.0.0.1:8080/ips/range/3d53801c-32ce-4e97-9572-bb966f476ec
 
 Response:
 {
-    "ip_version": 4, 
-    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
-    "first_ip": "10.10.10.1",
-    “last_ip” “10.10.10.254”,
+	"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"vpc_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"ip_version": 4,
+	"first_ip": "11.11.11.1",
+	"last_ip": "11.11.11.254",
 	"used_ips": 0,
-    "total_ips": 254
+	"total_ips": 254
 }
 
 ....
@@ -718,7 +699,7 @@ Response:
 [
   {
     "ip_version": 4, 
-    "id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
+    "id": "3d53801c-32ce-4e97-9572-bb966f476ec",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_ip": "11.11.11.1",
     "last_ip": "11.11.11.254"
