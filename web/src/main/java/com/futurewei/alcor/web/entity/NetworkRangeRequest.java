@@ -9,9 +9,6 @@ public class NetworkRangeRequest {
     @JsonProperty("id")
     private String id;
 
-    @JsonProperty("segment_id")
-    private String segmentId;
-
     @JsonProperty("network_type")
     private String networkType;
 
@@ -32,9 +29,8 @@ public class NetworkRangeRequest {
 
     public NetworkRangeRequest() {}
 
-    public NetworkRangeRequest(String id, String segmentId, String networkType,int partition, int firstKey, int lastKey) {
+    public NetworkRangeRequest(String id, String networkType,int partition, int firstKey, int lastKey) {
         this.id = id;
-        this.segmentId = segmentId;
         this.networkType = networkType;
         this.partition = partition;
         this.firstKey = firstKey;

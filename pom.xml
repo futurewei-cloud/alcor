@@ -86,13 +86,13 @@
                             <goal>process-asciidoc</goal>
                         </goals>
                         <configuration>
-                            <backend>html</backend>
+                            <backend>adoc</backend>
                             <doctype>book</doctype>
                             <attributes>
                                 <snippets>${snippets}</snippets>
                             </attributes>
-                            <sourceDirectory>${basedir}/docs</sourceDirectory>
-                            <outputDirectory>target/generated-docs</outputDirectory>
+                            <sourceDirectory>${basedir}/docs/design</sourceDirectory>
+                            <outputDirectory>target/swagger</outputDirectory>
                             <preserveDirectories>true</preserveDirectories>
                         </configuration>
                     </execution>

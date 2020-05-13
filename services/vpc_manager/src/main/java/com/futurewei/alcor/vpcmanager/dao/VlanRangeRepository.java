@@ -6,6 +6,8 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
 import com.futurewei.alcor.web.entity.NetworkVlanRange;
 import com.futurewei.alcor.web.entity.NetworkRangeRequest;
 import com.futurewei.alcor.web.entity.KeyAlloc;
@@ -155,7 +157,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
                 throw new NetworkRangeExistException();
             }
 
-            NetworkVlanRange range = new NetworkVlanRange(request.getId(), request.getSegmentId(),
+            NetworkVlanRange range = new NetworkVlanRange(request.getId(),
                     request.getNetworkType(), request.getFirstKey(), request.getLastKey());
 
             cache.put(request.getId(), range);

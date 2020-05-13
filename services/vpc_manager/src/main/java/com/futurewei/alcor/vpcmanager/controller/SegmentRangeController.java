@@ -28,6 +28,13 @@ public class SegmentRangeController {
     @Autowired
     private SegmentRangeDatabaseService segmentRangeDatabaseService;
 
+    /**
+     * Shows details for a network segment range
+     * @param projectid
+     * @param network_segment_range_id
+     * @return segment range state
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
@@ -53,6 +60,13 @@ public class SegmentRangeController {
 
     }
 
+    /**
+     * Creates a network segment range
+     * @param projectid
+     * @param resource
+     * @return segment range state
+     * @throws Exception
+     */
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/network_segment_ranges", "/v4/{projectid}/network_segment_ranges"})
@@ -85,6 +99,14 @@ public class SegmentRangeController {
 
     }
 
+    /**
+     * Updates a network segment range
+     * @param projectid
+     * @param network_segment_range_id
+     * @param resource
+     * @return segment range state
+     * @throws Exception
+     */
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
@@ -118,6 +140,13 @@ public class SegmentRangeController {
 
     }
 
+    /**
+     * Deletes a network segment range
+     * @param projectid
+     * @param network_segment_range_id
+     * @return segment range id
+     * @throws Exception
+     */
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
@@ -144,6 +173,12 @@ public class SegmentRangeController {
 
     }
 
+    /**
+     * Lists network segment ranges to which the admin has access
+     * @param projectid
+     * @return Map<String, NetworkSegmentRangeWebResponseObject>
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/network_segment_ranges")

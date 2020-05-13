@@ -240,4 +240,4 @@ public synchronized Long allocateVlanKey (String rangeId) throws Exception {
         return key;
     }
 ....
-//include::../../services/vpc_manager/target/swagger/swagger.adoc[]
+include::../../services/vpc_manager/target/swagger/swagger.adoc[]

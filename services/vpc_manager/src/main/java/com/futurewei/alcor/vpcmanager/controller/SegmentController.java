@@ -34,6 +34,13 @@ public class SegmentController {
     @Autowired
     private SegmentService segmentService;
 
+    /**
+     * Shows details for a segment
+     * @param projectid
+     * @param segmentid
+     * @return segment state
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
@@ -59,6 +66,13 @@ public class SegmentController {
 
     }
 
+    /**
+     * Creates a segment
+     * @param projectid
+     * @param resource
+     * @return segment state
+     * @throws Exception
+     */
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/segments", "/v4/{projectid}/segments"})
@@ -79,11 +93,11 @@ public class SegmentController {
             String networkType = segmentWebRequestObject.getNetworkType();
             Long key = null;
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVxlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(segmentWebRequestObject.getId(), networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addGreEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
             }
 
             if (key != null) {
@@ -108,6 +122,14 @@ public class SegmentController {
 
     }
 
+    /**
+     * Updates a segment
+     * @param projectid
+     * @param segmentid
+     * @param resource
+     * @return segment state
+     * @throws Exception
+     */
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
@@ -141,6 +163,13 @@ public class SegmentController {
 
     }
 
+    /**
+     * Deletes a segment and its associated resources
+     * @param projectid
+     * @param segmentid
+     * @return segment id
+     * @throws Exception
+     */
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
@@ -158,6 +187,8 @@ public class SegmentController {
                 return new ResponseId();
             }
 
+            segmentDatabaseService.deleteSegment(segmentid);
+
             // Release Network Type
             String networkType = segmentWebResponseObject.getNetworkType();
             Long key = Long.parseLong(String.valueOf(segmentWebResponseObject.getSegmentationId()));
@@ -169,7 +200,6 @@ public class SegmentController {
                 this.segmentService.releaseGreEntity(segmentWebResponseObject.getSegmentationUUID(), key);
             }
 
-            segmentDatabaseService.deleteSegment(segmentid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -179,6 +209,12 @@ public class SegmentController {
 
     }
 
+    /**
+     * Lists segments to which the project has acces
+     * @param projectid
+     * @return Map<String, SegmentWebResponseObject>
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/segments")

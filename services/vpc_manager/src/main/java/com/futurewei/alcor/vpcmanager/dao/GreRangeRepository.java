@@ -6,11 +6,12 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
 import com.futurewei.alcor.web.entity.KeyAlloc;
 import com.futurewei.alcor.web.entity.NetworkGRERange;
 
 import com.futurewei.alcor.web.entity.NetworkRangeRequest;
-import com.futurewei.alcor.web.entity.NetworkVxlanRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +159,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
                 throw new NetworkRangeExistException();
             }
 
-            NetworkGRERange range = new NetworkGRERange(request.getId(), request.getSegmentId(),
+            NetworkGRERange range = new NetworkGRERange(request.getId(),
                     request.getNetworkType(), request.getPartition(), request.getFirstKey(), request.getLastKey());
 
             cache.put(request.getId(), range);

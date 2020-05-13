@@ -18,12 +18,19 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
 import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
 import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import org.thymeleaf.util.StringUtils;
 
+import java.util.logging.Level;
+
 public class RestPreconditionsUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger();
+
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
         if (resource == null) throw new ResourceNotFoundException();
 
@@ -63,7 +70,7 @@ public class RestPreconditionsUtil {
         if (StringUtils.isEmpty(resourceProjectId)) {
             resource.setProjectId(projectId);
         } else if (!resourceProjectId.equalsIgnoreCase(projectId)) {
-            System.out.println("Resource id not matched " + resourceProjectId + " : " + projectId);
+            logger.log(Level.INFO, "Resource id not matched " + resourceProjectId + " : " + projectId);
             resource.setProjectId(projectId);
         }
     }
@@ -77,7 +84,7 @@ public class RestPreconditionsUtil {
         if (StringUtils.isEmpty(resourceVpcId)) {
             resource.setId(vpcId);
         } else if (!resourceVpcId.equalsIgnoreCase(vpcId)) {
-            System.out.println("Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
+            logger.log(Level.INFO, "Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
             resource.setId(vpcId);
         }
     }
@@ -91,7 +98,7 @@ public class RestPreconditionsUtil {
         if (StringUtils.isEmpty(resourceSegmentId)) {
             resource.setId(segmentId);
         } else if (!resourceSegmentId.equalsIgnoreCase(segmentId)) {
-            System.out.println("Resource segment id not matched " + resourceSegmentId + " : " + segmentId);
+            logger.log(Level.INFO, "Resource segment id not matched " + resourceSegmentId + " : " + segmentId);
             resource.setId(segmentId);
         }
     }
@@ -105,7 +112,7 @@ public class RestPreconditionsUtil {
         if (StringUtils.isEmpty(resourceSegmentRangeId)) {
             resource.setId(segmentRangeId);
         } else if (!resourceSegmentRangeId.equalsIgnoreCase(segmentRangeId)) {
-            System.out.println("Resource segment range id not matched " + resourceSegmentRangeId + " : " + segmentRangeId);
+            logger.log(Level.INFO, "Resource segment range id not matched " + resourceSegmentRangeId + " : " + segmentRangeId);
             resource.setId(segmentRangeId);
         }
     }

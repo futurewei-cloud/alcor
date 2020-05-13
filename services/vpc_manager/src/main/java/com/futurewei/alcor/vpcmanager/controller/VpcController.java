@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.controller;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNullException;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +48,13 @@ public class VpcController {
     @Autowired
     private VpcService vpcService;
 
+    /**
+     * hows details for a network
+     * @param projectid
+     * @param vpcid
+     * @return vpc state
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
@@ -80,6 +89,13 @@ public class VpcController {
         return new VpcsWebJson();
     }
 
+    /**
+     * Creates a network
+     * @param projectid
+     * @param resource
+     * @return vpc state
+     * @throws Exception
+     */
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"})
@@ -131,6 +147,14 @@ public class VpcController {
         return new VpcWebJson(inVpcState);
     }
 
+    /**
+     * Updates a network
+     * @param projectid
+     * @param vpcid
+     * @param resource
+     * @return vpc state
+     * @throws Exception
+     */
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
@@ -164,6 +188,13 @@ public class VpcController {
         return new VpcWebJson(inVpcState);
     }
 
+    /**
+     * Deletes a network and its associated resources
+     * @param projectid
+     * @param vpcid
+     * @return network id
+     * @throws Exception
+     */
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
@@ -188,6 +219,12 @@ public class VpcController {
         return new ResponseId(vpcid);
     }
 
+    /**
+     * Lists networks to which the project has access
+     * @param projectid
+     * @return Map<String, VpcWebResponseObject>
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/vpcs")
@@ -210,5 +247,22 @@ public class VpcController {
         }
 
         return vpcStates;
+    }
+
+    /**
+     * List and count all networks
+     * @return
+     * @throws CacheException
+     */
+    @RequestMapping(
+            method = GET,
+            value = "/project/{projectid}/vpcs/count")
+    public Map getVpcCountAndAllVpcStates() throws CacheException {
+        Map result = new HashMap<String, Object>();
+        Map dataItems = vpcDatabaseService.getAllVpcs();
+        result.put("Count", dataItems.size());
+        result.put("Vpcs", dataItems);
+
+        return result;
     }
 }

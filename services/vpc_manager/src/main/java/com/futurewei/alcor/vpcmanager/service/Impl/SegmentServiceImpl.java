@@ -2,8 +2,8 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
-import com.futurewei.alcor.common.exception.NetworkTypeInvalidException;
-import com.futurewei.alcor.common.exception.VlanRangeNotFoundException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
+import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
@@ -41,8 +41,16 @@ public class SegmentServiceImpl implements SegmentService {
     @Autowired
     private VpcDatabaseService vpcDatabaseService;
 
+    /**
+     * Create a vlan
+     * @param vlanId
+     * @param networkType
+     * @param vpcId
+     * @return vlan key
+     * @throws Exception
+     */
     @Override
-    public Long addVlanEntity(String segmentId, String vlanId, String networkType, String vpcId) throws Exception {
+    public Long addVlanEntity(String vlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -53,7 +61,7 @@ public class SegmentServiceImpl implements SegmentService {
             Map<String, NetworkVlanRange> map = this.vlanRangeRepository.findAllItems();
             if (map.size() == 0) {
                 rangeId = UUID.randomUUID().toString();
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, NetworkType.VLAN_PARTITION, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, NetworkType.VLAN_PARTITION, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
                 this.vlanRangeRepository.createRange(request);
                 map = this.vlanRangeRepository.findAllItems();
             }
@@ -68,7 +76,6 @@ public class SegmentServiceImpl implements SegmentService {
                 Integer mtu = vpc.getMtu();
                 vlan.setMtu(mtu);
             }
-            vlan.setSegmentId(segmentId);
             vlan.setVlanId(vlanId);
             vlan.setKey(key);
 
@@ -84,8 +91,16 @@ public class SegmentServiceImpl implements SegmentService {
         }
     }
 
+    /**
+     * Create a vxlan
+     * @param vxlanId
+     * @param networkType
+     * @param vpcId
+     * @return vxlan key
+     * @throws Exception
+     */
     @Override
-    public Long addVxlanEntity(String segmentId, String vxlanId, String networkType, String vpcId) throws Exception {
+    public Long addVxlanEntity(String vxlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -109,7 +124,7 @@ public class SegmentServiceImpl implements SegmentService {
                 rangeId = UUID.randomUUID().toString();
                 int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                 int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, partition, firstKey, lastKey);
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, partition, firstKey, lastKey);
                 this.vxlanRangeRepository.createRange(request);
             }else {
                 rangeId = partitionsAndRangeIds.get(partition);
@@ -122,7 +137,6 @@ public class SegmentServiceImpl implements SegmentService {
                 Integer mtu = vpc.getMtu();
                 vxlan.setMtu(mtu);
             }
-            vxlan.setSegmentId(segmentId);
             vxlan.setVxlanId(vxlanId);
             vxlan.setKey(key);
 
@@ -138,8 +152,16 @@ public class SegmentServiceImpl implements SegmentService {
         }
     }
 
+    /**
+     * Create a gre
+     * @param greId
+     * @param networkType
+     * @param vpcId
+     * @return gre key
+     * @throws Exception
+     */
     @Override
-    public Long addGreEntity(String segmentId, String greId, String networkType, String vpcId) throws Exception {
+    public Long addGreEntity(String greId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -163,7 +185,7 @@ public class SegmentServiceImpl implements SegmentService {
                 rangeId = UUID.randomUUID().toString();
                 int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
                 int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, segmentId, networkType, partition, firstKey, lastKey);
+                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, partition, firstKey, lastKey);
                 this.greRangeRepository.createRange(request);
             }else {
                 rangeId = partitionsAndRangeIds.get(partition);
@@ -176,7 +198,6 @@ public class SegmentServiceImpl implements SegmentService {
                 Integer mtu = vpc.getMtu();
                 gre.setMtu(mtu);
             }
-            gre.setSegmentId(segmentId);
             gre.setGreId(greId);
             gre.setKey(key);
 
@@ -192,6 +213,12 @@ public class SegmentServiceImpl implements SegmentService {
         }
     }
 
+    /**
+     * Delete the vlan and release its associated resources
+     * @param vlanId
+     * @param key
+     * @throws DatabasePersistenceException
+     */
     @Override
     public void releaseVlanEntity(String vlanId, Long key) throws DatabasePersistenceException {
         try {
@@ -213,6 +240,12 @@ public class SegmentServiceImpl implements SegmentService {
         }
     }
 
+    /**
+     * Delete the vxlan and release its associated resources
+     * @param vxlanId
+     * @param key
+     * @throws DatabasePersistenceException
+     */
     @Override
     public void releaseVxlanEntity(String vxlanId, Long key) throws DatabasePersistenceException {
         try {
@@ -238,6 +271,12 @@ public class SegmentServiceImpl implements SegmentService {
         }
     }
 
+    /**
+     * Delete the gre and release its associated resources
+     * @param greId
+     * @param key
+     * @throws DatabasePersistenceException
+     */
     @Override
     public void releaseGreEntity(String greId, Long key) throws DatabasePersistenceException {
         try {
@@ -331,7 +370,6 @@ public class SegmentServiceImpl implements SegmentService {
 
         NetworkRangeRequest request = new NetworkRangeRequest();
         request.setId(networkVlanRange.getId());
-        request.setSegmentId(networkVlanRange.getSegmentId());
         request.setNetworkType(networkVlanRange.getNetworkType());
         request.setFirstKey(networkVlanRange.getFirstKey());
         request.setLastKey(networkVlanRange.getLastKey());
@@ -355,7 +393,6 @@ public class SegmentServiceImpl implements SegmentService {
 
         NetworkRangeRequest request = new NetworkRangeRequest();
         request.setId(networkVlanRange.getId());
-        request.setSegmentId(networkVlanRange.getSegmentId());
         request.setNetworkType(networkVlanRange.getNetworkType());
         request.setFirstKey(networkVlanRange.getFirstKey());
         request.setLastKey(networkVlanRange.getLastKey());
@@ -375,7 +412,6 @@ public class SegmentServiceImpl implements SegmentService {
         ipAddrRangeMap.forEach((k,v) -> {
             NetworkRangeRequest range = new NetworkRangeRequest();
             range.setId(v.getId());
-            range.setSegmentId(v.getSegmentId());
             range.setNetworkType(v.getNetworkType());
             range.setFirstKey(v.getFirstKey());
             range.setLastKey(v.getLastKey());

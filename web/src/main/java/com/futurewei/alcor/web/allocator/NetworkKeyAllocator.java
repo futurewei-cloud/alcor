@@ -1,7 +1,7 @@
 package com.futurewei.alcor.web.allocator;
 
-import com.futurewei.alcor.common.exception.KeyInvalidException;
-import com.futurewei.alcor.common.exception.KeyNotEnoughException;
+import com.futurewei.alcor.common.exception.NetworkKeyInvalidException;
+import com.futurewei.alcor.common.exception.NetworkKeyNotEnoughException;
 import lombok.Data;
 
 import java.util.BitSet;
@@ -26,7 +26,7 @@ public class NetworkKeyAllocator implements KeyAllocator {
     public Long allocate() throws Exception {
         int freeBit = bitSet.nextClearBit(0);
         if (freeBit < 0 || freeBit >= keyNum) {
-            throw new KeyNotEnoughException();
+            throw new NetworkKeyNotEnoughException();
         }
         bitSet.set(freeBit);
         int index = firstKey + freeBit;
@@ -38,7 +38,7 @@ public class NetworkKeyAllocator implements KeyAllocator {
     public void release(Long key) throws Exception {
         int bit = Integer.parseInt(String.valueOf((long)key));
         if (bit < firstKey || bit > lastKey  ) {
-            throw new KeyInvalidException();
+            throw new NetworkKeyInvalidException();
         }
         int index = bit - firstKey;
         bitSet.clear(index);

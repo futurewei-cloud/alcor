@@ -21,6 +21,12 @@ public class VpcServiceImpl implements VpcService {
 
     private RestTemplate restTemplate = new RestTemplate();
 
+    /**
+     * Get route rule info
+     * @param vpcId
+     * @param vpcState
+     * @return route state
+     */
     @Override
     public RouteWebJson getRoute(String vpcId, VpcWebResponseObject vpcState) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
