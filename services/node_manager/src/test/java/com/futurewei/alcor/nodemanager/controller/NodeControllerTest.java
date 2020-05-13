@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
@@ -149,12 +150,17 @@ public class NodeControllerTest {
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        MvcResult result = this.mockMvc.perform(put("/nodes/h01")
-                .content(json)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andReturn();
-        assertTrue(result.getResponse().getContentAsString().isEmpty());
+        Mockito.when(mockController.updateNodeInfo("h01", nodeInfoJson)).thenThrow(new ParameterUnexpectedValueException());
+        try{
+            this.mockMvc.perform(put("/nodes/h01")
+                    .content(json)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError());
+        }catch(Exception e)
+        {
+            assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterUnexpectedValueException"));
+        }
     }
 
     @Test
