@@ -51,6 +51,21 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 
 |====================
 
+
+=== Software Architecture of a Micro-Service
+
+Five layers:
+
+. Web/Controller
+. Service and service implementation
+. DAO/repo
+. Entity
+. Configuration
+
+=== Pattern
+
+One main microservice
+
 === Concurrency and Event Ordering
 
 Four types of concurrent network resource update:

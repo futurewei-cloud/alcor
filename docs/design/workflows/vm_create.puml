@@ -46,7 +46,7 @@ keystone --> novaapi: Send updated authentication\nheaders with roles and permis
 novaapi -> novadb: Check for conflicts and\ncreate initial db entry
 novadb --> novaapi: DB access response
 
-group Node Scheduling
+group Scheduling Nodes
 novaapi -> queue: Ask to specify host id for the instance
 queue -> scheduler: Schedule picks the request
 scheduler -> novadb: Locate a host using filtering and weighing
