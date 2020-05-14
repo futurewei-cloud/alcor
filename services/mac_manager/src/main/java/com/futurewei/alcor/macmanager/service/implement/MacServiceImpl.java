@@ -17,6 +17,7 @@ package com.futurewei.alcor.macmanager.service.implement;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.macmanager.dao.MacPoolRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import com.futurewei.alcor.macmanager.entity.MacAddress;
@@ -49,6 +50,9 @@ public class MacServiceImpl implements MacService {
     @Autowired
     private MacStateRepository macStateRepository;
 
+    @Autowired
+    private MacPoolRepository macPoolRepository;
+
     @Value("${macmanager.oui}")
     private String oui;
 
@@ -58,30 +62,27 @@ public class MacServiceImpl implements MacService {
     @Value("${macmanager.retrylimit}")
     private long nRetryLimit;
 
-    private Set<String> macPool;
-
-    public MacState getMacStateByMacAddress(String macAddress)  throws Exception {
+    public MacState getMacStateByMacAddress(String macAddress) throws Exception {
         MacState macState = null;
-        if ( macAddress == null)
+        if (macAddress == null)
             throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-        try{
+        try {
             macState = macStateRepository.findItem(macAddress);
-        } catch(Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
         return macState;
     }
 
     public MacState createMacState(MacState macState) throws Exception {
-        if ( macState == null)
+        if (macState == null)
             throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         MacAddress macAddress = new MacAddress();
         if (macState.getState() == null)
             macState.setState(MacUtil.MAC_STATE_ACTIVE);
         else if (macState.getState().trim().length() == 0)
             macState.setState(MacUtil.MAC_STATE_ACTIVE);
-        if (macPool.size() < (nMacPoolSize - 10)) {
+        if (macPoolRepository.getSize() < (nMacPoolSize - 10)) {
             CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> {
                 long n = 0;
                 try {
@@ -123,7 +124,7 @@ public class MacServiceImpl implements MacService {
     public MacState updateMacState(String macAddress, MacState macState) throws Exception {
         if (macAddress == null || macState == null)
             throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-        if(macAddress.equals(macState.getMacAddress()) == false)
+        if (macAddress.equals(macState.getMacAddress()) == false)
             throw (new ParameterUnexpectedValueException(MacUtil.MAC_EXCEPTION_PARAMETER_INVALID));
         if (macStateRepository.findItem(macAddress) != null) {
             macStateRepository.addItem(macState);
@@ -142,9 +143,8 @@ public class MacServiceImpl implements MacService {
         } else {
             try {
                 macStateRepository.deleteItem(macAddress);
-                macPool.add(macAddress);
-            }catch (Exception e)
-            {
+                macPoolRepository.addItem(new MacAddress(macAddress));
+            } catch (Exception e) {
                 throw e;
             }
         }
@@ -152,14 +152,13 @@ public class MacServiceImpl implements MacService {
     }
 
     @Override
-    public MacRange getMacRangeByMacRangeId(String macRangeId)  throws Exception {
+    public MacRange getMacRangeByMacRangeId(String macRangeId) throws Exception {
         if (macRangeId == null)
             throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         MacRange macRange = null;
-        try{
+        try {
             macRange = macRangeRepository.findItem(macRangeId);
-        } catch(Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
         return macRange;
@@ -168,9 +167,9 @@ public class MacServiceImpl implements MacService {
     @Override
     public Map<String, MacRange> getAllMacRanges() throws Exception {
         Hashtable<String, MacRange> macRanges = new Hashtable<String, MacRange>();
-        try{
+        try {
             macRanges.putAll(macRangeRepository.findAllItems());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return macRanges;
@@ -205,8 +204,7 @@ public class MacServiceImpl implements MacService {
                 activeMacRanges.remove(macRange.getRangeId(), macRange);
             else if (macRange.getState().equals(MacUtil.MAC_RANGE_STATE_ACTIVE) && activeMacRanges.containsKey(macRange.getRangeId()) == false)
                 activeMacRanges.put(macRange.getRangeId(), macRange);
-        } catch(Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
         return macRange;
@@ -216,27 +214,26 @@ public class MacServiceImpl implements MacService {
     public String deleteMacRange(String rangeId) throws Exception {
         if (rangeId == null)
             throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-        try{
+        try {
             macRangeRepository.deleteItem(rangeId);
             activeMacRanges.remove(rangeId);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
         return rangeId;
     }
 
     private String allocateMacState(MacState macState) throws Exception {
-//        if (macState == null)
-//            throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-//        try{
-//
-//        }
-//        //String strMacAddress = macPool.
-//        if (strMacAddress != null) {
-//           // macPool.deleteItem(strMacAddress);
-//        }
-        return null; //strMacAddress;
+        String strMacAddress = null;
+        if (macState == null)
+            throw (new ParameterNullOrEmptyException(MacUtil.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
+        try {
+            strMacAddress = macPoolRepository.getItem();
+            updateMacAllocationStatus(strMacAddress);
+        } catch (Exception e) {
+            throw e;
+        }
+        return strMacAddress;
     }
 
     private String generateNic() throws Exception {
@@ -257,7 +254,7 @@ public class MacServiceImpl implements MacService {
             randomNic = ThreadLocalRandom.current().nextLong(from, to);
             String nicTemp = MacAddress.hexToMac(Long.toHexString(randomNic));
             macAddress.setNic(nicTemp);
-            if ((macStateRepository.findItem(macAddress.getMacAddress()) == null) && (macPool.contains(macAddress.getMacAddress()) == false)) {
+            if ((macStateRepository.findItem(macAddress.getMacAddress()) == null) && (macPoolRepository.findItem(macAddress.getMacAddress()) == null)) {
                 nic = nicTemp;
             }
             i++;
@@ -267,7 +264,7 @@ public class MacServiceImpl implements MacService {
         return nic;
     }
 
-    private MacRange getMacRange()  throws Exception {
+    private MacRange getMacRange() throws Exception {
         MacRange macRange = new MacRange();
         if (activeMacRanges.isEmpty())
             getActiveMacRanges();
@@ -276,7 +273,7 @@ public class MacServiceImpl implements MacService {
         return activeMacRanges.get(vector.elementAt(randomIndex));
     }
 
-    public void getActiveMacRanges()  throws Exception {
+    private void getActiveMacRanges() throws Exception {
         Hashtable<String, MacRange> macRanges = new Hashtable(macRangeRepository.findAllItems());
         if (macRanges == null)
             macRanges = new Hashtable<String, MacRange>();
@@ -289,7 +286,7 @@ public class MacServiceImpl implements MacService {
             }
         } else if (macRanges != null) {
             MacRange newRange = new MacRange();
-            newRange.createDefault(oui);
+            newRange = createDefaultRange(oui);
             macRangeRepository.addItem(newRange);
             activeMacRanges.put(newRange.getRangeId(), newRange);
         }
@@ -303,7 +300,21 @@ public class MacServiceImpl implements MacService {
         return from < to;
     }
 
-    public long generateMacInPool(int n) throws Exception {
+    private MacRange createDefaultRange(String oui) {
+        String rangeId = MacUtil.DEFAULT_RANGE;
+        long nNicLength = (long)Math.pow(2,MacAddress.NIC_LENGTH);
+        String strFrom  = MacAddress.longToMac(0);
+        String strTo = MacAddress.longToMac(nNicLength - 1);
+        String from = new MacAddress(oui, strFrom).getMacAddress();
+        String to = new MacAddress(oui, strTo).getMacAddress();
+        String state = MacUtil.MAC_RANGE_STATE_ACTIVE;
+        BitSet bitSet = new BitSet((int)nNicLength);
+        MacRange defaultRange = new MacRange(rangeId, from, to, state);
+        defaultRange.setBitSet(bitSet);
+        return defaultRange;
+    }
+
+    private long generateMacInPool(int n) throws Exception {
         Exception exception = null;
         long nReturn = 0;
         ArrayList<String> list = new ArrayList<String>();
@@ -317,7 +328,8 @@ public class MacServiceImpl implements MacService {
                 String strMacAddress = macAddress.getMacAddress();
                 MacState macState = macStateRepository.findItem(strMacAddress);
                 if (macState == null) {
-                    //macPool.addItem(strMacAddress);
+                    updateMacAllocationStatus(strMacAddress);
+                    macPoolRepository.addItem(new MacAddress(strMacAddress));
                     nReturn++;
                 }
             } catch (RetryLimitExceedException e) {
@@ -327,5 +339,22 @@ public class MacServiceImpl implements MacService {
         if (exception != null)
             throw exception;
         return nReturn;
+    }
+
+    private void updateMacAllocationStatus(String strMacAddress) throws Exception {
+        MacRange deafultRange = getMacRangeByMacRangeId(MacUtil.DEFAULT_RANGE);
+        BitSet bitSet = deafultRange.getBitSet();
+        int ndx = macToIndex(deafultRange, strMacAddress);
+        bitSet.set(ndx);
+        macRangeRepository.addItem(deafultRange);
+    }
+
+    private int macToIndex(MacRange range, String strMac) {
+        int ndx = 0;
+        MacAddress mac = new MacAddress(strMac);
+        long nMac1 = MacAddress.macToLong(strMac);
+        long nMac2 = MacAddress.macToLong(range.getFrom());
+        ndx = (int) (nMac1 - nMac2);
+        return ndx;
     }
 }
