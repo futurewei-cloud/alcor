@@ -61,9 +61,9 @@ message SubnetConfiguration {
         string mac_address = 4;
     }
 
-    repeated DnsEntry dns_list = 13;
-    repeated SecurityGroupId security_group_ids = 14;
-    repeated TransitSwitch transit_switches = 15;
+    repeated DnsEntry dns_list = 13; // FIXME: what is this for?
+    repeated SecurityGroupId security_group_ids = 14; // FIXME: why to store in subnet level? 
+    repeated TransitSwitch transit_switches = 15; // FIXME: to be removed
 }
 message SubnetState {
     OperationType operation_type = 1;

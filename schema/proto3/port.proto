@@ -26,6 +26,11 @@ import "common.proto";
 message PortConfiguration {
     int32 version = 1;
 
+    // FIXME: the options for NetworkType are:
+    // 1. put in PortConfiguration here since only useful for Port, ACA programming will be direct and easier
+    // 2. put in VPC configuration since it is a "network level" configuration, 
+    //      that mean every port configuration needs to go with VPC config for ACA to look up
+    NetworkType network_type = 13;  // TODO: the ID will be update after discussion
     string project_id = 2;
     string network_id = 3;
     string id = 4;
@@ -53,16 +58,14 @@ message PortConfiguration {
         string mac_address = 2;
     }
 
-    message ExtraDhcpOption {
-        string name = 1;
-        string value = 2;
-    }
-
-    HostInfo host_info = 9;
+    HostInfo host_info = 9; // FIXME: will be used to populate neighbor info only
     repeated FixedIp fixed_ips = 10;
     repeated SecurityGroupId security_group_ids = 11;
     repeated AllowAddressPair allow_address_pairs = 12;
-    repeated ExtraDhcpOption extra_dhcp_options = 13;
+
+    // FIXME: note that for neutron, it sends down more stuff than this
+    // please review and see if there is anything else we needed now:
+    // https://github.com/openstack/neutron/blob/93e9dc5426764b791ac69e62c6d60be7591c16ab/neutron/plugins/ml2/rpc.py#L150
 }
 
 message PortState {

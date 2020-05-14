@@ -26,6 +26,7 @@ enum ResourceType {
     SUBNET = 1;
     PORT = 2;
     SECURITYGROUP = 3;
+    DHCP = 4;
 }
 
 enum OperationType {
@@ -34,10 +35,11 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
-    FINALIZE = 5;
-    CREATE_UPDATE_SWITCH = 6;
+    FINALIZE = 5; // FIXME: we will try to the whole port operation in the FINALIZE call
+    CREATE_UPDATE_SWITCH = 6; // FIXME: I don't think we need this for OVS?
     CREATE_UPDATE_ROUTER = 7;
     CREATE_UPDATE_GATEWAY = 8;
+    // FIXME: we will likely need an operation to create/update neighbor info
 }
 
 enum OperationStatus {
@@ -57,4 +59,11 @@ enum Protocol {
     ICMP = 2;
     HTTP = 3;
     ARP = 4;
+}
+
+enum NetworkType { 
+    VXLAN = 0; // the default type
+    VLAN = 1;
+    GRE = 2;
+    GENEVE = 3;
 }

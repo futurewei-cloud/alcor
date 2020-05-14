@@ -19,17 +19,27 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
+option java_outer_classname = "DHCP";
 
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "securitygroup.proto";
-import "dhcp.proto";
+import "common.proto";
 
-message GoalState {
-    repeated VpcState vpc_states = 1;
-    repeated SubnetState subnet_states = 2;
-    repeated PortState port_states = 3;
-    repeated SecurityGroupState security_group_states = 4;
-    repeated DHCPState dhcp_states = 5;
+message DHCPConfiguration {
+    int32 version = 1;
+
+    string mac_address = 2;
+    string ipv4_address = 3;
+    string ipv6_address = 4;
+    string port_host_name = 5; // for local DNS response
+
+    message ExtraDhcpOption {
+        string name = 1;
+        string value = 2;
+    }
+
+    repeated ExtraDhcpOption extra_dhcp_options = 6;
+}
+
+message DHCPState {
+    OperationType operation_type = 1;
+    DHCPConfiguration configuration = 2;
 }
