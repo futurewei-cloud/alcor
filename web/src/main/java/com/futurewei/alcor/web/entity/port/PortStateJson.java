@@ -20,7 +20,7 @@ import lombok.Data;
 
 @Data
 public class PortStateJson {
-    @JsonProperty("port_state")
+    @JsonProperty("port")
     private PortState portState;
 
     public PortStateJson() {
