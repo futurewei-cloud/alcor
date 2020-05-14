@@ -177,7 +177,7 @@ State could contains more same type data as array
 * Update
 * Delete
 
-==== (1) Get Port Info By port Id
+==== (1) Get GoalState Info By GoalState Request
 
 * {blank}
 +
@@ -191,7 +191,7 @@ Request: 
 ____
 
 ____
-/project/\{projectid}/goalstates/\{goalstateid},/v4/\{projectid}/goalstates/\{goalstateid}
+/goalstate/{goalstateid},/v4/goalstate/{goalstateid}
 ____
 
 * {blank}
@@ -199,11 +199,11 @@ ____
 ____
 Request Parameter: 
 ____
-** @PathVariable String projectid, @ PathVariable String portid
+** @ PathVariable String portid
 * {blank}
 +
 ____
-Response: node information
+Response: List of GoalState Information
 ____
 * {blank}
 +
@@ -213,14 +213,14 @@ ____
 
 Request:
 
-http://serverIP:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/goalstate/f37810eb-7f83-45fa-a4d4-1b31e75399df
+http://serverIP:8080/goalstate/f37810eb-7f83-45fa-a4d4-1b31e75399df
 
 Response:
 
 [source,c++]
 ------------------------------------------------------------
 {
-  "goalstate": {
+  "goalstate": [{
     "vpc": {
       "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
       "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
@@ -277,12 +277,12 @@ Response:
       "name": "test_security_group1",
       "security_group_rules": null
     }
-  }
+  }]
 }
 ------------------------------------------------------------
 
 
-====  (2) Deploy GoalState
+====  (2) Send GoalState to create port
 
 * {blank}
 +
@@ -292,20 +292,22 @@ ____
 * {blank}
 +
 ____
-Request: /project/\{projectid}/goalstates", "v4/\{projectid}/goalstates
+Request: /goalstate/{goalstates}", "/v4/{goalstates}
 ____
 * {blank}
 +
 ____
 Request Parameter: 
 ____
-** @PathVariable String projectid, @PathVariable String gsid, @RequestBody GoalStateJson resource
+** @RequestBody GoalStateJson resource
 * {blank}
 +
 ____
-Response: portstate information
+Response: port creation result information
 ____
 * {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
 +
 ____
 Example
@@ -313,13 +315,14 @@ ____
 
 Request:
 
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/goalstates
+http://localhost:8080/goalstate/3dda2801-d675-4688-a63f-dcda8d327f50
 
 Body:
 
 ------------------------------------------------------------
-{
-  "goalstate": {
+{ "operation_type": "create",
+  "resource_type": 2,
+  "goalstate": [{
     "vpc": {
       "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
       "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
@@ -376,7 +379,7 @@ Body:
       "name": "test_security_group1",
       "security_group_rules": null
     }
-  }
+  }]
 }
 ------------------------------------------------------------
 
@@ -385,7 +388,165 @@ Body:
 Response:
 {
 "code":200
-"desc":null
+"desc":"port created successfully"
+}
+
+------------------------------------------------------------
+
+====  (3) Send GoalState to delete port
+
+* {blank}
++
+____
+* Method: `DELETE`
+____
+* {blank}
++
+____
+Request: /goalstate/{vpcid}/{hostid}/{goalstateid}", "/v4/goalstate/{vpcid}/{hostid}/{goalstateid}
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @PathVariable String goalstateid, @PathVariable String hostid,@PathVariable String vpcid
+* {blank}
++
+____
+Response: port deletion result
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstate/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/ephost3/3dda2801-d675-4688-a63f-dcda8d327f50
+
+Body:
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+"code":200
+"desc":"port 3dda2801-d675-4688-a63f-dcda8d327f50 on host ephost3 deleted in vpc 9192a4d4-ffff-4ece-b3f0-8d36e3d88038  successfully"
+}
+
+------------------------------------------------------------
+
+====  (4) Send GoalState to update port
+
+* {blank}
++
+____
+Method: `PUT`
+____
+* {blank}
++
+____
+Request: /goalstate/\{goalstates}", "v4/goalstate/\{goalstates}
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @RequestBody GoalStateJson resource
+* {blank}
++
+____
+Response: port update result information
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstate/goalstates
+
+Body:
+
+------------------------------------------------------------
+{ "operation_type": "update",
+  "resource_type": 2,
+  "goalstate": [{
+    "vpc": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "name": "test_vpc",
+      "description": "",
+      "cidr": "10.0.0.0/16"
+    },
+    "subnet": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "name": "test_subnet",
+      "description": "",
+      "cidr": "10.0.0.0/20",
+      "gateway_ip": "10.0.0.5",
+      "availability_zone": "uswest-1",
+      "dhcp_enable": false,
+      "primary_dns": null,
+      "secondary_dns": null,
+      "dns_list": null
+    },
+    "port": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_cni_port2",
+      "description": "",
+      "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+      "tenant_id": null,
+      "admin_state_up": true,
+      "mac_address": null,
+      "veth_name": "veth0",
+      "device_id": null,
+      "device_owner": null,
+      "status": null,
+      "fixed_ips": [
+        
+      ],
+      "allowed_address_pairs": null,
+      "extra_dhcp_opts": null,
+      "security_groups": null,
+      "binding:host_id": "ephost_0",
+      "binding:profile": null,
+      "binding:vnic_type": null,
+      "network_ns": "/var/run/netns/test_netw_ns",
+      "dnsName": null,
+      "dnsAssignment": null,
+      "fast_path": true
+    },
+    "security_group": {
+      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+      "version": 0,
+      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+      "name": "test_security_group1",
+      "security_group_rules": null
+    }
+  }]
+}
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+"code":200
+"desc":"port updated successfully"
 }
 
 ------------------------------------------------------------
