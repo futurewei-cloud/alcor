@@ -1,4 +1,4 @@
-package com.futurewei.alcor.portmanager.executor;
+package com.futurewei.alcor.common.executor;
 
 @FunctionalInterface
 public interface AsyncFunction<T, R> {

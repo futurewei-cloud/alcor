@@ -1,4 +1,4 @@
-package com.futurewei.alcor.portmanager.config;
+package com.futurewei.alcor.common.executor;
 
 public class ThreadPoolExecutorConfig {
     //Core thread pool size

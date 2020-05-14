@@ -13,25 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.rest;
+package com.futurewei.alcor.web.restclient;
 
-import com.futurewei.alcor.web.entity.SubnetStateJson;
+import com.futurewei.alcor.web.entity.NodeInfoJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SubnetRest extends AbstractRest {
-    @Value("${microservices.subnet.service.url:#{\"\"}}")
-    private String subnetManagerUrl;
+public class NodeManagerRestClient extends AbstractRestClient {
+    @Value("${microservices.node.service.url:#{\"\"}}")
+    private String nodeManagerUrl;
 
-    public SubnetStateJson getSubnetState(String projectId, String subnetId) throws Exception {
-        String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;
-
-        SubnetStateJson subnetStateJson = restTemplate.getForObject(url, SubnetStateJson.class);
-        if (subnetStateJson == null) {
-            throw new Exception("Get subnet failed");
-        }
-
-        return subnetStateJson;
+    public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
+        String url = nodeManagerUrl + "/" + nodeId;
+        return getRequest(url, NodeInfoJson.class);
     }
 }

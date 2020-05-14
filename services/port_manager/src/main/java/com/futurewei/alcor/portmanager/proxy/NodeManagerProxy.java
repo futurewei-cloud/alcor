@@ -13,26 +13,30 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restwrap;
+package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.portmanager.utils.BeanUtil;
-import com.futurewei.alcor.web.entity.port.*;
-import com.futurewei.alcor.web.entity.vpc.*;
-import com.futurewei.alcor.web.rest.VpcRest;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
+import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import java.util.Stack;
 
-public class VpcRestWrap {
-    private VpcRest vpcRest;
+public class NodeManagerProxy {
+    private NodeManagerRestClient nodeManagerRestClient;
     private Stack<PortStateRollback> rollbacks;
 
-    public VpcRestWrap(Stack<PortStateRollback> rollbacks) {
-        vpcRest = BeanUtil.getBean(VpcRest.class);
+    public NodeManagerProxy(Stack<PortStateRollback> rollbacks) {
+        nodeManagerRestClient = SpringContextUtil.getBean(NodeManagerRestClient.class);
         this.rollbacks = rollbacks;
     }
 
-    public VpcStateJson verifyVpc(Object args) throws Exception {
-        PortState portState = (PortState)args;
-        return vpcRest.verifyVpc(portState.getProjectId(), portState.getVpcId());
+    /**
+     * Verify if the host/node of nodeId exists
+     * @param nodeId Id of host/node
+     * @return The information of host/node
+     * @throws Exception Rest request exception
+     */
+    public NodeInfoJson verifyHost(String nodeId) throws Exception {
+        return nodeManagerRestClient.getNodeInfo(nodeId);
     }
 }

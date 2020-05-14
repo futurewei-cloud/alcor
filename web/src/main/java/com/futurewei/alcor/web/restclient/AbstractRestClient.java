@@ -13,19 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.rest;
+package com.futurewei.alcor.web.restclient;
 
-import com.futurewei.alcor.web.entity.NodeInfoJson;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
-@Configuration
-public class NodeRest extends AbstractRest {
-    @Value("${microservices.node.service.url:#{\"\"}}")
-    private String nodeManagerUrl;
+abstract class AbstractRestClient {
+    RestTemplate restTemplate = new RestTemplate();
 
-    public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
-        String url = nodeManagerUrl + "/" + nodeId;
-        return getRequest(url, NodeInfoJson.class);
+    <T> T getRequest(String url, Class<T> tClass) throws Exception {
+        T response = restTemplate.getForObject(url, tClass);
+        if (response == null) {
+            throw new Exception("Get request failed, url:" + url);
+        }
+
+        return response;
     }
 }

@@ -13,38 +13,38 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restwrap;
+package com.futurewei.alcor.portmanager.proxy;
 
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.portmanager.exception.RangeIdNotFoundException;
 import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
 import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
-import com.futurewei.alcor.portmanager.utils.BeanUtil;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.entity.port.PortState;
-import com.futurewei.alcor.web.entity.SubnetStateJson;
-import com.futurewei.alcor.web.rest.IpAddressRest;
+import com.futurewei.alcor.web.entity.subnet.SubnetStateJson;
+import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import com.futurewei.alcor.portmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.portmanager.exception.IpVersionInvalidException;
 import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
-import com.futurewei.alcor.web.rest.SubnetRest;
+import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class IpAddressRestWrap {
-    private IpAddressRest ipAddressRest;
-    private SubnetRest subnetRest;
+public class IpManagerProxy {
+    private IpManagerRestClient ipManagerRestClient;
+    private SubnetManagerRestClient subnetManagerRestClient;
     private Stack<PortStateRollback> rollbacks;
     private String projectId;
 
-    public IpAddressRestWrap(Stack<PortStateRollback> rollbacks, String projectId) {
-        ipAddressRest = BeanUtil.getBean(IpAddressRest.class);
-        subnetRest = BeanUtil.getBean(SubnetRest.class);
+    public IpManagerProxy(Stack<PortStateRollback> rollbacks, String projectId) {
+        ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);
+        subnetManagerRestClient = SpringContextUtil.getBean(SubnetManagerRestClient.class);
         this.rollbacks = rollbacks;
         this.projectId = projectId;
     }
@@ -60,7 +60,7 @@ public class IpAddressRestWrap {
     }
 
     private String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
-        SubnetStateJson subnetStateJson = subnetRest.getSubnetState(projectId, subnetId);
+        SubnetStateJson subnetStateJson = subnetManagerRestClient.getSubnetState(projectId, subnetId);
         if (subnetStateJson == null || subnetStateJson.getSubnet() == null) {
             throw new VerifySubnetException();
         }
@@ -84,27 +84,47 @@ public class IpAddressRestWrap {
         rollbacks.push(rollback);
     }
 
-    public List<IpAddrRequest> allocateIpAddress(Object args) throws Exception {
+    /**
+     * Allocate a random ipv4 and ipv6 address from ip manager service
+     * @param args PortState
+     * @return A list of IpAddrRequest
+     * @throws Exception Rest request exception
+     */
+    public List<IpAddrRequest> allocateRandomIpAddress(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        List<PortState.FixedIp> fixedIps = new ArrayList<>();
         PortState portState = (PortState)args;
 
-        IpAddrRequest result = ipAddressRest.allocateIpAddress(IpVersion.IPV4,
+        //Allocate a random ipv4 address
+        IpAddrRequest ipv4Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV4,
                 portState.getVpcId(), null, null);
+        PortState.FixedIp fixedIpv4 = new PortState.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
+        fixedIps.add(fixedIpv4);
+        addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv4Addr);
 
-        List<PortState.FixedIp> fixedIps = new ArrayList<>();
-        PortState.FixedIp fixedIp = new PortState.FixedIp(result.getSubnetId(), result.getIp());
+        //Allocate a random ipv6 address
+        IpAddrRequest ipv6Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV6,
+                portState.getVpcId(), null, null);
+        PortState.FixedIp fixedIpv6 = new PortState.FixedIp(ipv6Addr.getSubnetId(), ipv6Addr.getIp());
+        fixedIps.add(fixedIpv6);
+        addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv6Addr);
 
-        fixedIps.add(fixedIp);
+        //Set fixedIps to portState
         portState.setFixedIps(fixedIps);
 
-        addIpAddrRollback(new AllocateIpAddrRollback(ipAddressRest), result);
-
-        ipAddrRequests.add(result);
+        ipAddrRequests.add(ipv4Addr);
+        ipAddrRequests.add(ipv6Addr);
 
         return ipAddrRequests;
     }
 
-    public List<IpAddrRequest> verifyIpAddresses(Object args) throws Exception {
+    /**
+     * Allocate multiple fixed ipv4/ipv6 addresses from ip manager service
+     * @param args A list of IpAddrRequest
+     * @return A list of IpAddrRequest
+     * @throws Exception Rest request exception
+     */
+    public List<IpAddrRequest> allocateFixedIpAddress(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
 
@@ -115,10 +135,10 @@ public class IpAddressRestWrap {
                 throw new RangeIdNotFoundException();
             }
 
-            IpAddrRequest result = ipAddressRest.allocateIpAddress(null,
+            IpAddrRequest result = ipManagerRestClient.allocateIpAddress(null,
                     null, rangeId, fixedIp.getIpAddress());
 
-            addIpAddrRollback(new AllocateIpAddrRollback(ipAddressRest), result);
+            addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), result);
 
             ipAddrRequests.add(result);
         }
@@ -126,12 +146,18 @@ public class IpAddressRestWrap {
         return ipAddrRequests;
     }
 
+    /**
+     * Release multiple ipv4/ipv6 addresses to ip manager service
+     * @param args A list of IpAddrRequest
+     * @return A list of IpAddrRequest
+     * @throws Exception Rest request exception
+     */
     public List<IpAddrRequest> releaseIpAddressBulk(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
         List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
 
         for (PortState.FixedIp fixedIp: fixedIps) {
-            ipAddressRest.releaseIpAddress(fixedIp.getSubnetId(), fixedIp.getIpAddress());
+            ipManagerRestClient.releaseIpAddress(fixedIp.getSubnetId(), fixedIp.getIpAddress());
 
             IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
@@ -144,7 +170,7 @@ public class IpAddressRestWrap {
             ipAddrRequest.setRangeId(rangeId);
             ipAddrRequest.setIp(fixedIp.getIpAddress());
 
-            addIpAddrRollback(new ReleaseIpAddrRollback(ipAddressRest), ipAddrRequest);
+            addIpAddrRollback(new ReleaseIpAddrRollback(ipManagerRestClient), ipAddrRequest);
 
             ipAddrRequests.add(ipAddrRequest);
         }

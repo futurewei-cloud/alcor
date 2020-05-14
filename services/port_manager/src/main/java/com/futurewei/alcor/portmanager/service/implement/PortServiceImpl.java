@@ -15,13 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service.implement;
 
-import com.futurewei.alcor.portmanager.executor.AsyncExecutor;
+import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
-import com.futurewei.alcor.portmanager.restwrap.IpAddressRestWrap;
-import com.futurewei.alcor.portmanager.restwrap.MacAddressRestWrap;
-import com.futurewei.alcor.portmanager.restwrap.NodeRestWrap;
-import com.futurewei.alcor.portmanager.restwrap.VpcRestWrap;
+import com.futurewei.alcor.portmanager.proxy.IpManagerProxy;
+import com.futurewei.alcor.portmanager.proxy.MacManagerProxy;
+import com.futurewei.alcor.portmanager.proxy.NodeManagerProxy;
+import com.futurewei.alcor.portmanager.proxy.VpcManagerProxy;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-@ComponentScan(value="com.futurewei.alcor.web.rest")
+@ComponentScan(value="com.futurewei.alcor.common.utils")
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -93,6 +93,17 @@ public class PortServiceImpl implements PortService {
         //FIXME: Add port to Host
     }
 
+    /**
+     * Create a port, and call the interfaces of each micro-service according to the
+     * configuration of the port to create various required resources for the port.
+     * If any exception occurs in the added process, we need to roll back
+     * the resource allocated from each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portStateJson Port configuration
+     * @return PortStateJson
+     * @throws Exception Various exceptions that may occur during the create process
+     */
+    @Override
     public PortStateJson createPortState(String projectId, PortStateJson portStateJson) throws Exception {
         LOG.debug("Create port state, projectId: {}, PortStateJson: {}", projectId, portStateJson);
 
@@ -104,14 +115,14 @@ public class PortServiceImpl implements PortService {
 
         try {
             //Verify VPC ID
-            VpcRestWrap vpcRestWrap = new VpcRestWrap(rollbacks);
-            executor.runAsync(vpcRestWrap::verifyVpc, portState);
+            VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
+            executor.runAsync(vpcManagerProxy::verifyVpc, portState);
 
-            IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, portState.getProjectId());
+            IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portState.getProjectId());
             if (portState.getFixedIps() == null) {
-                executor.runAsync(ipAddressRestWrap::allocateIpAddress, portState);
+                executor.runAsync(ipManagerProxy::allocateRandomIpAddress, portState);
             } else {
-                executor.runAsync(ipAddressRestWrap::verifyIpAddresses, portState.getFixedIps());
+                executor.runAsync(ipManagerProxy::allocateFixedIpAddress, portState.getFixedIps());
             }
 
             //Generate uuid for port
@@ -119,19 +130,19 @@ public class PortServiceImpl implements PortService {
                 portState.setId(UUID.randomUUID().toString());
             }
 
-            MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(rollbacks);
+            MacManagerProxy macManagerProxy = new MacManagerProxy(rollbacks);
             if (portState.getMacAddress() == null) {
-                executor.runAsync(macAddressRestWrap::allocateMacAddress, portState);
+                executor.runAsync(macManagerProxy::allocateRandomMacAddress, portState);
             } else {
-                executor.runAsync(macAddressRestWrap::verifyMacAddress, portState);
+                executor.runAsync(macManagerProxy::allocateFixedMacAddress, portState);
             }
 
             //Verify security group
 
             //Verify Binding Host ID
             if (portState.getBindingHostId() != null) {
-                NodeRestWrap nodeRestWrap = new NodeRestWrap(rollbacks);
-                nodeRestWrap.verifyHost(portState.getBindingHostId());
+                NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
+                nodeManagerProxy.verifyHost(portState.getBindingHostId());
             }
 
             //Wait for all async functions to finish
@@ -235,6 +246,18 @@ public class PortServiceImpl implements PortService {
 
     }
 
+    /**
+     * Update the configuration information of port. Resources requested from various
+     * micro-services may need to be updated according to the new configuration of port.
+     * If any exception occurs in the updated process, we need to roll back
+     * the resource added or deleted operation of each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portId Id of port
+     * @param portStateJson The new configuration of port
+     * @return The new configuration of port
+     * @throws Exception Various exceptions that may occur during the update process
+     */
+    @Override
     public PortStateJson updatePortState(String projectId, String portId, PortStateJson portStateJson) throws Exception {
         LOG.debug("Update port state, projectId: {}, portId: {}, PortStateJson: {}",
                 projectId, portId, portStateJson);
@@ -268,7 +291,7 @@ public class PortServiceImpl implements PortService {
 
             //Update fixed_ips
             List<PortState.FixedIp> fixedIps = portState.getFixedIps();
-            IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, projectId);
+            IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, projectId);
 
             if (fixedIps != null) {
                 List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
@@ -277,15 +300,15 @@ public class PortServiceImpl implements PortService {
                 List<PortState.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
 
                 if (delFixedIps.size() > 0) {
-                    executor.runAsync(ipAddressRestWrap::releaseIpAddressBulk, delFixedIps);
+                    executor.runAsync(ipManagerProxy::releaseIpAddressBulk, delFixedIps);
                 }
 
                 if (addFixedIps.size() > 0) {
-                    executor.runAsync(ipAddressRestWrap::verifyIpAddresses, addFixedIps);
+                    executor.runAsync(ipManagerProxy::allocateFixedIpAddress, addFixedIps);
                 }
             } else {
                 List<PortState.FixedIp> oldFixedIps = oldPortState.getFixedIps();
-                executor.runAsync(ipAddressRestWrap::releaseIpAddressBulk, oldFixedIps);
+                executor.runAsync(ipManagerProxy::releaseIpAddressBulk, oldFixedIps);
             }
 
             oldPortState.setFixedIps(fixedIps);
@@ -301,8 +324,8 @@ public class PortServiceImpl implements PortService {
 
             //Update binding:host_id
             if (portState.getBindingHostId() != null) {
-                NodeRestWrap nodeRestWrap = new NodeRestWrap(rollbacks);
-                nodeRestWrap.verifyHost(portState.getBindingHostId());
+                NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
+                nodeManagerProxy.verifyHost(portState.getBindingHostId());
             }
 
             oldPortState.setBindingHostId(portState.getBindingHostId());
@@ -323,6 +346,16 @@ public class PortServiceImpl implements PortService {
         return portStateJson;
     }
 
+    /**
+     * Delete the port corresponding to portId from the repository and delete
+     * the resources requested by the port from each micro-service.
+     * If any exception occurs in the deleted process, we need to roll back
+     * the resource deletion operation of each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portId Id of port
+     * @throws Exception Various exceptions that may occur during the delete process
+     */
+    @Override
     public void deletePortState(String projectId, String portId) throws Exception {
         LOG.debug("Delete port state, projectId: {}, portId: {}", projectId, portId);
 
@@ -336,15 +369,15 @@ public class PortServiceImpl implements PortService {
 
         try {
             //Release ip address
-            IpAddressRestWrap ipAddressRestWrap = new IpAddressRestWrap(rollbacks, projectId);
+            IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, projectId);
             if (portState.getFixedIps() != null && portState.getFixedIps().size() > 0) {
-                executor.runAsync(ipAddressRestWrap::releaseIpAddressBulk, portState.getFixedIps());
+                executor.runAsync(ipManagerProxy::releaseIpAddressBulk, portState.getFixedIps());
             }
 
             //Release mac address
-            MacAddressRestWrap macAddressRestWrap = new MacAddressRestWrap(rollbacks);
+            MacManagerProxy macManagerProxy = new MacManagerProxy(rollbacks);
             if (portState.getMacAddress() != null && !"".equals(portState.getMacAddress())) {
-                executor.runAsync(macAddressRestWrap::releaseMacAddress, portState);
+                executor.runAsync(macManagerProxy::releaseMacAddress, portState);
             }
 
             //Unbind security groups
@@ -363,6 +396,13 @@ public class PortServiceImpl implements PortService {
         LOG.debug("Delete port state success, projectId: {}, portId: {}", projectId, portId);
     }
 
+    /**
+     * Get the configuration of the port by port id
+     * @param projectId Project the port belongs to
+     * @param portId Id of port
+     * @return PortStateJson
+     * @throws Exception Db operation exception
+     */
     @Override
     public PortStateJson getPortState(String projectId, String portId) throws Exception {
         PortState portState = portRepository.findItem(portId);
@@ -373,6 +413,12 @@ public class PortServiceImpl implements PortService {
         return new PortStateJson(portState);
     }
 
+    /**
+     * Get all port information
+     * @param projectId Project the port belongs to
+     * @return A list of port information
+     * @throws Exception Db operation exception
+     */
     @Override
     public List<PortStateJson> listPortState(String projectId) throws Exception {
         List<PortStateJson> result = new ArrayList<>();

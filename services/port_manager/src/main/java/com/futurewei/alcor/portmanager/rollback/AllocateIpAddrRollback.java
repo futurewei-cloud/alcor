@@ -16,19 +16,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.rollback;
 
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.rest.IpAddressRest;
+import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 
 
+/**
+ * When the ip address allocation is successful, but when the ip address
+ * allocation needs to be rolled back due to some exceptions, the doRollback()
+ * interface of AllocateIpAddrRollback is called.
+ */
 public class AllocateIpAddrRollback extends AbstractIpAddrRollback {
 
-    public AllocateIpAddrRollback(IpAddressRest ipAddressRest) {
-        super(ipAddressRest);
+    public AllocateIpAddrRollback(IpManagerRestClient ipManagerRestClient) {
+        super(ipManagerRestClient);
     }
 
     @Override
     public void doRollback() throws Exception {
         for (IpAddrRequest ip: allocatedIps) {
-            ipAddressRest.releaseIpAddress(ip.getRangeId(), ip.getIp());
+            ipManagerRestClient.releaseIpAddress(ip.getRangeId(), ip.getIp());
         }
     }
 }

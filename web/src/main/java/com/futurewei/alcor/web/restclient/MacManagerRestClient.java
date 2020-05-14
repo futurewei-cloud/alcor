@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.rest;
+package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 
 @Configuration
-public class MacAddressRest extends AbstractRest {
+public class MacManagerRestClient extends AbstractRestClient {
     @Value("${microservices.mac.service.url:#{\"\"}}")
     private String macManagerUrl;
 
@@ -40,11 +40,12 @@ public class MacAddressRest extends AbstractRest {
         restTemplate.delete(url);
     }
 
-    public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId) throws Exception {
+    public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String mac) throws Exception {
         MacState macState = new MacState();
         macState.setProjectId(projectId);
         macState.setVpcId(vpcId);
         macState.setPortId(portId);
+        macState.setMacAddress(mac);
 
         MacStateJson macStateJson = new MacStateJson();
         macStateJson.setMacState(macState);

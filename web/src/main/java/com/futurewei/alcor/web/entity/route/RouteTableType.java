@@ -13,13 +13,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.rest;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+package com.futurewei.alcor.web.entity.route;
 
-@Configuration
-public class RouteRest extends AbstractRest {
-    @Value("${microservices.route.service.url:#{\"\"}}")
-    private String routeManagerUrl;
+public enum RouteTableType {
+
+    // Main route table
+    MAIN,
+
+    // Customer route table
+    CUSTOM,
+
+    // Gateway route table
+    GATEWAY
 }

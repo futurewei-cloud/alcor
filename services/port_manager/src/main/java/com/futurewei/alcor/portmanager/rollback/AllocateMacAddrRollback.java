@@ -16,19 +16,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.rollback;
 
 import com.futurewei.alcor.web.entity.mac.MacState;
-import com.futurewei.alcor.web.rest.MacAddressRest;
+import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 
-
+/**
+ * When the mac address allocation is successful, but when the mac address
+ * allocation needs to be rolled back due to some exceptions, the doRollback()
+ * interface of AllocateMacAddrRollback is called.
+ */
 public class AllocateMacAddrRollback extends AbstractMacAddrRollback {
 
-    public AllocateMacAddrRollback(MacAddressRest macAddressRest) {
-        super(macAddressRest);
+    public AllocateMacAddrRollback(MacManagerRestClient macManagerRestClient) {
+        super(macManagerRestClient);
     }
 
     @Override
     public void doRollback() throws Exception {
         for (MacState macState: allocatedMacs) {
-            macAddressRest.releaseMacAddress(macState.getMacAddress());
+            macManagerRestClient.releaseMacAddress(macState.getMacAddress());
         }
     }
 

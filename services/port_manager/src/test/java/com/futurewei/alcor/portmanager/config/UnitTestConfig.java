@@ -18,7 +18,8 @@ package com.futurewei.alcor.portmanager.config;
 public class UnitTestConfig {
     public static String portId = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String projectId = "3d53801c-32ce-4e97-9572-bb966f4de79c";
-    public static int ipVersion = 4;
+    public static int ipv4Version = 4;
+    public static int ipv6Version = 6;
     public static String vpcId = "3d53801c-32ce-4e97-9572-bb966f4d175e";
     public static String tenantId = "3d53801c-32ce-4e97-9572-bb966f476ec";
     public static String subnetId = "3d53801c-32ce-4e97-9572-bb966f4056b";
@@ -26,6 +27,7 @@ public class UnitTestConfig {
     public static String vpcCidr = "11.11.1.0/24";
     public static String ip1 = "11.11.11.100";
     public static String ip2 = "11.11.11.101";
+    public static String ipv6Address = "2001:3CA1:310F:201A:121B:4231:2345:1010";
     public static String mac1 = "00:01:6C:06:A6:29";
     public static String mac2 = "00:01:6C:06:A6:30";
     public static String securityGroup = "3d53801c-32ce-4e97-9572-bb966f4d45ca";
