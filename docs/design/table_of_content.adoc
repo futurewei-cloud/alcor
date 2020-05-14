@@ -9,7 +9,8 @@
 ** xref:../apis/index.adoc[API Spec]
 ** API Gateway
 ** Management Services
-//*** VPC Manager, Subnet Manager and Port Manager
+*** xref:vpc_manager.adoc[VPC Manager]
+*** xref:subnet_manager.adoc[Subnet Manager]
 //*** Route Manager
 *** xref:private_ip_manager.adoc[Private IP Manager]
 *** xref:mac_manager.adoc[Mac Manager]

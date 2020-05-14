@@ -1,0 +1,223 @@
+= Subnet Manager Design Specification
+Zhonghao Lyu <zlyu@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-05-04
+:toc: right
+
+== Overview
+
+The Subnet Manager is an Alcor microservice which manages the life cycle of all Subnets.
+Its responsibilities include but are not limited to creating, updating, deleting, and searching a resource model of a subnet.
+It needs to interact with VPC Manager, Route Manager, Mac manager, IP manager to create subnet。
+
+== Service Requirements
+
+[arabic]
+. Supply subnets for all the vpcs, e.g., (VPC 1, Port 1) -> Subnet 1
+. Concurrency control mechanism should be provided to process multiple concurrent subnet creation requests.
+.  Get route rule information from route manager
+. Algorithm with random, but less conflict possibility
+. Fall back mechanism if there is a conflict among creation of subnet
+. Working together with other services including vpc manager, route manager, mac manager and ip manager.
+
+== Design
+
+=== Service Architecture
+
+=== Key Workflow
+
+=== Concurrency Control
+
+To handle concurrent Subnet creationg requests, the following three things should be considered:
+
+====== (1) Uniqueness
+The resources which is allocated to subnet should be unique when there are concurrent subnet creation requests.
+
+====== (2) Fallback
+In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
+
+== Database Schema
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Get/Verify Subnet State By Subnet Id
+|GET
+|/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}
+|Subnet state
+<<SubnetState_Get1,[sample]>>
+
+|Create Subnet State
+|POST
+|/project/{projectId}/subnets, v4/{projectId}/subnets
+|Subnet state
+<<SubnetState_Post1,[sample]>>
+
+|Update Subnet Address
+|PUT
+|/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}
+|Subnet state
+<<SubnetState_Put1,[sample]>>
+
+|Delete Subnet Address
+|DELETE
+|/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}
+|ResponseId
+<<SubnetState_Delete1,[sample]>>
+
+|GET Subnet State By Project Id
+|GET
+|/project/{projectId}/subnets
+|SubnetsWebJson
+<<SubnetState_Get2,[sample]>>
+|===
+
+=== API Specification
+
+anchor:SubnetState_Get1[]
+**(1) Get/Verify Subnet state by Subnet Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String subnetId`
+
+* Response: subnet state
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+  }
+}
+....
+
+anchor:SubnetState_Post1[]
+**(1) Create Subnet State**
+
+* Method: `POST`
+
+* Request: `/project/{projectid}/subnets, /v4/{projectid}/subnets`
+
+* Request Parameter: `@PathVariable String projectid, @RequestBody SubnetWebJson resource`
+
+* Response: subnet state
+* Normal response codes: 201
+* Error response codes: 400, 404, 500, 503
+
+* Example
+
+....
+Request:
+http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
+--data "{\"subnet\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"vpc_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\",\"name\":\"test_subnet\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+  }
+}
+....
+
+anchor:SubnetState_Put1[]
+**(1) Update Subnet State**
+
+* Method: `PUT`
+
+* Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId, @RequestBody SubnetWebJson resource`
+
+* Response: subnet state
+* Normal response codes: 201
+* Error response codes: 400, 404, 500, 503
+
+* Example
+
+....
+Request:
+http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
+--data "{\"subnet\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"vpc_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\",\"name\":\"test_subnet\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+  }
+}
+....
+
+anchor:SubnetState_Delete1[]
+**(1) Delete Subnet State**
+
+* Method: `DELETE`
+
+* Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId`
+
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000
+
+Response:
+{"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000"}
+....
+
+anchor:SubnetState_Get2[]
+**(1) Get/Verify Subnet state by Project Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/subnetId`
+
+* Request Parameter: `@PathVariable String projectid`
+
+* Response: map
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
+
+Response:
+SubnetsWebJson, a list of subnets
+....
+
+

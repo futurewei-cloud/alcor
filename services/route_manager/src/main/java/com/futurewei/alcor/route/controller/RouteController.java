@@ -24,6 +24,9 @@ import com.futurewei.alcor.route.entity.RouteStateJson;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.VpcWebJson;
+import com.futurewei.alcor.web.entity.VpcWebRequestObject;
+import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +48,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
-    public RouteStateJson getRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
+    public RouteStateJson getRuleByVpcId(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
 
         RouteState routeState = null;
 
@@ -68,21 +71,46 @@ public class RouteController {
     }
 
     @RequestMapping(
+            method = GET,
+            value = {"/subnrts/{subnetId}/routes/{routeId}"})
+    public RouteStateJson getRuleBySubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
+
+        RouteState routeState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeId);
+
+            routeState = this.routeDatabaseService.getByRouteId(routeId);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+
+        if (routeState == null) {
+            //TODO: REST error code
+            return new RouteStateJson();
+        }
+
+        return new RouteStateJson(routeState);
+
+    }
+
+    @RequestMapping(
             method = POST,
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
-    public RouteStateJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcStateJson resource) throws Exception {
+    public RouteStateJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
         RouteState routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-
-            VpcState inVpcState = resource.getVpc();
-            RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
+            VpcWebResponseObject vpcWebResponseObject = resource.getNetwork();
+            RestPreconditionsUtil.verifyResourceNotNull(vpcWebResponseObject);
 
             String id = UUID.randomUUID().toString();
-            String projectId = inVpcState.getProjectId();
-            String destination = inVpcState.getCidr();
+            String projectId = vpcWebResponseObject.getProjectId();
+            String destination = vpcWebResponseObject.getCidr();
             String routeTableId = UUID.randomUUID().toString();
 
             routeState = new RouteState(projectId, id, "default_route_rule", "",

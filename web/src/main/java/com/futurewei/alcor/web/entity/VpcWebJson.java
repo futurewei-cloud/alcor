@@ -23,19 +23,19 @@ import java.util.UUID;
 @Data
 public class VpcWebJson {
 
-    private VpcWebObject vpc;
+    private VpcWebResponseObject network;
 
     public VpcWebJson() {
 
     }
 
-    public VpcWebJson(VpcWebObject vpcObject) {
-        this.vpc = vpcObject;
+    public VpcWebJson(VpcWebResponseObject vpcObject) {
+        this.network = vpcObject;
     }
 
-    public VpcWebJson(VpcWebObject vpcObject, UUID genId) {
-        this.vpc = vpcObject;
-        this.vpc.setId(String.valueOf(genId));
+    public VpcWebJson(VpcWebResponseObject vpcObject, UUID genId) {
+        this.network = vpcObject;
+        this.network.setId(String.valueOf(genId));
     }
 }
 
