@@ -33,6 +33,8 @@
         <module>services/route_manager</module>
         <module>services/mac_manager</module>
         <module>services/private_ip_manager</module>
+        <module>services/port_manager</module>
+        <module>services/node_manager</module>
     </modules>
     <packaging>pom</packaging>
 

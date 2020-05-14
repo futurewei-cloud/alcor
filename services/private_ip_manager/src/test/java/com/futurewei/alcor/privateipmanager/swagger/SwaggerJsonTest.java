@@ -16,15 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.swagger;
 
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
 import org.springframework.http.MediaType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,20 +31,17 @@ import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import io.github.swagger2markup.Swagger2MarkupConverter;
-import io.github.swagger2markup.Swagger2MarkupProperties;
 import io.github.swagger2markup.Swagger2MarkupConfig;
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SwaggerJsonTest{
+public class SwaggerJsonTest extends MockIgniteServer {
 
     @Autowired
     private MockMvc mockMvc;

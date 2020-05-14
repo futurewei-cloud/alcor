@@ -6,7 +6,7 @@ import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.RouteWebJson;
 import com.futurewei.alcor.web.entity.RouteWebObject;
 import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
