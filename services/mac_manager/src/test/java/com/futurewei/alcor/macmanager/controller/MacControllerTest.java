@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
@@ -38,10 +39,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class MacControllerTest {
     private static final ObjectMapper om = new ObjectMapper();
     public MacState testMacState;
@@ -104,7 +107,8 @@ public class MacControllerTest {
     public void test_index() throws Exception {
         this.mockMvc.perform(get("/start.html"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("start"));
     }
 
     @Test
@@ -118,7 +122,8 @@ public class MacControllerTest {
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("macs_post"));
     }
 
     @Test
@@ -127,7 +132,8 @@ public class MacControllerTest {
         String strTestMac = createMacState(macState);
         this.mockMvc.perform(get("/macs/" + strTestMac))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("macs_get"));
     }
 
     @Test
@@ -136,7 +142,8 @@ public class MacControllerTest {
         String strTestMac = createMacState(macState);
         this.mockMvc.perform(delete("/macs/" + strTestMac))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("macs_delete"));
     }
 
     @Test
@@ -154,7 +161,8 @@ public class MacControllerTest {
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("macs_activate"));
     }
 
     @Test
@@ -172,7 +180,8 @@ public class MacControllerTest {
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("macs_deactive"));
     }
 
     @Test
@@ -181,7 +190,8 @@ public class MacControllerTest {
         String strRangeId = createMacRange(macRange);
         this.mockMvc.perform(get("/macs/ranges/" + strRangeId))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("macs_range_get"));
     }
 
     public void test_getAllMacRanges(@PathVariable String rangeid) throws Exception {

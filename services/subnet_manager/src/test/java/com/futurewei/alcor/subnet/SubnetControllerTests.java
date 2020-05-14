@@ -34,11 +34,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class SubnetControllerTests {
 
     @Autowired
@@ -65,6 +68,7 @@ public class SubnetControllerTests {
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andDo(document("subnet_get_pass"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
     }
 
@@ -74,6 +78,7 @@ public class SubnetControllerTests {
         String response = this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andDo(document("subnet_get_nopass"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println("-----json returned = " + response);
         assertEquals("{\"subnet\":null}", response);
@@ -107,6 +112,7 @@ public class SubnetControllerTests {
                 .content(UnitTestConfig.resource))
                 .andDo(print())
                 .andExpect(status().is(201))
+                .andDo(document("subnet_post_pass"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
     }
 
@@ -139,6 +145,7 @@ public class SubnetControllerTests {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_post_novpc"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
@@ -176,6 +183,7 @@ public class SubnetControllerTests {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_post_noroute"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
@@ -213,6 +221,7 @@ public class SubnetControllerTests {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_get_nomac"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
@@ -252,6 +261,7 @@ public class SubnetControllerTests {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_get_noip"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
         }catch (Exception ex) {
@@ -308,6 +318,7 @@ public class SubnetControllerTests {
         this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
                 .andDo(print())
+                .andDo(document("subnet_put_noupdate"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
     }
@@ -324,6 +335,7 @@ public class SubnetControllerTests {
         this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.updateResource))
                 .andDo(print())
+                .andDo(document("subnet_puts"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.name").value(UnitTestConfig.updateName));
     }
@@ -335,6 +347,7 @@ public class SubnetControllerTests {
         try {
             this.mockMvc.perform(put(putUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_put_nosubnet"))
                     .andExpect(status().isOk());
         }catch (Exception ex) {
             //System.out.println(ex.getMessage());
@@ -352,7 +365,9 @@ public class SubnetControllerTests {
                 UnitTestConfig.name,UnitTestConfig.cidr);
         subnetStates.put("SubnetState", subnetWebObject);
         Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
-        this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
+        this.mockMvc.perform(get(getByProjectIdAndVpcIdUri))
+                .andDo(print())
+                .andDo(document("subnet_get_project_vpc"))
                 .andExpect(status().isOk());
     }
 
@@ -361,6 +376,7 @@ public class SubnetControllerTests {
         Map<String, SubnetWebObject> subnetStates = new HashMap<>();
         Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
         this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
+                .andDo(document("subnet_get_project_vpc_empty"))
                 .andExpect(status().isOk());
     }
 
@@ -373,6 +389,7 @@ public class SubnetControllerTests {
                 UnitTestConfig.name,UnitTestConfig.cidr));
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("subnet_delete"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.subnetId));
     }
@@ -383,6 +400,7 @@ public class SubnetControllerTests {
                 .thenReturn(null);
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("subnet_delete_noexist"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         System.out.println("-----json returned = " + response);

@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway;
 
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,12 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import org.junit.Rule;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.restdocs.JUnitRestDocumentation;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -32,11 +39,22 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureWireMock(port = 0)
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class AlcorApiGatewayApplicationTest {
 
     @Autowired
     private WebTestClient webClient;
 
+    private WebTestClient client;
+
+    @Rule
+    public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
+
+    @Before
+    public void init(){
+        this.client = this.webClient.mutate().filter(documentationConfiguration(restDocumentation)).build();
+    }
+    
     @Test
     public void contextLoads() throws Exception {
         //Stubs
@@ -49,12 +67,13 @@ public class AlcorApiGatewayApplicationTest {
 //                        .withBody("no fallback")
 //                        .withFixedDelay(3000)));
 
-        webClient
+        this.client
                 .get().uri("/get")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.headers.Hello").isEqualTo("Alcor");
+                .jsonPath("$.headers.Hello").isEqualTo("Alcor")
+                .consumeWith(document("admin_get"));
 
 //        webClient
 //                .get().uri("/delay/3")

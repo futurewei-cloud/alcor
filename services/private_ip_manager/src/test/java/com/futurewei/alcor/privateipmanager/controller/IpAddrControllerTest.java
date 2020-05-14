@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,9 +37,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class IpAddrControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -53,6 +57,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRangeJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andDo(document("ips_range_post"))
                 .andDo(print());
     }
 
@@ -60,6 +65,7 @@ public class IpAddrControllerTest {
     public void deleteIpAddrRange() throws Exception {
         this.mockMvc.perform(delete("/ips/range/range1"))
                 .andDo(print())
+                .andDo(document("ips_range_delete"))
                 .andExpect(status().isOk());
     }
 
@@ -67,6 +73,7 @@ public class IpAddrControllerTest {
     public void getIpAddrRangeTest() throws Exception {
         this.mockMvc.perform(get("/ips/range/range1"))
                 .andDo(print())
+                .andDo(document("ips_range_get"))
                 .andExpect(status().isOk());
     }
 
@@ -74,6 +81,7 @@ public class IpAddrControllerTest {
     public void listIpAddrRangeTest() throws Exception {
         this.mockMvc.perform(get("/ips/range/"))
                 .andDo(print())
+                .andDo(document("ips_range_list"))
                 .andExpect(status().isOk());
     }
 
@@ -87,6 +95,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andDo(document("ips_post"))
                 .andDo(print());
     }
 
@@ -111,6 +120,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andDo(document("ips_bulk_post"))
                 .andDo(print());
     }
 
@@ -124,6 +134,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("ips_activate"))
                 .andDo(print());
     }
 
@@ -146,6 +157,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("ips_bulk_activate"))
                 .andDo(print());
     }
 
@@ -159,6 +171,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("ips_deactivate"))
                 .andDo(print());
     }
 
@@ -181,6 +194,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("ips_bulk_deactivate"))
                 .andDo(print());
     }
 
@@ -188,7 +202,8 @@ public class IpAddrControllerTest {
     public void releaseIpAddrTest() throws Exception {
         this.mockMvc.perform(delete("/ips/4/range1/11.11.11.1"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("ips_delete"));
     }
 
     @Test
@@ -210,6 +225,7 @@ public class IpAddrControllerTest {
                 .content(ipAddrRequestBulkJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("ips_bulk_delete"))
                 .andDo(print());
     }
 
@@ -217,13 +233,15 @@ public class IpAddrControllerTest {
     public void getIpAddrTest() throws Exception {
         this.mockMvc.perform(get("/ips/4/range1/11.11.11.1"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("ips_get"));
     }
 
     @Test
     public void listIpAddrTest() throws Exception {
         this.mockMvc.perform(get("/ips/4/range1"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("ips_list"));
     }
 }

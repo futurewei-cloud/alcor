@@ -24,11 +24,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.IOException;
 
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class RouteControllerTests {
 
     @Autowired
@@ -49,7 +52,8 @@ public class RouteControllerTests {
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.route.id").value(UnitTestConfig.routeId));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.route.id").value(UnitTestConfig.routeId))
+                .andDo(document("route_get_byid"));
     }
 
     @Test
@@ -57,6 +61,7 @@ public class RouteControllerTests {
         Mockito.when(routeDatabaseService.getByRouteId(UnitTestConfig.routeId)).thenReturn(null);
         String response = this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
+                .andDo(document("route_get_byid_notpass"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         System.out.println("-----json returned = " + response);
@@ -69,7 +74,8 @@ public class RouteControllerTests {
                 .content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().is(201))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.route.destination").value(UnitTestConfig.cidr));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.route.destination").value(UnitTestConfig.cidr))
+                .andDo(document("vpc_route_post"));
     }
 
     @Test
@@ -78,6 +84,7 @@ public class RouteControllerTests {
             this.mockMvc.perform(post(createVpcUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.vpcResource))
                     .andDo(print())
+                    .andDo(document("vpc_route_post_notpass"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.route.destination").value(UnitTestConfig.cidr));
         } catch (Exception e) {
@@ -90,6 +97,7 @@ public class RouteControllerTests {
         this.mockMvc.perform(post(createSubnetUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
                 .andDo(print())
+                .andDo(document("subnet_route_post"))
                 .andExpect(status().is(201))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.route.destination").value(UnitTestConfig.cidr));
     }
@@ -100,6 +108,7 @@ public class RouteControllerTests {
             this.mockMvc.perform(post(createSubnetUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
+                    .andDo(document("subnet_route_post_paramerror"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.route.destination").value(UnitTestConfig.cidr));
         } catch (Exception e) {
@@ -113,6 +122,7 @@ public class RouteControllerTests {
                 .thenReturn(new RouteState(){{setId(UnitTestConfig.routeId);}});
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("rule_delete"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.routeId));
     }
@@ -123,6 +133,7 @@ public class RouteControllerTests {
                 .thenReturn(null);
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("rule_delete_notexist"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertEquals("{\"id\":null}", response);

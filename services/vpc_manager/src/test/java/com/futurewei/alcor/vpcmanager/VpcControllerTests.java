@@ -32,10 +32,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 public class VpcControllerTests {
 
     @Autowired
@@ -61,6 +66,7 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
+                .andDo(document("vpc_get_byid"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.id").value(UnitTestConfig.vpcId));
     }
@@ -70,6 +76,7 @@ public class VpcControllerTests {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId)).thenReturn(null);
         String response = this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
+                .andDo(document("vpc_get_nofind"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         System.out.println("-----json returned = " + response);
@@ -87,6 +94,7 @@ public class VpcControllerTests {
                 .thenReturn(routeWebJson);
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
+                .andDo(document("vpcstate_post"))
                 .andExpect(status().is(201))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.id").value(UnitTestConfig.vpcId));
     }
@@ -108,6 +116,7 @@ public class VpcControllerTests {
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                     .andDo(print())
+                    .andDo(document("vpcstate_post_noroute"))
                     .andExpect(status().is(201))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.network.routes[0].destination").value(UnitTestConfig.cidr));
         } catch (Exception e) {
@@ -123,6 +132,7 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
+                .andDo(document("vpcstate_update_no"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.id").value(UnitTestConfig.vpcId));
     }
@@ -138,6 +148,7 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
+                .andDo(document("vpcstate_update"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.name").value(UnitTestConfig.updateName));
     }
@@ -150,6 +161,7 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("vpcsate_delete"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.vpcId));
     }
@@ -160,6 +172,7 @@ public class VpcControllerTests {
                 .thenReturn(null);
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
+                .andDo(document("vpcstate_delete_noexist"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         System.out.println("-----json returned = " + response);
@@ -175,6 +188,7 @@ public class VpcControllerTests {
         vpcStates.put("VpcWebResponseObject", vpcState);
         Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
+                .andDo(document("vpcstate_get_by_projectid"))
                 .andExpect(status().isOk());
     }
 
@@ -183,6 +197,7 @@ public class VpcControllerTests {
         Map<String, VpcWebResponseObject> vpcStates = new HashMap<>();
         Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
+                .andDo(document("vpcstate_get_by_projectid_empty"))
                 .andExpect(status().isOk());
     }
 
