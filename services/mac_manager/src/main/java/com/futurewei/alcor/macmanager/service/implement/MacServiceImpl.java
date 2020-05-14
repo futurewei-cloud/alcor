@@ -273,7 +273,7 @@ public class MacServiceImpl implements MacService {
         return activeMacRanges.get(vector.elementAt(randomIndex));
     }
 
-    public void getActiveMacRanges() throws Exception {
+    private void getActiveMacRanges() throws Exception {
         Hashtable<String, MacRange> macRanges = new Hashtable(macRangeRepository.findAllItems());
         if (macRanges == null)
             macRanges = new Hashtable<String, MacRange>();
@@ -300,7 +300,7 @@ public class MacServiceImpl implements MacService {
         return from < to;
     }
 
-    public MacRange createDefaultRange(String oui) {
+    private MacRange createDefaultRange(String oui) {
         String rangeId = MacUtil.DEFAULT_RANGE;
         long nNicLength = (long)Math.pow(2,MacAddress.NIC_LENGTH);
         String strFrom  = MacAddress.longToMac(0);
@@ -314,7 +314,7 @@ public class MacServiceImpl implements MacService {
         return defaultRange;
     }
 
-    public long generateMacInPool(int n) throws Exception {
+    private long generateMacInPool(int n) throws Exception {
         Exception exception = null;
         long nReturn = 0;
         ArrayList<String> list = new ArrayList<String>();
@@ -341,7 +341,7 @@ public class MacServiceImpl implements MacService {
         return nReturn;
     }
 
-    public void updateMacAllocationStatus(String strMacAddress) throws Exception {
+    private void updateMacAllocationStatus(String strMacAddress) throws Exception {
         MacRange deafultRange = getMacRangeByMacRangeId(MacUtil.DEFAULT_RANGE);
         BitSet bitSet = deafultRange.getBitSet();
         int ndx = macToIndex(deafultRange, strMacAddress);
@@ -349,7 +349,7 @@ public class MacServiceImpl implements MacService {
         macRangeRepository.addItem(deafultRange);
     }
 
-    public int macToIndex(MacRange range, String strMac) {
+    private int macToIndex(MacRange range, String strMac) {
         int ndx = 0;
         MacAddress mac = new MacAddress(strMac);
         long nMac1 = MacAddress.macToLong(strMac);
