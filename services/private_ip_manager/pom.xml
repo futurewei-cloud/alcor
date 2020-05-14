@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>AlcorPrivateIpManager</artifactId>
+    <artifactId>privateipmanager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>AlcorPrivateIpManager</name>
     <description>Alcor Private Ip Manager Module</description>
@@ -30,24 +30,30 @@
             <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
-    
+
     <dependencies>
+
+        <!--Service Basic dependencies-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>2.4.2</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.0</version>
-        </dependency>
+        <!--Swagger dependencies-->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -64,21 +70,27 @@
             <version>${swagger2markup.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--Internal dependencies-->
         <dependency>
             <groupId>com.futurewei.alcor.common</groupId>
             <artifactId>AlcorCommonLib</artifactId>
             <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.grakn</groupId>
-            <artifactId>redis-mock</artifactId>
-            <version>0.1.6</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.futurewei.alcor.web</groupId>
             <artifactId>AlcorWeb</artifactId>
             <version>0.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>ai.grakn</groupId>-->
+        <!--            <artifactId>redis-mock</artifactId>-->
+        <!--            <version>0.1.6</version>-->
+        <!--        </dependency>-->
+
     </dependencies>
 
     <build>
