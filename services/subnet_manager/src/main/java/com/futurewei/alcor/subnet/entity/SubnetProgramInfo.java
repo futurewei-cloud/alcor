@@ -16,15 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.subnet.entity;
 
 import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.VpcWebResponseObject;
 import lombok.Data;
 
 @Data
 public class SubnetProgramInfo {
 
     private SubnetWebObject customerSubnetWebObject;
-    private VpcState customerVpcState;
+    private VpcWebResponseObject customerVpcState;
 
-    public SubnetProgramInfo(SubnetWebObject customerSubnetWebObject, VpcState customerVpcState) {
+    public SubnetProgramInfo(SubnetWebObject customerSubnetWebObject, VpcWebResponseObject customerVpcState) {
         this.customerSubnetWebObject = customerSubnetWebObject;
         this.customerVpcState = customerVpcState;
     }
@@ -37,11 +38,11 @@ public class SubnetProgramInfo {
         this.customerSubnetWebObject = customerSubnetWebObject;
     }
 
-    public VpcState getCustomerVpcState() {
+    public VpcWebResponseObject getCustomerVpcState() {
         return customerVpcState;
     }
 
-    public void setCustomerVpcState(VpcState customerVpcState) {
+    public void setCustomerVpcState(VpcWebResponseObject customerVpcState) {
         this.customerVpcState = customerVpcState;
     }
 

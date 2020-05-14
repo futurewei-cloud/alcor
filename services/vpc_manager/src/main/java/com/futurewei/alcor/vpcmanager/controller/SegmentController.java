@@ -2,13 +2,11 @@ package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
-import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourceNullException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.vpcmanager.utils.SegmentManagementUtil;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +41,7 @@ public class SegmentController {
      */
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public SegmentWebResponseJson getSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentWebResponseObject segmentWebResponseObject = null;
@@ -75,7 +73,7 @@ public class SegmentController {
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/segments", "/v4/{projectid}/segments"})
+            value = {"/project/{projectid}/segments"})
     @ResponseStatus(HttpStatus.CREATED)
     public SegmentWebResponseJson createSegment(@PathVariable String projectid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
@@ -83,6 +81,10 @@ public class SegmentController {
         String networkTypeId = UUID.randomUUID().toString();
 
         try {
+            if (!SegmentManagementUtil.checkSegmentCreateResourceIsValid(resource)) {
+                throw new ResourceNotValidException("vpc resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
             BeanUtils.copyProperties(segmentWebRequestObject, segmentWebResponseObject);
@@ -105,6 +107,7 @@ public class SegmentController {
                 segmentWebResponseObject.setSegmentationUUID(networkTypeId);
             }
 
+            segmentWebResponseObject = SegmentManagementUtil.configureSegmentDefaultParameters(segmentWebResponseObject);
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);
 
             segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentWebResponseObject.getId());
@@ -132,7 +135,7 @@ public class SegmentController {
      */
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public SegmentWebResponseJson updateSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentWebResponseObject segmentWebResponseObject = new SegmentWebResponseObject();
@@ -172,7 +175,7 @@ public class SegmentController {
      */
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public ResponseId deleteSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentWebResponseObject segmentWebResponseObject = null;

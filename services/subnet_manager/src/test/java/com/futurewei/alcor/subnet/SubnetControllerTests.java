@@ -12,9 +12,7 @@ import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.RouteWebObject;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,10 +82,10 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
-        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         RouteWebJson routeWebJson = new RouteWebJson();
         MacStateJson macResponse = new MacStateJson();
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
@@ -95,7 +93,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetWebObject);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcStateJson);
+                .thenReturn(vpcWebJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetWebObject.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
@@ -115,7 +113,7 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
         MacState macState = new MacState();
         macState.setMacAddress(UnitTestConfig.macAddress);
@@ -153,10 +151,10 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
-        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
         macResponse.setMacState(macState);
@@ -165,7 +163,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetWebObject);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcStateJson);
+                .thenReturn(vpcWebJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetWebObject.class)))
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
@@ -190,19 +188,19 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteWebObject routeWebObject = new RouteWebObject();
         routeWebJson.setRoute(routeWebObject);
-        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetWebObject);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcStateJson);
+                .thenReturn(vpcWebJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetWebObject.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
@@ -227,13 +225,13 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteWebObject routeWebObject = new RouteWebObject();
         routeWebJson.setRoute(routeWebObject);
-        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
         macResponse.setMacState(macState);
@@ -241,7 +239,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetWebObject);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcStateJson);
+                .thenReturn(vpcWebJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetWebObject.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
@@ -265,13 +263,13 @@ public class SubnetControllerTests {
         SubnetWebObject subnetWebObject = new SubnetWebObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.invalidCidr);
-        VpcState vpcState = new VpcState(UnitTestConfig.projectId,
+        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.invalidCidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteWebObject routeWebObject = new RouteWebObject();
         routeWebJson.setRoute(routeWebObject);
-        VpcStateJson vpcStateJson = new VpcStateJson(vpcState);
+        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
         macResponse.setMacState(macState);
@@ -280,7 +278,7 @@ public class SubnetControllerTests {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(subnetWebObject);
         Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcStateJson);
+                .thenReturn(vpcWebJson);
         Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetWebObject.class)))
                 .thenReturn(routeWebJson);
         Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))

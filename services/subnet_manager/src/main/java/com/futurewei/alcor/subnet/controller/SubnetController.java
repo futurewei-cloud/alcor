@@ -23,6 +23,7 @@ import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
@@ -31,10 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,7 +54,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectId}/subnets/{subnetId}", "v4/{projectId}/subnets/{subnetId}"})
+            value = {"/project/{projectId}/subnets/{subnetId}"})
     public SubnetWebJson getSubnetStateById(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
 
         SubnetWebObject subnetWebObject = null;
@@ -82,7 +81,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectId}/subnets/bulk", "v4/{projectId}/subnets/bulk"})
+            value = {"/project/{projectId}/subnets/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetsWebJson createSubnetStateBulk(@PathVariable String projectId, @RequestBody SubnetWebJson resource) throws Exception {
         return new SubnetsWebJson();
@@ -90,7 +89,7 @@ public class SubnetController {
 
         @RequestMapping(
             method = POST,
-            value = {"/project/{projectId}/subnets", "v4/{projectId}/subnets"})
+            value = {"/project/{projectId}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
     public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebJson resource) throws Exception {
         long start = System.currentTimeMillis();
@@ -104,6 +103,10 @@ public class SubnetController {
         String portId = UUID.randomUUID().toString();
 
         try {
+            if (!SubnetManagementUtil.checkSubnetCreateResourceIsValid(resource)) {
+                throw new ResourceNotValidException("vpc resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
@@ -131,7 +134,7 @@ public class SubnetController {
             });
 
             // Verify VPC ID
-            CompletableFuture<VpcStateJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
                 try {
                     return this.subnetService.verifyVpcId(projectId, vpcId);
                 } catch (Exception e) {
@@ -196,6 +199,32 @@ public class SubnetController {
                 inSubnetWebObject.setIpV6RangeId(ipResponse.getRangeId());
             }
 
+            // create_at and update_at
+            Date currentTime = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateString = formatter.format(currentTime);
+            inSubnetWebObject.setCreated_at(dateString);
+            inSubnetWebObject.setUpdated_at(dateString);
+
+            // tenant_id
+            String tenantId = inSubnetWebObject.getTenantId();
+            if (tenantId == null) {
+                inSubnetWebObject.setTenantId(inSubnetWebObject.getProjectId());
+            }
+
+            // tags
+            List<String> tags = inSubnetWebObject.getTags();
+            if (tags == null) {
+                tags = new ArrayList<String>(){{add("tag1,tag2");}};
+                inSubnetWebObject.setTags(tags);
+            }
+
+            // revision_number
+            Integer revisionNumber = inSubnetWebObject.getRevisionNumber();
+            if (revisionNumber == null || revisionNumber < 1) {
+                inSubnetWebObject.setRevisionNumber(1);
+            }
+
             this.subnetDatabaseService.addSubnet(inSubnetWebObject);
 
 //            subnetState = this.subnetDatabaseService.getBySubnetId(subnetId);
@@ -219,7 +248,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectId}/subnets/{subnetId}", "v4/{projectId}/subnets/{subnetId}"})
+            value = {"/project/{projectId}/subnets/{subnetId}"})
     public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
 
         SubnetWebObject subnetWebObject = null;
@@ -257,7 +286,7 @@ public class SubnetController {
 
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectId}/subnets/{subnetId}", "v4/{projectId}/subnets/{subnetId}"})
+            value = {"/project/{projectId}/subnets/{subnetId}"})
     public ResponseId deleteSubnetState(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
 
         SubnetWebObject subnetWebObject = null;

@@ -37,7 +37,7 @@ public class SegmentRangeController {
      */
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public NetworkSegmentRangeWebResponseJson getSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = null;
@@ -69,7 +69,7 @@ public class SegmentRangeController {
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/network_segment_ranges", "/v4/{projectid}/network_segment_ranges"})
+            value = {"/project/{projectid}/network_segment_ranges"})
     @ResponseStatus(HttpStatus.CREATED)
     public NetworkSegmentRangeWebResponseJson createSegmentRange(@PathVariable String projectid, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
@@ -109,7 +109,7 @@ public class SegmentRangeController {
      */
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public NetworkSegmentRangeWebResponseJson updateSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
         NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = new NetworkSegmentRangeWebResponseObject();
@@ -149,7 +149,7 @@ public class SegmentRangeController {
      */
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}", "/v4/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+            value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public ResponseId deleteSegmentRangeBySegmentId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = null;

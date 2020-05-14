@@ -9,10 +9,7 @@ import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.RouteWebObject;
-import com.futurewei.alcor.web.entity.SubnetWebJson;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.*;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +62,9 @@ public class SubnetServiceImp implements SubnetService {
     @Async
     @Override
     public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
-        String ipManagerServiceUrl = ipUrl + ipVersion + rangeId + ipAddr;
+        String ipManagerServiceUrl = ipUrl + ipVersion + "/" + rangeId + "/" + ipAddr;
         restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
-        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId ;
+        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId;
         restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
     }
 
@@ -111,14 +108,15 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
-        String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId;
-        VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
-        if (vpcResponse.getVpc() == null) {
+    public VpcWebJson verifyVpcId(String projectId, String vpcId) throws FallbackException {
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId;
+        VpcWebJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcWebJson.class);
+        if (vpcResponse.getNetwork() == null) {
             throw new FallbackException("fallback request");
         }
         return vpcResponse;
     }
+
 
     @Override
     public RouteWebJson createRouteRules(String subnetId, SubnetWebObject subnetWebObject) throws FallbackException {
@@ -256,7 +254,7 @@ public class SubnetServiceImp implements SubnetService {
             }
         }
         // verify cidr prefix
-        String[] addr = cidrs[0].split("\\." , -1);
+        String[] addr = cidrs[0].split("\\.", -1);
         if (addr.length != 4) {
             return false;
         }

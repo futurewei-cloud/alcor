@@ -7,6 +7,7 @@ import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.web.entity.RouteWebJson;
 import com.futurewei.alcor.web.entity.SubnetWebJson;
 import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.VpcWebJson;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,7 +30,7 @@ public interface SubnetService {
                                    String message) throws CacheException;
 
     // Verify VPC ID
-    public VpcStateJson verifyVpcId (String projectId, String vpcId) throws Exception;
+    public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
     public RouteWebJson createRouteRules (String subnetId, SubnetWebObject subnetWebObject) throws Exception;

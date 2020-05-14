@@ -55,7 +55,7 @@ public class VpcController {
      */
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/project/{projectid}/vpcs/{vpcid}"})
     public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcWebResponseObject vpcState = null;
@@ -81,7 +81,7 @@ public class VpcController {
 
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/vpcs/bulk", "/v4/{projectid}/vpcs/bulk"})
+            value = {"/project/{projectid}/vpcs/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
     public VpcsWebJson createVpcStateBulk(@PathVariable String projectid, @RequestBody VpcsWebJson resource) throws Exception {
         return new VpcsWebJson();
@@ -96,7 +96,7 @@ public class VpcController {
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/vpcs", "/v4/{projectid}/vpcs"})
+            value = {"/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         VpcWebResponseObject inVpcState = new VpcWebResponseObject();
@@ -167,7 +167,7 @@ public class VpcController {
      */
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/project/{projectid}/vpcs/{vpcid}"})
     public VpcWebJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource) throws Exception {
 
         VpcWebResponseObject inVpcState = new VpcWebResponseObject();
@@ -207,7 +207,7 @@ public class VpcController {
      */
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/vpcs/{vpcid}", "/v4/{projectid}/vpcs/{vpcid}"})
+            value = {"/project/{projectid}/vpcs/{vpcid}"})
     public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         VpcWebResponseObject vpcState = null;
 

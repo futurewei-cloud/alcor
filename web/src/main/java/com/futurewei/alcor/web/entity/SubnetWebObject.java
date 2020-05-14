@@ -99,7 +99,7 @@ public class SubnetWebObject extends CustomerResource {
     private boolean dnsPublishFixedIp;
 
     @JsonProperty("tags")
-    private String tags;
+    private List<String> tags;
 
     @JsonIgnore
     private String tagsAny;
