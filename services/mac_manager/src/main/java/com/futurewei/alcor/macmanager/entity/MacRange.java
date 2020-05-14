@@ -14,12 +14,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.macmanager.utils.MacUtil;
 import lombok.Data;
+
+import java.util.BitSet;
 
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+        setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public class MacRange {
     @JsonProperty("range_id")
     private String rangeId;
@@ -33,6 +38,9 @@ public class MacRange {
     @JsonProperty("state")
     private String state;
 
+    @JsonIgnore
+    private BitSet bitSet;
+
     public MacRange() {
     }
 
@@ -45,15 +53,6 @@ public class MacRange {
         this.from = from;
         this.to = to;
         this.state = state;
-    }
-
-    public void createDefault(String oui) {
-        rangeId = MacUtil.DEFAULT_RANGE;
-        String strFrom  = MacAddress.longToMac(0);
-        String strTo = MacAddress.longToMac((long)Math.pow(2,MacAddress.NIC_LENGTH) - 1);
-        from = new MacAddress(oui, strFrom).getMacAddress();
-        to = new MacAddress(oui, strTo).getMacAddress();
-        state = MacUtil.MAC_RANGE_STATE_ACTIVE;
     }
 }
 
