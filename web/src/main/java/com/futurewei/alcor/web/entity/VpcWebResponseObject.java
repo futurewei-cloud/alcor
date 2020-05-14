@@ -42,7 +42,7 @@ public class VpcWebResponseObject extends CustomerResource {
     private boolean routerExternal;
 
     @JsonProperty("segments")
-    private List<SegmentWebResponseObject> segments;
+    private List<SegmentInfoInVpc> segments;
 
     @JsonProperty("shared")
     private boolean shared;
@@ -72,7 +72,7 @@ public class VpcWebResponseObject extends CustomerResource {
     private String status;
 
     @JsonProperty("tags")
-    private String tags;
+    private List<String> tags;
 
     @CreatedDate
     @JsonProperty("created_at")
@@ -101,7 +101,7 @@ public class VpcWebResponseObject extends CustomerResource {
         this.routes = routes;
     }
 
-    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentWebResponseObject> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, String tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebObject> subnets, String cidr) {
+    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebObject> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routes = routes;
         this.adminStateUp = adminStateUp;

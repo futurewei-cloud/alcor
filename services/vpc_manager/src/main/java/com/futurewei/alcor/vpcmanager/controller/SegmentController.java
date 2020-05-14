@@ -102,8 +102,8 @@ public class SegmentController {
 
             if (key != null) {
                 segmentWebResponseObject.setSegmentationId(Integer.parseInt(String.valueOf(key)));
+                segmentWebResponseObject.setSegmentationUUID(networkTypeId);
             }
-            segmentWebResponseObject.setSegmentationUUID(networkTypeId);
 
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);
 

@@ -17,13 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourceNullException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
+import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.*;
 import org.springframework.beans.BeanUtils;
@@ -104,6 +102,11 @@ public class VpcController {
         VpcWebResponseObject inVpcState = new VpcWebResponseObject();
 
         try {
+
+            if (!VpcManagementUtil.checkVpcCreateResourceIsValid(resource)) {
+                throw new ResourceNotValidException("vpc resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
             BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
@@ -116,13 +119,20 @@ public class VpcController {
             if (inVpcState == null) {
                 throw new ResourcePersistenceException();
             }
+            inVpcState = VpcManagementUtil.configureNetworkDefaultParameters(inVpcState);
 
-            // Create default segment if there is no segments
-            List<SegmentWebResponseObject> segments = inVpcState.getSegments();
-            if (segments == null) {
-                segments = new ArrayList<>();
+            // Check segments
+            List<SegmentInfoInVpc> segments = vpcWebRequestObject.getSegments();
+            if (segments != null) {
+                List<SegmentInfoInVpc> newSegments = new ArrayList<>();
+                for (SegmentInfoInVpc segmentInfo : segments) {
+                    SegmentInfoInVpc newSegmentInfo = new SegmentInfoInVpc (segmentInfo.getNetworkType(),
+                            segmentInfo.getPhysicalNetwork(),
+                            segmentInfo.getSegmentationId());
+                    newSegments.add(newSegmentInfo);
+                }
+                inVpcState.setSegments(newSegments);
             }
-
 
             // get route info
             RouteWebJson response = this.vpcService.getRoute(inVpcState.getId(), inVpcState);

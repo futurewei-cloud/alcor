@@ -56,7 +56,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private boolean routerExternal;
 
     @JsonProperty("segments")
-    private List<SegmentWebRequestObject> segments;
+    private List<SegmentInfoInVpc> segments;
 
     @JsonProperty("shared")
     private boolean shared;
