@@ -42,8 +42,8 @@ public class MacManagerProxy {
         rollbacks.push(rollback);
     }
 
-    private MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String mac) throws Exception {
-        return macManagerRestClient.allocateMacAddress(projectId, vpcId, portId, mac);
+    private MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
+        return macManagerRestClient.allocateMacAddress(projectId, vpcId, portId, macAddress);
     }
 
     /**

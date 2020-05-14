@@ -40,12 +40,12 @@ public class MacManagerRestClient extends AbstractRestClient {
         restTemplate.delete(url);
     }
 
-    public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String mac) throws Exception {
+    public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
         MacState macState = new MacState();
         macState.setProjectId(projectId);
         macState.setVpcId(vpcId);
         macState.setPortId(portId);
-        macState.setMacAddress(mac);
+        macState.setMacAddress(macAddress);
 
         MacStateJson macStateJson = new MacStateJson();
         macStateJson.setMacState(macState);
