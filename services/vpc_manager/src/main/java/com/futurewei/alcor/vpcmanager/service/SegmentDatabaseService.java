@@ -4,7 +4,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 
 import java.util.Map;
 

@@ -35,11 +35,22 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
     }
 
     @Override
-    public String allocate() throws Exception {
-        int freeBit = bitSet.nextClearBit(0);
+    public String allocate(String ipAddr) throws Exception {
+        int freeBit;
 
-        if (freeBit < 0 || freeBit >= ipAddrNum) {
-            throw new IpAddrNotEnoughException();
+        if (ipAddr != null) {
+            long ipLong = Ipv4AddrUtil.ipv4ToLong(ipAddr);
+            if (ipLong < firstIp || ipLong > lastIp) {
+                throw new IpAddrInvalidException();
+            }
+
+            freeBit = (int)(ipLong - firstIp);
+        } else {
+            freeBit = bitSet.nextClearBit(0);
+
+            if (freeBit < 0 || freeBit >= ipAddrNum) {
+                throw new IpAddrNotEnoughException();
+            }
         }
 
         bitSet.set(freeBit);
@@ -92,5 +103,37 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
         long ipLong = Ipv4AddrUtil.ipv4ToLong(ipAddr);
 
         return ipLong >= firstIp && ipLong <= lastIp;
+    }
+
+    public BitSet getBitSet() {
+        return bitSet;
+    }
+
+    public void setBitSet(BitSet bitSet) {
+        this.bitSet = bitSet;
+    }
+
+    public long getFirstIp() {
+        return firstIp;
+    }
+
+    public void setFirstIp(long firstIp) {
+        this.firstIp = firstIp;
+    }
+
+    public long getLastIp() {
+        return lastIp;
+    }
+
+    public void setLastIp(long lastIp) {
+        this.lastIp = lastIp;
+    }
+
+    public long getIpAddrNum() {
+        return ipAddrNum;
+    }
+
+    public void setIpAddrNum(long ipAddrNum) {
+        this.ipAddrNum = ipAddrNum;
     }
 }
