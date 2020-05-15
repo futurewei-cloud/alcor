@@ -24,20 +24,21 @@ option java_outer_classname = "Port";
 import "common.proto";
 
 message PortConfiguration {
-    int32 version = 1;
+    uint32 version = 1;
 
     // FIXME: the options for NetworkType are:
     // 1. put in PortConfiguration here since only useful for Port, ACA programming will be direct and easier
     // 2. put in VPC configuration since it is a "network level" configuration, 
     //      that mean every port configuration needs to go with VPC config for ACA to look up
-    NetworkType network_type = 13;  // TODO: the ID will be update after discussion
-    string project_id = 2;
-    string network_id = 3;
-    string id = 4;
-    string name = 5;
-    string network_ns = 6;
-    string mac_address = 7;
-    string veth_name = 8;
+    NetworkType network_type = 2;
+    string project_id = 3;
+    string network_id = 4;
+    string id = 5;
+    string name = 6;
+    string network_ns = 7;
+    string mac_address = 8;
+    string veth_name = 9;
+    bool admin_state_up = 10;
 
     message HostInfo {
         string ip_address = 1;
@@ -49,19 +50,19 @@ message PortConfiguration {
         string ip_address = 2;
     }
 
-    message SecurityGroupId {
-        string id = 1;
-    }
-
     message AllowAddressPair {
         string ip_address = 1;
         string mac_address = 2;
     }
 
-    HostInfo host_info = 9; // FIXME: will be used to populate neighbor info only
-    repeated FixedIp fixed_ips = 10;
-    repeated SecurityGroupId security_group_ids = 11;
-    repeated AllowAddressPair allow_address_pairs = 12;
+    message SecurityGroupId {
+        string id = 1;
+    }
+
+    HostInfo host_info = 11;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated SecurityGroupId security_group_ids = 14;
 
     // FIXME: note that for neutron, it sends down more stuff than this
     // please review and see if there is anything else we needed now:

@@ -24,7 +24,7 @@ option java_outer_classname = "Subnet";
 import "common.proto";
 
 message SubnetConfiguration {
-    int32 version = 1;
+    uint32 version = 1;
 
     string project_id = 2;
     string vpc_id = 3;
@@ -46,25 +46,24 @@ message SubnetConfiguration {
     string primary_dns = 11;
     string secondary_dns = 12;
 
-    message DnsEntry {
-        string entry = 1;
-    }
-
     message SecurityGroupId {
         string id = 1;
     }
 
+    repeated SecurityGroupId security_group_ids = 14; // FIXME: why to store in subnet level? 
+
+    // start Mizar specific session
+    // note that repeated field are inherently optional
     message TransitSwitch {
         string vpc_id = 1;
         string subnet_id = 2;
         string ip_address = 3;
         string mac_address = 4;
     }
-
-    repeated DnsEntry dns_list = 13; // FIXME: what is this for?
-    repeated SecurityGroupId security_group_ids = 14; // FIXME: why to store in subnet level? 
-    repeated TransitSwitch transit_switches = 15; // FIXME: to be removed
+    repeated TransitSwitch transit_switches = 15;
+    // end Mizar specific session
 }
+
 message SubnetState {
     OperationType operation_type = 1;
     SubnetConfiguration configuration = 2;

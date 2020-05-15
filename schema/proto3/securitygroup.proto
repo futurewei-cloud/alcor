@@ -24,7 +24,7 @@ option java_outer_classname = "SecurityGroup";
 import "common.proto";
 
 message SecurityGroupConfiguration {
-    int32 version = 1;
+    uint32 version = 1;
 
     string project_id = 2;
     string vpc_id = 3;
@@ -42,9 +42,8 @@ message SecurityGroupConfiguration {
         Direction direction = 3;
         EtherType ethertype = 4;
         Protocol protocol = 5;
-
-        int32 port_range_min = 6;
-        int32 port_range_max = 7;
+        uint32 port_range_min = 6;
+        uint32 port_range_max = 7;
         string remote_ip_prefix = 8;
         string remote_group_id = 9;
     }

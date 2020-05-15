@@ -24,7 +24,7 @@ option java_outer_classname = "DHCP";
 import "common.proto";
 
 message DHCPConfiguration {
-    int32 version = 1;
+    uint32 version = 1;
 
     string mac_address = 2;
     string ipv4_address = 3;
@@ -36,7 +36,12 @@ message DHCPConfiguration {
         string value = 2;
     }
 
+    message DnsEntry {
+        string entry = 1;
+    }
+
     repeated ExtraDhcpOption extra_dhcp_options = 6;
+    repeated DnsEntry dns_entry_list = 7;
 }
 
 message DHCPState {

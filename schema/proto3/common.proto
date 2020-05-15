@@ -36,8 +36,8 @@ enum OperationType {
     DELETE = 3;
     INFO = 4;
     FINALIZE = 5; // FIXME: we will try to the whole port operation in the FINALIZE call
-    CREATE_UPDATE_SWITCH = 6; // FIXME: I don't think we need this for OVS?
-    CREATE_UPDATE_ROUTER = 7;
+    CREATE_UPDATE_SWITCH = 6; // For Mizar only
+    CREATE_UPDATE_ROUTER = 7; // For Mizar only
     CREATE_UPDATE_GATEWAY = 8;
     // FIXME: we will likely need an operation to create/update neighbor info
 }
@@ -66,4 +66,5 @@ enum NetworkType {
     VLAN = 1;
     GRE = 2;
     GENEVE = 3;
+    VXLAN_GPE = 4;
 }
