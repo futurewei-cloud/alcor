@@ -15,12 +15,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.util.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortState;
-import com.futurewei.alcor.web.restclient.MacManagerRestClient;
+import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
 import java.util.Stack;
 
 public class MacManagerProxy {

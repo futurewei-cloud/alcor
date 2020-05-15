@@ -3,11 +3,13 @@ package com.futurewei.alcor.subnet.service;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
-import com.futurewei.alcor.subnet.entity.*;
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.SubnetWebJson;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
-import com.futurewei.alcor.web.entity.VpcWebJson;
+
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,7 +41,7 @@ public interface SubnetService {
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
 
     // Verify/Allocate Gateway IP
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws Exception;
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws Exception;
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);

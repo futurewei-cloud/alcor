@@ -1,7 +1,7 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.vpcmanager.service.VpcService;
-import com.futurewei.alcor.web.entity.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.slf4j.Logger;

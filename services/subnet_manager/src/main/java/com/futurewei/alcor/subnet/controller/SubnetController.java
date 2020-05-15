@@ -19,13 +19,20 @@ package com.futurewei.alcor.subnet.controller;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
-import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,7 +168,7 @@ public class SubnetController {
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr);
+                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }

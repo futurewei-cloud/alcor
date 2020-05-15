@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.AllocationPool;
 import com.futurewei.alcor.web.entity.HostRoute;
-import com.futurewei.alcor.web.entity.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -102,7 +102,7 @@ public class SubnetWebObject extends CustomerResource {
     private boolean dnsPublishFixedIp;
 
     @JsonProperty("tags")
-    private String tags;
+    private List<String> tags;
 
     @JsonIgnore
     private String tagsAny;

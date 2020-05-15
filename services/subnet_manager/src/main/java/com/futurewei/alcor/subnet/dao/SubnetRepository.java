@@ -22,7 +22,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;

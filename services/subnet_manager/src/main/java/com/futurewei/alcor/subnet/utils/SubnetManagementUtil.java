@@ -18,14 +18,8 @@ package com.futurewei.alcor.subnet.utils;
 
 import com.futurewei.alcor.common.enumClass.Ipv6AddressModeEnum;
 import com.futurewei.alcor.common.enumClass.Ipv6RaModeEnum;
-import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
-import com.futurewei.alcor.web.entity.SubnetWebJson;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
 
 public class SubnetManagementUtil {
 

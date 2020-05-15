@@ -18,7 +18,7 @@ package com.futurewei.alcor.subnet.utils;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.exception.*;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {

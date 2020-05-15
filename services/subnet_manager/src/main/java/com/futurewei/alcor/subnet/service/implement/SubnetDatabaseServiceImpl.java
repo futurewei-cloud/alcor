@@ -4,7 +4,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.subnet.dao.SubnetRepository;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

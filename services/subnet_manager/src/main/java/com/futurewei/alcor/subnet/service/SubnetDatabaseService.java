@@ -4,7 +4,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
 
 import java.util.Map;
 

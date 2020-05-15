@@ -6,10 +6,14 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
-import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.vpc.*;
+import com.futurewei.alcor.web.entity.ip.*;
+import com.futurewei.alcor.web.entity.subnet.*;
+import com.futurewei.alcor.web.entity.mac.*;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +158,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -176,10 +180,12 @@ public class SubnetServiceImp implements SubnetService {
         ipAddrRangeRequest.setIpVersion(IpVersionConfig.IPV4.getVersion());
         ipAddrRangeRequest.setFirstIp(ips[0]);
         ipAddrRangeRequest.setLastIp(ips[1]);
+        ipAddrRangeRequest.setVpcId(vpcId);
 
 
         HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
                 ipAddrRangeRequest.getId(),
+                ipAddrRangeRequest.getVpcId(),
                 ipAddrRangeRequest.getSubnetId(),
                 ipAddrRangeRequest.getIpVersion(),
                 ipAddrRangeRequest.getFirstIp(),
@@ -197,9 +203,13 @@ public class SubnetServiceImp implements SubnetService {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(ipRangeResponse.getId());
         ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+        ipAddrRequest.setVpcId(vpcId);
+        ipAddrRequest.setSubnetId(subnetId);
 
         HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
                 ipAddrRequest.getIpVersion(),
+                ipAddrRequest.getVpcId(),
+                ipAddrRequest.getSubnetId(),
                 ipAddrRequest.getRangeId(),
                 ipAddrRequest.getIp(),
                 ipAddrRequest.getState()));

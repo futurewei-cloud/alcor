@@ -15,8 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.subnet.entity;
 
-import com.futurewei.alcor.web.entity.SubnetWebObject;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import lombok.Data;
 
 @Data

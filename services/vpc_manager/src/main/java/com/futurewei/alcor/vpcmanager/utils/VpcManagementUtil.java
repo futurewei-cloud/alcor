@@ -18,9 +18,8 @@ package com.futurewei.alcor.vpcmanager.utils;
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.VpcWebRequestJson;
-import com.futurewei.alcor.web.entity.VpcWebRequestObject;
-import com.futurewei.alcor.web.entity.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.*;
+import com.futurewei.alcor.web.entity.vpc.VpcWebRequestJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

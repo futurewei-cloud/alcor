@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.restclient;
+package com.futurewei.alcor.portmanager.restclient;
 
 import com.futurewei.alcor.web.entity.vpc.VpcStateJson;
 import org.springframework.beans.factory.annotation.Value;

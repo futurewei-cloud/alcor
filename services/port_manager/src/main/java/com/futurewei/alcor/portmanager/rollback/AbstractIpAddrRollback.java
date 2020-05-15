@@ -17,7 +17,7 @@ package com.futurewei.alcor.portmanager.rollback;
 
 
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.restclient.IpManagerRestClient;
+import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
