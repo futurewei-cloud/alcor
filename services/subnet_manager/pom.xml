@@ -88,6 +88,12 @@
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.futurewei.alcor</groupId>
+            <artifactId>schema</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!--Extra dependencies -->
         <dependency>
