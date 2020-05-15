@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.subnet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -234,8 +234,8 @@ public class SubnetController {
 
             this.subnetDatabaseService.addSubnet(inSubnetWebObject);
 
-//            subnetState = this.subnetDatabaseService.getBySubnetId(subnetId);
-//            if (SubnetState == null) {
+//            SubnetWebObject subnet = this.subnetDatabaseService.getBySubnetId(subnetId);
+//            if (subnet == null) {
 //                throw new ResourcePersistenceException();
 //            }
 

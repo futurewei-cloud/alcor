@@ -19,8 +19,6 @@ package com.futurewei.alcor.web.entity.subnet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.AllocationPool;
-import com.futurewei.alcor.web.entity.HostRoute;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
