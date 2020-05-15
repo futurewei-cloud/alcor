@@ -73,14 +73,14 @@
 
         <!--Internal dependencies-->
         <dependency>
-            <groupId>com.futurewei.alcor.common</groupId>
-            <artifactId>AlcorCommonLib</artifactId>
+            <groupId>com.futurewei.alcor</groupId>
+            <artifactId>common</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.futurewei.alcor.web</groupId>
-            <artifactId>AlcorWeb</artifactId>
+            <groupId>com.futurewei.alcor</groupId>
+            <artifactId>web</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
