@@ -158,10 +158,6 @@ public class IpManagerProxy {
         List<PortEntity.FixedIp> fixedIps = (List<PortEntity.FixedIp>)args;
 
         for (PortEntity.FixedIp fixedIp: fixedIps) {
-
-
-            IpAddrRequest ipAddrRequest = new IpAddrRequest();
-
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
             if (rangeId == null) {
@@ -169,6 +165,9 @@ public class IpManagerProxy {
             }
             ipManagerRestClient.releaseIpAddress(rangeId, fixedIp.getIpAddress());
 
+            ipManagerRestClient.releaseIpAddress(rangeId, fixedIp.getIpAddress());
+
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
             ipAddrRequest.setRangeId(rangeId);
             ipAddrRequest.setIp(fixedIp.getIpAddress());
 

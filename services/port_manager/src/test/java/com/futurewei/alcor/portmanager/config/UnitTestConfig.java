@@ -32,7 +32,7 @@ public class UnitTestConfig {
     public static String mac2 = "00:01:6C:06:A6:30";
     public static String securityGroup = "3d53801c-32ce-4e97-9572-bb966f4d45ca";
     public static String portStateWithFixedIps = "{\n" +
-            "    \"port_state\": {\n" +
+            "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"vpc_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
@@ -42,7 +42,7 @@ public class UnitTestConfig {
             "    }\n" +
             "}";
     public static String portStateWithoutFixedIps = "{\n" +
-            "    \"port_state\": {\n" +
+            "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"vpc_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
@@ -51,7 +51,7 @@ public class UnitTestConfig {
             "    }\n" +
             "}";
     public static String portStateWithMacAddress = "{\n" +
-            "    \"port_state\": {\n" +
+            "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"vpc_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
@@ -62,7 +62,7 @@ public class UnitTestConfig {
             "    }\n" +
             "}";
     public static String portStateWithoutMacAddress = "{\n" +
-            "    \"port_state\": {\n" +
+            "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"vpc_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
@@ -73,7 +73,7 @@ public class UnitTestConfig {
             "}";
 
     public static String updateFixedIps = "{\n" +
-            "    \"port_state\": {\n" +
+            "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"vpc_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +

@@ -156,7 +156,7 @@ public class PortControllerTest {
         return new MacStateJson(macState);
     }
 
-//    @Test
+    @Test
     public void createPortWithFixedIpsTest() throws Exception {
         Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
@@ -176,11 +176,11 @@ public class PortControllerTest {
                 .content(UnitTestConfig.portStateWithFixedIps))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
     }
 
-//    @Test
+    @Test
     public void createPortWithoutFixedIpsTest() throws Exception {
         Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
@@ -203,11 +203,11 @@ public class PortControllerTest {
                 .content(UnitTestConfig.portStateWithoutFixedIps))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
     }
 
-//    @Test
+    @Test
     public void createPortWithMacAddressTest() throws Exception {
         Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
@@ -227,11 +227,11 @@ public class PortControllerTest {
                 .content(UnitTestConfig.portStateWithMacAddress))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.mac_address").value(UnitTestConfig.mac1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_address").value(UnitTestConfig.mac1));
     }
 
-//    @Test
+    @Test
     public void createPortWithoutMacAddressTest() throws Exception {
         Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
@@ -251,11 +251,11 @@ public class PortControllerTest {
                 .content(UnitTestConfig.portStateWithoutMacAddress))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.mac_address").value(UnitTestConfig.mac1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_address").value(UnitTestConfig.mac1));
     }
 
-//    @Test
+    @Test
     public void updateFixedIpsTest() throws Exception {
         Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
@@ -274,11 +274,11 @@ public class PortControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.fixed_ips[0].ip_address").value(UnitTestConfig.ip2));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips[0].ip_address").value(UnitTestConfig.ip2));
     }
 
-//    @Test
+    @Test
     public void deleteFixedIpsTest() throws Exception {
         Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
@@ -297,8 +297,8 @@ public class PortControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port_state.fixed_ips").isEmpty());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips").isEmpty());
 
     }
 
@@ -333,7 +333,7 @@ public class PortControllerTest {
                 );
     }
 
-//    @Test
+    @Test
     public void deletePortTest() throws Exception {
         Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
