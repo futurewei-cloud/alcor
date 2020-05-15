@@ -315,7 +315,7 @@ ____
 
 Request:
 
-http://localhost:8080/goalstate/3dda2801-d675-4688-a63f-dcda8d327f50
+http://localhost:8080/goalstate/
 
 Body:
 
@@ -364,7 +364,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstate/{hostid}/{goalstateid}", "/v4/goalstate/{hostid}/{goalstateid}
+Request: /goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}
 ____
 * {blank}
 +
@@ -546,7 +546,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstates/{gsinfos}", "/v4/goalstates/{gsinfos}
+Request: /goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}
 ____
 * {blank}
 +
@@ -632,7 +632,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstates/{gsinfos}", "/v4/goalstates/{gsinfos}
+Request: /goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}
 ____
 * {blank}
 +
@@ -655,7 +655,7 @@ ____
 
 Request:
 
-http://localhost:8080/goalstate/3dda2801-d675-4688-a63f-dcda8d327f50
+http://localhost:8080/goalstates/
 
 Body:
 
