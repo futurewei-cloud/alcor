@@ -40,7 +40,7 @@ public class VpcManagementUtil {
 
         // mtu
         Integer mtu = network.getMtu();
-        if (mtu < 68) {
+        if (mtu != null && mtu < 68) {
             return false;
         }
 
