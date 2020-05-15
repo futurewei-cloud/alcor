@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>com.futurewei.alcor</groupId>
-            <artifactId>web</artifactId>
+            <artifactId>schema</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
