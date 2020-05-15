@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.futurewei.alcor.apigateway</groupId>
-    <artifactId>AlcorApiGateway</artifactId>
+    <groupId>com.futurewei.alcor</groupId>
+    <artifactId>apigateway</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>AlcorApiGateway</name>
@@ -38,6 +38,7 @@
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
@@ -62,10 +63,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
@@ -87,6 +84,7 @@
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
     <build>
