@@ -18,10 +18,19 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
+import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.thymeleaf.util.StringUtils;
 
+import java.util.logging.Level;
+
 public class RestPreconditionsUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger();
+
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
         if (resource == null) throw new ResourceNotFoundException();
 
@@ -61,22 +70,50 @@ public class RestPreconditionsUtil {
         if (StringUtils.isEmpty(resourceProjectId)) {
             resource.setProjectId(projectId);
         } else if (!resourceProjectId.equalsIgnoreCase(projectId)) {
-            System.out.println("Resource id not matched " + resourceProjectId + " : " + projectId);
+            logger.log(Level.INFO, "Resource id not matched " + resourceProjectId + " : " + projectId);
             resource.setProjectId(projectId);
         }
     }
 
     public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
         String resourceVpcId = null;
-        if (resource instanceof VpcState) {
+        if (resource instanceof VpcWebResponseObject) {
             resourceVpcId = resource.getId();
         }
 
         if (StringUtils.isEmpty(resourceVpcId)) {
             resource.setId(vpcId);
         } else if (!resourceVpcId.equalsIgnoreCase(vpcId)) {
-            System.out.println("Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
+            logger.log(Level.INFO, "Resource vpc id not matched " + resourceVpcId + " : " + vpcId);
             resource.setId(vpcId);
+        }
+    }
+
+    public static void populateResourceSegmentId(CustomerResource resource, String segmentId) {
+        String resourceSegmentId = null;
+        if (resource instanceof SegmentWebResponseObject) {
+            resourceSegmentId = resource.getId();
+        }
+
+        if (StringUtils.isEmpty(resourceSegmentId)) {
+            resource.setId(segmentId);
+        } else if (!resourceSegmentId.equalsIgnoreCase(segmentId)) {
+            logger.log(Level.INFO, "Resource segment id not matched " + resourceSegmentId + " : " + segmentId);
+            resource.setId(segmentId);
+        }
+    }
+
+    public static void populateResourceSegmentRangeId(CustomerResource resource, String segmentRangeId) {
+        String resourceSegmentRangeId = null;
+        if (resource instanceof NetworkSegmentRangeWebResponseObject) {
+            resourceSegmentRangeId = resource.getId();
+        }
+
+        if (StringUtils.isEmpty(resourceSegmentRangeId)) {
+            resource.setId(segmentRangeId);
+        } else if (!resourceSegmentRangeId.equalsIgnoreCase(segmentRangeId)) {
+            logger.log(Level.INFO, "Resource segment range id not matched " + resourceSegmentRangeId + " : " + segmentRangeId);
+            resource.setId(segmentRangeId);
         }
     }
 }

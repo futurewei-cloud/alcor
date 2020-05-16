@@ -19,7 +19,6 @@ import lombok.Data;
 
 @Data
 public class MacRangeJson {
-
     @JsonProperty("mac_range")
     private MacRange macRange;
 

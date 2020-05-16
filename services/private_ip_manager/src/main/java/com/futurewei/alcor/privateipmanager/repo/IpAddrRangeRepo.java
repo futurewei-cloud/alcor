@@ -22,11 +22,9 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
-import com.futurewei.alcor.privateipmanager.exception.InternalDbOperationException;
-import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeNotFoundException;
-import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeExistException;
-import com.futurewei.alcor.privateipmanager.exception.IpRangeNotFoundException;
+import com.futurewei.alcor.privateipmanager.entity.VpcIpRange;
+import com.futurewei.alcor.web.entity.ip.*;
+import com.futurewei.alcor.privateipmanager.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +39,12 @@ import java.util.*;
 public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrRangeRepo.class);
     private ICache<String, IpAddrRange> ipAddrRangeCache;
+    private ICache<String, VpcIpRange> vpcIpRangeCache;
 
     @Autowired
     public IpAddrRangeRepo(CacheFactory cacheFactory) {
         ipAddrRangeCache = cacheFactory.getCache(IpAddrRange.class);
+        vpcIpRangeCache = cacheFactory.getCache(VpcIpRange.class);
     }
 
     @PostConstruct
@@ -100,28 +100,66 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         }
     }
 
-    /**
-     * Allocate a ip address from IpAddrRange repository
-     * @param rangeId Assign ip addresses from this ip range
-     * @return Ip address assigned from ip range
-     * @throws Exception Db operation or ip address assignment exception
-     */
-    public synchronized String allocateIpAddr(String rangeId) throws Exception {
-        String ipAddr;
+    private IpAddrAlloc allocateIpdAddrByVpcId(String vpcId, int ipVersion) throws Exception {
+        VpcIpRange vpcIpRange = vpcIpRangeCache.get(vpcId);
+        if (vpcIpRange == null) {
+            throw new NotFoundIpRangeFromVpc();
+        }
 
-        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+        IpAddrAlloc ipAddrAlloc = null;
+        for (String rangeId: vpcIpRange.getRanges()) {
             IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
             if (ipAddrRange == null) {
                 throw new IpRangeNotFoundException();
             }
 
-            ipAddr = ipAddrRange.allocate();
-            ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+            if (ipAddrRange.getIpVersion() != ipVersion) {
+                continue;
+            }
 
-            tx.commit();
+            try {
+                ipAddrAlloc = ipAddrRange.allocate(null);
+            } catch (IpAddrNotEnoughException e) {
+                continue;
+            }
+
+            ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+            break;
         }
 
-        return ipAddr;
+        if (ipAddrAlloc == null) {
+            throw new IpAddrNotEnoughException();
+        }
+
+        return ipAddrAlloc;
+    }
+
+    /**
+     * Allocate a ip address from IpAddrRange repository
+     * @param request Assign ip address request
+     * @return Ip address assigned from ip range
+     * @throws Exception Db operation or ip address assignment exception
+     */
+    public synchronized IpAddrAlloc allocateIpAddr(IpAddrRequest request) throws Exception {
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            IpAddrAlloc ipAddrAlloc;
+
+            if (request.getRangeId() == null) {
+                ipAddrAlloc = allocateIpdAddrByVpcId(request.getVpcId(), request.getIpVersion());
+            } else {
+                IpAddrRange ipAddrRange = ipAddrRangeCache.get(request.getRangeId());
+                if (ipAddrRange == null) {
+                    throw new IpRangeNotFoundException();
+                }
+
+                ipAddrAlloc = ipAddrRange.allocate(request.getIp());
+                ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+            }
+
+            tx.commit();
+
+            return ipAddrAlloc;
+        }
     }
 
     /**
@@ -130,8 +168,8 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
      * @return Number of ip addresses assigned each ip range
      * @throws Exception Db operation or ip address assignment exception
      */
-    public synchronized Map<String, List<String>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
-        Map<String, List<String>> result = new HashMap<>();
+    public synchronized Map<String, List<IpAddrAlloc>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
+        Map<String, List<IpAddrAlloc>> result = new HashMap<>();
 
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
             for (Map.Entry<String, Integer> entry: requests.entrySet()) {
@@ -140,10 +178,10 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                     throw new IpRangeNotFoundException();
                 }
 
-                List<String> ipAddrList = ipAddrRange.allocateBulk(entry.getValue());
+                List<IpAddrAlloc> ipAddrAllocs = ipAddrRange.allocateBulk(entry.getValue());
                 ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
 
-                result.put(entry.getKey(), ipAddrList);
+                result.put(entry.getKey(), ipAddrAllocs);
             }
 
             tx.commit();
@@ -221,7 +259,7 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 throw new IpAddrRangeExistException();
             }
 
-            IpAddrRange ipAddrRange = new IpAddrRange(request.getId(), request.getSubnetId(),
+            IpAddrRange ipAddrRange = new IpAddrRange(request.getId(), request.getVpcId(), request.getSubnetId(),
                     request.getIpVersion(), request.getFirstIp(), request.getLastIp());
 
             ipAddrRangeCache.put(request.getId(), ipAddrRange);
@@ -231,6 +269,26 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 LOG.warn("Create ip address range failed: Internal db operation error");
                 throw new InternalDbOperationException();
             }
+
+            VpcIpRange vpcIpRange = vpcIpRangeCache.get(request.getVpcId());
+            if (vpcIpRange == null) {
+                vpcIpRange = new VpcIpRange();
+                List<String> ranges = new ArrayList<>();
+                ranges.add(ipAddrRange.getId());
+
+                vpcIpRange.setVpcId(ipAddrRange.getVpcId());
+                vpcIpRange.setRanges(ranges);
+            } else {
+                vpcIpRange.getRanges().add(ipAddrRange.getId());
+            }
+
+            vpcIpRangeCache.put(vpcIpRange.getVpcId(), vpcIpRange);
+            /*
+            vpcIpRange = vpcIpRangeCache.get(vpcIpRange.getVpcId());
+            if (vpcIpRange == null) {
+                LOG.warn("Create ip address range failed: Internal db operation error");
+                throw new InternalDbOperationException();
+            }*/
 
             request.setUsedIps(ipAddrRange.getUsedIps());
             request.setTotalIps(ipAddrRange.getTotalIps());
@@ -248,6 +306,19 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             }
 
             ipAddrRangeCache.remove(rangeId);
+
+            VpcIpRange vpcIpRange = vpcIpRangeCache.get(ipAddrRange.getVpcId());
+            if (vpcIpRange != null) {
+                vpcIpRange.getRanges().remove(ipAddrRange.getId());
+
+                if (vpcIpRange.getRanges().size() == 0) {
+                    vpcIpRangeCache.remove(vpcIpRange.getVpcId());
+                } else {
+                    vpcIpRangeCache.put(vpcIpRange.getVpcId(), vpcIpRange);
+                }
+            } else {
+                LOG.warn("Can not find VpcIpRange by vpcId: {}", ipAddrRange.getVpcId());
+            }
 
             tx.commit();
 

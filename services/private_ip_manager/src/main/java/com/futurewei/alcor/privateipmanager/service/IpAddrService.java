@@ -1,8 +1,6 @@
 package com.futurewei.alcor.privateipmanager.service;
 
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRangeRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequest;
-import com.futurewei.alcor.privateipmanager.entity.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.ip.*;
 
 import java.util.List;
 
@@ -16,17 +14,17 @@ public interface IpAddrService {
 
     IpAddrRequestBulk modifyIpAddrStateBulk(IpAddrRequestBulk requestBulk) throws Exception;
 
-    IpAddrRequest releaseIpAddr(int ipVersion, String rangeId, String ipAddr) throws Exception;
+    void releaseIpAddr(String rangeId, String ipAddr) throws Exception;
 
-    IpAddrRequestBulk releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception;
+    void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception;
 
-    IpAddrRequest getIpAddr(int ipVersion, String rangeId, String ipAddr) throws Exception;
+    IpAddrRequest getIpAddr(String rangeId, String ipAddr) throws Exception;
 
     List<IpAddrRequest> getIpAddrBulk(String rangeId) throws Exception;
 
     IpAddrRangeRequest createIpAddrRange(IpAddrRangeRequest request) throws Exception;
 
-    IpAddrRangeRequest deleteIpAddrRange(String rangeId) throws Exception;
+    void deleteIpAddrRange(String rangeId) throws Exception;
 
     IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception;
 

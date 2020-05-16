@@ -5,16 +5,16 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.vpcmanager.entity.VpcState;
+import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 
 import java.util.Map;
 
 public interface VpcDatabaseService {
 
-    public VpcState getByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
+    public VpcWebResponseObject getByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllVpcs () throws CacheException;
-    public void addVpc (VpcState vpcState) throws DatabasePersistenceException;
+    public void addVpc (VpcWebResponseObject vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
-    public ICache<String, VpcState> getCache ();
+    public ICache<String, VpcWebResponseObject> getCache ();
 
 }

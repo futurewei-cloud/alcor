@@ -20,18 +20,19 @@ import com.futurewei.alcor.privateipmanager.allocator.IpAddrAllocator;
 import com.futurewei.alcor.privateipmanager.allocator.Ipv4AddrAllocator;
 import com.futurewei.alcor.privateipmanager.allocator.Ipv6AddrAllocator;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrAllocNotFoundException;
+import com.futurewei.alcor.privateipmanager.exception.IpAddrConflictException;
 import com.futurewei.alcor.privateipmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.web.entity.ip.IpAddrState;
+import com.futurewei.alcor.web.entity.ip.IpVersion;
 
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IpAddrRange {
     private String id;
+    private String vpcId;
     private String subnetId;
     private int ipVersion;
     private String firstIp;
@@ -40,10 +41,11 @@ public class IpAddrRange {
     private long totalIps;
 
     private IpAddrAllocator allocator;
-    Map<String, IpAddrAlloc> allocated;
+    Map<String, IpAddrAlloc> allocatedIps;
 
-    public IpAddrRange(String id, String subnetId, int ipVersion, String firstIp, String lastIp) {
+    public IpAddrRange(String id, String vpcId, String subnetId, int ipVersion, String firstIp, String lastIp) {
         this.id = id;
+        this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.ipVersion = ipVersion;
         this.firstIp = firstIp;
@@ -63,39 +65,45 @@ public class IpAddrRange {
             allocator = new Ipv6AddrAllocator(firstIpBigInt, lastIpBigInt);
         }
 
-        allocated = new HashMap<>();
+        allocatedIps = new HashMap<>();
     }
 
     private void updateUsedIps() {
-        usedIps = allocated.size();
+        usedIps = allocatedIps.size();
     }
 
-    public String allocate() throws Exception {
-        String ipAddr = allocator.allocate();
-        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
+    public IpAddrAlloc allocate(String ip) throws Exception {
+        if (ip != null && allocatedIps.get(ip) != null) {
+            throw new IpAddrConflictException();
+        }
 
-        allocated.put(ipAddr, ipAddrAlloc);
+        String ipAddr = allocator.allocate(ip);
+        IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
+
+        allocatedIps.put(ipAddr, ipAddrAlloc);
         updateUsedIps();
 
-        return ipAddr;
+        return ipAddrAlloc;
     }
 
-    public List<String> allocateBulk(int num) throws Exception {
+    public List<IpAddrAlloc> allocateBulk(int num) throws Exception {
         List<String> ipAddrList = allocator.allocateBulk(num);
+        List<IpAddrAlloc> ipAddrAllocs = new ArrayList<>();
 
         for (String ipAddr: ipAddrList) {
-            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.ACTIVATED.getState());
+            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
-            allocated.put(ipAddr, ipAddrAlloc);
+            allocatedIps.put(ipAddr, ipAddrAlloc);
+            ipAddrAllocs.add(ipAddrAlloc);
         }
 
         updateUsedIps();
 
-        return ipAddrList;
+        return ipAddrAllocs;
     }
 
     public void modifyIpAddrState(String ipAddr, String state) throws Exception {
-        IpAddrAlloc ipAddrAlloc = allocated.get(ipAddr);
+        IpAddrAlloc ipAddrAlloc = allocatedIps.get(ipAddr);
         if (ipAddrAlloc == null) {
             throw new IpAddrAllocNotFoundException();
         }
@@ -106,12 +114,12 @@ public class IpAddrRange {
     }
 
     public void release(String ipAddr) throws Exception {
-        if (allocated.get(ipAddr) == null) {
+        if (allocatedIps.get(ipAddr) == null) {
             throw new IpAddrAllocNotFoundException();
         }
 
         allocator.release(ipAddr);
-        allocated.remove(ipAddr);
+        allocatedIps.remove(ipAddr);
 
         updateUsedIps();
     }
@@ -119,31 +127,31 @@ public class IpAddrRange {
     public void releaseBulk(List<String> ipAddrList) throws Exception {
         allocator.releaseBulk(ipAddrList);
         for (String ipAddr: ipAddrList) {
-            if (allocated.get(ipAddr) == null) {
+            if (allocatedIps.get(ipAddr) == null) {
                 throw new IpAddrAllocNotFoundException();
             }
 
-            allocated.remove(ipAddr);
+            allocatedIps.remove(ipAddr);
         }
 
         updateUsedIps();
     }
 
     public IpAddrAlloc getIpAddr(String ipAddr) throws Exception {
-        IpAddrAlloc ipAddrAlloc = allocated.get(ipAddr);
+        IpAddrAlloc ipAddrAlloc = allocatedIps.get(ipAddr);
         if (ipAddrAlloc != null) {
             return ipAddrAlloc;
         }
 
         if (allocator.validate(ipAddr)) {
-            return new IpAddrAlloc(ipVersion, id, ipAddr, IpAddrState.FREE.getState());
+            return new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.FREE.getState());
         }
 
         throw new IpAddrInvalidException();
     }
 
     public Collection<IpAddrAlloc> getIpAddrBulk() {
-        return allocated.values();
+        return allocatedIps.values();
     }
 
     public int getIpVersion() {
@@ -160,6 +168,14 @@ public class IpAddrRange {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
     }
 
     public String getSubnetId() {
@@ -208,5 +224,20 @@ public class IpAddrRange {
 
     public void setTotalIps(int totalIps) {
         this.totalIps = totalIps;
+    }
+
+    @Override
+    public String toString() {
+        return "IpAddrRange{" +
+                "id='" + id + '\'' +
+                ", subnetId='" + subnetId + '\'' +
+                ", ipVersion=" + ipVersion +
+                ", firstIp='" + firstIp + '\'' +
+                ", lastIp='" + lastIp + '\'' +
+                ", usedIps=" + usedIps +
+                ", totalIps=" + totalIps +
+                ", allocator=" + allocator +
+                ", allocated=" + allocatedIps +
+                '}';
     }
 }
