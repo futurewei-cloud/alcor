@@ -35,11 +35,11 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
-    FINALIZE = 5; // FIXME: we will try to the whole port operation in the FINALIZE call
-    CREATE_UPDATE_SWITCH = 6; // For Mizar only
-    CREATE_UPDATE_ROUTER = 7; // For Mizar only
-    CREATE_UPDATE_GATEWAY = 8;
-    // FIXME: we will likely need an operation to create/update neighbor info
+    NEIGHBOR_INFO = 5; // FIXME: we may need CRUD for NEIGHBOR_INFO
+    CREATE_UPDATE_GATEWAY = 6;
+    FINALIZE = 7;             // For Mizar only
+    CREATE_UPDATE_SWITCH = 8; // For Mizar only
+    CREATE_UPDATE_ROUTER = 9; // For Mizar only
 }
 
 enum OperationStatus {
