@@ -4,10 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.futurewei.alcor.schema</groupId>
-    <artifactId>AlcorSchema</artifactId>
+    <groupId>com.futurewei.alcor</groupId>
+    <artifactId>schema</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <name>AlcorSchema</name>
+    <description>Alcor Data Schema</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
