@@ -36,6 +36,7 @@ import java.util.*;
 
 @Service
 @ComponentScan(value="com.futurewei.alcor.common.utils")
+@ComponentScan(value="com.futurewei.alcor.web.restclient")
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
