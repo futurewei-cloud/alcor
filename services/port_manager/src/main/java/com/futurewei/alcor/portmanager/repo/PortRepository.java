@@ -25,9 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
-
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
@@ -59,6 +61,15 @@ public class PortRepository implements ICacheRepository<PortEntity> {
     @Override
     public void addItem(PortEntity portEntity) throws CacheException {
         cache.put(portEntity.getId(), portEntity);
+    }
+
+    //@Override
+    public void addItems(List<PortEntity> portEntities) throws CacheException {
+        Map<String, PortEntity> portEntityMap = portEntities
+                .stream()
+                .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
+
+        cache.putAll(portEntityMap);
     }
 
     @Override

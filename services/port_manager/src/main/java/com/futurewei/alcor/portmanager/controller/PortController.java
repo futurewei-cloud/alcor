@@ -18,6 +18,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +44,27 @@ public class PortController {
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public PortWebJson createPortState(@PathVariable("project_id") String projectId,
+    public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                        @RequestBody PortWebJson portWebJson) throws Exception {
-        return portService.createPortState(projectId, portWebJson);
+        return portService.createPort(projectId, portWebJson);
+    }
+
+    /**
+     * Create multiple ports, and call the interfaces of each micro-service according to the
+     * configuration of the port to create various required resources for all ports.
+     * If an exception occurs during the creation of multiple ports, we need to roll back
+     * the resource allocated from each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portWebBulkJson Multiple ports configuration
+     * @return PortStateBulkJson
+     * @throws Exception Various exceptions that may occur during the create process
+     */
+    @PostMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public PortWebBulkJson createPortBulk(@PathVariable("project_id") String projectId,
+                                             @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
+        return portService.createPortBulk(projectId, portWebBulkJson);
     }
 
     /**
@@ -60,10 +79,26 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
-    public PortWebJson updatePortState(@PathVariable("project_id") String projectId,
+    public PortWebJson updatePort(@PathVariable("project_id") String projectId,
                                        @PathVariable("port_id") String portId,
                                        @RequestBody PortWebJson portWebJson) throws Exception {
-        return portService.updatePortState(projectId, portId, portWebJson);
+        return portService.updatePort(projectId, portId, portWebJson);
+    }
+
+    /**
+     * Update the configuration information of ports. Resources requested from various
+     * micro-services may need to be updated according to the new configuration of ports.
+     * If an exception occurs during the update, we need to roll back
+     * the resource added or deleted operation of each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portWebBulkJson The new configuration of ports
+     * @return The new configuration of ports
+     * @throws Exception Various exceptions that may occur during the update process
+     */
+    @PutMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
+    public PortWebBulkJson updatePortBulk(@PathVariable("project_id") String projectId,
+                                         @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
+        return portService.updatePortBulk(projectId, portWebBulkJson);
     }
 
     /**
@@ -76,9 +111,9 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the delete process
      */
     @DeleteMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
-    public void deletePortState(@PathVariable("project_id") String projectId,
+    public void deletePort(@PathVariable("project_id") String projectId,
                                 @PathVariable("port_id") String portId) throws Exception {
-        portService.deletePortState(projectId, portId);
+        portService.deletePort(projectId, portId);
     }
 
     /**
@@ -89,9 +124,9 @@ public class PortController {
      * @throws Exception Db operation exception
      */
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
-    public PortWebJson getPortState(@PathVariable("project_id") String projectId,
+    public PortWebJson getPort(@PathVariable("project_id") String projectId,
                                     @PathVariable("port_id") String portId) throws Exception {
-        return portService.getPortState(projectId, portId);
+        return portService.getPort(projectId, portId);
     }
 
     /**
@@ -101,7 +136,7 @@ public class PortController {
      * @throws Exception Db operation exception
      */
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
-    public List<PortWebJson> listPortState(@PathVariable("project_id") String projectId) throws Exception {
-        return portService.listPortState(projectId);
+    public List<PortWebJson> listPort(@PathVariable("project_id") String projectId) throws Exception {
+        return portService.listPort(projectId);
     }
 }

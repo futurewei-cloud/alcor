@@ -94,6 +94,51 @@ public class PortServiceImpl implements PortService {
         //FIXME: Add port to Host
     }
 
+    private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<PortStateRollback> rollbacks) throws Exception {
+        //Verify VPC ID
+        VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
+        executor.runAsync(vpcManagerProxy::verifyVpc, portEntity);
+
+        IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
+        if (portEntity.getFixedIps() == null) {
+            executor.runAsync(ipManagerProxy::allocateRandomIpAddress, portEntity);
+        } else {
+            executor.runAsync(ipManagerProxy::allocateFixedIpAddress, portEntity.getFixedIps());
+        }
+
+        //Generate uuid for port
+        if (portEntity.getId() == null) {
+            portEntity.setId(UUID.randomUUID().toString());
+        }
+
+        MacManagerProxy macManagerProxy = new MacManagerProxy(rollbacks);
+        if (portEntity.getMacAddress() == null) {
+            executor.runAsync(macManagerProxy::allocateRandomMacAddress, portEntity);
+        } else {
+            executor.runAsync(macManagerProxy::allocateFixedMacAddress, portEntity);
+        }
+
+        //Verify security group
+
+        //Verify Binding Host ID
+        if (portEntity.getBindingHostId() != null) {
+            NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
+            executor.runAsync(nodeManagerProxy::verifyHost, portEntity.getBindingHostId());
+        }
+    }
+
+    private void exceptionHandle(AsyncExecutor executor, Stack<PortStateRollback> rollbacks, Exception e) throws Exception {
+        /**
+         When an exception occurs, we need to roll back all asynchronous operations,
+         and some asynchronous may not be finished yet.if we roll back at this time,
+         they may not be completed until the rollback operation is completed.
+         as a result, they cannot be rolled back.
+         */
+        executor.waitAll();
+        rollBackAllOperations(rollbacks);
+        throw e;
+    }
+
     /**
      * Create a port, and call the interfaces of each micro-service according to the
      * configuration of the port to create various required resources for the port.
@@ -105,7 +150,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @Override
-    public PortWebJson createPortState(String projectId, PortWebJson portWebJson) throws Exception {
+    public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Create port state, projectId: {}, PortStateJson: {}", projectId, portWebJson);
 
         Stack<PortStateRollback> rollbacks = new Stack<>();
@@ -115,36 +160,7 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-            //Verify VPC ID
-            VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
-            executor.runAsync(vpcManagerProxy::verifyVpc, portEntity);
-
-            IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
-            if (portEntity.getFixedIps() == null) {
-                executor.runAsync(ipManagerProxy::allocateRandomIpAddress, portEntity);
-            } else {
-                executor.runAsync(ipManagerProxy::allocateFixedIpAddress, portEntity.getFixedIps());
-            }
-
-            //Generate uuid for port
-            if (portEntity.getId() == null) {
-                portEntity.setId(UUID.randomUUID().toString());
-            }
-
-            MacManagerProxy macManagerProxy = new MacManagerProxy(rollbacks);
-            if (portEntity.getMacAddress() == null) {
-                executor.runAsync(macManagerProxy::allocateRandomMacAddress, portEntity);
-            } else {
-                executor.runAsync(macManagerProxy::allocateFixedMacAddress, portEntity);
-            }
-
-            //Verify security group
-
-            //Verify Binding Host ID
-            if (portEntity.getBindingHostId() != null) {
-                NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-                nodeManagerProxy.verifyHost(portEntity.getBindingHostId());
-            }
+            createPortAsync(portEntity, executor, rollbacks);
 
             //Wait for all async functions to finish
             executor.joinAll();
@@ -152,20 +168,45 @@ public class PortServiceImpl implements PortService {
             //Persist portState
             portRepository.addItem(portEntity);
         } catch (Exception e) {
-            /**
-            When an exception occurs, we need to roll back all asynchronous operations,
-            and some asynchronous may not be finished yet.if we roll back at this time,
-             they may not be completed until the rollback operation is completed.
-             as a result, they cannot be rolled back.
-             */
-            executor.waitAll();
-            rollBackAllOperations(rollbacks);
-            throw e;
+            exceptionHandle(executor, rollbacks, e);
         }
 
-        LOG.info("Create port state success, projectId: {}, PortStateJson: {}", projectId, portWebJson);
+        LOG.info("Create port state success, projectId: {}, portWebJson: {}", projectId, portWebJson);
 
         return portWebJson;
+    }
+
+    /**
+     * Create multiple ports, and call the interfaces of each micro-service according to the
+     * configuration of the port to create various required resources for all ports.
+     * If an exception occurs during the creation of multiple ports, we need to roll back
+     * the resource allocated from each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portWebBulkJson Multiple ports configuration
+     * @return PortStateBulkJson
+     * @throws Exception Various exceptions that may occur during the create process
+     */
+    @Override
+    public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
+        Stack<PortStateRollback> rollbacks = new Stack<>();
+        AsyncExecutor executor = new AsyncExecutor();
+
+        try {
+            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+                portEntity.setProjectId(projectId);
+                createPortAsync(portEntity, executor, rollbacks);
+            }
+
+            //Wait for all async functions to finish
+            executor.joinAll();
+
+            //Persist portStates
+            portRepository.addItems(portWebBulkJson.getPortEntities());
+        } catch (Exception e) {
+            exceptionHandle(executor, rollbacks, e);
+        }
+
+        return portWebBulkJson;
     }
 
     private RouterState getRouterState(String routerId) {
@@ -247,6 +288,68 @@ public class PortServiceImpl implements PortService {
 
     }
 
+    private void updatePortAsync(PortEntity portEntity, PortEntity oldPortEntity, AsyncExecutor executor,
+                                 Stack<PortStateRollback> rollbacks) throws Exception {
+        //Update mac_address
+        String macAddress = portEntity.getMacAddress();
+        String oldMacAddress = oldPortEntity.getMacAddress();
+        if (macAddress != null && !oldMacAddress.equals(macAddress)) {
+            MacManagerProxy macManagerProxy = new MacManagerProxy(rollbacks);
+            executor.runAsync(macManagerProxy::releaseMacAddress, oldPortEntity);
+            executor.runAsync(macManagerProxy::allocateFixedMacAddress, portEntity);
+            oldPortEntity.setMacAddress(macAddress);
+        }
+
+        //Update device_owner and device_id
+        String deviceOwnerNew = portEntity.getDeviceOwner();
+        String deviceIdNew = portEntity.getDeviceId();
+        String deviceIdOld = oldPortEntity.getDeviceId();
+        String tenantId = oldPortEntity.getTenantId();
+
+        if (deviceOwnerNew != null && deviceIdNew != null && !deviceIdNew.equals(deviceIdOld)) {
+            if (DeviceOwner.ROUTER.getOwner().equals(deviceOwnerNew)) {
+                verifyRouter(deviceIdNew, tenantId);
+            }
+        }
+
+        //Update fixed_ips
+        List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
+        IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
+
+        if (fixedIps != null) {
+            List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
+
+            List<PortEntity.FixedIp> addFixedIps = fixedIpsCompare(fixedIps, oldFixedIps);
+            List<PortEntity.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
+
+            if (delFixedIps.size() > 0) {
+                executor.runAsync(ipManagerProxy::releaseIpAddressBulk, delFixedIps);
+            }
+
+            if (addFixedIps.size() > 0) {
+                executor.runAsync(ipManagerProxy::allocateFixedIpAddress, addFixedIps);
+            }
+
+            oldPortEntity.setFixedIps(fixedIps);
+        }
+
+        //Update security_groups
+        updateSecurityGroup(oldPortEntity, portEntity);
+
+        //Update allow_address_pairs
+        //UpdateAllowAddressPairs();
+
+        //Update extra_dhcp_opts
+        UpdateExtraDhcpOpts(portEntity, oldPortEntity);
+
+        //Update binding:host_id
+        if (portEntity.getBindingHostId() != null) {
+            NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
+            executor.runAsync(nodeManagerProxy::verifyHost, portEntity.getBindingHostId());
+            oldPortEntity.setBindingHostId(portEntity.getBindingHostId());
+        }
+    }
+
     /**
      * Update the configuration information of port. Resources requested from various
      * micro-services may need to be updated according to the new configuration of port.
@@ -259,7 +362,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @Override
-    public PortWebJson updatePortState(String projectId, String portId, PortWebJson portWebJson) throws Exception {
+    public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Update port state, projectId: {}, portId: {}, PortStateJson: {}",
                 projectId, portId, portWebJson);
 
@@ -267,84 +370,70 @@ public class PortServiceImpl implements PortService {
         AsyncExecutor executor = new AsyncExecutor();
 
         PortEntity portEntity = portWebJson.getPortEntity();
-        PortEntity oldPortEntity = portRepository.findItem(portId);
+        portEntity.setProjectId(projectId);
 
         try {
-            if (portRepository.findItem(portId) == null) {
+            PortEntity oldPortEntity = portRepository.findItem(portId);
+            if (oldPortEntity == null) {
                 throw new PortStateNotFoundException();
             }
 
-            portEntity.setProjectId(projectId);
-
-            //Update mac_address
-
-            //Update device_owner and device_id
-            String deviceOwnerNew = portEntity.getDeviceOwner();
-            String deviceIdNew = portEntity.getDeviceId();
-            String deviceIdOld = oldPortEntity.getDeviceId();
-            String tenantId = oldPortEntity.getTenantId();
-
-            if (deviceOwnerNew != null && deviceIdNew != null && !deviceIdNew.equals(deviceIdOld)) {
-                if (DeviceOwner.ROUTER.getOwner().equals(deviceOwnerNew)) {
-                    verifyRouter(deviceIdNew, tenantId);
-                }
-            }
-
-            //Update fixed_ips
-            List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
-            IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, projectId);
-
-            if (fixedIps != null) {
-                List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
-
-                List<PortEntity.FixedIp> addFixedIps = fixedIpsCompare(fixedIps, oldFixedIps);
-                List<PortEntity.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, fixedIps);
-
-                if (delFixedIps.size() > 0) {
-                    executor.runAsync(ipManagerProxy::releaseIpAddressBulk, delFixedIps);
-                }
-
-                if (addFixedIps.size() > 0) {
-                    executor.runAsync(ipManagerProxy::allocateFixedIpAddress, addFixedIps);
-                }
-            } else {
-                List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
-                executor.runAsync(ipManagerProxy::releaseIpAddressBulk, oldFixedIps);
-            }
-
-            oldPortEntity.setFixedIps(fixedIps);
-
-            //Update security_groups
-            updateSecurityGroup(oldPortEntity, portEntity);
-
-            //Update allow_address_pairs
-            //UpdateAllowAddressPairs();
-
-            //Update extra_dhcp_opts
-            UpdateExtraDhcpOpts(portEntity, oldPortEntity);
-
-            //Update binding:host_id
-            if (portEntity.getBindingHostId() != null) {
-                NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-                nodeManagerProxy.verifyHost(portEntity.getBindingHostId());
-            }
-
-            oldPortEntity.setBindingHostId(portEntity.getBindingHostId());
+            updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
 
             //Wait for all async functions to finish
             executor.joinAll();
 
+            //Persist the new configuration of port to the db
             portRepository.addItem(oldPortEntity);
             portWebJson.setPortEntity(oldPortEntity);
         } catch (Exception e) {
-            executor.waitAll();
-            rollBackAllOperations(rollbacks);
-            throw e;
+            exceptionHandle(executor, rollbacks, e);
         }
 
-        LOG.debug("Update port state success, portStateJson: {}", portWebJson);
+        LOG.debug("Update port state success, portWebJson: {}", portWebJson);
 
         return portWebJson;
+    }
+
+    /**
+     * Update the configuration information of ports. Resources requested from various
+     * micro-services may need to be updated according to the new configuration of ports.
+     * If an exception occurs during the update, we need to roll back
+     * the resource added or deleted operation of each micro-service.
+     * @param projectId Project the port belongs to
+     * @param portWebBulkJson The new configuration of ports
+     * @return The new configuration of ports
+     * @throws Exception Various exceptions that may occur during the update process
+     */
+    @Override
+    public PortWebBulkJson updatePortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
+        Stack<PortStateRollback> rollbacks = new Stack<>();
+        AsyncExecutor executor = new AsyncExecutor();
+        List<PortEntity> portEntities = new ArrayList<>();
+
+        try {
+            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+                portEntity.setProjectId(projectId);
+                PortEntity oldPortEntity = portRepository.findItem(portEntity.getId());
+                if (oldPortEntity == null) {
+                    throw new PortStateNotFoundException();
+                }
+
+                updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
+                portEntities.add(oldPortEntity);
+            }
+
+            //Wait for all async functions to finish
+            executor.joinAll();
+
+            //Persist portStates
+            portRepository.addItems(portEntities);
+            portWebBulkJson.setPortEntities(portEntities);
+        } catch (Exception e) {
+            exceptionHandle(executor, rollbacks, e);
+        }
+
+        return portWebBulkJson;
     }
 
     /**
@@ -357,7 +446,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the delete process
      */
     @Override
-    public void deletePortState(String projectId, String portId) throws Exception {
+    public void deletePort(String projectId, String portId) throws Exception {
         LOG.debug("Delete port state, projectId: {}, portId: {}", projectId, portId);
 
         Stack<PortStateRollback> rollbacks = new Stack<>();
@@ -389,9 +478,7 @@ public class PortServiceImpl implements PortService {
 
             portRepository.deleteItem(portId);
         } catch (Exception e) {
-            executor.waitAll();
-            rollBackAllOperations(rollbacks);
-            throw e;
+            exceptionHandle(executor, rollbacks, e);
         }
 
         LOG.debug("Delete port state success, projectId: {}, portId: {}", projectId, portId);
@@ -405,7 +492,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Db operation exception
      */
     @Override
-    public PortWebJson getPortState(String projectId, String portId) throws Exception {
+    public PortWebJson getPort(String projectId, String portId) throws Exception {
         PortEntity portEntity = portRepository.findItem(portId);
         if (portEntity == null) {
             throw new PortStateNotFoundException();
@@ -421,15 +508,15 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Db operation exception
      */
     @Override
-    public List<PortWebJson> listPortState(String projectId) throws Exception {
+    public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
-        Map<String, PortEntity> portStateMap = portRepository.findAllItems();
-        if (portStateMap == null) {
+        Map<String, PortEntity> portEntityMap = portRepository.findAllItems();
+        if (portEntityMap == null) {
             return result;
         }
 
-        for (Map.Entry<String, PortEntity> entry: portStateMap.entrySet()) {
+        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }

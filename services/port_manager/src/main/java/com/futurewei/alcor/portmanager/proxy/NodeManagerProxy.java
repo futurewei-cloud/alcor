@@ -32,11 +32,12 @@ public class NodeManagerProxy {
 
     /**
      * Verify if the host/node of nodeId exists
-     * @param nodeId Id of host/node
+     * @param args Id of host/node
      * @return The information of host/node
      * @throws Exception Rest request exception
      */
-    public NodeInfoJson verifyHost(String nodeId) throws Exception {
+    public NodeInfoJson verifyHost(Object args) throws Exception {
+        String nodeId = (String)args;
         return nodeManagerRestClient.getNodeInfo(nodeId);
     }
 }

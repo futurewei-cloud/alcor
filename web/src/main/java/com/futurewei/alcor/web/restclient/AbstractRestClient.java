@@ -13,23 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.restclient;
 
-package com.futurewei.alcor.common.db.repo;
+import org.springframework.web.client.RestTemplate;
 
-import com.futurewei.alcor.common.db.CacheException;
+abstract class AbstractRestClient {
+    RestTemplate restTemplate = new RestTemplate();
 
-import java.util.List;
-import java.util.Map;
+    <T> T getRequest(String url, Class<T> tClass) throws Exception {
+        T response = restTemplate.getForObject(url, tClass);
+        if (response == null) {
+            throw new Exception("Get request failed, url:" + url);
+        }
 
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+        return response;
+    }
 }

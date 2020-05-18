@@ -13,23 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.restclient;
 
-package com.futurewei.alcor.common.db.repo;
+import com.futurewei.alcor.web.entity.NodeInfoJson;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import com.futurewei.alcor.common.db.CacheException;
+@Configuration
+public class NodeManagerRestClient extends AbstractRestClient {
+    @Value("${microservices.node.service.url:#{\"\"}}")
+    private String nodeManagerUrl;
 
-import java.util.List;
-import java.util.Map;
-
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+    public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
+        String url = nodeManagerUrl + "/" + nodeId;
+        return getRequest(url, NodeInfoJson.class);
+    }
 }

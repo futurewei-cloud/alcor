@@ -19,16 +19,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
-import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
-import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
-import com.futurewei.alcor.portmanager.restclient.SubnetManagerRestClient;
-import com.futurewei.alcor.portmanager.restclient.VpcManagerRestClient;
+import com.futurewei.alcor.web.restclient.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -70,15 +69,21 @@ public class PortControllerTest {
     private MacManagerRestClient macManagerRestClient;
 
     @MockBean
+    private NodeManagerRestClient nodeManagerRestClient;
+
+    @MockBean
     private PortRepository portRepository;
 
     private String createPortUrl = "/project/" + UnitTestConfig.projectId + "/ports";
+    private String createPortBulkUrl = createPortUrl + "/bulk";
     private String updatePortUrl = createPortUrl + "/" + UnitTestConfig.portId;
+    private String updatePortBulkUrl = createPortBulkUrl;
     private String deletePortUrl = updatePortUrl;
     private String getPortUrl = updatePortUrl;
     private String listPortUrl = createPortUrl;
 
-    private PortWebJson newPortStateJson() {
+
+    private PortWebJson newPortStateJson(String portId) {
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
@@ -89,12 +94,13 @@ public class PortControllerTest {
         allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
         PortEntity portEntity = new PortEntity();
-        portEntity.setId(UnitTestConfig.portId);
+        portEntity.setId(portId);
         portEntity.setVpcId(UnitTestConfig.vpcId);
         portEntity.setProjectId(UnitTestConfig.projectId);
         portEntity.setTenantId(UnitTestConfig.tenantId);
         portEntity.setFixedIps(fixedIps);
         portEntity.setMacAddress(UnitTestConfig.mac1);
+        portEntity.setBindingHostId(UnitTestConfig.nodeId);
         portEntity.setSecurityGroups(securityGroups);
         portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
@@ -123,7 +129,7 @@ public class PortControllerTest {
 
     private String newPortStateJsonStr() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(newPortStateJson());
+        return objectMapper.writeValueAsString(newPortStateJson(UnitTestConfig.portId));
     }
 
     private VpcWebJson newVpcStateJson() {
@@ -146,14 +152,22 @@ public class PortControllerTest {
         return new SubnetWebJson(subnetState);
     }
 
-    private MacStateJson newMacStateJson() {
+    private MacStateJson newMacStateJson(String portId, String macAddress) {
         MacState macState = new MacState();
         macState.setProjectId(UnitTestConfig.projectId);
         macState.setVpcId(UnitTestConfig.vpcId);
-        macState.setPortId(UnitTestConfig.portId);
-        macState.setMacAddress(UnitTestConfig.mac1);
+        macState.setPortId(portId);
+        macState.setMacAddress(macAddress);
 
         return new MacStateJson(macState);
+    }
+
+    private NodeInfoJson newNodeInfoJson(String nodeId, String ipAddress) {
+        NodeInfo nodeInfo = new NodeInfo();
+        nodeInfo.setId(nodeId);
+        nodeInfo.setLocalIp(ipAddress);
+
+        return new NodeInfoJson(nodeInfo);
     }
 
     @Test
@@ -168,7 +182,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
-                .thenReturn(newMacStateJson());
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
         Mockito.doNothing().when(portRepository);
 
@@ -195,7 +209,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv6AddrRequest());
 
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
-                .thenReturn(newMacStateJson());
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
         Mockito.doNothing().when(portRepository);
 
@@ -219,7 +233,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, UnitTestConfig.mac1))
-                .thenReturn(newMacStateJson());
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
         Mockito.doNothing().when(portRepository);
 
@@ -243,7 +257,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
-                .thenReturn(newMacStateJson());
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
         Mockito.doNothing().when(portRepository);
 
@@ -253,6 +267,35 @@ public class PortControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_address").value(UnitTestConfig.mac1));
+    }
+
+    @Test
+    public void createPortBulkTest() throws Exception {
+        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(newVpcStateJson());
+
+        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+                .thenReturn(newSubnetStateJson());
+
+        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
+                .thenReturn(newIpv4AddrRequest());
+
+        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
+
+        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId2, null))
+                .thenReturn(newMacStateJson(UnitTestConfig.portId2, UnitTestConfig.mac2));
+
+        Mockito.doNothing().when(portRepository);
+
+        this.mockMvc.perform(post(createPortBulkUrl).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.createPortBulk))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].id").value(UnitTestConfig.portId2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].fixed_ips[0].ip_address").value(UnitTestConfig.ip1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].fixed_ips[0].ip_address").value(UnitTestConfig.ip2));
     }
 
     @Test
@@ -267,7 +310,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortEntity());
+                .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
 
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateFixedIps)
@@ -279,33 +322,51 @@ public class PortControllerTest {
     }
 
     @Test
-    public void deleteFixedIpsTest() throws Exception {
+    public void updateMacAddressAndFixedIpsBulkTest() throws Exception {
         Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
                 .thenReturn(newIpv4AddrRequest());
 
-        Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV4, UnitTestConfig.vpcId, null, null))
+        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip2))
                 .thenReturn(newIpv4AddrRequest());
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortEntity());
+        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, UnitTestConfig.mac2))
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
-        this.mockMvc.perform(put(updatePortUrl)
-                .content(UnitTestConfig.portStateWithoutFixedIps)
+        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId2, UnitTestConfig.mac2))
+                .thenReturn(newMacStateJson(UnitTestConfig.portId2, UnitTestConfig.mac2));
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
+
+        Mockito.when(portRepository.findItem(UnitTestConfig.portId))
+                .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
+
+        Mockito.when(portRepository.findItem(UnitTestConfig.portId2))
+                .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
+
+        this.mockMvc.perform(put(updatePortBulkUrl)
+                .content(UnitTestConfig.updatePortBulk)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips").isEmpty());
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].id").value(UnitTestConfig.portId2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].mac_address").value(UnitTestConfig.mac2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].mac_address").value(UnitTestConfig.mac2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].fixed_ips[0].ip_address").value(UnitTestConfig.ip2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].fixed_ips[0].ip_address").value(UnitTestConfig.ip2));
     }
 
     @Test
     public void getPortState() throws Exception {
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortEntity());
+                .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
 
         this.mockMvc.perform(get(getPortUrl))
                 .andDo(print())
@@ -319,7 +380,7 @@ public class PortControllerTest {
     @Test
     public void listPortTest() throws Exception {
         Map<String, PortEntity> portStates = new HashMap<>();
-        portStates.put(UnitTestConfig.portId, newPortStateJson().getPortEntity());
+        portStates.put(UnitTestConfig.portId, newPortStateJson(UnitTestConfig.portId).getPortEntity());
 
         Mockito.when(portRepository.findAllItems())
                 .thenReturn(portStates);
@@ -339,7 +400,7 @@ public class PortControllerTest {
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortEntity());
+                .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
 
         this.mockMvc.perform(delete(deletePortUrl))
                 .andDo(print())
