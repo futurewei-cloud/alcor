@@ -8,8 +8,8 @@
 		<version>2.2.6.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.futurewei.alcor.nodemanager</groupId>
-	<artifactId>AlcorNodeManager</artifactId>
+	<groupId>com.futurewei.alcor</groupId>
+	<artifactId>nodemanager</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>AlcorNodeManager</name>
 	<description>Physical Node Manager Module</description>
@@ -33,27 +33,15 @@
 	</repositories>
 
 	<dependencies>
+
+		<!--Service Basic dependencies-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -61,31 +49,12 @@
 			<version>2.4.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ignite</groupId>
-			<artifactId>ignite-core</artifactId>
-			<version>${ignite.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.ignite</groupId>
-			<artifactId>ignite-spring</artifactId>
-			<version>${ignite.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
+
+		<!--Swagger dependencies-->
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
@@ -102,24 +71,27 @@
 			<version>${swagger2markup.version}</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>2.20.0</version>
-            <scope>test</scope>
-        </dependency>
+
+		<!--Internal dependencies-->
 		<dependency>
-			<groupId>com.futurewei.alcor.common</groupId>
-			<artifactId>AlcorCommonLib</artifactId>
+			<groupId>com.futurewei.alcor</groupId>
+			<artifactId>common</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.futurewei.alcor.web</groupId>
-            <artifactId>AlcorWeb</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.futurewei.alcor</groupId>
+			<artifactId>web</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.futurewei.alcor</groupId>
+			<artifactId>schema</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+
     </dependencies>
 
 	<build>
