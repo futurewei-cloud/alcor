@@ -159,6 +159,18 @@ State could contains more same type data as array
 |GOAL State
 <<Update_Goalstate,[sample]>>
 
+|Bulk Create Port by GoalState
+|POST
+|/goalstate/{gsinfo}
+|Goal State list
+<<BULK_Create_GoalState,[sample]>>
+
+|Bulk Delete Port by GoalState
+|DELETE
+|/goalstate/{gsinfo}
+|GOAL State
+<<BULK_Delete_Goalstate,[sample]>>
+
 |===
 
 === API Specification
@@ -209,7 +221,7 @@ Request: 
 ____
 
 ____
-/goalstate/{goalstateid},/v4/goalstate/{goalstateid}
+"/goalstate/{goalstateid}","/v4/goalstate/{goalstateid}"
 ____
 
 * {blank}
@@ -311,7 +323,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}
+Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
 ____
 * {blank}
 +
@@ -480,7 +492,7 @@ ____
 * {blank}
 +
 ____
-Request: "/goalstate/{goalstates}", "v4/goalstate/\{goalstates}"
+Request: "/goalstate/{goalstates}", "v4/goalstate/{goalstates}"
 ____
 * {blank}
 +
@@ -580,6 +592,7 @@ Response:
 }
 
 ------------------------------------------------------------
+anchor:BULK_Create_GoalState[]
 
 ====  (5) Send GoalState to create bulk ports
 
@@ -591,7 +604,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}
+Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
 ____
 * {blank}
 +
@@ -717,6 +730,7 @@ Response:
   }
 }
 ------------------------------------------------------------
+anchor:BULK_Delete_GoalState[]
 
 ====  (6) Send GoalState to bulkly delete ports
 
@@ -728,7 +742,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}
+Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
 ____
 * {blank}
 +
