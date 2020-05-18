@@ -1,0 +1,36 @@
+= Integration with OpenStack Nova
+v0.1, 2020-05-17
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+OpenStack allows users to launch VM instance via Horizon Dashboard or run nova boot command via OpenStack CLI.
+When it occurs, Nova compute would trigger a few REST calls to Neutron to allocate necessary network resources.
+We would want to integrate Nova to support the same set of user operations, especially the vm creation scenario.
+
+[#system-requirements]
+== Integration Requirements
+
+. Identify all necessary changes (configuration and/or codes) in Nova to call Alcor REST APIs, instead of Neutron APIs
+. Make a proposal that requires minimal Nova changes
+. Implement the code/configuration change
+. Deploy and test the change in a multi-node OpenStack cluster
+
+== Review of OpenStack Workflow
+
+=== VM Creation Workflow
+image::images/vm_create.png["VM creation workflow", width=1024, link="images/vm_create.png"]
+
+== Required Changes
+
+TBD
+
+== Integration Proposal
+
+TBD
+
+== Test Plan
+
+TBD
