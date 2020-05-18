@@ -135,11 +135,29 @@ State could contains more same type data as array
 |===
 |*API Name* |*Method* |*Request*|*Response*
 
-//|Verify IP State
-//|GET
-//|/ips/{ip_version}/{range_id}/{ip}
-//|ip state
-//<<IP_Get,[sample]>>
+|Get Port by GoalState
+|GET
+|/goalstate/{goalstateid}
+|GoalState Info
+<<Get_GoalState,[sample]>>
+
+|Create Port by GoalState
+|POST
+|/goalstate/{gsinfo}
+|Goal State list
+<<Create_GoalState,[sample]>>
+
+|Delete Port by GoalState
+|DELETE
+|/goalstate/{gsinfo}
+|GOAL State
+<<Delete_Goalstate,[sample]>>
+
+|Update Port by GoalState
+|PUT
+|/goalstate/{goalstates}
+|GOAL State
+<<Update_Goalstate,[sample]>>
 
 |===
 
@@ -172,11 +190,11 @@ State could contains more same type data as array
 //    “state” “activated”
 //}
 
-* Get
-* Create
-* Update
-* Delete
-
+* Get GoalState
+* Create Port with GoalState
+* Update Port with GoalState
+* Delete Port with GoalState
+anchor:Get_GoalState[]
 ==== (1) Get GoalState Info By GoalState Request
 
 * {blank}
@@ -281,6 +299,7 @@ Response:
 }
 ------------------------------------------------------------
 
+anchor:Create_GoalState[]
 
 ====  (2) Send GoalState to create port
 
@@ -376,6 +395,7 @@ Response:
 }
 
 ------------------------------------------------------------
+anchor:Delete_Goalstate[]
 
 ====  (3) Send GoalState to delete port
 
@@ -387,7 +407,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}
+Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
 ____
 * {blank}
 +
@@ -448,6 +468,7 @@ Response:
 }
 
 ------------------------------------------------------------
+anchor:Update_GoalState[]
 
 ====  (4) Send GoalState to update port
 
@@ -459,7 +480,7 @@ ____
 * {blank}
 +
 ____
-Request: /goalstate/\{goalstates}", "v4/goalstate/\{goalstates}
+Request: "/goalstate/{goalstates}", "v4/goalstate/\{goalstates}"
 ____
 * {blank}
 +
