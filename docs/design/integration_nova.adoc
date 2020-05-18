@@ -20,7 +20,8 @@ We would want to integrate Nova to support the same set of user operations, espe
 
 == Review of OpenStack Workflow
 
-plantuml::workflows/vm_create.puml[format="svg", align="center"]
+//plantuml::workflows/vm_create.puml[format="svg", align="center"]
+![OpenStack_Workflow](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/futurewei-cloud/alcor/master/docs/design/workflows/vm_create.puml)
 
 == Required Changes
 
