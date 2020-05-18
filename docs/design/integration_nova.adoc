@@ -8,7 +8,7 @@ NOTE: This document is under development
 
 OpenStack allows users to launch VM instance via Horizon Dashboard or run nova boot command via OpenStack CLI.
 When it occurs, Nova compute would trigger a few REST calls to Neutron to allocate necessary network resources.
-We would want to integrate Nova to support the same set of user operations, especially the vm creation scenario.
+We would want to integrate with Nova to support the same set of user operations, especially the vm creation scenario.
 
 [#system-requirements]
 == Integration Requirements
