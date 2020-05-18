@@ -28,43 +28,34 @@ image::images/controller.JPG["Controller architecture", width=1024, link="images
 
 [width="100%",options="header"]
 |====================
-|Category|Name|Short Description|Type
+|Category|Micro-service Name|Acronym|Description|Type
 
-.8+^.^|Resource Management Services|VPC Manager| VPC lifecycle management|Stateless
-|Subnet Manager| Subnet lifecycle management |Stateless
-|Port Manager| Port lifecycle management |Stateless
-|Route Manager| Route table and rule management |Stateless
-|Private IP Manager| VPC private IP lifecycle management (IPv4/6) |Stateless
-|Virtual MAC Manager| Virtual MAC pool management |Stateless
-|DNS Manager| DNS/DHCP record management |Stateless
-|Virtual IP Manager| Public virtual IP management |Stateless
+.10+^.^|xref:mgmt_services_overview.adoc[Resource Management Services]
+|xref:vpc_manager.adoc[VPC Manager]|VPM| VPC lifecycle management|Stateless
+|xref:subnet_manager.adoc[Subnet Manager]|SNM| Subnet lifecycle management |Stateless
+|Port Manager|PM| Port lifecycle management |Stateless
+|Route Manager|RM| Route table and rule management |Stateless
+|xref:private_ip_manager.adoc[Private IP Manager]|PIM| VPC private IP lifecycle management (IPv4/6) |Stateless
+|xref:virtual_mac_manager.adoc[Virtual Mac Manager]|VMM| Virtual MAC pool management |Stateless
+|Security Group Manager|SGM| Security group management |Stateless
+|Virtual IP Manager|VIM| Public virtual IP management |Stateless
+|DNS Manager|DM| DNS/DHCP record management |Stateless
+|xref:node_metadata_manager.adoc[Node Metadata Manager]|NMM|Datacenter metadata management for physical nodes/machines|Stateless
 
-.4+^.^|Infrastructure Services|Node Manager|Physical nodes/machines management for control plane, including in/out of services, health status maint|Stateless
-|Data Plane Manager|Responsible of sending network configuration to nodes|Stateless
-|Gateway Manager|Responsible of managing gateway|Stateless
-|Resource Pre-Provisioning Manager| TBD |Stateless
+.1+^.^|xref:data_store.adoc[Database and Cache Services]
+|xref:data_store.adoc[Apache Ignite]| |Database services to store resource states |Stateful
 
-.2+^.^|Messaging Services|API Gateway| Responsible of request routing, composition, and protocol translation |Stateless
-|Apache Kafka| Messaging services for controller and agent communication |Stateful
+.4+^.^|Infrastructure Services|
+xref:data_plane_manager.adoc[Data-Plane Manager]|DPM|Responsible of sending network configuration to nodes|Stateless
+|xref:network_health_monitor.adoc[Network Health Monitor] |NHM|Physical nodes/machines management for control plane, including in/out of services, health status maint|Stateless
+|Gateway Manager|GM|Responsible of managing gateway|Stateless
+|Resource Pre-provisioning Manager|RPM| TBD |Stateless
 
-.1+^.^|Cache/Database Services|Apache Ignite| Database services to store resource states |Stateful
+.2+^.^|Messaging Services|API Gateway|GW| Responsible of request routing, composition, and protocol translation |Stateless
+|xref:message_queue_system.adoc[Message Queue (TBD)]|MQ| Messaging services for controller and agent communication |Stateful/Stateless
+
 
 |====================
-
-
-=== Software Architecture of a Micro-Service
-
-Five layers:
-
-. Web/Controller
-. Service and service implementation
-. DAO/repo
-. Entity
-. Configuration
-
-=== Pattern
-
-One main microservice
 
 === Concurrency and Event Ordering
 

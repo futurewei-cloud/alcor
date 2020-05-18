@@ -1,11 +1,11 @@
-= MAC Manager Design Specification
+= Virtual MAC Manager Design Specification
 Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-08
 :toc: right
 
 == Overview
 
-MAC manager is an Alcor microservice which manages the lifecycle of all MAC addresses.
+Virtual MAC manager (VMM) is an Alcor microservice which manages the lifecycle of all virtual MAC addresses.
 Its responsibilities include but not limited to, allocating a unique mac address for a given port,
 releasing the mac address when not needed, and onboarding a region-specific mac ranges.
 It interacts with Subnet Manager and Port Manager to allocate mac addresses for gateway ports and customer ports.

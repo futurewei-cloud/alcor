@@ -3,37 +3,38 @@
 ### Design
 
 * xref:high_level_design.adoc[High Level Design]
+** xref:system_flow.adoc[Key System Flows]
 ** Key Differences Compared with Neutron
-* xref:system_flow.adoc[Key System Flows]
-* xref:controller.adoc[Alcor Controller Microservices]
-** xref:../apis/index.adoc[API Spec]
+* xref:controller.adoc[Alcor Controller]
+//** xref:../apis/index.adoc[API Spec]
 ** API Gateway
 //*** xref:api_gateway.adoc[API Gateway]
-** Management Services
+** xref:mgmt_services_overview.adoc[Resource Management Services]
 *** xref:vpc_manager.adoc[VPC Manager]
 *** xref:subnet_manager.adoc[Subnet Manager]
-//*** Route Manager
-//*** xref:mac_manager.adoc[Mac Manager]
-//*** xref:vpc_manager.adoc[VPC Manager]
-//*** xref:subnet_manager.adoc[Subnet Manager]
-//*** xref:port_manager.adoc[Port Manager]
-//*** xref:route_manager.adoc[Route Manager]
+*** Port Manager
+*** Route Manager
 *** xref:private_ip_manager.adoc[Private IP Manager]
-*** xref:mac_manager.adoc[Mac Manager]
+*** xref:virtual_mac_manager.adoc[Virtual Mac Manager]
+*** xref:node_metadata_manager.adoc[Node Metadata Manager]
+*** Security Group Manager
+*** Virtual IP Manager
 //*** xref:private_ip_manager.adoc[Private IP Manager]
 //*** Private IP Manager
-** Infrastructure Services
-//*** Node Manager
-//*** Data-Plane Manager
-//*** Gateway Manager
 ** xref:data_store.adoc[Database and Cache Services]
+** Infrastructure Services
+*** xref:data_plane_manager.adoc[Data-Plane Manager]
+*** xref:network_health_monitor.adoc[Network Health Monitor]
+** xref:message_queue_system.adoc[Message Queue Services]
+//*** Gateway Manager
 * https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/table_of_content.adoc[Alcor Control Agent]
 ** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/high_level_design.adoc[High Level Design]
 ** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/major_components.adoc[Alcor Control Agent Major Components]
 ** Dataplane Abstraction
-*** Integration with OVS
+*** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/ovs_communication.adoc[Integration with OVS]
 *** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/mizar_communication.adoc[Integration with Mizar]
-* Communication between Controller and Control Agent
+** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/dhcp_programming.adoc[DHCP Programming Design]
+* Communication Protocols
 ** xref:goal_state_model.adoc[Goal State Data Model]
 ** xref:fast_path.adoc[Fast Path]
 ** xref:normal_path.adoc[Normal Path]
