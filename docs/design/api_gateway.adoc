@@ -1,4 +1,6 @@
-= API Gateway
+# API Gateway
+
+NOTE: This document is under development
 
 An API Gateway is a server that is the single entry point into the system.
 The API Gateway encapsulates the internal system architecture and provides an API that is tailored to each client.
@@ -102,7 +104,7 @@ If the error rate for a service exceeds a specified threshold, Hystrix trips the
 all requests will fail immediately for a specified period of time.
 Hystrix lets you define a fallback action when a request fails, such as reading from a cache or returning a default value.
 
-= Option
+== Option
 - Netflix Hystrix:
 It is an incredibly useful library for writing code that invokes remote services.
 Hystrix times out calls that exceed the specified threshold.

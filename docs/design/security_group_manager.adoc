@@ -3,6 +3,8 @@ Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-08
 :toc: right
 
+NOTE: This document is under development
+
 Security groups enable administrators to define firewall rules in groups.
 A VM can belong to one or more security groups.
 Networking applies the rules in those security groups to block or unblock ports, port ranges, or traffic types for that VM.

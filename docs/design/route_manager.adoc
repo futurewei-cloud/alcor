@@ -3,6 +3,8 @@ Liguang Xie <lxie@futurewei.com>, Eunju Kim <eunju.kim@futurewei.com>
 v0.1, 2020-04-08
 :toc: right
 
+NOTE: This document is under development
+
 == Overview
 
 Networking provides networks, subnets, and routers as object abstractions.

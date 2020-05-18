@@ -1,5 +1,7 @@
 = Alcor Regional Controller Design
 
+NOTE: This document is under development
+
 //== Project Scope
 
 == High-Level Architecture

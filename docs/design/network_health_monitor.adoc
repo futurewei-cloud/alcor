@@ -3,6 +3,8 @@ Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-30
 :toc: right
 
+NOTE: This document is under development
+
 == Overview
 
 The network health monitor (NHM) service is a control plane component which monitors data center host/node health status continuously in a configurable interval.

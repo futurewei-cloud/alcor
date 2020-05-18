@@ -1,5 +1,7 @@
 # Alcor - A Hyperscale Cloud-Native SDN Control Plane
 
+NOTE: This document is under development
+
 == Introduction
 
 Shared-nothing Micro-service Architecture

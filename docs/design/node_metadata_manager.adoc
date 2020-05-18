@@ -3,6 +3,8 @@ Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-30
 :toc: right
 
+NOTE: This document is under development
+
 == Overview
 
 The node manager is a control plane component responsible of managing and configurating physical servers/nodes/hosts inside a data center.
