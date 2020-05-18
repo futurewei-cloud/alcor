@@ -20,7 +20,10 @@ We would want to integrate Nova to support the same set of user operations, espe
 
 == Review of OpenStack Workflow
 
-plantuml::workflows/vm_create.puml[]
+[plantuml, png]
+----
+include::workflows/vm_create.puml[]
+----
 
 == Required Changes
 
