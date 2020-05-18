@@ -26,7 +26,7 @@ import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.host.*;
-import com.futurewei.alcor.web.entity.RouterState;
+import com.futurewei.alcor.web.entity.route.RouterState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
