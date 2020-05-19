@@ -135,7 +135,7 @@ State could contains more same type data as array
 |===
 |*API Name* |*Method* |*Request*|*Response*
 
-|Get Port by GoalState
+|Get GoalState
 |GET
 |/goalstate/{goalstateid}
 |GoalState Info
@@ -145,67 +145,67 @@ State could contains more same type data as array
 |POST
 |/goalstate/{gsinfo}
 |Goal State list
-<<Create_GoalState,[sample]>>
+<<Create_Port_GoalState,[sample]>>
 
 |Delete Port by GoalState
 |DELETE
 |/goalstate/{gsinfo}
 |GOAL State
-<<Delete_Goalstate,[sample]>>
+<<Delete_Port_GoalState,[sample]>>
 
-|Update Port by GoalState
+|Update GoalState
 |PUT
 |/goalstate/{goalstates}
 |GOAL State
-<<Update_Goalstate,[sample]>>
+<<Update_GoalState,[sample]>>
 
 |Bulk Create Port by GoalState
 |POST
 |/goalstate/{gsinfo}
 |Goal State list
-<<BULK_Create_GoalState,[sample]>>
+<<BULK_Create_Port_GoalState,[sample]>>
 
 |Bulk Delete Port by GoalState
 |DELETE
 |/goalstate/{gsinfo}
 |GOAL State
-<<BULK_Delete_Goalstate,[sample]>>
+<<BULK_Delete_Port_GoalState,[sample]>>
+
+|Create Vpc by GoalState
+|POST
+|/goalstate/{gsinfo}
+|Goal State list
+<<Create_Vpc_GoalState,[sample]>>
+
+|Delete Vpc by GoalState
+|DELETE
+|/goalstate/{gsinfo}
+|GOAL State
+<<Delete_Vpc_GoalState,[sample]>>
+
+|Bulk Create Vpc by GoalState
+|POST
+|/goalstate/{gsinfo}
+|Goal State list
+<<BULK_Create_Vpc_GoalState,[sample]>>
+
+|Bulk Delete Vpc by GoalState
+|DELETE
+|/goalstate/{gsinfo}
+|GOAL State
+<<BULK_Delete_Vpc_GoalState,[sample]>>
 
 |===
 
 === API Specification
 
-//anchor:IP_Get[]
-//**(1) Get/Verify IP state by IP address**
-//
-//* Method: `GET`
-//
-//* Request: `/ips/{ip_version}/{range_id}/{ip}`
-//
-//* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
-//
-//* Response: ip state
-//* Normal response codes: 200
-//* Error response codes: 400, 412, 500
-//
-//* Example
-//
-//....
-//Request:
-//http://127.0.0.1:8080/ips/4/174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b/10.10.10.1
-//
-//Response:
-//{
-//	"ip_version": 4,
-//    "range_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bc8b",
-//    "ip": "10.10.10.1",
-//    “state” “activated”
-//}
-
 * Get GoalState
 * Create Port with GoalState
-* Update Port with GoalState
 * Delete Port with GoalState
+* Update Port with GoalState
+* Bulk Create Port with GoalState
+* Bulk Delete Port with GoalState
+
 anchor:Get_GoalState[]
 ==== (1) Get GoalState Info By GoalState Request
 
@@ -311,7 +311,7 @@ Response:
 }
 ------------------------------------------------------------
 
-anchor:Create_GoalState[]
+anchor:Create_Port_GoalState[]
 
 ====  (2) Send GoalState to create port
 
@@ -407,7 +407,7 @@ Response:
 }
 
 ------------------------------------------------------------
-anchor:Delete_Goalstate[]
+anchor:Delete_Port_GoalState[]
 
 ====  (3) Send GoalState to delete port
 
@@ -482,7 +482,7 @@ Response:
 ------------------------------------------------------------
 anchor:Update_GoalState[]
 
-====  (4) Send GoalState to update port
+====  (4) Update GoalState 
 
 * {blank}
 +
@@ -592,7 +592,7 @@ Response:
 }
 
 ------------------------------------------------------------
-anchor:BULK_Create_GoalState[]
+anchor:BULK_Create_Port_GoalState[]
 
 ====  (5) Send GoalState to create bulk ports
 
@@ -730,7 +730,7 @@ Response:
   }
 }
 ------------------------------------------------------------
-anchor:BULK_Delete_GoalState[]
+anchor:BULK_Delete_Port_GoalState[]
 
 ====  (6) Send GoalState to bulkly delete ports
 
@@ -816,6 +816,360 @@ Response:
 {
   "code": 200,
   "desc": "bulk ports 9192a4d4-ffff-4ece-b3f0-8d36e3d88038 and 9192a4d4-ffff-4ece-b3f0-8d36e3d88039 deleted on hosts 192.168.1.2 and 192.168.1.3 successfully",
+  "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+  "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+  "port_id": {
+    "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "f37810eb-7f83-45fa-a4d4-1b31e75399de"
+  }
+
+------------------------------------------------------------
+
+
+anchor:Create_Vpc_GoalState[]
+
+====  (7) Send GoalState to create vpc
+
+* {blank}
++
+____
+Method: POST
+____
+* {blank}
++
+____
+Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @RequestBody GSInfo resource
+* {blank}
++
+____
+Response:vpc creation result information
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstate/
+
+Body:
+
+------------------------------------------------------------
+{
+  "operation_type": "create",
+  "resource_type": 0,
+  "goalstate": [
+    {
+      "gsinfo": {
+        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "bridge_name": "test_br",
+        "description": "test_port1",
+        "vpc": {
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "name": "test_vpc",
+            "description": "",
+            "cidr": "10.0.0.0/16"
+                },
+        "subnet": null,
+        "port": null,
+        "security_group": null
+      }
+    }
+  }
+]
+}
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+"code":200
+"desc":"vpc created on 192.168.1.2 successfully"
+}
+
+------------------------------------------------------------
+anchor:Delete_Vpc_GoalState[]
+
+====  (8) Send GoalState to delete vpc
+
+* {blank}
++
+____
+* Method: `DELETE`
+____
+* {blank}
++
+____
+Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @RequestBody GSInfo resource
+* {blank}
++
+____
+Response: vpc deletion result
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstate/{gsinfo}
+
+Body:
+
+------------------------------------------------------------
+{
+   "operation_type":"delete",
+   "resource_type":0,
+   "goalstate":[
+      {
+         "gsinfo":{
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "security_group_id": null,
+            "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "veth_name":null,
+            "bridge_name": "test_br",
+            "description":"test_port1",
+            "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
+            "hostip":"192.168.1.2",
+            "vpc": {
+              "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+              "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+              "name": "test_vpc",
+              "description": "",
+              "cidr": "10.0.0.0/16"
+              }
+            "subnet":null,
+            "port":null,
+            "security_group":null
+         }
+      }
+   ]
+}
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+"code":200
+"desc":"vpc 9192a4d4-ffff-4ece-b3f0-8d36e3d88038 on host 192.168.1.2 deleted successfully"
+}
+
+------------------------------------------------------------
+
+anchor:BULK_Create_Vpc_GoalState[]
+
+====  (9) Send GoalState to create bulk Vpc_states
+
+* {blank}
++
+____
+Method: POST
+____
+* {blank}
++
+____
+Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @RequestBody GSInfo resource
+* {blank}
++
+____
+Response: bulk vpcs creation result information
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstates/
+
+Body:
+
+------------------------------------------------------------
+{
+  "operation_type": "create",
+  "resource_type": 0,
+  "goalstate": [
+    {
+      "gsinfo": {
+        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "bridge_name": "test_br",
+        "description": "test_port1",
+        "vpc": {
+          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+          "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+          "name": "test_vpc",
+          "description": "",
+          "cidr": "10.0.0.0/16"
+        },
+        "subnet": null,
+        "port": null,
+        "security_group": null
+      }
+    },
+    {
+      "gsinfo": {
+        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "bridge_name": "test_br",
+        "description": "test_port1",
+        "vpc": {
+          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+          "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+          "name": "test_vpc",
+          "description": "",
+          "cidr": "10.0.0.0/16"
+        },
+        "subnet": null,
+        "port": null,
+        "security_group": null
+      }
+    }
+  ]
+}
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+  "code": 200,
+  "desc": "bulk Vpc created successfully",
+  "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+  "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+  "port_id": {
+    "f37810eb-7f83-45fa-a4d4-1b31e75399df",
+    "f37810eb-7f83-45fa-a4d4-1b31e75399de"
+  }
+}
+------------------------------------------------------------
+anchor:BULK_Delete_Vpc_GoalState[]
+
+====  (10) Send GoalState to bulkly delete Vpc_states
+
+* {blank}
++
+____
+Method: DELETE
+____
+* {blank}
++
+____
+Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
+____
+* {blank}
++
+____
+Request Parameter: 
+____
+** @RequestBody GSInfo resource
+* {blank}
++
+____
+Response:vpc deletion result information
+____
+* {blank}
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
++
+____
+Example
+____
+
+Request:
+
+http://localhost:8080/goalstates/
+
+Body:
+
+------------------------------------------------------------
+{
+  "operation_type": "delete",
+  "resource_type": 0,
+  "goalstate": [
+    {
+      "gsinfo": {
+        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "bridge_name": "test_br",
+        "description": "test_port1",
+        "vpc": {
+          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+          "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+          "name": "test_vpc",
+          "description": "",
+          "cidr": "10.0.0.0/16"
+        },
+        "subnet": null,
+        "port": null,
+        "security_group": null
+      }
+    },
+    {
+      "gsinfo": {
+        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+        "bridge_name": "test_br",
+        "description": "test_port1",
+        "vpc": {
+          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+          "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+          "name": "test_vpc",
+          "description": "",
+          "cidr": "10.0.0.0/16"
+        },
+        "subnet": null,
+        "port": null,
+        "security_group": null
+      }
+    }
+  ]
+}
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+  "code": 200,
+  "desc": "bulk vpcs deleted on hosts 192.168.1.2 and 192.168.1.3 successfully",
   "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
   "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
   "port_id": {
