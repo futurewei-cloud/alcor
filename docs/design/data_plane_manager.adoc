@@ -200,11 +200,15 @@ State could contains more same type data as array
 === API Specification
 
 * Get GoalState
+* Update GoalState
 * Create Port with GoalState
 * Delete Port with GoalState
-* Update Port with GoalState
 * Bulk Create Port with GoalState
 * Bulk Delete Port with GoalState
+* Create Vpc with GoalState
+* Delete Vpc with GoalState
+* Bulk Create Vpc with GoalState
+* Bulk Delete Vpc with GoalState
 
 anchor:Get_GoalState[]
 ==== (1) Get GoalState Info By GoalState Request
@@ -521,7 +525,6 @@ Body:
 
 ------------------------------------------------------------
 { "operation_type": "update",
-  "resource_type": 2,
   "goalstate": [{
     "vpc": {
       "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
