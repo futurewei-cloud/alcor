@@ -224,11 +224,11 @@ public class SubnetController {
             }
 
             // tags
-//            List<String> tags = inSubnetWebResponseObject.getTags();
-//            if (tags == null) {
-//                tags = new ArrayList<String>(){{add("tag1,tag2");}};
-//                inSubnetWebResponseObject.setTags(tags);
-//            }
+////            List<String> tags = inSubnetWebResponseObject.getTags();
+////            if (tags == null) {
+////                tags = new ArrayList<String>(){{add("tag1,tag2");}};
+////                inSubnetWebResponseObject.setTags(tags);
+////            }
 
             // revision_number
             Integer revisionNumber = inSubnetWebResponseObject.getRevisionNumber();

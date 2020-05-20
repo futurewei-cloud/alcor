@@ -72,7 +72,7 @@ public class RouteController {
 
     @RequestMapping(
             method = GET,
-            value = {"/subnrts/{subnetId}/routes/{routeId}"})
+            value = {"/subnets/{subnetId}/routes/{routeId}"})
     public RouteWebJson getRuleBySubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
 
         RouteWebObject routeState = null;
