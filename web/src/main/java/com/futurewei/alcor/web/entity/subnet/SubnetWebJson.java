@@ -19,18 +19,19 @@ import lombok.Data;
 
 import java.util.UUID;
 
+
 @Data
 public class SubnetWebJson {
-    private SubnetWebObject subnet;
+    private SubnetWebResponseObject subnet;
 
     public SubnetWebJson() {
     }
 
-    public SubnetWebJson(SubnetWebObject subnetWebObject) {
-        this.subnet = subnetWebObject;
+    public SubnetWebJson(SubnetWebResponseObject subnetWebResponseObject) {
+        this.subnet = subnetWebResponseObject;
     }
 
-    public SubnetWebJson(SubnetWebObject subnetObject, UUID genId) {
+    public SubnetWebJson(SubnetWebResponseObject subnetObject, UUID genId) {
         this.subnet = subnetObject;
         this.subnet.setId(String.valueOf(genId));
     }

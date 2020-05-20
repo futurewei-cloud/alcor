@@ -13,27 +13,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.vpc;
+package com.futurewei.alcor.web.entity.subnet;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-public class VpcStateJson {
-    private VpcState vpc;
+public class SubnetRequestWebJson {
 
-    public VpcStateJson() {
+    private SubnetWebRequestObject subnet;
 
+    public SubnetRequestWebJson() {
     }
 
-    public VpcStateJson(VpcState vpcState) {
-        this.vpc = vpcState;
+    public SubnetRequestWebJson(SubnetWebRequestObject subnetWebRequestObject) {
+        this.subnet = subnetWebRequestObject;
     }
 
-    public VpcState getVpc() {
-        return vpc;
+    public SubnetRequestWebJson(SubnetWebRequestObject subnetObject, UUID genId) {
+        this.subnet = subnetObject;
+        this.subnet.setId(String.valueOf(genId));
     }
 
-    public void setVpc(VpcState vpc) {
-        this.vpc = vpc;
-    }
 }

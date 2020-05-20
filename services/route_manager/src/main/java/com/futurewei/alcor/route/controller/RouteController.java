@@ -24,7 +24,7 @@ import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.slf4j.Logger;
@@ -134,7 +134,7 @@ public class RouteController {
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
-            SubnetWebObject inSubnetState = resource.getSubnet();
+            SubnetWebResponseObject inSubnetState = resource.getSubnet();
             RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
 
             String id = UUID.randomUUID().toString();

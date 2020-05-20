@@ -5,7 +5,7 @@ FROM openjdk:8
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
 # VPC Manager process
-EXPOSE 8080
+EXPOSE 9000
 # VPC Manager admin process
 
 # Generate container image and run container

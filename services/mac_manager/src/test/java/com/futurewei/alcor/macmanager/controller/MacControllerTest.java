@@ -16,11 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.macmanager.entity.MacRange;
-import com.futurewei.alcor.macmanager.entity.MacRangeJson;
-import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.entity.MacStateJson;
+import com.futurewei.alcor.web.entity.mac.MacRange;
+import com.futurewei.alcor.web.entity.mac.MacRangeJson;
 import com.futurewei.alcor.macmanager.service.MacService;
+import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

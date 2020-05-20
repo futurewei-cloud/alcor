@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -95,7 +95,7 @@ public class VpcWebResponseObject extends CustomerResource {
     private String l2Adjacency;
 
     @JsonProperty("subnets")
-    private List<SubnetWebObject> subnets;
+    private List<SubnetWebResponseObject> subnets;
 
     public VpcWebResponseObject () {}
 
@@ -104,7 +104,7 @@ public class VpcWebResponseObject extends CustomerResource {
         this.routes = routes;
     }
 
-    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebObject> subnets, String cidr) {
+    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebResponseObject> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routes = routes;
         this.adminStateUp = adminStateUp;

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class SubnetWebObject extends CustomerResource {
+public class SubnetWebResponseObject extends CustomerResource {
 
     @JsonProperty("network_id")
     private String vpcId;
@@ -36,7 +36,7 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("cidr")
     private String cidr;
 
-    @JsonIgnore
+    @JsonProperty("availability_zone")
     private String availabilityZone;
 
     @JsonProperty("gateway_ip")
@@ -45,28 +45,28 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("dhcp_enable")
     private Boolean dhcpEnable;
 
-    @JsonIgnore
+    @JsonProperty("primary_dns")
     private String primaryDns;
 
-    @JsonIgnore
+    @JsonProperty("secondary_dns")
     private String secondaryDns;
 
     @JsonProperty("routes")
     private List<RouteWebObject> routes;
 
-    @JsonIgnore
+    @JsonProperty("gateway_macAddress")
     private String gatewayMacAddress;
 
-    @JsonIgnore
+    @JsonProperty("dns_list")
     private List<String> dnsList;
 
     @JsonProperty("ip_version")
     private Integer ipVersion;
 
-    @JsonIgnore
+    @JsonProperty("ipV4_rangeId")
     private String ipV4RangeId;
 
-    @JsonIgnore
+    @JsonProperty("ipV6_rangeId")
     private String ipV6RangeId;
 
     @JsonProperty("ipv6_address_mode")
@@ -81,13 +81,13 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("segment_id")
     private String segmentId;
 
-    @JsonIgnore
+    @JsonProperty("shared")
     private Boolean shared;
 
-    @JsonIgnore
+    @JsonProperty("sort_dir")
     private String sortDir;
 
-    @JsonIgnore
+    @JsonProperty("sort_key")
     private String sortKey;
 
     @JsonProperty("tenant_id")
@@ -102,16 +102,16 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("tags")
     private List<String> tags;
 
-    @JsonIgnore
+    @JsonProperty("tags-any")
     private String tagsAny;
 
-    @JsonIgnore
+    @JsonProperty("not-tags")
     private String notTags;
 
-    @JsonIgnore
+    @JsonProperty("not-tags-any")
     private String notTagsAny;
 
-    @JsonIgnore
+    @JsonProperty("fields")
     private String fields;
 
     @JsonProperty("dns_nameservers")
@@ -123,10 +123,10 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("host_routes")
     private List<HostRoute> hostRoutes;
 
-    @JsonIgnore
+    @JsonProperty("prefixlen")
     private Integer prefixlen;
 
-    @JsonIgnore
+    @JsonProperty("use_default_subnet_pool")
     private boolean useDefaultSubnetpool;
 
     @JsonProperty("service_types")
@@ -140,35 +140,24 @@ public class SubnetWebObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SubnetWebObject() {
+    public SubnetWebResponseObject() {
     }
 
-    public SubnetWebObject(String projectId, String vpcId, String id, String name, String cidr) {
-        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, null, null, null, null, null);
+    public SubnetWebResponseObject(String projectId, String vpcId, String id, String name, String cidr) {
+        super(projectId, id, name, null);
+        this.vpcId = vpcId;
+        this.cidr = cidr;
     }
 
-    public SubnetWebObject(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp, String gatewayMacAddress) {
-        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, gatewayMacAddress, null, null);
+    public SubnetWebResponseObject(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
+        super(projectId, id, name, null);
+        this.vpcId = vpcId;
+        this.cidr = cidr;
+        this.routes = routes;
     }
 
-    public SubnetWebObject(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
-        this(projectId, vpcId, id, name, cidr, null, null, null, false, null, null, routes, null, null, null, null);
-    }
-
-    public SubnetWebObject(String projectId, String vpcId, String id, String name, String cidr, String gatewayIp) {
-        this(projectId, vpcId, id, name, cidr, null, null, gatewayIp, false, null, null, null, null, null, null, null);
-    }
-
-    public SubnetWebObject(SubnetWebObject state) {
-        this(state.getProjectId(), state.getVpcId(), state.getId(), state.getName(), state.getCidr(), state.getDescription(),
-                state.getAvailabilityZone(), state.getGatewayIp(), state.getDhcpEnable(), state.getPrimaryDns(), state.getSecondaryDns(), state.getRoutes(), state.getDnsList(), state.getGatewayMacAddress(), state.getIpV4RangeId(), state.getIpV6RangeId());
-    }
-
-    public SubnetWebObject(String projectId, String vpcId, String id, String name, String cidr, String description, String availabilityZone,
-                           String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes, List<String> dnsList, String gatewayMacAddress, String ipV4RangeId, String ipV6RangeId) {
-
+    public SubnetWebResponseObject(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
-
         this.vpcId = vpcId;
         this.cidr = cidr;
         this.availabilityZone = availabilityZone;
@@ -178,8 +167,33 @@ public class SubnetWebObject extends CustomerResource {
         this.secondaryDns = secondaryDns;
         this.routes = routes;
         this.gatewayMacAddress = gatewayMacAddress;
-        this.dnsList = (dnsList == null ? null : new ArrayList<>(dnsList));
+        this.dnsList = dnsList;
+        this.ipVersion = ipVersion;
         this.ipV4RangeId = ipV4RangeId;
         this.ipV6RangeId = ipV6RangeId;
+        this.ipv6AddressMode = ipv6AddressMode;
+        this.ipv6RaMode = ipv6RaMode;
+        this.revisionNumber = revisionNumber;
+        this.segmentId = segmentId;
+        this.shared = shared;
+        this.sortDir = sortDir;
+        this.sortKey = sortKey;
+        this.tenantId = tenantId;
+        this.subnetpoolId = subnetpoolId;
+        this.dnsPublishFixedIp = dnsPublishFixedIp;
+        this.tags = tags;
+        this.tagsAny = tagsAny;
+        this.notTags = notTags;
+        this.notTagsAny = notTagsAny;
+        this.fields = fields;
+        this.dnsNameservers = dnsNameservers;
+        this.allocationPools = allocationPools;
+        this.hostRoutes = hostRoutes;
+        this.prefixlen = prefixlen;
+        this.useDefaultSubnetpool = useDefaultSubnetpool;
+        this.serviceTypes = serviceTypes;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
+
 }

@@ -81,8 +81,9 @@ public class SegmentController {
         String networkTypeId = UUID.randomUUID().toString();
 
         try {
-            if (!SegmentManagementUtil.checkSegmentCreateResourceIsValid(resource)) {
-                throw new ResourceNotValidException("vpc resource is invalid");
+
+            if (!SegmentManagementUtil.checkSegmentRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -141,6 +142,11 @@ public class SegmentController {
         SegmentWebResponseObject segmentWebResponseObject = new SegmentWebResponseObject();
 
         try {
+
+            if (!SegmentManagementUtil.checkSegmentRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
             SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
@@ -152,6 +158,14 @@ public class SegmentController {
             segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
             if (segmentWebResponseObject == null) {
                 throw new ResourceNotFoundException("Segment not found : " + segmentid);
+            }
+
+            BeanUtils.copyProperties(segmentWebRequestObject, segmentWebResponseObject);
+            Integer revisionNumber = segmentWebResponseObject.getRevisionNumber();
+            if (revisionNumber == null) {
+                segmentWebResponseObject.setRevisionNumber(1);
+            } else {
+                segmentWebResponseObject.setRevisionNumber(revisionNumber + 1);
             }
 
             this.segmentDatabaseService.addSegment(segmentWebResponseObject);

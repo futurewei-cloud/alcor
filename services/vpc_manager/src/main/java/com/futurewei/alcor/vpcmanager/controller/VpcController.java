@@ -106,8 +106,8 @@ public class VpcController {
 
         try {
 
-            if (!VpcManagementUtil.checkVpcCreateResourceIsValid(resource)) {
-                throw new ResourceNotValidException("vpc resource is invalid");
+            if (!VpcManagementUtil.checkVpcRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -176,6 +176,11 @@ public class VpcController {
         VpcWebResponseObject inVpcState = new VpcWebResponseObject();
 
         try {
+
+            if (!VpcManagementUtil.checkVpcRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
 
@@ -188,6 +193,14 @@ public class VpcController {
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            }
+
+            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            Integer revisionNumber = inVpcState.getRevisionNumber();
+            if (revisionNumber == null) {
+                inVpcState.setRevisionNumber(1);
+            } else {
+                inVpcState.setRevisionNumber(revisionNumber + 1);
             }
 
             this.vpcDatabaseService.addVpc(inVpcState);

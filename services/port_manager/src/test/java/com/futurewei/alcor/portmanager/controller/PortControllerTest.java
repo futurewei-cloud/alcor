@@ -21,10 +21,10 @@ import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.mac.*;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
-import com.futurewei.alcor.web.entity.subnet.SubnetState;
-import com.futurewei.alcor.web.entity.subnet.SubnetStateJson;
 import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
 import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
 import com.futurewei.alcor.portmanager.restclient.SubnetManagerRestClient;
@@ -126,16 +126,16 @@ public class PortControllerTest {
         return objectMapper.writeValueAsString(newPortStateJson());
     }
 
-    private VpcStateJson newVpcStateJson() {
-        VpcState vpcState = new VpcState();
+    private VpcWebJson newVpcStateJson() {
+        VpcWebResponseObject vpcState = new VpcWebResponseObject();
         vpcState.setId(UnitTestConfig.vpcId);
         vpcState.setCidr(UnitTestConfig.vpcCidr);
 
-        return new VpcStateJson(vpcState);
+        return new VpcWebJson(vpcState);
     }
 
-    private SubnetStateJson newSubnetStateJson() {
-        SubnetState subnetState = new SubnetState();
+    private SubnetWebJson newSubnetStateJson() {
+        SubnetWebResponseObject subnetState = new SubnetWebResponseObject();
         subnetState.setProjectId(UnitTestConfig.projectId);
         subnetState.setId(UnitTestConfig.subnetId);
         subnetState.setName("subnet1");
@@ -143,7 +143,7 @@ public class PortControllerTest {
         subnetState.setVpcId(UnitTestConfig.vpcId);
         subnetState.setIpV4RangeId(UnitTestConfig.rangeId);
 
-        return new SubnetStateJson(subnetState);
+        return new SubnetWebJson(subnetState);
     }
 
     private MacStateJson newMacStateJson() {

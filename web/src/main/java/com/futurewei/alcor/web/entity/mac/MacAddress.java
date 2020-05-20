@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 
 
-package com.futurewei.alcor.macmanager.entity;
+package com.futurewei.alcor.web.entity.mac;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;

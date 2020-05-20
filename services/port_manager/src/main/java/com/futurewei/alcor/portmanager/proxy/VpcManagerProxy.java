@@ -37,7 +37,7 @@ public class VpcManagerProxy {
      * @return The information of vpc
      * @throws Exception Rest request exception
      */
-    public VpcStateJson verifyVpc(Object args) throws Exception {
+    public VpcWebJson verifyVpc(Object args) throws Exception {
         PortState portState = (PortState)args;
         return vpcManagerRestClient.verifyVpc(portState.getProjectId(), portState.getVpcId());
     }

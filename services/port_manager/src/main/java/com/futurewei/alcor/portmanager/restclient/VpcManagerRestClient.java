@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.restclient;
 
-import com.futurewei.alcor.web.entity.vpc.VpcStateJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,9 +24,9 @@ public class VpcManagerRestClient extends AbstractRestClient {
     @Value("${microservices.vpc.service.url:#{\"\"}}")
     private String vpcManagerUrl;
 
-    public VpcStateJson verifyVpc(String projectId, String vpcId) throws Exception {
+    public VpcWebJson verifyVpc(String projectId, String vpcId) throws Exception {
         String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;
-        VpcStateJson vpcState = restTemplate.getForObject(url, VpcStateJson.class);
+        VpcWebJson vpcState = restTemplate.getForObject(url, VpcWebJson.class);
         if (vpcState == null) {
             throw new Exception("verify vpc failed");
         }

@@ -20,7 +20,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacAddress;
+import com.futurewei.alcor.web.entity.mac.MacAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;

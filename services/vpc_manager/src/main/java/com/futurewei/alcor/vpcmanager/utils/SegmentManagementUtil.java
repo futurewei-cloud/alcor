@@ -21,12 +21,14 @@ import com.futurewei.alcor.web.entity.SegmentWebRequestJson;
 import com.futurewei.alcor.web.entity.SegmentWebRequestObject;
 import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class SegmentManagementUtil {
 
-    public static boolean checkSegmentCreateResourceIsValid (SegmentWebRequestJson resource) {
+    public static boolean checkSegmentRequestResourceIsValid(SegmentWebRequestJson resource) {
 
         if (resource == null) {
             return false;
@@ -54,8 +56,11 @@ public class SegmentManagementUtil {
         Date currentTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(currentTime);
-        response.setCreated_at(dateString);
-        response.setUpdated_at(dateString);
+
+        String utc = localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
+
+        response.setCreated_at(utc);
+        response.setUpdated_at(utc);
 
         // revision_number
         Integer revisionNumber = response.getRevisionNumber();
@@ -64,6 +69,27 @@ public class SegmentManagementUtil {
         }
 
         return response;
+    }
+
+    public static String localToUTC(String localTime, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date localDate= null;
+        try {
+            localDate = sdf.parse(localTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        long localTimeInMillis = localDate.getTime();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(localTimeInMillis);
+        int zoneOffset = calendar.get(java.util.Calendar.ZONE_OFFSET);
+        int dstOffset = calendar.get(java.util.Calendar.DST_OFFSET);
+        calendar.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
+        Date utcDate = new Date(calendar.getTimeInMillis());
+        String utc = sdf.format(utcDate);
+
+        return utc;
     }
 
 }

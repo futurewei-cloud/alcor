@@ -17,17 +17,18 @@ package com.futurewei.alcor.web.entity.subnet;
 
 import lombok.Data;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class SubnetsWebJson {
-    private ArrayList<SubnetWebObject> subnets;
+    private ArrayList<SubnetWebResponseObject> subnets;
 
     public SubnetsWebJson() {
     }
 
-    public SubnetsWebJson(List<SubnetWebObject> subnetWebObjectList) {
-        this.subnets = new ArrayList<>(subnetWebObjectList);
+    public SubnetsWebJson(List<SubnetWebResponseObject> subnetWebResponseObjectList) {
+        this.subnets = new ArrayList<>(subnetWebResponseObjectList);
     }
 }
