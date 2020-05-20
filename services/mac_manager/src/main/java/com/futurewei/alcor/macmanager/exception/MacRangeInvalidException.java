@@ -14,21 +14,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
-public class UniquenessViolationException extends Exception {
-    public UniquenessViolationException() {
+public class MacRangeInvalidException extends Exception {
+    public MacRangeInvalidException() {
     }
 
-    public UniquenessViolationException(String message) {
+    public MacRangeInvalidException(String message) {
         super(message);
     }
 
-    public UniquenessViolationException(String message, Throwable cause) {
+    public MacRangeInvalidException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UniquenessViolationException(Throwable cause) {
+    public MacRangeInvalidException(Throwable cause) {
         super(cause);
     }
 }
-
-

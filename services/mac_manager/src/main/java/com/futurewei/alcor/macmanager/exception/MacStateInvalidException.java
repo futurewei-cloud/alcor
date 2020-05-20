@@ -14,19 +14,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
-public class RetryLimitExceedException extends Exception {
-    public RetryLimitExceedException() {
+public class MacStateInvalidException extends Exception{
+    public MacStateInvalidException() {
     }
 
-    public RetryLimitExceedException(String message) {
+    public MacStateInvalidException(String message) {
         super(message);
     }
 
-    public RetryLimitExceedException(String message, Throwable cause) {
+    public MacStateInvalidException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RetryLimitExceedException(Throwable cause) {
+    public MacStateInvalidException(Throwable cause) {
         super(cause);
     }
 }
