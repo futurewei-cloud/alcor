@@ -358,10 +358,10 @@ One MAC address falls into one of three states:
 
 === MAC Range
 
-image::images/Services_MacRange.png[]
+image::../images/Services_MacRange.png[]
 
 === MAC State
-image::images/Services_MacState.png[]
+image::../images/Services_MacState.png[]
 
 == Concurrency Handling
 

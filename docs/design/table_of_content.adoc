@@ -8,7 +8,7 @@
 * xref:controller.adoc[Alcor Controller]
 //** xref:../apis/index.adoc[API Spec]
 ** API Gateway
-//*** xref:api_gateway.adoc[API Gateway]
+//*** xref:_api_gateway.adoc[API Gateway]
 ** xref:mgmt_services_overview.adoc[Resource Management Services]
 *** xref:vpc_manager.adoc[VPC Manager]
 *** xref:subnet_manager.adoc[Subnet Manager]

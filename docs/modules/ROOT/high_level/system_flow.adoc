@@ -19,13 +19,13 @@ These creation workflow involves multiple microservice types:
 
 === Vpc/Network Workflow
 
-image::images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/create_api_workflow.jpg"]
+image::../images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="../images/create_api_workflow.jpg"]
 
-plantuml::workflows/vpc_create.puml[format="svg", align="center"]
+plantuml::../workflows/vpc_create.puml[format="svg", align="center"]
 
 === Subnet Workflow
 
-plantuml::workflows/subnet_create.puml[format="svg", align="center"]
+plantuml::../workflows/subnet_create.puml[format="svg", align="center"]
 
 === Port Workflow
 
