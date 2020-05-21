@@ -31,10 +31,6 @@ message VpcConfiguration {
     string name = 4;
     string cidr = 5;
     int64 tunnel_id = 6;
-    // FIXME: MTU info would be part VPC right?
-    // OVS neutron agent doesn't look at MTU except
-    // during the construction of physical bridge
-    // and it get the MTU info from its config
 
     message SubnetId {
         string id = 1;

@@ -35,11 +35,14 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
-    NEIGHBOR_INFO = 5; // FIXME: we may need CRUD for NEIGHBOR_INFO
-    CREATE_UPDATE_GATEWAY = 6;
-    FINALIZE = 7;             // For Mizar only
-    CREATE_UPDATE_SWITCH = 8; // For Mizar only
-    CREATE_UPDATE_ROUTER = 9; // For Mizar only
+    NEIGHBOR_CREATE = 5;
+    NEIGHBOR_UPDATE = 6;
+    NEIGHBOR_GET = 7;
+    NEIGHBOR_DELETE = 8;
+    CREATE_UPDATE_GATEWAY = 9;
+    FINALIZE = 10;             // For Mizar only
+    CREATE_UPDATE_SWITCH = 11; // For Mizar only
+    CREATE_UPDATE_ROUTER = 12; // For Mizar only
 }
 
 enum OperationStatus {

@@ -46,12 +46,6 @@ message SubnetConfiguration {
     string primary_dns = 11;
     string secondary_dns = 12;
 
-    message SecurityGroupId {
-        string id = 1;
-    }
-
-    repeated SecurityGroupId security_group_ids = 14; // FIXME: why to store in subnet level? 
-
     // start Mizar specific session
     // note that repeated field are inherently optional
     message TransitSwitch {
@@ -60,7 +54,7 @@ message SubnetConfiguration {
         string ip_address = 3;
         string mac_address = 4;
     }
-    repeated TransitSwitch transit_switches = 15;
+    repeated TransitSwitch transit_switches = 13;
     // end Mizar specific session
 }
 
