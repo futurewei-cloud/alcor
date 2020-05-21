@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -35,7 +36,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.junit.Assert.assertTrue;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @AutoConfigureMockMvc
-public class NodeControllerTest {
+public class NodeControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
     @MockBean
     NodeService service;
@@ -125,7 +128,7 @@ public class NodeControllerTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect((rslt) -> assertTrue(rslt.getResolvedException().getClass() != null));
+                .andExpect((rslt) -> assertNotNull(Objects.requireNonNull(rslt.getResolvedException()).getClass()));
     }
 
     @Test
@@ -182,7 +185,7 @@ public class NodeControllerTest {
         MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
                 .andDo(print())
                 .andReturn();
-        assertTrue(result.getResponse().getContentAsString().length() == 0);
+        assertEquals(0, result.getResponse().getContentAsString().length());
     }
 
     @Test
@@ -193,7 +196,7 @@ public class NodeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        assertTrue(result.getResponse().getContentAsString().equals(strNodeId));
+        assertEquals(result.getResponse().getContentAsString(), strNodeId);
     }
 
     @Test
@@ -202,6 +205,6 @@ public class NodeControllerTest {
         MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                 .andDo(print())
                 .andReturn();
-        assertTrue(result.getResponse().getContentAsString().length() == 0);
+        assertEquals(0, result.getResponse().getContentAsString().length());
     }
 }
