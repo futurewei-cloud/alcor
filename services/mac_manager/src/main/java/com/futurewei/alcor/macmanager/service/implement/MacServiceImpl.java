@@ -33,10 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
@@ -136,9 +133,11 @@ public class MacServiceImpl implements MacService {
             macState.setState(MacManagerConstant.MAC_STATE_ACTIVE);
         else if (macState.getState().trim().length() == 0)
             macState.setState(MacManagerConstant.MAC_STATE_ACTIVE);
-
         try {
             MacRange range = macRangeRepository.findItem(rangeId);
+            //MAC address is generated in a MAC range betwen from ~ to, if there is no active user defined MAC range, by default default MAC range is applied.
+            //Default MAC range: name is defined MacManagerConstant class, range is entire oui range. e.g.)
+            // if oui=AA-BB-CC then default MAC range is AA-BB-CC-00-00-00 ~ AA-BB-CC-FF-FF-FF.
             if (range == null) {
                 if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE)) {
                     range = createDefaultRange(oui);
@@ -149,11 +148,11 @@ public class MacServiceImpl implements MacService {
             } else if (range.getState().equals(MacManagerConstant.MAC_RANGE_STATE_ACTIVE) == false) {
                 throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_NOT_ACTIVE);
             }
-            if (macPoolRepository.getSize(rangeId) < (nMacPoolSize - 10)) {
+            if (macPoolRepository.getSize(rangeId) < (nMacPoolSize - (MacManagerConstant.MAC_PREGENERATE_SIZE / 2))) {
                 CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> {
                     long n = 0;
                     try {
-                        n = generateMacInPool(rangeId, 20);
+                        n = generateMacInPool(rangeId, MacManagerConstant.MAC_PREGENERATE_SIZE);
                     } catch (Exception e) {
                         logger.error("MacService createMacState() exception:", e);
                     }
@@ -169,15 +168,21 @@ public class MacServiceImpl implements MacService {
                 macState.setMacAddress(strMacAddress);
                 macStateRepository.addItem(macState);
             } else {
-                String nic = generateNic(rangeId);
-                macAddress.setOui(oui);
-                macAddress.setNic(nic);
-                macState.setMacAddress(macAddress.getMacAddress());
-                MacState macState2 = macStateRepository.findItem(macAddress.getMacAddress());
-                if (macStateRepository.findItem(macAddress.getMacAddress()) != null)
-                    throw (new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION + macAddress.getMacAddress() + macState2.getProjectId()));
-                else
-                    macStateRepository.addItem(macState);
+                Vector<Long> vtNic = generateNic(rangeId, 1);
+                if (vtNic != null) {
+                    if (vtNic.size() > 0) {
+                        macAddress.setOui(oui);
+                        long l = vtNic.firstElement();
+                        String nic = MacAddress.longToNic(l, macAddress.getNicLength());
+                        macAddress.setNic(nic);
+                        macState.setMacAddress(macAddress.getMacAddress());
+                        MacState macState2 = macStateRepository.findItem(macAddress.getMacAddress());
+                        if (macStateRepository.findItem(macAddress.getMacAddress()) != null)
+                            throw (new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION + macAddress.getMacAddress() + macState2.getProjectId()));
+                        else
+                            macStateRepository.addItem(macState);
+                    }
+                }
             }
         } catch (CacheException e) {
             throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
@@ -241,9 +246,8 @@ public class MacServiceImpl implements MacService {
             } else {
                 try {
                     macStateRepository.deleteItem(macAddress);
-                    MacAddress mac = new MacAddress(macAddress);
-                    long nic = MacAddress.nicToLong(mac.getNic());
-                    updateBitSet(nic, false);
+                    inactivateMacAddressBit(macAddress);
+
                 } catch (CacheException e) {
                     throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
                 }
@@ -359,7 +363,7 @@ public class MacServiceImpl implements MacService {
         if (rangeId == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE))
-            throw (new MacRangeDeleteNotAllowedException(MacManagerConstant.MAC_EXCEPTION_DELETE_DEFAULT_RANGE_EXCEPTION));
+            throw (new MacRangeDeleteNotAllowedException(MacManagerConstant.MAC_EXCEPTION_DELETE_DEFAULT_RANGE));
         try {
             macRangeRepository.deleteItem(rangeId);
         } catch (Exception e) {
@@ -411,7 +415,7 @@ public class MacServiceImpl implements MacService {
      * @return default MAC range
      * @throws
      */
-    private MacRange createDefaultRange(String oui) {
+    private MacRange createDefaultRange(String oui) throws CacheException {
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
         MacAddress macAddress = new MacAddress(oui, null);
         long nNicLength = (long) Math.pow(2, macAddress.getNicLength());
@@ -421,8 +425,13 @@ public class MacServiceImpl implements MacService {
         String to = new MacAddress(oui, strTo).getMacAddress();
         String state = MacManagerConstant.MAC_RANGE_STATE_ACTIVE;
         BitSet bitSet = new BitSet((int) nNicLength);
-        MacRange defaultRange = new MacRange(rangeId, from, to, state);
-        defaultRange.setBitSet(bitSet);
+        MacRange defaultRange = new MacRange(rangeId, from, to, state, bitSet);
+        try {
+            macRangeRepository.addItem(defaultRange);
+        } catch (CacheException e) {
+            logger.error("MacService createDefaultRange() exception:", e);
+            throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
+        }
         return defaultRange;
     }
 
@@ -435,43 +444,42 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressRetryLimitExceedException MAC address generation is tried more than limit
      */
     private long generateMacInPool(String rangeId, int n) throws MacAddressRetryLimitExceedException {
+        HashSet<String> hsMacAddress = new HashSet<String>();
         MacAddressRetryLimitExceedException exception = null;
         long nReturn = 0;
-        ArrayList<String> list = new ArrayList<String>();
         if (n < 1) return nReturn;
-        MacAddress macAddress = new MacAddress();
-        for (int i = 0; i < n; i++) {
-            try {
-                String nic = generateNic(rangeId);
-                macAddress.setOui(oui);
-                macAddress.setNic(nic);
-                String strMacAddress = macAddress.getMacAddress();
-                MacState macState = macStateRepository.findItem(strMacAddress);
-                if (macState == null) {
-                    macPoolRepository.addItem(rangeId, strMacAddress);
-                    nReturn++;
+        try {
+            Vector<Long> vtNic = generateNic(rangeId, n);
+            MacAddress macAddress = new MacAddress(oui, null);
+            int nNicLength = macAddress.getNicLength();
+            if (vtNic != null) {
+                if (vtNic.size() > 0) {
+                    for (int i = 0; i < vtNic.size(); i++) {
+                        long nic = vtNic.elementAt(i);
+                        macAddress.setOui(oui);
+                        macAddress.setNic(MacAddress.longToNic(nic, nNicLength));
+                        String strMacAddress = macAddress.getMacAddress();
+                        MacState macState = macStateRepository.findItem(strMacAddress);
+                        if (macState == null) {
+                            hsMacAddress.add(strMacAddress);
+                            nReturn++;
+                        }
+                    }
+                    macPoolRepository.addItem(rangeId, hsMacAddress);
                 }
-            } catch (MacAddressRetryLimitExceedException e) {
-                exception = e;
-            } catch (Exception e) {
-                logger.error("MacService generateMacInPool() exception:", e);
             }
+        } catch (MacAddressRetryLimitExceedException e) {
+            exception = e;
+        } catch (Exception e) {
+            logger.error("MacService generateMacInPool() exception:", e);
         }
         if (exception != null)
             throw exception;
         return nReturn;
     }
 
-    /**
-     * generate a new NIC(Network Interface Unit) of a MAC address
-     *
-     * @param rangeId MAC range id
-     * @return new NIC string
-     * @throws MacRepositoryTransactionErrorException error during repository transaction
-     * @throws MacAddressFullException                ALL MAC addresses are used and there is no more avaialble
-     * @throws MacAddressRetryLimitExceedException    MAC address generation is tried more than limit
-     */
-    private String generateNic(String rangeId) throws MacRepositoryTransactionErrorException, MacAddressFullException, MacAddressRetryLimitExceedException {
+    private Vector<Long> generateNic(String rangeId, int n) throws MacRepositoryTransactionErrorException, MacAddressFullException, MacAddressRetryLimitExceedException {
+        Vector<Long> vtNic = new Vector<Long>();
         String nic = null;
         MacAddress macAddress = new MacAddress(oui, null);
         Long from = (long) 0;
@@ -490,34 +498,21 @@ public class MacServiceImpl implements MacService {
         }
         long nAavailableMac = availableMac(from, to);
         if (nAavailableMac == 0) {
-            throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_FULL_EXCEPTION);
+            throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
+        } else if (nAavailableMac < (long) n) {
+            n = (int) nAavailableMac;
         } else {
             int i = 0;
-            while (nic == null && i < nRetryLimit) {
+            int nTry = 0;
+            while (i < n && nAavailableMac > 0) {
                 long randomNum = ThreadLocalRandom.current().nextLong(0, nAavailableMac);
                 randomNic = getRandomNicFromBitSet(from, randomNum);
-                String nicTemp = MacAddress.hexToNic(Long.toHexString(randomNic), nNicLength);
-                macAddress.setNic(nicTemp);
-                try {
-                    if ((macStateRepository.findItem(macAddress.getMacAddress()) == null) && (macPoolRepository.findItem(rangeId, macAddress.getMacAddress()) == null)) {
-                        nic = nicTemp;
-                        i++;
-                    }
-                } catch (CacheException e) {
-                    throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
-                }
-            }
-            if (nic == null)
-                throw new MacAddressRetryLimitExceedException(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
-            if (randomNic >= 0) {
-                try {
-                    updateBitSet(randomNic, true);
-                } catch (CacheException e) {
-                    throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
-                }
+                vtNic.add(randomNic);
+                nAavailableMac--;
+                i++;
             }
         }
-        return nic;
+        return vtNic;
     }
 
     /**
@@ -559,6 +554,12 @@ public class MacServiceImpl implements MacService {
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
         try {
             MacRange range = getMacRangeByMacRangeId(rangeId);
+            if (range == null)
+                range = this.createDefaultRange(oui);
+            if (range.getBitSet() == null) {
+                MacAddress macAddress = new MacAddress(oui, null);
+                range.setBitSet(new BitSet(macAddress.getNicLength()));
+            }
             BitSet bitSet = range.getBitSet();
             BitSet bitSet2 = bitSet.get((int) from, (int) to);
             long nTotal = to - from;
@@ -580,16 +581,17 @@ public class MacServiceImpl implements MacService {
      * @return MAC address picked
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
-    private long getRandomNicFromBitSet(long from, long n) throws MacRepositoryTransactionErrorException {
+    private synchronized long getRandomNicFromBitSet(long from, long n) throws MacRepositoryTransactionErrorException {
         long nRandomBit = 0;
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
         try {
             MacRange range = getMacRangeByMacRangeId(rangeId);
             BitSet bitSet = range.getBitSet();
-            for (int i = 0; i < n; i++) {
-                nRandomBit = bitSet.nextClearBit((int) from);
-                from = nRandomBit + 1;
+            if (bitSet == null) {
+                bitSet = createDefaultRangeBitSet();
             }
+
+            nRandomBit = bitSet.nextClearBit((int) (from + n));
             bitSet.set((int) nRandomBit);
             range.setBitSet(bitSet);
             macRangeRepository.addItem(range);
@@ -600,6 +602,22 @@ public class MacServiceImpl implements MacService {
             logger.error("MacService getRandomNicFromBitSet() exception:", e);
         }
         return nRandomBit;
+    }
+
+    private BitSet createDefaultRangeBitSet() {
+        MacAddress macAddress = new MacAddress(oui, null);
+        BitSet bitSet = new BitSet(macAddress.getNicLength());
+        return bitSet;
+    }
+
+    private void inactivateMacAddressBit(String macAddress) throws MacRepositoryTransactionErrorException {
+        MacAddress mac = new MacAddress(macAddress);
+        long nic = MacAddress.nicToLong(mac.getNic());
+        try {
+            updateBitSet(nic, false);
+        } catch (CacheException e) {
+            throw new MacRepositoryTransactionErrorException(e);
+        }
     }
 }
 

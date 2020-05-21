@@ -25,6 +25,7 @@ public class MacManagerConstant {
     public static final String MAC_RANGE_STATE_ACTIVE = "Active";
     public static final String MAC_RANGE_STATE_INACTIVE = "Inactive";
     public static final String MAC_RANGE_STATE_EXCLUDE = "Exclude";
+    public static final int MAC_PREGENERATE_SIZE = 20;
 
     public static final String MAC_EXCEPTION_UNIQUENESSSS_VILOATION = "This mac address is not unique!!";
     public static final String MAC_EXCEPTION_RETRY_LIMIT_EXCEED = "It exceeded the limit of retry for to create a MAC. Please check active MAC ranges.";
@@ -32,6 +33,7 @@ public class MacManagerConstant {
     public static final String MAC_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";
     public static final String MAC_EXCEPTION_PARAMETER_INVALID = "Parameter data format or value is not valid";
     public static final String MAC_EXCEPTION_MACADDRESS_INVALID_FORMAT = "MAC address format is not valid";
+    public static final String MAC_EXCEPTION_MACADDRESS_FULL = "All MAC addresses are generated. There is no available MAC address.";
     public static final String MAC_EXCEPTION_MACSTATE_NULL = "MacState contains null value";
     public static final String MAC_EXCEPTION_MACSTATE_INVALID_EMPTY = "Mac state contains data which is empty";
     public static final String MAC_EXCEPTION_MACSTATE_INVALID_FORMAT = "Mac state contains invalid data value";
@@ -44,6 +46,5 @@ public class MacManagerConstant {
     public static final String MAC_EXCEPTION_RANGE_VALUE_NULL = "MAC range contains null value";
     public static final String MAC_EXCEPTION_RANGE_VALUE_INVALID = "MAC range is not vaild. Ranges' start value should be less than end value.";
     public static final String MAC_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for a service to call a repository";
-    public static final String MAC_EXCEPTION_FULL_EXCEPTION = "All MAC addresses are generated. There is no available MAC address.";
-    public static final String MAC_EXCEPTION_DELETE_DEFAULT_RANGE_EXCEPTION = "It is not allowed to delete default range.";
+    public static final String MAC_EXCEPTION_DELETE_DEFAULT_RANGE = "It is not allowed to delete default range.";
 }

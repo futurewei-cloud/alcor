@@ -21,6 +21,8 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -29,6 +31,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
@@ -40,7 +43,7 @@ public class MacPoolRepository implements ICacheRepository<MacPool> {
     public MacPoolRepository(CacheFactory cacheFactory) {
         cache = cacheFactory.getCache(MacPool.class);
     }
-
+    private static final Logger logger = LoggerFactory.getLogger(MacPoolRepository.class);
     public ICache<String, MacPool> getCache() {
         return cache;
     }
@@ -92,8 +95,8 @@ public class MacPoolRepository implements ICacheRepository<MacPool> {
                 tx.commit();
             } catch (CacheException e) {
                 throw e;
-            } catch (Exception e1) {
-
+            } catch (Exception e) {
+                logger.error("MacPoolRepository addItem() exception:", e);
             }
         }
     }
@@ -113,7 +116,7 @@ public class MacPoolRepository implements ICacheRepository<MacPool> {
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-
+            logger.error("MacPoolRepository deleteItem() exception:", e);
         }
     }
 
@@ -134,6 +137,44 @@ public class MacPoolRepository implements ICacheRepository<MacPool> {
             addItem(pool);
         } catch (CacheException e) {
             throw e;
+        }
+    }
+
+    /**
+     * add a MAC address in a MAC pool
+     *
+     * @param rangeId    MAC range id of a MAC pool
+     * @param hsMacAddress bulk MAC addresses to add a MAC pool
+     * @return
+     * @throws CacheException Db or cache operation exception
+     */
+    public void addItem(String rangeId, HashSet<String> hsMacAddress) throws CacheException {
+        MacPool pool = null;
+        try {
+            pool = findItem(rangeId);
+            if(pool == null)
+                pool = new MacPool(rangeId, new HashSet<String>());
+            HashSet<String> hsMac = pool.getSetMac();
+            if (hsMacAddress != null) {
+                if (hsMacAddress.size() > 0) {
+                    pool.setMacAddresses(hsMacAddress);
+                }
+            }
+        } catch (CacheException e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+        }
+        try(Transaction tx = cache.getTransaction().start()){
+            cache.put(rangeId, pool);
+            tx.commit();
+            logger.info("MacPoolRepository addItem() {}: ", rangeId);
+        } catch (CacheException e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
         }
     }
 

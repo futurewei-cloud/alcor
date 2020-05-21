@@ -14,13 +14,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.entity;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
-public class MacPool {
+public class MacPool implements Serializable {
     private String rangeId;
     private HashSet<String> setMac;
 
     public MacPool() {
+        rangeId = "";
+        setMac = new HashSet<String>();
     }
 
     public MacPool(MacPool pool) {
@@ -46,5 +49,9 @@ public class MacPool {
 
     public void setSetMac(HashSet<String> setMac) {
         this.setMac = setMac;
+    }
+
+    public void setMacAddresses(HashSet<String> setMac) {
+        this.setMac.addAll(setMac);
     }
 }

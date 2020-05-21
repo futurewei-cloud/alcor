@@ -58,9 +58,9 @@ public class MacController {
             macState = service.getMacStateByMacAddress(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             throw e;
-        } catch (MacAddressInvalidException e){
+        } catch (MacAddressInvalidException e) {
             throw e;
-        }catch (MacRepositoryTransactionErrorException e){
+        } catch (MacRepositoryTransactionErrorException e) {
             throw e;
         }
 

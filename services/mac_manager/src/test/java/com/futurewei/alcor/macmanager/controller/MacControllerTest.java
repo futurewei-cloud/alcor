@@ -46,7 +46,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MacControllerTest extends MockIgniteServer {
@@ -275,7 +274,6 @@ public class MacControllerTest extends MockIgniteServer {
         MacRangeJson macRangeJson2 = new MacRangeJson(macRange2);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(macRangeJson);
-        //when(mockService.updateMacRange(macRange)).thenReturn(macRange2);
         this.mockMvc.perform(put("/macs/ranges/range5")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
