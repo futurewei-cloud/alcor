@@ -18,35 +18,44 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.web.entity.SegmentEntity;
-import com.futurewei.alcor.web.entity.SegmentWebRequestJson;
-import com.futurewei.alcor.web.entity.SegmentWebRequestObject;
-
+import com.futurewei.alcor.web.entity.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SegmentManagementUtil {
+public class SegmentRangeManagementUtil {
 
-    public static boolean checkSegmentRequestResourceIsValid(SegmentWebRequestJson resource) {
+    public static boolean checkSegmentRangeRequestResourceIsValid(NetworkSegmentRangeWebRequestJson resource) {
 
         if (resource == null) {
             return false;
         }
-        SegmentWebRequestObject segment = resource.getSegment();
+        NetworkSegmentRangeWebRequestObject segmentRange = resource.getNetwork_segment_range();
 
         // network_type
-        String networkType = segment.getNetworkType();
+        String networkType = segmentRange.getNetworkType();
         if (!(networkType == null || NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)
                 || NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)
                 || NetworkTypeEnum.GRE.getNetworkType().equals(networkType)
-                || segment.equals("flat")) ) {
+                || segmentRange.equals("flat")) ) {
+            return false;
+        }
+
+        // minimum
+        Integer minimum = segmentRange.getMinimum();
+        if (minimum < 0) {
+            return false;
+        }
+
+        // maximum
+        Integer maximum = segmentRange.getMaximum();
+        if (maximum < minimum) {
             return false;
         }
 
         return true;
     }
 
-    public static SegmentEntity configureSegmentDefaultParameters (SegmentEntity response) {
+    public static NetworkSegmentRangeEntity configureSegmentRangeDefaultParameters (NetworkSegmentRangeEntity response) {
         if (response == null) {
             return response;
         }

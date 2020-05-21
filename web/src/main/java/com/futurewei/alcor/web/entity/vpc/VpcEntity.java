@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,7 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.util.List;
 
 @Data
-public class VpcWebResponseObject extends CustomerResource {
+public class VpcEntity extends CustomerResource {
 
     @JsonProperty("cidr")
     private String cidr;
@@ -95,16 +95,16 @@ public class VpcWebResponseObject extends CustomerResource {
     private String l2Adjacency;
 
     @JsonProperty("subnets")
-    private List<SubnetWebResponseObject> subnets;
+    private List<SubnetEntity> subnets;
 
-    public VpcWebResponseObject () {}
+    public VpcEntity() {}
 
-    public VpcWebResponseObject (String projectId, String id, String name, String cidr, List<RouteWebObject> routes) {
+    public VpcEntity(String projectId, String id, String name, String cidr, List<RouteWebObject> routes) {
         super(projectId, id, name, cidr);
         this.routes = routes;
     }
 
-    public VpcWebResponseObject(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetWebResponseObject> subnets, String cidr) {
+    public VpcEntity(String projectId, String id, String name, String description, List<RouteWebObject> routes, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetEntity> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routes = routes;
         this.adminStateUp = adminStateUp;

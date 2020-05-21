@@ -18,7 +18,7 @@ package com.futurewei.alcor.subnet.utils;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.exception.*;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {
@@ -68,7 +68,7 @@ public class RestPreconditionsUtil {
 
     public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
         String resourceVpcId = null;
-        if (resource instanceof VpcWebResponseObject) {
+        if (resource instanceof VpcEntity) {
             resourceVpcId = resource.getId();
         }
 

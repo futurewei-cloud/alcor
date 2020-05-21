@@ -61,7 +61,7 @@ public class VpcController {
             value = {"/project/{projectid}/vpcs/{vpcid}"})
     public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
-        VpcWebResponseObject vpcState = null;
+        VpcEntity vpcState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -102,7 +102,7 @@ public class VpcController {
             value = {"/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
-        VpcWebResponseObject inVpcState = new VpcWebResponseObject();
+        VpcEntity inVpcState = new VpcEntity();
 
         try {
 
@@ -173,7 +173,7 @@ public class VpcController {
             value = {"/project/{projectid}/vpcs/{vpcid}"})
     public VpcWebJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource) throws Exception {
 
-        VpcWebResponseObject inVpcState = new VpcWebResponseObject();
+        VpcEntity inVpcState = new VpcEntity();
 
         try {
 
@@ -225,7 +225,7 @@ public class VpcController {
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
     public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
-        VpcWebResponseObject vpcState = null;
+        VpcEntity vpcState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -255,7 +255,7 @@ public class VpcController {
             method = GET,
             value = "/project/{projectid}/vpcs")
     public Map getVpcStatesByProjectId(@PathVariable String projectid) throws Exception {
-        Map<String, VpcWebResponseObject> vpcStates = null;
+        Map<String, VpcEntity> vpcStates = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);

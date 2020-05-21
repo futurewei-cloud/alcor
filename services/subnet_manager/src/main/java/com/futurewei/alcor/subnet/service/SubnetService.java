@@ -4,8 +4,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -35,7 +35,7 @@ public interface SubnetService {
     public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String subnetId, SubnetWebResponseObject subnetWebResponseObject) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity) throws Exception;
 
     // Allocate Gateway Mac
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;

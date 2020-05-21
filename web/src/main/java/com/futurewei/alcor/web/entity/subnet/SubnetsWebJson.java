@@ -23,12 +23,12 @@ import java.util.List;
 
 @Data
 public class SubnetsWebJson {
-    private ArrayList<SubnetWebResponseObject> subnets;
+    private ArrayList<SubnetEntity> subnets;
 
     public SubnetsWebJson() {
     }
 
-    public SubnetsWebJson(List<SubnetWebResponseObject> subnetWebResponseObjectList) {
-        this.subnets = new ArrayList<>(subnetWebResponseObjectList);
+    public SubnetsWebJson(List<SubnetEntity> subnetEntityList) {
+        this.subnets = new ArrayList<>(subnetEntityList);
     }
 }

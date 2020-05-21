@@ -22,7 +22,7 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
@@ -127,7 +127,7 @@ public class PortControllerTest {
     }
 
     private VpcWebJson newVpcStateJson() {
-        VpcWebResponseObject vpcState = new VpcWebResponseObject();
+        VpcEntity vpcState = new VpcEntity();
         vpcState.setId(UnitTestConfig.vpcId);
         vpcState.setCidr(UnitTestConfig.vpcCidr);
 
@@ -135,7 +135,7 @@ public class PortControllerTest {
     }
 
     private SubnetWebJson newSubnetStateJson() {
-        SubnetWebResponseObject subnetState = new SubnetWebResponseObject();
+        SubnetEntity subnetState = new SubnetEntity();
         subnetState.setProjectId(UnitTestConfig.projectId);
         subnetState.setId(UnitTestConfig.subnetId);
         subnetState.setName("subnet1");

@@ -8,8 +8,7 @@ import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
-import com.futurewei.alcor.web.entity.*;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,7 @@ public class SegmentServiceImpl implements SegmentService {
             key = this.vlanRangeRepository.allocateVlanKey(rangeId);
 
             if (vpcId != null) {
-                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
                 Integer mtu = vpc.getMtu();
                 vlan.setMtu(mtu);
             }
@@ -135,7 +134,7 @@ public class SegmentServiceImpl implements SegmentService {
             key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
 
             if (vpcId != null) {
-                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
                 Integer mtu = vpc.getMtu();
                 vxlan.setMtu(mtu);
             }
@@ -196,7 +195,7 @@ public class SegmentServiceImpl implements SegmentService {
             key = this.greRangeRepository.allocateGreKey(rangeId);
 
             if (vpcId != null) {
-                VpcWebResponseObject vpc = this.vpcDatabaseService.getByVpcId(vpcId);
+                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
                 Integer mtu = vpc.getMtu();
                 gre.setMtu(mtu);
             }

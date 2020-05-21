@@ -4,7 +4,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.subnet.dao.SubnetRepository;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     private SubnetRepository subnetRepository;
 
     @Override
-    public SubnetWebResponseObject getBySubnetId(String subnetId) {
+    public SubnetEntity getBySubnetId(String subnetId) {
         try {
             return this.subnetRepository.findItem(subnetId);
         }catch (Exception e) {
@@ -31,9 +31,9 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     }
 
     @Override
-    public void addSubnet(SubnetWebResponseObject subnetWebResponseObject) throws DatabasePersistenceException {
+    public void addSubnet(SubnetEntity subnetEntity) throws DatabasePersistenceException {
         try {
-            this.subnetRepository.addItem(subnetWebResponseObject);
+            this.subnetRepository.addItem(subnetEntity);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }

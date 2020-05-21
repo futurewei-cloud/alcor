@@ -4,9 +4,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.SegmentRangeRepository;
-import com.futurewei.alcor.vpcmanager.dao.SegmentRepository;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
+import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class SegmentRangeDatabaseServiceImpl implements SegmentRangeDatabaseServ
     SegmentRangeRepository segmentRangeRepository;
 
     @Override
-    public NetworkSegmentRangeWebResponseObject getBySegmentRangeId(String segmentRangeId) {
+    public NetworkSegmentRangeEntity getBySegmentRangeId(String segmentRangeId) {
         try {
             return this.segmentRangeRepository.findItem(segmentRangeId);
         }catch (Exception e) {
@@ -37,7 +36,7 @@ public class SegmentRangeDatabaseServiceImpl implements SegmentRangeDatabaseServ
     }
 
     @Override
-    public void addSegmentRange(NetworkSegmentRangeWebResponseObject segmentRange) throws DatabasePersistenceException {
+    public void addSegmentRange(NetworkSegmentRangeEntity segmentRange) throws DatabasePersistenceException {
         try {
             this.segmentRangeRepository.addItem(segmentRange);
         } catch (Exception e) {
@@ -51,7 +50,7 @@ public class SegmentRangeDatabaseServiceImpl implements SegmentRangeDatabaseServ
     }
 
     @Override
-    public ICache<String, NetworkSegmentRangeWebResponseObject> getCache() {
+    public ICache<String, NetworkSegmentRangeEntity> getCache() {
         return this.segmentRangeRepository.getCache();
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Data
-public class SegmentWebResponseObject extends CustomerResource {
+public class SegmentEntity extends CustomerResource {
 
     @JsonProperty("network_id")
     private String vpcId;
@@ -35,14 +35,14 @@ public class SegmentWebResponseObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SegmentWebResponseObject () {}
+    public SegmentEntity() {}
 
-    public SegmentWebResponseObject(String projectId, String id, String name, String description, String vpcId) {
+    public SegmentEntity(String projectId, String id, String name, String description, String vpcId) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
     }
 
-    public SegmentWebResponseObject(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String created_at, String updated_at, String segmentationUUID) {
+    public SegmentEntity(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String created_at, String updated_at, String segmentationUUID) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.physicalNetwork = physicalNetwork;

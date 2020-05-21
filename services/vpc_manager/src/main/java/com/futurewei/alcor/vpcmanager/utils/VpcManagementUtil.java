@@ -17,16 +17,14 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
+import com.futurewei.alcor.common.utils.DateUtil;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebRequestJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -68,7 +66,7 @@ public class VpcManagementUtil {
         return true;
     }
 
-    public static VpcWebResponseObject configureNetworkDefaultParameters (VpcWebResponseObject response) {
+    public static VpcEntity configureNetworkDefaultParameters (VpcEntity response) {
         if (response == null) {
             return response;
         }
@@ -85,7 +83,7 @@ public class VpcManagementUtil {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(currentTime);
 
-        String utc = localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
+        String utc = DateUtil.localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
 
         response.setCreated_at(utc);
         response.setUpdated_at(utc);
@@ -116,27 +114,6 @@ public class VpcManagementUtil {
         }
 
         return response;
-    }
-
-    public static String localToUTC(String localTime, String format) {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Date localDate= null;
-        try {
-            localDate = sdf.parse(localTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        long localTimeInMillis = localDate.getTime();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(localTimeInMillis);
-        int zoneOffset = calendar.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = calendar.get(java.util.Calendar.DST_OFFSET);
-        calendar.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
-        Date utcDate = new Date(calendar.getTimeInMillis());
-        String utc = sdf.format(utcDate);
-
-        return utc;
     }
 
 }

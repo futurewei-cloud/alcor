@@ -8,7 +8,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.vpc.*;
@@ -124,9 +124,9 @@ public class SubnetServiceImp implements SubnetService {
 
 
     @Override
-    public RouteWebJson createRouteRules(String subnetId, SubnetWebResponseObject subnetWebResponseObject) throws FallbackException {
+    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetWebResponseObject));
+        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
         if (routeResponse == null) {

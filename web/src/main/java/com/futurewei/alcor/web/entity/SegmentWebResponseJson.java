@@ -7,17 +7,17 @@ import java.util.UUID;
 @Data
 public class SegmentWebResponseJson {
 
-    private SegmentWebResponseObject segment;
+    private SegmentEntity segment;
 
     public SegmentWebResponseJson() {
 
     }
 
-    public SegmentWebResponseJson(SegmentWebResponseObject segment) {
+    public SegmentWebResponseJson(SegmentEntity segment) {
         this.segment = segment;
     }
 
-    public SegmentWebResponseJson(SegmentWebResponseObject segment, UUID genId) {
+    public SegmentWebResponseJson(SegmentEntity segment, UUID genId) {
         this.segment = segment;
         this.segment.setId(String.valueOf(genId));
 

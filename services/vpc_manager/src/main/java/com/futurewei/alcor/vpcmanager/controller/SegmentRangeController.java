@@ -1,12 +1,10 @@
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
-import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourceNullException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.vpcmanager.utils.SegmentRangeManagementUtil;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +38,7 @@ public class SegmentRangeController {
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public NetworkSegmentRangeWebResponseJson getSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
-        NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = null;
+        NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -73,15 +71,21 @@ public class SegmentRangeController {
     @ResponseStatus(HttpStatus.CREATED)
     public NetworkSegmentRangeWebResponseJson createSegmentRange(@PathVariable String projectid, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
-        NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = new NetworkSegmentRangeWebResponseObject();
+        NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
 
         try {
+
+            if (!SegmentRangeManagementUtil.checkSegmentRangeRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             NetworkSegmentRangeWebRequestObject segmentRangeWebRequestObject = resource.getNetwork_segment_range();
             BeanUtils.copyProperties(segmentRangeWebRequestObject, segmentRangeWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentRangeWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentRangeWebResponseObject, projectid);
 
+            segmentRangeWebResponseObject = SegmentRangeManagementUtil.configureSegmentRangeDefaultParameters(segmentRangeWebResponseObject);
             this.segmentRangeDatabaseService.addSegmentRange(segmentRangeWebResponseObject);
 
             segmentRangeWebResponseObject = this.segmentRangeDatabaseService.getBySegmentRangeId(segmentRangeWebResponseObject.getId());
@@ -112,7 +116,7 @@ public class SegmentRangeController {
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public NetworkSegmentRangeWebResponseJson updateSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
-        NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = new NetworkSegmentRangeWebResponseObject();
+        NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -152,7 +156,7 @@ public class SegmentRangeController {
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
     public ResponseId deleteSegmentRangeBySegmentId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
-        NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject = null;
+        NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -184,7 +188,7 @@ public class SegmentRangeController {
             value = "/project/{projectid}/network_segment_ranges")
     public Map getSegmentRangesByProjectId(@PathVariable String projectid) throws Exception {
 
-        Map<String, NetworkSegmentRangeWebResponseObject> segmentRanges = null;
+        Map<String, NetworkSegmentRangeEntity> segmentRanges = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);

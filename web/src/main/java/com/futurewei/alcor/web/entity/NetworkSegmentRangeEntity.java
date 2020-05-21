@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class NetworkSegmentRangeWebResponseObject extends CustomerResource {
+public class NetworkSegmentRangeEntity extends CustomerResource {
 
     @JsonProperty("is_default")
     private boolean isDefault;
@@ -53,14 +53,14 @@ public class NetworkSegmentRangeWebResponseObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public NetworkSegmentRangeWebResponseObject () {}
+    public NetworkSegmentRangeEntity() {}
 
-    public NetworkSegmentRangeWebResponseObject (String projectId, String id, String name, String description, String networkType) {
+    public NetworkSegmentRangeEntity(String projectId, String id, String name, String description, String networkType) {
         super(projectId, id, name, description);
         this.networkType = networkType;
     }
 
-    public NetworkSegmentRangeWebResponseObject(String projectId, String id, String name, String description, boolean isDefault, Integer minimum, Integer maximum, String tags, String networkType, String physicalNetwork, String tenantId, Boolean shared, Integer revisionNumber, List<Integer> available, Map<Integer, String> used, String created_at, String updated_at) {
+    public NetworkSegmentRangeEntity(String projectId, String id, String name, String description, boolean isDefault, Integer minimum, Integer maximum, String tags, String networkType, String physicalNetwork, String tenantId, Boolean shared, Integer revisionNumber, List<Integer> available, Map<Integer, String> used, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.isDefault = isDefault;
         this.minimum = minimum;

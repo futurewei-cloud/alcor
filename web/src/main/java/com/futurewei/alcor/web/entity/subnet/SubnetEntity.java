@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class SubnetWebResponseObject extends CustomerResource {
+public class SubnetEntity extends CustomerResource {
 
     @JsonProperty("network_id")
     private String vpcId;
@@ -140,23 +140,23 @@ public class SubnetWebResponseObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SubnetWebResponseObject() {
+    public SubnetEntity() {
     }
 
-    public SubnetWebResponseObject(String projectId, String vpcId, String id, String name, String cidr) {
+    public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr) {
         super(projectId, id, name, null);
         this.vpcId = vpcId;
         this.cidr = cidr;
     }
 
-    public SubnetWebResponseObject(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
+    public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr, List<RouteWebObject> routes) {
         super(projectId, id, name, null);
         this.vpcId = vpcId;
         this.cidr = cidr;
         this.routes = routes;
     }
 
-    public SubnetWebResponseObject(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetEntity(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteWebObject> routes, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;

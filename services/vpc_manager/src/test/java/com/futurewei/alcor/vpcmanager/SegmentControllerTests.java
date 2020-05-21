@@ -2,8 +2,8 @@ package com.futurewei.alcor.vpcmanager;
 
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
+import com.futurewei.alcor.web.entity.SegmentEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,9 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -54,7 +52,7 @@ public class SegmentControllerTests {
     @Test
     public void vpcGetById_canFindSegment_pass () throws Exception {
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId));
         this.mockMvc.perform(get(getByIdUri))
@@ -78,7 +76,7 @@ public class SegmentControllerTests {
     public void createSegment_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
@@ -90,7 +88,7 @@ public class SegmentControllerTests {
     @Test
     public void updateSegmentByVpcId_noUpdate_pass () throws Exception {
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
@@ -102,10 +100,10 @@ public class SegmentControllerTests {
     @Test
     public void updateSegmentBySegmentId_update_pass () throws Exception {
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.updateName,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
@@ -117,7 +115,7 @@ public class SegmentControllerTests {
     @Test
     public void deleteSegmentBySegmentId_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
-                .thenReturn(new SegmentWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId){{setSegmentationId(1);}});
         this.mockMvc.perform(delete(deleteUri))
@@ -140,11 +138,11 @@ public class SegmentControllerTests {
 
     @Test
     public void getSegmentByProjectId_getMap_pass () throws Exception {
-        Map<String, SegmentWebResponseObject> segments = new HashMap<>();
-        SegmentWebResponseObject segmentWebResponseObject =new SegmentWebResponseObject(UnitTestConfig.projectId,
+        Map<String, SegmentEntity> segments = new HashMap<>();
+        SegmentEntity segmentEntity =new SegmentEntity(UnitTestConfig.projectId,
                 UnitTestConfig.segmentId, UnitTestConfig.name,
                 UnitTestConfig.cidr, UnitTestConfig.vpcId);
-        segments.put("SegmentWebResponseObject", segmentWebResponseObject);
+        segments.put("SegmentWebResponseObject", segmentEntity);
         Mockito.when(segmentDatabaseService.getAllSegments()).thenReturn(segments);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());
@@ -152,7 +150,7 @@ public class SegmentControllerTests {
 
     @Test
     public void getSegmentByProjectId_getEmptyMap_pass () throws Exception {
-        Map<String, SegmentWebResponseObject> segments = new HashMap<>();
+        Map<String, SegmentEntity> segments = new HashMap<>();
         Mockito.when(segmentDatabaseService.getAllSegments()).thenReturn(segments);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());

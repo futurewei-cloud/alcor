@@ -22,16 +22,16 @@ import java.util.UUID;
 
 @Data
 public class SubnetWebJson {
-    private SubnetWebResponseObject subnet;
+    private SubnetEntity subnet;
 
     public SubnetWebJson() {
     }
 
-    public SubnetWebJson(SubnetWebResponseObject subnetWebResponseObject) {
-        this.subnet = subnetWebResponseObject;
+    public SubnetWebJson(SubnetEntity subnetEntity) {
+        this.subnet = subnetEntity;
     }
 
-    public SubnetWebJson(SubnetWebResponseObject subnetObject, UUID genId) {
+    public SubnetWebJson(SubnetEntity subnetObject, UUID genId) {
         this.subnet = subnetObject;
         this.subnet.setId(String.valueOf(genId));
     }

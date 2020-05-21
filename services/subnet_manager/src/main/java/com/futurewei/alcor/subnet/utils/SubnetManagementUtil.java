@@ -19,14 +19,7 @@ package com.futurewei.alcor.subnet.utils;
 import com.futurewei.alcor.common.enumClass.Ipv6AddressModeEnum;
 import com.futurewei.alcor.common.enumClass.Ipv6RaModeEnum;
 import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestObject;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 public class SubnetManagementUtil {
 
@@ -71,27 +64,6 @@ public class SubnetManagementUtil {
         }
 
         return true;
-    }
-
-    public static String localToUTC(String localTime, String format) {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Date localDate= null;
-        try {
-            localDate = sdf.parse(localTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        long localTimeInMillis = localDate.getTime();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(localTimeInMillis);
-        int zoneOffset = calendar.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = calendar.get(java.util.Calendar.DST_OFFSET);
-        calendar.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
-        Date utcDate = new Date(calendar.getTimeInMillis());
-        String utc = sdf.format(utcDate);
-
-        return utc;
     }
 
 }

@@ -24,9 +24,9 @@ import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebResponseObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,12 +105,12 @@ public class RouteController {
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-            VpcWebResponseObject vpcWebResponseObject = resource.getNetwork();
-            RestPreconditionsUtil.verifyResourceNotNull(vpcWebResponseObject);
+            VpcEntity vpcEntity = resource.getNetwork();
+            RestPreconditionsUtil.verifyResourceNotNull(vpcEntity);
 
             String id = UUID.randomUUID().toString();
-            String projectId = vpcWebResponseObject.getProjectId();
-            String destination = vpcWebResponseObject.getCidr();
+            String projectId = vpcEntity.getProjectId();
+            String destination = vpcEntity.getCidr();
             String routeTableId = UUID.randomUUID().toString();
 
             routeState = new RouteWebObject(projectId, id, "default_route_rule", "",
@@ -134,7 +134,7 @@ public class RouteController {
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
-            SubnetWebResponseObject inSubnetState = resource.getSubnet();
+            SubnetEntity inSubnetState = resource.getSubnet();
             RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
 
             String id = UUID.randomUUID().toString();
