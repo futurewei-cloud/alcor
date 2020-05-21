@@ -135,9 +135,9 @@ public class MacServiceImpl implements MacService {
             macState.setState(MacManagerConstant.MAC_STATE_ACTIVE);
         try {
             MacRange range = macRangeRepository.findItem(rangeId);
-            //MAC address is generated in a MAC range betwen from ~ to, if there is no active user defined MAC range, by default default MAC range is applied.
-            //Default MAC range: name is defined MacManagerConstant class, range is entire oui range. e.g.)
-            // if oui=AA-BB-CC then default MAC range is AA-BB-CC-00-00-00 ~ AA-BB-CC-FF-FF-FF.
+            /* Default MAC range: MAC address is generated in a MAC range betwen from ~ to, if there is no active user defined MAC range, by default default MAC range is applied.
+             *  Default MAC range: name is defined MacManagerConstant class, range is all oui range. e.g.)
+             * if oui=AA-BB-CC then default MAC range is AA-BB-CC-00-00-00 ~ AA-BB-CC-FF-FF-FF. */
             if (range == null) {
                 if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE)) {
                     range = createDefaultRange(oui);
