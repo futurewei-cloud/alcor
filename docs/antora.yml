@@ -1,6 +1,6 @@
-name:alcor
-title:Alcor Controller
-version:'0.5'
+name: alcor
+title: Alcor Controller
+version: '0.5'
 #asciidoc:
 #  attributes:
 #    table-caption: Data Set
