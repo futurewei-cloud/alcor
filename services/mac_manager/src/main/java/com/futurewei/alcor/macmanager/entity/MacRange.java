@@ -14,18 +14,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.entity;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.BitSet;
 
-
 @Data
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-        setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
-public class MacRange {
+public class MacRange implements Serializable {
     @JsonProperty("range_id")
     private String rangeId;
 
@@ -53,6 +50,16 @@ public class MacRange {
         this.from = from;
         this.to = to;
         this.state = state;
+        this.bitSet = new BitSet();
+
+    }
+
+    public MacRange(String rangeId, String from, String to, String state, BitSet bitset) {
+        this.rangeId = rangeId;
+        this.from = from;
+        this.to = to;
+        this.state = state;
+        this.bitSet = bitset;
     }
 }
 

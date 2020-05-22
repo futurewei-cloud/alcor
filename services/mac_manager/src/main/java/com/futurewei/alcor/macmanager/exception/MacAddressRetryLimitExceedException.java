@@ -14,19 +14,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
-public class InvalidMacRangeException extends Exception {
-    public InvalidMacRangeException() {
+public class MacAddressRetryLimitExceedException extends Exception {
+    public MacAddressRetryLimitExceedException() {
     }
 
-    public InvalidMacRangeException(String message) {
+    public MacAddressRetryLimitExceedException(String message) {
         super(message);
     }
 
-    public InvalidMacRangeException(String message, Throwable cause) {
+    public MacAddressRetryLimitExceedException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public InvalidMacRangeException(Throwable cause) {
+    public MacAddressRetryLimitExceedException(Throwable cause) {
         super(cause);
     }
 }

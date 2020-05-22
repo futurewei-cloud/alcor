@@ -20,28 +20,31 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacAddress;
+import com.futurewei.alcor.macmanager.entity.MacPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
-public class MacPoolRepository implements ICacheRepository<MacAddress> {
-    private ICache<String, MacAddress> cache;
+public class MacPoolRepository implements ICacheRepository<MacPool> {
+    private ICache<String, MacPool> cache;
 
     @Autowired
     public MacPoolRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(MacAddress.class);
+        cache = cacheFactory.getCache(MacPool.class);
     }
-
-    public ICache<String, MacAddress> getCache() {
+    private static final Logger logger = LoggerFactory.getLogger(MacPoolRepository.class);
+    public ICache<String, MacPool> getCache() {
         return cache;
     }
 
@@ -50,37 +53,50 @@ public class MacPoolRepository implements ICacheRepository<MacAddress> {
 
     }
 
+    /**
+     * get a MAC pool of a range
+     *
+     * @param rangeId MAC range id
+     * @return MAC pool of the MAC range
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
-    public MacAddress findItem(String strMacAddress) throws CacheException, ResourceNotFoundException {
-        if (cache.containsKey(strMacAddress))
-            return cache.get(strMacAddress);
+    public MacPool findItem(String rangeId) throws CacheException {
+        if (cache.containsKey(rangeId))
+            return cache.get(rangeId);
         else
             return null;
     }
 
+    /**
+     * get all MAC pools
+     *
+     * @param
+     * @return map of MAC pools, <K,V> K: MAC range id, V: MAC pool
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
-    public Map<String, MacAddress> findAllItems() throws CacheException {
+    public Map<String, MacPool> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     /**
      * add a MAC address to MAC pool repository
      *
-     * @param macAddress MAC address
+     * @param pool MAC address pool
      * @return void
      * @throws Exception Db or cache operation exception
      */
     @Override
-    public void addItem(MacAddress macAddress) throws CacheException {
-        if (cache.containsKey(macAddress.getMacAddress()) == false) {
+    public void addItem(MacPool pool) throws CacheException {
+        if (cache.containsKey(pool.getRangeId()) == false) {
             try (Transaction tx = cache.getTransaction().start()) {
-                cache.put(macAddress.getMacAddress(), macAddress);
+                cache.put(pool.getRangeId(), pool);
                 tx.commit();
             } catch (CacheException e) {
                 throw e;
-            } catch(Exception e1)
-            {
-
+            } catch (Exception e) {
+                logger.error("MacPoolRepository addItem() exception:", e);
             }
         }
     }
@@ -88,40 +104,168 @@ public class MacPoolRepository implements ICacheRepository<MacAddress> {
     /**
      * delete a MAC address from MAC pool repository
      *
-     * @param strMacAddress MAC address
+     * @param rangeId MAC range id
      * @return void
      * @throws Exception Db or cache operation exception
      */
     @Override
-    public void deleteItem(String strMacAddress) throws CacheException {
+    public void deleteItem(String rangeId) throws CacheException {
         try (Transaction tx = cache.getTransaction().start()) {
-            cache.remove(strMacAddress);
+            cache.remove(rangeId);
             tx.commit();
         } catch (CacheException e) {
             throw e;
-        } catch(Exception e)
-        {
-
+        } catch (Exception e) {
+            logger.error("MacPoolRepository deleteItem() exception:", e);
         }
     }
 
-    public synchronized String getItem() throws CacheException {
-        String strMacAddress;
+    /**
+     * add a MAC address in a MAC pool
+     *
+     * @param rangeId    MAC range id of a MAC pool
+     * @param macAddress MAC address to add a MAC pool
+     * @return
+     * @throws CacheException Db or cache operation exception
+     */
+    public void addItem(String rangeId, String macAddress) throws CacheException {
         try {
-            long randomIndex = ThreadLocalRandom.current().nextLong(0, getSize());
-            Vector<String> sa = new Vector(Arrays.asList(cache.getAll().keySet().toArray()));
-            strMacAddress = sa.elementAt((int) randomIndex);
+            MacPool pool = findItem(rangeId);
+            HashSet<String> setMac = pool.getSetMac();
+            setMac.add(macAddress);
+            pool.setSetMac(setMac);
+            addItem(pool);
+        } catch (CacheException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * add a MAC address in a MAC pool
+     *
+     * @param rangeId    MAC range id of a MAC pool
+     * @param hsMacAddress bulk MAC addresses to add a MAC pool
+     * @return
+     * @throws CacheException Db or cache operation exception
+     */
+    public void addItem(String rangeId, HashSet<String> hsMacAddress) throws CacheException {
+        MacPool pool = null;
+        try {
+            pool = findItem(rangeId);
+            if(pool == null)
+                pool = new MacPool(rangeId, new HashSet<String>());
+            HashSet<String> hsMac = pool.getSetMac();
+            if (hsMacAddress != null) {
+                if (hsMacAddress.size() > 0) {
+                    pool.setMacAddresses(hsMacAddress);
+                }
+            }
+        } catch (CacheException e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+            throw e;
         } catch (Exception e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+        }
+        try(Transaction tx = cache.getTransaction().start()){
+            cache.put(rangeId, pool);
+            tx.commit();
+            logger.info("MacPoolRepository addItem() {}: ", rangeId);
+        } catch (CacheException e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("MacPoolRepository addItem() exception:", e);
+        }
+    }
+
+    /**
+     * delete a MAC address in a MAC pool
+     *
+     * @param rangeId    MAC range id of a MAC pool
+     * @param macAddress MAC address to delete
+     * @return
+     * @throws CacheException Db or cache operation exception
+     */
+    public void deleteItem(String rangeId, String macAddress) throws CacheException, ResourceNotFoundException {
+        try {
+            MacPool pool = findItem(rangeId);
+            HashSet<String> setMac = pool.getSetMac();
+            setMac.remove(macAddress);
+            pool.setSetMac(setMac);
+            addItem(pool);
+        } catch (CacheException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * find a MAC address in a MAC pool
+     *
+     * @param rangeId    MAC range id of a MAC pool
+     * @param macAddress MAC address to delete
+     * @return MAC address
+     * @throws CacheException Db or cache operation exception
+     */
+    public String findItem(String rangeId, String macAddress) throws CacheException {
+        String strMac = null;
+        try {
+            MacPool pool = findItem(rangeId);
+            if (pool != null) {
+                HashSet<String> setMac = pool.getSetMac();
+                if (setMac != null) {
+                    if (setMac.contains(macAddress))
+                        strMac = macAddress;
+                }
+            }
+        } catch (CacheException e) {
+            throw e;
+        }
+        return strMac;
+    }
+
+    /**
+     * pick a MAC address randomly in a MAC pool
+     *
+     * @param rangeId MAC range id of a MAC pool
+     * @return MAC address
+     * @throws CacheException Db or cache operation exception
+     */
+    public synchronized String getRandomItem(String rangeId) throws CacheException {
+        String strMacAddress = null;
+        try {
+            long nSize = getSize(rangeId);
+            if (nSize > 0) {
+                long randomIndex = ThreadLocalRandom.current().nextLong(0, getSize(rangeId));
+                MacPool pool = findItem(rangeId);
+                HashSet<String> setMac = pool.getSetMac();
+                Iterator<String> iter = setMac.iterator();
+                int i = 0;
+                while (iter.hasNext() && i <= randomIndex) {
+                    strMacAddress = iter.next();
+                    i++;
+                }
+            }
+
+        } catch (CacheException e) {
             throw e;
         }
         return strMacAddress;
     }
 
-    public synchronized long getSize() throws CacheException {
+    /**
+     * compute the size of MAC pool of a MAC range
+     *
+     * @param rangeId MAC range id of a MAC pool
+     * @return size
+     * @throws CacheException Db or cache operation exception
+     */
+    public synchronized long getSize(String rangeId) throws CacheException {
         int nSize = 0;
         try {
-            nSize = cache.getAll().size();
-        } catch (Exception e) {
+            MacPool pool = findItem(rangeId);
+            if (pool != null)
+                nSize = pool.getSetMac().size();
+        } catch (CacheException e) {
             throw e;
         }
         return nSize;
