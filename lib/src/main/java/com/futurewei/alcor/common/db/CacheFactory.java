@@ -48,4 +48,12 @@ public class CacheFactory {
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){
         return iCacheFactory.getExpireCache(v, timeout, timeUnit);
     }
+
+    public <K, V> ICache getCache(Class<V> v, String cacheName) {
+        if (igniteClient != null) {
+            return getIgniteCache(cacheName);
+        }
+
+        return getRedisCache(v, cacheName);
+    }
 }
