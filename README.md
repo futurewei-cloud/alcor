@@ -35,7 +35,7 @@ application aware fast path when provisioning containers and serverless applicat
 
 The following diagram illustrates the high-level architecture of Alcor control plane.
 
-![Alcor architecture](docs/modules/ROOT/images/alcor_architecture.PNG)
+![Alcor architecture](docs/modules/ROOT/pages/images/alcor_architecture.PNG)
 
 Detailed design docs:
 
