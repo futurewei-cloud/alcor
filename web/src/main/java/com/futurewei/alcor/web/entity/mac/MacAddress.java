@@ -20,12 +20,14 @@ package com.futurewei.alcor.web.entity.mac;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 @Data
 public class MacAddress {
-
     public static final String MAC_DELIMITER = "-";
-    public static final int NIC_LENGTH = 24;
+    public static final int MAC_LENGTH = 48;
 
     @JsonIgnore
     private String oui;
@@ -60,8 +62,8 @@ public class MacAddress {
         return hex;
     }
 
-    public static String hexToMac(String hex) {
-        int length = MacAddress.NIC_LENGTH / 4;
+    public static String hexToNic(String hex, int nNicLength) {
+        int length = nNicLength / 4;
         int lengthDelimiter = Math.round(length / 2) - 1;
         hex = hex.toUpperCase();
         while (hex.length() < length)
@@ -74,8 +76,8 @@ public class MacAddress {
         return buffer.toString();
     }
 
-    public static String longToMac(long number) {
-        String mac = hexToMac(Long.toHexString(number));
+    public static String longToNic(long number, int nNicLength) {
+        String mac = hexToNic(Long.toHexString(number), nNicLength);
         return mac;
     }
 
@@ -85,6 +87,12 @@ public class MacAddress {
         return Long.valueOf(mac, 16);
     }
 
+    public static long nicToLong(String nic) {
+        nic = nic.replace(MacAddress.MAC_DELIMITER, "");
+        long l = Long.valueOf(nic, 16);
+        return Long.valueOf(nic, 16);
+    }
+
     public String getMacAddress() {
         String strMacAddress = oui + MAC_DELIMITER + nic;
         return strMacAddress;
@@ -92,5 +100,18 @@ public class MacAddress {
 
     public void print() {
         System.out.println(getMacAddress());
+    }
+
+    public boolean validateMac(String strMac) {
+        Pattern p = Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$");
+        Matcher m = p.matcher(strMac);
+        return m.find();
+    }
+
+    public int getNicLength() {
+        String strOui = oui.replace(MacAddress.MAC_DELIMITER, "");
+        int nOuiLength = (12 - strOui.length()) * 4;
+        int nNicLength = 48 - nOuiLength;
+        return nNicLength;
     }
 }
