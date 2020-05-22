@@ -20,7 +20,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.web.entity.mac.MacState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +51,13 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         logger.info("MacState repository init: Done");
     }
 
+    /**
+     * get MAC-port allocation state
+     *
+     * @param macAddress MAC address
+     * @return MAC state
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
     public MacState findItem(String macAddress) throws CacheException {
         MacState macState = null;
@@ -63,6 +70,13 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         return macState;
     }
 
+    /**
+     * get all MAC-port allocation states
+     *
+     * @param
+     * @return map of all MAC states
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
     public Map findAllItems() throws CacheException {
         HashMap hashMap = new HashMap();
@@ -91,9 +105,8 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         } catch (CacheException e) {
             logger.error("MacStateRepository addItem() exception:", e);
             throw e;
-        } catch(Exception e)
-        {
-
+        } catch (Exception e) {
+            logger.error("MacStateRepository addItem() exception:", e);
         }
     }
 
@@ -113,9 +126,8 @@ public class MacStateRepository implements ICacheRepository<MacState> {
         } catch (CacheException e) {
             logger.error("MacStateRepository deleteItem() exception:", e);
             throw e;
-        }catch(Exception e)
-        {
-
+        } catch (Exception e) {
+            logger.error("MacStateRepository addItem() exception:", e);
         }
     }
 }

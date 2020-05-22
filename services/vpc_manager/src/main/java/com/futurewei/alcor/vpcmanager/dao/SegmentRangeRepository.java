@@ -6,9 +6,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseJson;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
-import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
+import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -19,19 +17,19 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class SegmentRangeRepository implements ICacheRepository<NetworkSegmentRangeWebResponseObject> {
+public class SegmentRangeRepository implements ICacheRepository<NetworkSegmentRangeEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
-    public ICache<String, NetworkSegmentRangeWebResponseObject> getCache() {
+    public ICache<String, NetworkSegmentRangeEntity> getCache() {
         return cache;
     }
 
-    private ICache<String, NetworkSegmentRangeWebResponseObject> cache;
+    private ICache<String, NetworkSegmentRangeEntity> cache;
 
     @Autowired
     public SegmentRangeRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(NetworkSegmentRangeWebResponseObject.class);
+        cache = cacheFactory.getCache(NetworkSegmentRangeEntity.class);
     }
 
     @PostConstruct
@@ -40,17 +38,17 @@ public class SegmentRangeRepository implements ICacheRepository<NetworkSegmentRa
     }
 
     @Override
-    public NetworkSegmentRangeWebResponseObject findItem(String id) throws CacheException {
+    public NetworkSegmentRangeEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, NetworkSegmentRangeWebResponseObject> findAllItems() throws CacheException {
+    public Map<String, NetworkSegmentRangeEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(NetworkSegmentRangeWebResponseObject newItem) throws CacheException {
+    public void addItem(NetworkSegmentRangeEntity newItem) throws CacheException {
         logger.log(Level.INFO, "Add segment range, Segment Range Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);
     }

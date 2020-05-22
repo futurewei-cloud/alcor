@@ -15,33 +15,34 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.subnet.entity;
 
-import com.futurewei.alcor.web.entity.SubnetWebObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
 @Data
 public class SubnetProgramInfo {
 
-    private SubnetWebObject customerSubnetWebObject;
-    private VpcState customerVpcState;
+    private SubnetEntity customerSubnetEntity;
+    private VpcEntity customerVpcState;
 
-    public SubnetProgramInfo(SubnetWebObject customerSubnetWebObject, VpcState customerVpcState) {
-        this.customerSubnetWebObject = customerSubnetWebObject;
+    public SubnetProgramInfo(SubnetEntity customerSubnetEntity, VpcEntity customerVpcState) {
+        this.customerSubnetEntity = customerSubnetEntity;
         this.customerVpcState = customerVpcState;
     }
 
-    public SubnetWebObject getCustomerSubnetWebObject() {
-        return customerSubnetWebObject;
+    public SubnetEntity getCustomerSubnetEntity() {
+        return customerSubnetEntity;
     }
 
-    public void setCustomerSubnetWebObject(SubnetWebObject customerSubnetWebObject) {
-        this.customerSubnetWebObject = customerSubnetWebObject;
+    public void setCustomerSubnetEntity(SubnetEntity customerSubnetEntity) {
+        this.customerSubnetEntity = customerSubnetEntity;
     }
 
-    public VpcState getCustomerVpcState() {
+    public VpcEntity getCustomerVpcState() {
         return customerVpcState;
     }
 
-    public void setCustomerVpcState(VpcState customerVpcState) {
+    public void setCustomerVpcState(VpcEntity customerVpcState) {
         this.customerVpcState = customerVpcState;
     }
 

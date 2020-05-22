@@ -9,9 +9,9 @@ import static org.junit.Assert.*;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.RouteWebObject;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class VpcControllerTests {
     @Test
     public void vpcGetById_canFindVpc_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(get(getByIdUri))
@@ -80,10 +80,10 @@ public class VpcControllerTests {
     public void createVpcState_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
-        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcWebResponseObject.class)))
+        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(routeWebJson);
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
@@ -99,10 +99,10 @@ public class VpcControllerTests {
         routeWebObjectList.add(routeWebObject);
 
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, routeWebObjectList));
-        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcWebResponseObject.class)))
+        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
         try {
@@ -118,7 +118,7 @@ public class VpcControllerTests {
     @Test
     public void updateVpcStateByVpcId_noUpdate_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
@@ -130,10 +130,10 @@ public class VpcControllerTests {
     @Test
     public void updateVpcStateByVpcId_update_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.updateName,
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
@@ -145,7 +145,7 @@ public class VpcControllerTests {
     @Test
     public void deleteVpcStateByVpcId_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
-                .thenReturn(new VpcWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
         this.mockMvc.perform(delete(deleteUri))
@@ -168,8 +168,8 @@ public class VpcControllerTests {
 
     @Test
     public void getVpcStatesByProjectId_getMap_pass () throws Exception {
-        Map<String, VpcWebResponseObject> vpcStates = new HashMap<>();
-        VpcWebResponseObject vpcState = new VpcWebResponseObject(UnitTestConfig.projectId,
+        Map<String, VpcEntity> vpcStates = new HashMap<>();
+        VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name,
                 UnitTestConfig.cidr, null);
         vpcStates.put("VpcWebResponseObject", vpcState);
@@ -180,7 +180,7 @@ public class VpcControllerTests {
 
     @Test
     public void getVpcStatesByProjectId_getEmptyMap_pass () throws Exception {
-        Map<String, VpcWebResponseObject> vpcStates = new HashMap<>();
+        Map<String, VpcEntity> vpcStates = new HashMap<>();
         Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());

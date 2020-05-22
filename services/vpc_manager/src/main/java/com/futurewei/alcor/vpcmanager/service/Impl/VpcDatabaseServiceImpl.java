@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     VpcRepository vpcRepository;
 
     @Override
-    public VpcWebResponseObject getByVpcId(String vpcId) {
+    public VpcEntity getByVpcId(String vpcId) {
         try {
             return this.vpcRepository.findItem(vpcId);
         }catch (Exception e) {
@@ -36,7 +36,7 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
-    public void addVpc(VpcWebResponseObject vpcState) throws DatabasePersistenceException {
+    public void addVpc(VpcEntity vpcState) throws DatabasePersistenceException {
         try {
             this.vpcRepository.addItem(vpcState);
         } catch (Exception e) {
@@ -50,7 +50,7 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
-    public ICache<String, VpcWebResponseObject> getCache() {
+    public ICache<String, VpcEntity> getCache() {
         return this.vpcRepository.getCache();
     }
 }

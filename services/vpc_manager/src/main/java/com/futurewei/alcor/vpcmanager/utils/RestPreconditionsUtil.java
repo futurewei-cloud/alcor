@@ -20,9 +20,9 @@ import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
-import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.SegmentEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.thymeleaf.util.StringUtils;
 
 import java.util.logging.Level;
@@ -77,7 +77,7 @@ public class RestPreconditionsUtil {
 
     public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
         String resourceVpcId = null;
-        if (resource instanceof VpcWebResponseObject) {
+        if (resource instanceof VpcEntity) {
             resourceVpcId = resource.getId();
         }
 
@@ -91,7 +91,7 @@ public class RestPreconditionsUtil {
 
     public static void populateResourceSegmentId(CustomerResource resource, String segmentId) {
         String resourceSegmentId = null;
-        if (resource instanceof SegmentWebResponseObject) {
+        if (resource instanceof SegmentEntity) {
             resourceSegmentId = resource.getId();
         }
 
@@ -105,7 +105,7 @@ public class RestPreconditionsUtil {
 
     public static void populateResourceSegmentRangeId(CustomerResource resource, String segmentRangeId) {
         String resourceSegmentRangeId = null;
-        if (resource instanceof NetworkSegmentRangeWebResponseObject) {
+        if (resource instanceof NetworkSegmentRangeEntity) {
             resourceSegmentRangeId = resource.getId();
         }
 

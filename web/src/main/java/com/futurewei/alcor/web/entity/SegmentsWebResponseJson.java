@@ -8,12 +8,12 @@ import java.util.List;
 @Data
 public class SegmentsWebResponseJson {
 
-    private ArrayList<SegmentWebResponseObject> segments;
+    private ArrayList<SegmentEntity> segments;
 
     public SegmentsWebResponseJson() {
     }
 
-    public SegmentsWebResponseJson(List<SegmentWebResponseObject> segments) {
+    public SegmentsWebResponseJson(List<SegmentEntity> segments) {
         this.segments = new ArrayList<>(segments);
     }
 

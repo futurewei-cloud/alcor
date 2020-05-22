@@ -17,7 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -26,7 +26,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 public class RedisPublisher implements ICachePublisher {
 
     @Autowired
-    private RedisTemplate<String, VpcWebResponseObject> redisTemplate;
+    private RedisTemplate<String, VpcEntity> redisTemplate;
 
     @Autowired
     private ChannelTopic topic;
@@ -34,7 +34,7 @@ public class RedisPublisher implements ICachePublisher {
     public RedisPublisher() {
     }
 
-    public RedisPublisher(final RedisTemplate<String, VpcWebResponseObject> redisTemplate, final ChannelTopic topic) {
+    public RedisPublisher(final RedisTemplate<String, VpcEntity> redisTemplate, final ChannelTopic topic) {
         this.redisTemplate = redisTemplate;
         this.topic = topic;
     }

@@ -8,12 +8,12 @@ import java.util.List;
 @Data
 public class VpcsWebJson {
 
-    private ArrayList<VpcWebResponseObject> vpcs;
+    private ArrayList<VpcEntity> vpcs;
 
     public VpcsWebJson() {
     }
 
-    public VpcsWebJson(List<VpcWebResponseObject> vpcs) {
+    public VpcsWebJson(List<VpcEntity> vpcs) {
         this.vpcs = new ArrayList<>(vpcs);
     }
 }
