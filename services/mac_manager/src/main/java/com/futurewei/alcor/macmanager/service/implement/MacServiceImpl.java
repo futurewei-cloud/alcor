@@ -21,11 +21,11 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.macmanager.dao.MacPoolRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
-import com.futurewei.alcor.macmanager.entity.MacAddress;
-import com.futurewei.alcor.macmanager.entity.MacRange;
-import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.exception.*;
+import com.futurewei.alcor.web.entity.mac.MacAddress;
+import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.futurewei.alcor.macmanager.service.MacService;
+import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.macmanager.exception.*;
 import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -541,6 +541,7 @@ public class MacServiceImpl implements MacService {
         }
     }
 
+
     /**
      * provide how many MAC addresses
      *
@@ -610,6 +611,7 @@ public class MacServiceImpl implements MacService {
         return bitSet;
     }
 
+
     private void inactivateMacAddressBit(String macAddress) throws MacRepositoryTransactionErrorException {
         MacAddress mac = new MacAddress(macAddress);
         long nic = MacAddress.nicToLong(mac.getNic());
@@ -619,6 +621,7 @@ public class MacServiceImpl implements MacService {
             throw new MacRepositoryTransactionErrorException(e);
         }
     }
+
 }
 
 

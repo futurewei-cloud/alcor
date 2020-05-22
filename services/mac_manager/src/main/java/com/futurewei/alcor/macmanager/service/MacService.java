@@ -1,11 +1,12 @@
 package com.futurewei.alcor.macmanager.service;
 
+import com.futurewei.alcor.web.entity.mac.MacRange;
+import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.macmanager.entity.MacRange;
-import com.futurewei.alcor.macmanager.entity.MacState;
 import com.futurewei.alcor.macmanager.exception.*;
+
 
 import java.util.Map;
 

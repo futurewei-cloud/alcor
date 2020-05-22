@@ -15,10 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.util.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
-import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
+import com.futurewei.alcor.portmanager.restclient.NodeManagerRestClient;
 import java.util.Stack;
 
 public class NodeManagerProxy {

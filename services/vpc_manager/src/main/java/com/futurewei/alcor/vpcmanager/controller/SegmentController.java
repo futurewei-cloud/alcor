@@ -2,13 +2,11 @@ package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
-import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourceNullException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.vpcmanager.utils.SegmentManagementUtil;
 import com.futurewei.alcor.web.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,26 +41,26 @@ public class SegmentController {
      */
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public SegmentWebResponseJson getSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
-        SegmentWebResponseObject segmentWebResponseObject = null;
+        SegmentEntity segmentEntity = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
+            segmentEntity = this.segmentDatabaseService.getBySegmentId(segmentid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
-        if (segmentWebResponseObject == null) {
+        if (segmentEntity == null) {
             return new SegmentWebResponseJson();
         }
 
-        return new SegmentWebResponseJson(segmentWebResponseObject);
+        return new SegmentWebResponseJson(segmentEntity);
 
     }
 
@@ -75,19 +73,24 @@ public class SegmentController {
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/segments", "/v4/{projectid}/segments"})
+            value = {"/project/{projectid}/segments"})
     @ResponseStatus(HttpStatus.CREATED)
     public SegmentWebResponseJson createSegment(@PathVariable String projectid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
-        SegmentWebResponseObject segmentWebResponseObject = new SegmentWebResponseObject();
+        SegmentEntity segmentEntity = new SegmentEntity();
         String networkTypeId = UUID.randomUUID().toString();
 
         try {
+
+            if (!SegmentManagementUtil.checkSegmentRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentWebResponseObject);
-            RestPreconditionsUtil.verifyResourceNotNull(segmentWebResponseObject);
-            RestPreconditionsUtil.populateResourceProjectId(segmentWebResponseObject, projectid);
+            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
+            RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
 
             // verify network type
             String networkType = segmentWebRequestObject.getNetworkType();
@@ -101,14 +104,15 @@ public class SegmentController {
             }
 
             if (key != null) {
-                segmentWebResponseObject.setSegmentationId(Integer.parseInt(String.valueOf(key)));
+                segmentEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
+                segmentEntity.setSegmentationUUID(networkTypeId);
             }
-            segmentWebResponseObject.setSegmentationUUID(networkTypeId);
 
-            this.segmentDatabaseService.addSegment(segmentWebResponseObject);
+            segmentEntity = SegmentManagementUtil.configureSegmentDefaultParameters(segmentEntity);
+            this.segmentDatabaseService.addSegment(segmentEntity);
 
-            segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentWebResponseObject.getId());
-            if (segmentWebResponseObject == null) {
+            segmentEntity = this.segmentDatabaseService.getBySegmentId(segmentEntity.getId());
+            if (segmentEntity == null) {
                 throw new ResourcePersistenceException();
             }
 
@@ -118,7 +122,7 @@ public class SegmentController {
             throw new Exception(e);
         }
 
-        return new SegmentWebResponseJson(segmentWebResponseObject);
+        return new SegmentWebResponseJson(segmentEntity);
 
     }
 
@@ -132,34 +136,47 @@ public class SegmentController {
      */
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public SegmentWebResponseJson updateSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
-        SegmentWebResponseObject segmentWebResponseObject = new SegmentWebResponseObject();
+        SegmentEntity segmentEntity = new SegmentEntity();
 
         try {
+
+            if (!SegmentManagementUtil.checkSegmentRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
             SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentWebResponseObject);
-            RestPreconditionsUtil.verifyResourceNotNull(segmentWebResponseObject);
-            RestPreconditionsUtil.populateResourceProjectId(segmentWebResponseObject, projectid);
-            RestPreconditionsUtil.populateResourceSegmentId(segmentWebResponseObject, segmentid);
+            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
+            RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
+            RestPreconditionsUtil.populateResourceSegmentId(segmentEntity, segmentid);
 
-            segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
-            if (segmentWebResponseObject == null) {
+            segmentEntity = this.segmentDatabaseService.getBySegmentId(segmentid);
+            if (segmentEntity == null) {
                 throw new ResourceNotFoundException("Segment not found : " + segmentid);
             }
 
-            this.segmentDatabaseService.addSegment(segmentWebResponseObject);
+            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            Integer revisionNumber = segmentEntity.getRevisionNumber();
+            if (revisionNumber == null) {
+                segmentEntity.setRevisionNumber(1);
+            } else {
+                segmentEntity.setRevisionNumber(revisionNumber + 1);
+            }
 
-            segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
+            this.segmentDatabaseService.addSegment(segmentEntity);
+
+            segmentEntity = this.segmentDatabaseService.getBySegmentId(segmentid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
-        return new SegmentWebResponseJson(segmentWebResponseObject);
+        return new SegmentWebResponseJson(segmentEntity);
 
     }
 
@@ -172,32 +189,32 @@ public class SegmentController {
      */
     @RequestMapping(
             method = DELETE,
-            value = {"/project/{projectid}/segments/{segmentid}", "/v4/{projectid}/segments/{segmentid}"})
+            value = {"/project/{projectid}/segments/{segmentid}"})
     public ResponseId deleteSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
-        SegmentWebResponseObject segmentWebResponseObject = null;
+        SegmentEntity segmentEntity = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            segmentWebResponseObject = this.segmentDatabaseService.getBySegmentId(segmentid);
-            if (segmentWebResponseObject == null) {
+            segmentEntity = this.segmentDatabaseService.getBySegmentId(segmentid);
+            if (segmentEntity == null) {
                 return new ResponseId();
             }
 
             segmentDatabaseService.deleteSegment(segmentid);
 
             // Release Network Type
-            String networkType = segmentWebResponseObject.getNetworkType();
-            Long key = Long.parseLong(String.valueOf(segmentWebResponseObject.getSegmentationId()));
+            String networkType = segmentEntity.getNetworkType();
+            Long key = Long.parseLong(String.valueOf(segmentEntity.getSegmentationId()));
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                this.segmentService.releaseVxlanEntity(segmentWebResponseObject.getSegmentationUUID(), key);
+                this.segmentService.releaseVxlanEntity(segmentEntity.getSegmentationUUID(), key);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                this.segmentService.releaseVlanEntity(segmentWebResponseObject.getSegmentationUUID(), key);
+                this.segmentService.releaseVlanEntity(segmentEntity.getSegmentationUUID(), key);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                this.segmentService.releaseGreEntity(segmentWebResponseObject.getSegmentationUUID(), key);
+                this.segmentService.releaseGreEntity(segmentEntity.getSegmentationUUID(), key);
             }
 
 
@@ -220,7 +237,7 @@ public class SegmentController {
             value = "/project/{projectid}/segments")
     public Map getSegmentsByProjectId(@PathVariable String projectid) throws Exception {
 
-        Map<String, SegmentWebResponseObject> segments = null;
+        Map<String, SegmentEntity> segments = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);

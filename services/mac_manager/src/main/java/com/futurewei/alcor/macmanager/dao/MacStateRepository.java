@@ -20,7 +20,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.web.entity.mac.MacState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,8 +18,8 @@ package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.RouteWebObject;
-import com.futurewei.alcor.web.entity.SegmentWebRequestObject;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import lombok.Data;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private boolean routerExternal;
 
     @JsonProperty("segments")
-    private List<SegmentWebRequestObject> segments;
+    private List<SegmentInfoInVpc> segments;
 
     @JsonProperty("shared")
     private boolean shared;
@@ -82,7 +82,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private String status;
 
     @JsonProperty("tags")
-    private String tags;
+    private List<String> tags;
 
     @JsonProperty("tags-any")
     private String tagsAny;

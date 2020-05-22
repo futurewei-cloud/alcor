@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.SegmentRepository;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
-import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
+import com.futurewei.alcor.web.entity.SegmentEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     SegmentRepository segmentRepository;
 
     @Override
-    public SegmentWebResponseObject getBySegmentId(String segmentId) {
+    public SegmentEntity getBySegmentId(String segmentId) {
         try {
             return this.segmentRepository.findItem(segmentId);
         }catch (Exception e) {
@@ -36,7 +36,7 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     }
 
     @Override
-    public void addSegment(SegmentWebResponseObject segment) throws DatabasePersistenceException {
+    public void addSegment(SegmentEntity segment) throws DatabasePersistenceException {
         try {
             this.segmentRepository.addItem(segment);
         } catch (Exception e) {
@@ -50,7 +50,7 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     }
 
     @Override
-    public ICache<String, SegmentWebResponseObject> getCache() {
+    public ICache<String, SegmentEntity> getCache() {
         return this.segmentRepository.getCache();
     }
 }

@@ -18,8 +18,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.macmanager.entity.MacPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,6 @@ import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Repository

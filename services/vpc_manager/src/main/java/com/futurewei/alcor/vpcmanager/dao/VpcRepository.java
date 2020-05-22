@@ -22,7 +22,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -33,18 +33,18 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class VpcRepository implements ICacheRepository<VpcWebResponseObject> {
+public class VpcRepository implements ICacheRepository<VpcEntity> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    public ICache<String, VpcWebResponseObject> getCache() {
+    public ICache<String, VpcEntity> getCache() {
         return cache;
     }
 
-    private ICache<String, VpcWebResponseObject> cache;
+    private ICache<String, VpcEntity> cache;
 
     @Autowired
     public VpcRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(VpcWebResponseObject.class);
+        cache = cacheFactory.getCache(VpcEntity.class);
     }
 
     @PostConstruct
@@ -53,7 +53,7 @@ public class VpcRepository implements ICacheRepository<VpcWebResponseObject> {
     }
 
     @Override
-    public VpcWebResponseObject findItem(String id) throws CacheException {
+    public VpcEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
@@ -63,7 +63,7 @@ public class VpcRepository implements ICacheRepository<VpcWebResponseObject> {
     }
 
     @Override
-    public void addItem(VpcWebResponseObject vpcState) throws CacheException {
+    public void addItem(VpcEntity vpcState) throws CacheException {
         logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
         cache.put(vpcState.getId(), vpcState);
     }
