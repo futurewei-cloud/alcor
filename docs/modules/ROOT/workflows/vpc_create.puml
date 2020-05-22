@@ -1,0 +1,71 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+title VPC/Network CURD Workflow
+
+skinparam monochrome true
+collections "API Gateway" as api
+collections "VPC Manager" as vpc
+collections "Subnet Manager" as subnet
+collections "Port Manager" as port
+collections "Route Manager" as route
+collections "Security Group Manager" as sg
+
+==Show VPC/Network==
+autonumber "<b>[00]"
+rnote over api: ==GET /project/{project_id}/networks/{network_id}
+api -> api: Authentication, authorization,\nand throttling
+api -> vpc: Get a network state by Id
+activate vpc
+rnote over vpc: Query Database by network Id
+vpc -> api: Return network state
+deactivate vpc
+
+==Create VPC/Network==
+autonumber "<b>[00]"
+rnote over api: ==POST /project/{project_id}/networks
+api -> api: Authentication, authorization,\nand throttling
+api -> vpc: Create a VPC
+activate vpc
+vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
+vpc -> route: Create default route rules
+activate route
+route -> vpc: Allocate/return default route\nrules (IPv4/6)
+deactivate route
+vpc -> api: Persist vpc states and return
+deactivate vpc
+
+==Update a VPC/Network==
+autonumber "<b>[00]"
+rnote over api: ==PUT /project/{project_id}/networks
+'api -> api: Authentication, authorization,\nand throttling
+'api -> vpc: Create a VPC
+'vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
+'vpc -> route: Create default route rules
+'route -> vpc: Allocate/return default route\nrules (IPv4/6)
+'vpc -> api: Persist vpc states and return
+
+==Delete a VPC/Network==
+autonumber "<b>[00]"
+rnote over api: ==DELETE /project/{project_id}/networks
+'api -> api: Authentication, authorization,\nand throttling
+'api -> vpc: Create a VPC
+'vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
+'vpc -> route: Create default route rules
+'route -> vpc: Allocate/return default route\nrules (IPv4/6)
+'vpc -> api: Persist vpc states and return
+
+@enduml

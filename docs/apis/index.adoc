@@ -1,4 +1,4 @@
-= Alcor Controller API documents
+= Alcor VPC Controller API documents
 
 .request
 include::{snippets}/home/http-request.adoc[]
