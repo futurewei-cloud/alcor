@@ -70,7 +70,7 @@ public class SegmentRangeControllerTests {
     }
 
     @Test
-    public void createSegment_create_pass () throws Exception {
+    public void createSegmentRange_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
                 .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,

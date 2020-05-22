@@ -42,13 +42,13 @@ public class SegmentRangeManagementUtil {
 
         // minimum
         Integer minimum = segmentRange.getMinimum();
-        if (minimum < 0) {
+        if (minimum != null && minimum < 0) {
             return false;
         }
 
         // maximum
         Integer maximum = segmentRange.getMaximum();
-        if (maximum < minimum) {
+        if (maximum != null && minimum != null && maximum < minimum) {
             return false;
         }
 
