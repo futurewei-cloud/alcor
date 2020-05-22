@@ -17,12 +17,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.utils;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+<<<<<<< HEAD
 import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
 import com.futurewei.alcor.macmanager.exception.MacRangeInvalidException;
 import com.futurewei.alcor.macmanager.exception.MacStateInvalidException;
 import com.futurewei.alcor.web.entity.mac.MacAddress;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.futurewei.alcor.web.entity.mac.MacState;
+=======
+import com.futurewei.alcor.macmanager.entity.MacAddress;
+import com.futurewei.alcor.macmanager.entity.MacRange;
+import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
+import com.futurewei.alcor.macmanager.exception.MacRangeInvalidException;
+import com.futurewei.alcor.macmanager.exception.MacStateInvalidException;
+>>>>>>> 6271264f23f65a1169384f9195c6958d381a2625
 import org.thymeleaf.util.StringUtils;
 
 public class MacManagerRestPreconditionsUtil {
