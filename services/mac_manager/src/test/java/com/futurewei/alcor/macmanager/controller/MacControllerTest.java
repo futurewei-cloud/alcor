@@ -16,11 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.web.entity.mac.MacRange;
-import com.futurewei.alcor.web.entity.mac.MacRangeJson;
-import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.web.entity.mac.MacState;
-import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.mac.*;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
+import com.futurewei.alcor.macmanager.dao.MacPoolRepository;
+import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
+import com.futurewei.alcor.macmanager.dao.MacStateRepository;
+import org.junit.After;
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

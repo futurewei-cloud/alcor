@@ -23,12 +23,10 @@ import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import com.futurewei.alcor.web.entity.mac.MacAddress;
 import com.futurewei.alcor.web.entity.mac.MacRange;
-import com.futurewei.alcor.macmanager.exception.InvalidMacRangeException;
-import com.futurewei.alcor.macmanager.exception.RetryLimitExceedException;
-import com.futurewei.alcor.macmanager.exception.UniquenessViolationException;
 import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.macmanager.utils.MacUtil;
 import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.macmanager.exception.*;
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -612,6 +610,7 @@ public class MacServiceImpl implements MacService {
         return bitSet;
     }
 
+
     private void inactivateMacAddressBit(String macAddress) throws MacRepositoryTransactionErrorException {
         MacAddress mac = new MacAddress(macAddress);
         long nic = MacAddress.nicToLong(mac.getNic());
@@ -621,4 +620,8 @@ public class MacServiceImpl implements MacService {
             throw new MacRepositoryTransactionErrorException(e);
         }
     }
+
 }
+
+
+
