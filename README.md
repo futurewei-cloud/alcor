@@ -39,8 +39,8 @@ The following diagram illustrates the high-level architecture of Alcor control p
 
 Detailed design docs:
 
-- [Alcor high level design](/docs/modules/ROOT/index.adoc)
-- [Alcor regional controllers](/docs/modules/ROOT/controller.adoc)
+- [Alcor high level design](/docs/modules/ROOT/pages/index.adoc)
+- [Alcor regional controllers](/docs/modules/ROOT/pages/controller.adoc)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
 
 ## Key Features
