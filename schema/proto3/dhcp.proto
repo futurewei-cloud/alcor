@@ -19,43 +19,32 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Vpc";
+option java_outer_classname = "DHCP";
 
 import "common.proto";
 
-message VpcConfiguration {
+message DHCPConfiguration {
     uint32 version = 1;
 
-    string project_id = 2;
-    string id = 3;
-    string name = 4;
-    string cidr = 5;
-    int64 tunnel_id = 6;
+    string mac_address = 2;
+    string ipv4_address = 3;
+    string ipv6_address = 4;
+    string port_host_name = 5; // for local DNS response
 
-    message SubnetId {
-        string id = 1;
+    message ExtraDhcpOption {
+        string name = 1;
+        string value = 2;
     }
 
-    message Route {
-        string destination = 1;
-        string next_hop = 2;
+    message DnsEntry {
+        string entry = 1;
     }
 
-    repeated SubnetId subnet_ids = 7;
-    repeated Route routes = 8;
-
-    // start Mizar specific session
-    // note that repeated field are inherently optional
-    message TransitRouter {
-        string vpc_id = 1;
-        string ip_address = 2;
-        string mac_address = 3;
-    }
-    repeated TransitRouter transit_routers = 9;
-    // end Mizar specific session
+    repeated ExtraDhcpOption extra_dhcp_options = 6;
+    repeated DnsEntry dns_entry_list = 7;
 }
 
-message VpcState {
+message DHCPState {
     OperationType operation_type = 1;
-    VpcConfiguration configuration = 2;
+    DHCPConfiguration configuration = 2;
 }

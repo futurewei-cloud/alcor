@@ -41,24 +41,18 @@ service GoalStateProvisioner {
 }
 
 message GoalStateRequest {
-
-    repeated ResourceStateRequest state_requests = 1;
+    uint32 version = 1;
 
     message ResourceStateRequest {
         string resource_id = 1;
         ResourceType resource_type = 2;
     }
+
+    repeated ResourceStateRequest state_requests = 2;
 }
 
 message GoalStateOperationReply {
-
-    repeated GoalStateOperationStatus operation_statuses = 1;
-
-    // Total operation time (in nanoseconds)
-    //    1. to process the message (consisting of multiple operations)
-    //    2. to program data plane
-    // Note: The list of operation_statuses details the time spent at each operation
-    uint32 message_total_operation_time = 2;
+    uint32 version = 1;
 
     message GoalStateOperationStatus {
         string resource_id = 1;
@@ -69,4 +63,12 @@ message GoalStateOperationReply {
         uint32 network_configuration_time = 6;
         uint32 state_elapse_time = 7;
     }
+
+    repeated GoalStateOperationStatus operation_statuses = 2;
+
+    // Total operation time (in nanoseconds)
+    //    1. to process the message (consisting of multiple operations)
+    //    2. to program data plane
+    // Note: The list of operation_statuses details the time spent at each operation
+    uint32 message_total_operation_time = 3;
 }
