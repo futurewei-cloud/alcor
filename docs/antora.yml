@@ -1,11 +1,11 @@
-name: alcor
-title: Alcor Controller
-version: '0.5'
-asciidoc:
-  attributes:
-    table-caption: Data Set
-    hide-uri-scheme: ''
-    page-level: Advanced
-    page-category: Statistics; Cloud Infrastructure
+name:alcor
+title:Alcor Controller
+version:'0.5'
+#asciidoc:
+#  attributes:
+#    table-caption: Data Set
+#    hide-uri-scheme: ''
+#    page-level: Advanced
+#    page-category: Statistics; Cloud Infrastructure
 nav:
   - modules/ROOT/nav.adoc
