@@ -60,4 +60,4 @@ grouping of network configurations and instantaneous provisioning
 
 == Inside the Big Picture
 
-plantuml::../workflows/vm_create.puml[format="svg", align="center"]
+plantuml::../../workflows/vm_create.puml[format="svg", align="center"]
