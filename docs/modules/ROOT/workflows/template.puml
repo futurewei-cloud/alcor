@@ -1,0 +1,60 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam sequence {
+    ArrowColor DeepSkyBlue
+    ActorBorderColor DeepSkyBlue
+    LifeLineBorderColor blue
+    LifeLineBackgroundColor #A9DCDF
+
+    ActorBackgroundColor aqua
+    ActorFontColor DeepSkyBlue
+    ActorFontSize 17
+    ActorFontName Aapex
+
+    CollectionsBorderColor #ff0000
+    CollectionsBackgroundColor DodgerBlue
+
+    ParticipantBorderColor DeepSkyBlue
+    ParticipantBackgroundColor DodgerBlue
+    ParticipantFontName Impact
+    ParticipantFontSize 17
+    ParticipantFontColor #A9DCDF
+}
+
+skinparam monochrome true
+autonumber
+collections API_Gateway
+collections VPC_Manager
+collections Subnet_Manager
+collections Port_Manager
+collections Route_Manager
+collections Private_IP_Manager
+collections Mac_Manager
+collections Data_Plane_Manager
+collections Node_Manager
+collections Hosts
+
+==Create a VPC/Network==
+rnote over API_Gateway: ==Post /project/{project_id}/networks
+API_Gateway -> API_Gateway: Authentication, authorization, throttling
+API_Gateway -> VPC_Manager: Create a VPC
+VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
+VPC_Manager -> Route_Manager: Create default route rules
+Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
+VPC_Manager -> API_Gateway: Persist vpc states and return
+
+@enduml

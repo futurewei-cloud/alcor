@@ -35,12 +35,12 @@ application aware fast path when provisioning containers and serverless applicat
 
 The following diagram illustrates the high-level architecture of Alcor control plane.
 
-![Alcor architecture](docs/design/images/alcor_architecture.PNG)
+![Alcor architecture](docs/modules/ROOT/images/alcor_architecture.PNG)
 
 Detailed design docs:
 
-- [Alcor high level design](/docs/design/table_of_content.adoc)
-- [Alcor regional controllers](/docs/design/controller.adoc)
+- [Alcor high level design](/docs/modules/ROOT/index.adoc)
+- [Alcor regional controllers](/docs/modules/ROOT/controller.adoc)
 - [Alcor control agent](https://github.com/futurewei-cloud/AlcorControlAgent/blob/master/docs/design.adoc)
 
 ## Key Features

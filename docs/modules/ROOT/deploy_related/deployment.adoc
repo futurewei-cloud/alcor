@@ -1,0 +1,15 @@
+= Migration, Deployment and Upgrade
+Author Name <author@email.com>
+v0.1, 2020-05-17
+:toc: right
+
+NOTE: This document is under development
+
+== Migration Plane from Openstack Neutron
+
+Topic: Gracefully migrate user data and switch user traffic from existing OpenStack Neutron clusters to Alcor
+
+== Deployment Plan
+
+== Upgrade Plan with Grey Release
+

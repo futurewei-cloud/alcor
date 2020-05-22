@@ -1,0 +1,21 @@
+site:
+  title: Alcor - Hyerscale Cloud Native SDN
+  start_page: alcor::index.adoc
+
+content:
+  sources:
+    - url: https://github.com/xieus/alcor.git
+      branches: docs/design
+      start_path: docs
+    #    - url: https://github.com/futurewei-cloud/alcor.git
+    #      branches: master
+    #      start_path: docs
+    #    - url: https://github.com/futurewei-cloud/alcor-control-agent.git
+    #      branches: master
+    #      start_path: docs
+
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+

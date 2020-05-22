@@ -1,5 +1,7 @@
 # Alcor - A Hyperscale Cloud-Native SDN Control Plane
 
+NOTE: This document is under development
+
 == Introduction
 
 Shared-nothing Micro-service Architecture
@@ -55,3 +57,7 @@ grouping of network configurations and instantaneous provisioning
 * Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design)
 ** Open driver framework at Controllers
 ** Plugin model at Alcor Control Agent
+
+== Inside the Big Picture
+
+plantuml::../workflows/vm_create.puml[format="svg", align="center"]
