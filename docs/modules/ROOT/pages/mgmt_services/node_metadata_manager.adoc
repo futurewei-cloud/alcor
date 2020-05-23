@@ -1,0 +1,45 @@
+= Node Metadata Manager Design Specification
+Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-30
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+The node manager is a control plane component responsible of managing and configurating physical servers/nodes/hosts inside a data center.
+It maintains the detailed configuration for each node and collect its health state continuously in a configurable interval.
+The node health states could be used collectively in many user scenarios, for example, determine if a deployment of network resource (for example, port) is successful, or if a load balancing backend is reachable.
+
+=== User Cases
+
+* Port manager talks to node manager to pull node details from a node id (UUID).
+
+== Service Requirements
+
+=== Basic Requirements
+
+[arabic]
+. Manage mapping from node id to node info (including IP, mac, veth)
+. Populating the node mapping in the controller launch time (through a configuration file) during new region or data center buildout
+. Expose a CURD API to register, update, or delete a node.
+. Define a health model, data schema and APIs for node health
+. Working together with other services including port manager.
+. Require HA and high scalability as 100,000+ nodes could upload health data continuously.
+
+=== Advanced Requirements
+
+[arabic]
+. Node info extensible to more node resources including FPGA etc.
+. Fall back mechanism when a node state is stall (e.g. proactively pull instead of waiting for agent to push)
+
+== Node Manager Microservice Design
+
+=== Architecture Overview
+
+== Database Data Schema
+
+Comparison with OpenStack Neutron
+References
+
+TBD by @kimeunju108

@@ -772,7 +772,7 @@ and no need to store tenant and vpc related information (this information should
 The addresses in each ip range include assigned ip addresses and free ip addresses, and each ip address has three states: activated, deactivated, and free.
 The status of no assigned ip addresses is free, the status of each assigned ip address may be activated or deactivated, in order to efficiently manage assigned and no assigned ip addresses and reduce memory usage, BitSet is used to record whether each ip address in an ip range has been assigned. 0 indicates that it is not assigned, 1 indicates that it has been allocated.
 
-image::images/private_ip_manager_bitset.png[]
+image::../images/private_ip_manager_bitset.png[]
 
 When assigning an ip address, start from the first location of BitSet to find a free location, add the value of firtIp as the value of the destination ip address, and then convert it to String type ip address.
 Similarly, when deleting an ip address, the String type ip address is first converted to a numeric value, substract the value of firstIp, find the location of the ip address in BitSet according to the subtraction result, and finally set the value of this location to 0.
@@ -782,7 +782,7 @@ Therefore, the assigned ip address is described by the IpAddrAlloc class, and th
 Each assigned ip address will be added to the Map < String, IpAddrAlloc > allocated.
 In this way, the Get request can quickly find the assigned ip address, and the activate or deactivate request can quickly modify its state.
 
-image::images/private_ip_manager_hashmap.png[]
+image::../images/private_ip_manager_hashmap.png[]
 
 
 

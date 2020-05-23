@@ -31,11 +31,11 @@ It interacts with Subnet Manager and Port Manager to provide networks for them.
 
 == Database Schema
 === Network Vlan Range and Vlan State
-image::images/network_type_vlan.PNG[]
+image::../images/network_type_vlan.PNG[]
 === Network Vxlan Range and Vxlan State
-image::images/network_type_vxlan.PNG[]
+image::../images/network_type_vxlan.PNG[]
 === Network Gre Range and Gre State
-image::images/network_type_gre.PNG[]
+image::../images/network_type_gre.PNG[]
 == REST APIs
 
 === API Snapshot
@@ -240,4 +240,4 @@ public synchronized Long allocateVlanKey (String rangeId) throws Exception {
         return key;
     }
 ....
-include::../../services/vpc_manager/target/swagger/swagger.adoc[]
+//include::../../../services/vpc_manager/target/swagger/swagger.adoc[]
