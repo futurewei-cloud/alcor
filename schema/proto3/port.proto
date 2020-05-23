@@ -24,15 +24,17 @@ option java_outer_classname = "Port";
 import "common.proto";
 
 message PortConfiguration {
-    int32 version = 1;
-
-    string project_id = 2;
-    string network_id = 3;
-    string id = 4;
-    string name = 5;
-    string network_ns = 6;
-    string mac_address = 7;
-    string veth_name = 8;
+    uint32 version = 1;
+    
+    NetworkType network_type = 2;
+    string project_id = 3;
+    string network_id = 4;
+    string id = 5;
+    string name = 6;
+    string network_ns = 7;
+    string mac_address = 8;
+    string veth_name = 9;
+    bool admin_state_up = 10;
 
     message HostInfo {
         string ip_address = 1;
@@ -44,25 +46,19 @@ message PortConfiguration {
         string ip_address = 2;
     }
 
-    message SecurityGroupId {
-        string id = 1;
-    }
-
     message AllowAddressPair {
         string ip_address = 1;
         string mac_address = 2;
     }
 
-    message ExtraDhcpOption {
-        string name = 1;
-        string value = 2;
+    message SecurityGroupId {
+        string id = 1;
     }
 
-    HostInfo host_info = 9;
-    repeated FixedIp fixed_ips = 10;
-    repeated SecurityGroupId security_group_ids = 11;
-    repeated AllowAddressPair allow_address_pairs = 12;
-    repeated ExtraDhcpOption extra_dhcp_options = 13;
+    HostInfo host_info = 11;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated SecurityGroupId security_group_ids = 14;
 }
 
 message PortState {

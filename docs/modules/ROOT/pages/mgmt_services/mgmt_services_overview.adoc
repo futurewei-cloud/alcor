@@ -1,0 +1,22 @@
+= Resource Management Services
+Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-30
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+=== Software Architecture of a Micro-Service
+
+Five layers:
+
+. Web/Controller
+. Service and service implementation
+. DAO/repo
+. Entity
+. Configuration
+
+=== Pattern
+
+One main microservice

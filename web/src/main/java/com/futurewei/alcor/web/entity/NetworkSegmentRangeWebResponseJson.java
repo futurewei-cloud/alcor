@@ -7,17 +7,17 @@ import java.util.UUID;
 @Data
 public class NetworkSegmentRangeWebResponseJson {
 
-    private NetworkSegmentRangeWebResponseObject network_segment_range;
+    private NetworkSegmentRangeEntity network_segment_range;
 
     public NetworkSegmentRangeWebResponseJson() {
 
     }
 
-    public NetworkSegmentRangeWebResponseJson(NetworkSegmentRangeWebResponseObject segmentRange) {
+    public NetworkSegmentRangeWebResponseJson(NetworkSegmentRangeEntity segmentRange) {
         this.network_segment_range = segmentRange;
     }
 
-    public NetworkSegmentRangeWebResponseJson(NetworkSegmentRangeWebResponseObject segmentRange, UUID genId) {
+    public NetworkSegmentRangeWebResponseJson(NetworkSegmentRangeEntity segmentRange, UUID genId) {
         this.network_segment_range = segmentRange;
         this.network_segment_range.setId(String.valueOf(genId));
     }

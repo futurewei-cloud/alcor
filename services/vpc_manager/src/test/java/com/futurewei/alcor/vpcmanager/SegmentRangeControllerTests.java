@@ -2,9 +2,8 @@ package com.futurewei.alcor.vpcmanager;
 
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeWebResponseObject;
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.SegmentWebResponseObject;
+import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class SegmentRangeControllerTests {
     @Test
     public void vpcGetById_canFindSegmentRange_pass () throws Exception {
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.networkType));
         this.mockMvc.perform(get(getByIdUri))
@@ -71,10 +70,10 @@ public class SegmentRangeControllerTests {
     }
 
     @Test
-    public void createSegment_create_pass () throws Exception {
+    public void createSegmentRange_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.networkType));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentRangeResource))
@@ -86,7 +85,7 @@ public class SegmentRangeControllerTests {
     @Test
     public void updateSegmentRangeBySegmentRangeId_noUpdate_pass () throws Exception {
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.networkType));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentRangeResource))
@@ -98,10 +97,10 @@ public class SegmentRangeControllerTests {
     @Test
     public void updateSegmentBySegmentRangeId_update_pass () throws Exception {
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.networkType))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.updateName,
                         UnitTestConfig.cidr, UnitTestConfig.networkType));
         this.mockMvc.perform(put(updateUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentRangeResource))
@@ -113,7 +112,7 @@ public class SegmentRangeControllerTests {
     @Test
     public void deleteSegmentBySegmentId_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(segmentRangeDatabaseService.getBySegmentRangeId(UnitTestConfig.segmentRangeId))
-                .thenReturn(new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+                .thenReturn(new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentRangeId, UnitTestConfig.updateName,
                         UnitTestConfig.cidr, UnitTestConfig.networkType));
         this.mockMvc.perform(delete(deleteUri))
@@ -136,8 +135,8 @@ public class SegmentRangeControllerTests {
 
     @Test
     public void getSegmentRangeByProjectId_getMap_pass () throws Exception {
-        Map<String, NetworkSegmentRangeWebResponseObject> segments = new HashMap<>();
-        NetworkSegmentRangeWebResponseObject segmentRangeWebResponseObject =new NetworkSegmentRangeWebResponseObject(UnitTestConfig.projectId,
+        Map<String, NetworkSegmentRangeEntity> segments = new HashMap<>();
+        NetworkSegmentRangeEntity segmentRangeWebResponseObject =new NetworkSegmentRangeEntity(UnitTestConfig.projectId,
                 UnitTestConfig.segmentRangeId, UnitTestConfig.name,
                 UnitTestConfig.cidr, UnitTestConfig.networkType);
         segments.put("NetworkSegmentRangeWebResponseObject", segmentRangeWebResponseObject);
@@ -148,7 +147,7 @@ public class SegmentRangeControllerTests {
 
     @Test
     public void getSegmentRangeByProjectId_getEmptyMap_pass () throws Exception {
-        Map<String, NetworkSegmentRangeWebResponseObject> segmentRanges = new HashMap<>();
+        Map<String, NetworkSegmentRangeEntity> segmentRanges = new HashMap<>();
         Mockito.when(segmentRangeDatabaseService.getAllSegmentRanges()).thenReturn(segmentRanges);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());

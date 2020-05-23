@@ -1,5 +1,7 @@
 package com.futurewei.alcor.route.entity;
 
+import com.futurewei.alcor.web.entity.route.RouteTableType;
+
 public interface RouteConstant {
     final String DEFAULT_TARGET = "Local";
 

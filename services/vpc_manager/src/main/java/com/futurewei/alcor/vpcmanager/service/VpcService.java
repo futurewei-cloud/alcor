@@ -1,10 +1,10 @@
 package com.futurewei.alcor.vpcmanager.service;
 
-import com.futurewei.alcor.web.entity.RouteWebJson;
-import com.futurewei.alcor.web.entity.vpc.VpcWebResponseObject;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 public interface VpcService {
 
-    public RouteWebJson getRoute (String vpcId, VpcWebResponseObject vpcState);
+    public RouteWebJson getRoute (String vpcId, VpcEntity vpcState);
 
 }

@@ -19,8 +19,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.macmanager.entity.MacRange;
-import com.futurewei.alcor.macmanager.entity.MacState;
+import com.futurewei.alcor.web.entity.mac.MacRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,13 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
         logger.info("MacRangeRepository init: Done");
     }
 
+    /**
+     * get MAC range data
+     *
+     * @param rangeId MAC range id
+     * @return MAC range
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
     public MacRange findItem(String rangeId) throws CacheException {
         MacRange macRange = null;
@@ -63,6 +69,13 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
         return macRange;
     }
 
+    /**
+     * get all MAC ranges
+     *
+     * @param
+     * @return map of MAC ranges
+     * @throws CacheException Db or cache operation exception
+     */
     @Override
     public Map<String, MacRange> findAllItems() throws CacheException {
         HashMap<String, MacRange> hashMap = new HashMap<String, MacRange>();
@@ -72,7 +85,6 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
             logger.error("MacRangeRepository findAllItems() exception:", e);
             throw e;
         }
-
         return hashMap;
     }
 
@@ -92,10 +104,8 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
         } catch (CacheException e) {
             logger.error("MacRangeRepository addItem() exception:", e);
             throw e;
-        }
-        catch(Exception e)
-        {
-
+        } catch (Exception e) {
+            logger.error("MacRangeRepository addItem() exception:", e);
         }
     }
 
@@ -115,9 +125,8 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
         } catch (CacheException e) {
             logger.error("MacRangeRepository deleteItem() exception:", e);
             throw e;
-        } catch(Exception e)
-        {
-
+        } catch (Exception e) {
+            logger.error("MacRangeRepository deleteItem() exception:", e);
         }
     }
 }

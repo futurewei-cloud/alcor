@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.Assert.*;
 
 import com.futurewei.alcor.route.config.UnitTestConfig;
-import com.futurewei.alcor.route.entity.RouteState;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class RouteControllerTests {
     @Test
     public void routeGetById_canFindRoute_pass () throws Exception {
         Mockito.when(routeDatabaseService.getByRouteId(UnitTestConfig.routeId))
-                .thenReturn(new RouteState(){{setId(UnitTestConfig.routeId);}});
+                .thenReturn(new RouteWebObject(){{setId(UnitTestConfig.routeId);}});
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ public class RouteControllerTests {
     @Test
     public void deleteRuleById_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(routeDatabaseService.getByRouteId(UnitTestConfig.routeId))
-                .thenReturn(new RouteState(){{setId(UnitTestConfig.routeId);}});
+                .thenReturn(new RouteWebObject(){{setId(UnitTestConfig.routeId);}});
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())

@@ -15,10 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.mac;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class MacStateJson {
+
+    @JsonProperty("mac_state")
     private MacState macState;
 
     public MacStateJson() {
