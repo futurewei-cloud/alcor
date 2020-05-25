@@ -1,0 +1,94 @@
+= Network Health Monitor - Under Development
+Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-30
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+The network health monitor (NHM) service is a control plane component which monitors data center host/node health status continuously in a configurable interval.
+Network health states collected by NHM includes heart beats for https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/table_of_content.adoc[Alcor Control Agent],
+OVS health status, network connectivity between infrastructure services pods and the hosts under monitoring, and among others.
+The health information will be very useful to offer control plane availability and robustness as well as uninterrupted customer experience.
+
+
+=== Monitoring Cases
+
+* *Unhealthy host agent*
+- When NHM detects an unhealthy host agent that could impact customer deployments, it could notify
+data-plane manager (DPM) to offer alternative programming path (a.k.a. xref:rescue_path.adoc[rescue path]) for impacted customer deployments.
+
+* *Unhealthy OVS*
+- When NHM detects that an unhealthy OVS is causing significant packet drop, NHM could run diagnose based on the received signal,
+and decide the appropriate action like rebooting OVS components.
+
+* *Broken Network Connectivity*
+- When HHM detects that the communication channel between one NHM instance and a host agent is unreliable or broken causing heartbeats drop (although the agent itself could be healthy),
+it could try to collect the heartbeats from other NHM instance(s).
+If the connection is unrecoverable, necessary alerts could be triggered to monitoring subsystem.
+
+
+== Service Requirements
+
+=== Basic Node Management Requirements
+
+[arabic, start=1]
+. Manage mapping from node id to node info (including IP, mac, veth) and node status (Up, Down, Out_of_rotation etc.) for a set of nodes in a region
+. Expose a CURD API to register, update, or delete a node.
+. Expose a CURD API that accepts a JSON-formated configuration file and populates the node mapping during new region or data center buildout.
+
+=== Network Health Monitoring Requirements
+
+[arabic , start=4]
+. Define a health model, data schema and APIs for node health (compatible with xref:node_monitoring.adoc[node monitoring model])
+. Working together with other infrastructure services like DPM (to trigger rescue path etc.)
+. Notify Node Metadata Manager (NMM) to inactive a node when a node is down or out of rotation or re-active the node when it is back to work.
+. Fall back mechanism when a node state is stall (e.g. proactively pull instead of waiting for agent to push)
+
+=== Performance Requirements
+
+[arabic , start=8]
+. Support high scalability as up to 300,000+ nodes could upload health data continuously.
+. Support low latency of failure detection (TBD, ideally on the level of sub-second)
+
+== Network Health Monitor Microservice Design
+
+=== Architecture Overview
+
+TBD
+
+=== Design Options
+
+TBD
+
+=== Performance Consideration
+
+TBD
+
+== Health Model
+
+TBD
+
+== Database Data Schema
+
+TBD
+
+== REST APIs
+
+=== API Snapshot
+
+TBD
+
+=== API Specification
+
+TBD
+
+== Reference Review of OpenStack Neutron and Kubernetes
+
+TBD
+
+[bibliography]
+== References
+
+- [[[example,1]]] https://example_link

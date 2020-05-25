@@ -1,0 +1,27 @@
+site:
+  title: Alcor
+  url: https://docs.demo.com
+  start_page: alcor-dev::controller.adoc
+content:
+  sources:
+    - url: .
+      branches: HEAD
+      start_path: docs
+    - url: https://github.com/futurewei-cloud/alcor.git
+      branches: master
+      start_path: docs
+    #    - url: https://github.com/futurewei-cloud/alcor-control-agent.git
+    #      branches: master
+    #      start_path: docs
+ #ui: 
+ #  bundle: 
+ #   url: https://example.org/docs-ui/download/latest/ui-bundle.zip 
+ #   snapshot: true 
+ #   start_path: dark 
+ # default_layout: base 
+ # output_dir: _/dark
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+
