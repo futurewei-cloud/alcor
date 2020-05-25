@@ -18,6 +18,6 @@ package com.futurewei.alcor.securitygroup.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_REQUIRED, reason="The remote ip prefix conflict with remote group id")
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="The remote ip prefix conflict with remote group id")
 public class RemoteIpPrefixRemoteGroupIdConflict extends Exception {
 }

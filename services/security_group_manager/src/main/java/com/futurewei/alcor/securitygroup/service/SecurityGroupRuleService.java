@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.service;
 
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ import java.util.List;
 @Service
 public interface SecurityGroupRuleService {
     SecurityGroupRuleJson createSecurityGroupRule(SecurityGroupRuleJson securityGroupRuleJson) throws Exception;
+
+    SecurityGroupRuleBulkJson createSecurityGroupRuleBulk(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception;
 
     SecurityGroupRuleJson updateSecurityGroupRule(String securityGroupRuleId, SecurityGroupRuleJson securityGroupRuleJson) throws Exception;
 

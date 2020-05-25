@@ -17,11 +17,13 @@ package com.futurewei.alcor.securitygroup.service.implement;
 
 import com.futurewei.alcor.securitygroup.exception.RemoteSecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
+import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupRuleNotFound;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +68,30 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
         LOG.info("Create security group rule success, securityGroupRuleJson: {}", securityGroupRuleJson);
 
         return securityGroupRuleJson;
+    }
+
+    @Override
+    public SecurityGroupRuleBulkJson createSecurityGroupRuleBulk(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
+        List<SecurityGroupRule> securityGroupRules = securityGroupRuleBulkJson.getSecurityGroupRules();
+        for (SecurityGroupRule securityGroupRule: securityGroupRules) {
+            String remoteGroupId = securityGroupRule.getRemoteGroupId();
+            if (remoteGroupId != null) {
+                if (securityGroupRepository.getSecurityGroup(remoteGroupId) == null) {
+                    throw new RemoteSecurityGroupNotFound();
+                }
+            }
+
+            //Generate uuid for securityGroupRule
+            if (securityGroupRule.getId() == null) {
+                securityGroupRule.setId(UUID.randomUUID().toString());
+            }
+        }
+
+        securityGroupRepository.addSecurityGroupRuleBulk(securityGroupRules);
+
+        LOG.info("Create security group rule bulk success, securityGroupRuleBulkJson: {}", securityGroupRuleBulkJson);
+
+        return securityGroupRuleBulkJson;
     }
 
     @Override

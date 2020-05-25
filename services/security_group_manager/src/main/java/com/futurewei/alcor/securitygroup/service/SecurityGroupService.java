@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.securitygroup.service;
 
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ import java.util.List;
 @Service
 public interface SecurityGroupService {
     SecurityGroupJson createSecurityGroup(SecurityGroupJson securityGroupJson) throws Exception;
+
+    SecurityGroupBulkJson createSecurityGroupBulk(String tenantId, String projectId, SecurityGroupBulkJson securityGroupBulkJson) throws Exception;
 
     SecurityGroupJson updateSecurityGroup(String securityGroupId, SecurityGroupJson securityGroupJson) throws Exception;
 

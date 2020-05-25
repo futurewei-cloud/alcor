@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
+import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBindings;
@@ -62,7 +62,7 @@ public class SecurityGroupBindingsRepository {
             for (String securityGroupId: portSecurityGroupsJson.getSecurityGroups()) {
                 SecurityGroup securityGroup = securityGroupCache.get(securityGroupId);
                 if (securityGroup == null) {
-                    throw new SecurityGroupNotFound();
+                    throw new SecurityGroupRequired();
                 }
 
                 SecurityGroupBindings securityGroupBindings = bindingCache.get(securityGroupId);

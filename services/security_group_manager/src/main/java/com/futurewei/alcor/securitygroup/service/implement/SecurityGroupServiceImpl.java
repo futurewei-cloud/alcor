@@ -43,7 +43,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         return "default".equals(securityGroup.getName());
     }
 
-    private void createDefaultSecurityGroupRules(SecurityGroup securityGroup, SecurityGroupRule.Direction direction) throws Exception {
+    private void createDefaultSecurityGroupRules(SecurityGroup securityGroup, SecurityGroupRule.Direction direction) {
         List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
         List<SecurityGroupRule.EtherType> etherTypes = Arrays.asList(SecurityGroupRule.EtherType.IPV4, SecurityGroupRule.EtherType.IPV6);
 
@@ -62,11 +62,11 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         securityGroup.setSecurityGroupRules(securityGroupRules);
     }
 
-    private void createDefaultSecurityGroup(SecurityGroup securityGroup, String description) throws Exception {
+    private void createDefaultSecurityGroup(String tenantId, String projectId, String description) throws Exception {
         SecurityGroup defaultSecurityGroup = new SecurityGroup();
         defaultSecurityGroup.setId(UUID.randomUUID().toString());
-        defaultSecurityGroup.setTenantId(securityGroup.getTenantId());
-        defaultSecurityGroup.setProjectId(securityGroup.getProjectId());
+        defaultSecurityGroup.setTenantId(tenantId);
+        defaultSecurityGroup.setProjectId(projectId);
         defaultSecurityGroup.setDescription(description);
         defaultSecurityGroup.setName("default");
 
@@ -86,6 +86,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     public SecurityGroupJson createSecurityGroup(SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         String tenantId = securityGroup.getTenantId();
+        String projectId = securityGroup.getProjectId();
         String description = securityGroup.getDescription();
 
         //Create default security group if not exist
@@ -97,7 +98,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         if (!isDefaultSecurityGroup(securityGroup)) {
             //Default security group not exists, create it
             if (defaultSecurityGroup == null) {
-                createDefaultSecurityGroup(securityGroup, null);
+                createDefaultSecurityGroup(tenantId, projectId, null);
             }
 
             //Generate uuid for securityGroup
@@ -116,7 +117,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
             //Persist securityGroup
             securityGroupRepository.addSecurityGroup(securityGroup);
         } else {
-            createDefaultSecurityGroup(securityGroup, description);
+            createDefaultSecurityGroup(tenantId, projectId, description);
         }
 
         LOG.info("Create security group success, securityGroupJson: {}", securityGroupJson);
@@ -125,11 +126,58 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    public SecurityGroupBulkJson createSecurityGroupBulk(String tenantId, String projectId, SecurityGroupBulkJson securityGroupBulkJson) throws Exception {
+        List<SecurityGroup> securityGroups = securityGroupBulkJson.getSecurityGroups();
+        String currentTime = TimeUtil.getCurrentTime();
+        SecurityGroup defaultSecurityGroup = null;
+
+        for (SecurityGroup securityGroup: securityGroups) {
+            if (isDefaultSecurityGroup(securityGroup)) {
+                if (defaultSecurityGroup != null) {
+                    throw new DefaultSecurityGroupNotUnique();
+                }
+
+                defaultSecurityGroup = securityGroup;
+            }
+
+            //Generate uuid for securityGroup
+            if (securityGroup.getId() == null) {
+                securityGroup.setId(UUID.randomUUID().toString());
+            }
+
+            //Create default security group rule for securityGroup
+            createDefaultSecurityGroupRules(securityGroup, SecurityGroupRule.Direction.EGRESS);
+
+            //Set create and update time for securityGroup
+            securityGroup.setCreateAt(currentTime);
+            securityGroup.setUpdateAt(currentTime);
+        }
+
+        SecurityGroup oldDefaultSecurityGroup = securityGroupRepository.getSecurityGroup(tenantId);
+        if (defaultSecurityGroup != null) {
+            if (oldDefaultSecurityGroup != null) {
+                throw new DefaultSecurityGroupExists();
+            }
+
+            String description = defaultSecurityGroup.getDescription();
+            createDefaultSecurityGroup(tenantId, projectId, description);
+        } else if (oldDefaultSecurityGroup == null){
+            createDefaultSecurityGroup(tenantId, projectId,null);
+        }
+
+        securityGroupRepository.addSecurityGroupBulk(securityGroups);
+
+        LOG.info("Create security group bulk success, securityGroupBulkJson: {}", securityGroupBulkJson);
+
+        return securityGroupBulkJson;
+    }
+
+    @Override
     public SecurityGroupJson updateSecurityGroup(String securityGroupId, SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         SecurityGroup oldSecurityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
         if (oldSecurityGroup == null) {
-            throw new SecurityGroupNotFound();
+            throw new SecurityGroupRequired();
         }
 
         if (oldSecurityGroup.getName().equals("default") && securityGroup.getName() != null) {
@@ -170,7 +218,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     public void deleteSecurityGroup(String securityGroupId) throws Exception {
         SecurityGroup securityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
         if (securityGroup == null) {
-            throw new SecurityGroupNotFound();
+            throw new SecurityGroupRequired();
         }
 
         if (getSecurityGroupBindings(securityGroupId) != null) {

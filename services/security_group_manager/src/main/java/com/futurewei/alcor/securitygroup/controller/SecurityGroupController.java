@@ -15,14 +15,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
-import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
+
 import java.util.List;
 
 @RestController
@@ -31,30 +34,93 @@ public class SecurityGroupController {
     @Autowired
     private SecurityGroupService securityGroupService;
 
+    private void checkProjectId(String projectId) throws ProjectIdRequired {
+        if (StringUtils.isEmpty(projectId)) {
+            throw new ProjectIdRequired();
+        }
+    }
+
+    private void checkTenantId(String tenantId) throws TenantIdRequired {
+        if (StringUtils.isEmpty(tenantId)) {
+            throw new TenantIdRequired();
+        }
+    }
+
+    private void checkSecurityGroup(SecurityGroupJson securityGroupJson) throws SecurityGroupRequired {
+        if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
+            throw new SecurityGroupRequired();
+        }
+    }
+
+    private void checkSecurityGroupId(String securityGroupId) throws SecurityGroupIdRequired {
+        if (StringUtils.isEmpty(securityGroupId)) {
+            throw new SecurityGroupIdRequired();
+        }
+    }
+
+    private void checkPortId(String portId) throws PortIdRequired {
+        if (StringUtils.isEmpty(portId)) {
+            throw new PortIdRequired();
+        }
+    }
+
+    private void checkPortSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws PortSecurityGroupsRequired {
+        if (portSecurityGroupsJson == null || portSecurityGroupsJson.getSecurityGroups() == null) {
+            throw new PortSecurityGroupsRequired();
+        }
+    }
+
+    private void checkSecurityGroups(SecurityGroupBulkJson securityGroupBulkJson) throws SecurityGroupsRequired {
+        if (securityGroupBulkJson == null ||
+                securityGroupBulkJson.getSecurityGroups() == null ||
+                securityGroupBulkJson.getSecurityGroups().size() == 0) {
+            throw new SecurityGroupsRequired();
+        }
+    }
+
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public SecurityGroupJson createSecurityGroup(@PathVariable("project_id") String projectId,
                                              @RequestBody SecurityGroupJson securityGroupJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupJson);
-        SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroup);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroup.getTenantId());
-        securityGroup.setProjectId(projectId);
+        checkProjectId(projectId);
+        checkSecurityGroup(securityGroupJson);
+        checkTenantId(securityGroupJson.getSecurityGroup().getTenantId());
+        securityGroupJson.getSecurityGroup().setProjectId(projectId);
 
         return securityGroupService.createSecurityGroup(securityGroupJson);
+    }
+
+    @PostMapping({"/project/{project_id}/security-groups/bulk", "v4/{project_id}/security-groups/bulk"})
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public SecurityGroupBulkJson createSecurityGroupBulk(@PathVariable("project_id") String projectId,
+                                                         @RequestBody SecurityGroupBulkJson securityGroupBulkJson) throws Exception {
+        checkProjectId(projectId);
+        checkSecurityGroups(securityGroupBulkJson);
+
+        String tenantId = null;
+        for (SecurityGroup securityGroup: securityGroupBulkJson.getSecurityGroups()) {
+            checkTenantId(securityGroup.getTenantId());
+            if (tenantId == null) {
+                tenantId = securityGroup.getTenantId();
+            } else if (!tenantId.equals(securityGroup.getTenantId())) {
+                throw new TenantIdInvalid();
+            }
+
+            securityGroup.setProjectId(projectId);
+        }
+
+        return securityGroupService.createSecurityGroupBulk(tenantId, projectId, securityGroupBulkJson);
     }
 
     @PutMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     public SecurityGroupJson updateSecurityGroup(@PathVariable("project_id") String projectId,
                                          @PathVariable("security_group_id") String securityGroupId,
                                          @RequestBody SecurityGroupJson securityGroupJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupJson);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupId);
-        SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroup);
+        checkProjectId(projectId);
+        checkSecurityGroup(securityGroupJson);
+        checkSecurityGroupId(securityGroupId);
 
         return securityGroupService.updateSecurityGroup(securityGroupId, securityGroupJson);
     }
@@ -62,8 +128,8 @@ public class SecurityGroupController {
     @DeleteMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     public void deleteSecurityGroup(@PathVariable("project_id") String projectId,
                                 @PathVariable("security_group_id") String securityGroupId) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupId);
+        checkProjectId(projectId);
+        checkSecurityGroupId(securityGroupId);
 
         securityGroupService.deleteSecurityGroup(securityGroupId);
     }
@@ -71,27 +137,26 @@ public class SecurityGroupController {
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     public SecurityGroupJson getSecurityGroup(@PathVariable("project_id") String projectId,
                                       @PathVariable("security_group_id") String securityGroupId) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupId);
+        checkProjectId(projectId);
+        checkSecurityGroupId(securityGroupId);
 
         return securityGroupService.getSecurityGroup(securityGroupId);
     }
 
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     public List<SecurityGroupJson> listSecurityGroup(@PathVariable("project_id") String projectId) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+        checkProjectId(projectId);
 
         return securityGroupService.listSecurityGroup();
     }
 
     private void verifyPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(portSecurityGroupsJson);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(portSecurityGroupsJson.getPortId());
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(portSecurityGroupsJson.getSecurityGroups());
+        checkProjectId(projectId);
+        checkPortSecurityGroups(portSecurityGroupsJson);
+        checkPortId(portSecurityGroupsJson.getPortId());
 
-        for (String securityGroup: portSecurityGroupsJson.getSecurityGroups()) {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroup);
+        for (String securityGroupId: portSecurityGroupsJson.getSecurityGroups()) {
+            checkSecurityGroupId(securityGroupId);
         }
     }
 

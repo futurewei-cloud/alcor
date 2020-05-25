@@ -18,6 +18,6 @@ package com.futurewei.alcor.securitygroup.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_REQUIRED, reason="The name conflicts with the name of the default security group")
-public class SecurityGroupNameInvalid extends Exception {
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Port security groups are required")
+public class PortSecurityGroupsRequired extends Exception {
 }

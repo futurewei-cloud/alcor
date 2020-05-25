@@ -19,6 +19,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
+import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import org.slf4j.Logger;
@@ -27,8 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 @Repository
@@ -61,6 +66,27 @@ public class SecurityGroupRepository {
 
             //Add security group
             securityGroupCache.put(securityGroup.getId(), securityGroup);
+
+            tx.commit();
+        }
+    }
+
+    public void addSecurityGroupBulk(List<SecurityGroup> securityGroups) throws Exception {
+        try (Transaction tx = securityGroupCache.getTransaction().start()) {
+            //Add all security group rules
+            Map<String, SecurityGroupRule> securityGroupRules = new HashMap<>();
+            for (SecurityGroup securityGroup: securityGroups) {
+                securityGroupRules.putAll(securityGroup.getSecurityGroupRules()
+                        .stream()
+                        .collect(Collectors.toMap(SecurityGroupRule::getId, Function.identity())));
+            }
+            securityGroupRuleCache.putAll(securityGroupRules);
+
+            //Add all security groups
+            Map<String, SecurityGroup> securityGroupMap = securityGroups
+                    .stream()
+                    .collect(Collectors.toMap(SecurityGroup::getId, Function.identity()));
+            securityGroupCache.putAll(securityGroupMap);
 
             tx.commit();
         }
@@ -143,6 +169,30 @@ public class SecurityGroupRepository {
 
             //Add security group rule
             securityGroupRuleCache.put(securityGroupRule.getId(), securityGroupRule);
+
+            tx.commit();
+        }
+    }
+
+    public void addSecurityGroupRuleBulk(List<SecurityGroupRule> securityGroupRules) throws Exception {
+        try (Transaction tx = securityGroupCache.getTransaction().start()) {
+            //Add security group rule to security group
+            for (SecurityGroupRule securityGroupRule: securityGroupRules) {
+                SecurityGroup securityGroup = securityGroupCache.get(securityGroupRule.getSecurityGroupId());
+                if (securityGroup == null) {
+                    throw new SecurityGroupNotFound();
+                }
+
+                //Add security group rule to security group
+                securityGroup.getSecurityGroupRules().add(securityGroupRule);
+                securityGroupCache.put(securityGroup.getId(), securityGroup);
+            }
+
+            //Add security group rules
+            Map<String, SecurityGroupRule> securityGroupRuleMap = securityGroupRules
+                    .stream()
+                    .collect(Collectors.toMap(SecurityGroupRule::getId, Function.identity()));
+            securityGroupRuleCache.putAll(securityGroupRuleMap);
 
             tx.commit();
         }

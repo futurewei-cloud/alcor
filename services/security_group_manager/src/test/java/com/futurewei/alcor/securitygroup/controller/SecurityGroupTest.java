@@ -19,10 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.securitygroup.config.UnitTestConfig;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
+import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +88,38 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test03_updateSecurityGroupTest() throws Exception {
+    public void Test03_createSecurityGroupBulkTest() throws Exception {
+        SecurityGroup securityGroup1 = new SecurityGroup();
+        securityGroup1.setId(UnitTestConfig.securityGroupId);
+        securityGroup1.setName(UnitTestConfig.securityGroupName);
+        securityGroup1.setProjectId(UnitTestConfig.projectId);
+        securityGroup1.setTenantId(UnitTestConfig.tenantId);
+        securityGroup1.setDescription(UnitTestConfig.securityGroupDescription);
+
+        SecurityGroup securityGroup2 = new SecurityGroup();
+        securityGroup2.setId(UnitTestConfig.securityGroupId2);
+        securityGroup2.setName(UnitTestConfig.securityGroupName2);
+        securityGroup2.setProjectId(UnitTestConfig.projectId);
+        securityGroup2.setTenantId(UnitTestConfig.tenantId);
+        securityGroup2.setDescription(UnitTestConfig.securityGroupDescription2);
+
+        List<SecurityGroup> securityGroups = new ArrayList<>();
+        securityGroups.add(securityGroup1);
+        securityGroups.add(securityGroup2);
+        SecurityGroupBulkJson securityGroupBulkJson = new SecurityGroupBulkJson(securityGroups);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(securityGroupBulkJson);
+
+        this.mockMvc.perform(post(UnitTestConfig.securityGroupBulkUrl)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test04_updateSecurityGroupTest() throws Exception {
         SecurityGroup securityGroup = new SecurityGroup();
         securityGroup.setId(UnitTestConfig.securityGroupId);
         securityGroup.setName(UnitTestConfig.securityGroupName2);
@@ -110,21 +138,21 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test04_getSecurityGroupTest() throws Exception {
+    public void Test05_getSecurityGroupTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupUrl + "/" + UnitTestConfig.securityGroupId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test05_listSecurityGroupTest() throws Exception {
+    public void Test06_listSecurityGroupTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test06_createSecurityGroupRuleTest() throws Exception {
+    public void Test07_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setId(UnitTestConfig.securityGroupRuleId);
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
@@ -150,7 +178,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test07_createSecurityGroupRuleTest() throws Exception {
+    public void Test08_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
         securityGroupRule.setTenantId(UnitTestConfig.tenantId);
@@ -176,7 +204,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test08_createSecurityGroupRuleTest() throws Exception {
+    public void Test09_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
         securityGroupRule.setTenantId(UnitTestConfig.tenantId);
@@ -202,21 +230,58 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test09_getSecurityGroupRuleTest() throws Exception {
+    public void Test10_createSecurityGroupRuleBulkTest() throws Exception {
+        SecurityGroupRule securityGroupRule1 = new SecurityGroupRule();
+        securityGroupRule1.setProjectId(UnitTestConfig.projectId);
+        securityGroupRule1.setTenantId(UnitTestConfig.tenantId);
+        securityGroupRule1.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        securityGroupRule1.setDirection(UnitTestConfig.direction);
+        securityGroupRule1.setProtocol(UnitTestConfig.protocolTcp);
+        securityGroupRule1.setPortRangeMin(UnitTestConfig.portRangeMin);
+        securityGroupRule1.setPortRangeMax(UnitTestConfig.portRangeMax);
+        securityGroupRule1.setEtherType(UnitTestConfig.etherType);
+
+        SecurityGroupRule securityGroupRule2 = new SecurityGroupRule();
+        securityGroupRule2.setProjectId(UnitTestConfig.projectId);
+        securityGroupRule2.setTenantId(UnitTestConfig.tenantId);
+        securityGroupRule2.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        securityGroupRule2.setDirection(UnitTestConfig.direction2);
+        securityGroupRule2.setProtocol(UnitTestConfig.protocolUdp);
+        securityGroupRule2.setPortRangeMin(UnitTestConfig.portRangeMin);
+        securityGroupRule2.setPortRangeMax(UnitTestConfig.portRangeMax);
+        securityGroupRule2.setEtherType(UnitTestConfig.etherType);
+
+        List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
+        securityGroupRules.add(securityGroupRule1);
+        securityGroupRules.add(securityGroupRule2);
+        SecurityGroupRuleBulkJson securityGroupRuleBulkJson = new SecurityGroupRuleBulkJson(securityGroupRules);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(securityGroupRuleBulkJson);
+
+        this.mockMvc.perform(post(UnitTestConfig.securityGroupRuleBulkUrl)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test11_getSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupRuleUrl + "/" + UnitTestConfig.securityGroupRuleId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test10_listSecurityGroupRuleTest() throws Exception {
+    public void Test12_listSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test11_bindSecurityGroupTest() throws Exception {
+    public void Test13_bindSecurityGroupTest() throws Exception {
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
         List<String> securityGroups = new ArrayList<>();
@@ -234,7 +299,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test12_unbindSecurityGroupTest() throws Exception {
+    public void Test14_unbindSecurityGroupTest() throws Exception {
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
         List<String> securityGroups = new ArrayList<>();
@@ -252,7 +317,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test13_deleteSecurityGroupRuleTest() throws Exception {
+    public void Test15_deleteSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(delete(UnitTestConfig.securityGroupRuleUrl + "/" +
                 UnitTestConfig.securityGroupRuleId))
                 .andDo(print())
@@ -260,7 +325,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test14_deleteSecurityGroupTest() throws Exception {
+    public void Test16_deleteSecurityGroupTest() throws Exception {
         this.mockMvc.perform(delete(UnitTestConfig.securityGroupUrl + "/" +
                 UnitTestConfig.securityGroupId))
                 .andDo(print())

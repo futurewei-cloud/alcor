@@ -18,6 +18,6 @@ package com.futurewei.alcor.securitygroup.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_REQUIRED, reason="Remote ip prefix invalid")
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Remote ip prefix invalid")
 public class RemoteIpPrefixInvalid extends Exception {
 }

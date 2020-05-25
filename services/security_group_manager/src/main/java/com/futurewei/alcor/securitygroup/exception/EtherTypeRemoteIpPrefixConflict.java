@@ -18,6 +18,6 @@ package com.futurewei.alcor.securitygroup.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="The Ip version of remote_ip_prefix conflict with ether_type")
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="The Ip version of remote_ip_prefix conflict with ether_type")
 public class EtherTypeRemoteIpPrefixConflict extends Exception {
 }

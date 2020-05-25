@@ -18,6 +18,7 @@ package com.futurewei.alcor.securitygroup.config;
 public class UnitTestConfig {
     public static String projectId = "3d53801c-32ce-4e97-9572-bb966fab628";
     public static String securityGroupId = "3d53801c-32ce-4e97-9572-bb966f476ec";
+    public static String securityGroupId2 = "3d53801c-32ce-4e97-9572-bb966f7a5f1";
     public static String securityGroupName = "securityGroup1";
     public static String securityGroupName2 = "securityGroup2";
     public static String defaultSecurityGroupName = "default";
@@ -25,11 +26,15 @@ public class UnitTestConfig {
     public static String securityGroupDescription2 = "This is another security group";
     public static String tenantId = "3d53801c-32ce-4e97-9572-bb966fab628";
     public static String securityGroupUrl = "/project/" + projectId + "/security-groups";
+    public static String securityGroupBulkUrl = "/project/" + projectId + "/security-groups/bulk";
     public static String securityGroupRuleId = "3d53801c-32ce-4e97-9572-bb966fa6b23";
     public static String securityGroupRuleUrl = "/project/" + projectId + "/security-group-rules";
+    public static String securityGroupRuleBulkUrl = "/project/" + projectId + "/security-group-rules/bulk";
     public static String remoteIpPrefix = "192.168.1.0/24";
     public static String direction = "ingress";
+    public static String direction2 = "egress";
     public static String protocolTcp = "tcp";
+    public static String protocolUdp = "udp";
     public static String protocolIcmp = "icmp";
     public static int portRangeMin = 1;
     public static int portRangeMax = 65535;
