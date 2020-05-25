@@ -4,6 +4,8 @@ v0.1, 2020-05-24
 :toc: right
 :imagesdir: ../../images
 
+NOTE: This document is under development
+
 == Overview
 
 The Elastic IP (EIP) manager is responsible of allocating and releasing EIP as well as associating the allocated EIP to a running instance or network interface (port).
@@ -20,7 +22,7 @@ A customer of Alcor could leverage Elastic IP manager in the following cases:
 === Service Basic Requirements
 
 [arabic]
-1. Provide CURD REST APIs for customers or provider admins to management EIPs. The APIs are compatible to OpenStack Neutron v2.0 APIs (Ref: https://docs.openstack.org/api-ref/network/v2/?expanded=#list-floating-ips).
+1. Provide CURD REST APIs for customers or provider admins to management EIPs. The APIs are compatible to OpenStack Neutron v2.0 APIs <<neutron_api>>.
 1. Provide CURD REST APIs for cloud provider admins to register or unregister a list of public IPv4 or IPv6 ranges in EIP manager.
 Note that those IP ranges should be owned by cloud provider.
 1. Allocate _standalone_ and _unique_ EIP address. Guarantee uniqueness of EIP address in a regional scope.
@@ -47,6 +49,8 @@ Note that those IP ranges should be owned by cloud provider.
 === EIP Range Management
 
 == REST APIs
+
+TBD: to follow REST API specification.
 
 === API Snapshot
 
@@ -135,6 +139,8 @@ Note that those IP ranges should be owned by cloud provider.
 
 === API Specification
 
+NOTE: The follows is an example from link:private_ip_manager.adoc[private IP manager].
+
 anchor:IP_Get[]
 **(1) Get/Verify IP state by IP address**
 
@@ -185,11 +191,17 @@ One IP address falls into one of three states:
 
 == IP allocation algorithm
 
-== Concurrency Handling
+TBD
+
+=== Concurrency Handling
 
 As there are multiple instances of EIP managers, those instances may serve concurrent calls for different customers and assign EIPs at the same time.
 
 
+[bibliography]
+== References
+
+- [[[neutron_api,1]]] OpenStack Neutron API v2.0: https://docs.openstack.org/api-ref/network/v2/?expanded=#list-floating-ips
 
 
 
