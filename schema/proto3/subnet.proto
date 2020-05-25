@@ -26,9 +26,9 @@ import "common.proto";
 message SubnetConfiguration {
     uint32 version = 1;
 
-    string project_id = 2;
-    string vpc_id = 3;
-    string id = 4;
+    string id = 2;
+    string project_id = 3;
+    string vpc_id = 4;
     string name = 5;
     string cidr = 6;
     int64 tunnel_id = 7;

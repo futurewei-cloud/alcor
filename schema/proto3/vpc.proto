@@ -26,8 +26,8 @@ import "common.proto";
 message VpcConfiguration {
     uint32 version = 1;
 
-    string project_id = 2;
-    string id = 3;
+    string id = 2;
+    string project_id = 3;
     string name = 4;
     string cidr = 5;
     int64 tunnel_id = 6;

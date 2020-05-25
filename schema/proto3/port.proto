@@ -26,16 +26,15 @@ import "common.proto";
 message PortConfiguration {
     uint32 version = 1;
     
-    NetworkType network_type = 2;
-    string project_id = 3;
-    string subnet_id = 4;
-    uint32 mq_subscription_index = 5;
-    string id = 6;
+    string id = 2;
+    NetworkType network_type = 3;
+    string project_id = 4;
+    string subnet_id = 5;
+    uint32 mq_subscription_index = 6;
     string name = 7;
     string network_ns = 8;
     string mac_address = 9;
-    string veth_name = 10;
-    bool admin_state_up = 11;
+    bool admin_state_up = 10;
 
     message HostInfo {
         string ip_address = 1;
@@ -56,10 +55,14 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 12;
-    repeated FixedIp fixed_ips = 13;
-    repeated AllowAddressPair allow_address_pairs = 14;
-    repeated SecurityGroupId security_group_ids = 15;
+    HostInfo host_info = 11;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated SecurityGroupId security_group_ids = 14;
+
+    // start Mizar specific session
+    string veth_name = 15;
+    // end Mizar specific session
 }
 
 message PortState {
