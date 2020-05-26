@@ -24,14 +24,14 @@ import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
+import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import com.futurewei.alcor.portmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.portmanager.exception.IpVersionInvalidException;
 import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
 import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
 import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
-import com.futurewei.alcor.portmanager.restclient.SubnetManagerRestClient;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
 
 import java.util.ArrayList;
 import java.util.List;

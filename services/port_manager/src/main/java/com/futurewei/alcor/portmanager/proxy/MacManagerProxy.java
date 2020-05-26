@@ -20,7 +20,7 @@ import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
+import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 import java.util.Stack;
 
 public class MacManagerProxy {
