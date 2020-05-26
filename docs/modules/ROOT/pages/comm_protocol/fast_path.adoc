@@ -2,6 +2,7 @@
 Liguang Xie <lxie@futurewei.com>
 v1.0, 2019-08-15
 :toc: right
+:imagesdir: ../../images
 
 == Introduction
 
@@ -29,7 +30,7 @@ With this fast path, time-critical applications will benefit from the low latenc
 The following diagram illustrates the architecture of the network control plane fast path,
 and the bi-directional communication channel between the Network Controllers and Control Agents.
 
-image::images/fast_path.GIF["Fast path architecture", width=1024, link="images/fast_path.GIF"]
+image::fast_path.GIF["Fast path architecture", width=1024, link="fast_path.GIF"]
 
 === Bi-directional Communication Channel
 The top-down communication channel from Controllers to Agents can be used in many scenarios which require low E2E latency for network configuration update:

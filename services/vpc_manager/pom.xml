@@ -11,8 +11,8 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <swagger2markup.version>1.2.0</swagger2markup.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>

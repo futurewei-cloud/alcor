@@ -1,6 +1,7 @@
 = Integration with OpenStack Nova
 v0.1, 2020-05-17
 :toc: right
+:imagesdir: ../../images
 
 NOTE: This document is under development
 
@@ -21,7 +22,7 @@ We would want to integrate with Nova to support the same set of user operations,
 == Review of OpenStack Workflow
 
 === VM Creation Workflow
-image::images/vm_create.png["VM creation workflow", width=1024, link="images/vm_create.png"]
+image::vm_create.png["VM creation workflow", width=1024, link="vm_create.png"]
 
 == Required Changes
 
