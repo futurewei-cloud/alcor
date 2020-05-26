@@ -1,8 +1,19 @@
+name: Java CI
+
 on:
+  # Trigger the workflow on push or pull request only for the master branch
   push:
     branches:
-    - master
-name: Test Event
+      - master
+  pull_request:
+    branches:
+      - master
+  # Also trigger on page_build, as well as release created events
+  page_build:
+  release:
+    types: # This configuration does not affect the page_build event above
+      - created
+
 jobs:
   build:
 
@@ -15,4 +26,4 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Maven
-        run: .github/workflows/build.sh
+        run: scripts/test-prep.sh

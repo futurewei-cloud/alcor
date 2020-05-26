@@ -22,7 +22,8 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.subnet.entity.SubnetState;
+
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -33,21 +34,21 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class SubnetRepository implements ICacheRepository<SubnetState> {
+public class SubnetRepository implements ICacheRepository<SubnetEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
     private static final String KEY = "SubnetState";
 
-    public ICache<String, SubnetState> getCache() {
+    public ICache<String, SubnetEntity> getCache() {
         return cache;
     }
 
-    private ICache<String, SubnetState> cache;
+    private ICache<String, SubnetEntity> cache;
 
     @Autowired
     public SubnetRepository (CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(SubnetState.class);
+        cache = cacheFactory.getCache(SubnetEntity.class);
     }
 
     @PostConstruct
@@ -56,19 +57,19 @@ public class SubnetRepository implements ICacheRepository<SubnetState> {
     }
 
     @Override
-    public SubnetState findItem(String id) throws CacheException {
+    public SubnetEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, SubnetState> findAllItems() throws CacheException {
+    public Map<String, SubnetEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(SubnetState routeState) throws CacheException {
-        logger.log(Level.INFO, "Add subnet, subnet Id:" + routeState.getId());
-        cache.put(routeState.getId(), routeState);
+    public void addItem(SubnetEntity subnet) throws CacheException {
+        logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
+        cache.put(subnet.getId(), subnet);
     }
 
     @Override

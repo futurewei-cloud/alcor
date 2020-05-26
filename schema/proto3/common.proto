@@ -26,6 +26,7 @@ enum ResourceType {
     SUBNET = 1;
     PORT = 2;
     SECURITYGROUP = 3;
+    DHCP = 4;
 }
 
 enum OperationType {
@@ -34,10 +35,14 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
-    FINALIZE = 5;
-    CREATE_UPDATE_SWITCH = 6;
-    CREATE_UPDATE_ROUTER = 7;
-    CREATE_UPDATE_GATEWAY = 8;
+    NEIGHBOR_CREATE = 5;
+    NEIGHBOR_UPDATE = 6;
+    NEIGHBOR_GET = 7;
+    NEIGHBOR_DELETE = 8;
+    CREATE_UPDATE_GATEWAY = 9;
+    FINALIZE = 10;             // For Mizar only
+    CREATE_UPDATE_SWITCH = 11; // For Mizar only
+    CREATE_UPDATE_ROUTER = 12; // For Mizar only
 }
 
 enum OperationStatus {
@@ -57,4 +62,12 @@ enum Protocol {
     ICMP = 2;
     HTTP = 3;
     ARP = 4;
+}
+
+enum NetworkType { 
+    VXLAN = 0; // the default type
+    VLAN = 1;
+    GRE = 2;
+    GENEVE = 3;
+    VXLAN_GPE = 4;
 }

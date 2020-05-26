@@ -18,7 +18,7 @@ package com.futurewei.alcor.apigateway.proxies;
 
 import com.futurewei.alcor.apigateway.vpc.VpcWebDestinations;
 import com.futurewei.alcor.common.entity.ResponseId;
-import com.futurewei.alcor.web.entity.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.exception.VpcNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;

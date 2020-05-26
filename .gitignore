@@ -76,3 +76,6 @@ lib/target/
 ### Logs ###
 *.log
 *.gz
+
+# Ignite
+ignite/

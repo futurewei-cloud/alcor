@@ -17,17 +17,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.route.service;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
-import com.futurewei.alcor.route.entity.RouteState;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.stereotype.Service;
 
 //@Service
 public class RedisPublisher implements ICachePublisher {
 
     @Autowired
-    private RedisTemplate<String, RouteState> redisTemplate;
+    private RedisTemplate<String, RouteWebObject> redisTemplate;
 
     @Autowired
     private ChannelTopic topic;
@@ -35,7 +34,7 @@ public class RedisPublisher implements ICachePublisher {
     public RedisPublisher() {
     }
 
-    public RedisPublisher(final RedisTemplate<String, RouteState> redisTemplate, final ChannelTopic topic) {
+    public RedisPublisher(final RedisTemplate<String, RouteWebObject> redisTemplate, final ChannelTopic topic) {
         this.redisTemplate = redisTemplate;
         this.topic = topic;
     }

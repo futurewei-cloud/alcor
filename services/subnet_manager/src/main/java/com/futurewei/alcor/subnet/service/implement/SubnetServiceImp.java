@@ -6,9 +6,15 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
-import com.futurewei.alcor.subnet.entity.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.vpc.*;
+import com.futurewei.alcor.web.entity.ip.*;
+import com.futurewei.alcor.web.entity.subnet.*;
+import com.futurewei.alcor.web.entity.mac.*;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -62,9 +67,9 @@ public class SubnetServiceImp implements SubnetService {
     @Async
     @Override
     public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
-        String ipManagerServiceUrl = ipUrl + ipVersion + rangeId + ipAddr;
+        String ipManagerServiceUrl = ipUrl + ipVersion + "/" + rangeId + "/" + ipAddr;
         restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
-        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId ;
+        String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId;
         restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
     }
 
@@ -72,7 +77,7 @@ public class SubnetServiceImp implements SubnetService {
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetStateJson resource,
+                                  SubnetRequestWebJson resource,
                                   String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
@@ -108,19 +113,20 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public VpcStateJson verifyVpcId(String projectid, String vpcId) throws FallbackException {
-        String vpcManagerServiceUrl = vpcUrl + projectid + "/vpcs/" + vpcId;
-        VpcStateJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcStateJson.class);
-        if (vpcResponse.getVpc() == null) {
+    public VpcWebJson verifyVpcId(String projectId, String vpcId) throws FallbackException {
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId;
+        VpcWebJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcWebJson.class);
+        if (vpcResponse.getNetwork() == null) {
             throw new FallbackException("fallback request");
         }
         return vpcResponse;
     }
 
+
     @Override
-    public RouteWebJson createRouteRules(String subnetId, SubnetState subnetState) throws FallbackException {
+    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetStateJson> routeRequest = new HttpEntity<>(new SubnetStateJson(subnetState));
+        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
         RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
         // retry if routeResponse is null
         if (routeResponse == null) {
@@ -153,7 +159,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -175,10 +181,12 @@ public class SubnetServiceImp implements SubnetService {
         ipAddrRangeRequest.setIpVersion(IpVersionConfig.IPV4.getVersion());
         ipAddrRangeRequest.setFirstIp(ips[0]);
         ipAddrRangeRequest.setLastIp(ips[1]);
+        ipAddrRangeRequest.setVpcId(vpcId);
 
 
         HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
                 ipAddrRangeRequest.getId(),
+                ipAddrRangeRequest.getVpcId(),
                 ipAddrRangeRequest.getSubnetId(),
                 ipAddrRangeRequest.getIpVersion(),
                 ipAddrRangeRequest.getFirstIp(),
@@ -196,9 +204,13 @@ public class SubnetServiceImp implements SubnetService {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(ipRangeResponse.getId());
         ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+        ipAddrRequest.setVpcId(vpcId);
+        ipAddrRequest.setSubnetId(subnetId);
 
         HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
                 ipAddrRequest.getIpVersion(),
+                ipAddrRequest.getVpcId(),
+                ipAddrRequest.getSubnetId(),
                 ipAddrRequest.getRangeId(),
                 ipAddrRequest.getIp(),
                 ipAddrRequest.getState()));
@@ -253,7 +265,7 @@ public class SubnetServiceImp implements SubnetService {
             }
         }
         // verify cidr prefix
-        String[] addr = cidrs[0].split("\\." , -1);
+        String[] addr = cidrs[0].split("\\.", -1);
         if (addr.length != 4) {
             return false;
         }

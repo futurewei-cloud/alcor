@@ -19,7 +19,7 @@ package com.futurewei.alcor.apigateway.vpc;
 import com.futurewei.alcor.apigateway.proxies.VpcManagerServiceProxy;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.CommonUtil;
-import com.futurewei.alcor.web.entity.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.exception.VpcNotFoundException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -57,8 +57,8 @@ public class VpcWebHandlers {
 
         final UUID generatedVpcId = UUID.randomUUID();
         Mono<VpcWebJson> newVpcObj = vpcObj.map(p ->
-                p.getVpc().getId().isEmpty() || !CommonUtil.isUUID(p.getVpc().getId()) ?
-                        new VpcWebJson(p.getVpc(), generatedVpcId) : new VpcWebJson(p.getVpc()));
+                p.getNetwork().getId().isEmpty() || !CommonUtil.isUUID(p.getNetwork().getId()) ?
+                        new VpcWebJson(p.getNetwork(), generatedVpcId) : new VpcWebJson(p.getNetwork()));
 
         Mono<VpcWebJson> response = serviceProxy.createVpc(projectId, newVpcObj);
 

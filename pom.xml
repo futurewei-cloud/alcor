@@ -4,14 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.futurewei.alcor.controller</groupId>
-    <artifactId>AlcorController</artifactId>
+    <groupId>com.futurewei.alcor</groupId>
+    <artifactId>controller</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <name>AlcorController</name>
+    <description>Alcor Controller Project</description>
 
     <properties>
         <java.version>1.8</java.version>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
     </properties>
@@ -34,6 +36,8 @@
         <module>services/mac_manager</module>
         <module>services/private_ip_manager</module>
         <module>services/data_plane_manager</module>
+        <module>services/port_manager</module>
+        <module>services/node_manager</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -91,6 +95,7 @@
                             <doctype>book</doctype>
                             <attributes>
                                 <snippets>${snippets}</snippets>
+                                <imagesDir>${basedir}/docs/modules/ROOT/images</imagesDir>
                             </attributes>
                             <sourceDirectory>${basedir}/docs</sourceDirectory>
                             <outputDirectory>target/generated-docs</outputDirectory>
@@ -98,6 +103,9 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <imagesDir>${basedir}/docs/modules/ROOT/images</imagesDir>
+                </configuration>
             </plugin>
         </plugins>
 

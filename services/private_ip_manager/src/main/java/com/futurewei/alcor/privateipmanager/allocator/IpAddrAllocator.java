@@ -19,7 +19,7 @@ import java.util.List;
 
 public interface IpAddrAllocator {
 
-    String allocate() throws Exception;
+    String allocate(String ipAddr) throws Exception;
 
     List<String> allocateBulk(int num) throws Exception;
 

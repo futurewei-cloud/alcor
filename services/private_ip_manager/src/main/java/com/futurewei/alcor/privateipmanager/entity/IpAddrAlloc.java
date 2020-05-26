@@ -19,6 +19,7 @@ package com.futurewei.alcor.privateipmanager.entity;
 
 public class IpAddrAlloc {
     private int ipVersion;
+    private String subnetId;
     private String rangeId;
     private String ipAddr;
     private String state;
@@ -26,19 +27,12 @@ public class IpAddrAlloc {
     public IpAddrAlloc() {
     }
 
-    public IpAddrAlloc(int ipVersion, String rangeId, String ipAddr, String state) {
+    public IpAddrAlloc(int ipVersion, String subnetId, String rangeId, String ipAddr, String state) {
         this.ipVersion = ipVersion;
+        this.subnetId = subnetId;
         this.rangeId = rangeId;
         this.ipAddr = ipAddr;
         this.state = state;
-    }
-
-    public String getRangeId() {
-        return rangeId;
-    }
-
-    public void setRangeId(String rangeId) {
-        this.rangeId = rangeId;
     }
 
     public int getIpVersion() {
@@ -47,6 +41,22 @@ public class IpAddrAlloc {
 
     public void setIpVersion(int ipVersion) {
         this.ipVersion = ipVersion;
+    }
+
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
+    public String getRangeId() {
+        return rangeId;
+    }
+
+    public void setRangeId(String rangeId) {
+        this.rangeId = rangeId;
     }
 
     public String getIpAddr() {
@@ -63,5 +73,16 @@ public class IpAddrAlloc {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    @Override
+    public String toString() {
+        return "IpAddrAlloc{" +
+                "ipVersion=" + ipVersion +
+                ", subnetId='" + subnetId + '\'' +
+                ", rangeId='" + rangeId + '\'' +
+                ", ipAddr='" + ipAddr + '\'' +
+                ", state='" + state + '\'' +
+                '}';
     }
 }

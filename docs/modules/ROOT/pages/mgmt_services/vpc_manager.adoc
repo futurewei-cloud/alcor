@@ -1,0 +1,244 @@
+= VPC Manager Design Specification
+Zhonghao Lyu <zlyu@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-05-04
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+The VPC Manager is an Alcor microservice which manages the life cycle of all VPCs.
+Its responsibilities include but are not limited to creating, updating, deleting, and searching a resource model of a two-tier network,
+managing network segment and network-segment-range resource for tenant network segment allocation.
+It interacts with Subnet Manager and Port Manager to provide networks for them.
+
+== Service Requirements
+
+[arabic]
+. Supply networks and segments for all the subnets/ports, e.g., (Subnet 1, Port 1) -> VPC1
+. Concurrency control mechanism should be provided to process multiple concurrent VPC creation requests.
+.  Get route rule information from route manager
+. Algorithm with random, but less conflict possibility
+. Managing network segment and network-segment-range resource
+. Guarantee uniqueness of segment in network type scope.
+. Release (segment, network type) association when a segment is released
+. Fall back mechanism if there is a conflict among creation of segment
+. Working together with other services including subnet manager, port manager and route manager.
+
+== Design
+
+=== Service Architecture
+
+=== Key Workflow
+
+== Database Schema
+=== Network Vlan Range and Vlan State
+image::network_type_vlan.PNG[]
+=== Network Vxlan Range and Vxlan State
+image::network_type_vxlan.PNG[]
+=== Network Gre Range and Gre State
+image::network_type_gre.PNG[]
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Get/Verify VPC State By VPC Id
+|GET
+|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|VPC state
+<<VpcState_Get1,[sample]>>
+
+|Create VPC State
+|POST
+|/project/{projectid}/vpcs, /v4/{projectid}/vpcs
+|VPC state
+<<VpcState_Post1,[sample]>>
+
+|Update VPC Address
+|PUT
+|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|VPC state
+<<VpcState_Put1,[sample]>>
+
+|Delete VPC Address
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|ResponseId
+<<VpcState_Delete1,[sample]>>
+
+|GET VPC State By Project Id
+|GET
+|/project/{projectid}/vpcs
+|Map
+<<VpcState_Get2,[sample]>>
+|===
+
+=== API Specification
+
+anchor:VpcState_Get1[]
+**(1) Get/Verify VPC state by VPC Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+
+* Response: vpc state
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+
+Response:
+{
+  "network": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "vpc_test1",
+    "cidr": "00-14-2A-3B-47-37",
+  }
+}
+....
+
+anchor:VpcState_Post1[]
+**(1) Create VPC State**
+
+* Method: `POST`
+
+* Request: `/project/{projectid}/vpcs, /v4/{projectid}/vpcs`
+
+* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+
+* Response: vpc state
+* Normal response codes: 201
+* Error response codes: 400, 404, 500, 503
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs
+--data "{\"vpc\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"name\":\"test_vpc\",\"description\":\"vpc\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Response:
+{
+  "network": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "cidr": "10.0.0.0/16",
+    "description": "vpc"
+  }
+}
+....
+
+anchor:VpcState_Put1[]
+**(1) Update VPC State**
+
+* Method: `PUT`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource`
+
+* Response: vpc state
+* Normal response codes: 201
+* Error response codes: 400, 404, 500, 503
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+--data "{\"vpc\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"name\":\"test_vpc\",\"description\":\"vpc\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Response:
+{
+  "network": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "test_vpc",
+    "cidr": "10.0.0.0/16",
+    "description": "vpc"
+  }
+}
+....
+
+anchor:VpcState_Delete1[]
+**(1) Delete VPC State**
+
+* Method: `DELETE`
+
+* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
+
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+
+Response:
+{"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"}
+....
+
+anchor:VpcState_Get2[]
+**(1) Get/Verify VPC state by Project Id**
+
+* Method: `GET`
+
+* Request: `/project/{projectid}/vpcs`
+
+* Request Parameter: `@PathVariable String projectid`
+
+* Response: map
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+
+* Example
+
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs
+
+Response:
+Map<String, VpcWebResponseObject> vpcStates
+....
+
+== Concurrency Handling
+When creating segments, we need to concurrently create instances of network type (vlan, vxlan, gre), and multiple instances may assign their key Id.
+
+Sample for allocating vlan key
+....
+public synchronized Long allocateVlanKey (String rangeId) throws Exception {
+        Long key;
+
+        try (Transaction tx = cache.getTransaction().start()) {
+            NetworkVlanRange networkVlanRange = cache.get(rangeId);
+            if (networkVlanRange == null) {
+                throw new RangeNotFoundException();
+            }
+
+            key = networkVlanRange.allocateKey();
+            cache.put(networkVlanRange.getId(), networkVlanRange);
+
+            tx.commit();
+        }
+
+        return key;
+    }
+....
+//include::../../../services/vpc_manager/target/swagger/swagger.adoc[]

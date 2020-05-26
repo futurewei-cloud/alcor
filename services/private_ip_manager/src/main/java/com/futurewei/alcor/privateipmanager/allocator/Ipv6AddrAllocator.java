@@ -39,11 +39,22 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
 
 
     @Override
-    public String allocate() throws Exception {
-        int freeBit = bitSet.nextClearBit(0);
+    public String allocate(String ipAddr) throws Exception {
+        int freeBit;
 
-        if (freeBit < 0 || freeBit >= ipAddrNum) {
-            throw new IpAddrNotEnoughException();
+        if (ipAddr != null) {
+            BigInteger ipBigInt = Ipv6AddrUtil.ipv6ToBitInt(ipAddr);
+            if (ipBigInt.compareTo(firstIp) < 0 || ipBigInt.compareTo(lastIp) > 0) {
+                throw new IpAddrInvalidException();
+            }
+
+            freeBit = (int)(ipBigInt.subtract(firstIp).longValue());
+        } else {
+            freeBit = bitSet.nextClearBit(0);
+
+            if (freeBit < 0 || freeBit >= ipAddrNum) {
+                throw new IpAddrNotEnoughException();
+            }
         }
 
         bitSet.set(freeBit);
@@ -97,5 +108,37 @@ public class Ipv6AddrAllocator implements IpAddrAllocator {
         BigInteger ipBigInt = Ipv6AddrUtil.ipv6ToBitInt(ipAddr);
 
         return ipBigInt.compareTo(firstIp) >= 0 && ipBigInt.compareTo(lastIp) <= 0;
+    }
+
+    public BitSet getBitSet() {
+        return bitSet;
+    }
+
+    public void setBitSet(BitSet bitSet) {
+        this.bitSet = bitSet;
+    }
+
+    public BigInteger getFirstIp() {
+        return firstIp;
+    }
+
+    public void setFirstIp(BigInteger firstIp) {
+        this.firstIp = firstIp;
+    }
+
+    public BigInteger getLastIp() {
+        return lastIp;
+    }
+
+    public void setLastIp(BigInteger lastIp) {
+        this.lastIp = lastIp;
+    }
+
+    public long getIpAddrNum() {
+        return ipAddrNum;
+    }
+
+    public void setIpAddrNum(long ipAddrNum) {
+        this.ipAddrNum = ipAddrNum;
     }
 }

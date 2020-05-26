@@ -17,17 +17,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.subnet.service.implement;
 
 import com.futurewei.alcor.common.repo.ICachePublisher;
-import com.futurewei.alcor.subnet.entity.SubnetState;
-import com.futurewei.alcor.subnet.entity.VpcState;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.stereotype.Service;
 
 //@Service
 public class RedisPublisherServiceImpl implements ICachePublisher {
 
-    private RedisTemplate<String, SubnetState> redisTemplate = new RedisTemplate<>();
+    private RedisTemplate<String, SubnetEntity> redisTemplate = new RedisTemplate<>();
 
     @Autowired
     private ChannelTopic topic;
@@ -35,7 +33,7 @@ public class RedisPublisherServiceImpl implements ICachePublisher {
     public RedisPublisherServiceImpl() {
     }
 
-    public RedisPublisherServiceImpl(final RedisTemplate<String, SubnetState> redisTemplate, final ChannelTopic topic) {
+    public RedisPublisherServiceImpl(final RedisTemplate<String, SubnetEntity> redisTemplate, final ChannelTopic topic) {
         this.redisTemplate = redisTemplate;
         this.topic = topic;
     }

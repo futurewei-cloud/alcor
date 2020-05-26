@@ -19,16 +19,20 @@ package com.futurewei.alcor.macmanager.controller;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.macmanager.entity.MacRange;
-import com.futurewei.alcor.macmanager.entity.MacRangeJson;
-import com.futurewei.alcor.macmanager.entity.MacState;
-import com.futurewei.alcor.macmanager.entity.MacStateJson;
+import com.futurewei.alcor.web.entity.mac.MacRange;
+import com.futurewei.alcor.web.entity.mac.MacRangeJson;
 import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.macmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
+import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
+import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -42,19 +46,25 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
-    public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
+    public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacAddressInvalidException {
 
         MacState macState = null;
+        MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+        MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
+
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
             macState = service.getMacStateByMacAddress(macaddress);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            throw new Exception(e);
+            throw e;
+        } catch (MacAddressInvalidException e) {
+            throw e;
+        } catch (MacRepositoryTransactionErrorException e) {
+            throw e;
         }
 
         if (macState == null) {
-            //TODO: REST error code
             return new MacStateJson();
         }
         return new MacStateJson(macState);
@@ -68,8 +78,31 @@ public class MacController {
         MacState macState = null;
         try {
             MacState inMacState = resource.getMacState();
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            MacManagerRestPreconditionsUtil.verifyMacStateData(inMacState);
             macState = service.createMacState(inMacState);
+            if (macState == null) {
+                throw new ResourcePersistenceException();
+            }
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+        return new MacStateJson(macState);
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/macs/range/{rangeid}", "/v4/macs/range/{rangeid}"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public MacStateJson createMacStateInRange(@PathVariable String rangeid, @RequestBody MacStateJson resource) throws Exception {
+        MacState macState = null;
+        try {
+            MacState inMacState = resource.getMacState();
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            MacManagerRestPreconditionsUtil.verifyMacStateData(inMacState);
+            macState = service.createMacStateInRange(rangeid, inMacState);
             if (macState == null) {
                 throw new ResourcePersistenceException();
             }
@@ -88,7 +121,9 @@ public class MacController {
         MacState macState = null;
         try {
             MacState inMacState = resource.getMacState();
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
+            MacManagerRestPreconditionsUtil.verifyMacStateData(inMacState);
             macState = service.updateMacState(macaddress, inMacState);
             if (macState == null) {
                 throw new ResourcePersistenceException();
@@ -104,15 +139,16 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
-    public ResponseId deleteMacAllocation(@PathVariable String macaddress) throws Exception {
+    public String deleteMacAllocation(@PathVariable String macaddress) throws Exception {
         String macAddress = null;
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
             macAddress = service.releaseMacState(macaddress);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return new ResponseId(macAddress);
+        return "{mac_address: " + macAddress + "}";
     }
 
     @RequestMapping(
@@ -122,7 +158,7 @@ public class MacController {
 
         MacRange macRange = null;
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
             macRange = service.getMacRangeByMacRangeId(rangeid);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
@@ -139,22 +175,21 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/ranges", "/v4/macs/ranges"})
-    public Map<String, MacRange> getAllMacRanges() throws Exception {
-
-        Map<String, MacRange> macRanges = null;
+    public Map<String, Collection<MacRange>> getAllMacRanges() throws Exception {
+        Map<String, MacRange> macRanges;
+        HashMap<String, Collection<MacRange>> map = new HashMap<String, Collection<MacRange>>();
         try {
             macRanges = service.getAllMacRanges();
-
         } catch (Exception e) {
             //TODO: REST error code
             throw new Exception(e);
         }
-
         if (macRanges == null) {
             //TODO: REST error code
-            return macRanges;
-        }
-        return macRanges;
+            map.put("mac_ranges", null);
+        } else
+            map.put("mac_ranges", macRanges.values());
+        return map;
     }
 
     @RequestMapping(
@@ -165,7 +200,10 @@ public class MacController {
         MacRange macRange = null;
         try {
             MacRange inMacRange = resource.getMacRange();
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyMacRangeData(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(inMacRange.getFrom());
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(inMacRange.getTo());
             macRange = service.createMacRange(inMacRange);
             if (macRange == null) {
                 throw new ResourcePersistenceException();
@@ -185,7 +223,10 @@ public class MacController {
         MacRange macRange = null;
         try {
             MacRange inMacRange = resource.getMacRange();
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyMacRangeData(inMacRange);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(inMacRange.getFrom());
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(inMacRange.getTo());
             macRange = service.updateMacRange(inMacRange);
             if (macRange == null) {
                 throw new ResourcePersistenceException();
@@ -204,11 +245,11 @@ public class MacController {
     public ResponseId deleteMacRange(@PathVariable String rangeid) throws Exception {
         String rangeId = null;
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeid);
             rangeId = service.deleteMacRange(rangeid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
-        return new ResponseId(rangeid);
+        return new ResponseId(rangeId);
     }
 }
