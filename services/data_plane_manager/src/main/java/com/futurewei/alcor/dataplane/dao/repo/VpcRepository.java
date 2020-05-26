@@ -16,14 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.dao.repo;
 
-import com.futurewei.alcor.common.exception.CacheException;
-import com.futurewei.alcor.common.repo.ICache;
-import com.futurewei.alcor.common.repo.ICacheRepository;
-import com.futurewei.alcor.common.service.CacheFactory;
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
-import com.futurewei.alcor.common.logging.LoggerFactory;import org.springframework.beans.factory.annotation.Autowired;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Repository;
+
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
