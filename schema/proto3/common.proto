@@ -71,8 +71,3 @@ enum NetworkType {
     GENEVE = 3;
     VXLAN_GPE = 4;
 }
-
-enum MessageType { 
-    DELTA = 0; // the default type
-    FULL = 1;
-}

@@ -26,9 +26,14 @@ import "port.proto";
 import "securitygroup.proto";
 import "dhcp.proto";
 
+enum MessageType { 
+    DELTA = 0; // the default type
+    FULL = 1;
+}
+
 message GoalState {
     uint32 format_version = 1;
-    MessageType message_type = 2
+    MessageType message_type = 2;
 
     repeated VpcState vpc_states = 3;
     repeated SubnetState subnet_states = 4;

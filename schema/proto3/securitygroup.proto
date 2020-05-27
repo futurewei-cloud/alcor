@@ -25,7 +25,7 @@ import "common.proto";
 
 message SecurityGroupConfiguration {
     uint32 format_version = 1;
-    uint32 content_version = 2
+    uint32 content_version = 2;
 
     string project_id = 3;
     string vpc_id = 4;

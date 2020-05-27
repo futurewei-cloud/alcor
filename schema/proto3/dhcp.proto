@@ -25,7 +25,7 @@ import "common.proto";
 
 message DHCPConfiguration {
     uint32 format_version = 1;
-    uint32 content_version = 2
+    uint32 content_version = 2;
 
     string mac_address = 3;
     string ipv4_address = 4;

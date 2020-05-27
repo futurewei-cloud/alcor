@@ -25,7 +25,7 @@ import "common.proto";
 
 message PortConfiguration {
     uint32 format_version = 1;
-    uint32 content_version = 2
+    uint32 content_version = 2;
 
     string id = 3;
     NetworkType network_type = 4;
@@ -33,7 +33,7 @@ message PortConfiguration {
     string subnet_id = 6;
     uint32 mq_subscription_index = 7;
     string name = 8;
-    optional string network_ns = 9;
+    string network_ns = 9;
     string mac_address = 10;
     bool admin_state_up = 11;
 
@@ -62,7 +62,7 @@ message PortConfiguration {
     repeated SecurityGroupId security_group_ids = 15;
 
     // start Mizar specific session
-    optional string veth_name = 16;
+    string veth_name = 16;
     // end Mizar specific session
 }
 
