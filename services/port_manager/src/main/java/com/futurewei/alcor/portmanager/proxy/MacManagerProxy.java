@@ -19,7 +19,7 @@ import com.futurewei.alcor.portmanager.util.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
-import com.futurewei.alcor.web.entity.port.PortState;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
 import java.util.Stack;
 
@@ -53,15 +53,15 @@ public class MacManagerProxy {
      * @throws Exception Rest request exception
      */
     public MacStateJson allocateRandomMacAddress(Object args) throws Exception {
-        PortState portState = (PortState)args;
+        PortEntity portEntity = (PortEntity)args;
 
         MacStateJson macStateJson = allocateMacAddress(
-                portState.getProjectId(),
-                portState.getVpcId(),
-                portState.getId(),
+                portEntity.getProjectId(),
+                portEntity.getVpcId(),
+                portEntity.getId(),
                 null);
 
-        portState.setMacAddress(macStateJson.getMacState().getMacAddress());
+        portEntity.setMacAddress(macStateJson.getMacState().getMacAddress());
 
         addMacAddrRollback(new AllocateMacAddrRollback(macManagerRestClient),
                 macStateJson.getMacState());
@@ -76,16 +76,16 @@ public class MacManagerProxy {
      * @throws Exception Rest request exception
      */
     public MacStateJson allocateFixedMacAddress(Object args) throws Exception {
-        PortState portState = (PortState)args;
-        String macAddress = portState.getMacAddress();
+        PortEntity portEntity = (PortEntity)args;
+        String macAddress = portEntity.getMacAddress();
 
         MacStateJson macStateJson = allocateMacAddress(
-                portState.getProjectId(),
-                portState.getVpcId(),
-                portState.getId(),
+                portEntity.getProjectId(),
+                portEntity.getVpcId(),
+                portEntity.getId(),
                 macAddress);
 
-        portState.setMacAddress(macStateJson.getMacState().getMacAddress());
+        portEntity.setMacAddress(macStateJson.getMacState().getMacAddress());
 
         addMacAddrRollback(new AllocateMacAddrRollback(macManagerRestClient),
                 macStateJson.getMacState());
@@ -100,15 +100,15 @@ public class MacManagerProxy {
      * @throws Exception Rest request exception
      */
     public MacStateJson releaseMacAddress(Object args) throws Exception {
-        PortState portState = (PortState)args;
+        PortEntity portEntity = (PortEntity)args;
 
-        macManagerRestClient.releaseMacAddress(portState.getMacAddress());
+        macManagerRestClient.releaseMacAddress(portEntity.getMacAddress());
 
         MacState macState = new MacState();
-        macState.setProjectId(portState.getProjectId());
-        macState.setVpcId(portState.getVpcId());
-        macState.setPortId(portState.getId());
-        macState.setMacAddress(portState.getMacAddress());
+        macState.setProjectId(portEntity.getProjectId());
+        macState.setVpcId(portEntity.getVpcId());
+        macState.setPortId(portEntity.getId());
+        macState.setMacAddress(portEntity.getMacAddress());
 
         addMacAddrRollback(new ReleaseMacAddrRollback(macManagerRestClient), macState);
 

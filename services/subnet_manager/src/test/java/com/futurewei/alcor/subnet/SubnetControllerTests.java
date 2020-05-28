@@ -15,7 +15,7 @@ import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
 import org.junit.After;
@@ -88,7 +88,7 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
 
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         RouteWebJson routeWebJson = new RouteWebJson();
@@ -117,14 +117,14 @@ public class SubnetControllerTests {
     public void createSubnetState_canNotFindVpcState_notPass () throws Exception {
         SubnetEntity subnetEntity = new SubnetEntity(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-                UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
         MacState macState = new MacState();
         macState.setMacAddress(UnitTestConfig.macAddress);
         RouteWebJson routeWebJson = new RouteWebJson();
-        RouteWebObject routeWebObject = new RouteWebObject();
-        routeWebJson.setRoute(routeWebObject);
+        RouteEntity routeEntity = new RouteEntity();
+        routeWebJson.setRoute(routeEntity);
         MacStateJson macResponse = new MacStateJson(macState);
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
@@ -157,7 +157,7 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
 
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
@@ -194,11 +194,11 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
-        RouteWebObject routeWebObject = new RouteWebObject();
-        routeWebJson.setRoute(routeWebObject);
+        RouteEntity routeEntity = new RouteEntity();
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
@@ -231,11 +231,11 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.cidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
-        RouteWebObject routeWebObject = new RouteWebObject();
-        routeWebJson.setRoute(routeWebObject);
+        RouteEntity routeEntity = new RouteEntity();
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
@@ -269,11 +269,11 @@ public class SubnetControllerTests {
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
                 UnitTestConfig.name, UnitTestConfig.invalidCidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.invalidCidr, new ArrayList<RouteWebObject>(){{add(new RouteWebObject());}});
+                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.invalidCidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
 
         RouteWebJson routeWebJson = new RouteWebJson();
-        RouteWebObject routeWebObject = new RouteWebObject();
-        routeWebJson.setRoute(routeWebObject);
+        RouteEntity routeEntity = new RouteEntity();
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();

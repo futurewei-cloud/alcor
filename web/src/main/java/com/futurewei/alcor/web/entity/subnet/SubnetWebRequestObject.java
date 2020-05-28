@@ -17,7 +17,7 @@ package com.futurewei.alcor.web.entity.subnet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -40,7 +40,7 @@ public class SubnetWebRequestObject extends CustomerResource {
     private Boolean dhcpEnable;
 
     @JsonProperty("routes")
-    private List<RouteWebObject> routes;
+    private List<RouteEntity> routes;
 
     @JsonProperty("ip_version")
     private Integer ipVersion;
@@ -89,7 +89,7 @@ public class SubnetWebRequestObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SubnetWebRequestObject(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, Boolean dhcpEnable, List<RouteWebObject> routes, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetWebRequestObject(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, Boolean dhcpEnable, List<RouteEntity> routes, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;

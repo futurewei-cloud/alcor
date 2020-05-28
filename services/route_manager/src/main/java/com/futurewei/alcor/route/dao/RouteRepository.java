@@ -6,7 +6,7 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.db.CacheFactory;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -17,18 +17,18 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class RouteRepository implements ICacheRepository<RouteWebObject> {
+public class RouteRepository implements ICacheRepository<RouteEntity> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    public ICache<String, RouteWebObject> getCache() {
+    public ICache<String, RouteEntity> getCache() {
         return cache;
     }
 
-    private ICache<String, RouteWebObject> cache;
+    private ICache<String, RouteEntity> cache;
 
     @Autowired
     public RouteRepository (CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(RouteWebObject.class);
+        cache = cacheFactory.getCache(RouteEntity.class);
     }
 
     @PostConstruct
@@ -37,17 +37,17 @@ public class RouteRepository implements ICacheRepository<RouteWebObject> {
     }
 
     @Override
-    public RouteWebObject findItem(String id) throws CacheException {
+    public RouteEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, RouteWebObject> findAllItems() throws CacheException {
+    public Map<String, RouteEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(RouteWebObject routeState) throws CacheException {
+    public void addItem(RouteEntity routeState) throws CacheException {
         logger.log(Level.INFO, "Add route, route Id:" + routeState.getId());
         cache.put(routeState.getId(), routeState);
     }

@@ -19,23 +19,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class PortStateJson {
+public class PortWebJson {
     @JsonProperty("port")
-    private PortState portState;
+    private PortEntity portEntity;
 
-    public PortStateJson() {
+    public PortWebJson() {
 
     }
 
-    public PortStateJson(PortState portState) {
-        this.portState = portState;
+    public PortWebJson(PortEntity portEntity) {
+        this.portEntity = portEntity;
     }
 
-    public PortState getPortState() {
-        return portState;
+    public PortEntity getPortEntity() {
+        return portEntity;
     }
 
-    public void setPortState(PortState portState) {
-        this.portState = portState;
+    public void setPortEntity(PortEntity portEntity) {
+        this.portEntity = portEntity;
     }
 }

@@ -21,8 +21,8 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -50,7 +50,7 @@ public class RouteController {
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
     public RouteWebJson getRuleByVpcId(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
 
-        RouteWebObject routeState = null;
+        RouteEntity routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
@@ -75,7 +75,7 @@ public class RouteController {
             value = {"/subnets/{subnetId}/routes/{routeId}"})
     public RouteWebJson getRuleBySubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
 
-        RouteWebObject routeState = null;
+        RouteEntity routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
@@ -101,7 +101,7 @@ public class RouteController {
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
     public RouteWebJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
-        RouteWebObject routeState = null;
+        RouteEntity routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
@@ -113,7 +113,7 @@ public class RouteController {
             String destination = vpcEntity.getCidr();
             String routeTableId = UUID.randomUUID().toString();
 
-            routeState = new RouteWebObject(projectId, id, "default_route_rule", "",
+            routeState = new RouteEntity(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
             this.routeDatabaseService.addRoute(routeState);
@@ -129,7 +129,7 @@ public class RouteController {
             value = {"/subnets/{subnetId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
     public RouteWebJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
-        RouteWebObject routeState = null;
+        RouteEntity routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
@@ -142,7 +142,7 @@ public class RouteController {
             String destination = inSubnetState.getCidr();
             String routeTableId = UUID.randomUUID().toString();
 
-            routeState = new RouteWebObject(projectId, id, "default_route_rule", "",
+            routeState = new RouteEntity(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
             this.routeDatabaseService.addRoute(routeState);
@@ -157,7 +157,7 @@ public class RouteController {
             method = DELETE,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
     public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
-        RouteWebObject routeState = null;
+        RouteEntity routeState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
