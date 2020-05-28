@@ -12,11 +12,11 @@ import com.google.common.cache.CacheBuilder;
 import com.jcraft.jsch.IO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -66,10 +66,10 @@ public class KeystoneClient {
     @Value("${keystone.auth_url}")
     private String authUrl;
 
-    private WebClient webClient;
+    private RestTemplate restTemplate;
 
     public KeystoneClient(){
-        this.webClient = WebClient.create();
+        this.restTemplate = new RestTemplate();
     }
 
     public void checkEndPoints() throws IOException{
@@ -80,13 +80,9 @@ public class KeystoneClient {
             return;
         }
 
-        Mono<String> resp = webClient.get()
-                .uri(authUrl)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(String.class);
+        String response = restTemplate.getForObject(authUrl, String.class);
 
-        JsonNode versions = json2Map(resp.block());
+        JsonNode versions = json2Map(response);
 
         //in v3 apis resp have versions key
         if(versions.has("versions")){
@@ -111,16 +107,15 @@ public class KeystoneClient {
         }
 
         checkEndPoints();
-        Mono<ClientResponse> resp = webClient.post().uri(baseUrl + TOKEN_URL + "?nocatalog")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(buildLocalTokenParams()))
-                .exchange();
 
-        ClientResponse response = resp.block();
-        localToken = response.headers().asHttpHeaders().getFirst(VALIDATE_TOKEN_HEADER);
-        String resultStr = response.bodyToMono(String.class).block();
-        JsonNode result = json2Map(resultStr);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity = new HttpEntity<>(buildLocalTokenParams(), headers);
+        HttpEntity<String> response = restTemplate.postForEntity(baseUrl + TOKEN_URL + "?nocatalog", entity, String.class);
+
+        localToken = response.getHeaders().getFirst(VALIDATE_TOKEN_HEADER);
+        JsonNode result = json2Map(response.getBody());
         JsonNode token = result.path("token");
         String expireDateStr = token.path("expires_at").asText();
         if(!"null".equals(expireDateStr)) {
@@ -135,30 +130,43 @@ public class KeystoneClient {
 
     }
 
-    public String verifyToken(String token) throws IOException{
-        getLocalToken();
-        Mono<ClientResponse> resp = webClient.get()
-                .uri(baseUrl + TOKEN_URL + "?nocatalog")
-                .accept(MediaType.APPLICATION_JSON)
-                .header(VALIDATE_TOKEN_HEADER, token)
-                .header(AUTH_TOKEN_HEADER, localToken)
-                .exchange();
+    public String verifyToken(String token){
+        try {
+            getLocalToken();
 
-        ClientResponse response = resp.block();
-        //TODO check response status code details
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.set(VALIDATE_TOKEN_HEADER, token);
+            headers.set(AUTH_TOKEN_HEADER, localToken);
 
-        // check headers
-        if(response.statusCode().equals(HttpStatus.OK)){
-            String resultStr = response.bodyToMono(String.class).block();
-            JsonNode result = json2Map(resultStr);
-            JsonNode tokenNode = result.path("token");
-            if(tokenNode.has("project")){
-                JsonNode project = tokenNode.path("project");
-                String projectId = project.path("id").asText();
-                return projectId;
+            HttpEntity<String> entity = new HttpEntity<>(null, headers);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + TOKEN_URL + "?nocatalog",
+                    HttpMethod.GET, entity, String.class);
+
+            //TODO check response status code details
+
+            // check headers
+            if(response.getStatusCode().equals(HttpStatus.OK)){
+                String resultStr = response.getBody();
+                JsonNode result = json2Map(resultStr);
+                JsonNode tokenNode = result.path("token");
+                if(tokenNode.has("project")){
+                    JsonNode project = tokenNode.path("project");
+                    return transformProjectIdToUUID(project.path("id").asText());
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return "";
+    }
+
+    private String transformProjectIdToUUID(String projectId){
+        return projectId.substring(0, 8) + "-" + projectId.substring(8, 12) +
+                "-" + projectId.substring(12, 16) + "-" +
+                projectId.substring(16, 20) + "-" +
+                projectId.substring(20);
     }
 
     private String buildLocalTokenParams() throws JsonProcessingException {
@@ -181,7 +189,7 @@ public class KeystoneClient {
         user.set("domain", domain);
 
         passwordNode.set("user", user);
-        identity.set("identity", identity);
+        identity.set("password", passwordNode);
 
         auth.set("identity", identity);
 
