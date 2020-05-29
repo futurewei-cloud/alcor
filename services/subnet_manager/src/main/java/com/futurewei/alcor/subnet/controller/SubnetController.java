@@ -31,7 +31,7 @@ import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -195,7 +195,7 @@ public class SubnetController {
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
-            List<RouteEntity> routes = new ArrayList<>();
+            List<Route> routes = new ArrayList<>();
             routes.add(routeResponse.getRoute());
             inSubnetEntity.setRoutes(routes);
 

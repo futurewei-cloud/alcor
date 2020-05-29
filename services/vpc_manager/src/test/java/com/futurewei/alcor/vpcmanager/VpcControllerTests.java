@@ -9,8 +9,8 @@ import static org.junit.Assert.*;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
+import com.futurewei.alcor.web.entity.route.Route;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.junit.After;
 import org.junit.Before;
@@ -93,15 +93,15 @@ public class VpcControllerTests {
 
     @Test
     public void createVpcState_canNotFindRoute_notPass () throws Exception {
-        List<RouteEntity> routeEntityList = new ArrayList<>();
-        RouteEntity routeEntity = new RouteEntity();
-        routeEntity.setDestination(UnitTestConfig.cidr);
-        routeEntityList.add(routeEntity);
+        List<Route> routeList = new ArrayList<>();
+        Route route = new Route();
+        route.setDestination(UnitTestConfig.cidr);
+        routeList.add(route);
 
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
-                        UnitTestConfig.cidr, routeEntityList));
+                        UnitTestConfig.cidr, routeList));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
