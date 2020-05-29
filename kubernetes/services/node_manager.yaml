@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mac-configmap
+  name: node-configmap
 data:
   application.properties: |
     spring.redis.host=localhost
@@ -12,61 +12,62 @@ data:
     ignite.key-store-password=123456
     ignite.trust-store-path=truststore.jks
     ignite.trust-store-password=123456
-    macmanager.oui = AA-BB-CC
-    macmanager.pool.size = 100
-    macmanager.retrylimit = 10
+    spring.servlet.multipart.enabled=true
+    spring.servlet.multipart.file-size-threshold=2KB
+    spring.servlet.multipart.max-file-size=200MB
+    spring.servlet.multipart.max-request-size=215MB
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: macmanager
-  name: macmanager
+    app: nodemanager
+  name: nodemanager
 spec:
   selector:
     matchLabels:
-      app: macmanager
+      app: nodemanager
   replicas: 1
   #replicas: 3
   template:
     metadata:
       labels:
-        app: macmanager
+        app: nodemanager
     spec:
       volumes:
-        - name: mac-volume
+        - name: node-volume
           configMap:
-            name: mac-configmap
+            name: node-configmap
             items:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:macKube1
-        #- image: fwnetworking/controller:mac_manager-v0.3.0
-          name: macmanager-web
+        - image: zhonghaolyu/repo:nodeKube1
+        #- image: fwnetworking/controller:node_manager-v0.3.0
+          name: nodemanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorMacManager-0.1.0.jar", "--spring.config.location=/etc/mac/application.properties"]
+          command: ["java", "-jar", "/app/AlcorNodeManager-0.1.0.jar", "--spring.config.location=/etc/node/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
-            - name: mac-volume
-              mountPath: /etc/mac
+            - name: node-volume
+              mountPath: /etc/node
           envFrom:
             - configMapRef:
-                name: mac-configmap
+                name: node-configmap
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: macmanager-service
+  name: nodemanager-service
   labels:
-    name: macmanager-service
+    name: nodemanager-service
 spec:
   type: NodePort
   ports:
-    - port: 8003
+    - port: 8007
       targetPort: 8080
-      nodePort: 30005
+      nodePort: 30009
   selector:
-    app: macmanager
+    app: nodemanager
 

@@ -4,7 +4,7 @@ metadata:
   name: ip-configmap
 data:
   application.properties: |
-    ignite.host=10.110.247.237
+    ignite.host=10.99.135.32
     ignite.port=10800
 ---
 apiVersion: apps/v1

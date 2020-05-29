@@ -8,9 +8,9 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.web.entity.subnet.*;
@@ -92,8 +92,8 @@ public class SubnetServiceImp implements SubnetService {
         // Route fallback
         logger.info("Route fallback start");
         if (routeResponse != null) {
-            RouteWebObject route = routeResponse.getRoute();
-            this.routeFallback(route.getId(), resource.getSubnet().getVpcId());
+            RouteEntity routeEntity = routeResponse.getRoute();
+            this.routeFallback(routeEntity.getId(), resource.getSubnet().getVpcId());
         }
         logger.info("Route fallback end");
 

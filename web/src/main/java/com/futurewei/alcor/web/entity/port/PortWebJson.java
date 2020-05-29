@@ -13,20 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.port;
 
-package com.futurewei.alcor.web.entity.route;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class RouteWebJson {
+public class PortWebJson {
+    @JsonProperty("port")
+    private PortEntity portEntity;
 
-    private RouteEntity route;
+    public PortWebJson() {
 
-    public RouteWebJson() {
     }
 
-    public RouteWebJson(RouteEntity routeEntity) {
-        this.route = routeEntity;
+    public PortWebJson(PortEntity portEntity) {
+        this.portEntity = portEntity;
+    }
+
+    public PortEntity getPortEntity() {
+        return portEntity;
+    }
+
+    public void setPortEntity(PortEntity portEntity) {
+        this.portEntity = portEntity;
     }
 }

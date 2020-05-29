@@ -16,17 +16,5 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.web.entity.route;
 
-import lombok.Data;
-
-@Data
-public class RouteWebJson {
-
-    private RouteEntity route;
-
-    public RouteWebJson() {
-    }
-
-    public RouteWebJson(RouteEntity routeEntity) {
-        this.route = routeEntity;
-    }
+public class RouteWithSubnetEntity {
 }
