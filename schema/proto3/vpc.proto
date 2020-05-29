@@ -42,7 +42,7 @@ message VpcConfiguration {
     }
 
     repeated SubnetId subnet_ids = 7;
-    repeated Route routes = 8;
+    repeated Route routeEntities = 8;
 
     // start Mizar specific session
     // note that repeated field are inherently optional

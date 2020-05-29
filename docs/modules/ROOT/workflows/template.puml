@@ -53,8 +53,8 @@ rnote over API_Gateway: ==Post /project/{project_id}/networks
 API_Gateway -> API_Gateway: Authentication, authorization, throttling
 API_Gateway -> VPC_Manager: Create a VPC
 VPC_Manager -> VPC_Manager: Assign uuid, and allocate segment
-VPC_Manager -> Route_Manager: Create default route rules
-Route_Manager -> VPC_Manager: Allocate/return default route rules (IPv4/6)
+VPC_Manager -> Route_Manager: Create default routeEntity rules
+Route_Manager -> VPC_Manager: Allocate/return default routeEntity rules (IPv4/6)
 VPC_Manager -> API_Gateway: Persist vpc states and return
 
 @enduml

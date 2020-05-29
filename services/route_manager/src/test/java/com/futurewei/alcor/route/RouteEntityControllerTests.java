@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
-import com.futurewei.alcor.web.entity.route.Route;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import java.io.IOException;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
-public class RouteControllerTests {
+public class RouteEntityControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,7 +45,7 @@ public class RouteControllerTests {
     @Test
     public void routeGetById_canFindRoute_pass () throws Exception {
         Mockito.when(routeDatabaseService.getByRouteId(UnitTestConfig.routeId))
-                .thenReturn(new Route(){{setId(UnitTestConfig.routeId);}});
+                .thenReturn(new RouteEntity(){{setId(UnitTestConfig.routeId);}});
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ public class RouteControllerTests {
     @Test
     public void deleteRuleById_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(routeDatabaseService.getByRouteId(UnitTestConfig.routeId))
-                .thenReturn(new Route(){{setId(UnitTestConfig.routeId);}});
+                .thenReturn(new RouteEntity(){{setId(UnitTestConfig.routeId);}});
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())

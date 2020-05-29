@@ -21,7 +21,7 @@ collections "API Gateway" as api
 collections "VPC Manager" as vpc
 collections "Subnet Manager" as subnet
 collections "Port Manager" as port
-collections "Route Manager" as route
+collections "Route Manager" as routeEntity
 collections "Security Group Manager" as sg
 
 ==Show VPC/Network==
@@ -41,10 +41,10 @@ api -> api: Authentication, authorization,\nand throttling
 api -> vpc: Create a VPC
 activate vpc
 vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
-vpc -> route: Create default route rules
-activate route
-route -> vpc: Allocate/return default route\nrules (IPv4/6)
-deactivate route
+vpc -> routeEntity: Create default routeEntity rules
+activate routeEntity
+routeEntity -> vpc: Allocate/return default routeEntity\nrules (IPv4/6)
+deactivate routeEntity
 vpc -> api: Persist vpc states and return
 deactivate vpc
 
@@ -54,8 +54,8 @@ rnote over api: ==PUT /project/{project_id}/networks
 'api -> api: Authentication, authorization,\nand throttling
 'api -> vpc: Create a VPC
 'vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
-'vpc -> route: Create default route rules
-'route -> vpc: Allocate/return default route\nrules (IPv4/6)
+'vpc -> routeEntity: Create default routeEntity rules
+'routeEntity -> vpc: Allocate/return default routeEntity\nrules (IPv4/6)
 'vpc -> api: Persist vpc states and return
 
 ==Delete a VPC/Network==
@@ -64,8 +64,8 @@ rnote over api: ==DELETE /project/{project_id}/networks
 'api -> api: Authentication, authorization,\nand throttling
 'api -> vpc: Create a VPC
 'vpc -> vpc: Assign uuid, and allocate network\nsegment based on network type
-'vpc -> route: Create default route rules
-'route -> vpc: Allocate/return default route\nrules (IPv4/6)
+'vpc -> routeEntity: Create default routeEntity rules
+'routeEntity -> vpc: Allocate/return default routeEntity\nrules (IPv4/6)
 'vpc -> api: Persist vpc states and return
 
 @enduml

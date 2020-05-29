@@ -21,12 +21,12 @@ import lombok.Data;
 @Data
 public class RouteWebJson {
 
-    private Route route;
+    private RouteEntity routeEntity;
 
     public RouteWebJson() {
     }
 
-    public RouteWebJson(Route route) {
-        this.route = route;
+    public RouteWebJson(RouteEntity routeEntity) {
+        this.routeEntity = routeEntity;
     }
 }

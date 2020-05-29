@@ -53,14 +53,14 @@ Similar analysis could be done for other controllers.
 ** The target is 1 million read/write operations per second.
 ** Estimated size of a middle-sized region is 500,000 node with 100 ports per node with consideration of multi-port container and VMs.
 Thus, the estimated total number of ports is ~50 millions.
-** The estimated number of port-related resources (e.g. security groups, ACL, routes, DNS records and subnets) is of the same magnitude.
+** The estimated number of port-related resources (e.g. security groups, ACL, routeEntities, DNS records and subnets) is of the same magnitude.
 Doubling the port number would make the total number of network resources at *O*(100 millions).
 ** The estimated rate of system concurrency is 1% including query, insert and update,
 which results in the estimated throughput of 1 million read/write operations per second.
 
 * Storage size
 ** The storage size of network resource depends on multiple factors including the size of VPC and subnets,
-and customer-specified fields (e.g. security rules and routes).
+and customer-specified fields (e.g. security rules and routeEntities).
 The size varies significantly ranging from a few _KBs_ to hundreds of _KBs_.
 ** On average, we look into the estimated size of *O*(10 _KB_) which could be subject to adjustment.
 ** Given the estimated total number of resources at *O*(100 millions), we look into a system storage size between 1 _TB_ and a few _TBs_.

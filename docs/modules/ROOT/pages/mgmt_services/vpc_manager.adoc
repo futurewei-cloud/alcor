@@ -16,13 +16,13 @@ It interacts with Subnet Manager and Port Manager to provide networks for them.
 [arabic]
 . Supply networks and segments for all the subnets/ports, e.g., (Subnet 1, Port 1) -> VPC1
 . Concurrency control mechanism should be provided to process multiple concurrent VPC creation requests.
-.  Get route rule information from route manager
+.  Get routeEntity rule information from routeEntity manager
 . Algorithm with random, but less conflict possibility
 . Managing network segment and network-segment-range resource
 . Guarantee uniqueness of segment in network type scope.
 . Release (segment, network type) association when a segment is released
 . Fall back mechanism if there is a conflict among creation of segment
-. Working together with other services including subnet manager, port manager and route manager.
+. Working together with other services including subnet manager, port manager and routeEntity manager.
 
 == Design
 

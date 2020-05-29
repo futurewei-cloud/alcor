@@ -24,7 +24,7 @@ import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.Route;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import com.futurewei.alcor.web.entity.vpc.*;
 import org.springframework.beans.BeanUtils;
@@ -142,12 +142,12 @@ public class VpcController {
 
             // add RouteWebObject
             if (response != null) {
-                List<Route> routeList = inVpcState.getRoutes();
-                if (routeList == null) {
-                    routeList = new ArrayList<>();
+                List<RouteEntity> routeEntityList = inVpcState.getRouteEntities();
+                if (routeEntityList == null) {
+                    routeEntityList = new ArrayList<>();
                 }
-                routeList.add(response.getRoute());
-                inVpcState.setRoutes(routeList);
+                routeEntityList.add(response.getRouteEntity());
+                inVpcState.setRouteEntities(routeEntityList);
             }
             this.vpcDatabaseService.addVpc(inVpcState);
 

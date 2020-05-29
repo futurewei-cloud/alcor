@@ -21,7 +21,7 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class Route extends CustomerResource {
+public class RouteEntity extends CustomerResource {
 
     @NotNull
     private String destination;
@@ -38,12 +38,12 @@ public class Route extends CustomerResource {
     @NotNull
     private String associatedTableId;
 
-    public Route() {
+    public RouteEntity() {
 
     }
 
-    public Route(String projectId, String Id, String name, String description,
-                 String destination, String target, Integer priority, RouteTableType type, String tableId) {
+    public RouteEntity(String projectId, String Id, String name, String description,
+                       String destination, String target, Integer priority, RouteTableType type, String tableId) {
         super(projectId, Id, name, "");
         this.destination = destination;
         this.target = target;

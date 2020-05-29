@@ -18,7 +18,7 @@ package com.futurewei.alcor.web.entity.subnet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.route.Route;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -50,7 +50,7 @@ public class SubnetEntity extends CustomerResource {
     private String secondaryDns;
 
     @JsonProperty("routes")
-    private List<Route> routes;
+    private List<RouteEntity> routeEntities;
 
     @JsonProperty("gateway_macAddress")
     private String gatewayMacAddress;
@@ -147,14 +147,14 @@ public class SubnetEntity extends CustomerResource {
         this.cidr = cidr;
     }
 
-    public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr, List<Route> routes) {
+    public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr, List<RouteEntity> routeEntities) {
         super(projectId, id, name, null);
         this.vpcId = vpcId;
         this.cidr = cidr;
-        this.routes = routes;
+        this.routeEntities = routeEntities;
     }
 
-    public SubnetEntity(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<Route> routes, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetEntity(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteEntity> routeEntities, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;
@@ -163,7 +163,7 @@ public class SubnetEntity extends CustomerResource {
         this.dhcpEnable = dhcpEnable;
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
-        this.routes = routes;
+        this.routeEntities = routeEntities;
         this.gatewayMacAddress = gatewayMacAddress;
         this.dnsList = dnsList;
         this.ipVersion = ipVersion;

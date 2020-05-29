@@ -4,7 +4,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
-import com.futurewei.alcor.web.entity.route.Route;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     RouteRepository routeRepository;
 
     @Override
-    public Route getByRouteId(String routeId) {
+    public RouteEntity getByRouteId(String routeId) {
         try {
             return this.routeRepository.findItem(routeId);
         }catch (Exception e) {
@@ -35,9 +35,9 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
-    public void addRoute(Route routeState) throws DatabasePersistenceException {
+    public void addRoute(RouteEntity routeEntityState) throws DatabasePersistenceException {
         try {
-            this.routeRepository.addItem(routeState);
+            this.routeRepository.addItem(routeEntityState);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }

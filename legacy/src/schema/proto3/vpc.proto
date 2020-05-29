@@ -48,7 +48,7 @@ message VpcConfiguration {
     }
 
     repeated SubnetId subnet_ids = 7;
-    repeated Route routes = 8;
+    repeated Route routeEntities = 8;
     repeated TransitRouter transit_routers = 9;
 }
 
