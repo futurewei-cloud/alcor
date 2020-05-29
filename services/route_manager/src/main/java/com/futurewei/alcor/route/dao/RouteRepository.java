@@ -47,9 +47,9 @@ public class RouteRepository implements ICacheRepository<RouteEntity> {
     }
 
     @Override
-    public void addItem(RouteEntity routeEntityState) throws CacheException {
-        logger.log(Level.INFO, "Add route, route Id:" + routeEntityState.getId());
-        cache.put(routeEntityState.getId(), routeEntityState);
+    public void addItem(RouteEntity routeEntity) throws CacheException {
+        logger.log(Level.INFO, "Add route, route Id:" + routeEntity.getId());
+        cache.put(routeEntity.getId(), routeEntity);
     }
 
     @Override

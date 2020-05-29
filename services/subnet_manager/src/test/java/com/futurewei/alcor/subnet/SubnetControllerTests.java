@@ -124,7 +124,7 @@ public class SubnetControllerTests {
         macState.setMacAddress(UnitTestConfig.macAddress);
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteEntity routeEntity = new RouteEntity();
-        routeWebJson.setRouteEntity(routeEntity);
+        routeWebJson.setRoute(routeEntity);
         MacStateJson macResponse = new MacStateJson(macState);
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
@@ -198,7 +198,7 @@ public class SubnetControllerTests {
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteEntity routeEntity = new RouteEntity();
-        routeWebJson.setRouteEntity(routeEntity);
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
 
@@ -235,7 +235,7 @@ public class SubnetControllerTests {
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteEntity routeEntity = new RouteEntity();
-        routeWebJson.setRouteEntity(routeEntity);
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
@@ -273,7 +273,7 @@ public class SubnetControllerTests {
 
         RouteWebJson routeWebJson = new RouteWebJson();
         RouteEntity routeEntity = new RouteEntity();
-        routeWebJson.setRouteEntity(routeEntity);
+        routeWebJson.setRoute(routeEntity);
         VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
         MacStateJson macResponse = new MacStateJson();
         MacState macState = new MacState();
