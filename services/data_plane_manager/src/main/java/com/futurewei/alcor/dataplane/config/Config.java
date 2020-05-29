@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.config;
 
-import com.futurewei.alcor.dataplane.service.NodeManager;
 import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 
 import java.io.BufferedWriter;
@@ -24,19 +23,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static com.futurewei.alcor.schema.Subnet.SubnetState;
-
 public class Config {
 
-    public static String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
-    public static String subnetId = "a87e0f87-a2d9-44ef-9194-9a62f178594e";
-    private static int InitNumOfTransitSwitch = 3;
-    private static int InitNumOfTransitRouter = 1;
-    public static final int THREADS_LIMIT = 100;
-    public static boolean IS_PARALLEL = true;
-    public static String HOST_ID_PREFIX = "es8-";
-    public static long Tunnel_Id = 3000;
-
+    public static boolean isOVS=true;
     public static FileWriter TIME_STAMP_FILE;
     public static BufferedWriter TIME_STAMP_WRITER;
     public static String LOG_FILE_PATH = "timestamp.log";
@@ -47,7 +36,6 @@ public class Config {
     public static long MIN_TIME = Long.MAX_VALUE;
     public static long APP_START_TS = 0;
 
-    public static String gRPCServerIp = "172.17.0.1";
 
     static {
         try {
@@ -63,21 +51,9 @@ public class Config {
         }
     }
 
-    public static String VETH_NAME = "veth0";
-    public static SubnetState customerSubnetState =
-            SubnetState.newBuilder().build();
     public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";
-    public static String GATEWAY_MAC_ADDRESS = "02:42:ac:11:00:0d"; //"0e:73
     // :ae:c8:FF:FF";
     public static List<HostInfo> epHosts = null;
     public static int EP_PER_HOST = 1;
 
-    public static HostInfo[] transitSwitchHosts =
-            (NodeManager.nodeManager == null ? null :
-                    NodeManager.nodeManager.getRandomHosts(Config.InitNumOfTransitSwitch));
-    public static HostInfo[] transitRouterHosts =
-            (NodeManager.nodeManager == null ? null :
-                    NodeManager.nodeManager.getRandomHosts(Config.InitNumOfTransitRouter));
-
-    public static int epCounter = 0;
 }

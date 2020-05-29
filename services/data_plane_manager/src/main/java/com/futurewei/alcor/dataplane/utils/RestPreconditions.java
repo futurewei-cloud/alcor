@@ -1,11 +1,14 @@
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.common.exception.*;
-import com.futurewei.alcor.dataplane.config.Config;
-import com.futurewei.alcor.dataplane.entity.CustomerResource;
-import org.thymeleaf.util.StringUtils;
+import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNullException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.dataplane.config.Config;
+import org.thymeleaf.util.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,7 +16,7 @@ import java.util.logging.Level;
 
 import static com.futurewei.alcor.schema.Subnet.SubnetState;
 import static com.futurewei.alcor.schema.Vpc.VpcState;
-
+//TODO leave it for now
 public class RestPreconditions {
     public static <T> T verifyResourceFound(T resource) throws ResourceNotFoundException {
         if (resource == null) throw new ResourceNotFoundException();

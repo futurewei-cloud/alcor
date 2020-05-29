@@ -56,17 +56,17 @@ public class GoalStateProvisionerClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public void PushNetworkResourceStates(Goalstate.GoalState state) {
+    public Goalstateprovisioner.GoalStateOperationReply PushNetworkResourceStates(Goalstate.GoalState state) {
         Logger alcorLog = LoggerFactory.getLogger();
         alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
         alcorLog.log(Level.INFO, "GoalStateProvisionerClient : Will try to send GS with fast path...");
-        Goalstateprovisioner.GoalStateOperationReply response;
+        Goalstateprovisioner.GoalStateOperationReply response=null;
         try {
             response = blockingStub.pushNetworkResourceStates(state);
         } catch (StatusRuntimeException e) {
             alcorLog.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return response;
         }
         alcorLog.log(Level.INFO, "Message total operation time: " + response.getMessageTotalOperationTime());
         alcorLog.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
@@ -75,6 +75,7 @@ public class GoalStateProvisionerClient {
             alcorLog.log(Level.INFO, "GS #" + i + ":" + response.getOperationStatuses(i));
         }
         alcorLog.exiting(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
+        return response;
 
     }
 }

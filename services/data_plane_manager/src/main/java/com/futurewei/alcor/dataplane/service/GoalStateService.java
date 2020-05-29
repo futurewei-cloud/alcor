@@ -15,7 +15,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service;
 
+import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
+
 public interface GoalStateService {
 
-    long[] SendGoalStateToHosts();
+    Goalstateprovisioner.GoalStateOperationReply SendGoalStateToHosts();
+
+    public void setGoalState(Goalstate.GoalState goalState);
+
+    public void setIp(String ip);
+
+    public void setFastPath(boolean fastPath);
+
 }
