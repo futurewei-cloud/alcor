@@ -1,8 +1,8 @@
 package com.futurewei.alcor.web.entity.gsinfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.constants.Common;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.port.PortState;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
