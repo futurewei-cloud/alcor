@@ -35,9 +35,9 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
-    public void addRoute(RouteEntity routeEntityState) throws DatabasePersistenceException {
+    public void addRoute(RouteEntity routeEntity) throws DatabasePersistenceException {
         try {
-            this.routeRepository.addItem(routeEntityState);
+            this.routeRepository.addItem(routeEntity);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }

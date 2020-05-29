@@ -14,10 +14,10 @@ It needs to interact with VPC Manager, Route Manager, Mac manager, IP manager to
 [arabic]
 . Supply subnets for all the vpcs, e.g., (VPC 1, Port 1) -> Subnet 1
 . Concurrency control mechanism should be provided to process multiple concurrent subnet creation requests.
-.  Get routeEntity rule information from routeEntity manager
+.  Get route rule information from route manager
 . Algorithm with random, but less conflict possibility
 . Fall back mechanism if there is a conflict among creation of subnet
-. Working together with other services including vpc manager, routeEntity manager, mac manager and ip manager.
+. Working together with other services including vpc manager, route manager, mac manager and ip manager.
 
 == Design
 
@@ -33,7 +33,7 @@ To handle concurrent Subnet creationg requests, the following three things shoul
 The resources which is allocated to subnet should be unique when there are concurrent subnet creation requests.
 
 ====== (2) Fallback
-In case for subnet creation fails, the resources (include routeEntity info, ip address, mac address) that it has allocated to the subnet should be released.
+In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
 
 == Database Schema
 

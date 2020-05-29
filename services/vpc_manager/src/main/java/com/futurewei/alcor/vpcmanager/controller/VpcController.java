@@ -146,7 +146,7 @@ public class VpcController {
                 if (routeEntityList == null) {
                     routeEntityList = new ArrayList<>();
                 }
-                routeEntityList.add(response.getRouteEntity());
+                routeEntityList.add(response.getRoute());
                 inVpcState.setRouteEntities(routeEntityList);
             }
             this.vpcDatabaseService.addVpc(inVpcState);

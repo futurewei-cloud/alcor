@@ -92,7 +92,7 @@ public class SubnetServiceImp implements SubnetService {
         // Route fallback
         logger.info("Route fallback start");
         if (routeResponse != null) {
-            RouteEntity routeEntity = routeResponse.getRouteEntity();
+            RouteEntity routeEntity = routeResponse.getRoute();
             this.routeFallback(routeEntity.getId(), resource.getSubnet().getVpcId());
         }
         logger.info("Route fallback end");

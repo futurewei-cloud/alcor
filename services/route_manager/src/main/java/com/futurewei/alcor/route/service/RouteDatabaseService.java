@@ -12,7 +12,7 @@ public interface RouteDatabaseService {
 
     public RouteEntity getByRouteId (String routeId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllRoutes () throws CacheException;
-    public void addRoute (RouteEntity routeEntityState) throws DatabasePersistenceException;
+    public void addRoute (RouteEntity routeEntity) throws DatabasePersistenceException;
     public void deleteRoute (String id) throws CacheException;
 
 }

@@ -29,7 +29,7 @@ import java.io.IOException;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
-public class RouteEntityControllerTests {
+public class RouteControllerTests {
 
     @Autowired
     private MockMvc mockMvc;

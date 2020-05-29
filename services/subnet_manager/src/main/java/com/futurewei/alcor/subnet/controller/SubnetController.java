@@ -196,7 +196,7 @@ public class SubnetController {
 
             // set up value of properties for subnetState
             List<RouteEntity> routeEntities = new ArrayList<>();
-            routeEntities.add(routeResponse.getRouteEntity());
+            routeEntities.add(routeResponse.getRoute());
             inSubnetEntity.setRouteEntities(routeEntities);
 
             MacState macState = macResponse.getMacState();
