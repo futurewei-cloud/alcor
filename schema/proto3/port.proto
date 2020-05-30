@@ -30,7 +30,7 @@ enum MessageType {
 
 message PortConfiguration {
     uint32 format_version = 1;
-    uint32 content_version = 2;
+    uint32 revision_number = 2;
     MessageType message_type = 3;
 
     string id = 4;
