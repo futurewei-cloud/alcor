@@ -23,15 +23,20 @@ option java_outer_classname = "Port";
 
 import "common.proto";
 
+enum MessageType { 
+    DELTA = 0; // the default type
+    FULL = 1;
+}
+
 message PortConfiguration {
     uint32 format_version = 1;
     uint32 content_version = 2;
+    MessageType message_type = 3;
 
-    string id = 3;
-    NetworkType network_type = 4;
-    string project_id = 5;
-    string subnet_id = 6;
-    uint32 mq_subscription_index = 7;
+    string id = 4;
+    NetworkType network_type = 5;
+    string project_id = 6;
+    string subnet_id = 7;
     string name = 8;
     string network_ns = 9;
     string mac_address = 10;

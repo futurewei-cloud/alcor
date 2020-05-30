@@ -27,9 +27,9 @@ message SecurityGroupConfiguration {
     uint32 format_version = 1;
     uint32 content_version = 2;
 
-    string project_id = 3;
-    string vpc_id = 4;
-    string id = 5;
+    string id = 3;
+    string project_id = 4;
+    string vpc_id = 5;
     string name = 6;
 
     enum Direction {
