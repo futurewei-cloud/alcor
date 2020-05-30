@@ -98,25 +98,16 @@ public class IpManagerProxy {
 
         //Allocate a random ipv4 address
         IpAddrRequest ipv4Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV4,
-<<<<<<< HEAD
-                portEntity.getVpcId(), null, null);
+                portEntity.getNetworkId(), null, null);
         PortEntity.FixedIp fixedIpv4 = new PortEntity.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
-=======
-                portState.getNetworkId(), null, null);
-        PortState.FixedIp fixedIpv4 = new PortState.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
->>>>>>> add some missing fileds to PortState
         fixedIps.add(fixedIpv4);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv4Addr);
 
         //Allocate a random ipv6 address
         IpAddrRequest ipv6Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV6,
-<<<<<<< HEAD
-                portEntity.getVpcId(), null, null);
+                portEntity.getNetworkId(), null, null);
         PortEntity.FixedIp fixedIpv6 = new PortEntity.FixedIp(ipv6Addr.getSubnetId(), ipv6Addr.getIp());
-=======
-                portState.getNetworkId(), null, null);
-        PortState.FixedIp fixedIpv6 = new PortState.FixedIp(ipv6Addr.getSubnetId(), ipv6Addr.getIp());
->>>>>>> add some missing fileds to PortState
+
         fixedIps.add(fixedIpv6);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv6Addr);
 

@@ -56,15 +56,9 @@ public class MacManagerProxy {
         PortEntity portEntity = (PortEntity)args;
 
         MacStateJson macStateJson = allocateMacAddress(
-<<<<<<< HEAD
                 portEntity.getProjectId(),
-                portEntity.getVpcId(),
+                portEntity.getNetworkId(),
                 portEntity.getId(),
-=======
-                portState.getProjectId(),
-                portState.getNetworkId(),
-                portState.getId(),
->>>>>>> add some missing fileds to PortState
                 null);
 
         portEntity.setMacAddress(macStateJson.getMacState().getMacAddress());
@@ -86,15 +80,9 @@ public class MacManagerProxy {
         String macAddress = portEntity.getMacAddress();
 
         MacStateJson macStateJson = allocateMacAddress(
-<<<<<<< HEAD
                 portEntity.getProjectId(),
-                portEntity.getVpcId(),
+                portEntity.getNetworkId(),
                 portEntity.getId(),
-=======
-                portState.getProjectId(),
-                portState.getNetworkId(),
-                portState.getId(),
->>>>>>> add some missing fileds to PortState
                 macAddress);
 
         portEntity.setMacAddress(macStateJson.getMacState().getMacAddress());
@@ -117,17 +105,10 @@ public class MacManagerProxy {
         macManagerRestClient.releaseMacAddress(portEntity.getMacAddress());
 
         MacState macState = new MacState();
-<<<<<<< HEAD
         macState.setProjectId(portEntity.getProjectId());
-        macState.setVpcId(portEntity.getVpcId());
+        macState.setVpcId(portEntity.getNetworkId());
         macState.setPortId(portEntity.getId());
         macState.setMacAddress(portEntity.getMacAddress());
-=======
-        macState.setProjectId(portState.getProjectId());
-        macState.setVpcId(portState.getNetworkId());
-        macState.setPortId(portState.getId());
-        macState.setMacAddress(portState.getMacAddress());
->>>>>>> add some missing fileds to PortState
 
         addMacAddrRollback(new ReleaseMacAddrRollback(macManagerRestClient), macState);
 

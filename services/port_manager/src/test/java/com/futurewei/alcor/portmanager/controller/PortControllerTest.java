@@ -87,13 +87,12 @@ public class PortControllerTest {
         List<String> securityGroups = new ArrayList<>();
         securityGroups.add(UnitTestConfig.securityGroup);
 
-<<<<<<< HEAD
         List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
         allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
         PortEntity portEntity = new PortEntity();
         portEntity.setId(portId);
-        portEntity.setVpcId(UnitTestConfig.vpcId);
+        portEntity.setNetworkId(UnitTestConfig.vpcId);
         portEntity.setProjectId(UnitTestConfig.projectId);
         portEntity.setTenantId(UnitTestConfig.tenantId);
         portEntity.setFixedIps(fixedIps);
@@ -103,23 +102,6 @@ public class PortControllerTest {
         portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
         return new PortWebJson(portEntity);
-=======
-        List<PortState.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
-        allowedAddressPairs.add(new PortState.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
-
-        PortState portState = new PortState();
-        portState.setId(portId);
-        portState.setNetworkId(UnitTestConfig.vpcId);
-        portState.setProjectId(UnitTestConfig.projectId);
-        portState.setTenantId(UnitTestConfig.tenantId);
-        portState.setFixedIps(fixedIps);
-        portState.setMacAddress(UnitTestConfig.mac1);
-        portState.setBindingHostId(UnitTestConfig.nodeId);
-        portState.setSecurityGroups(securityGroups);
-        portState.setAllowedAddressPairs(allowedAddressPairs);
-
-        return new PortStateJson(portState);
->>>>>>> add some missing fileds to PortState
     }
 
     private IpAddrRequest newIpv4AddrRequest() {

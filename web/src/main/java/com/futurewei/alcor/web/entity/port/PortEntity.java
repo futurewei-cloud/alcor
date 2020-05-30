@@ -23,15 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-<<<<<<< HEAD:web/src/main/java/com/futurewei/alcor/web/entity/port/PortEntity.java
 public class PortEntity extends CustomerResource {
-    @JsonProperty("vpc_id")
-    private String vpcId;
-=======
-public class PortState extends CustomerResource {
     @JsonProperty("network_id")
     private String networkId;
->>>>>>> add some missing fileds to PortState:web/src/main/java/com/futurewei/alcor/web/entity/port/PortState.java
 
     @JsonProperty("tenant_id")
     private String tenantId;
@@ -93,13 +87,6 @@ public class PortState extends CustomerResource {
     @JsonProperty("dns_assignment")
     private List<DnsRecord> dnsAssignment;
 
-<<<<<<< HEAD:web/src/main/java/com/futurewei/alcor/web/entity/port/PortEntity.java
-    public PortEntity() {
-    }
-
-    public PortEntity(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
-        this.vpcId = vpcId;
-=======
     @JsonProperty("create_at")
     private String createAt;
 
@@ -133,20 +120,19 @@ public class PortState extends CustomerResource {
     @JsonProperty("mac_learning_enabled")
     private boolean macLearningEnabled;
 
-    public PortState() {
+    public PortEntity() {
     }
 
-    public PortState(String networkId, String tenantId, boolean adminStateUp, String macAddress,
-                     String vethName, boolean isFastPath, String deviceId, String deviceOwner,
-                     String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs,
-                     List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId,
-                     String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType,
-                     String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment, String createAt,
-                     String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId,
-                     String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags,
-                     boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String networkId, String tenantId, boolean adminStateUp, String macAddress,
+                      String vethName, boolean isFastPath, String deviceId, String deviceOwner,
+                      String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs,
+                      List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId,
+                      String bindingProfile, String bindingVifDetails, String bindingVifType,
+                      String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment,
+                      String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled,
+                      String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest,
+                      List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         this.networkId = networkId;
->>>>>>> add some missing fileds to PortState:web/src/main/java/com/futurewei/alcor/web/entity/port/PortState.java
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
         this.macAddress = macAddress;
@@ -167,11 +153,6 @@ public class PortState extends CustomerResource {
         this.networkNamespace = networkNamespace;
         this.dnsName = dnsName;
         this.dnsAssignment = dnsAssignment;
-<<<<<<< HEAD:web/src/main/java/com/futurewei/alcor/web/entity/port/PortEntity.java
-    }
-
-    public PortEntity(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
-=======
         this.createAt = createAt;
         this.updateAt = updateAt;
         this.ipAllocation = ipAllocation;
@@ -185,17 +166,15 @@ public class PortState extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortState(CustomerResource state, String networkId, String tenantId, boolean adminStateUp,
-                     String macAddress, String vethName, boolean isFastPath, String deviceId,
-                     String deviceOwner, String status, List<FixedIp> fixedIps,
-                     List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts,
-                     List<String> securityGroups, String bindingHostId, String bindingProfile,
-                     String bindingVifDetails, String bindingVifType, String bindingVnicType,
-                     String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment,
-                     String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled,
-                     String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest,
-                     List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
->>>>>>> add some missing fileds to PortState:web/src/main/java/com/futurewei/alcor/web/entity/port/PortState.java
+    public PortEntity(CustomerResource state, String networkId, String tenantId, boolean adminStateUp,
+                      String macAddress, String vethName, boolean isFastPath, String deviceId,
+                      String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs,
+                      List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId,
+                      String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType,
+                      String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment, String createAt,
+                      String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId,
+                      String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags,
+                      boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(state);
         this.networkId = networkId;
         this.tenantId = tenantId;
@@ -218,11 +197,6 @@ public class PortState extends CustomerResource {
         this.networkNamespace = networkNamespace;
         this.dnsName = dnsName;
         this.dnsAssignment = dnsAssignment;
-<<<<<<< HEAD:web/src/main/java/com/futurewei/alcor/web/entity/port/PortEntity.java
-    }
-
-    public PortEntity(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
-=======
         this.createAt = createAt;
         this.updateAt = updateAt;
         this.ipAllocation = ipAllocation;
@@ -236,17 +210,16 @@ public class PortState extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortState(String projectId, String id, String name, String description, String networkId,
-                     String tenantId, boolean adminStateUp, String macAddress, String vethName,
-                     boolean isFastPath, String deviceId, String deviceOwner, String status,
-                     List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs,
-                     List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId,
-                     String bindingProfile, String bindingVifDetails, String bindingVifType,
-                     String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment,
-                     String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled,
-                     String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest,
-                     List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
->>>>>>> add some missing fileds to PortState:web/src/main/java/com/futurewei/alcor/web/entity/port/PortState.java
+    public PortEntity(String projectId, String id, String name, String description, String networkId,
+                      String tenantId, boolean adminStateUp, String macAddress, String vethName,
+                      boolean isFastPath, String deviceId, String deviceOwner, String status,
+                      List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs,
+                      List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId,
+                      String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType,
+                      String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment, String createAt,
+                      String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId,
+                      String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags,
+                      boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(projectId, id, name, description);
         this.networkId = networkId;
         this.tenantId = tenantId;
@@ -335,7 +308,6 @@ public class PortState extends CustomerResource {
                     '}';
         }
     }
-
 
     public static class AllowAddressPair {
 
