@@ -16,20 +16,112 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.controller;
 
 
+import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
+import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
+<<<<<<< HEAD
 import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
+=======
+import com.futurewei.alcor.web.entity.port.*;
+import io.netty.util.internal.StringUtil;
+>>>>>>> add some missing fileds to PortState
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @RestController
 public class PortController {
     @Autowired
     PortService portService;
+
+    private void checkMacAddress(PortState portState) throws Exception {
+        String macAddress = portState.getMacAddress();
+        if (macAddress != null) {
+            String regex = "([A-Fa-f0-9]{2}[-,:]){5}[A-Fa-f0-9]{2}";
+            if (!macAddress.matches(regex)) {
+                throw new MacAddressInvalid();
+            }
+        }
+    }
+
+    private void checkFixedIps(PortState portState) throws Exception {
+        List<PortState.FixedIp> fixedIps = portState.getFixedIps();
+        if (fixedIps != null) {
+            for (PortState.FixedIp fixedIp: fixedIps) {
+                if (!Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
+                        && !Ipv6AddrUtil.formatCheck(fixedIp.getIpAddress()) ) {
+                    throw new FixedIpsInvalid();
+                }
+            }
+        }
+    }
+
+    private void checkBindingProfile(PortState portState) {
+
+    }
+
+    private void checkBindingVifDetails(PortState portState) {
+
+    }
+
+    private void checkBindingVifType(PortState portState) throws VifTypeInvalid {
+        if (portState.getBindingVifType() != null) {
+            Set<VifType> vifTypeSet = new HashSet<>(Arrays.asList(VifType.values()));
+            if (!vifTypeSet.contains(portState.getBindingVifType())) {
+                throw new VifTypeInvalid();
+            }
+        }
+    }
+
+    private void checkBindingVnicType(PortState portState) throws VnicTypeInvalid {
+        if (portState.getBindingVnicType() != null) {
+            Set<VnicType> vnicTypeSet = new HashSet<>(Arrays.asList(VnicType.values()));
+            if (!vnicTypeSet.contains(portState.getBindingVnicType())) {
+                throw new VnicTypeInvalid();
+            }
+        }
+    }
+
+    private void checkIpAllocation(PortState portState) throws IpAllocationInvalid {
+        if (portState.getIpAllocation() != null) {
+            Set<IpAllocation> ipAllocationSet = new HashSet<>(Arrays.asList(IpAllocation.values()));
+            if (!ipAllocationSet.contains(portState.getIpAllocation())) {
+                throw new IpAllocationInvalid();
+            }
+        }
+    }
+
+    private void checkPortState(PortState portState) throws Exception {
+        //Check mac address
+        checkMacAddress(portState);
+
+        //Check FixedIps
+        checkFixedIps(portState);
+
+        //Check binding profile
+        checkBindingProfile(portState);
+
+        //Check binding vif details
+        checkBindingVifDetails(portState);
+
+        //Check binding vif type
+        checkBindingVifType(portState);
+
+        //Check binding vif type
+        checkBindingVnicType(portState);
+
+        //Check ip allocation
+        checkIpAllocation(portState);
+    }
 
     /**
      * Create a port, and call the interfaces of each micro-service according to the
@@ -44,9 +136,22 @@ public class PortController {
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+<<<<<<< HEAD
     public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                        @RequestBody PortWebJson portWebJson) throws Exception {
         return portService.createPort(projectId, portWebJson);
+=======
+    public PortStateJson createPortState(@PathVariable("project_id") String projectId,
+                                         @RequestBody PortStateJson portStateJson) throws Exception {
+        PortState portState = portStateJson.getPortState();
+        if (StringUtil.isNullOrEmpty(portState.getNetworkId())) {
+            throw new NetworkIdRequired();
+        }
+
+        checkPortState(portState);
+
+        return portService.createPortState(projectId, portStateJson);
+>>>>>>> add some missing fileds to PortState
     }
 
     /**
@@ -62,9 +167,19 @@ public class PortController {
     @PostMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+<<<<<<< HEAD
     public PortWebBulkJson createPortBulk(@PathVariable("project_id") String projectId,
                                              @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         return portService.createPortBulk(projectId, portWebBulkJson);
+=======
+    public PortStateBulkJson createPortStateBulk(@PathVariable("project_id") String projectId,
+                                             @RequestBody PortStateBulkJson portStateBulkJson) throws Exception {
+        for (PortState portState: portStateBulkJson.getPortStates()) {
+            checkPortState(portState);
+        }
+
+        return portService.createPortStateBulk(projectId, portStateBulkJson);
+>>>>>>> add some missing fileds to PortState
     }
 
     /**
@@ -79,10 +194,18 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
+<<<<<<< HEAD
     public PortWebJson updatePort(@PathVariable("project_id") String projectId,
                                        @PathVariable("port_id") String portId,
                                        @RequestBody PortWebJson portWebJson) throws Exception {
         return portService.updatePort(projectId, portId, portWebJson);
+=======
+    public PortStateJson updatePortState(@PathVariable("project_id") String projectId,
+                                           @PathVariable("port_id") String portId,
+                                           @RequestBody PortStateJson portStateJson) throws Exception {
+        checkPortState(portStateJson.getPortState());
+        return portService.updatePortState(projectId, portId, portStateJson);
+>>>>>>> add some missing fileds to PortState
     }
 
     /**
@@ -96,9 +219,19 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
+<<<<<<< HEAD
     public PortWebBulkJson updatePortBulk(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         return portService.updatePortBulk(projectId, portWebBulkJson);
+=======
+    public PortStateBulkJson updatePortStateBulk(@PathVariable("project_id") String projectId,
+                                         @RequestBody PortStateBulkJson portStateBulkJson) throws Exception {
+        for (PortState portState: portStateBulkJson.getPortStates()) {
+            checkPortState(portState);
+        }
+
+        return portService.updatePortStateBulk(projectId, portStateBulkJson);
+>>>>>>> add some missing fileds to PortState
     }
 
     /**

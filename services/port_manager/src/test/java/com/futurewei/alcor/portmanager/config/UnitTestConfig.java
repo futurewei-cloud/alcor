@@ -37,7 +37,7 @@ public class UnitTestConfig {
     public static String portStateWithFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
@@ -47,7 +47,7 @@ public class UnitTestConfig {
     public static String portStateWithoutFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
@@ -56,7 +56,7 @@ public class UnitTestConfig {
     public static String portStateWithMacAddress = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"mac_address\":\"" + mac1 + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
@@ -67,7 +67,7 @@ public class UnitTestConfig {
     public static String portStateWithoutMacAddress = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
@@ -78,7 +78,7 @@ public class UnitTestConfig {
     public static String updateFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip2 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
@@ -88,14 +88,14 @@ public class UnitTestConfig {
     public static String createPortBulk = "{\n" +
             "    \"ports\": [{\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    },{\n" +
             "        \"id\":\"" + portId2 + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip2 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroup +"\"],\n" +
@@ -105,7 +105,7 @@ public class UnitTestConfig {
     public static String updatePortBulk = "{\n" +
             "    \"ports\": [{\n" +
             "        \"id\":\"" + portId + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"mac_address\":\"" + mac2 + "\",\n" +
             "        \"binding:host_id\":\"" + nodeId2 + "\",\n" +
@@ -114,7 +114,7 @@ public class UnitTestConfig {
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    },{\n" +
             "        \"id\":\"" + portId2 + "\",\n" +
-            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
             "        \"tenant_id\":\"" + tenantId + "\",\n" +
             "        \"mac_address\":\"" + mac2 + "\",\n" +
             "        \"binding:host_id\":\"" + nodeId2 + "\",\n" +
