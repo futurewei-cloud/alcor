@@ -41,7 +41,7 @@ service GoalStateProvisioner {
 }
 
 message GoalStateRequest {
-    uint32 version = 1;
+    uint32 format_version = 1;
 
     message ResourceStateRequest {
         string resource_id = 1;
@@ -52,7 +52,7 @@ message GoalStateRequest {
 }
 
 message GoalStateOperationReply {
-    uint32 version = 1;
+    uint32 format_version = 1;
 
     message GoalStateOperationStatus {
         string resource_id = 1;
