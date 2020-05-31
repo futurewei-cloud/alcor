@@ -39,7 +39,8 @@ message PortConfiguration {
     string vpc_id = 7;
     string name = 8;
     string network_ns = 9;
-    bool admin_state_up = 10;
+    string mac_address = 10;
+    bool admin_state_up = 11;
 
     message HostInfo {
         string ip_address = 1;
@@ -47,9 +48,8 @@ message PortConfiguration {
     }
 
     message FixedIp {
-        string ip_address = 1;
-        string mac_address = 2;
-        string subnet_id = 3;
+        string subnet_id = 1;
+        string ip_address = 2;
     }
 
     message AllowAddressPair {
@@ -61,13 +61,13 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 11;
-    repeated FixedIp fixed_ips = 12;
-    repeated AllowAddressPair allow_address_pairs = 13;
-    repeated SecurityGroupId security_group_ids = 14;
+    HostInfo host_info = 12;
+    repeated FixedIp fixed_ips = 13;
+    repeated AllowAddressPair allow_address_pairs = 14;
+    repeated SecurityGroupId security_group_ids = 15;
 
     // start Mizar specific session
-    string veth_name = 15;
+    string veth_name = 16;
     // end Mizar specific session
 }
 
