@@ -25,9 +25,10 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,8 @@ import java.util.*;
 @Component
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class KeystoneClient {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
@@ -86,13 +89,9 @@ public class KeystoneClient {
     }
 
     @PostConstruct
-    public void setUp(){
-        try {
-            checkEndPoints();
-            getLocalToken();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setUp() throws IOException{
+        checkEndPoints();
+        getLocalToken();
     }
 
     public void checkEndPoints() throws IOException{
@@ -129,6 +128,8 @@ public class KeystoneClient {
             return;
         }
 
+        checkEndPoints();
+
         synchronized(this) {
             if(!"".equals(localToken) && (expireDate == null || expireDate.after(new Date()))){
                 return;
@@ -148,7 +149,7 @@ public class KeystoneClient {
                 try {
                     expireDate = dateFormat.parse(expireDateStr);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LOG.error("Get Alcor Token failed, {}", e.getMessage());
                     localToken = "";
                 }
             }
@@ -164,6 +165,7 @@ public class KeystoneClient {
                 return tokenEntity.isExpired() ? "" : tokenEntity.getProjectId();
             }
 
+            checkEndPoints();
             getLocalToken();
 
             HttpHeaders headers = new HttpHeaders();
@@ -175,8 +177,6 @@ public class KeystoneClient {
             HttpEntity<String> entity = new HttpEntity<>(null, headers);
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + TOKEN_URL + "?nocatalog",
                     HttpMethod.GET, entity, String.class);
-
-            //TODO check response status code details
 
             // check headers
             if(response.getStatusCode().equals(HttpStatus.OK)){
@@ -190,6 +190,14 @@ public class KeystoneClient {
                 JsonNode user = tokenNode.path("user");
                 te.setUser(user.path("name").asText(""));
                 te.setUserId(user.path("id").asText(""));
+
+                String expireDateStr = tokenNode.path("expires_at").asText();
+                expireDateStr = expireDateStr.replace("000Z", "+0000");
+                try {
+                    te.setExpireAt(dateFormat.parse(expireDateStr));
+                } catch (ParseException e) {
+                    LOG.error("Parse Token expire date to date error, {}", e.getMessage());
+                }
 
                 if(tokenNode.has("roles")){
                     JsonNode roles = tokenNode.path("roles");
@@ -208,16 +216,18 @@ public class KeystoneClient {
                         te.setDomainId(domain.path("id").asText(""));
                         te.setDomainName(domain.path("name").asText(""));
                     }
+
+                    projectId = transformProjectIdToUUID(projectId);
                     te.setProjectId(projectId);
                     te.setProjectName(project.path("name").asText(""));
                     cache.put(token, te);
-                    return transformProjectIdToUUID(projectId);
+                    return projectId;
                 }
             }else{
                 cache.put(token, new TokenEntity(token,true));
             }
         } catch (IOException | CacheException e) {
-            e.printStackTrace();
+            LOG.error("verify token failed, {}", e.getMessage());
         }
         return "";
     }
