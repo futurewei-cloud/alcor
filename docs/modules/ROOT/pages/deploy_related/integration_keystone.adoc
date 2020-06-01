@@ -41,7 +41,7 @@ Verify request token have few steps.
 . Add keystone conf in application.properties file (https://docs.openstack.org/keystone/latest/user/supported_clients.html[keystone config example])
 
 == KeystoneAuthWebFilter Start Workflow
-image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=1024]
+image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=1024, link="keystone_filter_start_workflow.jpg"]
 
 == KeystoneAuthWebFilter Workflow
 image::keystone_filter_workflow.jpg["KeystoneAuthWebFilter Workflow", width=1024]
