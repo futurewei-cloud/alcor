@@ -1,28 +1,39 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
 package com.futurewei.alcor.apigateway.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.jcraft.jsch.IO;
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.entity.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import javax.xml.ws.Response;
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -31,19 +42,18 @@ import java.util.*;
 
 
 @Component
+@ComponentScan(value="com.futurewei.alcor.common.db")
 public class KeystoneClient {
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-    private static final String TOKEN_URL = "/v3/auth/tokens";
+    private static final String TOKEN_URL = "/auth/tokens";
     private static final String VALIDATE_TOKEN_HEADER = "X-Subject-Token";
     private static final String AUTH_TOKEN_HEADER = "X-Auth-Token";
 
     private static String baseUrl = "";
-    private static String localToken = "";
-    private static Date expireDate;
-
-    //TODO add token verify cache
+    private static volatile String localToken = "";
+    private static volatile Date expireDate;
 
     @Value("${keystone.project_domain_name}")
     private String projectDomainName;
@@ -67,9 +77,22 @@ public class KeystoneClient {
     private String authUrl;
 
     private RestTemplate restTemplate;
+    private ICache<String, TokenEntity> cache;
 
-    public KeystoneClient(){
+    @Autowired
+    public KeystoneClient(CacheFactory cacheFactory){
         this.restTemplate = new RestTemplate();
+        this.cache = cacheFactory.getCache(TokenEntity.class);
+    }
+
+    @PostConstruct
+    public void setUp(){
+        try {
+            checkEndPoints();
+            getLocalToken();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void checkEndPoints() throws IOException{
@@ -106,25 +129,28 @@ public class KeystoneClient {
             return;
         }
 
-        checkEndPoints();
+        synchronized(this) {
+            if(!"".equals(localToken) && (expireDate == null || expireDate.after(new Date()))){
+                return;
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            HttpEntity<String> entity = new HttpEntity<>(buildLocalTokenParams(), headers);
+            HttpEntity<String> response = restTemplate.postForEntity(baseUrl + TOKEN_URL + "?nocatalog", entity, String.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(buildLocalTokenParams(), headers);
-        HttpEntity<String> response = restTemplate.postForEntity(baseUrl + TOKEN_URL + "?nocatalog", entity, String.class);
-
-        localToken = response.getHeaders().getFirst(VALIDATE_TOKEN_HEADER);
-        JsonNode result = json2Map(response.getBody());
-        JsonNode token = result.path("token");
-        String expireDateStr = token.path("expires_at").asText();
-        if(!"null".equals(expireDateStr)) {
-            expireDateStr = expireDateStr.replace("000Z", "+0000");
-            try {
-                expireDate = dateFormat.parse(expireDateStr);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                localToken = "";
+            localToken = response.getHeaders().getFirst(VALIDATE_TOKEN_HEADER);
+            JsonNode result = json2Map(response.getBody());
+            JsonNode token = result.path("token");
+            String expireDateStr = token.path("expires_at").asText();
+            if (!"null".equals(expireDateStr)) {
+                expireDateStr = expireDateStr.replace("000Z", "+0000");
+                try {
+                    expireDate = dateFormat.parse(expireDateStr);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    localToken = "";
+                }
             }
         }
 
@@ -132,6 +158,12 @@ public class KeystoneClient {
 
     public String verifyToken(String token){
         try {
+
+            TokenEntity tokenEntity = cache.get(token);
+            if(tokenEntity != null){
+                return tokenEntity.isExpired() ? "" : tokenEntity.getProjectId();
+            }
+
             getLocalToken();
 
             HttpHeaders headers = new HttpHeaders();
@@ -148,15 +180,43 @@ public class KeystoneClient {
 
             // check headers
             if(response.getStatusCode().equals(HttpStatus.OK)){
+
+
                 String resultStr = response.getBody();
                 JsonNode result = json2Map(resultStr);
                 JsonNode tokenNode = result.path("token");
+
+                TokenEntity te = new TokenEntity(token,false);
+                JsonNode user = tokenNode.path("user");
+                te.setUser(user.path("name").asText(""));
+                te.setUserId(user.path("id").asText(""));
+
+                if(tokenNode.has("roles")){
+                    JsonNode roles = tokenNode.path("roles");
+                    Iterator<JsonNode> rolesIt = roles.elements();
+                    List<String> roleNames = new ArrayList<>();
+                    rolesIt.forEachRemaining(role -> roleNames.add(role.path("name").asText("")));
+                    te.setRoles(roleNames);
+                }
+
                 if(tokenNode.has("project")){
                     JsonNode project = tokenNode.path("project");
-                    return transformProjectIdToUUID(project.path("id").asText());
+                    String projectId = project.path("id").asText();
+
+                    if(project.has("domain")){
+                        JsonNode domain = project.path("domain");
+                        te.setDomainId(domain.path("id").asText(""));
+                        te.setDomainName(domain.path("name").asText(""));
+                    }
+                    te.setProjectId(projectId);
+                    te.setProjectName(project.path("name").asText(""));
+                    cache.put(token, te);
+                    return transformProjectIdToUUID(projectId);
                 }
+            }else{
+                cache.put(token, new TokenEntity(token,true));
             }
-        } catch (IOException e) {
+        } catch (IOException | CacheException e) {
             e.printStackTrace();
         }
         return "";
