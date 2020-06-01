@@ -1,6 +1,7 @@
 = Integration with OpenStack Keystone
 v0.1, 2020-05-28
 :toc: right
+:imagesdir: ../../images
 
 NOTE: This document is under development
 
@@ -39,12 +40,56 @@ Verify request token have few steps.
 . Add a KeystoneAuthWebFilter class to fetch all api-gateway request token and verify token from keystone server and get project_id from verify api response.
 . Add keystone conf in application.properties file (https://docs.openstack.org/keystone/latest/user/supported_clients.html[keystone config example])
 
+== KeystoneAuthWebFilter Start Workflow
+image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=1024]
+
 == KeystoneAuthWebFilter Workflow
 image::keystone_filter_workflow.jpg["KeystoneAuthWebFilter Workflow", width=1024]
 
+== Token Cache Design
+Consider multi customer requests have a same token, it's not need to send a request to keystone to verfiy the same token for every request.
+A cache component can cache all verified token. Alcor will check cache first that the customer request token is verifed,
+it will return token info if cache have the customer token. If the customer token not in cache , it will send a request to keystone
+and check response and cache the token result.
+
+
+A cache data have a expired time to clear no use cache tokens.And Double the token expiration as the cache expiration time.
+This can prevent customer request from still carrying expired tokens for verification.
+
+== Data Schema
+How token store in cache： +
+A cache token key is token self. +
+A token entity include: +
+. string token: a token self +
+. date expireAt: the date which token expire at +
+. string user: the token user name  +
+. string userId: the token user id +
+. string domainId: the token user domain id +
+. string domainName: the token user domain name +
+. string projectName: the token project name +
+. string projectId: the token project id +
+. string projectDomain: the token project domain +
+. boolean invalid: the token whether valid from keystone, true： invalid  false: valid +
+. list<String> roles: the token user role names +
+
+examples: +
+{ +
+  "token"： “gAAAAABex0sfasdf2234234asdfBSDFREW32324234”， +
+  "expireAt": "2020-05-30T16:00:00.000+0000", +
+  "user": "neutron", +
+  "useId": "10a2e6e717a245d9acad3e5f97aeca3d", +
+  "domainId": "default", +
+  "domainName": "Default", +
+  "projectName": "admin", +
+  "projectId": "a6944d763bf64ee6a275f1263fae0352", +
+  "projectDomain": "Default", +
+  "invalid": false, +
+  "roles": ["admin", "demo"] +
+}
+
 == Integration Proposal
 
-. Micro Service api should support multi params query eg: show/list actions
+. Microservice APIs should support multi params query eg: show/list actions
 . Rename resource name in url path or add same resource name in url path
 . Support "field" params in api and response body should have the "field" params content
 
