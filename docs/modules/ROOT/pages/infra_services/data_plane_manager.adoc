@@ -138,7 +138,7 @@ State could contains more same type data as array
 |GoalState Info
 <<Get_GoalState,[sample]>>
 
-|Create Port by GoalState
+|(Bulk) Create Port by GoalState
 |POST
 |/goalstate/{gsinfo}
 |Goal State list
@@ -156,17 +156,6 @@ State could contains more same type data as array
 |GOAL State
 <<Update_GoalState,[sample]>>
 
-|Bulk Create Port by GoalState
-|POST
-|/goalstate/{gsinfo}
-|Goal State list
-<<BULK_Create_Port_GoalState,[sample]>>
-
-|Bulk Delete Port by GoalState
-|DELETE
-|/goalstate/{gsinfo}
-|GOAL State
-<<BULK_Delete_Port_GoalState,[sample]>>
 
 |===
 
@@ -183,39 +172,17 @@ State could contains more same type data as array
 anchor:Get_GoalState[]
 ==== (1) Get GoalState Info By GoalState Request
 
-* {blank}
-+
-____
-Method: GET
-____
-* {blank}
-+
-____
-Request: 
-____
+* Method: `GET`
 
-____
-"/goalstate/{goalstateid}","/v4/goalstate/{goalstateid}"
-____
+* Request: `/goalstate/{goalstateid}, /v4/goalstate/{goalstateid}`
 
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @ PathVariable String portid
-* {blank}
-+
-____
-Response: List of GoalState Information
-____
-* {blank}
-+
-____
-Example
-____
+* Request Parameter:  `@ PathVariable String portid`
 
-Request:
+* Response: List of GoalState Information
+
+* Example
+
+* Request:
 
 http://serverIP:8080/goalstate/f37810eb-7f83-45fa-a4d4-1b31e75399df
 
@@ -289,36 +256,21 @@ anchor:Create_Port_GoalState[]
 
 ====  (2) Send GoalState to create port
 
-* {blank}
-+
-____
-Method: POST
-____
-* {blank}
-+
-____
-Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
-____
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @RequestBody GSInfo resource
-* {blank}
-+
-____
-Response: port creation result information
-____
-* {blank}
-* Normal response codes: 200
-* Error response codes: 400, 412, 500
-+
-____
-Example
-____
+* Method: `POST`
 
-Request:
+* Request: `/goalstate/{gsinfo},/v4/goalstate/{gsinfo}`
+
+* Request Parameter:  `@RequestBody GSInfo resource`
+
+* Response: Port creation result information
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+* Use Case Desc: 
+` client should send out GoalState to create (bulk) port(s) along with neighbor_info unless port to be created inside the GoalState itself in which case client should remember the neighbor infos among newly created ports `
 
 http://localhost:8080/goalstate/
 
@@ -340,10 +292,10 @@ Body:
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
             "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
-            "name":"test_subnet",
+            "name":"test_subnet1",
             "description":"",
-            "cidr":"192.168.1.0/20",
-            "gateway_ip":"192.168.1.5",
+            "cidr":"192.168.1.0/24",
+            "gateway_ip":"192.168.1.1",
             "availability_zone":"uswest-1",
             "dhcp_enable":false,
             "primary_dns":null,
@@ -354,10 +306,10 @@ Body:
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
             "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
-            "name":"test_subnet",
+            "name":"test_subnet2",
             "description":"",
-            "cidr":"192.168.2.0/20",
-            "gateway_ip":"192.168.2.5",
+            "cidr":"192.168.2.0/24",
+            "gateway_ip":"192.168.2.1",
             "availability_zone":"uswest-1",
             "dhcp_enable":false,
             "primary_dns":null,
@@ -368,10 +320,10 @@ Body:
       "ports":[
          {
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
-            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d3",
             "name":"test_cni_port2",
             "description":"",
-            "network_id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "tenant_id":null,
             "admin_state_up":true,
             "mac_address":null,
@@ -379,14 +331,26 @@ Body:
             "device_id":null,
             "device_owner":null,
             "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
             "fixed_ips":[
                {
                   "ipAddress":"192.168.1.2",
-                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
                },
                {
                   "ipAddress":"192.168.1.3",
-                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
                }
             ],
             "allowed_address_pairs":null,
@@ -403,10 +367,10 @@ Body:
          },
          {
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
-            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d0",
             "name":"test_cni_port2",
             "description":"",
-            "network_id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "tenant_id":null,
             "admin_state_up":true,
             "mac_address":null,
@@ -414,6 +378,18 @@ Body:
             "device_id":null,
             "device_owner":null,
             "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
             "fixed_ips":[
                {
                   "ipAddress":"192.168.2.4",
@@ -438,10 +414,10 @@ Body:
          },
          {
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
-            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d6",
             "name":"test_cni_port2",
             "description":"",
-            "network_id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "tenant_id":null,
             "admin_state_up":true,
             "mac_address":null,
@@ -449,6 +425,18 @@ Body:
             "device_id":null,
             "device_owner":null,
             "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
             "fixed_ips":[
                {
                   "ipAddress":"192.168.2.2",
@@ -463,7 +451,7 @@ Body:
             "extra_dhcp_opts":null,
             "security_groups":null,
             "binding:host_id":"ephost_0",
-            "binding:host_ip":"1.2.3.5",
+            "binding:host_ip":"1.2.3.6",
             "binding:profile":null,
             "binding:vnic_type":null,
             "network_ns":"/var/run/netns/test_netw_ns",
@@ -473,10 +461,10 @@ Body:
          },
          {
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
-            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d7",
             "name":"test_cni_port2",
             "description":"",
-            "network_id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
             "tenant_id":null,
             "admin_state_up":true,
             "mac_address":null,
@@ -484,6 +472,18 @@ Body:
             "device_id":null,
             "device_owner":null,
             "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
             "fixed_ips":[
                {
                   "ipAddress":"192.168.1.2",
@@ -524,46 +524,30 @@ Body:
 Response:
 {
 "code":200
-"desc":"ports f37810eb-7f83-45fa-a4d4-1b31e75399de and f37810eb-7f83-45fa-a4d4-1b31e75399df created on 192.168.1.2 of 1.2.3.4 host successfully"
+"desc":"ports created successfully"
 }
 
 ------------------------------------------------------------
 anchor:Delete_Port_GoalState[]
 
-====  (3) Send GoalState to delete port
+====  (3) (Bulk) Send GoalState to delete port
 
-* {blank}
-+
-____
-* Method: `DELETE`
-____
-* {blank}
-+
-____
-Request: "/goalstate/{gsinfo}", "/v4/goalstate/{gsinfo}"
-____
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @RequestBody GSInfo resource
-* {blank}
-+
-____
-Response: port deletion result
-____
-* {blank}
+* Method: `DELETE`
+
+* Request: `/goalstate/{gsinfo},/v4/goalstate/{gsinfo}`
+
+* Request Parameter:  `@RequestBody GSInfo resource`
+
+* Response: Port deletion result information
+
 * Normal response codes: 200
+
 * Error response codes: 400, 412, 500
-+
-____
-Example
-____
 
-Request:
+* Example
 
-http://localhost:8080/goalstate/{gsinfo}
+http://localhost:8080/goalstate/
+
 
 Body:
 
@@ -574,15 +558,102 @@ Body:
          "gsinfo":{
             "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
             "security_group_id": null,
-            "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-            "veth_name":null,
-            "bridge_name": "test_br",
-            "description":"test_port1",
-            "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399df",
-            "hostip":"1.2.3.4",
-            "vpc":null,
-            "subnet":null,
-            "port":null,
+            "vpc_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+           "ports":[
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d3",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.1.2",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               },
+               {
+                  "ipAddress":"192.168.1.3",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.4",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         },
+          {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.1.2",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               },
+               {
+                  "ipAddress":"192.168.1.3",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.4",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         }],
             "security_group":null
          }
       }
@@ -595,7 +666,7 @@ Body:
 Response:
 {
 "code":200
-"desc":"port test_port1 on host 192.168.1.2 deleted successfully"
+"desc":"port(s) deleted successfully"
 }
 
 ------------------------------------------------------------
@@ -603,102 +674,263 @@ anchor:Update_GoalState[]
 
 ====  (4) Update GoalState 
 
-* {blank}
-+
-____
-Method: `PUT`
-____
-* {blank}
-+
-____
-Request: "/goalstate/{goalstates}", "v4/goalstate/{goalstates}"
-____
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @RequestBody GoalStateJson resource
-* {blank}
-+
-____
-Response: port update result information
-____
-* {blank}
-* Normal response codes: 200
-* Error response codes: 400, 412, 500
-+
-____
-Example
-____
+* Method: `UPDATE`
 
-Request:
+* Request: `/goalstate/{gsinfo},/v4/goalstate/{gsinfo}`
+
+* Request Parameter:  `@RequestBody GSInfo resource`
+
+* Response: Port deletion result information
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
 
 http://localhost:8080/goalstate/goalstates
 
 Body:
 
 ------------------------------------------------------------
-{ 
-  "goalstate": [{
-    "vpc": {
-      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-      "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-      "name": "test_vpc",
-      "description": "",
-      "cidr": "10.0.0.0/16"
-    },
-    "subnet": {
-      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-      "id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-      "name": "test_subnet",
-      "description": "",
-      "cidr": "10.0.0.0/20",
-      "gateway_ip": "10.0.0.5",
-      "availability_zone": "uswest-1",
-      "dhcp_enable": false,
-      "primary_dns": null,
-      "secondary_dns": null,
-      "dns_list": null
-    },
-    "port": {
-      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-      "name": "test_cni_port2",
-      "description": "",
-      "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-      "tenant_id": null,
-      "admin_state_up": true,
-      "mac_address": null,
-      "veth_name": "veth0",
-      "device_id": null,
-      "device_owner": null,
-      "status": null,
-      "fixed_ips": [
-        
+{
+   "gsinfo":{
+      "vpc":{
+         "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+         "id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+         "name":"test_vpc",
+         "description":"",
+         "cidr":"192.168.0.0/16"
+      },
+      "subnets":[
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "id":"a87e0f87-a2d9-44ef-9194-9a62f178594e",
+            "name":"test_subnet1",
+            "description":"",
+            "cidr":"192.168.1.0/24",
+            "gateway_ip":"192.168.1.1",
+            "availability_zone":"uswest-1",
+            "dhcp_enable":false,
+            "primary_dns":null,
+            "secondary_dns":null,
+            "dns_list":null
+         },
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+            "name":"test_subnet2",
+            "description":"",
+            "cidr":"192.168.2.0/24",
+            "gateway_ip":"192.168.2.1",
+            "availability_zone":"uswest-1",
+            "dhcp_enable":false,
+            "primary_dns":null,
+            "secondary_dns":null,
+            "dns_list":null
+         }
       ],
-      "allowed_address_pairs": null,
-      "extra_dhcp_opts": null,
-      "security_groups": null,
-      "binding:host_id": "ephost_0",
-      "binding:host_ip": "1.2.3.4",
-      "binding:profile": null,
-      "binding:vnic_type": null,
-      "network_ns": "/var/run/netns/test_netw_ns",
-      "dnsName": null,
-      "dnsAssignment": null,
-      "fast_path": true
-    },
-    "security_group": {
-      "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-      "version": 0,
-      "vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-      "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-      "name": "test_security_group1",
-      "security_group_rules": null
-    }
-  }]
+      "ports":[
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d3",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.1.2",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               },
+               {
+                  "ipAddress":"192.168.1.3",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.4",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         },
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d0",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.2.4",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+               },
+               {
+                  "ipAddress":"192.168.2.5",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.4",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         },
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d6",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.2.2",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+               },
+               {
+                  "ipAddress":"192.168.2.3",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594f"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.6",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         },
+         {
+            "project_id":"3dda2801-d675-4688-a63f-dcda8d327f50",
+            "id":"f37810eb-7f83-45fa-a4d4-1b31e75399d7",
+            "name":"test_cni_port2",
+            "description":"",
+            "vpc_id":"9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "tenant_id":null,
+            "admin_state_up":true,
+            "mac_address":null,
+            "veth_name":"veth0",
+            "device_id":null,
+            "device_owner":null,
+            "status":null,
+            "neighbor_info":[
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d1",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+               {
+                  "port_id":"f37810eb-7f83-45fa-a4d4-1b31e75399d2",
+                  "host_id":"a87e0f87-a2d9-44ef-9194-9a62f178594f",
+                  "host_ip":"1.2.3.5"
+               },
+            ],
+            "fixed_ips":[
+               {
+                  "ipAddress":"192.168.1.2",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               },
+               {
+                  "ipAddress":"192.168.1.3",
+                  "subnetId":"a87e0f87-a2d9-44ef-9194-9a62f178594e"
+               }
+            ],
+            "allowed_address_pairs":null,
+            "extra_dhcp_opts":null,
+            "security_groups":null,
+            "binding:host_id":"ephost_0",
+            "binding:host_ip":"1.2.3.6",
+            "binding:profile":null,
+            "binding:vnic_type":null,
+            "network_ns":"/var/run/netns/test_netw_ns",
+            "dnsName":null,
+            "dnsAssignment":null,
+            "fast_path":true
+         }
+      ],
+      "security_groups":[
+         {
+
+         },
+         {
+
+         }
+      ]
+   }
 }
 ------------------------------------------------------------
 
@@ -707,243 +939,10 @@ Body:
 Response:
 {
 "code":200
-"desc":"port f37810eb-7f83-45fa-a4d4-1b31e75399df updated successfully"
+"desc":"port(s) updated successfully"
 }
 
 ------------------------------------------------------------
-anchor:BULK_Create_Port_GoalState[]
-
-====  (5) Send GoalState to create bulk ports
-
-* {blank}
-+
-____
-Method: POST
-____
-* {blank}
-+
-____
-Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
-____
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @RequestBody GSInfo resource
-* {blank}
-+
-____
-Response: ports creation result information
-____
-* {blank}
-* Normal response codes: 200
-* Error response codes: 400, 412, 500
-+
-____
-Example
-____
-
-Request:
-
-http://localhost:8080/goalstates/
-
-Body:
-
-------------------------------------------------------------
-{
-   "goalstate":[
-          {
-      "gsinfo": {
-        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-        "bridge_name": "test_br",
-        "description": "test_port1",
-        "vpc": null,
-        "subnet": null,
-        "port": {
-          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-          "id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-          "name": "test_cni_port2",
-          "description": "",
-          "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-          "tenant_id": null,
-          "admin_state_up": true,
-          "mac_address": null,
-          "veth_name": "veth0",
-          "device_id": null,
-          "device_owner": null,
-          "status": null,
-          "fixed_ips": [
-          "192.168.1.2"
-          ],
-          "allowed_address_pairs": null,
-          "extra_dhcp_opts": null,
-          "security_groups": null,
-          "binding:host_id": "ephost_0",
-          "binding:host_ip": "1.2.3.4",
-          "binding:profile": null,
-          "binding:vnic_type": null,
-          "network_ns": "/var/run/netns/test_netw_ns",
-          "dnsName": null,
-          "dnsAssignment": null,
-          "fast_path": true
-        },
-        "security_group": null
-      }
-    },
-          {
-      "gsinfo": {
-        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-        "bridge_name": "test_br",
-        "description": "test_port1",
-        "vpc": null,
-        "subnet": null,
-        "port": {
-          "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-          "id": "f37810eb-7f83-45fa-a4d4-1b31e75399de",
-          "name": "test_cni_port2",
-          "description": "",
-          "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-          "tenant_id": null,
-          "admin_state_up": true,
-          "mac_address": null,
-          "veth_name": "veth0",
-          "device_id": null,
-          "device_owner": null,
-          "status": null,
-          "fixed_ips": [
-          "192.168.1.3"
-          ],
-          "allowed_address_pairs": null,
-          "extra_dhcp_opts": null,
-          "security_groups": null,
-          "binding:host_id": "ephost_0",
-          "binding:host_ip": "1.2.3.4",
-          "binding:profile": null,
-          "binding:vnic_type": null,
-          "network_ns": "/var/run/netns/test_netw_ns",
-          "dnsName": null,
-          "dnsAssignment": null,
-          "fast_path": true
-        },
-        "security_group": null
-      }
-    }
-   ]
-}
-------------------------------------------------------------
-
-[source,c++]
-------------------------------------------------------------
-Response:
-{
-  "code": 200,
-  "desc": "ports f37810eb-7f83-45fa-a4d4-1b31e75399de and f37810eb-7f83-45fa-a4d4-1b31e75399df created successfully",
-  "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-  "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-  "port_id": {
-    "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-    "f37810eb-7f83-45fa-a4d4-1b31e75399de"
-  }
-}
-------------------------------------------------------------
-anchor:BULK_Delete_Port_GoalState[]
-
-====  (6) Send GoalState to bulkly delete ports
-
-* {blank}
-+
-____
-Method: DELETE
-____
-* {blank}
-+
-____
-Request: "/goalstates/{gsinfo}", "/v4/goalstates/{gsinfo}"
-____
-* {blank}
-+
-____
-Request Parameter: 
-____
-** @RequestBody GSInfo resource
-* {blank}
-+
-____
-Response: port creation result information
-____
-* {blank}
-* Normal response codes: 200
-* Error response codes: 400, 412, 500
-+
-____
-Example
-____
-
-Request:
-
-http://localhost:8080/goalstates/
-
-Body:
-
-------------------------------------------------------------
-{
-  "operation_type": "delete",
-  "resource_type": 2,
-  "goalstate": [
-    {
-      "gsinfo": {
-        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-        "security_group_id": null,
-        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-        "veth_name": null,
-        "bridge_name": "test_br",
-        "description": "test_port1",
-        "port_id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-        "hostip": "1.2.3.4",
-        "vpc": null,
-        "subnet": null,
-        "port": null,
-        "security_group": null
-      }
-    },
-    {
-      "gsinfo": {
-        "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-        "security_group_id": null,
-        "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-        "veth_name": null,
-        "bridge_name": "test_br",
-        "description": "test_port1",
-        "port_id": "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-        "hostip": "1.2.3.4",
-        "vpc": null,
-        "subnet": null,
-        "port": null,
-        "security_group": null
-      }
-    }
-  ]
-}
-------------------------------------------------------------
-
-[source,c++]
-------------------------------------------------------------
-Response:
-{
-  "code": 200,
-  "desc": "bulk ports 9192a4d4-ffff-4ece-b3f0-8d36e3d88038 and 9192a4d4-ffff-4ece-b3f0-8d36e3d88039 deleted on hosts 1.2.3.4 and 1.2.3.4 successfully",
-  "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-  "network_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
-  "port_id": {
-    "f37810eb-7f83-45fa-a4d4-1b31e75399df",
-    "f37810eb-7f83-45fa-a4d4-1b31e75399de"
-  }
-
-------------------------------------------------------------
-
 
 [bibliography]
 == References
