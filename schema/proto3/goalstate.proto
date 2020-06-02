@@ -27,7 +27,7 @@ import "securitygroup.proto";
 import "dhcp.proto";
 
 message GoalState {
-    uint32 version = 1;
+    uint32 format_version = 1;
 
     repeated VpcState vpc_states = 2;
     repeated SubnetState subnet_states = 3;

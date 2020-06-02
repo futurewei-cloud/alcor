@@ -1,0 +1,207 @@
+= Elastic IP Manager Design Specification
+Eric Yuan <dakuaiera@sina.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-05-24
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Overview
+
+The Elastic IP (EIP) manager is responsible of allocating and releasing EIP as well as associating the allocated EIP to a running instance or network interface (port).
+This is the acting microservice that provides elastic/floating IP APIs to external customers (through API gateway) and driving the elastic IP CURD workflow.
+A network interface with an enabled EIP could establish inbound connections from and outbound connections to external networks like Internet.
+
+=== User Cases
+A customer of Alcor could leverage Elastic IP manager in the following cases:
+
+* Allocate or release a _standalone_ EIP within the user account.
+* Associate or disassociate an EIP to a running instance, which by default attach to its primary interface.
+* Associate or disassociate an EIP to a network interface.
+
+=== Service Basic Requirements
+
+[arabic]
+1. Provide CURD REST APIs for customers or provider admins to management EIPs. The APIs are compatible to OpenStack Neutron v2.0 APIs <<neutron_api>>.
+1. Provide CURD REST APIs for cloud provider admins to register or unregister a list of public IPv4 or IPv6 ranges in EIP manager.
+Note that those IP ranges should be owned by cloud provider.
+1. Allocate _standalone_ and _unique_ EIP address. Guarantee uniqueness of EIP address in a regional scope.
+1. Release public IP address per customer request or other microservices, and make it ready for reuse for other customers.
+1. Release (port, EIP) association when a port is to be deleted.
+1. Maintain EIP states and a mapping from an EIP to its owning interface/port.
+1. Association of an EIP to a running instance or network interface (port) at POST call (when fixed_ip_address is not NULL), or at PUT call.
+1. Disassociation of EIP with a network interface (primary or secondary).
+1. Working together with other services including port manager and DNS manager for allocation of port and external DNS, respectively.
+1. Concurrency control mechanism should be provided to process multiple concurrent EIP allocation requests.
+
+=== Service Advanced Requirements
+
+[arabic, start=11]
+1. Support bulk allocation and release of a list of IP addresses.
+1. Support BYOIP to allow customers to bring existing public IPv4 address range or IPv6 address range from their on-premises network to Alcor.
+
+== Workflow
+
+=== EIP Management
+
+=== EIP Association with Ports
+
+=== EIP Range Management
+
+== REST APIs
+
+TBD: to follow REST API specification.
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+//|Verify IP State
+//|GET
+//|/ips/{range_id}/{ip}
+//|ip state
+//<<IP_Get,[sample]>>
+//
+//|List all allocated IP State
+//|GET
+//|/ips/{range_id}
+//|ip state list
+//<<IP_List,[sample]>>
+//
+//|Create IP State
+//|POST
+//|/ips
+//|ip state
+//<<IP_Post,[sample]>>
+//
+//|Create IP State Bulk
+//|POST
+//|/ips/bulk
+//|ip state list
+//<<IP_Post_Bulk,[sample]>>
+//
+//|Activate IP Address
+//|PUT
+//|/ips
+//|ip state
+//<<IP_Put1,[sample]>>
+//
+//|Activate IP Address Bulk
+//|PUT
+//|/ips/bulk
+//|ip state list
+//<<IP_Put1_Bulk,[sample]>>
+//
+//|Deactivate IP Address
+//|PUT
+//|/ips
+//|ip state
+//<<IP_Put2,[sample]>>
+//
+//|Deactivate IP Address Bulk
+//|PUT
+//|/ips/bulk
+//|ip state list
+//<<IP_Put2_Bulk,[sample]>>
+//
+//|Release IP State
+//|DELETE
+//|/ips/{range_id}/{ip}
+//|ip state
+//<<IP_Delete,[sample]>>
+//
+//|Release IP State Bulk
+//|DELETE
+//|/ips/bulk
+//|ip state list
+//<<IP_Delete_Bulk,[sample]>>
+//
+//|Create IP Range
+//|POST
+//|/ips/range
+//|ip range
+//<<IP_Range_Post,[sample]>>
+//
+//|Get IP Range
+//|GET
+//|/ips/range/{range_id}
+//|ip range
+//<<IP_Range_Get,[sample]>>
+//
+//|List all IP Range
+//|GET
+//|/ips/range
+//|ip range list
+//<<IP_Range_List,[sample]>>
+|===
+
+=== API Specification
+
+NOTE: The follows is an example from link:private_ip_manager.adoc[private IP manager].
+
+anchor:IP_Get[]
+**(1) Get/Verify IP state by IP address**
+
+* Method: `GET`
+
+* Request: `/ips/{range_id}/{ip}`
+
+* Request Parameter: `@PathVariable int ipVersion, @PathVariable String rangeId, @PathVariable String ip`
+
+* Response: ip state
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/ips/3d53801c-32ce-4e97-9572-bb966f476ec/11.11.11.1
+
+Response:
+{
+	"ip_version": 4,
+	"vpc_id": null,
+	"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+	"range_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+	"ip": "11.11.11.1",
+	"state": "activated"
+}
+....
+== Database Data Schema
+
+=== IP Address State
+One IP address falls into one of three states:
+
+[width="100%",cols="30%,70%"]
+|===
+|*State* |*Details*
+
+|Activated
+|IP address is allocated to a port AND it is in use. This is default.
+
+|Deactivated
+|IP address is allocated to a port AND it is NOT in use.
+
+|Free
+|IP address is NOT allocated to a port yet.
+|===
+
+== IP allocation algorithm
+
+TBD
+
+=== Concurrency Handling
+
+As there are multiple instances of EIP managers, those instances may serve concurrent calls for different customers and assign EIPs at the same time.
+
+
+[bibliography]
+== References
+
+- [[[neutron_api,1]]] OpenStack Neutron API v2.0: https://docs.openstack.org/api-ref/network/v2/?expanded=#list-floating-ips
+
+
+

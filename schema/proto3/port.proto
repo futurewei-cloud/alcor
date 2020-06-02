@@ -23,18 +23,24 @@ option java_outer_classname = "Port";
 
 import "common.proto";
 
+enum MessageType { 
+    DELTA = 0; // the default type
+    FULL = 1;
+}
+
 message PortConfiguration {
-    uint32 version = 1;
-    
-    NetworkType network_type = 2;
-    string project_id = 3;
-    string network_id = 4;
-    string id = 5;
-    string name = 6;
-    string network_ns = 7;
-    string mac_address = 8;
-    string veth_name = 9;
-    bool admin_state_up = 10;
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
+    MessageType message_type = 3;
+
+    string id = 4;
+    NetworkType network_type = 5;
+    string project_id = 6;
+    string vpc_id = 7;
+    string name = 8;
+    string network_ns = 9;
+    string mac_address = 10;
+    bool admin_state_up = 11;
 
     message HostInfo {
         string ip_address = 1;
@@ -55,10 +61,14 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 11;
-    repeated FixedIp fixed_ips = 12;
-    repeated AllowAddressPair allow_address_pairs = 13;
-    repeated SecurityGroupId security_group_ids = 14;
+    HostInfo host_info = 12;
+    repeated FixedIp fixed_ips = 13;
+    repeated AllowAddressPair allow_address_pairs = 14;
+    repeated SecurityGroupId security_group_ids = 15;
+
+    // start Mizar specific session
+    string veth_name = 16;
+    // end Mizar specific session
 }
 
 message PortState {
