@@ -18,7 +18,7 @@ package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import lombok.Data;
 
@@ -31,7 +31,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private String cidr;
 
     @JsonProperty("routes")
-    private List<RouteWebObject> routes;
+    private List<RouteEntity> routeEntities;
 
     @JsonProperty("admin_state_up")
     private boolean adminStateUp;
@@ -105,18 +105,18 @@ public class VpcWebRequestObject extends CustomerResource {
     public VpcWebRequestObject() {
     }
 
-    public VpcWebRequestObject(String projectId, String id, String name, List<RouteWebObject> routeWebObjectList) {
-        this(projectId, id, name, null, routeWebObjectList);
+    public VpcWebRequestObject(String projectId, String id, String name, List<RouteEntity> routeEntityList) {
+        this(projectId, id, name, null, routeEntityList);
     }
 
     public VpcWebRequestObject(VpcWebRequestObject state) {
-        this(state.getProjectId(), state.getId(), state.getName(), state.getDescription(), state.getRoutes());
+        this(state.getProjectId(), state.getId(), state.getName(), state.getDescription(), state.getRouteEntities());
     }
 
-    public VpcWebRequestObject(String projectId, String id, String name, String description, List<RouteWebObject> routeWebObjectList) {
+    public VpcWebRequestObject(String projectId, String id, String name, String description, List<RouteEntity> routeEntityList) {
 
         super(projectId, id, name, description);
-        this.routes = routeWebObjectList;
+        this.routeEntities = routeEntityList;
     }
 }
 

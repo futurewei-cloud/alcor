@@ -4,17 +4,17 @@ metadata:
   name: subnet-configmap
 data:
   application.properties: |
-    spring.redis.host=10.109.3.172
-    spring.redis.port=6382
+    ignite.host=10.99.135.32
+    ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.vpc.service.url=http://192.168.1.25:30001/project/
-    microservices.mac.service.url=http://192.168.1.25:30005/macs
-    microservices.route.service.url=http://192.168.1.25:30003/
-    microservices.ip.service.url=http://192.168.1.25:30007/ips/
+    microservices.vpc.service.url=http://10.213.43.166:30001/project/
+    microservices.mac.service.url=http://10.213.43.166:30005/macs
+    microservices.route.service.url=http://10.213.43.166:30003/
+    microservices.ip.service.url=http://10.213.43.166:30007/ips/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -41,7 +41,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:subnetKube2
+        - image: zhonghaolyu/repo:subnetKube1
         #- image: fwnetworking/controller:subnet_manager-v0.3.0
           name: subnetmanager-web
           imagePullPolicy: IfNotPresent

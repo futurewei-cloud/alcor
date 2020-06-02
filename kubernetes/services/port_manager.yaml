@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: port-configmap
+data:
+  application.properties: |
+    ignite.host=10.99.135.32
+    ignite.port=10800
+    microservices.vpc.service.url=http://10.213.43.166:30001
+    microservices.subnet.service.url=http://10.213.43.166:30006
+    microservices.ip.service.url=http://10.213.43.166:30007/ips
+    microservices.mac.service.url=http://10.213.43.166:30005/macs
+    microservices.sg.service.url=http://127.0.0.1:8080/securitygroups
+    microservices.route.service.url=http://10.213.43.166:30003/routes
+    microservices.node.service.url=http://10.213.43.166:30009/nodes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: portmanager
+  name: portmanager
+spec:
+  selector:
+    matchLabels:
+      app: portmanager
+  replicas: 1
+  #replicas: 3
+  template:
+    metadata:
+      labels:
+        app: portmanager
+    spec:
+      volumes:
+        - name: port-volume
+          configMap:
+            name: port-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: zhonghaolyu/repo:portKube1
+        #- image: fwnetworking/controller:port_manager-v0.3.0
+          name: portmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorPortManager-0.0.1-SNAPSHOT.jar", "--spring.config.location=/etc/port/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: port-volume
+              mountPath: /etc/port
+          envFrom:
+            - configMapRef:
+                name: port-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portmanager-service
+  labels:
+    name: portmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8006
+      targetPort: 8080
+      nodePort: 30008
+  selector:
+    app: portmanager
+

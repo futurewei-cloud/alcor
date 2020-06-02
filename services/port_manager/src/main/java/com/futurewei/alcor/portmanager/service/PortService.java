@@ -16,20 +16,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service;
 
 
-import com.futurewei.alcor.web.entity.port.PortStateJson;
+import com.futurewei.alcor.web.entity.port.PortWebJson;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface PortService {
-    PortStateJson createPortState(String projectId, PortStateJson portStateJson) throws Exception;
+    PortWebJson createPortState(String projectId, PortWebJson portWebJson) throws Exception;
 
-    PortStateJson updatePortState(String projectId, String portId, PortStateJson portStateJson) throws Exception;
+    PortWebJson updatePortState(String projectId, String portId, PortWebJson portWebJson) throws Exception;
 
     void deletePortState(String projectId, String portId) throws Exception;
 
-    PortStateJson getPortState(String projectId, String portId) throws Exception;
+    PortWebJson getPortState(String projectId, String portId) throws Exception;
 
-    List<PortStateJson> listPortState(String projectId) throws Exception;
+    List<PortWebJson> listPortState(String projectId) throws Exception;
 }

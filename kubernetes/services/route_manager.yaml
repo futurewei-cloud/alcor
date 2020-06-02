@@ -4,8 +4,8 @@ metadata:
   name: route-configmap
 data:
   application.properties: |
-    spring.redis.host=10.107.65.124
-    spring.redis.port=6380
+    ignite.host=10.99.135.32
+    ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
@@ -36,7 +36,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:routeKube4
+        - image: zhonghaolyu/repo:routeKube1
         #- image: fwnetworking/controller:route_manager-v0.3.0
           name: routemanager-web
           imagePullPolicy: IfNotPresent

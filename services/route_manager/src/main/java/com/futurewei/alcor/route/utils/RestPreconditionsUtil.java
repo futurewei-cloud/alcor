@@ -2,7 +2,7 @@ package com.futurewei.alcor.route.utils;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.exception.*;
-import com.futurewei.alcor.web.entity.route.RouteWebObject;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.thymeleaf.util.StringUtils;
 
 public class RestPreconditionsUtil {
@@ -52,7 +52,7 @@ public class RestPreconditionsUtil {
 
     public static void populateResourceVpcId(CustomerResource resource, String vpcId) {
         String resourceVpcId = null;
-        if (resource instanceof RouteWebObject) {
+        if (resource instanceof RouteEntity) {
             resourceVpcId = resource.getId();
         }
 

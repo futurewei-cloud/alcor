@@ -14,24 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-syntax = "proto3";
+package com.futurewei.alcor.web.entity.route;
 
-package alcor.schema;
-
-option java_package = "com.futurewei.alcor.schema";
-
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "securitygroup.proto";
-import "dhcp.proto";
-
-message GoalState {
-    uint32 format_version = 1;
-
-    repeated VpcState vpc_states = 2;
-    repeated SubnetState subnet_states = 3;
-    repeated PortState port_states = 4;
-    repeated SecurityGroupState security_group_states = 5;
-    repeated DHCPState dhcp_states = 6;
+public class RouteWithSubnetEntity {
 }
