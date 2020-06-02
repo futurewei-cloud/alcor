@@ -39,12 +39,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"httpbin=http://localhost:${wiremock.server.port}", "neutron.url_prefix=/v2.0"})
+        properties = {"httpbin=http://localhost:${wiremock.server.port}",
+                "keystone.enable=true", "neutron.url_prefix=/v2.0"})
 @AutoConfigureWireMock(port = 0)
 public class KeystoneAuthWebFilterTest {
 
     private static final String TEST_TOKEN = "gaaaaaBex0xWssdfsadfDSSDFSDF";
-    private static final String TEST_PROJEDCT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
 
     @Autowired
@@ -62,12 +63,11 @@ public class KeystoneAuthWebFilterTest {
     @Before
     public void setUp(){
         ReflectionTestUtils.setField(keystoneAuthWebFilter, "keystoneClient", keystoneClient);
-
     }
 
     @Test
     public void TestFilter(){
-        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJEDCT_ID);
+        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
 
         Mono<ServerResponse> response =ServerResponse.ok().body(BodyInserters.fromObject("[{\"network_id\":\"bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}]"));
         when(subnetWebHandlers.getSubnets(ArgumentMatchers.any(ServerRequest.class))).thenReturn(response);
