@@ -38,7 +38,7 @@ public class IpManagerRestClient extends AbstractRestClient {
         }
     }
 
-    public void verifyIpAddress(String rangeId, String ip) throws Exception {
+    public void getIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
         IpAddrRequest ipAddrRequest = restTemplate.getForObject(url, IpAddrRequest.class);

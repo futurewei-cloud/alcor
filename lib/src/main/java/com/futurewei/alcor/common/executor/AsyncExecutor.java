@@ -44,6 +44,15 @@ public class AsyncExecutor {
         return CompletableFuture.supplyAsync(supplier);
     }
 
+    /**
+     * Execute the function(first parameter) asynchronously.which has one input parameter
+     * and one return value. The type of input parameter is Object, and the return value is R.
+     * @param fun The function to be executed
+     * @param args The parameter of the function being executed
+     * @param <R> The type of return value of the function being executed
+     * @return CompletableFuture
+     * @throws CompletionException
+     */
     public <R>CompletableFuture runAsync(AsyncFunction<Object, R> fun, Object args) throws CompletionException {
         CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
             try {
@@ -58,13 +67,146 @@ public class AsyncExecutor {
         return future;
     }
 
-    public void joinAll() throws CompletionException {
+    /**
+     * Execute the function(first parameter) asynchronously.which has one input parameter
+     * and one return value. The type of input parameter is Object, and the return value is R.
+     * @param fun1 The function to be executed
+     * @param fun2 The function to be executed
+     * @param arg1 The parameter of the function being executed
+     * @param <R> The parameter of the function being executed
+     * @param <U> The type of return value of the function being executed
+     * @return CompletableFuture
+     * @throws CompletionException
+     */
+    public <R, U>CompletableFuture runAsyncThenApply(AsyncFunction<Object, R> fun1, AsyncFunction<Object, U> fun2, Object arg1) throws CompletionException {
+        CompletableFuture<U> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun1.apply(arg1);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor).thenApply((ret) -> {
+            try {
+                return fun2.apply(ret);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public <R, U>CompletableFuture runAsyncThenApply(AsyncFunction<Object, R> fun1, AsyncFunction<Object, U> fun2, Object arg1, Object arg2) throws CompletionException {
+        CompletableFuture<U> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun1.apply(arg1);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor).thenApply((ret) -> {
+            try {
+                return fun2.apply(arg2);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public <R, U>CompletableFuture runAsyncThenAccept(AsyncFunction<Object, R> fun1, AsyncFunction<Object, U> fun2, Object arg1) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun1.apply(arg1);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor).thenApply((ret) -> {
+            try {
+                fun2.apply(ret);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+            return ret;
+        });
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public <R, U>CompletableFuture runAsyncThenAccept(AsyncFunction<Object, R> fun1, AsyncFunction<Object, U> fun2, Object arg1, Object arg2) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun1.apply(arg1);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor).thenApply((ret) -> {
+            try {
+                fun2.apply(arg2);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+            return ret;
+        });
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public <R, U>CompletableFuture runAsyncThenAccept(AsyncFunction<Object, R> fun1, AsyncFunctionWithTwoArgs<Object, Object, U> fun2, Object arg1, Object arg2) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun1.apply(arg1);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor).thenApply((ret) -> {
+            try {
+                fun2.apply(ret, arg2);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+            return ret;
+        });
+
+        futures.add(future);
+
+        return future;
+    }
+
+
+    public <R>CompletableFuture runAsync(AsyncFunctionWithTwoArgs<Object,Object, R> fun, Object arg1, Object arg2) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun.apply(arg1, arg2);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor);
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public List<Object> joinAll() throws CompletionException {
         Iterator<CompletableFuture> iterator = futures.iterator();
+        List<Object> results = new ArrayList<>();
+
         while (iterator.hasNext()) {
             CompletableFuture future = iterator.next();
             iterator.remove();
-            future.join();
+            results.add(future.join());
         }
+
+        return results;
     }
 
     public void waitAll() {

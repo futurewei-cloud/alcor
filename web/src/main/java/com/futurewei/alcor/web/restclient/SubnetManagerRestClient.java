@@ -24,14 +24,14 @@ public class SubnetManagerRestClient extends AbstractRestClient {
     @Value("${microservices.subnet.service.url:#{\"\"}}")
     private String subnetManagerUrl;
 
-    public SubnetWebJson getSubnetState(String projectId, String subnetId) throws Exception {
+    public SubnetWebJson getSubnet(String projectId, String subnetId) throws Exception {
         String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;
 
-        SubnetWebJson subnetStateJson = restTemplate.getForObject(url, SubnetWebJson.class);
-        if (subnetStateJson == null) {
+        SubnetWebJson subnetWebJson = restTemplate.getForObject(url, SubnetWebJson.class);
+        if (subnetWebJson == null) {
             throw new Exception("Get subnet failed");
         }
 
-        return subnetStateJson;
+        return subnetWebJson;
     }
 }

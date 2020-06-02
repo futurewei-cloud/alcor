@@ -18,5 +18,6 @@ package com.futurewei.alcor.portmanager.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Can not find vpc by vpc_id")
-public class VerifyVpcException extends Exception {}
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Get RouteEntity exception")
+public class GetRouteEntityException extends Exception {
+}

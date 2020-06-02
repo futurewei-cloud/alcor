@@ -24,13 +24,13 @@ public class VpcManagerRestClient extends AbstractRestClient {
     @Value("${microservices.vpc.service.url:#{\"\"}}")
     private String vpcManagerUrl;
 
-    public VpcWebJson verifyVpc(String projectId, String vpcId) throws Exception {
+    public VpcWebJson getVpc(String projectId, String vpcId) throws Exception {
         String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;
-        VpcWebJson vpcState = restTemplate.getForObject(url, VpcWebJson.class);
-        if (vpcState == null) {
-            throw new Exception("verify vpc failed");
+        VpcWebJson vpcWebJson = restTemplate.getForObject(url, VpcWebJson.class);
+        if (vpcWebJson == null) {
+            throw new Exception("Get vpc failed");
         }
 
-        return vpcState;
+        return vpcWebJson;
     }
 }

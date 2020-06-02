@@ -34,6 +34,11 @@ public class MacManagerRestClient extends AbstractRestClient {
         }
     }
 
+    private MacStateJson newMacStateJson(String projectId, String vpcId, String portId, String macAddress) {
+        MacState macState = new MacState(macAddress, projectId, vpcId, portId, null);
+        return new MacStateJson(macState);
+    }
+
     public void releaseMacAddress(String macAddress) throws Exception {
         String url = macManagerUrl + "/" + macAddress;
 
@@ -41,14 +46,7 @@ public class MacManagerRestClient extends AbstractRestClient {
     }
 
     public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
-        MacState macState = new MacState();
-        macState.setProjectId(projectId);
-        macState.setVpcId(vpcId);
-        macState.setPortId(portId);
-        macState.setMacAddress(macAddress);
-
-        MacStateJson macStateJson = new MacStateJson();
-        macStateJson.setMacState(macState);
+        MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
         HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
 
         MacStateJson result = restTemplate.postForObject(macManagerUrl, request, MacStateJson.class);
@@ -56,5 +54,14 @@ public class MacManagerRestClient extends AbstractRestClient {
         verifyAllocatedMacAddress(result);
 
         return result;
+    }
+
+    public MacStateJson updateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
+        MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
+        HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
+
+        restTemplate.put(macManagerUrl, request);
+
+        return macStateJson;
     }
 }

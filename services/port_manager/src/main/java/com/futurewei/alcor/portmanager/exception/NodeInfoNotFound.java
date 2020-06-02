@@ -18,5 +18,6 @@ package com.futurewei.alcor.portmanager.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Port not found")
-public class PortStateNotFoundException extends Exception {}
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Node info not found")
+public class NodeInfoNotFound extends Exception {
+}

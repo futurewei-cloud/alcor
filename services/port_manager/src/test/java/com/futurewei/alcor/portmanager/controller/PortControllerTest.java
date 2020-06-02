@@ -23,6 +23,12 @@ import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.mac.*;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.RouteTableType;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
@@ -38,10 +44,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -69,6 +72,15 @@ public class PortControllerTest {
     private NodeManagerRestClient nodeManagerRestClient;
 
     @MockBean
+    private RouteManagerRestClient routeManagerRestClient;
+
+    @MockBean
+    private DataPlaneManagerRestClient dataPlaneManagerRestClient;
+
+    @MockBean
+    private SecurityGroupManagerRestClient securityGroupManagerRestClient;
+
+    @MockBean
     private PortRepository portRepository;
 
     private String createPortUrl = "/project/" + UnitTestConfig.projectId + "/ports";
@@ -85,7 +97,7 @@ public class PortControllerTest {
         fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
         List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroup);
+        securityGroups.add(UnitTestConfig.securityGroupId);
 
         List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
         allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
@@ -107,6 +119,7 @@ public class PortControllerTest {
     private IpAddrRequest newIpv4AddrRequest() {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
+        ipAddrRequest.setSubnetId(UnitTestConfig.subnetId);
         ipAddrRequest.setIpVersion(UnitTestConfig.ipv4Version);
         ipAddrRequest.setIp(UnitTestConfig.ip1);
         ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
@@ -132,6 +145,7 @@ public class PortControllerTest {
     private VpcWebJson newVpcStateJson() {
         VpcEntity vpcState = new VpcEntity();
         vpcState.setId(UnitTestConfig.vpcId);
+        vpcState.setProjectId(UnitTestConfig.projectId);
         vpcState.setCidr(UnitTestConfig.vpcCidr);
 
         return new VpcWebJson(vpcState);
@@ -145,6 +159,8 @@ public class PortControllerTest {
         subnetState.setCidr(UnitTestConfig.vpcCidr);
         subnetState.setVpcId(UnitTestConfig.vpcId);
         subnetState.setIpV4RangeId(UnitTestConfig.rangeId);
+        subnetState.setGatewayIp(UnitTestConfig.ip1);
+        subnetState.setGatewayMacAddress(UnitTestConfig.mac1);
 
         return new SubnetWebJson(subnetState);
     }
@@ -163,16 +179,50 @@ public class PortControllerTest {
         NodeInfo nodeInfo = new NodeInfo();
         nodeInfo.setId(nodeId);
         nodeInfo.setLocalIp(ipAddress);
+        nodeInfo.setMacAddress(UnitTestConfig.mac1);
 
         return new NodeInfoJson(nodeInfo);
     }
 
+    private RouteWebJson newRouteWebJson() {
+        RouteEntity route = new RouteEntity();
+        route.setDestination(UnitTestConfig.routeDestination);
+        route.setTarget(UnitTestConfig.routeTarget);
+        route.setAssociatedType(RouteTableType.MAIN);
+
+        return new RouteWebJson(route);
+    }
+
+    private SecurityGroupWebJson newSecurityGroupWebJson() {
+        SecurityGroupEntity securityGroupEntity = new SecurityGroupEntity();
+        securityGroupEntity.setId(UnitTestConfig.securityGroupId);
+        securityGroupEntity.setName(UnitTestConfig.securityGroupName);
+        securityGroupEntity.setProjectId(UnitTestConfig.projectId);
+
+        SecurityGroupRuleEntity securityGroupRuleEntity = new SecurityGroupRuleEntity();
+        securityGroupRuleEntity.setId(UnitTestConfig.securityGroupRuleId);
+        securityGroupRuleEntity.setProjectId(UnitTestConfig.projectId);
+        securityGroupRuleEntity.setTenantId(UnitTestConfig.tenantId);
+        securityGroupRuleEntity.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        securityGroupRuleEntity.setDirection(UnitTestConfig.direction);
+        securityGroupRuleEntity.setProtocol(UnitTestConfig.protocolTcp);
+        securityGroupRuleEntity.setPortRangeMin(UnitTestConfig.portRangeMin);
+        securityGroupRuleEntity.setPortRangeMax(UnitTestConfig.portRangeMax);
+        securityGroupRuleEntity.setEtherType(UnitTestConfig.etherType);
+
+        List<SecurityGroupRuleEntity> securityGroupRuleEntities = new ArrayList<>();
+        securityGroupRuleEntities.add(securityGroupRuleEntity);
+        securityGroupEntity.setSecurityGroupRuleEntities(securityGroupRuleEntities);
+
+        return new SecurityGroupWebJson(securityGroupEntity);
+    }
+
     @Test
     public void createPortWithFixedIpsTest() throws Exception {
-        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
 
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -181,7 +231,14 @@ public class PortControllerTest {
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
                 .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
-        Mockito.doNothing().when(portRepository);
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portStateWithFixedIps))
@@ -193,10 +250,10 @@ public class PortControllerTest {
 
     @Test
     public void createPortWithoutFixedIpsTest() throws Exception {
-        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
 
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV4, UnitTestConfig.vpcId, null, null))
@@ -208,7 +265,14 @@ public class PortControllerTest {
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
                 .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
-        Mockito.doNothing().when(portRepository);
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portStateWithoutFixedIps))
@@ -220,10 +284,10 @@ public class PortControllerTest {
 
     @Test
     public void createPortWithMacAddressTest() throws Exception {
-        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
 
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -232,7 +296,14 @@ public class PortControllerTest {
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, UnitTestConfig.mac1))
                 .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
-        Mockito.doNothing().when(portRepository);
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portStateWithMacAddress))
@@ -244,10 +315,10 @@ public class PortControllerTest {
 
     @Test
     public void createPortWithoutMacAddressTest() throws Exception {
-        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
 
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -256,7 +327,14 @@ public class PortControllerTest {
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
                 .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
 
-        Mockito.doNothing().when(portRepository);
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portStateWithoutMacAddress))
@@ -268,10 +346,10 @@ public class PortControllerTest {
 
     @Test
     public void createPortBulkTest() throws Exception {
-        Mockito.when(vpcManagerRestClient.verifyVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(newVpcStateJson());
 
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -283,7 +361,14 @@ public class PortControllerTest {
         Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId2, null))
                 .thenReturn(newMacStateJson(UnitTestConfig.portId2, UnitTestConfig.mac2));
 
-        Mockito.doNothing().when(portRepository);
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         this.mockMvc.perform(post(createPortBulkUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.createPortBulk))
@@ -297,7 +382,10 @@ public class PortControllerTest {
 
     @Test
     public void updateFixedIpsTest() throws Exception {
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(newVpcStateJson());
+
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -305,6 +393,15 @@ public class PortControllerTest {
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV4, UnitTestConfig.vpcId, null, null))
                 .thenReturn(newIpv4AddrRequest());
+
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
@@ -320,7 +417,10 @@ public class PortControllerTest {
 
     @Test
     public void updateMacAddressAndFixedIpsBulkTest() throws Exception {
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(newVpcStateJson());
+
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
@@ -340,6 +440,12 @@ public class PortControllerTest {
 
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
                 .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
+
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
@@ -393,8 +499,26 @@ public class PortControllerTest {
 
     @Test
     public void deletePortTest() throws Exception {
-        Mockito.when(subnetManagerRestClient.getSubnetState(UnitTestConfig.projectId, UnitTestConfig.subnetId))
+        Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(newVpcStateJson());
+
+        Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
                 .thenReturn(newSubnetStateJson());
+
+        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
+                .thenReturn(newIpv4AddrRequest());
+
+        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId, null))
+                .thenReturn(newMacStateJson(UnitTestConfig.portId, UnitTestConfig.mac1));
+
+        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+                .thenReturn(newRouteWebJson());
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId))
+                .thenReturn(newSecurityGroupWebJson());
+
+        Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId))
+                .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId, UnitTestConfig.ip1));
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId).getPortEntity());
