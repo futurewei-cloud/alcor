@@ -42,8 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-@Component
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class KeystoneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
@@ -82,7 +80,6 @@ public class KeystoneClient {
     private RestTemplate restTemplate;
     private ICache<String, TokenEntity> cache;
 
-    @Autowired
     public KeystoneClient(CacheFactory cacheFactory){
         this.restTemplate = new RestTemplate();
         this.cache = cacheFactory.getCache(TokenEntity.class);
