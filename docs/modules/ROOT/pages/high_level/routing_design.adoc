@@ -1,0 +1,81 @@
+= Key System Flows
+Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
+v0.1, 2020-06-02
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Architecture Overview
+
+Picture of different routing components including router/DVR, FIP manager, SNAT manager
+
+== Requirements
+
+We need to supports:
+
+. fast port provision enable the communication to and from the VMs to other VMs within the same or different networks
+. scale to support 10,000 nodes in a VPC, and 100,000 (?) machines in region
+. fast migration of VMs
+. direct VM to VM communication (first packet may go through a gateway)
+
+== Current Openstack pain points
+
+== Design Options 1 (Gateway approach)
+
+Can we start with a simple gateway approach where:
+
+. only program the compute host for the new port and gateway
+. install a default flow in the compute host to route all unknown traffic to a gateway
+. when gateway saw the VM to VM communication (different network)
+.. somehow install the flow in the sender host (how)
+.. should the flow has a timeout like 300 mins (maybe not for now)
+.. how to install the network ACL during the flow install? Maybe same approach as DVR
+.. should this be trigger on the gateway or compute host? 
+... compute host can do better bandwidth measurement when needed and it is more distributed
+
+== Design Options 2 (DVR approach)
+
+== Route Rule implementation
+
+iptables vs openflow
+
+Eric/James is looking at how dragonflow use openflow.
+
+== Comparison with Neutron router/DVR
+
+How can we do better than the current Openstack setup (DVR)?
+
+James: the current assumption is neutron only install the DVR instance as needed on a compute node, want to confirm that.
+
+James: BTW, for same network, does neutron pre-configure all the tunnel VTEP on all machines even when it is not needed? I saw that on my microstack setup, want to confirm that on a real openstack setup. 
+
+== Workflow Router programming
+
+What are the steps to program our router/DVR, FIP manager, SNAT manager
+
+
+== Packet flows
+
+=== Case 1: East-west for instances on the same network
+
+=== Case 2: East-west for instances on different networks
+
+=== Case 3: North-south for instances with a fixed IP address
+
+=== Case 4: North-south for instances with a floating IP address
+
+
+== Example Configuration?
+
+Picture of how our controller/network/compute node looks like.
+
+
+== Pending Items
+
+. what happen if host crashed, do we just leverage the ovsdb stored data? Or we ask the Alcor controller for the whole set of configuration upon restart?
+
+[bibliography]
+== References
+
+- [[[neutron-flows,1]]] https://docs.openstack.org/liberty/networking-guide/scenario-classic-ovs.html
