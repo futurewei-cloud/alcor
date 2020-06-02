@@ -17,10 +17,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway;
 
 import com.futurewei.alcor.apigateway.filter.KeystoneAuthWebFilter;
+import com.futurewei.alcor.apigateway.utils.KeystoneClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -44,6 +46,9 @@ public class AlcorApiGatewayApplicationTest {
 
     @MockBean
     private KeystoneAuthWebFilter keystoneAuthWebFilter;
+
+    @MockBean
+    private KeystoneClient keystoneClient;
 
     @Before
     public void setUp(){
