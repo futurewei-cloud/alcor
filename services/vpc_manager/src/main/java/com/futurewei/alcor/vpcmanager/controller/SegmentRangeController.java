@@ -5,7 +5,10 @@ import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentRangeManagementUtil;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequestJson;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequest;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebResponseJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -80,7 +83,7 @@ public class SegmentRangeController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            NetworkSegmentRangeWebRequestObject segmentRangeWebRequestObject = resource.getNetwork_segment_range();
+            NetworkSegmentRangeWebRequest segmentRangeWebRequestObject = resource.getNetwork_segment_range();
             BeanUtils.copyProperties(segmentRangeWebRequestObject, segmentRangeWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentRangeWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentRangeWebResponseObject, projectid);
@@ -121,7 +124,7 @@ public class SegmentRangeController {
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(network_segment_range_id);
-            NetworkSegmentRangeWebRequestObject segmentRangeWebRequestObject = resource.getNetwork_segment_range();
+            NetworkSegmentRangeWebRequest segmentRangeWebRequestObject = resource.getNetwork_segment_range();
             BeanUtils.copyProperties(segmentRangeWebRequestObject, segmentRangeWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentRangeWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentRangeWebResponseObject, projectid);

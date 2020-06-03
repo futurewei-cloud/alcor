@@ -2,7 +2,7 @@ package com.futurewei.alcor.vpcmanager;
 
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
-import com.futurewei.alcor.web.entity.SegmentEntity;
+import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 
 import org.junit.After;

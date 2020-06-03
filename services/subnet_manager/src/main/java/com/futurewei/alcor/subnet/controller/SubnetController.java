@@ -98,7 +98,7 @@ public class SubnetController {
             method = POST,
             value = {"/project/{projectId}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
-    public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetRequestWebJson resource) throws Exception {
+    public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebRequestJson resource) throws Exception {
         long start = System.currentTimeMillis();
         SubnetEntity inSubnetEntity = new SubnetEntity();
         RouteWebJson routeResponse = null;
@@ -118,8 +118,8 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
             // TODO: Create a verification framework for all resources
-            SubnetWebRequestObject subnetWebRequestObject = resource.getSubnet();
-            BeanUtils.copyProperties(subnetWebRequestObject, inSubnetEntity);
+            SubnetWebRequest subnetWebRequest = resource.getSubnet();
+            BeanUtils.copyProperties(subnetWebRequest, inSubnetEntity);
 
             String subnetId = inSubnetEntity.getId();
             String vpcId = inSubnetEntity.getVpcId();
@@ -261,7 +261,7 @@ public class SubnetController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectId}/subnets/{subnetId}"})
-    public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetRequestWebJson resource) throws Exception {
+    public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebRequestJson resource) throws Exception {
 
         SubnetEntity subnetEntity = new SubnetEntity();
 
@@ -273,7 +273,7 @@ public class SubnetController {
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
-            SubnetWebRequestObject inSubnetWebResponseObject = resource.getSubnet();
+            SubnetWebRequest inSubnetWebResponseObject = resource.getSubnet();
             RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetWebResponseObject, projectId);
 

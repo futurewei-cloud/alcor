@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
-import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -28,7 +28,7 @@ public interface SubnetService {
     public void fallbackOperation (AtomicReference<RouteWebJson> routeResponseAtomic,
                                    AtomicReference<MacStateJson> macResponseAtomic,
                                    AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                   SubnetRequestWebJson resource,
+                                   SubnetWebRequestJson resource,
                                    String message) throws CacheException;
 
     // Verify VPC ID

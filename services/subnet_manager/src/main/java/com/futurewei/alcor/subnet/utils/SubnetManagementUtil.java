@@ -18,16 +18,16 @@ package com.futurewei.alcor.subnet.utils;
 
 import com.futurewei.alcor.common.enumClass.Ipv6AddressModeEnum;
 import com.futurewei.alcor.common.enumClass.Ipv6RaModeEnum;
-import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequest;
 
 public class SubnetManagementUtil {
 
-    public static boolean checkSubnetRequestResourceIsValid(SubnetRequestWebJson resource) {
+    public static boolean checkSubnetRequestResourceIsValid(SubnetWebRequestJson resource) {
         if (resource == null) {
             return false;
         }
-        SubnetWebRequestObject subnet = resource.getSubnet();
+        SubnetWebRequest subnet = resource.getSubnet();
 
         // network_id
         String networkId = subnet.getVpcId();

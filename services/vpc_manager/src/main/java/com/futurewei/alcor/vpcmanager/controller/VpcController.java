@@ -25,7 +25,7 @@ import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
+import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
 import com.futurewei.alcor.web.entity.vpc.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,8 +111,8 @@ public class VpcController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
-            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            VpcWebRequest vpcWebRequest = resource.getNetwork();
+            BeanUtils.copyProperties(vpcWebRequest, inVpcState);
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
@@ -125,7 +125,7 @@ public class VpcController {
             inVpcState = VpcManagementUtil.configureNetworkDefaultParameters(inVpcState);
 
             // Check segments
-            List<SegmentInfoInVpc> segments = vpcWebRequestObject.getSegments();
+            List<SegmentInfoInVpc> segments = vpcWebRequest.getSegments();
             if (segments != null) {
                 List<SegmentInfoInVpc> newSegments = new ArrayList<>();
                 for (SegmentInfoInVpc segmentInfo : segments) {
@@ -184,8 +184,8 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
 
-            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
-            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            VpcWebRequest vpcWebRequest = resource.getNetwork();
+            BeanUtils.copyProperties(vpcWebRequest, inVpcState);
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
@@ -195,7 +195,7 @@ public class VpcController {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            BeanUtils.copyProperties(vpcWebRequest, inVpcState);
             Integer revisionNumber = inVpcState.getRevisionNumber();
             if (revisionNumber == null) {
                 inVpcState.setRevisionNumber(1);

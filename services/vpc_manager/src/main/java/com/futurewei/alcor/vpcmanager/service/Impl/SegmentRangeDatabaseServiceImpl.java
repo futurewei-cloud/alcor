@@ -5,7 +5,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.vpcmanager.dao.SegmentRangeRepository;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -19,13 +19,12 @@ package com.futurewei.alcor.web.entity.vpc;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class VpcWebRequestObject extends CustomerResource {
+public class VpcWebRequest extends CustomerResource {
 
     @JsonProperty("cidr")
     private String cidr;
@@ -102,18 +101,18 @@ public class VpcWebRequestObject extends CustomerResource {
     @JsonProperty("sort_key")
     private String sortKey;
 
-    public VpcWebRequestObject() {
+    public VpcWebRequest() {
     }
 
-    public VpcWebRequestObject(String projectId, String id, String name, List<RouteEntity> routeEntityList) {
+    public VpcWebRequest(String projectId, String id, String name, List<RouteEntity> routeEntityList) {
         this(projectId, id, name, null, routeEntityList);
     }
 
-    public VpcWebRequestObject(VpcWebRequestObject state) {
+    public VpcWebRequest(VpcWebRequest state) {
         this(state.getProjectId(), state.getId(), state.getName(), state.getDescription(), state.getRouteEntities());
     }
 
-    public VpcWebRequestObject(String projectId, String id, String name, String description, List<RouteEntity> routeEntityList) {
+    public VpcWebRequest(String projectId, String id, String name, String description, List<RouteEntity> routeEntityList) {
 
         super(projectId, id, name, description);
         this.routeEntities = routeEntityList;
