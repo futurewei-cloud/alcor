@@ -126,7 +126,6 @@
                 </executions>
             </plugin>
         </plugins>
-
         <resources>
             <resource>
                 <directory>src/resources</directory>
