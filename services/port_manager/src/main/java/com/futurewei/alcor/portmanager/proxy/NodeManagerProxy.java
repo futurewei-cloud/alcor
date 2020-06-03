@@ -15,28 +15,36 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.portmanager.util.SpringContextUtil;
-import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
+import com.futurewei.alcor.portmanager.rollback.Rollback;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
-import com.futurewei.alcor.portmanager.restclient.NodeManagerRestClient;
+import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import java.util.Stack;
 
 public class NodeManagerProxy {
     private NodeManagerRestClient nodeManagerRestClient;
-    private Stack<PortStateRollback> rollbacks;
+    private Stack<Rollback> rollbacks;
 
-    public NodeManagerProxy(Stack<PortStateRollback> rollbacks) {
+    public NodeManagerProxy(Stack<Rollback> rollbacks) {
         nodeManagerRestClient = SpringContextUtil.getBean(NodeManagerRestClient.class);
         this.rollbacks = rollbacks;
     }
 
     /**
-     * Verify if the host/node of nodeId exists
-     * @param nodeId Id of host/node
+     * Verify and get host info from Node manager
+     * @param args Id of host/node
      * @return The information of host/node
      * @throws Exception Rest request exception
      */
-    public NodeInfoJson verifyHost(String nodeId) throws Exception {
-        return nodeManagerRestClient.getNodeInfo(nodeId);
+    public NodeInfo getNodeInfo(Object args) throws Exception {
+        String nodeId = (String)args;
+        NodeInfoJson nodeInfoJson = nodeManagerRestClient.getNodeInfo(nodeId);
+        if (nodeInfoJson == null || nodeInfoJson.getNodeInfo() == null) {
+            throw new GetNodeInfoException();
+        }
+
+        return nodeInfoJson.getNodeInfo();
     }
 }

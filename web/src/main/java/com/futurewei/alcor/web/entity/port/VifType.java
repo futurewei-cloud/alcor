@@ -13,23 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.port;
 
-package com.futurewei.alcor.common.db.repo;
+public enum VifType {
+    OVS("ovs"),
+    MACVTAP("macvtap"),
+    HW_VEB("hw_veb"),
+    HOSTDEV_PHYSICAL("hostdev_physical"),
+    VHOSTUSER("vhostuser"),
+    DISTRIBUTED("distributed"),
+    OTHER("other");
 
-import com.futurewei.alcor.common.db.CacheException;
+    private String vifType;
 
-import java.util.List;
-import java.util.Map;
+    VifType(String vifType) {
+        this.vifType = vifType;
+    }
 
-public interface ICacheRepository<T> {
+    public String getVifType() {
+        return vifType;
+    }
 
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+    public void setVifType(String vifType) {
+        this.vifType = vifType;
+    }
 }

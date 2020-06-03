@@ -18,20 +18,16 @@ package com.futurewei.alcor.portmanager.rollback;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 
-/**
- * When the release of the mac address is successful, but when the release
- * of the mac address needs to be rolled back due to some exception,
- * the doRollback() interface of ReleaseMacAddrRollback is called.
- */
-public class ReleaseMacAddrRollback extends AbstractMacAddrRollback {
-    public ReleaseMacAddrRollback(MacManagerRestClient macManagerRestClient) {
+public class UpdateMacAddressRollback extends AbstractMacAddrRollback {
+
+    public UpdateMacAddressRollback(MacManagerRestClient macManagerRestClient) {
         super(macManagerRestClient);
     }
 
     @Override
     public void doRollback() throws Exception {
-        for (MacState macState: releasedMacs) {
-            macManagerRestClient.allocateMacAddress(
+        for (MacState macState: updatedMacs) {
+            macManagerRestClient.updateMacAddress(
                     macState.getProjectId(),
                     macState.getVpcId(),
                     macState.getPortId(),

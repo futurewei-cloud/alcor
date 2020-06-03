@@ -17,12 +17,12 @@ package com.futurewei.alcor.portmanager.rollback;
 
 
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
+import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class AbstractIpAddrRollback implements PortStateRollback {
+public abstract class AbstractIpAddrRollback implements Rollback {
     protected IpManagerRestClient ipManagerRestClient;
 
     protected List<IpAddrRequest> allocatedIps = new ArrayList<>();

@@ -16,35 +16,36 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.portmanager.exception.GetVpcEntityException;
-import com.futurewei.alcor.web.entity.port.*;
-import com.futurewei.alcor.web.entity.vpc.*;
-import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
+import com.futurewei.alcor.portmanager.exception.GetRouteEntityException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
+
 import java.util.Stack;
 
-public class VpcManagerProxy {
-    private VpcManagerRestClient vpcManagerRestClient;
+public class RouteManagerProxy {
+    private RouteManagerRestClient routeManagerRestClient;
     private Stack<Rollback> rollbacks;
 
-    public VpcManagerProxy(Stack<Rollback> rollbacks) {
-        vpcManagerRestClient = SpringContextUtil.getBean(VpcManagerRestClient.class);
+    public RouteManagerProxy(Stack<Rollback> rollbacks) {
+        routeManagerRestClient = SpringContextUtil.getBean(RouteManagerRestClient.class);
         this.rollbacks = rollbacks;
     }
 
     /**
      * Verify if the vpc of vpcId exists
-     * @param args PortEntity
-     * @return The information of vpc
+     * @param args Subnet id
+     * @return RouteEntity
      * @throws Exception Rest request exception
      */
-    public VpcEntity getVpcEntity(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity)args;
-        VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(portEntity.getProjectId(), portEntity.getVpcId());
-        if (vpcWebJson == null || vpcWebJson.getNetwork() == null) {
-            throw new GetVpcEntityException();
+    public RouteEntity getRouteBySubnetId(Object args) throws Exception {
+        String subnetId = (String)args;
+        RouteWebJson routeWebJson = routeManagerRestClient.getRouteBySubnetId(subnetId);
+        if (routeWebJson == null || routeWebJson.getRoute() == null) {
+            throw new GetRouteEntityException();
         }
 
-        return vpcWebJson.getNetwork();
+        return routeWebJson.getRoute();
     }
 }

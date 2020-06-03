@@ -13,23 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.port;
 
-package com.futurewei.alcor.common.db.repo;
-
-import com.futurewei.alcor.common.db.CacheException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
-import java.util.Map;
 
-public interface ICacheRepository<T> {
+public class PortWebBulkJson {
+    @JsonProperty("ports")
+    private List<PortEntity> portEntities;
 
-    T findItem(String id) throws CacheException;
+    public PortWebBulkJson() {
+    }
 
-    Map<String, T> findAllItems() throws CacheException;
+    public PortWebBulkJson(List<PortEntity> portEntities) {
+        this.portEntities = portEntities;
+    }
 
-    void addItem(T newItem) throws CacheException;
+    public List<PortEntity> getPortEntities() {
+        return portEntities;
+    }
 
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+    public void setPortEntities(List<PortEntity> portEntities) {
+        this.portEntities = portEntities;
+    }
 }
