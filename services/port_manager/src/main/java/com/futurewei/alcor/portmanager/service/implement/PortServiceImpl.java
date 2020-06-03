@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
-import com.futurewei.alcor.common.executor.AsyncFunction;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
@@ -25,9 +24,6 @@ import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.GoalStateUtil;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.port.*;
-import com.futurewei.alcor.web.entity.host.*;
-import com.futurewei.alcor.web.entity.route.RouterState;
-import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,35 +40,6 @@ public class PortServiceImpl implements PortService {
     @Autowired
     private PortRepository portRepository;
 
-    private void getDefaultSecurityGroup(PortEntity portEntity) {
-        //FIXME: send get tenant default security group
-        String defaultSgId =  "tenant-default-security-group-id";
-
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(defaultSgId);
-
-        portEntity.setSecurityGroups(securityGroups);
-    }
-
-    private void verifySecurityGroup(PortEntity portEntity) {
-        List<String> securityGroups = portEntity.getSecurityGroups();
-        String tenantId = portEntity.getTenantId();
-
-        for (String securityGroup: securityGroups) {
-            //FIXME: send verify tenant security group
-        }
-    }
-
-    private void unbindSecurityGroups(PortEntity portEntity) {
-
-    }
-
-    private void bindSecurityGroups(PortEntity portEntity) {
-        verifySecurityGroup(portEntity);
-
-        //FIXME: Not support yet
-    }
-
     private void rollBackAllOperations(Stack<Rollback> rollbacks) {
         while (!rollbacks.isEmpty()) {
             Rollback rollback = rollbacks.pop();
@@ -83,16 +50,6 @@ public class PortServiceImpl implements PortService {
                 LOG.error("{} roll back failed: {}", rollback, e);
             }
         }
-    }
-
-    private HostState getHostState(String hostId) {
-        return null;
-    }
-
-    private void addPortToHost(String hostId) {
-        HostState hostState = getHostState(hostId);
-
-        //FIXME: Add port to Host
     }
 
     private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<Rollback> rollbacks) throws Exception {
@@ -180,7 +137,7 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
-        LOG.debug("Create port state, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+        LOG.debug("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
@@ -202,13 +159,13 @@ public class PortServiceImpl implements PortService {
                 dataPlaneManagerProxy.createGoalState(goalState);
             }
 
-            //Persist portState
+            //Persist portEntity
             portRepository.addItem(portEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
 
-        LOG.info("Create port state success, projectId: {}, portWebJson: {}", projectId, portWebJson);
+        LOG.info("Create port success, projectId: {}, portWebJson: {}", projectId, portWebJson);
 
         return portWebJson;
     }
@@ -220,7 +177,7 @@ public class PortServiceImpl implements PortService {
      * the resource allocated from each micro-service.
      * @param projectId Project the port belongs to
      * @param portWebBulkJson Multiple ports configuration
-     * @return PortStateBulkJson
+     * @return PortWebBulkJson
      * @throws Exception Various exceptions that may occur during the create process
      */
     @Override
@@ -249,7 +206,7 @@ public class PortServiceImpl implements PortService {
                 dataPlaneManagerProxy.createGoalState(goalState);
             }
 
-            //Persist portStates
+            //Persist portEntities
             portRepository.addItems(portWebBulkJson.getPortEntities());
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -505,7 +462,7 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
-        LOG.debug("Update port state, projectId: {}, portId: {}, PortWebJson: {}",
+        LOG.debug("Update port, projectId: {}, portId: {}, PortWebJson: {}",
                 projectId, portId, portWebJson);
 
         Stack<Rollback> rollbacks = new Stack<>();
@@ -543,7 +500,7 @@ public class PortServiceImpl implements PortService {
             exceptionHandle(executor, rollbacks, e);
         }
 
-        LOG.debug("Update port state success, portWebJson: {}", portWebJson);
+        LOG.debug("Update port success, portWebJson: {}", portWebJson);
 
         return portWebJson;
     }
@@ -590,7 +547,7 @@ public class PortServiceImpl implements PortService {
                 dataPlaneManagerProxy.updateGoalState(goalState);
             }
 
-            //Persist portStates
+            //Persist portEntities
             portRepository.addItems(portEntities);
             portWebBulkJson.setPortEntities(portEntities);
         } catch (Exception e) {
@@ -611,7 +568,7 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     public void deletePort(String projectId, String portId) throws Exception {
-        LOG.debug("Delete port state, projectId: {}, portId: {}", projectId, portId);
+        LOG.debug("Delete port, projectId: {}, portId: {}", projectId, portId);
 
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
@@ -653,7 +610,7 @@ public class PortServiceImpl implements PortService {
             exceptionHandle(executor, rollbacks, e);
         }
 
-        LOG.debug("Delete port state success, projectId: {}, portId: {}", projectId, portId);
+        LOG.debug("Delete port success, projectId: {}, portId: {}", projectId, portId);
     }
 
     /**

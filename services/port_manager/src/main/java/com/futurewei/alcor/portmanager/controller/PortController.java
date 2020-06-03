@@ -121,13 +121,13 @@ public class PortController {
      * the resource allocated from each micro-service.
      * @param projectId Project the port belongs to
      * @param portWebJson Port configuration
-     * @return PortStateJson
+     * @return PortWebJson
      * @throws Exception Various exceptions that may occur during the create process
      */
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public PortWebJson createPortState(@PathVariable("project_id") String projectId,
+    public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebJson portWebJson) throws Exception {
         PortEntity portEntity = portWebJson.getPortEntity();
         if (StringUtil.isNullOrEmpty(portEntity.getNetworkId())) {
@@ -146,7 +146,7 @@ public class PortController {
      * the resource allocated from each micro-service.
      * @param projectId Project the port belongs to
      * @param portWebBulkJson Multiple ports configuration
-     * @return PortStateBulkJson
+     * @return PortWebBulkJson
      * @throws Exception Various exceptions that may occur during the create process
      */
     @PostMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
@@ -219,7 +219,7 @@ public class PortController {
      * Get the configuration of the port by port id
      * @param projectId Project the port belongs to
      * @param portId Id of port
-     * @return PortStateJson
+     * @return PortWebJson
      * @throws Exception Db operation exception
      */
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
