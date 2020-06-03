@@ -27,16 +27,12 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -46,15 +42,18 @@ public class KeystoneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String VALIDATE_TOKEN_HEADER = "X-Subject-Token";
     private static final String AUTH_TOKEN_HEADER = "X-Auth-Token";
+    private static final String JSON_PROJECT_KEY = "project";
+    private static final String JSON_DOMAIN_KEY = "domain";
+    private static final String JSON_LINKS_KEY = "links";
 
-    private static String baseUrl = "";
-    private static volatile String localToken = "";
-    private static volatile Date expireDate;
+    private String baseUrl = "";
+    private volatile String localToken = "";
+    private volatile Date localTokenExpireDate;
 
     @Value("${keystone.project_domain_name}")
     private String projectDomainName;
@@ -121,14 +120,14 @@ public class KeystoneClient {
 
     public void getLocalToken() throws IOException{
         //if have token and not expire use it
-        if(!"".equals(localToken) && (expireDate == null || expireDate.after(new Date()))){
+        if(!"".equals(localToken) && (localTokenExpireDate == null || localTokenExpireDate.after(new Date()))){
             return;
         }
 
         checkEndPoints();
 
         synchronized(this) {
-            if(!"".equals(localToken) && (expireDate == null || expireDate.after(new Date()))){
+            if(!"".equals(localToken) && (localTokenExpireDate == null || localTokenExpireDate.after(new Date()))){
                 return;
             }
             HttpHeaders headers = new HttpHeaders();
@@ -144,7 +143,7 @@ public class KeystoneClient {
             if (!"null".equals(expireDateStr)) {
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
                 try {
-                    expireDate = dateFormat.parse(expireDateStr);
+                    localTokenExpireDate = dateFormat.parse(expireDateStr);
                 } catch (ParseException e) {
                     LOG.error("Get Alcor Token failed, {}", e.getMessage());
                     localToken = "";
@@ -190,11 +189,8 @@ public class KeystoneClient {
 
                 String expireDateStr = tokenNode.path("expires_at").asText();
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
-                try {
-                    te.setExpireAt(dateFormat.parse(expireDateStr));
-                } catch (ParseException e) {
-                    LOG.error("Parse Token expire date to date error, {}", e.getMessage());
-                }
+                Date expireDate = dateFormat.parse(expireDateStr);
+                te.setExpireAt(expireDate);
 
                 if(tokenNode.has("roles")){
                     JsonNode roles = tokenNode.path("roles");
@@ -204,12 +200,12 @@ public class KeystoneClient {
                     te.setRoles(roleNames);
                 }
 
-                if(tokenNode.has("project")){
-                    JsonNode project = tokenNode.path("project");
+                if(tokenNode.has(JSON_PROJECT_KEY)){
+                    JsonNode project = tokenNode.path(JSON_PROJECT_KEY);
                     String projectId = project.path("id").asText();
 
-                    if(project.has("domain")){
-                        JsonNode domain = project.path("domain");
+                    if(project.has(JSON_DOMAIN_KEY)){
+                        JsonNode domain = project.path(JSON_DOMAIN_KEY);
                         te.setDomainId(domain.path("id").asText(""));
                         te.setDomainName(domain.path("name").asText(""));
                     }
@@ -223,7 +219,7 @@ public class KeystoneClient {
             }else{
                 cache.put(token, new TokenEntity(token,true));
             }
-        } catch (IOException | CacheException e) {
+        } catch (IOException | CacheException | ParseException e) {
             LOG.error("verify token failed, {}", e.getMessage());
         }
         return "";
@@ -253,7 +249,7 @@ public class KeystoneClient {
 
         ObjectNode domain = mapper.createObjectNode();
         domain.put("name", userDomainName);
-        user.set("domain", domain);
+        user.set(JSON_DOMAIN_KEY, domain);
 
         passwordNode.set("user", user);
         identity.set("password", passwordNode);
@@ -263,8 +259,8 @@ public class KeystoneClient {
         ObjectNode scope = mapper.createObjectNode();
         ObjectNode project = mapper.createObjectNode();
         project.put("name", projectName);
-        project.set("domain", domain);
-        scope.set("project", project);
+        project.set(JSON_DOMAIN_KEY, domain);
+        scope.set(JSON_PROJECT_KEY, project);
 
         auth.set("scope", scope);
         ObjectNode root = mapper.createObjectNode();
@@ -278,25 +274,19 @@ public class KeystoneClient {
             JsonNode endpoint = endpoints.next();
 
             //check id
-            if(!endpoint.has("id")){
+            if(!endpoint.has("id") || !endpoint.has("status") || !endpoint.has(JSON_LINKS_KEY)){
                 continue;
             }
-            JsonNode id = endpoint.path("id");
 
-            //check status is in stable current supported
+            JsonNode id = endpoint.path("id");
             JsonNode status = endpoint.path("status");
             String statusStr = status.asText("unknown");
-            if(status.isMissingNode() || !"stable, current, supported".contains(statusStr)){
-                continue;
+            if("stable, current, supported".contains(statusStr)){
+                //get ref is self link
+                JsonNode links = endpoint.path(JSON_LINKS_KEY);
+                Iterator<JsonNode> linkIt = links.elements();
+                sortedMap.put(id.asText(), linkIt);
             }
-
-            //get ref is self link
-            if(!endpoint.has("links")){
-                continue;
-            }
-            JsonNode links = endpoint.path("links");
-            Iterator<JsonNode> linkIt = links.elements();
-            sortedMap.put(id.asText(), linkIt);
         }
 
         //find latest api version
@@ -308,10 +298,10 @@ public class KeystoneClient {
         while(endpoints.hasNext()){
             JsonNode endpoint = endpoints.next();
             // get ref is self link
-            if(!endpoint.has("links")){
+            if(!endpoint.has(JSON_LINKS_KEY)){
                 continue;
             }
-            JsonNode links = endpoint.path("links");
+            JsonNode links = endpoint.path(JSON_LINKS_KEY);
 
             Iterator<JsonNode> linksIt = links.elements();
             retrieveLinks(linksIt);
@@ -321,7 +311,7 @@ public class KeystoneClient {
     private void retrieveLinks(Iterator<JsonNode> linksIt){
         while(linksIt.hasNext()){
             JsonNode link = linksIt.next();
-            if(link.has("rel") && link.path("rel").asText("").equals("self")){
+            if(link.has("rel") && "self".equals(link.path("rel").asText(""))){
                 if(!link.has("href")){
                     continue;
                 }
@@ -337,4 +327,5 @@ public class KeystoneClient {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(jsonStr);
     }
+
 }
