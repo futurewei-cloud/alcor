@@ -49,7 +49,7 @@ public class UnitTestConfig {
     public static String etherType = "IPv4";
     public static String routeDestination = "192.168.1.0/24";
     public static String routeTarget = "Local";
-    public static String portStateWithFixedIps = "{\n" +
+    public static String portEntityWithFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"network_id\":\"" + vpcId + "\",\n" +
@@ -60,7 +60,7 @@ public class UnitTestConfig {
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    }\n" +
             "}";
-    public static String portStateWithoutFixedIps = "{\n" +
+    public static String portEntityWithoutFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"network_id\":\"" + vpcId + "\",\n" +
@@ -70,7 +70,7 @@ public class UnitTestConfig {
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    }\n" +
             "}";
-    public static String portStateWithMacAddress = "{\n" +
+    public static String portEntityWithMacAddress = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"network_id\":\"" + vpcId + "\",\n" +
@@ -82,7 +82,7 @@ public class UnitTestConfig {
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    }\n" +
             "}";
-    public static String portStateWithoutMacAddress = "{\n" +
+    public static String portEntityWithoutMacAddress = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId + "\",\n" +
             "        \"network_id\":\"" + vpcId + "\",\n" +
@@ -90,6 +90,29 @@ public class UnitTestConfig {
             "        \"binding:host_id\":\"" + nodeId + "\",\n" +
             "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
             "        \"security_groups\": [\""+ securityGroupId +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+
+    public static String portEntityWithSecurityGroup = "{\n" +
+            "    \"port\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"binding:host_id\":\"" + nodeId + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
+            "        \"security_groups\": [\""+ securityGroupId +"\"],\n" +
+            "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
+            "    }\n" +
+            "}";
+
+    public static String portEntityWithoutSecurityGroup = "{\n" +
+            "    \"port\": {\n" +
+            "        \"id\":\"" + portId + "\",\n" +
+            "        \"network_id\":\"" + vpcId + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"binding:host_id\":\"" + nodeId + "\",\n" +
+            "        \"fixed_ips\":[{\"subnet_id\":\"" + subnetId + "\", \"ip_address\":\"" + ip1 + "\"}],\n" +
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac1 + "\"}]\n" +
             "    }\n" +
             "}";

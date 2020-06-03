@@ -137,7 +137,7 @@ public class PortServiceImpl implements PortService {
             }
         } else {
             //Do we need to bind default security group? No, we don't
-            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity);
+            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, null);
         }
 
         //Get subnet route
@@ -236,7 +236,11 @@ public class PortServiceImpl implements PortService {
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
-            entities.addAll(portWebBulkJson.getPortEntities());
+            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+                if (portEntity.getBindingHostId() != null) {
+                    entities.add(portEntity);
+                }
+            }
 
             //Build GoalState and Send it to DPM
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
@@ -292,6 +296,7 @@ public class PortServiceImpl implements PortService {
     private boolean updatePortAsync(PortEntity newPortEntity, PortEntity oldPortEntity, AsyncExecutor executor,
                                  Stack<Rollback> rollbacks) throws Exception {
         boolean needNotifyDpm = false;
+
         //Update name
         String newName = newPortEntity.getName();
         String oldName = oldPortEntity.getName();

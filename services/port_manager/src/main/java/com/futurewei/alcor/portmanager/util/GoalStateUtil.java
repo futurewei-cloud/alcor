@@ -212,7 +212,7 @@ public class GoalStateUtil {
 
         //Required fields
         portConfigBuilder.setId(portEntity.getId());
-        portConfigBuilder.setNetworkId(portEntity.getNetworkId());
+        portConfigBuilder.setVpcId(portEntity.getNetworkId());
         portConfigBuilder.setMacAddress(portEntity.getMacAddress());
 
         for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
@@ -224,13 +224,15 @@ public class GoalStateUtil {
             portConfigBuilder.addFixedIps(fixedIpsBuilder.build());
         }
 
-        Port.PortConfiguration.HostInfo.Builder hostInfoBuilder =
-                Port.PortConfiguration.HostInfo.newBuilder();
-        NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getBindingHostId());
-        hostInfoBuilder.setIpAddress(nodeInfo.getLocalIp());
-        hostInfoBuilder.setMacAddress(nodeInfo.getMacAddress());
+        if (portEntity.getBindingHostId() != null) {
+            Port.PortConfiguration.HostInfo.Builder hostInfoBuilder =
+                    Port.PortConfiguration.HostInfo.newBuilder();
+            NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getBindingHostId());
+            hostInfoBuilder.setIpAddress(nodeInfo.getLocalIp());
+            hostInfoBuilder.setMacAddress(nodeInfo.getMacAddress());
 
-        portConfigBuilder.setHostInfo(hostInfoBuilder.build());
+            portConfigBuilder.setHostInfo(hostInfoBuilder.build());
+        }
 
         //Optional fields
         portConfigBuilder.setAdminStateUp(portEntity.isAdminStateUp());
@@ -288,12 +290,9 @@ public class GoalStateUtil {
 
         for (PortEntity portEntity: portEntities) {
             String bindingHostId = portEntity.getBindingHostId();
-            if (bindingHostId == null) {
-                continue;
-            }
 
             //Make sure we can get NodeInfo before building PortState
-            if (nodeInfoMap.get(bindingHostId) == null) {
+            if (bindingHostId != null && nodeInfoMap.get(bindingHostId) == null) {
                 throw new NodeInfoNotFound();
             }
 
