@@ -35,7 +35,7 @@ import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 public class GoalStateUtil {
 
     public static Map<String, Goalstate.GoalState> transformNorthToSouth(GoalStateForNorth gs) {
-        com.futurewei.alcor.web.entity.port.PortState[] portStates1 =
+        com.futurewei.alcor.web.entity.port.PortEntity[] portStates1 =
                 gs.getPortStates();
         com.futurewei.alcor.web.entity.gsinfo.HostInfoNorth[] hostInfoNorths
                 = gs.getHostInfoNorth();
@@ -48,7 +48,7 @@ public class GoalStateUtil {
         else if (subnets != null && subnets.length > 0) subnetFlag = true;
         else if (vpcs != null && vpcs.length > 0) vpcFlag = true;
         //TODO need to add subnet and vpc part when logic is clear
-        Map<String, Set<com.futurewei.alcor.web.entity.port.PortState>> northMap = new HashMap<String, Set<com.futurewei.alcor.web.entity.port.PortState>>();
+        Map<String, Set<com.futurewei.alcor.web.entity.port.PortEntity>> northMap = new HashMap<String, Set<com.futurewei.alcor.web.entity.port.PortEntity>>();
         Map<String, Set<com.futurewei.alcor.web.entity.subnet.SubnetEntity>> subnetMap = new HashMap<>();
         Map<String, Set<com.futurewei.alcor.web.entity.vpc.VpcEntity>> vpcMap = new HashMap<>();
         if (portStates1.length != hostInfoNorths.length) return null;
@@ -56,12 +56,12 @@ public class GoalStateUtil {
         for (HostInfoNorth h : hostInfoNorths) {
             String ip = h.getBindingHostIp();
             if (!northMap.containsKey(ip)) {
-                Set<com.futurewei.alcor.web.entity.port.PortState> portStates = new HashSet<>();
+                Set<com.futurewei.alcor.web.entity.port.PortEntity> portStates = new HashSet<>();
                 portStates.add(portStates1[counter]);
                 counter++;
                 northMap.put(ip, portStates);
             } else {
-                Set<com.futurewei.alcor.web.entity.port.PortState> portStates = northMap.get(ip);
+                Set<com.futurewei.alcor.web.entity.port.PortEntity> portStates = northMap.get(ip);
                 portStates.add(portStates1[counter]);
                 counter++;
                 northMap.put(ip, portStates);
@@ -72,7 +72,7 @@ public class GoalStateUtil {
         Map<String, Goalstate.GoalState> goalStateHashMap = new HashMap<>();
         //TODO would opt this part when perf needed
         northMap.entrySet().stream().forEach(f -> {
-            final Set<com.futurewei.alcor.web.entity.port.PortState> set =
+            final Set<com.futurewei.alcor.web.entity.port.PortEntity> set =
                     f.getValue();
             final Random random = new Random();
             set.stream().forEach(e -> {
@@ -120,7 +120,7 @@ public class GoalStateUtil {
         try {
 
             List<FixedIp> fixedIps = convertToFixedIps(vpcIps,
-                    portState.getConfiguration().getNetworkId());
+                    portState.getConfiguration().getFixedIps(0).getSubnetId());
             for (FixedIp fip : fixedIps) {
                 conf.addFixedIps(fip);
             }

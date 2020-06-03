@@ -21,9 +21,21 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:application.properties")
+@ConfigurationProperties(prefix = "grpc")
 public class OVSGoalStateServiceImpl implements GoalStateService {
-    public static int GRPC_SERVER_PORT = 50001;
+    public static int getPort() {
+        return port;
+    }
+
+    public static void setPort(int port) {
+        OVSGoalStateServiceImpl.port = port;
+    }
+
+    public static int port ;
 
     public Goalstate.GoalState getGoalState() {
         return goalState;
@@ -88,10 +100,9 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
         Goalstateprovisioner.GoalStateOperationReply r = null;
 
         if (isFastPath) {
-            new GoalStateProvisionerClient(ip, GRPC_SERVER_PORT);
-            this.setGRpcClientForEpHost(new GoalStateProvisionerClient(ip,
-                    GRPC_SERVER_PORT));
-            r = new GoalStateProvisionerClient(ip, GRPC_SERVER_PORT).PushNetworkResourceStates(goalState);
+            new GoalStateProvisionerClient(ip, port);
+            this.setGRpcClientForEpHost(new GoalStateProvisionerClient(ip, port));
+            r = new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
         } else {
             String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;
             this.getKafkaClient().runProducer(topicForEndpoint, goalState);

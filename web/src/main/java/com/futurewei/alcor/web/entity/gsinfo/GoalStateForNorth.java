@@ -3,7 +3,7 @@ package com.futurewei.alcor.web.entity.gsinfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.constants.Common;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.port.PortState;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
@@ -54,7 +54,7 @@ public class GoalStateForNorth extends CustomerResource {
     private String bridgeName;
 
     @JsonProperty("port_state")
-    private PortState[] portStates;
+    private PortEntity[] portStates;
 
     @JsonProperty("vpc")
     private VpcEntity[] vpcs;
@@ -78,11 +78,11 @@ public class GoalStateForNorth extends CustomerResource {
     @JsonProperty("subnet")
     private SubnetEntity[] subnets;
 
-    public PortState[] getPortStates() {
+    public PortEntity[] getPortStates() {
         return portStates;
     }
 
-    public void setPortStates(PortState[] portState) {
+    public void setPortStates(PortEntity[] portState) {
         this.portStates = portState;
     }
 
