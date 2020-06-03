@@ -17,7 +17,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 
 import com.futurewei.alcor.portmanager.service.PortService;
-import com.futurewei.alcor.web.entity.port.PortStateJson;
+import com.futurewei.alcor.web.entity.port.PortWebJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,16 +36,16 @@ public class PortController {
      * If any exception occurs in the added process, we need to roll back
      * the resource allocated from each micro-service.
      * @param projectId Project the port belongs to
-     * @param portStateJson Port configuration
+     * @param portWebJson Port configuration
      * @return PortStateJson
      * @throws Exception Various exceptions that may occur during the create process
      */
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public PortStateJson createPortState(@PathVariable("project_id") String projectId,
-                                         @RequestBody PortStateJson portStateJson) throws Exception {
-        return portService.createPortState(projectId, portStateJson);
+    public PortWebJson createPortState(@PathVariable("project_id") String projectId,
+                                       @RequestBody PortWebJson portWebJson) throws Exception {
+        return portService.createPortState(projectId, portWebJson);
     }
 
     /**
@@ -55,15 +55,15 @@ public class PortController {
      * the resource added or deleted operation of each micro-service.
      * @param projectId Project the port belongs to
      * @param portId Id of port
-     * @param portStateJson The new configuration of port
+     * @param portWebJson The new configuration of port
      * @return The new configuration of port
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
-    public PortStateJson updatePortState(@PathVariable("project_id") String projectId,
-                                           @PathVariable("port_id") String portId,
-                                           @RequestBody PortStateJson portStateJson) throws Exception {
-        return portService.updatePortState(projectId, portId, portStateJson);
+    public PortWebJson updatePortState(@PathVariable("project_id") String projectId,
+                                       @PathVariable("port_id") String portId,
+                                       @RequestBody PortWebJson portWebJson) throws Exception {
+        return portService.updatePortState(projectId, portId, portWebJson);
     }
 
     /**
@@ -89,8 +89,8 @@ public class PortController {
      * @throws Exception Db operation exception
      */
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
-    public PortStateJson getPortState(@PathVariable("project_id") String projectId,
-                                           @PathVariable("port_id") String portId) throws Exception {
+    public PortWebJson getPortState(@PathVariable("project_id") String projectId,
+                                    @PathVariable("port_id") String portId) throws Exception {
         return portService.getPortState(projectId, portId);
     }
 
@@ -101,7 +101,7 @@ public class PortController {
      * @throws Exception Db operation exception
      */
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
-    public List<PortStateJson> listPortState(@PathVariable("project_id") String projectId) throws Exception {
+    public List<PortWebJson> listPortState(@PathVariable("project_id") String projectId) throws Exception {
         return portService.listPortState(projectId);
     }
 }

@@ -24,14 +24,15 @@ option java_outer_classname = "Subnet";
 import "common.proto";
 
 message SubnetConfiguration {
-    uint32 version = 1;
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
 
-    string project_id = 2;
-    string vpc_id = 3;
-    string id = 4;
-    string name = 5;
-    string cidr = 6;
-    int64 tunnel_id = 7;
+    string id = 3;
+    string project_id = 4;
+    string vpc_id = 5;
+    string name = 6;
+    string cidr = 7;
+    int64 tunnel_id = 8;
 
     message Gateway {
         string vpc_id = 1;
@@ -40,11 +41,11 @@ message SubnetConfiguration {
         string mac_address = 4;
     }
 
-    Gateway gateway = 8;
-    bool dhcp_enable = 9;
-    string availability_zone = 10;
-    string primary_dns = 11;
-    string secondary_dns = 12;
+    Gateway gateway = 9;
+    bool dhcp_enable = 10;
+    string availability_zone = 11;
+    string primary_dns = 12;
+    string secondary_dns = 13;
 
     // start Mizar specific session
     // note that repeated field are inherently optional
@@ -54,7 +55,7 @@ message SubnetConfiguration {
         string ip_address = 3;
         string mac_address = 4;
     }
-    repeated TransitSwitch transit_switches = 13;
+    repeated TransitSwitch transit_switches = 14;
     // end Mizar specific session
 }
 

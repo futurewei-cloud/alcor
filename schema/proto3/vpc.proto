@@ -24,13 +24,14 @@ option java_outer_classname = "Vpc";
 import "common.proto";
 
 message VpcConfiguration {
-    uint32 version = 1;
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
 
-    string project_id = 2;
     string id = 3;
-    string name = 4;
-    string cidr = 5;
-    int64 tunnel_id = 6;
+    string project_id = 4;
+    string name = 5;
+    string cidr = 6;
+    int64 tunnel_id = 7;
 
     message SubnetId {
         string id = 1;
@@ -41,8 +42,8 @@ message VpcConfiguration {
         string next_hop = 2;
     }
 
-    repeated SubnetId subnet_ids = 7;
-    repeated Route routes = 8;
+    repeated SubnetId subnet_ids = 8;
+    repeated Route routes = 9;
 
     // start Mizar specific session
     // note that repeated field are inherently optional
@@ -51,7 +52,7 @@ message VpcConfiguration {
         string ip_address = 2;
         string mac_address = 3;
     }
-    repeated TransitRouter transit_routers = 9;
+    repeated TransitRouter transit_routers = 10;
     // end Mizar specific session
 }
 

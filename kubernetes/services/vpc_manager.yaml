@@ -4,14 +4,14 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    spring.redis.host=10.106.100.62
-    spring.redis.port=6379
+    ignite.host=10.99.135.32
+    ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.route.service.url=http://192.168.1.25:30003/vpcs/
+    microservices.route.service.url=http://10.213.43.166:30003/vpcs/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,7 +38,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:vpcKube5
+        - image: zhonghaolyu/repo:vpcKube1
         #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent

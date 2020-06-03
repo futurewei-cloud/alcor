@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PortState extends CustomerResource {
+public class PortEntity extends CustomerResource {
     @JsonProperty("vpc_id")
     private String vpcId;
 
@@ -87,10 +87,10 @@ public class PortState extends CustomerResource {
     @JsonProperty("dns_assignment")
     private List<DnsRecord> dnsAssignment;
 
-    public PortState() {
+    public PortEntity() {
     }
 
-    public PortState(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortEntity(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         this.vpcId = vpcId;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
@@ -114,7 +114,7 @@ public class PortState extends CustomerResource {
         this.dnsAssignment = dnsAssignment;
     }
 
-    public PortState(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortEntity(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         super(state);
         this.vpcId = vpcId;
         this.tenantId = tenantId;
@@ -139,7 +139,7 @@ public class PortState extends CustomerResource {
         this.dnsAssignment = dnsAssignment;
     }
 
-    public PortState(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
+    public PortEntity(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean isFastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, List<DnsRecord> dnsAssignment) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.tenantId = tenantId;

@@ -78,27 +78,27 @@ public class PortControllerTest {
     private String getPortUrl = updatePortUrl;
     private String listPortUrl = createPortUrl;
 
-    private PortStateJson newPortStateJson() {
-        List<PortState.FixedIp> fixedIps = new ArrayList<>();
-        fixedIps.add(new PortState.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
+    private PortWebJson newPortStateJson() {
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
         List<String> securityGroups = new ArrayList<>();
         securityGroups.add(UnitTestConfig.securityGroup);
 
-        List<PortState.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
-        allowedAddressPairs.add(new PortState.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
+        List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
+        allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
-        PortState portState = new PortState();
-        portState.setId(UnitTestConfig.portId);
-        portState.setVpcId(UnitTestConfig.vpcId);
-        portState.setProjectId(UnitTestConfig.projectId);
-        portState.setTenantId(UnitTestConfig.tenantId);
-        portState.setFixedIps(fixedIps);
-        portState.setMacAddress(UnitTestConfig.mac1);
-        portState.setSecurityGroups(securityGroups);
-        portState.setAllowedAddressPairs(allowedAddressPairs);
+        PortEntity portEntity = new PortEntity();
+        portEntity.setId(UnitTestConfig.portId);
+        portEntity.setVpcId(UnitTestConfig.vpcId);
+        portEntity.setProjectId(UnitTestConfig.projectId);
+        portEntity.setTenantId(UnitTestConfig.tenantId);
+        portEntity.setFixedIps(fixedIps);
+        portEntity.setMacAddress(UnitTestConfig.mac1);
+        portEntity.setSecurityGroups(securityGroups);
+        portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
-        return new PortStateJson(portState);
+        return new PortWebJson(portEntity);
     }
 
     private IpAddrRequest newIpv4AddrRequest() {
@@ -267,7 +267,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortState());
+                .thenReturn(newPortStateJson().getPortEntity());
 
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateFixedIps)
@@ -290,7 +290,7 @@ public class PortControllerTest {
                 .thenReturn(newIpv4AddrRequest());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortState());
+                .thenReturn(newPortStateJson().getPortEntity());
 
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.portStateWithoutFixedIps)
@@ -305,7 +305,7 @@ public class PortControllerTest {
     @Test
     public void getPortState() throws Exception {
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortState());
+                .thenReturn(newPortStateJson().getPortEntity());
 
         this.mockMvc.perform(get(getPortUrl))
                 .andDo(print())
@@ -318,8 +318,8 @@ public class PortControllerTest {
 
     @Test
     public void listPortTest() throws Exception {
-        Map<String, PortState> portStates = new HashMap<>();
-        portStates.put(UnitTestConfig.portId, newPortStateJson().getPortState());
+        Map<String, PortEntity> portStates = new HashMap<>();
+        portStates.put(UnitTestConfig.portId, newPortStateJson().getPortEntity());
 
         Mockito.when(portRepository.findAllItems())
                 .thenReturn(portStates);
@@ -339,7 +339,7 @@ public class PortControllerTest {
                 .thenReturn(newSubnetStateJson());
 
         Mockito.when(portRepository.findItem(UnitTestConfig.portId))
-                .thenReturn(newPortStateJson().getPortState());
+                .thenReturn(newPortStateJson().getPortEntity());
 
         this.mockMvc.perform(delete(deletePortUrl))
                 .andDo(print())

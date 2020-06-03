@@ -13,25 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.port;
 
-syntax = "proto3";
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-package alcor.schema;
+@Data
+public class PortWebJson {
+    @JsonProperty("port")
+    private PortEntity portEntity;
 
-option java_package = "com.futurewei.alcor.schema";
+    public PortWebJson() {
 
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "securitygroup.proto";
-import "dhcp.proto";
+    }
 
-message GoalState {
-    uint32 format_version = 1;
+    public PortWebJson(PortEntity portEntity) {
+        this.portEntity = portEntity;
+    }
 
-    repeated VpcState vpc_states = 2;
-    repeated SubnetState subnet_states = 3;
-    repeated PortState port_states = 4;
-    repeated SecurityGroupState security_group_states = 5;
-    repeated DHCPState dhcp_states = 6;
+    public PortEntity getPortEntity() {
+        return portEntity;
+    }
+
+    public void setPortEntity(PortEntity portEntity) {
+        this.portEntity = portEntity;
+    }
 }
