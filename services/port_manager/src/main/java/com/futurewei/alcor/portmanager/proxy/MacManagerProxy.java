@@ -68,7 +68,7 @@ public class MacManagerProxy {
 
         MacStateJson macStateJson = allocateMacAddress(
                 portEntity.getProjectId(),
-                portEntity.getNetworkId(),
+                portEntity.getVpcId(),
                 portEntity.getId(),
                 null);
 
@@ -96,7 +96,7 @@ public class MacManagerProxy {
 
         MacStateJson macStateJson = allocateMacAddress(
                 portEntity.getProjectId(),
-                portEntity.getNetworkId(),
+                portEntity.getVpcId(),
                 portEntity.getId(),
                 macAddress);
 
@@ -125,7 +125,7 @@ public class MacManagerProxy {
 
         MacState macState = new MacState(portEntity.getMacAddress(),
                 portEntity.getProjectId(),
-                portEntity.getNetworkId(),
+                portEntity.getVpcId(),
                 portEntity.getId(),
                 null);
 
@@ -140,13 +140,13 @@ public class MacManagerProxy {
         String macAddress = newPortEntity.getMacAddress();
 
         macManagerRestClient.updateMacAddress(newPortEntity.getProjectId(),
-                newPortEntity.getNetworkId(),
+                newPortEntity.getVpcId(),
                 newPortEntity.getId(),
                 macAddress);
 
         MacState oldMacState = new MacState(oldPortEntity.getMacAddress(),
                 oldPortEntity.getProjectId(),
-                oldPortEntity.getNetworkId(),
+                oldPortEntity.getVpcId(),
                 oldPortEntity.getId(),
                 null);
 
@@ -154,7 +154,7 @@ public class MacManagerProxy {
 
         return new MacState(newPortEntity.getMacAddress(),
                 newPortEntity.getProjectId(),
-                newPortEntity.getNetworkId(),
+                newPortEntity.getVpcId(),
                 newPortEntity.getId(),
                 null);
     }

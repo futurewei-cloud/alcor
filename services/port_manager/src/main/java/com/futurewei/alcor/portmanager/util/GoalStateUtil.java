@@ -212,7 +212,7 @@ public class GoalStateUtil {
 
         //Required fields
         portConfigBuilder.setId(portEntity.getId());
-        portConfigBuilder.setVpcId(portEntity.getNetworkId());
+        portConfigBuilder.setVpcId(portEntity.getVpcId());
         portConfigBuilder.setMacAddress(portEntity.getMacAddress());
 
         for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
@@ -297,15 +297,15 @@ public class GoalStateUtil {
             }
 
             //Build VpcState
-            VpcEntity vpcEntity = vpcEntityMap.get(portEntity.getNetworkId());
+            VpcEntity vpcEntity = vpcEntityMap.get(portEntity.getVpcId());
             if (vpcEntity == null) {
                 throw new VpcEntityNotFound();
             }
 
-            if (!vpcStates.contains(portEntity.getNetworkId())) {
+            if (!vpcStates.contains(portEntity.getVpcId())) {
                 Vpc.VpcState vpcState = buildVpcState(vpcEntity, operationType);
                 goalStateBuilder.addVpcStates(vpcState);
-                vpcStates.add(portEntity.getNetworkId());
+                vpcStates.add(portEntity.getVpcId());
             }
 
             //Build SubnetState

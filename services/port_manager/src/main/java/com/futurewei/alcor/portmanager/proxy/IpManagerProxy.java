@@ -112,7 +112,7 @@ public class IpManagerProxy {
 
         //Allocate a random ipv4 address
         IpAddrRequest ipv4Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV4,
-                portEntity.getNetworkId(), null, null);
+                portEntity.getVpcId(), null, null);
         PortEntity.FixedIp fixedIpv4 = new PortEntity.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
         fixedIps.add(fixedIpv4);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv4Addr);

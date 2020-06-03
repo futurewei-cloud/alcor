@@ -130,7 +130,7 @@ public class PortController {
     public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebJson portWebJson) throws Exception {
         PortEntity portEntity = portWebJson.getPortEntity();
-        if (StringUtil.isNullOrEmpty(portEntity.getNetworkId())) {
+        if (StringUtil.isNullOrEmpty(portEntity.getVpcId())) {
             throw new NetworkIdRequired();
         }
 

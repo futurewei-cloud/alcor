@@ -17,8 +17,6 @@ package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetVpcEntityException;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Vpc;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
@@ -42,7 +40,7 @@ public class VpcManagerProxy {
      */
     public VpcEntity getVpcEntity(Object args) throws Exception {
         PortEntity portEntity = (PortEntity)args;
-        VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(portEntity.getProjectId(), portEntity.getNetworkId());
+        VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(portEntity.getProjectId(), portEntity.getVpcId());
         if (vpcWebJson == null || vpcWebJson.getNetwork() == null) {
             throw new GetVpcEntityException();
         }

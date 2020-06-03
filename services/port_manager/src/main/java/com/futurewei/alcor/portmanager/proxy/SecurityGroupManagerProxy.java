@@ -23,8 +23,6 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupWebJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
-import java.util.List;
-
 public class SecurityGroupManagerProxy {
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private String projectId;

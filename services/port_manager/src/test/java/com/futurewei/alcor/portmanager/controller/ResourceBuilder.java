@@ -53,7 +53,7 @@ public class ResourceBuilder {
 
         PortEntity portEntity = new PortEntity();
         portEntity.setId(portId);
-        portEntity.setNetworkId(UnitTestConfig.vpcId);
+        portEntity.setVpcId(UnitTestConfig.vpcId);
         portEntity.setProjectId(UnitTestConfig.projectId);
         portEntity.setTenantId(UnitTestConfig.tenantId);
         portEntity.setFixedIps(fixedIps);
