@@ -14,14 +14,19 @@ Picture of different routing components including router/DVR, FIP manager, SNAT 
 
 We need to supports:
 
-. fast port provision enable the communication to and from the VMs to other VMs within the same or different networks
-. scale to support 10,000 nodes in a VPC, and 100,000 (?) machines in region
+. fast port provision to enable VMs <-> VMs within the same or different subnet
+. scale to support 65,000 ports in a VPC, and 1,00,000 machines in region
 . fast migration of VMs
 . direct VM to VM communication (first packet may go through a gateway)
 
 == Current Openstack pain points
 
-== Design Options 1 (Gateway approach)
+
+== Design Options 1 (DVR approach)
+
+
+
+== Design Options 2 (Gateway approach)
 
 Can we start with a simple gateway approach where:
 
@@ -34,13 +39,17 @@ Can we start with a simple gateway approach where:
 .. should this be trigger on the gateway or compute host? 
 ... compute host can do better bandwidth measurement when needed and it is more distributed
 
-== Design Options 2 (DVR approach)
+challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flow + NACL info.
+
 
 == Route Rule implementation
 
 iptables vs openflow
 
+Need numbers to justify the adventage.
+
 Eric/James is looking at how dragonflow use openflow.
+
 
 == Comparison with Neutron router/DVR
 
@@ -50,7 +59,8 @@ James: the current assumption is neutron only install the DVR instance as needed
 
 James: BTW, for same network, does neutron pre-configure all the tunnel VTEP on all machines even when it is not needed? I saw that on my microstack setup, want to confirm that on a real openstack setup. 
 
-== Workflow Router programming
+
+== Workflow on Router programming
 
 What are the steps to program our router/DVR, FIP manager, SNAT manager
 
@@ -74,6 +84,8 @@ Picture of how our controller/network/compute node looks like.
 == Pending Items
 
 . what happen if host crashed, do we just leverage the ovsdb stored data? Or we ask the Alcor controller for the whole set of configuration upon restart?
+
+. how does Neutron router manages connection flows with HA router?
 
 [bibliography]
 == References
