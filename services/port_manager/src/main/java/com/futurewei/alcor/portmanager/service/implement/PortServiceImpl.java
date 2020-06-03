@@ -331,7 +331,7 @@ public class PortServiceImpl implements PortService {
             needNotifyDpm = true;
         }
 
-        //Update dns_name
+        //Update extra_dhcp_opts
         List<PortEntity.ExtraDhcpOpt> newExtraDhcpOpts = newPortEntity.getExtraDhcpOpts();
         List<PortEntity.ExtraDhcpOpt> oldExtraDhcpOpts = oldPortEntity.getExtraDhcpOpts();
         if (newExtraDhcpOpts != null && !newExtraDhcpOpts.equals(oldExtraDhcpOpts)) {
@@ -394,7 +394,7 @@ public class PortServiceImpl implements PortService {
             needNotifyDpm = true;
         }
 
-        //Update qos_policy_id
+        //Update security_groups
         List<String> newSecurityGroups = newPortEntity.getSecurityGroups();
         List<String> oldSecurityGroups = oldPortEntity.getSecurityGroups();
         if (newSecurityGroups != null && !newSecurityGroups.equals(oldSecurityGroups)) {

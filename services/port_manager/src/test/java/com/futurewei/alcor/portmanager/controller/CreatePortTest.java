@@ -45,7 +45,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithFixedIps))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
     }
 
@@ -57,7 +57,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithoutFixedIps))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.fixed_ips[0].ip_address").value(UnitTestConfig.ip1));
     }
 
@@ -69,7 +69,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithMacAddress))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_address").value(UnitTestConfig.mac1));
     }
 
@@ -81,7 +81,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithoutMacAddress))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_address").value(UnitTestConfig.mac1));
     }
 
@@ -93,8 +93,8 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithSecurityGroup))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.security_groups[0]").value(UnitTestConfig.securityGroupId));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.security_groups[0]").value(UnitTestConfig.securityGroupId1));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithoutSecurityGroup))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.security_groups").isEmpty());
     }
 
@@ -117,7 +117,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.createPortBulk))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].id").value(UnitTestConfig.portId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].id").value(UnitTestConfig.portId1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].id").value(UnitTestConfig.portId2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.ports[0].fixed_ips[0].ip_address").value(UnitTestConfig.ip1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.ports[1].fixed_ips[0].ip_address").value(UnitTestConfig.ip2));

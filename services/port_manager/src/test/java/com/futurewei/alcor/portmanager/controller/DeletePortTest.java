@@ -32,7 +32,7 @@ public class DeletePortTest extends MockRestClientAndRepository {
     @Autowired
     private MockMvc mockMvc;
 
-    private String deletePortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId;
+    private String deletePortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId1;
 
     @Test
     public void deletePortTest() throws Exception {

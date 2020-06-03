@@ -34,7 +34,7 @@ public class GetPortTest extends MockRestClientAndRepository {
     private MockMvc mockMvc;
 
     private String listPortUrl = "/project/" + UnitTestConfig.projectId + "/ports";
-    private String getPortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId;
+    private String getPortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId1;
 
     @Test
     public void getPortState() throws Exception {
@@ -45,7 +45,7 @@ public class GetPortTest extends MockRestClientAndRepository {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$.port.id")
-                        .value(UnitTestConfig.portId)
+                        .value(UnitTestConfig.portId1)
                 );
     }
 
@@ -58,7 +58,7 @@ public class GetPortTest extends MockRestClientAndRepository {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$[0].port.id")
-                        .value(UnitTestConfig.portId)
+                        .value(UnitTestConfig.portId1)
                 );
     }
 }

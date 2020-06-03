@@ -67,27 +67,39 @@ public class PortController {
     private void checkBindingVifType(PortEntity portEntity) throws VifTypeInvalid {
         if (portEntity.getBindingVifType() != null) {
             Set<VifType> vifTypeSet = new HashSet<>(Arrays.asList(VifType.values()));
-            if (!vifTypeSet.contains(portEntity.getBindingVifType())) {
-                throw new VifTypeInvalid();
+            for (VifType vifType: vifTypeSet) {
+                if (vifType.getVifType().equals(portEntity.getBindingVifType())) {
+                    return;
+                }
             }
+
+            throw new VifTypeInvalid();
         }
     }
 
     private void checkBindingVnicType(PortEntity portEntity) throws VnicTypeInvalid {
         if (portEntity.getBindingVnicType() != null) {
             Set<VnicType> vnicTypeSet = new HashSet<>(Arrays.asList(VnicType.values()));
-            if (!vnicTypeSet.contains(portEntity.getBindingVnicType())) {
-                throw new VnicTypeInvalid();
+            for (VnicType vnicType: vnicTypeSet) {
+                if (vnicType.getVnicType().equals(portEntity.getBindingVnicType())) {
+                    return;
+                }
             }
+
+            throw new VnicTypeInvalid();
         }
     }
 
     private void checkIpAllocation(PortEntity portEntity) throws IpAllocationInvalid {
         if (portEntity.getIpAllocation() != null) {
             Set<IpAllocation> ipAllocationSet = new HashSet<>(Arrays.asList(IpAllocation.values()));
-            if (!ipAllocationSet.contains(portEntity.getIpAllocation())) {
-                throw new IpAllocationInvalid();
+            for (IpAllocation ipAllocation: ipAllocationSet) {
+                if (ipAllocation.getIpAllocation().equals(portEntity.getIpAllocation())) {
+                    return;
+                }
             }
+
+            throw new IpAllocationInvalid();
         }
     }
 

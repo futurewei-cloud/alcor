@@ -46,19 +46,20 @@ public class ResourceBuilder {
         fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
         List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
+        securityGroups.add(UnitTestConfig.securityGroupId1);
 
         List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
         allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
         PortEntity portEntity = new PortEntity();
         portEntity.setId(portId);
+        portEntity.setName(UnitTestConfig.portName1);
         portEntity.setVpcId(UnitTestConfig.vpcId);
         portEntity.setProjectId(UnitTestConfig.projectId);
         portEntity.setTenantId(UnitTestConfig.tenantId);
         portEntity.setFixedIps(fixedIps);
         portEntity.setMacAddress(UnitTestConfig.mac1);
-        portEntity.setBindingHostId(UnitTestConfig.nodeId);
+        portEntity.setBindingHostId(UnitTestConfig.nodeId1);
         portEntity.setSecurityGroups(securityGroups);
         portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
@@ -88,7 +89,7 @@ public class ResourceBuilder {
 
     public static String newPortStateJsonStr() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(newPortStateJson(UnitTestConfig.portId));
+        return objectMapper.writeValueAsString(newPortStateJson(UnitTestConfig.portId1));
     }
 
     public static VpcWebJson newVpcStateJson() {
@@ -142,9 +143,9 @@ public class ResourceBuilder {
         return new RouteWebJson(route);
     }
 
-    public static SecurityGroupWebJson newSecurityGroupWebJson() {
+    public static SecurityGroupWebJson newSecurityGroupWebJson(String securityGroupId) {
         SecurityGroupEntity securityGroupEntity = new SecurityGroupEntity();
-        securityGroupEntity.setId(UnitTestConfig.securityGroupId);
+        securityGroupEntity.setId(securityGroupId);
         securityGroupEntity.setName(UnitTestConfig.securityGroupName);
         securityGroupEntity.setProjectId(UnitTestConfig.projectId);
 
@@ -152,8 +153,8 @@ public class ResourceBuilder {
         securityGroupRuleEntity.setId(UnitTestConfig.securityGroupRuleId);
         securityGroupRuleEntity.setProjectId(UnitTestConfig.projectId);
         securityGroupRuleEntity.setTenantId(UnitTestConfig.tenantId);
-        securityGroupRuleEntity.setSecurityGroupId(UnitTestConfig.securityGroupId);
-        securityGroupRuleEntity.setDirection(UnitTestConfig.direction);
+        securityGroupRuleEntity.setSecurityGroupId(UnitTestConfig.securityGroupId1);
+        securityGroupRuleEntity.setDirection(UnitTestConfig.direction1);
         securityGroupRuleEntity.setProtocol(UnitTestConfig.protocolTcp);
         securityGroupRuleEntity.setPortRangeMin(UnitTestConfig.portRangeMin);
         securityGroupRuleEntity.setPortRangeMax(UnitTestConfig.portRangeMax);
@@ -167,7 +168,7 @@ public class ResourceBuilder {
     }
 
     public static SecurityGroupWebJson newDefaultSecurityGroupWebJson() {
-        SecurityGroupWebJson securityGroupWebJson = newSecurityGroupWebJson();
+        SecurityGroupWebJson securityGroupWebJson = newSecurityGroupWebJson(UnitTestConfig.securityGroupId1);
         securityGroupWebJson.getSecurityGroupEntity().setName("default");
 
         return securityGroupWebJson;
