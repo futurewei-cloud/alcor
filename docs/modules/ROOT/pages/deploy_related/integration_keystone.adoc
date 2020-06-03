@@ -59,33 +59,74 @@ This can prevent customer request from still carrying expired tokens for verific
 == Data Schema
 How token store in cache： +
 A cache token key is token self. +
-A token entity include: +
-. string token: a token self +
-. date expireAt: the date which token expire at +
-. string user: the token user name  +
-. string userId: the token user id +
-. string domainId: the token user domain id +
-. string domainName: the token user domain name +
-. string projectName: the token project name +
-. string projectId: the token project id +
-. string projectDomain: the token project domain +
-. boolean invalid: the token whether valid from keystone, true： invalid  false: valid +
-. list<String> roles: the token user role names +
+A token entity schema: +
 
-examples: +
-{ +
-  "token"： “gAAAAABex0sfasdf2234234asdfBSDFREW32324234”， +
-  "expireAt": "2020-05-30T16:00:00.000+0000", +
-  "user": "neutron", +
-  "useId": "10a2e6e717a245d9acad3e5f97aeca3d", +
-  "domainId": "default", +
-  "domainName": "Default", +
-  "projectName": "admin", +
-  "projectId": "a6944d763bf64ee6a275f1263fae0352", +
-  "projectDomain": "Default", +
-  "invalid": false, +
-  "roles": ["admin", "demo"] +
+[width="100%",cols="22%,12%,50%"]
+|===
+|Field Name |Type |Description
+
+|token
+|String
+|string token
+
+|expireAt
+|Date
+|the date which token expire at
+
+|user
+|String
+|the token user name
+
+|userId
+|String
+|the token user id
+
+|domainId
+|String
+|the token user domain id
+
+|domainName
+|String
+|the token user domain name
+
+|projectName
+|String
+|the token project name
+
+|projectId
+|String
+|the token project id
+
+|projectDomain
+|String
+|the token project domain
+
+|invalid
+|boolean
+|the token whether valid from keystone, true： invalid  false: valid
+
+|roles
+|List<String>
+|the token user role names
+|===
+
+
+examples:
+....
+{
+  "token"： “gAAAAABex0sfasdf2234234asdfBSDFREW32324234”，
+  "expireAt": "2020-05-30T16:00:00.000+0000",
+  "user": "neutron",
+  "useId": "10a2e6e717a245d9acad3e5f97aeca3d",
+  "domainId": "default",
+  "domainName": "Default",
+  "projectName": "admin",
+  "projectId": "a6944d763bf64ee6a275f1263fae0352",
+  "projectDomain": "Default",
+  "invalid": false,
+  "roles": ["admin", "demo"]
 }
+....
 
 == Integration Proposal
 
