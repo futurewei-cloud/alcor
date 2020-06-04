@@ -2,12 +2,13 @@ language: java
 sudo: false # faster builds
 
 jdk:
+  - jdk1.8
 
 script:
-  - ./mvnw clean install
+  - mvn clean test jacoco:report coveralls:report
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - mvn clean test jacoco:report coveralls:report
 
 cache:
   directories:
