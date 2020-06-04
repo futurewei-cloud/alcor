@@ -2,10 +2,10 @@ language: java
 sudo: false # faster builds
 
 script:
-  - mvn clean test 
+  - mvn clean
 
 after_success:
-  - mvn clean test jacoco:report coveralls:report
+  - mvn clean jacoco:report coveralls:report
 
 cache:
   directories:
