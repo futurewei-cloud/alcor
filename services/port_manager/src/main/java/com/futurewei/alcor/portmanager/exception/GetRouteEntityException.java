@@ -13,13 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restclient;
+package com.futurewei.alcor.portmanager.exception;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Configuration
-public class RouteManagerRestClient extends AbstractRestClient {
-    @Value("${microservices.route.service.url:#{\"\"}}")
-    private String routeManagerUrl;
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Get RouteEntity exception")
+public class GetRouteEntityException extends Exception {
 }

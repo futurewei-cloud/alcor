@@ -1,0 +1,600 @@
+= Port Manager Design Specification
+Piaoping Chen <chenpiaoping@yeah.net>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+Port manager is an Alcor microservice which manages all ports of vms, It provides tenant with the CRUD interface of port.
+When creating a virtual machine, the Rest interface of Port Manager is called to create a port,
+Port Manager allocate the corresponding resources (such as mac address, ip address) according to the requested configuration, and create a port in the database.
+If the port binding host,Port Manager will send it to dataplane manager,the configuration of port will eventually be sent to the bound host.
+Port can be used as a network card for a virtual machine or as an interface for a router.
+
+== Service Requirements
+
+[arabic]
+. Support CRUD operations of port.
+. Support create and update of a list of ports.
+. Working together with other services including vpc manager, subnet manager, mac manager, security group manager and dataplane manager.
+. Support asynchronous interaction with other services
+. Rollback is supported when CRUD operation occurs exception.
+. Support query operation with any field of port as parameters.
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Create port
+|POST
+|/project/{project_id}/ports
+|port state
+<<Create_Port,[sample]>>
+
+|Create port bulk
+|POST
+|/project/{project_id}/ports/bulk
+|port state list
+<<Create_Port_Bulk,[sample]>>
+
+|Update port
+|PUT
+|/project/{project_id}/ports/{port_id}
+|port state
+<<Update_Port,[sample]>>
+
+|Delete port
+|POST
+|/project/{project_id}/ports/{port_id}
+|None
+<<Delete_Port,[sample]>>
+
+|Get port
+|GET
+|/project/{project_id}/ports/{port_id}
+|port state
+<<Get_Port,[sample]>>
+
+|List port
+|GET
+|/project/{project_id}/ports
+|port state list
+<<List_Port,[sample]>>
+|===
+
+=== API Specification
+
+anchor:Create_Port[]
+**(1) Create port**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/ports`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: port state
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966f4de79c/ports
+
+Body:
+{
+	"port": {
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}]
+	}
+}
+
+Response:
+{
+	"port": {
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:29",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": null,
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}
+}
+
+....
+anchor:Create_Port_Bulk[]
+**(2) Create port bulk**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/ports/bulk`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: port state list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966f4de79c/ports/bulk
+
+Body:
+{
+	"ports": [{
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}]
+	}, {
+		"id": "3d53801c-32ce-4e97-9572-bb966f4625ba",
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.101"
+		}],
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:30"
+		}]
+	}]
+}
+
+Response:
+{
+	"ports": [{
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:29",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": null,
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}, {
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4625ba",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:30",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.101"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:30"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": null,
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}]
+}
+
+....
+anchor:Update_Port[]
+**(3) Update port**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/ports/{port_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String portId`
+
+* Response: `port state`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/ips
+
+Body:
+{
+	"port": {
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.101"
+		}],
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}]
+	}
+}
+
+Response:
+{
+	"port": {
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:29",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.101"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": "00:01:6C:08:B1:34",
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}
+}
+
+....
+anchor:Delete_Port[]
+**(4) Delete port**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/ports/{port_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String portId`
+
+* Response: None
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966f4de79c/ports/3d53801c-32ce-4e97-9572-bb966f4aa53e
+
+Response:
+None
+
+....
+anchor:Get_Port[]
+**(5) Get port**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/ports/{port_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String portId`
+
+* Response: `port state`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966f4de79c/ports/3d53801c-32ce-4e97-9572-bb966f4aa53e
+
+Response:
+{
+	"port": {
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:29",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": "00:01:6C:08:B1:34",
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}
+}
+
+....
+anchor:List_Port[]
+**(6) List port**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/ports`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: `port state list`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966f4de79c/ports
+
+Response:
+[{
+	"port": {
+		"fastPath": false,
+		"project_id": "3d53801c-32ce-4e97-9572-bb966f4de79c",
+		"id": "3d53801c-32ce-4e97-9572-bb966f4aa53e",
+		"name": null,
+		"description": null,
+		"vpc_id": "3d53801c-32ce-4e97-9572-bb966f4d175e",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"admin_state_up": false,
+		"mac_address": "00:01:6C:06:A6:29",
+		"veth_name": null,
+		"fast_path": false,
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"fixed_ips": [{
+			"subnet_id": "3d53801c-32ce-4e97-9572-bb966f4056b",
+			"ip_address": "11.11.11.100"
+		}],
+		"allowed_address_pairs": [{
+			"ip_address": "11.11.11.101",
+			"mac_address": "00:01:6C:06:A6:29"
+		}],
+		"extra_dhcp_opts": null,
+		"security_groups": ["3d53801c-32ce-4e97-9572-bb966f4d45ca"],
+		"binding:host_id": "00:01:6C:08:B1:34",
+		"binding:profile": null,
+		"binding:vif_details": null,
+		"binding:vif_type": null,
+		"binding:vnic_type": null,
+		"network_ns": null,
+		"dns_name": null,
+		"dns_assignment": null
+	}
+}]
+
+....
+== Database Data Schema
+
+== Asynchronous processing
+The creation / update of port may involve the allocation / release of multiple resources, so we may need to interact with multiple microservices, and the interaction with microservices will call the Rest interface of microservices. If the interaction with multiple microservices is serial, then the efficiency of creating / updating port will be very low, especially in batch operations, in order to speed up the creation / update of port. Interactions with multiple microservices need to be done asynchronously. When interacting with multiple microservices, the interaction of each microservice runs on a single thread, so interactions with multiple microservices can run on multiple threads at the same time. In order to achieve this goal, we can encapsulate a common class(AsyncExecutor), which is responsible for managing the thread pool and providing an interface for asynchronous execution. By calling this interface, the business module can transfer the method that needs to be executed asynchronously to the AsyncExecutor so that the method can be called asynchronously, and the business module does not need to care about how the method is scheduled and assigned to which thread to execute, which is the responsibility of the AsyncExecutor. In addition, asynchronous interfaces should be abstract enough that it can accept different types of parameters of different methods.
+....
+public class AsyncExecutor {
+    private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
+    public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
+            ThreadPoolExecutorConfig.corePoolSize,
+            ThreadPoolExecutorConfig.maximumPoolSize,
+            ThreadPoolExecutorConfig.KeepAliveTime,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
+            new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
+    private List<CompletableFuture> futures;
+
+    public AsyncExecutor() {
+        futures = new ArrayList<>();
+    }
+
+    public <R>CompletableFuture runAsync(AsyncFunction<Object, R> fun, Object args) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun.apply(args);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor);
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public void joinAll() throws CompletionException {
+        Iterator<CompletableFuture> iterator = futures.iterator();
+        while (iterator.hasNext()) {
+            CompletableFuture future = iterator.next();
+            iterator.remove();
+            future.join();
+        }
+    }
+
+    public void waitAll() {
+        Iterator<CompletableFuture> iterator = futures.iterator();
+        while (iterator.hasNext()) {
+            CompletableFuture future = iterator.next();
+            iterator.remove();
+
+            try {
+                future.join();
+            } catch (Exception e) {
+                LOG.error("{} join exception: {}", future, e);
+            }
+        }
+    }
+}
+....
+
+
+== Rollback Handling
+When an exception occurs during the creation / update of the port, we may need to roll back some resource allocation / deletion operations to ensure the correct allocation / release of resources and data consistency. For example, when creating a port, we need to allocate resources S1, S2, and S3 from microservices M1, M2, and M3. Suppose the allocation of resources S1 and S2 from M1 and M2 succeeded, but the allocation of resource S3 from M3 failed, and the creation of the port was not successful because the resources allocated to the port were incomplete. At this point, we need to roll back the operation of allocating resources from M1 and M2, that is, releasing S1 and S2. Therefore, when a micro-service needs to interact with other services to complete the CRUD operation of resources, a rollback mechanism is needed to ensure the consistency of the data allocated correctly. Since alcor has multiple microservices, our goal is to implement a general rollback framework that can be used by all microservices, rather than writing a rollback mechanism for each microservice. However, because the rollback operation itself is related to the specific operation, that is, what operation needs to be rolled back is related to the specific operation to be rolled back, and it is also related to the micro-service itself.At present, Port Manager implements a simple rollback mechanism, which uses a stack to save all the operations that need to be rolled back. When an exception occurs in the process of creating / updating port, all the operations that need to be rolled back are popped up and executed. At present, there is still a certain gap between this implementation and the ideal rollback framework, but it is also a simple and efficient method.Take the assignment of ip addresses as an example:
+....
+public abstract class AbstractIpAddrRollback implements PortStateRollback {
+    protected IpManagerRestClient ipManagerRestClient;
+
+    protected List<IpAddrRequest> allocatedIps = new ArrayList<>();
+    protected List<IpAddrRequest> releasedIps = new ArrayList<>();
+
+    public AbstractIpAddrRollback(IpManagerRestClient ipManagerRestClient) {
+        this.ipManagerRestClient = ipManagerRestClient;
+    }
+
+    public abstract void doRollback() throws Exception;
+
+    public void putAllocatedIpAddress(IpAddrRequest ipAddrRequest) {
+        allocatedIps.add(ipAddrRequest);
+    }
+
+    public void putReleasedIpAddress(IpAddrRequest ipAddrRequest) {
+        releasedIps.add(ipAddrRequest);
+    }
+
+    public void putAllocatedIpAddresses(List<IpAddrRequest> ipAddrRequests) {
+        allocatedIps.addAll(ipAddrRequests);
+    }
+
+    public void putReleasedIpAddresses(List<IpAddrRequest> ipAddrRequests) {
+        releasedIps.addAll(ipAddrRequests);
+    }
+}
+
+public class AllocateIpAddrRollback extends AbstractIpAddrRollback {
+
+    public AllocateIpAddrRollback(IpManagerRestClient ipManagerRestClient) {
+        super(ipManagerRestClient);
+    }
+
+    @Override
+    public void doRollback() throws Exception {
+        for (IpAddrRequest ip: allocatedIps) {
+            ipManagerRestClient.releaseIpAddress(ip.getRangeId(), ip.getIp());
+        }
+    }
+}
+....
+When we assign an ip address, we create a rollback and add the assigned ip address to the assigned ip addresses list of the rollback , and add the rollback to the rollback stack. When an exception occurs in the CRUD operation of port, the rollback is executed, so the doRollback() method of the rollback is called, and all it has to do is release the ip address in the assigned ip address list.
+
+
+
+

@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restclient;
+package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+
 import java.util.List;
 
 @Configuration
@@ -37,7 +38,7 @@ public class IpManagerRestClient extends AbstractRestClient {
         }
     }
 
-    public void verifyIpAddress(String rangeId, String ip) throws Exception {
+    public void getIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
         IpAddrRequest ipAddrRequest = restTemplate.getForObject(url, IpAddrRequest.class);

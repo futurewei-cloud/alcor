@@ -13,19 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restclient;
+package com.futurewei.alcor.portmanager.exception;
 
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-abstract class AbstractRestClient {
-    RestTemplate restTemplate = new RestTemplate();
-
-    <T> T getRequest(String url, Class<T> tClass) throws Exception {
-        T response = restTemplate.getForObject(url, tClass);
-        if (response == null) {
-            throw new Exception("Get request failed, url:" + url);
-        }
-
-        return response;
-    }
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Vnic type invalid")
+public class VnicTypeInvalid extends Exception {
 }
