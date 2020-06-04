@@ -22,8 +22,8 @@ import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Port.PortState;
-import com.futurewei.alcor.web.entity.gsinfo.GoalStateForNorth;
-import com.futurewei.alcor.web.entity.gsinfo.HostInfoNorth;
+import com.futurewei.alcor.web.entity.gsinfo.GoalStateNBJson;
+import com.futurewei.alcor.web.entity.gsinfo.HostInfoNB;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.*;
@@ -34,11 +34,11 @@ import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 public class GoalStateUtil {
 
-    public static Map<String, Goalstate.GoalState> transformNorthToSouth(GoalStateForNorth gs) {
+    public static Map<String, Goalstate.GoalState> transformNorthToSouth(GoalStateNBJson gs) {
         com.futurewei.alcor.web.entity.port.PortEntity[] portStates1 =
                 gs.getPortStates();
-        com.futurewei.alcor.web.entity.gsinfo.HostInfoNorth[] hostInfoNorths
-                = gs.getHostInfoNorth();
+        HostInfoNB[] hostInfoNorths
+                = gs.getHostInfoNBs();
         com.futurewei.alcor.web.entity.subnet.SubnetEntity[] subnets =
                 gs.getSubnets();
         com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcs = gs.getVpcs();
@@ -53,8 +53,8 @@ public class GoalStateUtil {
         Map<String, Set<com.futurewei.alcor.web.entity.vpc.VpcEntity>> vpcMap = new HashMap<>();
         if (portStates1.length != hostInfoNorths.length) return null;
         int counter = 0;
-        for (HostInfoNorth h : hostInfoNorths) {
-            String ip = h.getBindingHostIp();
+        for (HostInfoNB h : hostInfoNorths) {
+            String ip = h.getHostIp();
             if (!northMap.containsKey(ip)) {
                 Set<com.futurewei.alcor.web.entity.port.PortEntity> portStates = new HashSet<>();
                 portStates.add(portStates1[counter]);

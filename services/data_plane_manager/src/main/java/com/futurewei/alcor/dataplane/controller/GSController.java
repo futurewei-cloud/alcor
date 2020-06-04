@@ -16,9 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
-import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.common.constants.Common;
-import com.futurewei.alcor.web.entity.gsinfo.GoalStateForNorth;
+import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
+import com.futurewei.alcor.web.entity.gsinfo.GoalStateNBJson;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,66 +29,64 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class GSController {
-    /**
-     * Accept north bound calls then transfer to ACA calls in southbound
-     *
-     * @param gs Encapsulation of GSInfo message
-     * @return RestOperationResult in String
-     * @throws Exception Various exceptions that may occur during the create
-     *                   process
-     * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
-     * /pages/infra_services/data_plane_manager.adoc
-     */
-    @RequestMapping(method = POST, value = {"/goalstate/{gsinfo}", "v4" +
-            "/goalstate/{gsinfo}"})
-    @ResponseStatus(HttpStatus.CREATED)
-    public synchronized String[] create(@RequestBody GoalStateForNorth gs) throws Exception {
-        gs.setOpType(Common.OperationType.CREATE);
-        return service(gs);
-    }
+  /**
+   * Accept north bound calls then transfer to ACA calls in southbound
+   *
+   * @param gs Encapsulation of GSInfo message
+   * @return RestOperationResult in String
+   * @throws Exception Various exceptions that may occur during the create process
+   * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
+   *     /pages/infra_services/data_plane_manager.adoc
+   */
+  @RequestMapping(
+      method = POST,
+      value = {"/port/{gsinfo}", "v4/port/{gsinfo}"})
+  @ResponseStatus(HttpStatus.CREATED)
+  public synchronized String[] createPorts(@RequestBody GoalStateNBJson gs) throws Exception {
+    gs.setOpType(Common.OperationType.CREATE);
+    gs.setRsType(Common.ResourceType.PORT);
+    return service(gs);
+  }
 
-    /**
-     * Accept north bound calls then transfer to ACA calls in southbound
-     *
-     * @param gs Encapsulation of GSInfo message
-     * @return RestOperationResult in String
-     * @throws Exception Various exceptions that may occur during the update
-     *                   process
-     * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
-     * /pages/infra_services/data_plane_manager.adoc
-     */
-    @RequestMapping(method = PUT, value = {"/goalstate/{gsinfo}", "v4" +
-            "/goalstate/{gsinfo}"})
-    public synchronized String[] update(@RequestBody GoalStateForNorth gs) throws Exception {
+  /**
+   * Accept north bound calls then transfer to ACA calls in southbound
+   *
+   * @param gs Encapsulation of GSInfo message
+   * @return RestOperationResult in String
+   * @throws Exception Various exceptions that may occur during the update process
+   * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
+   *     /pages/infra_services/data_plane_manager.adoc
+   */
+  @RequestMapping(
+      method = PUT,
+      value = {"/port/{gsinfo}", "v4/port/{gsinfo}"})
+  public synchronized String[] updatePorts(@RequestBody GoalStateNBJson gs) throws Exception {
+    gs.setRsType(Common.ResourceType.PORT);
+    gs.setOpType(Common.OperationType.UPDATE);
+    return service(gs);
+  }
 
-        gs.setOpType(Common.OperationType.UPDATE);
-        return service(gs);
-    }
+  /**
+   * Accept north bound calls then transfer to ACA calls in southbound
+   *
+   * @param gs Encapsulation of GSInfo message
+   * @return RestOperationResult in String
+   * @throws Exception Various exceptions that may occur during the delete process
+   * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
+   *     /pages/infra_services/data_plane_manager.adoc
+   */
+  @RequestMapping(
+      method = DELETE,
+      value = {"/port/{gsinfo}", "v4/port/{gsinfo}"})
+  public synchronized String[] deletePort(@RequestBody GoalStateNBJson gs) throws Exception {
+    gs.setOpType(Common.OperationType.DELETE);
+    gs.setRsType(Common.ResourceType.PORT);
+    return service(gs);
+  }
 
-    /**
-     * Accept north bound calls then transfer to ACA calls in southbound
-     *
-     * @param gs Encapsulation of GSInfo message
-     * @return RestOperationResult in String
-     * @throws Exception Various exceptions that may occur during the delete
-     *                   process
-     * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
-     * /pages/infra_services/data_plane_manager.adoc
-     */
-    @RequestMapping(method = DELETE, value = {"/project/goalstate/{gsinfo}",
-            "v4/goalstate/{gsinfo}"})
-    public synchronized String[] delete(@RequestBody GoalStateForNorth gs) throws Exception {
-        gs.setOpType(Common.OperationType.DELETE);
-        return service(gs);
-    }
-
-    private synchronized String[] service(GoalStateForNorth gs) throws Exception {
-        // TODO: Create a verification framework for all resources
-        return GoalStateUtil.talkToACA(
-                GoalStateUtil.transformNorthToSouth(gs),
-                gs.isFastPath()).toArray(new String[0]);
-
-
-    }
-
+  private synchronized String[] service(GoalStateNBJson gs) throws Exception {
+    // TODO: Create a verification framework for all resources
+    return GoalStateUtil.talkToACA(GoalStateUtil.transformNorthToSouth(gs), gs.isAllOrNone())
+        .toArray(new String[0]);
+  }
 }
