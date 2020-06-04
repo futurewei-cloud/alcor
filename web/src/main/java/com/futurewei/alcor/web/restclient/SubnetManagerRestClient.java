@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restclient;
+package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,14 +24,14 @@ public class SubnetManagerRestClient extends AbstractRestClient {
     @Value("${microservices.subnet.service.url:#{\"\"}}")
     private String subnetManagerUrl;
 
-    public SubnetWebJson getSubnetState(String projectId, String subnetId) throws Exception {
+    public SubnetWebJson getSubnet(String projectId, String subnetId) throws Exception {
         String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;
 
-        SubnetWebJson subnetStateJson = restTemplate.getForObject(url, SubnetWebJson.class);
-        if (subnetStateJson == null) {
+        SubnetWebJson subnetWebJson = restTemplate.getForObject(url, SubnetWebJson.class);
+        if (subnetWebJson == null) {
             throw new Exception("Get subnet failed");
         }
 
-        return subnetStateJson;
+        return subnetWebJson;
     }
 }

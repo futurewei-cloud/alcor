@@ -13,23 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.portmanager.exception;
 
-package com.futurewei.alcor.common.db.repo;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.CacheException;
-
-import java.util.List;
-import java.util.Map;
-
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Get SecurityGroupEntity exception")
+public class GetSecurityGroupEntityException extends Exception {
 }

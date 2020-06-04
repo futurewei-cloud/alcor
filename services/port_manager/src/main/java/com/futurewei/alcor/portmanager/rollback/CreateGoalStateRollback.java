@@ -13,23 +13,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.portmanager.rollback;
 
-package com.futurewei.alcor.common.db.repo;
+import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 
-import com.futurewei.alcor.common.db.CacheException;
+public class CreateGoalStateRollback extends GoalStateRollback {
 
-import java.util.List;
-import java.util.Map;
+    public CreateGoalStateRollback(DataPlaneManagerRestClient dataPlaneManagerRestClient) {
+        super(dataPlaneManagerRestClient);
+    }
 
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+    @Override
+    public void doRollback() throws Exception {
+        for (Goalstate.GoalState goalState: deletedGoalStates) {
+            dataPlaneManagerRestClient.deleteGoalState(goalState);
+        }
+    }
 }

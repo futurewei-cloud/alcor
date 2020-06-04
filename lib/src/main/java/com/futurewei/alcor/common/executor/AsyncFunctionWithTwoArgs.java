@@ -13,23 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.common.executor;
 
-package com.futurewei.alcor.common.db.repo;
-
-import com.futurewei.alcor.common.db.CacheException;
-
-import java.util.List;
-import java.util.Map;
-
-public interface ICacheRepository<T> {
-
-    T findItem(String id) throws CacheException;
-
-    Map<String, T> findAllItems() throws CacheException;
-
-    void addItem(T newItem) throws CacheException;
-
-    //void addItems(List<T> items) throws CacheException;
-
-    void deleteItem(String id) throws CacheException;
+@FunctionalInterface
+public interface AsyncFunctionWithTwoArgs<X, Y, R> {
+    R apply(X var1, Y var2) throws Exception;
 }
