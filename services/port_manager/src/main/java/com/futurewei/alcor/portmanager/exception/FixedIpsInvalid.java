@@ -13,19 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.restclient;
+package com.futurewei.alcor.portmanager.exception;
 
-import com.futurewei.alcor.web.entity.NodeInfoJson;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Configuration
-public class NodeManagerRestClient extends AbstractRestClient {
-    @Value("${microservices.node.service.url:#{\"\"}}")
-    private String nodeManagerUrl;
-
-    public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
-        String url = nodeManagerUrl + "/" + nodeId;
-        return getRequest(url, NodeInfoJson.class);
-    }
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Fixed ips invalid")
+public class FixedIpsInvalid extends Exception {
 }

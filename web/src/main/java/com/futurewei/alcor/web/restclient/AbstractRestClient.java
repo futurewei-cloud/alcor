@@ -13,10 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.exception;
+package com.futurewei.alcor.web.restclient;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestTemplate;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Can not find vpc by vpc_id")
-public class VerifyVpcException extends Exception {}
+abstract class AbstractRestClient {
+    RestTemplate restTemplate = new RestTemplate();
+
+    <T> T getRequest(String url, Class<T> tClass) throws Exception {
+        T response = restTemplate.getForObject(url, tClass);
+        if (response == null) {
+            throw new Exception("Get request failed, url:" + url);
+        }
+
+        return response;
+    }
+}

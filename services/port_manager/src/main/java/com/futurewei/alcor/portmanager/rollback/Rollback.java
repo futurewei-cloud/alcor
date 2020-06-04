@@ -1,6 +1,6 @@
 package com.futurewei.alcor.portmanager.rollback;
 
 
-public interface PortStateRollback {
+public interface Rollback {
     void doRollback() throws Exception;
 }

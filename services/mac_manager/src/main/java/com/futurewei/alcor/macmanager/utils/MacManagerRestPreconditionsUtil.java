@@ -57,10 +57,22 @@ public class MacManagerRestPreconditionsUtil {
         String portId = macState.getPortId();
         String state = macState.getState();
 
-        projectId = projectId.trim();
-        vpcId = vpcId.trim();
-        portId = portId.trim();
-        state = state.trim();
+        if (projectId != null) {
+            projectId = projectId.trim();
+        }
+
+        if (vpcId != null) {
+            vpcId = vpcId.trim();
+        }
+
+        if (portId != null) {
+            portId = portId.trim();
+        }
+
+        if (state != null) {
+            state = state.trim();
+        }
+
         if (projectId == null || vpcId == null || portId == null)
             throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_NULL);
 
