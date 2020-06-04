@@ -17,6 +17,7 @@ package com.futurewei.alcor.web.entity.port;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.web.entity.gsinfo.HostInfoNB;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -123,7 +124,64 @@ public class PortEntity extends CustomerResource {
     @JsonProperty("mac_learning_enabled")
     private boolean macLearningEnabled;
 
+    @JsonProperty("neighbor_info")
+    private List<HostInfoNB> neighborInfo;
+
     public PortEntity() {
+    }
+
+    public PortEntity(String vpcId, String tenantId, boolean adminStateUp,
+                      String macAddress, String vethName, boolean fastPath,
+                      String deviceId, String deviceOwner, String status,
+                      List<FixedIp> fixedIps,
+                      List<AllowAddressPair> allowedAddressPairs,
+                      List<ExtraDhcpOpt> extraDhcpOpts,
+                      List<String> securityGroups, String bindingHostId,
+                      String bindingProfile, String bindingVifDetails,
+                      String bindingVifType, String bindingVnicType,
+                      String networkNamespace, String dnsName,
+                      String dnsDomain, List<DnsRecord> dnsAssignment,
+                      String createAt, String updateAt, String ipAllocation,
+                      boolean portSecurityEnabled, String qosNetworkPolicyId,
+                      String qosPolicyId, int revisionNumber,
+                      int resourceRequest, List<String> tags,
+                      boolean uplinkStatusPropagation,
+                      boolean macLearningEnabled,
+                      List<HostInfoNB> neighborInfo) {
+        this.vpcId = vpcId;
+        this.tenantId = tenantId;
+        this.adminStateUp = adminStateUp;
+        this.macAddress = macAddress;
+        this.vethName = vethName;
+        this.fastPath = fastPath;
+        this.deviceId = deviceId;
+        this.deviceOwner = deviceOwner;
+        this.status = status;
+        this.fixedIps = fixedIps;
+        this.allowedAddressPairs = allowedAddressPairs;
+        this.extraDhcpOpts = extraDhcpOpts;
+        this.securityGroups = securityGroups;
+        this.bindingHostId = bindingHostId;
+        this.bindingProfile = bindingProfile;
+        this.bindingVifDetails = bindingVifDetails;
+        this.bindingVifType = bindingVifType;
+        this.bindingVnicType = bindingVnicType;
+        this.networkNamespace = networkNamespace;
+        this.dnsName = dnsName;
+        this.dnsDomain = dnsDomain;
+        this.dnsAssignment = dnsAssignment;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
+        this.ipAllocation = ipAllocation;
+        this.portSecurityEnabled = portSecurityEnabled;
+        this.qosNetworkPolicyId = qosNetworkPolicyId;
+        this.qosPolicyId = qosPolicyId;
+        this.revisionNumber = revisionNumber;
+        this.resourceRequest = resourceRequest;
+        this.tags = tags;
+        this.uplinkStatusPropagation = uplinkStatusPropagation;
+        this.macLearningEnabled = macLearningEnabled;
+        this.neighborInfo = neighborInfo;
     }
 
     public PortEntity(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
@@ -706,5 +764,13 @@ public class PortEntity extends CustomerResource {
 
     public void setMacLearningEnabled(boolean macLearningEnabled) {
         this.macLearningEnabled = macLearningEnabled;
+    }
+
+    public List<HostInfoNB> getNeighborInfo() {
+        return neighborInfo;
+    }
+
+    public void setNeighborInfo(List<HostInfoNB> neighborInfo) {
+        this.neighborInfo = neighborInfo;
     }
 }
