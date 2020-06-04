@@ -1,9 +1,6 @@
 language: java
 sudo: false # faster builds
 
-jdk:
-  - jdk1.8
-
 script:
   - mvn clean test jacoco:report coveralls:report
 
