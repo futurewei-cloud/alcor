@@ -1,8 +1,10 @@
 language: java
 sudo: false # faster builds
 
+before_script:
+  - - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script:
-  - mvn clean
+  - mvn test -B
 
 after_success:
   - mvn clean jacoco:report coveralls:report
