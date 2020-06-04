@@ -16,20 +16,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.util;
 
 import com.futurewei.alcor.portmanager.exception.*;
-import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.schema.Vpc.*;
+import com.futurewei.alcor.schema.Common.*;
+import com.futurewei.alcor.schema.Port.*;
+import com.futurewei.alcor.schema.SecurityGroup.*;
+import com.futurewei.alcor.schema.Goalstate.*;
+import com.futurewei.alcor.schema.Subnet.*;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.*;
 
 public class GoalStateUtil {
-    public static Vpc.VpcState buildVpcState(VpcEntity vpcEntity, Common.OperationType operationType) {
-        Vpc.VpcConfiguration.Builder vpcConfigBuilder = Vpc.VpcConfiguration.newBuilder();
+    public static VpcState buildVpcState(VpcEntity vpcEntity, OperationType operationType) {
+        VpcConfiguration.Builder vpcConfigBuilder = VpcConfiguration.newBuilder();
 
         //Required fields
         vpcConfigBuilder.setId(vpcEntity.getId());
@@ -51,23 +56,23 @@ public class GoalStateUtil {
             vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getTenantId()));
         }
 
-        Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
+        VpcState.Builder vpcStateBuilder = VpcState.newBuilder();
         vpcStateBuilder.setOperationType(operationType);
         vpcStateBuilder.setConfiguration(vpcConfigBuilder.build());
 
         return vpcStateBuilder.build();
     }
 
-    public static Subnet.SubnetState buildSubnetState(SubnetEntity subnet, Common.OperationType operationType) {
-        Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+    public static SubnetState buildSubnetState(SubnetEntity subnet, OperationType operationType) {
+        SubnetConfiguration.Builder subnetConfigBuilder = SubnetConfiguration.newBuilder();
 
         //Required fields
         subnetConfigBuilder.setId(subnet.getId());
         subnetConfigBuilder.setVpcId(subnet.getVpcId());
         subnetConfigBuilder.setCidr(subnet.getCidr());
 
-        Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder =
-                Subnet.SubnetConfiguration.Gateway.newBuilder()
+        SubnetConfiguration.Gateway.Builder gatewayBuilder =
+                SubnetConfiguration.Gateway.newBuilder()
                         .setIpAddress(subnet.getGatewayIp())
                         .setMacAddress(subnet.getGatewayMacAddress());
 
@@ -98,7 +103,7 @@ public class GoalStateUtil {
             subnetConfigBuilder.setSecondaryDns(subnet.getSecondaryDns());
         }
 
-        Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+        SubnetState.Builder subnetStateBuilder = SubnetState.newBuilder();
         subnetStateBuilder.setOperationType(operationType);
         subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
 
@@ -142,38 +147,38 @@ public class GoalStateUtil {
         }
     }
 
-    public static SecurityGroup.SecurityGroupState buildSecurityGroupState(SecurityGroupEntity securityGroupEntity, Common.OperationType operationType) {
-        SecurityGroup.SecurityGroupConfiguration.Builder securityGroupConfigBuilder = SecurityGroup.SecurityGroupConfiguration.newBuilder();
+    public static SecurityGroupState buildSecurityGroupState(SecurityGroup securityGroup, OperationType operationType) {
+        SecurityGroupConfiguration.Builder securityGroupConfigBuilder = SecurityGroupConfiguration.newBuilder();
 
         //Required fields
-        securityGroupConfigBuilder.setId(securityGroupEntity.getId());
+        securityGroupConfigBuilder.setId(securityGroup.getId());
 
         //Optional fields
-        if (securityGroupEntity.getName() != null) {
-            securityGroupConfigBuilder.setName(securityGroupEntity.getName());
+        if (securityGroup.getName() != null) {
+            securityGroupConfigBuilder.setName(securityGroup.getName());
         }
 
-        if (securityGroupEntity.getProjectId() != null) {
-            securityGroupConfigBuilder.setProjectId(securityGroupEntity.getProjectId());
+        if (securityGroup.getProjectId() != null) {
+            securityGroupConfigBuilder.setProjectId(securityGroup.getProjectId());
         }
 
-        for (SecurityGroupRuleEntity securityGroupRule: securityGroupEntity.getSecurityGroupRuleEntities()) {
-            SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
-                    SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
+        for (SecurityGroupRule securityGroupRule: securityGroup.getSecurityGroupRules()) {
+            SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
+                    SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
 
             //Required fields
             securityGroupRuleBuilder.setId(securityGroupRule.getId());
-            securityGroupRuleBuilder.setDirection(SecurityGroup.SecurityGroupConfiguration.Direction
+            securityGroupRuleBuilder.setDirection(SecurityGroupConfiguration.Direction
                     .forNumber(DirectionToNumber(securityGroupRule.getDirection())));
 
             //Optional fields
             if (securityGroupRule.getEtherType() != null) {
-                securityGroupRuleBuilder.setEthertype(Common.EtherType
+                securityGroupRuleBuilder.setEthertype(EtherType
                         .forNumber(etherTypeToNumber(securityGroupRule.getEtherType())));
             }
 
             if (securityGroupRule.getProtocol() != null) {
-                securityGroupRuleBuilder.setProtocol(Common.Protocol
+                securityGroupRuleBuilder.setProtocol(Protocol
                         .forNumber(protocolToNumber(securityGroupRule.getProtocol())));
             }
 
@@ -200,16 +205,15 @@ public class GoalStateUtil {
             securityGroupConfigBuilder.addSecurityGroupRules(securityGroupRuleBuilder.build());
         }
 
-        SecurityGroup.SecurityGroupState.Builder securityGroupStateBuilder =
-                SecurityGroup.SecurityGroupState.newBuilder();
+        SecurityGroupState.Builder securityGroupStateBuilder = SecurityGroupState.newBuilder();
         securityGroupStateBuilder.setOperationType(operationType);
         securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder.build());
 
         return securityGroupStateBuilder.build();
     }
 
-    public static Port.PortState buildPortState(PortEntity portEntity, Map<String, NodeInfo> nodeInfoMap, Common.OperationType operationType) {
-        Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
+    public static PortState buildPortState(PortEntity portEntity, Map<String, NodeInfo> nodeInfoMap, OperationType operationType) {
+        PortConfiguration.Builder portConfigBuilder = PortConfiguration.newBuilder();
 
         //Required fields
         portConfigBuilder.setId(portEntity.getId());
@@ -226,8 +230,7 @@ public class GoalStateUtil {
         }
 
         if (portEntity.getBindingHostId() != null) {
-            Port.PortConfiguration.HostInfo.Builder hostInfoBuilder =
-                    Port.PortConfiguration.HostInfo.newBuilder();
+            PortConfiguration.HostInfo.Builder hostInfoBuilder = PortConfiguration.HostInfo.newBuilder();
             NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getBindingHostId());
             hostInfoBuilder.setIpAddress(nodeInfo.getLocalIp());
             hostInfoBuilder.setMacAddress(nodeInfo.getMacAddress());
@@ -250,19 +253,19 @@ public class GoalStateUtil {
             portConfigBuilder.setProjectId(portEntity.getProjectId());
         }
 
-        Port.PortState.Builder portStateBuilder = Port.PortState.newBuilder();
+        PortState.Builder portStateBuilder = PortState.newBuilder();
         portStateBuilder.setOperationType(operationType);
         portStateBuilder.setConfiguration(portConfigBuilder.build());
 
         return portStateBuilder.build();
     }
 
-    public static Goalstate.GoalState buildGoalState(List<Object> entities, Common.OperationType operationType) throws Exception {
+    public static GoalState buildGoalState(List<Object> entities, OperationType operationType) throws Exception {
         List<PortEntity> portEntities = new ArrayList<>();
         Map<String, NodeInfo> nodeInfoMap  = new HashMap<>();
         Map<String, VpcEntity> vpcEntityMap = new HashMap<>();
         Map<String, SubnetEntity> subnetEntityMap = new HashMap<>();
-        Map<String, SecurityGroupEntity> securityGroupEntityMap = new HashMap<>();
+        Map<String, SecurityGroup> securityGroupMap = new HashMap<>();
 
         for (Object entity: entities) {
             if (entity instanceof VpcEntity) {
@@ -271,9 +274,9 @@ public class GoalStateUtil {
             } else if (entity instanceof SubnetEntity) {
                 SubnetEntity subnetEntity = (SubnetEntity) entity;
                 subnetEntityMap.put(subnetEntity.getId(), subnetEntity);
-            } else if (entity instanceof SecurityGroupEntity) {
-                SecurityGroupEntity securityGroupEntity = (SecurityGroupEntity) entity;
-                securityGroupEntityMap.put(securityGroupEntity.getId(), securityGroupEntity);
+            } else if (entity instanceof SecurityGroup) {
+                SecurityGroup securityGroupEntity = (SecurityGroup) entity;
+                securityGroupMap.put(securityGroupEntity.getId(), securityGroupEntity);
             } else if (entity instanceof NodeInfo) {
                 NodeInfo nodeInfo = (NodeInfo) entity;
                 nodeInfoMap.put(nodeInfo.getId(), nodeInfo);
@@ -282,7 +285,7 @@ public class GoalStateUtil {
             }
         }
 
-        Goalstate.GoalState.Builder goalStateBuilder = Goalstate.GoalState.newBuilder();
+        GoalState.Builder goalStateBuilder = GoalState.newBuilder();
 
         //Make sure we add These common states once
         Set<String> vpcStates = new HashSet<>();
@@ -304,7 +307,7 @@ public class GoalStateUtil {
             }
 
             if (!vpcStates.contains(portEntity.getVpcId())) {
-                Vpc.VpcState vpcState = buildVpcState(vpcEntity, operationType);
+                VpcState vpcState = buildVpcState(vpcEntity, operationType);
                 goalStateBuilder.addVpcStates(vpcState);
                 vpcStates.add(portEntity.getVpcId());
             }
@@ -318,7 +321,7 @@ public class GoalStateUtil {
                 }
 
                 if (!subnetStates.contains(subnetId)) {
-                    Subnet.SubnetState subnetState = buildSubnetState(subnetEntity, operationType);
+                    SubnetState subnetState = buildSubnetState(subnetEntity, operationType);
                     goalStateBuilder.addSubnetStates(subnetState);
                     subnetStates.add(subnetId);
                 }
@@ -327,40 +330,40 @@ public class GoalStateUtil {
             //Build SecurityGroupState
             if (portEntity.getSecurityGroups() != null) {
                 for (String securityGroupId: portEntity.getSecurityGroups()) {
-                    SecurityGroupEntity securityGroupEntity = securityGroupEntityMap.get(securityGroupId);
-                    if (securityGroupEntity == null) {
+                    SecurityGroup securityGroup = securityGroupMap.get(securityGroupId);
+                    if (securityGroup == null) {
                         throw new SecurityGroupEntityNotFound();
                     }
 
                     if (!securityGroupStates.contains(securityGroupId)) {
-                        SecurityGroup.SecurityGroupState securityGroupState =
-                                buildSecurityGroupState(securityGroupEntity, operationType);
+                        SecurityGroupState securityGroupState =
+                                buildSecurityGroupState(securityGroup, operationType);
                         goalStateBuilder.addSecurityGroupStates(securityGroupState);
                         securityGroupStates.add(securityGroupId);
                     }
                 }
             } else {
-                SecurityGroupEntity securityGroupEntity = null;
-                for (Map.Entry<String, SecurityGroupEntity> entry: securityGroupEntityMap.entrySet()) {
+                SecurityGroup securityGroup = null;
+                for (Map.Entry<String, SecurityGroup> entry: securityGroupMap.entrySet()) {
                     if ("default".equals(entry.getValue().getName())) {
-                        securityGroupEntity = entry.getValue();
+                        securityGroup = entry.getValue();
                     }
                 }
 
-                if (securityGroupEntity == null) {
+                if (securityGroup == null) {
                     throw new DefaultSecurityGroupEntityNotFound();
                 }
 
-                if (!securityGroupStates.contains(securityGroupEntity.getId())) {
-                    SecurityGroup.SecurityGroupState securityGroupState =
-                            buildSecurityGroupState(securityGroupEntity, operationType);
+                if (!securityGroupStates.contains(securityGroup.getId())) {
+                    SecurityGroupState securityGroupState =
+                            buildSecurityGroupState(securityGroup, operationType);
                     goalStateBuilder.addSecurityGroupStates(securityGroupState);
-                    securityGroupStates.add(securityGroupEntity.getId());
+                    securityGroupStates.add(securityGroup.getId());
                 }
             }
 
             //Build PortState
-            Port.PortState portState = buildPortState(portEntity, nodeInfoMap, operationType);
+            PortState portState = buildPortState(portEntity, nodeInfoMap, operationType);
             goalStateBuilder.addPortStates(portState);
         }
 

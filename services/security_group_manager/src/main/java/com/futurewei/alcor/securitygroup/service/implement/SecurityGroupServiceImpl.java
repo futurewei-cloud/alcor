@@ -247,6 +247,23 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    public SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception {
+        SecurityGroup defaultSecurityGroup = securityGroupRepository.getSecurityGroup(tenantId);
+        if (defaultSecurityGroup == null) {
+            createDefaultSecurityGroup(tenantId, projectId, null);
+
+            defaultSecurityGroup = securityGroupRepository.getSecurityGroup(tenantId);
+            if (defaultSecurityGroup == null) {
+                throw new DefaultSecurityGroupNotFound();
+            }
+        }
+
+        LOG.info("Get default security group success, defaultSecurityGroup: {}", defaultSecurityGroup);
+
+        return new SecurityGroupJson(defaultSecurityGroup);
+    }
+
+    @Override
     public List<SecurityGroupJson> listSecurityGroup() throws Exception {
         List<SecurityGroupJson> securityGroups = new ArrayList<>();
 

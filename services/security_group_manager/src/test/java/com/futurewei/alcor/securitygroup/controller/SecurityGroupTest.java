@@ -145,14 +145,21 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test06_listSecurityGroupTest() throws Exception {
+    public void Test06_getDefaultSecurityGroupTest() throws Exception {
+        this.mockMvc.perform(get(UnitTestConfig.securityGroupUrl + "/default/" + UnitTestConfig.tenantId))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Test07_listSecurityGroupTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test07_createSecurityGroupRuleTest() throws Exception {
+    public void Test08_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setId(UnitTestConfig.securityGroupRuleId);
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
@@ -178,7 +185,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test08_createSecurityGroupRuleTest() throws Exception {
+    public void Test09_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
         securityGroupRule.setTenantId(UnitTestConfig.tenantId);
@@ -204,7 +211,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test09_createSecurityGroupRuleTest() throws Exception {
+    public void Test10_createSecurityGroupRuleTest() throws Exception {
         SecurityGroupRule securityGroupRule = new SecurityGroupRule();
         securityGroupRule.setProjectId(UnitTestConfig.projectId);
         securityGroupRule.setTenantId(UnitTestConfig.tenantId);
@@ -230,7 +237,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test10_createSecurityGroupRuleBulkTest() throws Exception {
+    public void Test11_createSecurityGroupRuleBulkTest() throws Exception {
         SecurityGroupRule securityGroupRule1 = new SecurityGroupRule();
         securityGroupRule1.setProjectId(UnitTestConfig.projectId);
         securityGroupRule1.setTenantId(UnitTestConfig.tenantId);
@@ -267,21 +274,21 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test11_getSecurityGroupRuleTest() throws Exception {
+    public void Test12_getSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupRuleUrl + "/" + UnitTestConfig.securityGroupRuleId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test12_listSecurityGroupRuleTest() throws Exception {
+    public void Test13_listSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.securityGroupRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test13_bindSecurityGroupTest() throws Exception {
+    public void Test14_bindSecurityGroupTest() throws Exception {
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
         List<String> securityGroups = new ArrayList<>();
@@ -299,7 +306,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test14_unbindSecurityGroupTest() throws Exception {
+    public void Test15_unbindSecurityGroupTest() throws Exception {
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
         List<String> securityGroups = new ArrayList<>();
@@ -317,7 +324,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test15_deleteSecurityGroupRuleTest() throws Exception {
+    public void Test16_deleteSecurityGroupRuleTest() throws Exception {
         this.mockMvc.perform(delete(UnitTestConfig.securityGroupRuleUrl + "/" +
                 UnitTestConfig.securityGroupRuleId))
                 .andDo(print())
@@ -325,7 +332,7 @@ public class SecurityGroupTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test16_deleteSecurityGroupTest() throws Exception {
+    public void Test17_deleteSecurityGroupTest() throws Exception {
         this.mockMvc.perform(delete(UnitTestConfig.securityGroupUrl + "/" +
                 UnitTestConfig.securityGroupId))
                 .andDo(print())

@@ -34,6 +34,8 @@ public interface SecurityGroupService {
 
     SecurityGroupJson getSecurityGroup(String securityGroupId) throws Exception;
 
+    SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception;
+
     List<SecurityGroupJson> listSecurityGroup() throws Exception;
 
     PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception;

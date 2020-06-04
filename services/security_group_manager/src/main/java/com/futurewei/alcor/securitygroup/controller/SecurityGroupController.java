@@ -143,6 +143,15 @@ public class SecurityGroupController {
         return securityGroupService.getSecurityGroup(securityGroupId);
     }
 
+    @GetMapping({"/project/{project_id}/security-groups/default/{tenant_id}", "v4/{project_id}/security-groups/default/{tenant_id}}"})
+    public SecurityGroupJson getDefaultSecurityGroup(@PathVariable("project_id") String projectId,
+                                                     @PathVariable("tenant_id") String tenantId) throws Exception {
+        checkProjectId(projectId);
+        checkTenantId(tenantId);
+
+        return securityGroupService.getDefaultSecurityGroup(projectId, tenantId);
+    }
+
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     public List<SecurityGroupJson> listSecurityGroup(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
@@ -150,7 +159,7 @@ public class SecurityGroupController {
         return securityGroupService.listSecurityGroup();
     }
 
-    private void verifyPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+    private void checkPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         checkProjectId(projectId);
         checkPortSecurityGroups(portSecurityGroupsJson);
         checkPortId(portSecurityGroupsJson.getPortId());
@@ -165,7 +174,7 @@ public class SecurityGroupController {
     @ResponseStatus(HttpStatus.CREATED)
     public PortSecurityGroupsJson bindSecurityGroups(@PathVariable("project_id") String projectId,
                                                               @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        verifyPortSecurityGroups(projectId, portSecurityGroupsJson);
+        checkPortSecurityGroups(projectId, portSecurityGroupsJson);
 
         return securityGroupService.bindSecurityGroups(portSecurityGroupsJson);
     }
@@ -175,7 +184,7 @@ public class SecurityGroupController {
     @ResponseStatus(HttpStatus.CREATED)
     public PortSecurityGroupsJson unbindSecurityGroups(@PathVariable("project_id") String projectId,
                                                               @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        verifyPortSecurityGroups(projectId, portSecurityGroupsJson);
+        checkPortSecurityGroups(projectId, portSecurityGroupsJson);
 
         return securityGroupService.unbindSecurityGroups(portSecurityGroupsJson);
     }

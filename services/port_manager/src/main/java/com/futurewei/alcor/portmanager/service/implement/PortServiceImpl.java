@@ -23,7 +23,8 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.GoalStateUtil;
-import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.schema.Goalstate.*;
+import com.futurewei.alcor.schema.Common.*;
 import com.futurewei.alcor.web.entity.port.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,12 +98,12 @@ public class PortServiceImpl implements PortService {
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
             for (String securityGroupId: portEntity.getSecurityGroups()) {
-                executor.runAsync(securityGroupManagerProxy::getSecurityGroupEntity, securityGroupId);
+                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
                 executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
             }
         } else {
             //Do we need to bind default security group? No, we don't
-            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, null);
+            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
         }
 
         //Get subnet route
@@ -162,7 +163,7 @@ public class PortServiceImpl implements PortService {
 
             //Build GoalState and Send it to DPM
             if (portEntity.getBindingHostId() != null) {
-                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
+                GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
                 dataPlaneManagerProxy.createGoalState(goalState);
             }
@@ -210,7 +211,7 @@ public class PortServiceImpl implements PortService {
 
             //Build GoalState and Send it to DPM
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
+            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
             if (goalState.getPortStatesCount() > 0) {
                 dataPlaneManagerProxy.createGoalState(goalState);
             }
@@ -444,10 +445,10 @@ public class PortServiceImpl implements PortService {
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
             for (String securityGroupId: portEntity.getSecurityGroups()) {
-                executor.runAsync(securityGroupManagerProxy::getSecurityGroupEntity, securityGroupId);
+                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
             }
         } else {
-            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, null);
+            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
         }
 
         //Get NodeInfo
@@ -500,7 +501,7 @@ public class PortServiceImpl implements PortService {
             if (needNotifyDpm) {
                 entities.add(oldPortEntity);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.UPDATE);
+                GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
                 dataPlaneManagerProxy.updateGoalState(goalState);
             }
 
@@ -555,7 +556,7 @@ public class PortServiceImpl implements PortService {
 
             //Build GoalState and send it to DPM
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.UPDATE);
+            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
             if (goalState.getPortStatesCount() > 0) {
                 dataPlaneManagerProxy.updateGoalState(goalState);
             }
@@ -617,7 +618,7 @@ public class PortServiceImpl implements PortService {
 
             //Build GoalState and send it to DPM
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.DELETE);
+            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.DELETE);
             dataPlaneManagerProxy.deleteGoalState(goalState);
 
             //portRepository.deleteItem(portId);

@@ -96,7 +96,7 @@ public class MockRestClientAndRepository {
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId2))
                 .thenReturn(newSecurityGroupWebJson(UnitTestConfig.securityGroupId2));
 
-        Mockito.when(securityGroupManagerRestClient.getDefaultSecurityGroup(UnitTestConfig.projectId))
+        Mockito.when(securityGroupManagerRestClient.getDefaultSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.tenantId))
                 .thenReturn(newDefaultSecurityGroupWebJson());
 
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId1))

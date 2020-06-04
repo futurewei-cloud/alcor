@@ -31,9 +31,9 @@ import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteTableType;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupWebJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -145,34 +145,35 @@ public class ResourceBuilder {
         return new RouteWebJson(route);
     }
 
-    public static SecurityGroupWebJson newSecurityGroupWebJson(String securityGroupId) {
-        SecurityGroupEntity securityGroupEntity = new SecurityGroupEntity();
-        securityGroupEntity.setId(securityGroupId);
-        securityGroupEntity.setName(UnitTestConfig.securityGroupName);
-        securityGroupEntity.setProjectId(UnitTestConfig.projectId);
+    public static SecurityGroupJson newSecurityGroupWebJson(String securityGroupId) {
+        SecurityGroup securityGroup = new SecurityGroup();
+        securityGroup.setId(securityGroupId);
+        securityGroup.setName(UnitTestConfig.securityGroupName);
+        securityGroup.setTenantId(UnitTestConfig.tenantId);
+        securityGroup.setProjectId(UnitTestConfig.projectId);
 
-        SecurityGroupRuleEntity securityGroupRuleEntity = new SecurityGroupRuleEntity();
-        securityGroupRuleEntity.setId(UnitTestConfig.securityGroupRuleId);
-        securityGroupRuleEntity.setProjectId(UnitTestConfig.projectId);
-        securityGroupRuleEntity.setTenantId(UnitTestConfig.tenantId);
-        securityGroupRuleEntity.setSecurityGroupId(UnitTestConfig.securityGroupId1);
-        securityGroupRuleEntity.setDirection(UnitTestConfig.direction1);
-        securityGroupRuleEntity.setProtocol(UnitTestConfig.protocolTcp);
-        securityGroupRuleEntity.setPortRangeMin(UnitTestConfig.portRangeMin);
-        securityGroupRuleEntity.setPortRangeMax(UnitTestConfig.portRangeMax);
-        securityGroupRuleEntity.setEtherType(UnitTestConfig.etherType);
+        SecurityGroupRule securityGroupRule = new SecurityGroupRule();
+        securityGroupRule.setId(UnitTestConfig.securityGroupRuleId);
+        securityGroupRule.setProjectId(UnitTestConfig.projectId);
+        securityGroupRule.setTenantId(UnitTestConfig.tenantId);
+        securityGroupRule.setSecurityGroupId(UnitTestConfig.securityGroupId1);
+        securityGroupRule.setDirection(UnitTestConfig.direction1);
+        securityGroupRule.setProtocol(UnitTestConfig.protocolTcp);
+        securityGroupRule.setPortRangeMin(UnitTestConfig.portRangeMin);
+        securityGroupRule.setPortRangeMax(UnitTestConfig.portRangeMax);
+        securityGroupRule.setEtherType(UnitTestConfig.etherType);
 
-        List<SecurityGroupRuleEntity> securityGroupRuleEntities = new ArrayList<>();
-        securityGroupRuleEntities.add(securityGroupRuleEntity);
-        securityGroupEntity.setSecurityGroupRuleEntities(securityGroupRuleEntities);
+        List<SecurityGroupRule> securityGroupRuleEntities = new ArrayList<>();
+        securityGroupRuleEntities.add(securityGroupRule);
+        securityGroup.setSecurityGroupRules(securityGroupRuleEntities);
 
-        return new SecurityGroupWebJson(securityGroupEntity);
+        return new SecurityGroupJson(securityGroup);
     }
 
-    public static SecurityGroupWebJson newDefaultSecurityGroupWebJson() {
-        SecurityGroupWebJson securityGroupWebJson = newSecurityGroupWebJson(UnitTestConfig.securityGroupId1);
-        securityGroupWebJson.getSecurityGroupEntity().setName("default");
+    public static SecurityGroupJson newDefaultSecurityGroupWebJson() {
+        SecurityGroupJson securityGroupJson = newSecurityGroupWebJson(UnitTestConfig.securityGroupId1);
+        securityGroupJson.getSecurityGroup().setName("default");
 
-        return securityGroupWebJson;
+        return securityGroupJson;
     }
 }
