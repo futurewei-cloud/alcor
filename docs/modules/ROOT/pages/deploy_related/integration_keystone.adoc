@@ -110,7 +110,6 @@ A token entity schema: +
 |the token user role names
 |===
 
-
 examples:
 ....
 {
@@ -136,4 +135,7 @@ examples:
 
 == Test Plan
 
-TBD
+. Use unit tests to test whether basic functions are faulty.
+. Test whether there is a problem with the simulated Keystone environment test.
+. Test whether the function integrated into the running OpenStack environment is normal.
+. Deploy multiple API gateway instance and test that scenarios.
