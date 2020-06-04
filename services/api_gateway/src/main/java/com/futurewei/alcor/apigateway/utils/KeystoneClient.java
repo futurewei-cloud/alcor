@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class KeystoneClient {
@@ -50,6 +51,7 @@ public class KeystoneClient {
     private static final String JSON_PROJECT_KEY = "project";
     private static final String JSON_DOMAIN_KEY = "domain";
     private static final String JSON_LINKS_KEY = "links";
+    private static final long CACHE_EXPIRE_HOUR = 2;
 
     private String baseUrl = "";
     private volatile String localToken = "";
@@ -81,7 +83,7 @@ public class KeystoneClient {
 
     public KeystoneClient(CacheFactory cacheFactory){
         this.restTemplate = new RestTemplate();
-        this.cache = cacheFactory.getCache(TokenEntity.class);
+        this.cache = cacheFactory.getExpireCache(TokenEntity.class, CACHE_EXPIRE_HOUR, TimeUnit.HOURS);
     }
 
     @PostConstruct
