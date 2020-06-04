@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity.gsinfo;
+package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,21 +1,20 @@
-package com.futurewei.alcor.web.entity.gsinfo;
+package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.constants.Common;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
-public class GoalStateNBJson extends CustomerResource {
+public class GoalStateJsonNB extends CustomerResource {
 
   private Common.ResourceType rsType;
   private Common.OperationType opType;
   boolean allOrNone = true;
 
   @JsonProperty("ports")
-  private PortEntity[] portStates;
+  private InternalPortEntityNB[] portStates;
 
   @JsonProperty("vpcs")
   private VpcEntity[] vpcs;
@@ -85,11 +84,11 @@ public class GoalStateNBJson extends CustomerResource {
     this.subnets = subnets;
   }
 
-  public PortEntity[] getPortStates() {
+  public InternalPortEntityNB[] getPortStates() {
     return portStates;
   }
 
-  public void setPortStates(PortEntity[] portState) {
+  public void setPortStates(InternalPortEntityNB[] portState) {
     this.portStates = portState;
   }
 }
