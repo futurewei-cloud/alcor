@@ -18,7 +18,7 @@ package com.futurewei.alcor.apigateway;
 
 import com.futurewei.alcor.apigateway.filter.KeystoneAuthWebFilter;
 import com.futurewei.alcor.apigateway.subnet.SubnetWebHandlers;
-import com.futurewei.alcor.apigateway.utils.KeystoneClient;
+import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +35,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -46,6 +47,7 @@ public class KeystoneAuthWebFilterTest {
 
     private static final String TEST_TOKEN = "gaaaaaBex0xWssdfsadfDSSDFSDF";
     private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_ERROR_TOKEN = "testerrortoken";
 
 
     @Autowired
@@ -63,14 +65,18 @@ public class KeystoneAuthWebFilterTest {
     @Before
     public void setUp(){
         ReflectionTestUtils.setField(keystoneAuthWebFilter, "keystoneClient", keystoneClient);
+        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
+        when(keystoneClient.verifyToken("testerrortoken")).thenReturn("");
+
+        Mono<ServerResponse> response = ServerResponse.ok().body
+                (BodyInserters.fromObject("[{\"network_id\":\"bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}]"));
+        when(subnetWebHandlers.getSubnets(ArgumentMatchers.any(ServerRequest.class))).thenReturn(response);
+        Mono<ServerResponse> responseError = ServerResponse.status(500).build();
+        when(subnetWebHandlers.createSubnet(ArgumentMatchers.any(ServerRequest.class))).thenReturn(responseError);
     }
 
     @Test
-    public void TestFilter(){
-        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
-
-        Mono<ServerResponse> response =ServerResponse.ok().body(BodyInserters.fromObject("[{\"network_id\":\"bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}]"));
-        when(subnetWebHandlers.getSubnets(ArgumentMatchers.any(ServerRequest.class))).thenReturn(response);
+    public void testNormal(){
 
         webClient
                 .get().uri("/v2.0/subnets")
@@ -80,5 +86,42 @@ public class KeystoneAuthWebFilterTest {
                 .expectBody()
                 .jsonPath("$[0].network_id").isEqualTo("bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
+    }
+
+    @Test
+    public void testNotFound(){
+        webClient
+                .get().uri("/v2.0/test/not/found")
+                .header("X-Auth-Token", TEST_TOKEN)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testNoToken(){
+        webClient
+                .get().uri("/v2.0/subnets")
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    public void testErrorToken(){
+        webClient
+                .get().uri("/v2.0/subnets")
+                .header("X-Auth-Token", "testerrortoken")
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    public void testServerError(){
+        webClient
+                .post().uri("/v2.0/subnets")
+                .header("X-Auth-Token", TEST_TOKEN)
+                .header("Content-Type", "application/json")
+                .body(BodyInserters.fromObject("{\"vpcId\": \"bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}"))
+                .exchange()
+                .expectStatus().is5xxServerError();
     }
 }
