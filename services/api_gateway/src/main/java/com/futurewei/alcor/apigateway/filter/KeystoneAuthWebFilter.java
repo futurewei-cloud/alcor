@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway.filter;
 
-import com.futurewei.alcor.apigateway.utils.KeystoneClient;
+import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -40,6 +40,10 @@ public class KeystoneAuthWebFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String token = exchange.getRequest().getHeaders().getFirst(AUTHORIZE_TOKEN);
+        if(token == null){
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
         String projectId = keystoneClient.verifyToken(token);
         if("".equals(projectId)){
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
