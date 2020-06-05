@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway.filter;
 
-import com.futurewei.alcor.apigateway.utils.KeystoneClient;
+import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import com.futurewei.alcor.common.db.CacheFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
