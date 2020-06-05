@@ -49,14 +49,14 @@ public class IgniteCache<K, V> implements ICache<K, V> {
         try {
             cache = igniteClient.getOrCreateCache(name);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for vpc failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
         transaction = new IgniteTransaction(igniteClient);
 
-        Assert.notNull(igniteClient, "Create cache for vpc failed");
+        Assert.notNull(igniteClient, "Create cache for client " + name + "failed");
     }
 
     public IgniteCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
@@ -68,14 +68,14 @@ public class IgniteCache<K, V> implements ICache<K, V> {
             cfg.setExpiryPolicy(ep);
             cache = igniteClient.getOrCreateCache(cfg);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for vpc failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
         transaction = new IgniteTransaction(igniteClient);
 
-        Assert.notNull(igniteClient, "Create cache for vpc failed");
+        Assert.notNull(igniteClient, "Create cache for client" + name + "failed");
     }
 
     @Override

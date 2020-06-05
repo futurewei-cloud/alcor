@@ -23,7 +23,6 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +37,16 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     private TimeUnit timeUnit;
     private RedisTransaction transaction;
 
-    public RedisExpireCache(RedisTemplate<K, V> redisTemplate,  long timeout, TimeUnit timeUnit) {
+    /**
+     * return a new redis cache client with auto set expire time
+     * eg:
+     *     RedisTemplate<K, V> template = new RedisTemplate<>();
+     *     ICache cache = new RedisExpireCache(redisTemplate, 2, TimeUnit.HOURS)
+     * @param redisTemplate a RedisTemplate instance
+     * @param timeout the key expiration timeout.
+     * @param timeUnit must not be {@literal null}.
+     */
+    public RedisExpireCache(RedisTemplate<K, V> redisTemplate, long timeout, TimeUnit timeUnit) {
         this.redisTemplate = redisTemplate;
         this.valueOperations = redisTemplate.opsForValue();
         this.timeout = timeout;
@@ -48,6 +56,12 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     }
 
 
+    /**
+     * put a cache to redis, it will set auto expire time with this instance expire timeout
+     * @param key
+     * @param value
+     * @throws CacheException
+     */
     @Override
     public void put(K key, V value) throws CacheException {
         try {
@@ -70,12 +84,12 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
 
     @Override
     public Map<K, V> getAll() throws CacheException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void putAll(Map<? extends K, ? extends V> items) throws CacheException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
