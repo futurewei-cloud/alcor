@@ -280,7 +280,9 @@ public class SubnetController {
             if (allocationPools == null) {
                 String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
                 // TODO: reserve first five ips
-                AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+                if (ips != null) {
+                    AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+                }
             }
 
             // revision_number
