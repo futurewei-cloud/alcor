@@ -15,6 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public interface SubnetService {
 
+    // VPC Fallback
+    public void vpcFallback (String projectId, String vpcId, String subnetId);
+
     // Subnet Route info Fallback
     public void routeFallback (String routeId, String vpcId);
 
@@ -32,7 +35,7 @@ public interface SubnetService {
                                    String message) throws CacheException;
 
     // Verify VPC ID
-    public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
+    public VpcWebJson verifyVpcId (String projectId, String vpcId, String subnetId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
     public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity) throws Exception;
@@ -48,5 +51,8 @@ public interface SubnetService {
 
     // Verify cidr block
     public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
+
+    // Get used_ips for ip range
+    public  Integer getUsedIpByRangeId (String rangeId);
 
 }

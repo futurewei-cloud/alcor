@@ -18,6 +18,7 @@ package com.futurewei.alcor.vpcmanager.service;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilityEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
@@ -27,8 +28,11 @@ public interface NetworkIPAvailabilityService {
 
     public NetworkIPAvailabilityEntity getNetworkIPAvailability (String vpcid) throws ResourceNotFoundException, ResourcePersistenceException;
 
-    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities () throws CacheException, ResourceNotFoundException;
+    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities (String vpcId, String vpcName, String tenantId, String projectId) throws CacheException, ResourceNotFoundException;
 
     public NetworkIPAvailabilityEntity setNetworkIPAvailability (VpcEntity vpcEntity) throws ResourceNotFoundException;
 
+    public List<SubnetEntity> getSubnets (List<String> subnets) throws ResourceNotFoundException;
+
+    public Integer getUsedIps (String rangeId);
 }

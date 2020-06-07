@@ -61,8 +61,52 @@ public class SubnetController {
 
     @RequestMapping(
             method = GET,
+            value = {"/subnets/{rangeId}"})
+    public Integer getUsedIPByRangeId(@PathVariable String rangeId) throws Exception {
+
+        Integer usedIps = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeId);
+
+            usedIps = this.subnetService.getUsedIpByRangeId(rangeId);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+
+        return usedIps;
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/subnets/{subnetId}"})
+    public SubnetWebJson getSubnetStateById(@PathVariable String subnetId) throws Exception {
+        SubnetEntity subnetEntity = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
+            subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+
+        if (subnetEntity == null) {
+            //TODO: REST error code
+            return new SubnetWebJson();
+        }
+
+        return new SubnetWebJson(subnetEntity);
+    }
+
+        @RequestMapping(
+            method = GET,
             value = {"/project/{projectId}/subnets/{subnetId}"})
-    public SubnetWebJson getSubnetStateById(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
+    public SubnetWebJson getSubnetStateByProjectIdAndId(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
 
         SubnetEntity subnetEntity = null;
 
@@ -145,7 +189,7 @@ public class SubnetController {
             // Verify VPC ID
             CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.verifyVpcId(projectId, vpcId);
+                    return this.subnetService.verifyVpcId(projectId, vpcId, subnetId);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
@@ -230,6 +274,14 @@ public class SubnetController {
 ////                tags = new ArrayList<String>(){{add("tag1,tag2");}};
 ////                inSubnetWebResponseObject.setTags(tags);
 ////            }
+
+            // allocation_pools
+            List<AllocationPool> allocationPools = inSubnetEntity.getAllocationPools();
+            if (allocationPools == null) {
+                String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
+                // TODO: reserve first five ips
+                AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+            }
 
             // revision_number
             Integer revisionNumber = inSubnetEntity.getRevisionNumber();

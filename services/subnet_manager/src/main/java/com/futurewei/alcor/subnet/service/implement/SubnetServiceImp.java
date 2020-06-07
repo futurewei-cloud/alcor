@@ -52,6 +52,13 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
+    public void vpcFallback(String projectId, String vpcId, String subnetId) {
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
+        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
+    }
+
+    @Async
+    @Override
     public void routeFallback(String routeId, String vpcId) {
         String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
@@ -84,6 +91,11 @@ public class SubnetServiceImp implements SubnetService {
         IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
         logger.error(message);
 
+        // Vpc fallback
+        logger.info("vpc fallback start");
+        this.vpcFallback(resource.getSubnet().getProjectId(), resource.getSubnet().getVpcId(), resource.getSubnet().getId());
+        logger.info("vpc fallback end");
+        
         // Subnet fallback
         logger.info("subnet fallback start");
         this.subnetDatabaseService.deleteSubnet(resource.getSubnet().getId());
@@ -113,8 +125,8 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public VpcWebJson verifyVpcId(String projectId, String vpcId) throws FallbackException {
-        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId;
+    public VpcWebJson verifyVpcId(String projectId, String vpcId, String subnetId) throws FallbackException {
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
         VpcWebJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcWebJson.class);
         if (vpcResponse.getNetwork() == null) {
             throw new FallbackException("fallback request");
@@ -280,6 +292,20 @@ public class SubnetServiceImp implements SubnetService {
         }
         return true;
 
+    }
+
+    @Override
+    public Integer getUsedIpByRangeId(String rangeId) {
+        String ipManagerServiceUrl = ipUrl + "range" + "/" + rangeId;
+        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
+        if (ipAddrRangeRequest == null) {
+            logger.info("can not find ipAddrRangeRequest by range id");
+            return null;
+        }
+
+        Integer usedIps = Integer.parseInt(String.valueOf(ipAddrRangeRequest.getUsedIps()));
+
+        return usedIps;
     }
 
 }

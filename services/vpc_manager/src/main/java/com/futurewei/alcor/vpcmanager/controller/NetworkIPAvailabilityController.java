@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilityWebJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -72,12 +73,15 @@ public class NetworkIPAvailabilityController {
     @RequestMapping(
             method = GET,
             value = {"/network-ip-availabilities"})
-    public NetworkIPAvailabilitiesWebJson getNetworkIPAvailabilities() throws Exception {
+    public NetworkIPAvailabilitiesWebJson getNetworkIPAvailabilities(@RequestParam(value = "network_id", required = false) String vpcId,
+                                                                     @RequestParam(value = "network_name", required = false) String vpcName,
+                                                                     @RequestParam(value = "tenant_id", required = false) String tenantId,
+                                                                     @RequestParam(value = "project_id", required = false) String projectId) throws Exception {
         List<NetworkIPAvailabilityEntity> networkIPAvailabilities = null;
 
         try {
 
-            networkIPAvailabilities = this.networkIPAvailabilityService.getNetworkIPAvailabilities();
+            networkIPAvailabilities = this.networkIPAvailabilityService.getNetworkIPAvailabilities(vpcId, vpcName, tenantId, projectId);
 
         } catch (Exception e) {
             throw new Exception(e);

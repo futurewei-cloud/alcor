@@ -23,22 +23,34 @@ import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.IPUtil;
 import com.futurewei.alcor.web.entity.subnet.AllocationPool;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
-import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilitiesWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilityEntity;
 import com.futurewei.alcor.web.entity.vpc.SubnetIPAvailabilityEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilityService {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     VpcDatabaseService vpcDatabaseService;
+
+    @Value("${microservices.subnet.service.url}")
+    private String subnetUrl;
+
+    private RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public NetworkIPAvailabilityEntity getNetworkIPAvailability(String vpcid) throws ResourceNotFoundException, ResourcePersistenceException {
@@ -56,13 +68,37 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
     }
 
     @Override
-    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities() throws CacheException, ResourceNotFoundException {
+    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities(String vpcId, String vpcName, String tenantId, String projectId) throws CacheException, ResourceNotFoundException {
 
         List<NetworkIPAvailabilityEntity> networkIPAvailabilityEntities = new ArrayList<NetworkIPAvailabilityEntity>();
 
         Map<String, VpcEntity> vpcStates = this.vpcDatabaseService.getAllVpcs();
 
-        // TODO: filter vpcStates by request parameters
+        // Filter vpcStates by request parameters
+        if (vpcId != null) {
+            vpcStates = vpcStates.entrySet().stream()
+                    .filter(state -> vpcId.equalsIgnoreCase(state.getValue().getId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+        }
+
+        if (vpcName != null) {
+            vpcStates = vpcStates.entrySet().stream()
+                    .filter(state -> vpcName.equalsIgnoreCase(state.getValue().getName()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+        }
+
+        if (tenantId != null) {
+            vpcStates = vpcStates.entrySet().stream()
+                    .filter(state -> tenantId.equalsIgnoreCase(state.getValue().getTenantId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+        }
+
+        if (projectId != null) {
+            vpcStates = vpcStates.entrySet().stream()
+                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId()))
+                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+        }
+
 
         for (Map.Entry<String, VpcEntity> entry : vpcStates.entrySet()) {
             VpcEntity vpcEntity = (VpcEntity) entry.getValue();
@@ -79,11 +115,12 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         NetworkIPAvailabilityEntity networkIPAvailabilityEntity = new NetworkIPAvailabilityEntity();
 
         // set up properties value related with vpc
-        List<SubnetEntity> subnets = vpcEntity.getSubnets();
+        List<String> subnetIds = vpcEntity.getSubnets();
         List<SubnetIPAvailabilityEntity> subnetIpAvailability = new ArrayList<SubnetIPAvailabilityEntity>();
-        if (subnets == null) {
+        if (subnetIds == null) {
             networkIPAvailabilityEntity.setSubnetIpAvailability(subnetIpAvailability);
         }else {
+            List<SubnetEntity> subnets = getSubnets(subnetIds);
             for (SubnetEntity subnetEntity : subnets) {
                 SubnetIPAvailabilityEntity subnetIPAvailabilityEntity = new SubnetIPAvailabilityEntity();
 
@@ -107,8 +144,19 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
                     totalIPs += ips;
                 }
 
+                // set up value of used_ips
+                Integer ipVersion = subnetEntity.getIpVersion();
+                String rangeId = "";
+                if (ipVersion == 4) {
+                    rangeId = subnetEntity.getIpV4RangeId();
+                }else {
+                    rangeId = subnetEntity.getIpV6RangeId();
+                }
+
+                Integer usedIps = getUsedIps(rangeId);
+
                 // TODO: set up value of used_ips
-                subnetIPAvailabilityEntity.setUsedIps(1);
+                subnetIPAvailabilityEntity.setUsedIps(usedIps);
                 subnetIPAvailabilityEntity.setTotalIps(totalIPs);
                 subnetIPAvailabilityEntity.setCidr(subnetEntity.getCidr());
                 subnetIPAvailabilityEntity.setIpVersion(subnetEntity.getIpVersion());
@@ -135,5 +183,33 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         networkIPAvailabilityEntity.setProjectId(vpcEntity.getProjectId());
 
         return networkIPAvailabilityEntity;
+    }
+
+    @Override
+    public List<SubnetEntity> getSubnets(List<String> subnets) throws ResourceNotFoundException {
+
+        List<SubnetEntity> subnetEntities = new ArrayList<>();
+
+        for (String subnetId : subnets) {
+            String subnetManagerServiceUrl = subnetUrl + "/subnets/" + subnetId;
+            SubnetWebJson subnetResponse = restTemplate.getForObject(subnetManagerServiceUrl, SubnetWebJson.class);
+            if (subnetResponse == null) {
+                throw new ResourceNotFoundException("The subnet can not be found by subnet Id");
+            }
+            SubnetEntity subnet = subnetResponse.getSubnet();
+            subnetEntities.add(subnet);
+        }
+
+        return subnetEntities;
+    }
+
+    @Override
+    public Integer getUsedIps(String rangeId) {
+        String subnetManagerServiceUrl = subnetUrl + "/subnets/" + rangeId;
+        Integer usedIps = restTemplate.getForObject(subnetManagerServiceUrl, Integer.class);
+        if (usedIps == null) {
+            logger.info("used_ips is null");
+        }
+        return usedIps;
     }
 }

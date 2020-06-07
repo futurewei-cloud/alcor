@@ -50,6 +50,95 @@ public class VpcController {
     private VpcService vpcService;
 
     /**
+     * Verify vpc state and update subnets property when ceating subnet
+     * @param projectid
+     * @param vpcid
+     * @param subnetid
+     * @return VpcWebJson
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = GET,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public VpcWebJson verifyVpcStateByVpcIdAndUpdateSubnetId(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        VpcEntity vpcState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+
+        if (vpcState == null) {
+            //TODO: REST error code
+            return new VpcWebJson();
+        }
+
+        List<String> subnets = vpcState.getSubnets();
+        if (subnets == null) {
+            subnets = new ArrayList<>();
+        }
+        subnets.add(subnetid);
+        vpcState.setSubnets(subnets);
+
+        this.vpcDatabaseService.addVpc(vpcState);
+
+        return new VpcWebJson(vpcState);
+    }
+
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public VpcWebJson updateSubnetIdInVpc(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+        VpcEntity vpcState = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+            if (vpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            }
+
+            List<String> subnets = vpcState.getSubnets();
+            if (subnets != null) {
+                int index = -1;
+                for (int i = 0; i < subnets.size(); i ++) {
+                    if (subnets.get(i).equals(subnetid)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    subnets.remove(index);
+                }
+            }
+            vpcState.setSubnets(subnets);
+
+            this.vpcDatabaseService.addVpc(vpcState);
+
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new Exception(e);
+        }
+
+        return new VpcWebJson(vpcState);
+
+    }
+
+    /**
      * hows details for a network
      * @param projectid
      * @param vpcid
