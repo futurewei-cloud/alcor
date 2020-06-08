@@ -16,16 +16,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.rollback;
 
 import com.futurewei.alcor.web.entity.mac.MacState;
-import com.futurewei.alcor.portmanager.restclient.MacManagerRestClient;
+import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class AbstractMacAddrRollback implements PortStateRollback {
+public abstract class AbstractMacAddrRollback implements Rollback {
     protected MacManagerRestClient macManagerRestClient;
 
     protected List<MacState> allocatedMacs = new ArrayList<>();
     protected List<MacState> releasedMacs = new ArrayList<>();
+    protected List<MacState> updatedMacs = new ArrayList<>();
 
     public AbstractMacAddrRollback(MacManagerRestClient macManagerRestClient) {
         this.macManagerRestClient = macManagerRestClient;
@@ -41,11 +42,19 @@ public abstract class AbstractMacAddrRollback implements PortStateRollback {
         releasedMacs.add(macState);
     }
 
+    public void putUpdatedMacAddress(MacState macState) {
+        updatedMacs.add(macState);
+    }
+
     public void putAllocatedMacAddresses(List<MacState> macStates) {
         allocatedMacs.addAll(macStates);
     }
 
     public void putReleasedMacAddresses(List<MacState> macStates) {
         releasedMacs.addAll(macStates);
+    }
+
+    public void putUpdatedMacAddresses(List<MacState> macStates) {
+        updatedMacs.addAll(macStates);
     }
 }

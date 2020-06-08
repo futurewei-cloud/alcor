@@ -45,7 +45,7 @@ spec:
         #- image: fwnetworking/controller:subnet_manager-v0.3.0
           name: subnetmanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/SubnetManager-0.1.0.jar", "--spring.config.location=/etc/subnet/application.properties"]
+          command: ["java", "-jar", "/app/AlcorSubnetManager-0.1.0.jar", "--spring.config.location=/etc/subnet/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
