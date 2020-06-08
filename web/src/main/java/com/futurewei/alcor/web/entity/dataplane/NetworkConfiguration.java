@@ -6,7 +6,6 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
-
 @Data
 public class NetworkConfiguration {
 
@@ -25,49 +24,4 @@ public class NetworkConfiguration {
 
   @JsonProperty("security_groups")
   private SecurityGroupEntity[] securityGroupEntities;
-
-  public Common.ResourceType getRsType() {
-    return rsType;
-  }
-
-  public void setRsType(Common.ResourceType rsType) {
-    this.rsType = rsType;
-  }
-
-  public Common.OperationType getOpType() {
-    return opType;
-  }
-
-  public void setOpType(Common.OperationType opType) {
-    this.opType = opType;
-  }
-
-  public boolean isAllOrNone() {
-    return allOrNone;
-  }
-
-  public void setAllOrNone(boolean allOrNone) {
-    this.allOrNone = allOrNone;
-  }
-
-  public VpcEntity[] getVpcs() {
-    return vpcs;
-  }
-
-  public void setVpcs(VpcEntity[] vpcs) {
-    this.vpcs = vpcs;
-  }
-
-  public SubnetEntityNB[] getSubnets() {
-    return subnets;
-  }
-
-  public void setSubnets(SubnetEntityNB[] subnets) {
-    this.subnets = subnets;
-  }
-
-  public InternalPortEntityNB[] getPortStates() {
-    return portStates;
-  }
-
 }
