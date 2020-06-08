@@ -11,47 +11,12 @@ import java.util.Set;
 @Data
 public class InternalPortEntityNB extends PortEntity {
 
-    @JsonProperty("neighbor_info")
-    private List<NeighborInfo> neighborIps;
+  @JsonProperty("neighbor_info")
+  private List<NeighborInfo> neighborIps;
 
-    public List<NeighborInfo> getNeighborIps() {
-        return neighborIps;
-    }
+  @JsonProperty("binding_host_ip")
+  private String bindingHostIP;
 
-    public void setNeighborIps(List<NeighborInfo> neighborIps) {
-        this.neighborIps = neighborIps;
-    }
-
-    @JsonProperty("binding_host_ip")
-    private String bindingHostIP;
-
-    private Set<SubnetEntityNB> subnetEntities;
-    private Set<VpcEntity> vpcEntities;
-
-    public Set<VpcEntity> getVpcEntities() {
-        return vpcEntities;
-    }
-
-    public void setVpcEntities(Set<VpcEntity> vpcEntities) {
-        this.vpcEntities = vpcEntities;
-    }
-
-    public Set<SubnetEntityNB> getSubnetEntities() {
-        return subnetEntities;
-    }
-
-    public void setSubnetEntities(Set<SubnetEntityNB> subnetEntities) {
-        this.subnetEntities = subnetEntities;
-    }
-
-    public String getBindingHostIP() {
-        return bindingHostIP;
-    }
-
-
-
-    public void setBindingHostIP(String bindingHostIP) {
-        this.bindingHostIP = bindingHostIP;
-    }
-
+  private Set<SubnetEntityNB> subnetEntities;
+  private Set<VpcEntity> vpcEntities;
 }
