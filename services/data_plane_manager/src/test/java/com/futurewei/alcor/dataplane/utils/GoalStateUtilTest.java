@@ -5,7 +5,7 @@ import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class GoalStateUtilTest {
+public class GoalStateUtilTest {
   private static final Logger LOG = LoggerFactory.getLogger(GoalStateUtilTest.class);
 
   @Test
-  void transformNorthToSouthBulkCreatePort() throws InterruptedException {
+  public void transformNorthToSouthBulkCreatePort() throws InterruptedException {
 
     String input =
         "{\n"
@@ -944,7 +944,7 @@ class GoalStateUtilTest {
   }
 
   @Test
-  void transformNorthToSouthNeighborInfo() {
+  public void transformNorthToSouthNeighborInfo() {
 
     String result =
         "{\n"
