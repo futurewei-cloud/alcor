@@ -39,6 +39,11 @@ public class MizarGoalStateServiceImpl implements GoalStateService {
     }
 
     @Override
+    public void setPort(int port) {
+
+    }
+
+    @Override
     public void setFastPath(boolean fastPath) {
 
     }

@@ -17,9 +17,7 @@ package com.futurewei.alcor.dataplane.config;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,14 +25,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Configuration
-@PropertySource("classpath:application.properties")
-@ConfigurationProperties(prefix = "grpc")
 @Data
 public class Config {
 
-  @Value("isovs")
-  private  String isOVS;
-  public static int port = 50001;
+  @Value("${isovs}")
+  private  String ovs;
+  @Value("${grpc.port}")
+  public String port ;
 
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;

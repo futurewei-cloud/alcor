@@ -163,7 +163,7 @@ public class GoalStateUtil {
                         }
                         portStateHashSet.add(portStateSB);
                       });
-              //leave a dummy sg value since for now there is no impl for sg
+              // leave a dummy sg value since for now there is no impl for sg
               SecurityGroup.SecurityGroupConfiguration securityGroupConfiguration =
                   SecurityGroup.SecurityGroupConfiguration.newBuilder().build();
               final SecurityGroup.SecurityGroupState securityGroupState =
@@ -204,19 +204,22 @@ public class GoalStateUtil {
   }
 
   public static List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-      talkToACA(Map<String, Goalstate.GoalState> gss, boolean isFast) {
-    // if Config.isOVS
-    GoalStateService goalStateService = new OVSGoalStateServiceImpl();
+      talkToACA(Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
+    if (isOvs) {
+      GoalStateService goalStateService = new OVSGoalStateServiceImpl();
 
-    return gss.entrySet()
-        .parallelStream()
-        .map(
-            e -> {
-              goalStateService.setIp(e.getKey());
-              goalStateService.setGoalState(e.getValue());
-              goalStateService.setFastPath(isFast);
-              return goalStateService.SendGoalStateToHosts();
-            })
-        .collect(Collectors.toList());
+      return gss.entrySet()
+          .parallelStream()
+          .map(
+              e -> {
+                goalStateService.setIp(e.getKey());
+                goalStateService.setGoalState(e.getValue());
+                goalStateService.setFastPath(isFast);
+                goalStateService.setPort(port);
+                return goalStateService.SendGoalStateToHosts();
+              })
+          .collect(Collectors.toList());
+    }
+    throw new RuntimeException("protocol other than ovs is not supported for now");
   }
 }

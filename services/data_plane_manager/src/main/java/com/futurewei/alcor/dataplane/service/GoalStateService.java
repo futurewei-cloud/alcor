@@ -28,6 +28,8 @@ public interface GoalStateService {
 
     public void setIp(String ip);
 
+    public void setPort(int port);
+
     public void setFastPath(boolean fastPath);
 
 }

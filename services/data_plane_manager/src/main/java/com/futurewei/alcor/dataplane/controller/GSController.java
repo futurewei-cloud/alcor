@@ -16,14 +16,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GSController {
+  @Autowired
+  private Config config;
   /**
    * Accept north bound calls then transfer to ACA calls in southbound
    *
@@ -127,7 +131,8 @@ public class GSController {
     GoalStateUtil goalStateUtil = new GoalStateUtil();
     // leave isFast as true since SB GSinfo does not have fastpath attr
     return goalStateUtil
-        .talkToACA(goalStateUtil.transformNorthToSouth(gs), true)
+        .talkToACA(goalStateUtil.transformNorthToSouth(gs), true,
+                Integer.parseInt(config.getPort()),Boolean.valueOf(config.getOvs()))
         .toArray(new String[0]);
   }
 }
