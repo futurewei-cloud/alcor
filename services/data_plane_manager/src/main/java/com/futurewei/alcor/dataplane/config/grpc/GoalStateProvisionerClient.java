@@ -25,6 +25,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -56,7 +57,8 @@ public class GoalStateProvisionerClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Goalstateprovisioner.GoalStateOperationReply PushNetworkResourceStates(Goalstate.GoalState state) {
+    public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
+    PushNetworkResourceStates(Goalstate.GoalState state) {
         Logger alcorLog = LoggerFactory.getLogger();
         alcorLog.entering(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
 
@@ -66,7 +68,7 @@ public class GoalStateProvisionerClient {
             response = blockingStub.pushNetworkResourceStates(state);
         } catch (StatusRuntimeException e) {
             alcorLog.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return response;
+            return response.getOperationStatusesList();
         }
         alcorLog.log(Level.INFO, "Message total operation time: " + response.getMessageTotalOperationTime());
         alcorLog.log(Level.INFO, "Goal state operation status counts: " + response.getOperationStatusesCount());
@@ -75,7 +77,7 @@ public class GoalStateProvisionerClient {
             alcorLog.log(Level.INFO, "GS #" + i + ":" + response.getOperationStatuses(i));
         }
         alcorLog.exiting(this.getClass().getName(), "PushNetworkResourceStates(GoalState state)");
-        return response;
+        return response.getOperationStatusesList();
 
     }
 }

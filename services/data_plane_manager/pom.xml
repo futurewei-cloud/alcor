@@ -24,14 +24,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -40,37 +36,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-            <version>2.4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-core</artifactId>
-            <version>2.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>3.6</version>
         </dependency>
         <dependency>
             <groupId>com.futurewei.alcor</groupId>
@@ -90,33 +55,9 @@
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.futurewei.alcor</groupId>-->
-<!--            <artifactId>common</artifactId>-->
-<!--            <version>0.1.0-SNAPSHOT</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.futurewei.alcor</groupId>-->
-<!--            <artifactId>schema</artifactId>-->
-<!--            <version>0.1.0-SNAPSHOT</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-        </dependency>
     </dependencies>
 
     <build>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.4.1.Final</version>
-            </extension>
-        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -146,10 +87,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <!--                    <fork>true</fork>-->
-                    <!--                    <includes>-->
-                    <!--                        <include>**/*.jar</include>-->
-                    <!--                    </includes>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -167,13 +104,6 @@
                     </archive>
                 </configuration>
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>org.springframework.boot</groupId>-->
-            <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-            <!--                <configuration>-->
-            <!--                    <mainClass>com.futurewei.alcor.vpcmanager.VpcManagerApplication</mainClass>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>

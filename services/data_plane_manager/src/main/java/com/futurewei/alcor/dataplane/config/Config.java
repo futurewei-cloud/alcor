@@ -15,45 +15,44 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.config;
 
-import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
+@Configuration
+@PropertySource("classpath:application.properties")
+@ConfigurationProperties(prefix = "grpc")
+@Data
 public class Config {
 
-    public static boolean isOVS=true;
-    public static FileWriter TIME_STAMP_FILE;
-    public static BufferedWriter TIME_STAMP_WRITER;
-    public static String LOG_FILE_PATH = "timestamp.log";
+  @Value("isovs")
+  private  String isOVS;
+  public static int port = 50001;
 
-    public static long TOTAL_TIME = 0;
-    public static int TOTAL_REQUEST = 0;
-    public static long MAX_TIME = Long.MIN_VALUE;
-    public static long MIN_TIME = Long.MAX_VALUE;
-    public static long APP_START_TS = 0;
+  public static FileWriter TIME_STAMP_FILE;
+  public static BufferedWriter TIME_STAMP_WRITER;
+  public static String LOG_FILE_PATH = "timestamp.log";
 
+  static {
+    try {
+      File file = new File(LOG_FILE_PATH);
+      if (!file.exists()) {
+        file.createNewFile();
+      }
 
-    static {
-        try {
-            File file = new File(LOG_FILE_PATH);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            TIME_STAMP_FILE = new FileWriter(file);
-            TIME_STAMP_WRITER = new BufferedWriter(TIME_STAMP_FILE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+      TIME_STAMP_FILE = new FileWriter(file);
+      TIME_STAMP_WRITER = new BufferedWriter(TIME_STAMP_FILE);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+  }
 
-    public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";
-    // :ae:c8:FF:FF";
-    public static List<HostInfo> epHosts = null;
-    public static int EP_PER_HOST = 1;
-
+  public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";
 }

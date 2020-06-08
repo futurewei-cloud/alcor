@@ -21,22 +21,16 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@PropertySource("classpath:application.properties")
-@ConfigurationProperties(prefix = "grpc")
+import java.util.List;
+
+@Service
 public class OVSGoalStateServiceImpl implements GoalStateService {
-    public static int getPort() {
-        return port;
-    }
 
-    public static void setPort(int port) {
-        OVSGoalStateServiceImpl.port = port;
-    }
-
-    public static int port ;
-
+    @Autowired
+    private Config config;
     public Goalstate.GoalState getGoalState() {
         return goalState;
     }
@@ -65,13 +59,6 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
     private String ip;
     private boolean isFastPath = false;
 
-    public GoalStateProvisionerClient getGRpcClientForEpHost() {
-        return gRpcClientForEpHost;
-    }
-
-    public void setGRpcClientForEpHost(GoalStateProvisionerClient gRpcClientForEpHost) {
-        this.gRpcClientForEpHost = gRpcClientForEpHost;
-    }
 
     public MessageClient getKafkaClient() {
         return kafkaClient;
@@ -84,31 +71,17 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
     GoalStateProvisionerClient gRpcClientForEpHost = null;
     MessageClient kafkaClient = null;
 
-    public OVSGoalStateServiceImpl() {
-    }
-
-    public OVSGoalStateServiceImpl(String ip, Goalstate.GoalState gs,
-                                   boolean isFastPath) {
-        this.goalState = gs;
-        this.ip = ip;
-        this.isFastPath = isFastPath;
-    }
-
     @Override
-    public Goalstateprovisioner.GoalStateOperationReply SendGoalStateToHosts() {
-
-        Goalstateprovisioner.GoalStateOperationReply r = null;
+    public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
+    SendGoalStateToHosts() {
 
         if (isFastPath) {
-            new GoalStateProvisionerClient(ip, port);
-            this.setGRpcClientForEpHost(new GoalStateProvisionerClient(ip, port));
-            r = new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
+            return new GoalStateProvisionerClient(ip, Config.port).
+                    PushNetworkResourceStates(goalState);
         } else {
             String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;
-            this.getKafkaClient().runProducer(topicForEndpoint, goalState);
-
+            getKafkaClient().runProducer(topicForEndpoint, goalState);
+            return null;
         }
-        return r;
-
     }
 }

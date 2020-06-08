@@ -1,13 +1,15 @@
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.common.constants.Common;
-import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import lombok.Data;
 
-public class GoalStateJsonNB extends CustomerResource {
+
+@Data
+public class NetworkConfiguration {
 
   private Common.ResourceType rsType;
   private Common.OperationType opType;
@@ -22,27 +24,8 @@ public class GoalStateJsonNB extends CustomerResource {
   @JsonProperty("subnets")
   private SubnetEntity[] subnets;
 
-  @JsonProperty("host_infos")
-  private HostInfoNB[] hostInfoNBs;
-
   @JsonProperty("security_groups")
   private SecurityGroupEntity[] securityGroupEntities;
-
-  public HostInfoNB[] getHostInfoNBs() {
-    return hostInfoNBs;
-  }
-
-  public void setHostInfoNBs(HostInfoNB[] hostInfoNBs) {
-    this.hostInfoNBs = hostInfoNBs;
-  }
-
-  public SecurityGroupEntity[] getSecurityGroupEntities() {
-    return securityGroupEntities;
-  }
-
-  public void setSecurityGroupEntities(SecurityGroupEntity[] securityGroupEntities) {
-    this.securityGroupEntities = securityGroupEntities;
-  }
 
   public Common.ResourceType getRsType() {
     return rsType;
@@ -88,7 +71,4 @@ public class GoalStateJsonNB extends CustomerResource {
     return portStates;
   }
 
-  public void setPortStates(InternalPortEntityNB[] portState) {
-    this.portStates = portState;
-  }
 }

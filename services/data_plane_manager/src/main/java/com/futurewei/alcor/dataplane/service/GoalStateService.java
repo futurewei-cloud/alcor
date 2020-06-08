@@ -18,9 +18,11 @@ package com.futurewei.alcor.dataplane.service;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 
+import java.util.List;
 public interface GoalStateService {
 
-    Goalstateprovisioner.GoalStateOperationReply SendGoalStateToHosts();
+    List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
+    SendGoalStateToHosts();
 
     public void setGoalState(Goalstate.GoalState goalState);
 
