@@ -455,6 +455,205 @@ Body:
 	"security_groups": [{}, {}]
 }
 
+
+------------------------------------------------------------
+
+[source,c++]
+------------------------------------------------------------
+Response:
+{
+"code":200
+"desc":"ports created successfully"
+}
+
+
+* Example
+* Use Case Desc: 
+` client should send out GoalState to create (bulk) port(s) along with neighbor_info unless port to be created inside the GoalState itself in which case client should remember the neighbor infos among newly created ports `
+
+http://localhost:8080/goalstate/
+
+Body:
+
+------------------------------------------------------------
+{
+	"vpcs": [{
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"name": "test_vpc",
+		"description": "",
+		"cidr": "192.168.0.0/16"
+	},
+  {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88039",
+    "name": "test_vpc",
+    "description": "",
+    "cidr": "192.168.0.0/16"
+  }
+],
+	"subnets": [{
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88039",
+		"id": "a87e0f87-a2d9-44ef-9194-9a62f178594e",
+		"name": "test_subnet1",
+		"description": "",
+		"cidr": "192.168.1.0/24",
+		"gateway_ip": "192.168.1.1",
+		"availability_zone": "uswest-1",
+		"dhcp_enable": false,
+		"primary_dns": null,
+		"secondary_dns": null,
+		"dns_list": null,
+		"tunnel_id": "88888"
+	}, {
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"id": "a87e0f87-a2d9-44ef-9194-9a62f178594f",
+		"name": "test_subnet2",
+		"description": "",
+		"cidr": "192.168.2.0/24",
+		"gateway_ip": "192.168.2.1",
+		"availability_zone": "uswest-1",
+		"dhcp_enable": false,
+		"primary_dns": null,
+		"secondary_dns": null,
+		"dns_list": null,
+			"tunnel_id": "88889"
+	}],
+	"ports": [{
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"id": "f37810eb-7f83-45fa-a4d4-1b31e75399d3",
+		"name": "test_cni_port2",
+		"description": "",
+    	"binding_host_ip": "1.2.3.4",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"tenant_id": null,
+		"admin_state_up": true,
+		"mac_address": "86:ea:77:ad:52:55",
+		"veth_name": "veth0",
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"neighbor_host_ip": "1.2.3.5",
+		"fixed_ips": [{
+			"ip_address": "192.168.1.2",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+		}, {
+			"ip_address": "192.168.1.3",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+		}],
+		"allowed_address_pairs": null,
+		"extra_dhcp_opts": null,
+		"security_groups": null,
+		"binding:host_id": "ephost_0",
+		"binding:profile": null,
+		"binding:vnic_type": null,
+		"network_ns": "/var/run/netns/test_netw_ns",
+		"dnsName": null,
+		"dnsAssignment": null,
+		"fast_path": true
+	}, {
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"id": "f37810eb-7f83-45fa-a4d4-1b31e75399d0",
+		"name": "test_cni_port3",
+		"description": "",
+		"binding_host_ip": "1.2.3.4",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"tenant_id": null,
+		"admin_state_up": true,
+		"mac_address": "86:ea:77:ad:52:56",
+		"veth_name": "veth0",
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"neighbor_host_ip": "1.2.3.6",
+		"fixed_ips": [{
+			"ip_address": "192.168.2.4",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594f"
+		}, {
+			"ip_address": "192.168.2.5",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594f"
+		}],
+		"allowed_address_pairs": null,
+		"extra_dhcp_opts": null,
+		"security_groups": null,
+		"binding:host_id": "ephost_0",
+		"binding:profile": null,
+		"binding:vnic_type": null,
+		"network_ns": "/var/run/netns/test_netw_ns",
+		"dnsName": null,
+		"dnsAssignment": null,
+		"fast_path": true
+	}, {
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"id": "f37810eb-7f83-45fa-a4d4-1b31e75399d6",
+		"name": "test_cni_port4",
+		"description": "",
+		"binding_host_ip": "1.2.3.6",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"tenant_id": null,
+		"admin_state_up": true,
+		"mac_address": "86:ea:77:ad:52:57",
+		"veth_name": "veth0",
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"neighbor_host_ip": "1.2.3.5",
+		"fixed_ips": [{
+			"ip_address": "192.168.2.2",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594f"
+		}, {
+			"ip_address": "192.168.2.3",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594f"
+		}],
+		"allowed_address_pairs": null,
+		"extra_dhcp_opts": null,
+		"security_groups": null,
+		"binding:host_id": "ephost_0",
+		"binding:profile": null,
+		"binding:vnic_type": null,
+		"network_ns": "/var/run/netns/test_netw_ns",
+		"dnsName": null,
+		"dnsAssignment": null,
+		"fast_path": true
+	}, {
+		"project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+		"id": "f37810eb-7f83-45fa-a4d4-1b31e75399d7",
+		"name": "test_cni_port5",
+		"description": "",
+		"binding_host_ip": "1.2.3.6",
+		"vpc_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+		"tenant_id": null,
+		"admin_state_up": true,
+		"mac_address": "86:ea:77:ad:52:58",
+		"veth_name": "veth0",
+		"device_id": null,
+		"device_owner": null,
+		"status": null,
+		"neighbor_host_ip": "1.2.3.4",
+		"fixed_ips": [{
+			"ip_address": "192.168.1.2",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+		}, {
+			"ip_address": "192.168.1.3",
+			"subnet_id": "a87e0f87-a2d9-44ef-9194-9a62f178594e"
+		}],
+		"allowed_address_pairs": null,
+		"extra_dhcp_opts": null,
+		"security_groups": null,
+		"binding:host_id": "ephost_0",
+		"binding:profile": null,
+		"binding:vnic_type": null,
+		"network_ns": "/var/run/netns/test_netw_ns",
+		"dnsName": null,
+		"dnsAssignment": null,
+		"fast_path": true
+	}],
+	"security_groups": [{}, {}]
+}
+
+
 ------------------------------------------------------------
 
 [source,c++]
