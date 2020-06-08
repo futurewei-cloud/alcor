@@ -28,7 +28,7 @@ import java.util.List;
 @Data
 public class SubnetEntity extends CustomerResource {
 
-    @JsonProperty("vpc_id")
+    @JsonProperty("network_id")
     private String vpcId;
 
     @JsonProperty("cidr")
@@ -138,9 +138,6 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    @JsonProperty("tunnel_id")
-    private Long tunnelId;
-    
     public SubnetEntity() {
     }
 
