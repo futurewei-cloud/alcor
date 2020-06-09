@@ -17,4 +17,12 @@ mvn install
 cd ../..
 cd ./services/vpc_manager
 mvn install
-
+cd ../..
+cd ./services/route_manager
+mvn install
+cd ../..
+cd ./services/mac_manager
+mvn install
+cd ../..
+cd ./services/node_manager
+mvn install
