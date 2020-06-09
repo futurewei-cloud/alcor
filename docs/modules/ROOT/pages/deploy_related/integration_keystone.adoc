@@ -1,0 +1,141 @@
+= Integration with OpenStack Keystone
+v0.1, 2020-05-28
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Overview
+
+Alcor API currently requires a project id in the API Url.Neutron 2.0 APIs, however, don't need to provide a project id as
+it generates the project id based on the Authentication token in the X-Auth-Token request header, when Keystone is enabled.
+
+Reference: https://docs.openstack.org/api-ref/network/v2/
+"The Networking API v2.0 uses the OpenStack Identity service as the default authentication service.
+When Keystone is enabled, users that submit requests to the OpenStack Networking service must provide an authentication
+token in X-Auth-Token request header. You obtain the token by authenticating to the Keystone endpoint.
+
+When Keystone is enabled, the project_id attribute is not required in create requests
+because the project ID is derived from the authentication token."
+
+[#system-requirements]
+== Integration Requirements
+
+. Identify Neutron's algorithm that generates project id based on X-Auth-Token.
+. Make changes to API Gateway to support Authentication & Authorization with KeyStone, and support same way how project id is generated based on X-Auth-Token in API Gateway.
+. Integration testing with KeyStone.
+
+== Review of OpenStack Workflow
+https://docs.openstack.org/api-ref/identity/v3/index.html#check-token[Openstack keystone apis]
+
+In openstack neutron project, it use keystonemiddle to verify request token. .
+Verify request token have few steps.
+
+. get available keystone endpoints from keystone server
+. request local token from keystone server with keystone client conf in neutron.conf
+. verify request token from keystone server
+
+== Required Changes
+
+. Add a KeystoneAuthWebFilter class to fetch all api-gateway request token and verify token from keystone server and get project_id from verify api response.
+. Add keystone conf in application.properties file (https://docs.openstack.org/keystone/latest/user/supported_clients.html[keystone config example])
+
+== KeystoneAuthWebFilter Start Workflow
+image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=1024, link="keystone_filter_start_workflow.jpg"]
+
+== KeystoneAuthWebFilter Workflow
+image::keystone_filter_workflow.jpg["KeystoneAuthWebFilter Workflow", width=1024]
+
+== Token Cache Design
+Consider multi customer requests have a same token, it's not need to send a request to keystone to verfiy the same token for every request.
+A cache component can cache all verified token. Alcor will check cache first that the customer request token is verifed,
+it will return token info if cache have the customer token. If the customer token not in cache , it will send a request to keystone
+and check response and cache the token result.
+
+
+A cache data have a expired time to clear no use cache tokens.And Double the token expiration as the cache expiration time.
+This can prevent customer request from still carrying expired tokens for verification.
+
+== Data Schema
+How token store in cache： +
+A cache token key is token self. +
+A token entity schema: +
+
+[width="100%",cols="22%,12%,50%"]
+|===
+|Field Name |Type |Description
+
+|token
+|String
+|string token
+
+|expireAt
+|Date
+|the date which token expire at
+
+|user
+|String
+|the token user name
+
+|userId
+|String
+|the token user id
+
+|domainId
+|String
+|the token user domain id
+
+|domainName
+|String
+|the token user domain name
+
+|projectName
+|String
+|the token project name
+
+|projectId
+|String
+|the token project id
+
+|projectDomain
+|String
+|the token project domain
+
+|invalid
+|boolean
+|the token whether valid from keystone, true： invalid  false: valid
+
+|roles
+|List<String>
+|the token user role names
+|===
+
+examples:
+....
+{
+  "token"： “gAAAAABex0sfasdf2234234asdfBSDFREW32324234”，
+  "expireAt": "2020-05-30T16:00:00.000+0000",
+  "user": "neutron",
+  "useId": "10a2e6e717a245d9acad3e5f97aeca3d",
+  "domainId": "default",
+  "domainName": "Default",
+  "projectName": "admin",
+  "projectId": "a6944d763bf64ee6a275f1263fae0352",
+  "projectDomain": "Default",
+  "invalid": false,
+  "roles": ["admin", "demo"]
+}
+....
+
+== Integration Proposal
+
+. Microservice APIs should support multi params query eg: show/list actions
+. Rename resource name in url path or add same resource name in url path
+. Support "field" params in api and response body should have the "field" params content
+
+== Test Plan
+
+. Use unit tests to test whether basic functions are faulty.
+. Test whether there is a problem with the simulated Keystone environment test.
+. Test whether the function integrated into the running OpenStack environment is normal.
+. Deploy multiple API gateway instance and test that scenarios.
