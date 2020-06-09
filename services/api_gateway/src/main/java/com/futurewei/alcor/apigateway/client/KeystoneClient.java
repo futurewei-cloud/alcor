@@ -43,7 +43,7 @@ public class KeystoneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String AUTH_URL_V3 = "v3";
@@ -109,9 +109,13 @@ public class KeystoneClient {
     }
 
     @PostConstruct
-    public void setUp() throws IOException{
-        checkEndPoints();
-        getLocalToken();
+    public void setUp() {
+        try {
+            checkEndPoints();
+            getLocalToken();
+        } catch (IOException | NullPointerException e) {
+            LOG.error("Keystone client init failed: {}", e.getMessage());
+        }
     }
 
     private void checkEndPoints() throws IOException{
@@ -180,7 +184,7 @@ public class KeystoneClient {
     /**
      * verify client request token, and cache the token info which get from keystone
      *
-     * @param token
+     * @param token the customer request token in 'X-Auth-Token'
      * @return a token project id from keystone
      *
      * @see <a href="https://docs.openstack.org/api-ref/identity/v3/index.html?expanded=password-authentication-with-scoped-authorization-detail#identity-api-operations">Keystone api operations</a>
@@ -258,6 +262,10 @@ public class KeystoneClient {
     }
 
     private String transformProjectIdToUuid(String projectId){
+        int uuidLength = 32;
+        if (projectId.length() != uuidLength){
+            throw new IllegalArgumentException("Invalid UUID string: "+ projectId);
+        }
         return projectId.substring(0, 8) + "-" + projectId.substring(8, 12) +
                 "-" + projectId.substring(12, 16) + "-" +
                 projectId.substring(16, 20) + "-" +
@@ -350,6 +358,9 @@ public class KeystoneClient {
 
             Iterator<JsonNode> linksIt = links.elements();
             retrieveLinks(linksIt);
+            if(!"".equals(baseUrl)){
+                return;
+            }
         }
     }
 

@@ -66,7 +66,7 @@ public class KeystoneAuthWebFilterTest {
     public void setUp(){
         ReflectionTestUtils.setField(keystoneAuthWebFilter, "keystoneClient", keystoneClient);
         when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
-        when(keystoneClient.verifyToken("testerrortoken")).thenReturn("");
+        when(keystoneClient.verifyToken(TEST_ERROR_TOKEN)).thenReturn("");
 
         Mono<ServerResponse> response = ServerResponse.ok().body
                 (BodyInserters.fromObject("[{\"network_id\":\"bbaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}]"));
@@ -109,7 +109,7 @@ public class KeystoneAuthWebFilterTest {
     public void testErrorToken(){
         webClient
                 .get().uri("/v2.0/subnets")
-                .header("X-Auth-Token", "testerrortoken")
+                .header("X-Auth-Token", TEST_ERROR_TOKEN)
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
