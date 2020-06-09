@@ -1,11 +1,5 @@
 #!/bin/bash
 
-cd ./services/mac_manager
-mvn install
-cd ../..
-cd ./services/node_manager
-mvn install
-cd ../..
 cd ./services/port_manager
 mvn install
 cd ../..
