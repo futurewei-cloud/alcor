@@ -5,6 +5,7 @@ mvn package
 cd ..
 cd ./schema
 mvn package
+cd ..
 cd ./services/port_manager
 mvn install
 cd ../..
