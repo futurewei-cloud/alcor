@@ -1,10 +1,10 @@
 #!/bin/bash
 
 cd ./lib
-mvn test
+mvn compile
 cd ..
 cd ./schema
-mvn test
+mvn compile
 cd ..
 cd ./services/port_manager
 mvn test
@@ -26,3 +26,9 @@ mvn test
 cd ../..
 cd ./services/node_manager
 mvn test
+cd ../..
+cd ./services/api_gateway
+mvn test
+cd ../..
+cd ./web
+mvn compile

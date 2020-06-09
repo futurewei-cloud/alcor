@@ -138,7 +138,7 @@
                     <!-- attached to Maven test phase -->
                     <execution>
                         <id>report</id>
-                        <phase>test</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
