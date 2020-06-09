@@ -1,14 +1,12 @@
 language: java
-sudo: false # faster builds
+sudo: true
+jdk:
+  - oraclejdk13
 
 before_script:
-  - - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - chmod +x ./scripts/build_coverage.sh
+
 script:
-  - mvn test -B
-
+  - ./scripts/build_coverage.sh
 after_success:
-  - mvn clean jacoco:report coveralls:report
-
-cache:
-  directories:
-    - $HOME/.m2
+  - bash <(curl -s https://codecov.io/bash)
