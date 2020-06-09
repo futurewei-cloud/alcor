@@ -67,6 +67,8 @@ public class GoalStateProvisionerClient {
         try {
             response = blockingStub.pushNetworkResourceStates(state);
         } catch (StatusRuntimeException e) {
+            alcorLog.log(Level.WARNING,"############ ex-response is "+response);
+            e.printStackTrace();
             alcorLog.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return response.getOperationStatusesList();
         }

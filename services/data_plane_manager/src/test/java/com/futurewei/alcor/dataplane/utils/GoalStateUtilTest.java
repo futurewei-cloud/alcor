@@ -31,898 +31,1407 @@ public class GoalStateUtilTest {
   }
 
   @Test
-  public void transformNorthToSouthBulkCreatePort() throws InterruptedException {
-
+  public void transform2PortsOn1Host1Subnet1VPC1FixedIp(){
     String input =
         "{\n"
-            + "  \"rsType\": \"PORT\",\n"
-            + "  \"opType\": \"CREATE\",\n"
-            + "  \"allOrNone\": true,\n"
-            + "  \"portStates\": [\n"
-            + "    {\n"
-            + "      \"bindingHostIP\": \"1.2.3.4\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88888,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"cidr\": \"192.168.1.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.1.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"name\": \"test_subnet1\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:55\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
-            + "      \"name\": \"test_cni_port2\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"bindingHostIP\": \"1.2.3.4\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88889,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"cidr\": \"192.168.2.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.2.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"name\": \"test_subnet2\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:56\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.4\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.5\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
-            + "      \"name\": \"test_cni_port3\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"bindingHostIP\": \"1.2.3.6\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88889,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"cidr\": \"192.168.2.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.2.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"name\": \"test_subnet2\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:57\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
-            + "      \"name\": \"test_cni_port4\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"bindingHostIP\": \"1.2.3.6\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88888,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"cidr\": \"192.168.1.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.1.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"name\": \"test_subnet1\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:58\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
-            + "      \"name\": \"test_cni_port5\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"vpcs\": [\n"
-            + "    {\n"
-            + "      \"cidr\": \"192.168.0.0/16\",\n"
-            + "      \"adminStateUp\": false,\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"routerExternal\": false,\n"
-            + "      \"shared\": false,\n"
-            + "      \"vlanTransparent\": false,\n"
-            + "      \"isDefault\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "      \"name\": \"test_vpc\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"cidr\": \"192.168.0.0/16\",\n"
-            + "      \"adminStateUp\": false,\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"routerExternal\": false,\n"
-            + "      \"shared\": false,\n"
-            + "      \"vlanTransparent\": false,\n"
-            + "      \"isDefault\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "      \"name\": \"test_vpc\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"subnets\": [\n"
-            + "    {\n"
-            + "      \"tunnelId\": 88888,\n"
-            + "      \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "      \"cidr\": \"192.168.1.0/24\",\n"
-            + "      \"availabilityZone\": \"uswest-1\",\n"
-            + "      \"gatewayIp\": \"192.168.1.1\",\n"
-            + "      \"dhcpEnable\": false,\n"
-            + "      \"dnsPublishFixedIp\": false,\n"
-            + "      \"useDefaultSubnetpool\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "      \"name\": \"test_subnet1\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"tunnelId\": 88889,\n"
-            + "      \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "      \"cidr\": \"192.168.2.0/24\",\n"
-            + "      \"availabilityZone\": \"uswest-1\",\n"
-            + "      \"gatewayIp\": \"192.168.2.1\",\n"
-            + "      \"dhcpEnable\": false,\n"
-            + "      \"dnsPublishFixedIp\": false,\n"
-            + "      \"useDefaultSubnetpool\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "      \"name\": \"test_subnet2\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"securityGroupEntities\": [\n"
-            + "    {},\n"
-            + "    {}\n"
-            + "  ]\n"
+            + "\t\"rsType\": \"PORT\",\n"
+            + "\t\"opType\": \"CREATE\",\n"
+            + "\t\"allOrNone\": true,\n"
+            + "\t\"portStates\": [{\n"
+            + "\t\t\"bindingHostIP\": \"10.213.43.187\",\n"
+            + "\t\t\"subnetEntities\": [{\n"
+            + "\t\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"vpcEntities\": [{\n"
+            + "\t\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\"adminStateUp\": false,\n"
+            + "\t\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\t\"routerExternal\": false,\n"
+            + "\t\t\t\"shared\": false,\n"
+            + "\t\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\t\"isDefault\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"adminStateUp\": true,\n"
+            + "\t\t\"macAddress\": \"86:ea:77:ad:52:55\",\n"
+            + "\t\t\"vethName\": \"veth0\",\n"
+            + "\t\t\"fastPath\": true,\n"
+            + "\t\t\"fixedIps\": [{\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.2\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"bindingHostId\": \"ephost_0\",\n"
+            + "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"revisionNumber\": 0,\n"
+            + "\t\t\"resourceRequest\": 0,\n"
+            + "\t\t\"uplinkStatusPropagation\": false,\n"
+            + "\t\t\"macLearningEnabled\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
+            + "\t\t\"name\": \"test_cni_port2\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}, {\n"
+            + "\t\t\"bindingHostIP\": \"10.213.43.187\",\n"
+            + "\t\t\"subnetEntities\": [{\n"
+            + "\t\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"vpcEntities\": [{\n"
+            + "\t\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\"adminStateUp\": false,\n"
+            + "\t\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\t\"routerExternal\": false,\n"
+            + "\t\t\t\"shared\": false,\n"
+            + "\t\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\t\"isDefault\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"adminStateUp\": true,\n"
+            + "\t\t\"macAddress\": \"86:ea:77:ad:52:58\",\n"
+            + "\t\t\"vethName\": \"veth0\",\n"
+            + "\t\t\"fastPath\": true,\n"
+            + "\t\t\"fixedIps\": [{\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.4\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"bindingHostId\": \"ephost_0\",\n"
+            + "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"revisionNumber\": 0,\n"
+            + "\t\t\"resourceRequest\": 0,\n"
+            + "\t\t\"uplinkStatusPropagation\": false,\n"
+            + "\t\t\"macLearningEnabled\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
+            + "\t\t\"name\": \"test_cni_port5\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"vpcs\": [{\n"
+            + "\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\"adminStateUp\": false,\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"routerExternal\": false,\n"
+            + "\t\t\"shared\": false,\n"
+            + "\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\"isDefault\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"subnets\": [{\n"
+            + "\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"securityGroupEntities\": [{}, {}]\n"
             + "}";
     String result =
         "{\n"
-            + "  \"1.2.3.6\": {\n"
-            + "    \"bitField0_\": 0,\n"
-            + "    \"formatVersion_\": 0,\n"
-            + "    \"vpcStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 1986295063\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1596323463\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1872096044\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1372131056\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"subnetStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88888,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -2079552576\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1209216071\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88889,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1947791283\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1683105870\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"portStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 1,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
-            + "          \"networkType_\": 0,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port4\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:57\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439385702\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439385673\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -184747492\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1968022894\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 1,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
-            + "          \"networkType_\": 0,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port5\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:58\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439470440\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439470411\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 1410201339\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1335820245\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"securityGroupStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 0,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"securityGroupRules_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 0\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 0\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"dhcpStates_\": [],\n"
-            + "    \"memoizedIsInitialized\": 1,\n"
-            + "    \"unknownFields\": {\n"
-            + "      \"fields\": {},\n"
-            + "      \"fieldsDescending\": {}\n"
-            + "    },\n"
-            + "    \"memoizedSize\": -1,\n"
-            + "    \"memoizedHashCode\": 0\n"
-            + "  },\n"
-            + "  \"1.2.3.4\": {\n"
-            + "    \"bitField0_\": 0,\n"
-            + "    \"formatVersion_\": 0,\n"
-            + "    \"vpcStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 1986295063\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1596323463\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1872096044\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1372131056\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"subnetStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88888,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -2079552576\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1209216071\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88889,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1947791283\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1683105870\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"portStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 1,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
-            + "          \"networkType_\": 0,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port3\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:56\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.4\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439385644\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.5\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439385615\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1802215612\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1629958118\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 1,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
-            + "          \"networkType_\": 0,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port2\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:55\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439470440\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1439470411\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 2048119097\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1639401253\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"securityGroupStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 0,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"securityGroupRules_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 0\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 0\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"dhcpStates_\": [],\n"
-            + "    \"memoizedIsInitialized\": 1,\n"
-            + "    \"unknownFields\": {\n"
-            + "      \"fields\": {},\n"
-            + "      \"fieldsDescending\": {}\n"
-            + "    },\n"
-            + "    \"memoizedSize\": -1,\n"
-            + "    \"memoizedHashCode\": 0\n"
-            + "  }\n"
+            + "\t\"10.213.43.187\": {\n"
+            + "\t\t\"bitField0_\": 0,\n"
+            + "\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\"vpcStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 851612649\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1068653077\n"
+            + "\t\t}],\n"
+            + "\t\t\"subnetStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88888,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -572469531\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1003882173\n"
+            + "\t\t}],\n"
+            + "\t\t\"portStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port2\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:55\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040234\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 757879522\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": -1751579882\n"
+            + "\t\t}],\n"
+            + "\t\t\"securityGroupStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"securityGroupRules_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t}],\n"
+            + "\t\t\"dhcpStates_\": [],\n"
+            + "\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\"unknownFields\": {\n"
+            + "\t\t\t\"fields\": {},\n"
+            + "\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t},\n"
+            + "\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\"memoizedHashCode\": 0\n"
+            + "\t}\n"
             + "}";
-    handleData(input, result);
+    handleData(input,result);
   }
-
+  @Test
+  public void transform2PortsOn1Host1Subnet1VPC2FixedIp()
+  {
+    String input =
+        "{\n"
+            + "\t\"rsType\": \"PORT\",\n"
+            + "\t\"opType\": \"CREATE\",\n"
+            + "\t\"allOrNone\": true,\n"
+            + "\t\"portStates\": [{\n"
+            + "\t\t\"bindingHostIP\": \"10.213.43.187\",\n"
+            + "\t\t\"subnetEntities\": [{\n"
+            + "\t\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"vpcEntities\": [{\n"
+            + "\t\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\"adminStateUp\": false,\n"
+            + "\t\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\t\"routerExternal\": false,\n"
+            + "\t\t\t\"shared\": false,\n"
+            + "\t\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\t\"isDefault\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"adminStateUp\": true,\n"
+            + "\t\t\"macAddress\": \"86:ea:77:ad:52:55\",\n"
+            + "\t\t\"vethName\": \"veth0\",\n"
+            + "\t\t\"fastPath\": true,\n"
+            + "\t\t\"fixedIps\": [{\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.2\"\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.3\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"bindingHostId\": \"ephost_0\",\n"
+            + "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"revisionNumber\": 0,\n"
+            + "\t\t\"resourceRequest\": 0,\n"
+            + "\t\t\"uplinkStatusPropagation\": false,\n"
+            + "\t\t\"macLearningEnabled\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
+            + "\t\t\"name\": \"test_cni_port2\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}, {\n"
+            + "\t\t\"bindingHostIP\": \"10.213.43.187\",\n"
+            + "\t\t\"subnetEntities\": [{\n"
+            + "\t\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"vpcEntities\": [{\n"
+            + "\t\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\"adminStateUp\": false,\n"
+            + "\t\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\t\"routerExternal\": false,\n"
+            + "\t\t\t\"shared\": false,\n"
+            + "\t\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\t\"isDefault\": false,\n"
+            + "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\t\"description\": \"\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"adminStateUp\": true,\n"
+            + "\t\t\"macAddress\": \"86:ea:77:ad:52:58\",\n"
+            + "\t\t\"vethName\": \"veth0\",\n"
+            + "\t\t\"fastPath\": true,\n"
+            + "\t\t\"fixedIps\": [{\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.4\"\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\"ipAddress\": \"192.168.1.5\"\n"
+            + "\t\t}],\n"
+            + "\t\t\"bindingHostId\": \"ephost_0\",\n"
+            + "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"revisionNumber\": 0,\n"
+            + "\t\t\"resourceRequest\": 0,\n"
+            + "\t\t\"uplinkStatusPropagation\": false,\n"
+            + "\t\t\"macLearningEnabled\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
+            + "\t\t\"name\": \"test_cni_port5\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"vpcs\": [{\n"
+            + "\t\t\"cidr\": \"192.168.0.0/16\",\n"
+            + "\t\t\"adminStateUp\": false,\n"
+            + "\t\t\"portSecurityEnabled\": false,\n"
+            + "\t\t\"routerExternal\": false,\n"
+            + "\t\t\"shared\": false,\n"
+            + "\t\t\"vlanTransparent\": false,\n"
+            + "\t\t\"isDefault\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\"name\": \"test_vpc\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"subnets\": [{\n"
+            + "\t\t\"tunnelId\": 88888,\n"
+            + "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\"cidr\": \"192.168.1.0/24\",\n"
+            + "\t\t\"availabilityZone\": \"uswest-1\",\n"
+            + "\t\t\"gatewayIp\": \"192.168.1.1\",\n"
+            + "\t\t\"dhcpEnable\": false,\n"
+            + "\t\t\"dnsPublishFixedIp\": false,\n"
+            + "\t\t\"useDefaultSubnetpool\": false,\n"
+            + "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\"name\": \"test_subnet1\",\n"
+            + "\t\t\"description\": \"\"\n"
+            + "\t}],\n"
+            + "\t\"securityGroupEntities\": [{}, {}]\n"
+            + "}";
+    String result =
+        "{\n"
+            + "\t\"10.213.43.187\": {\n"
+            + "\t\t\"bitField0_\": 0,\n"
+            + "\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\"vpcStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 851612649\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1068653077\n"
+            + "\t\t}],\n"
+            + "\t\t\"subnetStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88888,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -572469531\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1003882173\n"
+            + "\t\t}],\n"
+            + "\t\t\"portStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port2\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:55\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040234\n"
+            + "\t\t\t\t}, {\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.3\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040263\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -1801186197\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1344925595\n"
+            + "\t\t}],\n"
+            + "\t\t\"securityGroupStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"securityGroupRules_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t}],\n"
+            + "\t\t\"dhcpStates_\": [],\n"
+            + "\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\"unknownFields\": {\n"
+            + "\t\t\t\"fields\": {},\n"
+            + "\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t},\n"
+            + "\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\"memoizedHashCode\": 0\n"
+            + "\t}\n"
+            + "}";
+    handleData(input,result);
+  }
+  @Test
+  public void transformBulkCreate2PortsOn4Host2Subnet2VPCs2FixedIp()
+  {
+    String input="{\n" +
+            "\t\"rsType\": \"PORT\",\n" +
+            "\t\"opType\": \"CREATE\",\n" +
+            "\t\"allOrNone\": true,\n" +
+            "\t\"portStates\": [{\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.4\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:55\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n" +
+            "\t\t\"name\": \"test_cni_port2\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.4\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:56\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.4\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.5\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n" +
+            "\t\t\"name\": \"test_cni_port3\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.6\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:57\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n" +
+            "\t\t\"name\": \"test_cni_port4\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.6\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:58\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n" +
+            "\t\t\"name\": \"test_cni_port5\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"vpcs\": [{\n" +
+            "\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\"adminStateUp\": false,\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"routerExternal\": false,\n" +
+            "\t\t\"shared\": false,\n" +
+            "\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\"isDefault\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\"adminStateUp\": false,\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"routerExternal\": false,\n" +
+            "\t\t\"shared\": false,\n" +
+            "\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\"isDefault\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"subnets\": [{\n" +
+            "\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"securityGroupEntities\": [{}, {}]\n" +
+            "}";
+    String result =
+        "{\n"
+            + "\t\"1.2.3.6\": {\n"
+            + "\t\t\"bitField0_\": 0,\n"
+            + "\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\"vpcStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 415036460\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1292845484\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 851612649\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1068653077\n"
+            + "\t\t}],\n"
+            + "\t\t\"subnetStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88889,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -440708238\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 529992374\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88888,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -572469531\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1003882173\n"
+            + "\t\t}],\n"
+            + "\t\t\"portStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port4\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:57\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.2.2\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877124972\n"
+            + "\t\t\t\t}, {\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.2.3\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877125001\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 260914510\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1016303954\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port5\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:58\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040234\n"
+            + "\t\t\t\t}, {\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.3\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040263\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 1855863341\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 25179797\n"
+            + "\t\t}],\n"
+            + "\t\t\"securityGroupStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"securityGroupRules_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t}],\n"
+            + "\t\t\"dhcpStates_\": [],\n"
+            + "\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\"unknownFields\": {\n"
+            + "\t\t\t\"fields\": {},\n"
+            + "\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t},\n"
+            + "\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\"memoizedHashCode\": 0\n"
+            + "\t},\n"
+            + "\t\"1.2.3.4\": {\n"
+            + "\t\t\"bitField0_\": 0,\n"
+            + "\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\"vpcStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 415036460\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1292845484\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n"
+            + "\t\t\t\t\"tunnelId_\": 0,\n"
+            + "\t\t\t\t\"subnetIds_\": [],\n"
+            + "\t\t\t\t\"routes_\": [],\n"
+            + "\t\t\t\t\"transitRouters_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 851612649\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1068653077\n"
+            + "\t\t}],\n"
+            + "\t\t\"subnetStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88889,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -440708238\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 529992374\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"cidr_\": \"\",\n"
+            + "\t\t\t\t\"tunnelId_\": 88888,\n"
+            + "\t\t\t\t\"dhcpEnable_\": false,\n"
+            + "\t\t\t\t\"availabilityZone_\": \"\",\n"
+            + "\t\t\t\t\"primaryDns_\": \"\",\n"
+            + "\t\t\t\t\"secondaryDns_\": \"\",\n"
+            + "\t\t\t\t\"transitSwitches_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -572469531\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1003882173\n"
+            + "\t\t}],\n"
+            + "\t\t\"portStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port3\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:56\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.2.4\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877125030\n"
+            + "\t\t\t\t}, {\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.2.5\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877125059\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -1356553610\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1354368730\n"
+            + "\t\t}, {\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 1,\n"
+            + "\t\t\t\t\"revisionNumber_\": 1,\n"
+            + "\t\t\t\t\"messageType_\": 1,\n"
+            + "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
+            + "\t\t\t\t\"networkType_\": 0,\n"
+            + "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"test_cni_port2\",\n"
+            + "\t\t\t\t\"networkNs_\": \"\",\n"
+            + "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:55\",\n"
+            + "\t\t\t\t\"adminStateUp_\": true,\n"
+            + "\t\t\t\t\"fixedIps_\": [{\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040234\n"
+            + "\t\t\t\t}, {\n"
+            + "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
+            + "\t\t\t\t\t\"ipAddress_\": \"192.168.1.3\",\n"
+            + "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t\t},\n"
+            + "\t\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\t\"memoizedHashCode\": 877040263\n"
+            + "\t\t\t\t}],\n"
+            + "\t\t\t\t\"allowAddressPairs_\": [],\n"
+            + "\t\t\t\t\"securityGroupIds_\": [],\n"
+            + "\t\t\t\t\"vethName_\": \"\",\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": -1801186197\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 1344925595\n"
+            + "\t\t}],\n"
+            + "\t\t\"securityGroupStates_\": [{\n"
+            + "\t\t\t\"operationType_\": 0,\n"
+            + "\t\t\t\"configuration_\": {\n"
+            + "\t\t\t\t\"bitField0_\": 0,\n"
+            + "\t\t\t\t\"formatVersion_\": 0,\n"
+            + "\t\t\t\t\"revisionNumber_\": 0,\n"
+            + "\t\t\t\t\"id_\": \"\",\n"
+            + "\t\t\t\t\"projectId_\": \"\",\n"
+            + "\t\t\t\t\"vpcId_\": \"\",\n"
+            + "\t\t\t\t\"name_\": \"\",\n"
+            + "\t\t\t\t\"securityGroupRules_\": [],\n"
+            + "\t\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t\t},\n"
+            + "\t\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\t\"unknownFields\": {\n"
+            + "\t\t\t\t\"fields\": {},\n"
+            + "\t\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t\t},\n"
+            + "\t\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\t\"memoizedHashCode\": 0\n"
+            + "\t\t}],\n"
+            + "\t\t\"dhcpStates_\": [],\n"
+            + "\t\t\"memoizedIsInitialized\": 1,\n"
+            + "\t\t\"unknownFields\": {\n"
+            + "\t\t\t\"fields\": {},\n"
+            + "\t\t\t\"fieldsDescending\": {}\n"
+            + "\t\t},\n"
+            + "\t\t\"memoizedSize\": -1,\n"
+            + "\t\t\"memoizedHashCode\": 0\n"
+            + "\t}\n"
+            + "}";
+    handleData(input,result);
+  }
   private void handleData(String input, String result) {
     Gson g = new Gson();
     NetworkConfiguration networkConfiguration = g.fromJson(input, NetworkConfiguration.class);
@@ -962,966 +1471,881 @@ public class GoalStateUtilTest {
   }
 
   @Test
-  public void transformNorthToSouthNeighborInfo() {
-    String input =
-        "{\n"
-            + "  \"rsType\": \"PORT\",\n"
-            + "  \"opType\": \"CREATE\",\n"
-            + "  \"allOrNone\": true,\n"
-            + "  \"portStates\": [\n"
-            + "    {\n"
-            + "      \"neighborIps\": [\n"
-            + "        {\n"
-            + "          \"hostIp\": \"1.2.3.6\",\n"
-            + "          \"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostIP\": \"1.2.3.4\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88888,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"cidr\": \"192.168.1.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.1.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"name\": \"test_subnet1\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:55\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
-            + "      \"name\": \"test_cni_port2\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"neighborIps\": [\n"
-            + "        {\n"
-            + "          \"hostIp\": \"1.2.3.6\",\n"
-            + "          \"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostIP\": \"1.2.3.4\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88889,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"cidr\": \"192.168.2.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.2.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"name\": \"test_subnet2\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:56\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.4\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.5\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
-            + "      \"name\": \"test_cni_port3\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"neighborIps\": [\n"
-            + "        {\n"
-            + "          \"hostIp\": \"1.2.3.4\",\n"
-            + "          \"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostIP\": \"1.2.3.6\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88889,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"cidr\": \"192.168.2.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.2.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"name\": \"test_subnet2\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:57\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"ipAddress\": \"192.168.2.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
-            + "      \"name\": \"test_cni_port4\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"neighborIps\": [\n"
-            + "        {\n"
-            + "          \"hostIp\": \"1.2.3.4\",\n"
-            + "          \"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostIP\": \"1.2.3.6\",\n"
-            + "      \"subnetEntities\": [\n"
-            + "        {\n"
-            + "          \"tunnelId\": 88888,\n"
-            + "          \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"cidr\": \"192.168.1.0/24\",\n"
-            + "          \"availabilityZone\": \"uswest-1\",\n"
-            + "          \"gatewayIp\": \"192.168.1.1\",\n"
-            + "          \"dhcpEnable\": false,\n"
-            + "          \"dnsPublishFixedIp\": false,\n"
-            + "          \"useDefaultSubnetpool\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"name\": \"test_subnet1\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"vpcEntities\": [\n"
-            + "        {\n"
-            + "          \"cidr\": \"192.168.0.0/16\",\n"
-            + "          \"adminStateUp\": false,\n"
-            + "          \"portSecurityEnabled\": false,\n"
-            + "          \"routerExternal\": false,\n"
-            + "          \"shared\": false,\n"
-            + "          \"vlanTransparent\": false,\n"
-            + "          \"isDefault\": false,\n"
-            + "          \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name\": \"test_vpc\",\n"
-            + "          \"description\": \"\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"adminStateUp\": true,\n"
-            + "      \"macAddress\": \"86:ea:77:ad:52:58\",\n"
-            + "      \"vethName\": \"veth0\",\n"
-            + "      \"fastPath\": true,\n"
-            + "      \"fixedIps\": [\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.2\"\n"
-            + "        },\n"
-            + "        {\n"
-            + "          \"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"ipAddress\": \"192.168.1.3\"\n"
-            + "        }\n"
-            + "      ],\n"
-            + "      \"bindingHostId\": \"ephost_0\",\n"
-            + "      \"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"revisionNumber\": 0,\n"
-            + "      \"resourceRequest\": 0,\n"
-            + "      \"uplinkStatusPropagation\": false,\n"
-            + "      \"macLearningEnabled\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
-            + "      \"name\": \"test_cni_port5\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"vpcs\": [\n"
-            + "    {\n"
-            + "      \"cidr\": \"192.168.0.0/16\",\n"
-            + "      \"adminStateUp\": false,\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"routerExternal\": false,\n"
-            + "      \"shared\": false,\n"
-            + "      \"vlanTransparent\": false,\n"
-            + "      \"isDefault\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "      \"name\": \"test_vpc\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"cidr\": \"192.168.0.0/16\",\n"
-            + "      \"adminStateUp\": false,\n"
-            + "      \"portSecurityEnabled\": false,\n"
-            + "      \"routerExternal\": false,\n"
-            + "      \"shared\": false,\n"
-            + "      \"vlanTransparent\": false,\n"
-            + "      \"isDefault\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "      \"name\": \"test_vpc\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"subnets\": [\n"
-            + "    {\n"
-            + "      \"tunnelId\": 88888,\n"
-            + "      \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "      \"cidr\": \"192.168.1.0/24\",\n"
-            + "      \"availabilityZone\": \"uswest-1\",\n"
-            + "      \"gatewayIp\": \"192.168.1.1\",\n"
-            + "      \"dhcpEnable\": false,\n"
-            + "      \"dnsPublishFixedIp\": false,\n"
-            + "      \"useDefaultSubnetpool\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "      \"name\": \"test_subnet1\",\n"
-            + "      \"description\": \"\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"tunnelId\": 88889,\n"
-            + "      \"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "      \"cidr\": \"192.168.2.0/24\",\n"
-            + "      \"availabilityZone\": \"uswest-1\",\n"
-            + "      \"gatewayIp\": \"192.168.2.1\",\n"
-            + "      \"dhcpEnable\": false,\n"
-            + "      \"dnsPublishFixedIp\": false,\n"
-            + "      \"useDefaultSubnetpool\": false,\n"
-            + "      \"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "      \"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "      \"name\": \"test_subnet2\",\n"
-            + "      \"description\": \"\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"securityGroupEntities\": [\n"
-            + "    {},\n"
-            + "    {}\n"
-            + "  ]\n"
-            + "}";
-    String result =
-        "{\n"
-            + "  \"1.2.3.6\": {\n"
-            + "    \"bitField0_\": 0,\n"
-            + "    \"formatVersion_\": 0,\n"
-            + "    \"vpcStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 2008624373\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -872301739\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1849766734\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1096494146\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"subnetStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88888,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -939142530\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -2044645358\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88889,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -807381237\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1776432139\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"portStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 0,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
-            + "          \"networkType_\": 5,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port5\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:58\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"hostInfo_\": {\n"
-            + "            \"ipAddress_\": \"1.2.3.4\",\n"
-            + "            \"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n"
-            + "            \"memoizedIsInitialized\": 1,\n"
-            + "            \"unknownFields\": {\n"
-            + "              \"fields\": {},\n"
-            + "              \"fieldsDescending\": {}\n"
-            + "            },\n"
-            + "            \"memoizedSize\": -1,\n"
-            + "            \"memoizedHashCode\": -2030109568\n"
-            + "          },\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986480296\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986480267\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 1338851716\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -2077756844\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 0,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
-            + "          \"networkType_\": 5,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port4\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:57\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"hostInfo_\": {\n"
-            + "            \"ipAddress_\": \"1.2.3.4\",\n"
-            + "            \"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n"
-            + "            \"memoizedIsInitialized\": 1,\n"
-            + "            \"unknownFields\": {\n"
-            + "              \"fields\": {},\n"
-            + "              \"fieldsDescending\": {}\n"
-            + "            },\n"
-            + "            \"memoizedSize\": -1,\n"
-            + "            \"memoizedHashCode\": -2030109655\n"
-            + "          },\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986395558\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986395529\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 826995176\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 258272680\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"securityGroupStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 0,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"securityGroupRules_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 0\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 0\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"dhcpStates_\": [],\n"
-            + "    \"memoizedIsInitialized\": 1,\n"
-            + "    \"unknownFields\": {\n"
-            + "      \"fields\": {},\n"
-            + "      \"fieldsDescending\": {}\n"
-            + "    },\n"
-            + "    \"memoizedSize\": -1,\n"
-            + "    \"memoizedHashCode\": 0\n"
-            + "  },\n"
-            + "  \"1.2.3.4\": {\n"
-            + "    \"bitField0_\": 0,\n"
-            + "    \"formatVersion_\": 0,\n"
-            + "    \"vpcStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 2008624373\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -872301739\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"192.168.0.0/16\",\n"
-            + "          \"tunnelId_\": 0,\n"
-            + "          \"subnetIds_\": [],\n"
-            + "          \"routes_\": [],\n"
-            + "          \"transitRouters_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -1849766734\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1096494146\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"subnetStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88888,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -939142530\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -2044645358\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"cidr_\": \"\",\n"
-            + "          \"tunnelId_\": 88889,\n"
-            + "          \"dhcpEnable_\": false,\n"
-            + "          \"availabilityZone_\": \"\",\n"
-            + "          \"primaryDns_\": \"\",\n"
-            + "          \"secondaryDns_\": \"\",\n"
-            + "          \"transitSwitches_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": -807381237\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 1776432139\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"portStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 0,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
-            + "          \"networkType_\": 5,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port2\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:55\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"hostInfo_\": {\n"
-            + "            \"ipAddress_\": \"1.2.3.6\",\n"
-            + "            \"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n"
-            + "            \"memoizedIsInitialized\": 1,\n"
-            + "            \"unknownFields\": {\n"
-            + "              \"fields\": {},\n"
-            + "              \"fieldsDescending\": {}\n"
-            + "            },\n"
-            + "            \"memoizedSize\": -1,\n"
-            + "            \"memoizedHashCode\": -2029995714\n"
-            + "          },\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.2\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986480296\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n"
-            + "              \"ipAddress_\": \"192.168.1.3\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986480267\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 1340757696\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -2022483424\n"
-            + "      },\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 1,\n"
-            + "          \"revisionNumber_\": 1,\n"
-            + "          \"messageType_\": 0,\n"
-            + "          \"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
-            + "          \"networkType_\": 5,\n"
-            + "          \"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"test_cni_port3\",\n"
-            + "          \"networkNs_\": \"\",\n"
-            + "          \"macAddress_\": \"86:ea:77:ad:52:56\",\n"
-            + "          \"adminStateUp_\": true,\n"
-            + "          \"hostInfo_\": {\n"
-            + "            \"ipAddress_\": \"1.2.3.6\",\n"
-            + "            \"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n"
-            + "            \"memoizedIsInitialized\": 1,\n"
-            + "            \"unknownFields\": {\n"
-            + "              \"fields\": {},\n"
-            + "              \"fieldsDescending\": {}\n"
-            + "            },\n"
-            + "            \"memoizedSize\": -1,\n"
-            + "            \"memoizedHashCode\": -2029995743\n"
-            + "          },\n"
-            + "          \"fixedIps_\": [\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.4\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986395500\n"
-            + "            },\n"
-            + "            {\n"
-            + "              \"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n"
-            + "              \"ipAddress_\": \"192.168.2.5\",\n"
-            + "              \"memoizedIsInitialized\": 1,\n"
-            + "              \"unknownFields\": {\n"
-            + "                \"fields\": {},\n"
-            + "                \"fieldsDescending\": {}\n"
-            + "              },\n"
-            + "              \"memoizedSize\": -1,\n"
-            + "              \"memoizedHashCode\": -1986395471\n"
-            + "            }\n"
-            + "          ],\n"
-            + "          \"allowAddressPairs_\": [],\n"
-            + "          \"securityGroupIds_\": [],\n"
-            + "          \"vethName_\": \"\",\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 38632708\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": -1129402412\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"securityGroupStates_\": [\n"
-            + "      {\n"
-            + "        \"operationType_\": 0,\n"
-            + "        \"configuration_\": {\n"
-            + "          \"bitField0_\": 0,\n"
-            + "          \"formatVersion_\": 0,\n"
-            + "          \"revisionNumber_\": 0,\n"
-            + "          \"id_\": \"\",\n"
-            + "          \"projectId_\": \"\",\n"
-            + "          \"vpcId_\": \"\",\n"
-            + "          \"name_\": \"\",\n"
-            + "          \"securityGroupRules_\": [],\n"
-            + "          \"memoizedIsInitialized\": 1,\n"
-            + "          \"unknownFields\": {\n"
-            + "            \"fields\": {},\n"
-            + "            \"fieldsDescending\": {}\n"
-            + "          },\n"
-            + "          \"memoizedSize\": -1,\n"
-            + "          \"memoizedHashCode\": 0\n"
-            + "        },\n"
-            + "        \"memoizedIsInitialized\": 1,\n"
-            + "        \"unknownFields\": {\n"
-            + "          \"fields\": {},\n"
-            + "          \"fieldsDescending\": {}\n"
-            + "        },\n"
-            + "        \"memoizedSize\": -1,\n"
-            + "        \"memoizedHashCode\": 0\n"
-            + "      }\n"
-            + "    ],\n"
-            + "    \"dhcpStates_\": [],\n"
-            + "    \"memoizedIsInitialized\": 1,\n"
-            + "    \"unknownFields\": {\n"
-            + "      \"fields\": {},\n"
-            + "      \"fieldsDescending\": {}\n"
-            + "    },\n"
-            + "    \"memoizedSize\": -1,\n"
-            + "    \"memoizedHashCode\": 0\n"
-            + "  }\n"
-            + "}";
+  public void transformNeighbor2PortsOn4Host2Subnet2VPCs2FixedIp()
+  {
+    String input="{\n" +
+            "\t\"rsType\": \"PORT\",\n" +
+            "\t\"opType\": \"CREATE\",\n" +
+            "\t\"allOrNone\": true,\n" +
+            "\t\"portStates\": [{\n" +
+            "\t\t\"neighborIps\": [{\n" +
+            "\t\t\t\"hostIp\": \"1.2.3.6\",\n" +
+            "\t\t\t\"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.4\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:55\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n" +
+            "\t\t\"name\": \"test_cni_port2\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"neighborIps\": [{\n" +
+            "\t\t\t\"hostIp\": \"1.2.3.6\",\n" +
+            "\t\t\t\"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.4\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:56\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.4\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.5\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n" +
+            "\t\t\"name\": \"test_cni_port3\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"neighborIps\": [{\n" +
+            "\t\t\t\"hostIp\": \"1.2.3.4\",\n" +
+            "\t\t\t\"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.6\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:57\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.2.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n" +
+            "\t\t\"name\": \"test_cni_port4\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"neighborIps\": [{\n" +
+            "\t\t\t\"hostIp\": \"1.2.3.4\",\n" +
+            "\t\t\t\"hostId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\"portId\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostIP\": \"1.2.3.6\",\n" +
+            "\t\t\"subnetEntities\": [{\n" +
+            "\t\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"vpcEntities\": [{\n" +
+            "\t\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\"adminStateUp\": false,\n" +
+            "\t\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\t\"routerExternal\": false,\n" +
+            "\t\t\t\"shared\": false,\n" +
+            "\t\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\t\"isDefault\": false,\n" +
+            "\t\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\t\"description\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"adminStateUp\": true,\n" +
+            "\t\t\"macAddress\": \"86:ea:77:ad:52:58\",\n" +
+            "\t\t\"vethName\": \"veth0\",\n" +
+            "\t\t\"fastPath\": true,\n" +
+            "\t\t\"fixedIps\": [{\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.2\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"subnetId\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\"ipAddress\": \"192.168.1.3\"\n" +
+            "\t\t}],\n" +
+            "\t\t\"bindingHostId\": \"ephost_0\",\n" +
+            "\t\t\"networkNamespace\": \"/var/run/netns/test_netw_ns\",\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"revisionNumber\": 0,\n" +
+            "\t\t\"resourceRequest\": 0,\n" +
+            "\t\t\"uplinkStatusPropagation\": false,\n" +
+            "\t\t\"macLearningEnabled\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n" +
+            "\t\t\"name\": \"test_cni_port5\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"vpcs\": [{\n" +
+            "\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\"adminStateUp\": false,\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"routerExternal\": false,\n" +
+            "\t\t\"shared\": false,\n" +
+            "\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\"isDefault\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"cidr\": \"192.168.0.0/16\",\n" +
+            "\t\t\"adminStateUp\": false,\n" +
+            "\t\t\"portSecurityEnabled\": false,\n" +
+            "\t\t\"routerExternal\": false,\n" +
+            "\t\t\"shared\": false,\n" +
+            "\t\t\"vlanTransparent\": false,\n" +
+            "\t\t\"isDefault\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\"name\": \"test_vpc\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"subnets\": [{\n" +
+            "\t\t\"tunnelId\": 88888,\n" +
+            "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\"cidr\": \"192.168.1.0/24\",\n" +
+            "\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\"gatewayIp\": \"192.168.1.1\",\n" +
+            "\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\"name\": \"test_subnet1\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}, {\n" +
+            "\t\t\"tunnelId\": 88889,\n" +
+            "\t\t\"vpcId\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\"cidr\": \"192.168.2.0/24\",\n" +
+            "\t\t\"availabilityZone\": \"uswest-1\",\n" +
+            "\t\t\"gatewayIp\": \"192.168.2.1\",\n" +
+            "\t\t\"dhcpEnable\": false,\n" +
+            "\t\t\"dnsPublishFixedIp\": false,\n" +
+            "\t\t\"useDefaultSubnetpool\": false,\n" +
+            "\t\t\"projectId\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\"id\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\"name\": \"test_subnet2\",\n" +
+            "\t\t\"description\": \"\"\n" +
+            "\t}],\n" +
+            "\t\"securityGroupEntities\": [{}, {}]\n" +
+            "}";
+    String result="{\n" +
+            "\t\"1.2.3.6\": {\n" +
+            "\t\t\"bitField0_\": 0,\n" +
+            "\t\t\"formatVersion_\": 0,\n" +
+            "\t\t\"vpcStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\t\"tunnelId_\": 0,\n" +
+            "\t\t\t\t\"subnetIds_\": [],\n" +
+            "\t\t\t\t\"routes_\": [],\n" +
+            "\t\t\t\t\"transitRouters_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 415036460\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1292845484\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\t\"tunnelId_\": 0,\n" +
+            "\t\t\t\t\"subnetIds_\": [],\n" +
+            "\t\t\t\t\"routes_\": [],\n" +
+            "\t\t\t\t\"transitRouters_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 851612649\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1068653077\n" +
+            "\t\t}],\n" +
+            "\t\t\"subnetStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"\",\n" +
+            "\t\t\t\t\"tunnelId_\": 88889,\n" +
+            "\t\t\t\t\"dhcpEnable_\": false,\n" +
+            "\t\t\t\t\"availabilityZone_\": \"\",\n" +
+            "\t\t\t\t\"primaryDns_\": \"\",\n" +
+            "\t\t\t\t\"secondaryDns_\": \"\",\n" +
+            "\t\t\t\t\"transitSwitches_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -440708238\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 529992374\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"\",\n" +
+            "\t\t\t\t\"tunnelId_\": 88888,\n" +
+            "\t\t\t\t\"dhcpEnable_\": false,\n" +
+            "\t\t\t\t\"availabilityZone_\": \"\",\n" +
+            "\t\t\t\t\"primaryDns_\": \"\",\n" +
+            "\t\t\t\t\"secondaryDns_\": \"\",\n" +
+            "\t\t\t\t\"transitSwitches_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -572469531\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1003882173\n" +
+            "\t\t}],\n" +
+            "\t\t\"portStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 5,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"messageType_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n" +
+            "\t\t\t\t\"networkType_\": 5,\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"test_cni_port4\",\n" +
+            "\t\t\t\t\"networkNs_\": \"\",\n" +
+            "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:57\",\n" +
+            "\t\t\t\t\"adminStateUp_\": true,\n" +
+            "\t\t\t\t\"hostInfo_\": {\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"1.2.3.4\",\n" +
+            "\t\t\t\t\t\"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d0\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": -1584629934\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"fixedIps_\": [{\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.2.2\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877124972\n" +
+            "\t\t\t\t}, {\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.2.3\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877125001\n" +
+            "\t\t\t\t}],\n" +
+            "\t\t\t\t\"allowAddressPairs_\": [],\n" +
+            "\t\t\t\t\"securityGroupIds_\": [],\n" +
+            "\t\t\t\t\"vethName_\": \"\",\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -135761614\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": -1897084705\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 5,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"messageType_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n" +
+            "\t\t\t\t\"networkType_\": 5,\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"test_cni_port5\",\n" +
+            "\t\t\t\t\"networkNs_\": \"\",\n" +
+            "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:58\",\n" +
+            "\t\t\t\t\"adminStateUp_\": true,\n" +
+            "\t\t\t\t\"hostInfo_\": {\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"1.2.3.4\",\n" +
+            "\t\t\t\t\t\"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d3\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": -1584629847\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"fixedIps_\": [{\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877040234\n" +
+            "\t\t\t\t}, {\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.1.3\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877040263\n" +
+            "\t\t\t\t}],\n" +
+            "\t\t\t\t\"allowAddressPairs_\": [],\n" +
+            "\t\t\t\t\"securityGroupIds_\": [],\n" +
+            "\t\t\t\t\"vethName_\": \"\",\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 376094926\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 61853067\n" +
+            "\t\t}],\n" +
+            "\t\t\"securityGroupStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 0,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"securityGroupRules_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 0\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 0\n" +
+            "\t\t}],\n" +
+            "\t\t\"dhcpStates_\": [],\n" +
+            "\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\"unknownFields\": {\n" +
+            "\t\t\t\"fields\": {},\n" +
+            "\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t},\n" +
+            "\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\"memoizedHashCode\": 0\n" +
+            "\t},\n" +
+            "\t\"1.2.3.4\": {\n" +
+            "\t\t\"bitField0_\": 0,\n" +
+            "\t\t\"formatVersion_\": 0,\n" +
+            "\t\t\"vpcStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\t\"tunnelId_\": 0,\n" +
+            "\t\t\t\t\"subnetIds_\": [],\n" +
+            "\t\t\t\t\"routes_\": [],\n" +
+            "\t\t\t\t\"transitRouters_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 415036460\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1292845484\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"id_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"192.168.0.0/16\",\n" +
+            "\t\t\t\t\"tunnelId_\": 0,\n" +
+            "\t\t\t\t\"subnetIds_\": [],\n" +
+            "\t\t\t\t\"routes_\": [],\n" +
+            "\t\t\t\t\"transitRouters_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 851612649\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1068653077\n" +
+            "\t\t}],\n" +
+            "\t\t\"subnetStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"\",\n" +
+            "\t\t\t\t\"tunnelId_\": 88889,\n" +
+            "\t\t\t\t\"dhcpEnable_\": false,\n" +
+            "\t\t\t\t\"availabilityZone_\": \"\",\n" +
+            "\t\t\t\t\"primaryDns_\": \"\",\n" +
+            "\t\t\t\t\"secondaryDns_\": \"\",\n" +
+            "\t\t\t\t\"transitSwitches_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -440708238\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 529992374\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88039\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"cidr_\": \"\",\n" +
+            "\t\t\t\t\"tunnelId_\": 88888,\n" +
+            "\t\t\t\t\"dhcpEnable_\": false,\n" +
+            "\t\t\t\t\"availabilityZone_\": \"\",\n" +
+            "\t\t\t\t\"primaryDns_\": \"\",\n" +
+            "\t\t\t\t\"secondaryDns_\": \"\",\n" +
+            "\t\t\t\t\"transitSwitches_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -572469531\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1003882173\n" +
+            "\t\t}],\n" +
+            "\t\t\"portStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 5,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"messageType_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n" +
+            "\t\t\t\t\"networkType_\": 5,\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"test_cni_port2\",\n" +
+            "\t\t\t\t\"networkNs_\": \"\",\n" +
+            "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:55\",\n" +
+            "\t\t\t\t\"adminStateUp_\": true,\n" +
+            "\t\t\t\t\"hostInfo_\": {\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"1.2.3.6\",\n" +
+            "\t\t\t\t\t\"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d7\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": -1584515993\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"fixedIps_\": [{\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.1.2\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877040234\n" +
+            "\t\t\t\t}, {\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594e\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.1.3\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877040263\n" +
+            "\t\t\t\t}],\n" +
+            "\t\t\t\t\"allowAddressPairs_\": [],\n" +
+            "\t\t\t\t\"securityGroupIds_\": [],\n" +
+            "\t\t\t\t\"vethName_\": \"\",\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 378000906\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 117126487\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"operationType_\": 5,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 1,\n" +
+            "\t\t\t\t\"revisionNumber_\": 1,\n" +
+            "\t\t\t\t\"messageType_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n" +
+            "\t\t\t\t\"networkType_\": 5,\n" +
+            "\t\t\t\t\"projectId_\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"test_cni_port3\",\n" +
+            "\t\t\t\t\"networkNs_\": \"\",\n" +
+            "\t\t\t\t\"macAddress_\": \"86:ea:77:ad:52:56\",\n" +
+            "\t\t\t\t\"adminStateUp_\": true,\n" +
+            "\t\t\t\t\"hostInfo_\": {\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"1.2.3.6\",\n" +
+            "\t\t\t\t\t\"macAddress_\": \"f37810eb-7f83-45fa-a4d4-1b31e75399d6\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": -1584516022\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"fixedIps_\": [{\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.2.4\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877125030\n" +
+            "\t\t\t\t}, {\n" +
+            "\t\t\t\t\t\"subnetId_\": \"a87e0f87-a2d9-44ef-9194-9a62f178594f\",\n" +
+            "\t\t\t\t\t\"ipAddress_\": \"192.168.2.5\",\n" +
+            "\t\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t\t},\n" +
+            "\t\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\t\"memoizedHashCode\": 877125059\n" +
+            "\t\t\t\t}],\n" +
+            "\t\t\t\t\"allowAddressPairs_\": [],\n" +
+            "\t\t\t\t\"securityGroupIds_\": [],\n" +
+            "\t\t\t\t\"vethName_\": \"\",\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": -924124082\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 1010207499\n" +
+            "\t\t}],\n" +
+            "\t\t\"securityGroupStates_\": [{\n" +
+            "\t\t\t\"operationType_\": 0,\n" +
+            "\t\t\t\"configuration_\": {\n" +
+            "\t\t\t\t\"bitField0_\": 0,\n" +
+            "\t\t\t\t\"formatVersion_\": 0,\n" +
+            "\t\t\t\t\"revisionNumber_\": 0,\n" +
+            "\t\t\t\t\"id_\": \"\",\n" +
+            "\t\t\t\t\"projectId_\": \"\",\n" +
+            "\t\t\t\t\"vpcId_\": \"\",\n" +
+            "\t\t\t\t\"name_\": \"\",\n" +
+            "\t\t\t\t\"securityGroupRules_\": [],\n" +
+            "\t\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\t\"memoizedHashCode\": 0\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\t\"unknownFields\": {\n" +
+            "\t\t\t\t\"fields\": {},\n" +
+            "\t\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t\t},\n" +
+            "\t\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\t\"memoizedHashCode\": 0\n" +
+            "\t\t}],\n" +
+            "\t\t\"dhcpStates_\": [],\n" +
+            "\t\t\"memoizedIsInitialized\": 1,\n" +
+            "\t\t\"unknownFields\": {\n" +
+            "\t\t\t\"fields\": {},\n" +
+            "\t\t\t\"fieldsDescending\": {}\n" +
+            "\t\t},\n" +
+            "\t\t\"memoizedSize\": -1,\n" +
+            "\t\t\"memoizedHashCode\": 0\n" +
+            "\t}\n" +
+            "}";
     handleData(input,result);
   }
   }

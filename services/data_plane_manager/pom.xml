@@ -70,7 +70,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.futurewei.alcor.dataplane.app.DataPlaneManager</mainClass>
+                    <mainClass>com.futurewei.alcor.dataplane.DataPlaneManager</mainClass>
                 </configuration>
                 <executions>
                     <execution>

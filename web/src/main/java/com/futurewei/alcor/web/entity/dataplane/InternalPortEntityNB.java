@@ -33,6 +33,6 @@ public class InternalPortEntityNB extends PortEntity {
   @JsonProperty("binding_host_ip")
   private String bindingHostIP;
 
-  private Set<SubnetEntityNB> subnetEntities;
+  private Set<InternalSubnetEntityNB> subnetEntities;
   private Set<VpcEntity> vpcEntities;
 }

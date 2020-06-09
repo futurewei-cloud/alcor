@@ -17,7 +17,7 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import lombok.Data;
 
 @Data
-public class SubnetEntityNB extends SubnetEntity {
+public class InternalSubnetEntityNB extends SubnetEntity {
     @JsonProperty("tunnel_id")
     private Long tunnelId;
 }
