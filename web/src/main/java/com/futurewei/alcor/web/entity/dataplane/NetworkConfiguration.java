@@ -32,7 +32,7 @@ public class NetworkConfiguration {
   private VpcEntity[] vpcs;
 
   @JsonProperty("subnets")
-  private SubnetEntityNB[] subnets;
+  private InternalSubnetEntityNB[] subnets;
 
   @JsonProperty("security_groups")
   private SecurityGroupEntity[] securityGroupEntities;
