@@ -113,7 +113,7 @@ public class KeystoneClient {
         try {
             checkEndPoints();
             getLocalToken();
-        } catch (IOException | NullPointerException e) {
+        } catch (Exception e) {
             LOG.error("Keystone client init failed: {}", e.getMessage());
         }
     }
