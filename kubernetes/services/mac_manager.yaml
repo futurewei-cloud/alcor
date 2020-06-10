@@ -4,14 +4,17 @@ metadata:
   name: mac-configmap
 data:
   application.properties: |
-    spring.redis.host=10.111.70.101
-    spring.redis.port=6381
-    logging.level.root=info
-    logging.level.org.springframework.web=info
-    logging.file.path=.
-    logging.type=file
-    apache.kafka.address=172.17.0.1:9092
-    macmanager.oui = 00-AA-BB
+    spring.redis.host=localhost
+    spring.redis.port=6380
+    ignite.host=10.99.135.32
+    ignite.port=10800
+    ignite.key-store-path=keystore.jks
+    ignite.key-store-password=123456
+    ignite.trust-store-path=truststore.jks
+    ignite.trust-store-password=123456
+    macmanager.oui = AA-BB-CC
+    macmanager.pool.size = 100
+    macmanager.retrylimit = 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,7 +41,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:macKube2
+        - image: zhonghaolyu/repo:macKube1
         #- image: fwnetworking/controller:mac_manager-v0.3.0
           name: macmanager-web
           imagePullPolicy: IfNotPresent

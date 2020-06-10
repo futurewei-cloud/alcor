@@ -15,23 +15,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.portmanager.util.SpringContextUtil;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.RangeIdNotFoundException;
 import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
 import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
-import com.futurewei.alcor.web.entity.port.PortState;
-import com.futurewei.alcor.portmanager.restclient.IpManagerRestClient;
+import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import com.futurewei.alcor.portmanager.exception.IpAddrInvalidException;
 import com.futurewei.alcor.portmanager.exception.IpVersionInvalidException;
 import com.futurewei.alcor.portmanager.rollback.AllocateIpAddrRollback;
-import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
+import com.futurewei.alcor.portmanager.rollback.Rollback;
 import com.futurewei.alcor.portmanager.rollback.ReleaseIpAddrRollback;
-import com.futurewei.alcor.portmanager.restclient.SubnetManagerRestClient;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
+import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +42,14 @@ import java.util.Stack;
 public class IpManagerProxy {
     private IpManagerRestClient ipManagerRestClient;
     private SubnetManagerRestClient subnetManagerRestClient;
-    private Stack<PortStateRollback> rollbacks;
+    private RouteManagerRestClient routeManagerRestClient;
+    private Stack<Rollback> rollbacks;
     private String projectId;
 
-    public IpManagerProxy(Stack<PortStateRollback> rollbacks, String projectId) {
+    public IpManagerProxy(Stack<Rollback> rollbacks, String projectId) {
         ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);
         subnetManagerRestClient = SpringContextUtil.getBean(SubnetManagerRestClient.class);
+        routeManagerRestClient = SpringContextUtil.getBean(RouteManagerRestClient.class);
         this.rollbacks = rollbacks;
         this.projectId = projectId;
     }
@@ -61,7 +65,7 @@ public class IpManagerProxy {
     }
 
     private String getRangeIdBySubnetId(String subnetId, int ipVersion) throws Exception {
-        SubnetWebJson subnetStateJson = subnetManagerRestClient.getSubnetState(projectId, subnetId);
+        SubnetWebJson subnetStateJson = subnetManagerRestClient.getSubnet(projectId, subnetId);
         if (subnetStateJson == null || subnetStateJson.getSubnet() == null) {
             throw new VerifySubnetException();
         }
@@ -70,6 +74,16 @@ public class IpManagerProxy {
             return subnetStateJson.getSubnet().getIpV4RangeId();
         } else if (IpVersion.IPV6.getVersion() == ipVersion) {
             return subnetStateJson.getSubnet().getIpV6RangeId();
+        }
+
+        throw new IpVersionInvalidException();
+    }
+
+    private String getRangeIdFromSubnetEntity(SubnetEntity subnetEntity, int ipVersion) throws Exception {
+        if (IpVersion.IPV4.getVersion() == ipVersion) {
+            return subnetEntity.getIpV4RangeId();
+        } else if (IpVersion.IPV6.getVersion() == ipVersion) {
+            return subnetEntity.getIpV6RangeId();
         }
 
         throw new IpVersionInvalidException();
@@ -91,32 +105,50 @@ public class IpManagerProxy {
      * @return A list of IpAddrRequest
      * @throws Exception Rest request exception
      */
-    public List<IpAddrRequest> allocateRandomIpAddress(Object args) throws Exception {
+    public PortEntity.FixedIp allocateRandomIpAddress(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<PortState.FixedIp> fixedIps = new ArrayList<>();
-        PortState portState = (PortState)args;
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        PortEntity portEntity = (PortEntity)args;
 
         //Allocate a random ipv4 address
         IpAddrRequest ipv4Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV4,
-                portState.getVpcId(), null, null);
-        PortState.FixedIp fixedIpv4 = new PortState.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
+                portEntity.getVpcId(), null, null);
+        PortEntity.FixedIp fixedIpv4 = new PortEntity.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
         fixedIps.add(fixedIpv4);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv4Addr);
 
         //Allocate a random ipv6 address
+        /*
         IpAddrRequest ipv6Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV6,
-                portState.getVpcId(), null, null);
-        PortState.FixedIp fixedIpv6 = new PortState.FixedIp(ipv6Addr.getSubnetId(), ipv6Addr.getIp());
+                portEntity.getNetworkId(), null, null);
+        PortEntity.FixedIp fixedIpv6 = new PortEntity.FixedIp(ipv6Addr.getSubnetId(), ipv6Addr.getIp());
+
         fixedIps.add(fixedIpv6);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv6Addr);
-
+        */
         //Set fixedIps to portState
-        portState.setFixedIps(fixedIps);
+        portEntity.setFixedIps(fixedIps);
 
         ipAddrRequests.add(ipv4Addr);
-        ipAddrRequests.add(ipv6Addr);
+        //ipAddrRequests.add(ipv6Addr);
 
-        return ipAddrRequests;
+        return fixedIpv4;
+    }
+
+    public IpAddrRequest allocateFixedIpAddress(Object arg1, Object arg2) throws Exception {
+        SubnetEntity subnetEntity = (SubnetEntity)arg1;
+        PortEntity.FixedIp fixedIp = (PortEntity.FixedIp)arg2;
+
+        String rangeId = getRangeIdFromSubnetEntity(subnetEntity, getIpVersion(fixedIp.getIpAddress()));
+        if (rangeId == null) {
+            throw new RangeIdNotFoundException();
+        }
+
+        IpAddrRequest result = ipManagerRestClient.allocateIpAddress(null,
+                null, rangeId, fixedIp.getIpAddress());
+        addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), result);
+
+        return result;
     }
 
     /**
@@ -125,11 +157,11 @@ public class IpManagerProxy {
      * @return A list of IpAddrRequest
      * @throws Exception Rest request exception
      */
-    public List<IpAddrRequest> allocateFixedIpAddress(Object args) throws Exception {
+    public List<IpAddrRequest> allocateFixedIpAddresses(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
+        List<PortEntity.FixedIp> fixedIps = (List<PortEntity.FixedIp>)args;
 
-        for (PortState.FixedIp fixedIp: fixedIps) {
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
             if (rangeId == null) {
@@ -155,20 +187,18 @@ public class IpManagerProxy {
      */
     public List<IpAddrRequest> releaseIpAddressBulk(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<PortState.FixedIp> fixedIps = (List<PortState.FixedIp>)args;
+        List<PortEntity.FixedIp> fixedIps = (List<PortEntity.FixedIp>)args;
 
-        for (PortState.FixedIp fixedIp: fixedIps) {
-
-
-            IpAddrRequest ipAddrRequest = new IpAddrRequest();
-
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
             if (rangeId == null) {
                 throw new RangeIdNotFoundException();
             }
+
             ipManagerRestClient.releaseIpAddress(rangeId, fixedIp.getIpAddress());
 
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
             ipAddrRequest.setRangeId(rangeId);
             ipAddrRequest.setIp(fixedIp.getIpAddress());
 

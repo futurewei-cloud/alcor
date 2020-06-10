@@ -15,30 +15,36 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.proxy;
 
-import com.futurewei.alcor.portmanager.util.SpringContextUtil;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.exception.GetVpcEntityException;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.vpc.*;
-import com.futurewei.alcor.portmanager.restclient.VpcManagerRestClient;
-import com.futurewei.alcor.portmanager.rollback.PortStateRollback;
+import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
+import com.futurewei.alcor.portmanager.rollback.Rollback;
 import java.util.Stack;
 
 public class VpcManagerProxy {
     private VpcManagerRestClient vpcManagerRestClient;
-    private Stack<PortStateRollback> rollbacks;
+    private Stack<Rollback> rollbacks;
 
-    public VpcManagerProxy(Stack<PortStateRollback> rollbacks) {
+    public VpcManagerProxy(Stack<Rollback> rollbacks) {
         vpcManagerRestClient = SpringContextUtil.getBean(VpcManagerRestClient.class);
         this.rollbacks = rollbacks;
     }
 
     /**
      * Verify if the vpc of vpcId exists
-     * @param args PortState
+     * @param args PortEntity
      * @return The information of vpc
      * @throws Exception Rest request exception
      */
-    public VpcWebJson verifyVpc(Object args) throws Exception {
-        PortState portState = (PortState)args;
-        return vpcManagerRestClient.verifyVpc(portState.getProjectId(), portState.getVpcId());
+    public VpcEntity getVpcEntity(Object args) throws Exception {
+        PortEntity portEntity = (PortEntity)args;
+        VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(portEntity.getProjectId(), portEntity.getVpcId());
+        if (vpcWebJson == null || vpcWebJson.getNetwork() == null) {
+            throw new GetVpcEntityException();
+        }
+
+        return vpcWebJson.getNetwork();
     }
 }

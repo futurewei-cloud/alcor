@@ -19,26 +19,28 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.web.entity.port.PortState;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
-
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
-public class PortRepository implements ICacheRepository<PortState> {
+public class PortRepository implements ICacheRepository<PortEntity> {
     private static final Logger LOG = LoggerFactory.getLogger(PortRepository.class);
 
-    private ICache<String, PortState> cache;
+    private ICache<String, PortEntity> cache;
 
     @Autowired
     public PortRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(PortState.class);
+        cache = cacheFactory.getCache(PortEntity.class);
     }
 
     @PostConstruct
@@ -47,18 +49,27 @@ public class PortRepository implements ICacheRepository<PortState> {
     }
 
     @Override
-    public PortState findItem(String id) throws CacheException {
+    public PortEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, PortState> findAllItems() throws CacheException {
+    public Map<String, PortEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(PortState portState) throws CacheException {
-        cache.put(portState.getId(), portState);
+    public void addItem(PortEntity portEntity) throws CacheException {
+        cache.put(portEntity.getId(), portEntity);
+    }
+
+    //@Override
+    public void addItems(List<PortEntity> portEntities) throws CacheException {
+        Map<String, PortEntity> portEntityMap = portEntities
+                .stream()
+                .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
+
+        cache.putAll(portEntityMap);
     }
 
     @Override

@@ -24,12 +24,13 @@ option java_outer_classname = "DHCP";
 import "common.proto";
 
 message DHCPConfiguration {
-    uint32 version = 1;
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
 
-    string mac_address = 2;
-    string ipv4_address = 3;
-    string ipv6_address = 4;
-    string port_host_name = 5; // for local DNS response
+    string mac_address = 3;
+    string ipv4_address = 4;
+    string ipv6_address = 5;
+    string port_host_name = 6; // for local DNS response
 
     message ExtraDhcpOption {
         string name = 1;
@@ -40,8 +41,8 @@ message DHCPConfiguration {
         string entry = 1;
     }
 
-    repeated ExtraDhcpOption extra_dhcp_options = 6;
-    repeated DnsEntry dns_entry_list = 7;
+    repeated ExtraDhcpOption extra_dhcp_options = 7;
+    repeated DnsEntry dns_entry_list = 8;
 }
 
 message DHCPState {
