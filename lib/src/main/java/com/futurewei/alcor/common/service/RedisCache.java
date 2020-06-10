@@ -23,6 +23,7 @@ import com.futurewei.alcor.common.repo.ICache;
 import com.futurewei.alcor.common.repo.Transaction;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -106,5 +107,10 @@ public class RedisCache<K, V> implements ICache<K, V> {
     @Override
     public Transaction getTransaction() {
         return transaction;
+    }
+
+    public void keyLock(String key) {
+        String lockKey = "lock:" + key;
+        this.redisTemplate.opsForValue().setIfAbsent(lockKey, "lock");
     }
 }

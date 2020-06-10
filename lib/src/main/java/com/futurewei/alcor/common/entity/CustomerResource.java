@@ -22,13 +22,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class CustomerResource implements Serializable {
+public class CustomerResource extends Resource {
 
     @JsonProperty("project_id")
     private String projectId;
-
-    @JsonProperty("id")
-    private String id;
 
     @JsonProperty("name")
     private String name;
@@ -37,16 +34,15 @@ public class CustomerResource implements Serializable {
     private String description;
 
     public CustomerResource() {
-
     }
 
     public CustomerResource(CustomerResource state) {
-        this(state.projectId, state.id, state.name, state.description);
+        this(state.projectId, state.getId(), state.name, state.description);
     }
 
     public CustomerResource(String projectId, String id, String name, String description) {
+        super(id);
         this.projectId = projectId;
-        this.id = id;
         this.name = name;
         this.description = description;
     }
@@ -57,14 +53,6 @@ public class CustomerResource implements Serializable {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getName() {
