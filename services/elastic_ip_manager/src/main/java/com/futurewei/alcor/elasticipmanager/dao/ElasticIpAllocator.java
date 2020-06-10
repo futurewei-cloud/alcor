@@ -192,11 +192,7 @@ public class ElasticIpAllocator {
                 long start = Ipv4AddrUtil.ipv4ToLong(allocation.getStart());
                 long end = Ipv4AddrUtil.ipv4ToLong(allocation.getEnd());
 
-                long bucketSize = (end - start) + 1;
-                if (bucketSize > IPv4_ALLOCATION_DEVISOR) {
-                    bucketSize = IPv4_ALLOCATION_DEVISOR;
-                }
-                int offset = random.nextInt((int)bucketSize);
+                int offset = random.nextInt(IPv4_ALLOCATION_DEVISOR);
                 for (int i = offset; i < IPv4_ALLOCATION_DEVISOR; i++) {
                     ipAddress = tryAllocateOneIpv4Address(range.getId(), offset, start, end);
                     if (ipAddress != null) {
