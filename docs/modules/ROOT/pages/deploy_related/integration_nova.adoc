@@ -30,7 +30,9 @@ TBD
 
 == Integration Proposal
 
-TBD
+. Microservice APIs should support multi params query eg: show/list actions
+. Rename resource name in url path or add same resource name in url path
+. Support "field" params in api and response body should have the "field" params content
 
 == Test Plan
 
