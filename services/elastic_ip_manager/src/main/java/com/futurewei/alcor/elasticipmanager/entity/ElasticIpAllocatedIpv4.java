@@ -18,11 +18,8 @@ package com.futurewei.alcor.elasticipmanager.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.junit.Assert;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ElasticIpAllocatedIpv4 {
@@ -31,26 +28,21 @@ public class ElasticIpAllocatedIpv4 {
     private String rangeId;
 
     @JsonProperty("tail_id")
-    private int indexId;
+    private int tailId;
 
     @JsonProperty("allocated_ipv4_set")
     private Set<Long> allocatedIps;
 
-    @JsonProperty("available_ipv4_set")
-    private Set<Long> availableIps;
-
-    public ElasticIpAllocatedIpv4(String rangeId, int indexId) {
+    public ElasticIpAllocatedIpv4(String rangeId, int tailId) {
         this.rangeId = rangeId;
-        this.indexId = indexId;
+        this.tailId = tailId;
         this.allocatedIps = new HashSet<>();
-        this.availableIps = new HashSet<>();
     }
 
-    public ElasticIpAllocatedIpv4(String rangeId, int indexId, Set<Long> allocatedIps, Set<Long> availableIps) {
+    public ElasticIpAllocatedIpv4(String rangeId, int tailId, Set<Long> allocatedIps) {
         this.rangeId = rangeId;
-        this.indexId = indexId;
+        this.tailId = tailId;
         this.allocatedIps = allocatedIps;
-        this.availableIps = availableIps;
     }
 
     public String getRangeId() {
@@ -61,12 +53,12 @@ public class ElasticIpAllocatedIpv4 {
         this.rangeId = rangeId;
     }
 
-    public int getIndexId() {
-        return indexId;
+    public int getTailId() {
+        return tailId;
     }
 
-    public void setIndexId(int indexId) {
-        this.indexId = indexId;
+    public void setTailId(int tailId) {
+        this.tailId = tailId;
     }
 
     public Set<Long> getAllocatedIps() {
@@ -77,21 +69,12 @@ public class ElasticIpAllocatedIpv4 {
         this.allocatedIps = allocatedIps;
     }
 
-    public Set<Long> getAvailableIps() {
-        return availableIps;
-    }
-
-    public void setAvailableIps(Set<Long> availableIps) {
-        this.availableIps = availableIps;
-    }
-
     @Override
     public String toString() {
         return "ElasticIpAllocatedIpv4{" +
                 "rangeId='" + rangeId + '\'' +
-                ", indexId=" + indexId +
+                ", tailId=" + tailId +
                 ", allocatedIps=" + allocatedIps +
-                ", availableIps=" + availableIps +
                 '}';
     }
 }
