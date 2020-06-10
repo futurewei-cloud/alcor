@@ -15,11 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.common.db;
 
+import com.futurewei.alcor.common.db.ignite.IgniteCache;
 import com.futurewei.alcor.common.db.ignite.IgniteDistributedLock;
+import com.futurewei.alcor.common.db.redis.RedisCache;
 import com.futurewei.alcor.common.db.redis.RedisDistributedLock;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -31,24 +33,23 @@ public class DistributedLockFactory {
     @Autowired(required = false)
     private IgniteClient igniteClient;
 
-    @Value("${lock.try.interval}")
-    private int tryLockInterval;
-
-    @Value("${lock.expire.time}")
-    private int expireTime;
-
     @Autowired
     LettuceConnectionFactory lettuceConnectionFactory;
 
+    @Bean
+    CacheFactory cacheFactoryInstance() {
+        return new CacheFactory();
+    }
+
     private IDistributedLock getIgniteDistributedLock(String name) {
-        return new IgniteDistributedLock(igniteClient, name, tryLockInterval, expireTime);
+        return new IgniteDistributedLock(igniteClient, name);
     }
 
     public IDistributedLock getRedisDistributedLock(String name) {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(lettuceConnectionFactory);
 
-        return new RedisDistributedLock(template, name, tryLockInterval, expireTime);
+        return new RedisDistributedLock(template, name);
     }
 
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
