@@ -11,9 +11,9 @@
     <description>Alcor Controller Project</description>
 
     <properties>
-        <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
     </properties>
@@ -37,12 +37,12 @@
         <module>services/private_ip_manager</module>
         <module>services/port_manager</module>
         <module>services/node_manager</module>
-        <module>services/security_group_manager</module>
         <module>services/elastic_ip_manager</module>
     </modules>
     <packaging>pom</packaging>
 
     <dependencies>
+        <!-- Compile -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -69,8 +69,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -78,14 +78,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <generateBackupPoms>false</generateBackupPoms>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
