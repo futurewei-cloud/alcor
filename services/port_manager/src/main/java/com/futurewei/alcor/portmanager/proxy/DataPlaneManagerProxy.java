@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.rollback.CreateGoalStateRollback;
 import com.futurewei.alcor.portmanager.rollback.DeleteGoalStateRollback;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
 import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import java.util.Stack;
 
@@ -32,34 +33,34 @@ public class DataPlaneManagerProxy {
         this.rollbacks = rollbacks;
     }
 
-    public Goalstate.GoalState createGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.createGoalState(goalState);
+    public NetworkConfiguration createGoalState(Object arg) throws Exception {
+        NetworkConfiguration message = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.createGoalState(message);
 
         CreateGoalStateRollback rollback = new CreateGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.createGoalState(goalState);
+        rollback.createNetworkConfiguration(message);
         rollbacks.add(rollback);
 
-        return goalState;
+        return message;
     }
 
     public void deleteGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.deleteGoalState(goalState);
+        NetworkConfiguration message = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.deleteGoalState(message);
 
         DeleteGoalStateRollback rollback = new DeleteGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.createGoalState(goalState);
+        rollback.createNetworkConfiguration(message);
         rollbacks.add(rollback);
     }
 
-    public Goalstate.GoalState updateGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.updateGoalState(goalState);
+    public NetworkConfiguration updateGoalState(Object arg) throws Exception {
+        NetworkConfiguration message = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.updateGoalState(message);
 
         CreateGoalStateRollback rollback = new CreateGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.updateGoalState(goalState);
+        rollback.updateNetworkConfiguration(message);
         rollbacks.add(rollback);
 
-        return goalState;
+        return message;
     }
 }

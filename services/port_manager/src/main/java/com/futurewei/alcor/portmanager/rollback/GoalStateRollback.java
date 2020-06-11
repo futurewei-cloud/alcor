@@ -15,17 +15,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.rollback;
 
-import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GoalStateRollback implements Rollback {
     protected DataPlaneManagerRestClient dataPlaneManagerRestClient;
 
-    protected List<Goalstate.GoalState> createdGoalStates = new ArrayList<>();
-    protected List<Goalstate.GoalState> deletedGoalStates = new ArrayList<>();
-    protected List<Goalstate.GoalState> updatedGoalStates = new ArrayList<>();
+    protected List<NetworkConfiguration> createdNetworkConfigs = new ArrayList<>();
+    protected List<NetworkConfiguration> deletedNetworkConfigs = new ArrayList<>();
+    protected List<NetworkConfiguration> updatedNetworkConfigs = new ArrayList<>();
 
     public GoalStateRollback(DataPlaneManagerRestClient dataPlaneManagerRestClient) {
         this.dataPlaneManagerRestClient = dataPlaneManagerRestClient;
@@ -33,15 +34,15 @@ public abstract class GoalStateRollback implements Rollback {
 
     public abstract void doRollback() throws Exception;
 
-    public void createGoalState(Goalstate.GoalState goalState) {
-        createdGoalStates.add(goalState);
+    public void createNetworkConfiguration(NetworkConfiguration message) {
+        createdNetworkConfigs.add(message);
     }
 
-    public void deleteGoalState(Goalstate.GoalState goalState) {
-        deletedGoalStates.add(goalState);
+    public void deleteNetworkConfiguration(NetworkConfiguration message) {
+        deletedNetworkConfigs.add(message);
     }
 
-    public void updateGoalState(Goalstate.GoalState goalState) {
-        updatedGoalStates.add(goalState);
+    public void updateNetworkConfiguration(NetworkConfiguration message) {
+        updatedNetworkConfigs.add(message);
     }
 }

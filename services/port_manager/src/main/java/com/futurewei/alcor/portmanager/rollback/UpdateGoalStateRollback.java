@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.rollback;
 
-import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 
 public class UpdateGoalStateRollback extends GoalStateRollback {
@@ -26,8 +26,8 @@ public class UpdateGoalStateRollback extends GoalStateRollback {
 
     @Override
     public void doRollback() throws Exception {
-        for (Goalstate.GoalState goalState: updatedGoalStates) {
-            dataPlaneManagerRestClient.updateGoalState(goalState);
+        for (NetworkConfiguration message: updatedNetworkConfigs) {
+            dataPlaneManagerRestClient.updateGoalState(message);
         }
     }
 }

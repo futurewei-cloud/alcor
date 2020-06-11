@@ -18,22 +18,57 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class NetworkConfiguration {
 
-  private Common.ResourceType rsType;
-  private Common.OperationType opType;
-  boolean allOrNone = true;
+    private Common.ResourceType rsType;
+    private Common.OperationType opType;
+    boolean allOrNone = true;
 
-  @JsonProperty("ports")
-  private InternalPortEntityNB[] portStates;
+    @JsonProperty("ports_internal")
+    private List<InternalPortEntity> portEntities;
 
-  @JsonProperty("vpcs")
-  private VpcEntity[] vpcs;
+    @JsonProperty("vpcs_internal")
+    private List<VpcEntity> vpcEntities;
 
-  @JsonProperty("subnets")
-  private InternalSubnetEntityNB[] subnets;
+    @JsonProperty("subnets_internal")
+    private List<InternalSubnetEntity> subnetEntities;
 
-  @JsonProperty("security_groups")
-  private SecurityGroupEntity[] securityGroupEntities;
+    @JsonProperty("security_groups_internal")
+    private List<SecurityGroupEntity> securityGroupEntities;
+
+    public void addPortEntity(InternalPortEntity portEntity) {
+        if (this.portEntities == null) {
+            this.portEntities = new ArrayList<>();
+        }
+
+        this.portEntities.add(portEntity);
+    }
+
+    public void addVpcEntity(VpcEntity vpcEntity) {
+        if (this.vpcEntities == null) {
+            this.vpcEntities = new ArrayList<>();
+        }
+
+        this.vpcEntities.add(vpcEntity);
+    }
+
+    public void addSubnetEntity(InternalSubnetEntity subnetEntity) {
+        if (this.subnetEntities == null) {
+            this.subnetEntities = new ArrayList<>();
+        }
+
+        this.subnetEntities.add(subnetEntity);
+    }
+
+    public void addSecurityGroupEntity(SecurityGroupEntity securityGroupEntity) {
+        if (this.securityGroupEntities == null) {
+            this.securityGroupEntities = new ArrayList<>();
+        }
+
+        this.securityGroupEntities.add(securityGroupEntity);
+    }
 }

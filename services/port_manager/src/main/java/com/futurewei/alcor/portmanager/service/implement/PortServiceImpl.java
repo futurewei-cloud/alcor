@@ -22,7 +22,9 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.GoalStateUtil;
+import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
 import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +148,7 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-            createPortAsync(portEntity, executor, rollbacks);
+            this.createPortAsync(portEntity, executor, rollbacks);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
@@ -154,9 +156,10 @@ public class PortServiceImpl implements PortService {
 
             //Build GoalState and Send it to DPM
             if (portEntity.getBindingHostId() != null) {
-                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
+                NetworkConfiguration netwConfigMessage = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+//                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-                dataPlaneManagerProxy.createGoalState(goalState);
+                dataPlaneManagerProxy.createGoalState(netwConfigMessage);
             }
 
             //Persist portEntity
@@ -479,7 +482,7 @@ public class PortServiceImpl implements PortService {
 
             boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
             if (needNotifyDpm) {
-                getPortDependentResources(oldPortEntity, executor);
+                this.getPortDependentResources(oldPortEntity, executor);
             }
 
             //Wait for all async functions to finish
@@ -532,7 +535,7 @@ public class PortServiceImpl implements PortService {
                 boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
                 if (needNotifyDpm) {
                     portEntities.add(oldPortEntity);
-                    getPortDependentResources(oldPortEntity, executor);
+                    this.getPortDependentResources(oldPortEntity, executor);
                 }
             }
 
@@ -594,7 +597,7 @@ public class PortServiceImpl implements PortService {
             }
 
             //Get port dependent resources
-            getPortDependentResources(portEntity, executor);
+            this.getPortDependentResources(portEntity, executor);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();

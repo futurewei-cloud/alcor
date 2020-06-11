@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 
@@ -23,17 +24,17 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @Value("${microservices.dataplane.service.url:#{\"\"}}")
     private String dataPlaneManagerUrl;
 
-    public void createGoalState(Goalstate.GoalState goalState) throws Exception {
-        HttpEntity<Goalstate.GoalState> request = new HttpEntity<>(goalState);
+    public void createGoalState(NetworkConfiguration message) throws Exception {
+        HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.postForObject(dataPlaneManagerUrl, request, String[].class);
     }
 
-    public void deleteGoalState(Goalstate.GoalState goalState) throws Exception {
+    public void deleteGoalState(NetworkConfiguration message) throws Exception {
         //FIXME: Not support yet
     }
 
-    public void updateGoalState(Goalstate.GoalState goalState) throws Exception {
-        HttpEntity<Goalstate.GoalState> request = new HttpEntity<>(goalState);
+    public void updateGoalState(NetworkConfiguration message) throws Exception {
+        HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);
     }
 }

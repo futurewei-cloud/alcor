@@ -22,7 +22,9 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import sun.security.provider.Sun;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -154,7 +156,15 @@ public class SubnetEntity extends CustomerResource {
         this.routeEntities = routeEntities;
     }
 
-    public SubnetEntity(String projectId, String id, String name, String description, String vpcId, String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns, String secondaryDns, List<RouteEntity> routeEntities, String gatewayMacAddress, List<String> dnsList, Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny, String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetEntity(String projectId, String id, String name, String description, String vpcId,
+                        String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns,
+                        String secondaryDns, List<RouteEntity> routeEntities, String gatewayMacAddress, List<String> dnsList,
+                        Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode,
+                        Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey,
+                        String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny,
+                        String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools,
+                        List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at,
+                        String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;
@@ -163,9 +173,9 @@ public class SubnetEntity extends CustomerResource {
         this.dhcpEnable = dhcpEnable;
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
-        this.routeEntities = routeEntities;
+        this.routeEntities = new ArrayList<>(routeEntities);
         this.gatewayMacAddress = gatewayMacAddress;
-        this.dnsList = dnsList;
+        this.dnsList = new ArrayList<>(dnsList);
         this.ipVersion = ipVersion;
         this.ipV4RangeId = ipV4RangeId;
         this.ipV6RangeId = ipV6RangeId;
@@ -179,19 +189,30 @@ public class SubnetEntity extends CustomerResource {
         this.tenantId = tenantId;
         this.subnetpoolId = subnetpoolId;
         this.dnsPublishFixedIp = dnsPublishFixedIp;
-        this.tags = tags;
+        this.tags = new ArrayList<>(tags);
         this.tagsAny = tagsAny;
         this.notTags = notTags;
         this.notTagsAny = notTagsAny;
         this.fields = fields;
-        this.dnsNameservers = dnsNameservers;
-        this.allocationPools = allocationPools;
-        this.hostRoutes = hostRoutes;
+        this.dnsNameservers = new ArrayList<>(dnsNameservers);
+        this.allocationPools = new ArrayList<>(allocationPools);
+        this.hostRoutes = new ArrayList<>(hostRoutes);
         this.prefixlen = prefixlen;
         this.useDefaultSubnetpool = useDefaultSubnetpool;
-        this.serviceTypes = serviceTypes;
+        this.serviceTypes = new ArrayList<>(serviceTypes);
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
 
+    public SubnetEntity(SubnetEntity subnetEntity) {
+        this(subnetEntity.getProjectId(), subnetEntity.getId(), subnetEntity.getName(), subnetEntity.getDescription(), subnetEntity.getVpcId(),
+                subnetEntity.getCidr(), subnetEntity.getAvailabilityZone(), subnetEntity.getGatewayIp(), subnetEntity.getDhcpEnable(), subnetEntity.getPrimaryDns(),
+                subnetEntity.getSecondaryDns(), subnetEntity.getRouteEntities(), subnetEntity.getGatewayMacAddress(), subnetEntity.getDnsList(),
+                subnetEntity.getIpVersion(), subnetEntity.getIpV4RangeId(), subnetEntity.getIpV6RangeId(), subnetEntity.getIpv6AddressMode(), subnetEntity.getIpv6RaMode(),
+                subnetEntity.getRevisionNumber(), subnetEntity.getSegmentId(), subnetEntity.getShared(), subnetEntity.getSortDir(), subnetEntity.getSortKey(),
+                subnetEntity.getTenantId(), subnetEntity.getSubnetpoolId(), subnetEntity.dnsPublishFixedIp, subnetEntity.getTags(), subnetEntity.getTagsAny(),
+                subnetEntity.getNotTags(), subnetEntity.getNotTagsAny(), subnetEntity.getFields(), subnetEntity.getDnsNameservers(), subnetEntity.getAllocationPools(),
+                subnetEntity.getHostRoutes(), subnetEntity.getPrefixlen(), subnetEntity.useDefaultSubnetpool, subnetEntity.getServiceTypes(), subnetEntity.getCreated_at(),
+                subnetEntity.getUpdated_at());
+    }
 }

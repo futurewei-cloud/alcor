@@ -15,24 +15,27 @@ package com.futurewei.alcor.web.entity.dataplane;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Data
-public class InternalPortEntityNB extends PortEntity {
+public class InternalPortEntity extends PortEntity {
 
-  @JsonProperty("routes")
-  private List<RouteEntity> routes;
+    @JsonProperty("routes")
+    private List<RouteEntity> routes;
 
-  @JsonProperty("neighbor_info")
-  private List<NeighborInfo> neighborIps;
+    @JsonProperty("neighbor_info")
+    private List<NeighborInfo> neighborInfos;
 
-  @JsonProperty("binding_host_ip")
-  private String bindingHostIP;
+    @JsonProperty("binding_host_ip")
+    private String bindingHostIP;
 
-  private Set<InternalSubnetEntityNB> subnetEntities;
-  private Set<VpcEntity> vpcEntities;
+    public InternalPortEntity(PortEntity portEntity, List<RouteEntity> routeEntities, List<NeighborInfo> neighborInfos, String bindingHostIP) {
+        super(portEntity);
+        this.routes = new ArrayList<>(routeEntities);
+        this.neighborInfos = new ArrayList<>(neighborInfos);
+        this.bindingHostIP = bindingHostIP;
+    }
 }
