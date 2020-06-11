@@ -221,8 +221,8 @@ public class GoalStateUtil {
         portConfigBuilder.setMacAddress(portEntity.getMacAddress());
 
         for (FixedIp fixedIp: portEntity.getFixedIps()) {
-            Port.PortConfiguration.FixedIp.Builder fixedIpsBuilder =
-                    Port.PortConfiguration.FixedIp.newBuilder();
+            PortConfiguration.FixedIp.Builder fixedIpsBuilder =
+                    PortConfiguration.FixedIp.newBuilder();
 
             fixedIpsBuilder.setSubnetId(fixedIp.getSubnetId());
             fixedIpsBuilder.setIpAddress(fixedIp.getIpAddress());

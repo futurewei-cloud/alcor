@@ -14,7 +14,7 @@ package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
@@ -35,5 +35,5 @@ public class NetworkConfiguration {
   private InternalSubnetEntityNB[] subnets;
 
   @JsonProperty("security_groups")
-  private SecurityGroupEntity[] securityGroupEntities;
+  private SecurityGroup[] securityGroups;
 }

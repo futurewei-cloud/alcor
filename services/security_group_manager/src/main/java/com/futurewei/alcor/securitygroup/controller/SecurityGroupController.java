@@ -24,59 +24,14 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.util.StringUtils;
-
 import java.util.List;
+import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
 
 @RestController
 public class SecurityGroupController {
 
     @Autowired
     private SecurityGroupService securityGroupService;
-
-    private void checkProjectId(String projectId) throws ProjectIdRequired {
-        if (StringUtils.isEmpty(projectId)) {
-            throw new ProjectIdRequired();
-        }
-    }
-
-    private void checkTenantId(String tenantId) throws TenantIdRequired {
-        if (StringUtils.isEmpty(tenantId)) {
-            throw new TenantIdRequired();
-        }
-    }
-
-    private void checkSecurityGroup(SecurityGroupJson securityGroupJson) throws SecurityGroupRequired {
-        if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
-            throw new SecurityGroupRequired();
-        }
-    }
-
-    private void checkSecurityGroupId(String securityGroupId) throws SecurityGroupIdRequired {
-        if (StringUtils.isEmpty(securityGroupId)) {
-            throw new SecurityGroupIdRequired();
-        }
-    }
-
-    private void checkPortId(String portId) throws PortIdRequired {
-        if (StringUtils.isEmpty(portId)) {
-            throw new PortIdRequired();
-        }
-    }
-
-    private void checkPortSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws PortSecurityGroupsRequired {
-        if (portSecurityGroupsJson == null || portSecurityGroupsJson.getSecurityGroups() == null) {
-            throw new PortSecurityGroupsRequired();
-        }
-    }
-
-    private void checkSecurityGroups(SecurityGroupBulkJson securityGroupBulkJson) throws SecurityGroupsRequired {
-        if (securityGroupBulkJson == null ||
-                securityGroupBulkJson.getSecurityGroups() == null ||
-                securityGroupBulkJson.getSecurityGroups().size() == 0) {
-            throw new SecurityGroupsRequired();
-        }
-    }
 
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
@@ -161,7 +116,6 @@ public class SecurityGroupController {
 
     private void checkPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         checkProjectId(projectId);
-        checkPortSecurityGroups(portSecurityGroupsJson);
         checkPortId(portSecurityGroupsJson.getPortId());
 
         for (String securityGroupId: portSecurityGroupsJson.getSecurityGroups()) {
