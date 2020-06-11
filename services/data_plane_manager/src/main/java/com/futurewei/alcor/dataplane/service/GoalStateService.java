@@ -17,8 +17,10 @@ package com.futurewei.alcor.dataplane.service;
 
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+@Service
 public interface GoalStateService {
 
     List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>

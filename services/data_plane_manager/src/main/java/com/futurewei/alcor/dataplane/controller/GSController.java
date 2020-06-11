@@ -17,7 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.dataplane.config.Config;
-import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
+import com.futurewei.alcor.dataplane.utils.GoalStateManager;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultNB;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
@@ -26,14 +26,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class GSController {
   @Autowired
   private Config config;
+  @Autowired
+  private GoalStateManager goalStateManager;
+
   /**
    * Accept north bound calls then transfer to ACA calls in southbound
    *
@@ -134,12 +135,12 @@ public class GSController {
 
   private List<InternalDPMResultNB> service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
-    GoalStateUtil goalStateUtil = new GoalStateUtil();
+//    GoalStateManager goalStateManager = new GoalStateManager();
     List<InternalDPMResultNB> result= new ArrayList<>();
     // leave isFast as true since SB GSinfo does not have fastpath attr
-     goalStateUtil
+     goalStateManager
         .talkToACA(
-            goalStateUtil.transformNorthToSouth(gs),
+            goalStateManager.transformNorthToSouth(gs),
             true,
             Integer.parseInt(config.getPort()),
             Boolean.valueOf(config.getOvs()))

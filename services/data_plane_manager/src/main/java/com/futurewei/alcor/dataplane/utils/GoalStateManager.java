@@ -28,6 +28,8 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -37,10 +39,14 @@ import java.util.stream.Collectors;
 
 import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
-public class GoalStateUtil {
-  private static final Logger LOG = LoggerFactory.getLogger(GoalStateUtil.class);
+@Component
+public class GoalStateManager {
+  private static final Logger LOG = LoggerFactory.getLogger(GoalStateManager.class);
+  @Autowired
+  private GoalStateService goalStateService ;
 
-  public Map<String, Goalstate.GoalState> transformNorthToSouth(
+
+    public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) {
     com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB[] portStatesArr =
         networkConfiguration.getPortStates();
@@ -260,8 +266,7 @@ public class GoalStateUtil {
           .map(
               e -> {
                 return executorService.submit(
-                    () -> {
-                      GoalStateService goalStateService = new OVSGoalStateServiceImpl();
+                    () -> { goalStateService = new OVSGoalStateServiceImpl();
                       goalStateService.setIp(e.getKey());
                       goalStateService.setGoalState(e.getValue());
                       goalStateService.setFastPath(isFast);
