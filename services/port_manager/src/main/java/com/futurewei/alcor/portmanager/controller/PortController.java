@@ -45,9 +45,9 @@ public class PortController {
     }
 
     private void checkFixedIps(PortEntity portEntity) throws Exception {
-        List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
+        List<FixedIp> fixedIps = portEntity.getFixedIps();
         if (fixedIps != null) {
-            for (PortEntity.FixedIp fixedIp: fixedIps) {
+            for (FixedIp fixedIp: fixedIps) {
                 if (!Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
                         && !Ipv6AddrUtil.formatCheck(fixedIp.getIpAddress()) ) {
                     throw new FixedIpsInvalid();

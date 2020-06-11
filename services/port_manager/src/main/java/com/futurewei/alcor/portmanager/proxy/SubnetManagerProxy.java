@@ -18,6 +18,7 @@ package com.futurewei.alcor.portmanager.proxy;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetSubnetEntityException;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
@@ -36,7 +37,7 @@ public class SubnetManagerProxy {
     }
 
     public SubnetEntity getSubnetEntity(Object args) throws Exception {
-        PortEntity.FixedIp fixedIp = (PortEntity.FixedIp)args;
+        FixedIp fixedIp = (FixedIp)args;
 
         SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(projectId, fixedIp.getSubnetId());
         if (subnetWebJson == null || subnetWebJson.getSubnet() == null) {

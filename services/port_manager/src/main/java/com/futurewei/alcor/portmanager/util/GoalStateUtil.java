@@ -18,6 +18,7 @@ package com.futurewei.alcor.portmanager.util;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleEntity;
@@ -215,7 +216,7 @@ public class GoalStateUtil {
         portConfigBuilder.setVpcId(portEntity.getVpcId());
         portConfigBuilder.setMacAddress(portEntity.getMacAddress());
 
-        for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
+        for (FixedIp fixedIp: portEntity.getFixedIps()) {
             Port.PortConfiguration.FixedIp.Builder fixedIpsBuilder =
                     Port.PortConfiguration.FixedIp.newBuilder();
 
@@ -309,7 +310,7 @@ public class GoalStateUtil {
             }
 
             //Build SubnetState
-            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
+            for (FixedIp fixedIp: portEntity.getFixedIps()) {
                 String subnetId = fixedIp.getSubnetId();
                 SubnetEntity subnetEntity = subnetEntityMap.get(subnetId);
                 if (subnetEntity == null) {

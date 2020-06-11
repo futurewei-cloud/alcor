@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.QueryFilter;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
@@ -89,6 +90,20 @@ public class IgniteCache<K, V> implements ICache<K, V> {
 
     @Override
     public Map<K, V> getAll() throws CacheException {
+        Query<Cache.Entry<K, V>> qry = new ScanQuery<K, V>();
+
+        try {
+            QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
+            return cur.getAll().stream().collect(Collectors
+                    .toMap(Cache.Entry::getKey, Cache.Entry::getValue));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "IgniteCache getAll operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<K, V> getAll(QueryFilter queryFilter) throws CacheException {
         Query<Cache.Entry<K, V>> qry = new ScanQuery<K, V>();
 
         try {
