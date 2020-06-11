@@ -37,7 +37,6 @@
         <module>services/private_ip_manager</module>
         <module>services/port_manager</module>
         <module>services/node_manager</module>
-        <module>services/elastic_ip_manager</module>
     </modules>
     <packaging>pom</packaging>
 
