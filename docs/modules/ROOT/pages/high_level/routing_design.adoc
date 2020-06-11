@@ -15,9 +15,9 @@ Picture of different routing components including router/DVR, FIP manager, SNAT 
 We need to supports:
 
 . fast port provision to enable VMs <-> VMs within the same or different subnet
-. scale to support 65,000 ports in a VPC, and 1,00,000 machines in region
 . fast migration of VMs
-. direct VM to VM communication (first packet may go through a gateway)
+. scale to support 65,000 ports in a VPC, and 1,00,000 machines in a region
+. direct VM to VM communication (first packet may go through a gateway or DVR)
 
 
 == Current Openstack pain points
@@ -48,7 +48,7 @@ iptables vs openflow
 
 Need numbers to justify the adventage.
 
-[Eric/James] is looking at how dragonflow use openflow. Can we have James to write a standalone app to act as router using openflow?
+[Eric/James] is looking at how dragonflow use openflow. Can we write a standalone POC app to act as router using openflow?
 
 
 == Customer Workflow
@@ -68,7 +68,7 @@ Picture of how our controller/network/compute node looks like.
 
 == Packet flows without DVR
 
-=== Case 1: East-west for instances on different networks
+=== Case 1: East-west for instances on different compute hosts on different networks
 
 Project network 1
 
@@ -93,7 +93,7 @@ In Compute Node 1
 
 . Instance 1 sends a packet to instance 2
 . Instance 1 tab interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
-. OVS br-int adds internal tag for project network 1
+. br-int adds VLAN tag for project network 1
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to network node via the tunnel interface
@@ -101,12 +101,12 @@ In Compute Node 1
 In Network Node
 
 . For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds internal tag for project network 1
+. br-tun unwraps the packet and adds VLAN tag for project network 1
 . br-tun forwards the packet to br-int
-. br-int forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. br-int removes the VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
 . qrouter namespace routes packet to qr-2 which contains project network 2 gateway IP 192.168.2.1 with MAC_G2
 . qrouter namespace forwards the packet to br-int
-. br-int adds the internal tag for project network 2
+. br-int adds the VLAN tag for project network 2
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to compute node 2 via the tunnel interface
@@ -116,10 +116,9 @@ In Network Node
 In Compute Node 2
 
 . For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds internal tag for project network 2
+. br-tun unwraps the packet and adds VLAN tag for project network 2
 . br-tun forwards the packet to br-int
 . br-int forwards the packet to tap inetrface on instance 2
-
 
 === Case 2: North-south for instances with a fixed IP address
 
@@ -142,7 +141,7 @@ In Compute Node 1
 
 . Instance 1 sends a packet to an external host
 . Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
-. br-int adds internal tag for project network 1
+. br-int adds VLAN tag for project network 1
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to network node via the tunnel interface
@@ -150,15 +149,17 @@ In Compute Node 1
 In Network Node
 
 . For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds internal tag for project network 1
+. br-tun unwraps the packet and adds VLAN tag for project network 1
 . br-tun forwards the packet to br-int
-. br-int forward the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
-. iptable service perform SNAT on the packet using qg interface as the source IP, qg contains external network router interface 10.213.0.101
+. br-int removes VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. iptable service perform SNAT on the packet using qg interface as the source IP, qg contains external network router interface 10.213.0.101, and send it to the gateway IP on the provider network
 . qrouter namespace forwards the packet to br-int via qg
-. br-int forwards the packet to br-ex
-. br-ex forwards the packet to external network via the external interface
+. br-int adds VLAN tag and forwards the packet to br-ex
+. br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
 
 [Eric/James] need to move from using qrouter namespace to openflow table
+
+Note: Return traffic follows similar steps in reverse.
 
 === Case 3: North-south for instances with a floating IP address
 
@@ -183,12 +184,11 @@ In Network Node
 
 . an external host sends a packet to instance 1 using its floating IP 10.213.0.102
 . external interface forwards the packet to br-ex
-. br-ex forwards the packet to br-int
+. br-ex swaps actual VLAN tag with internal VLAN tag, and forwards the packet to br-int
 . br-int forwards the packet to qg in qrouter namespace, since qg contains instance 1 floating IP 10.213.0.102
 . iptable service perform DNAT on the packet with instance 1 fixed IP 192.168.1.11  
-. [Eric] why DNAT? need to confirm the above
 . qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
-. br-int adds the internal tag for project network 1
+. br-int adds the VLAN tag for project network 1
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to compute node 1 via the tunnel interface
@@ -198,18 +198,158 @@ In Network Node
 In Compute Node 1
 
 . For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds internal tag for project network 1
+. br-tun unwraps the packet and adds VLAN tag for project network 1
 . br-tun forwards the packet to br-int
-. br-int forwards the packet to tap inetrface on instance 1
+. br-int forwards the packet to tap interface on instance 1
+
+Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instnace to external network.
+
+
+== Why DVR?
+
+Before DVR, Neutron router has the following major issues:
+
+1. VM to VM with different subnets need to go through router in the network node.
+2. Even VMs hosted on the same compute node needs to route through the virtual router if they belongs to different subnet.
+3. All north-south traffic needs to route through the virtual router in the network node.
+4. The virtual router in network node has become the bottleneck, and also single point of failure.
+
+With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed all most of the issues above. Although it comes at a cost of code and provision complexity.
 
 
 == Packet flow DVR
 
-=== Case 1: East-west for instances on different networks
+=== Case 1: East-west for instances on different compute hosts on different networks
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+
+Project network 2
+
+* Network: 192.168.2.0/24
+* Gateway: 192.168.2.1 with MAC address MAC_G2
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1
+
+Compute node 2
+
+* Instance 2: 192.168.2.11 using project network 2
+
+In Compute Node 1
+
+. Instance 1 sends a packet to instance 2
+. Instance 1 tab interface forwards packet to br-int. The packet contains its gateway destination mac MAC_G1 because the destination resides on another network
+. br-int adds VLAN tag for project network 1
+. br-int removes the VLAN tag and forwards the packet to its gateway mac MAC_G1 in DVR namespace
+. DVR routes the packet to project network 2
+. project network 2 interface 192.168.2.1 in DVR namespace forwards the packet to br-int
+. br-int adds VLAN tag for project network 2
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 2
+. br-tun forwards the packet to compute node 2 via the tunnel interface
+
+[Eric/James] need to figure out how to do #5, #6 using openflow table and ACA application
+
+In Compute Node 2
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 2
+. br-tun forwards the packet to br-int
+. br-int forwards the packet to tap inetrface on instance 2
 
 === Case 2: North-south for instances with a fixed IP address
 
+External network
+
+* Network: 10.213.0.0/24
+* IP allocation 10.213.0.101 to 10.213.0.200
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+* SNAT interface: 192.168.1.3 SNAT interface on network node, with external IP 10.213.0.102
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1
+
+In Compute Node 1
+
+. Instance 1 sends a packet to an external host
+. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
+. br-int adds VLAN tag for project network 1
+. br-int removes the VLAN tag and forwards the packet to its gateway mac MAC_G1 in DVR namespace
+. DVR routes the packet to the ip of SNAT namespace in the network node
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
+. br-tun forwards the packet to network node via the tunnel interface
+
+In Network Node
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 1
+. br-tun forwards the packet to br-int
+. br-int removes VLAN tag and forwards the packet to SNAT namespace
+. iptable service perform SNAT on the packet using its interface as the source IP
+. SNAT namespace routes the packets to provider networks default gw, and forwards the packet to br-int
+. br-int adds VLAN tag and forwards the packet to br-ex
+. br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
+
+[Eric/James] need to move from using qrouter namespace to openflow table
+
+Note: Return traffic follows similar steps in reverse
+
 === Case 3: North-south for instances with a floating IP address
+
+External network
+
+* Network: 10.213.0.0/24
+* IP allocation 10.213.0.101 to 10.213.0.200
+* Network router interface 10.213.0.101
+
+[Eric] how can external traffic can be routed to 10.213.0.101 even for floating IP 10.213.0.102?
+[answer] FIP namespace does proxy arp to response to any arp request for any floating IP addresses including 10.213.0.102.
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1, and floating IP 10.213.0.102
+
+In Compute Node 1
+
+. an external host sends a packet to instance 1 using its floating IP 10.213.0.102
+. external interface forwards the packet to br-ex
+. br-ex swaps actual VLAN tag with internal VLAN tag, and forwards the packet to br-int
+. br-int removes VLAN tag and forwards the packet FIP namespace, this interface responds to any ARP requests for the instance floating IPv4 address
+. FIP namespace routes the packet to DVR namespace to qg in qrouter namespace, since qg contains instance 1 floating IP 10.213.0.102
+. iptable service perform DNAT on the packet from instance 1 floating IP 192.168.1.11 to fixed IP 192.168.1.11, using the destination mac of instance 1
+. qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. br-int adds the VLAN tag for project network 1, and forwards the packet to tap interface on instance 1
+
+[Eric/James] need to move from using qrouter namespace to openflow table
+
+Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instnace to external network. Below is the complete flow:
+
+In Compute Node 1
+
+. Instance 1 sends a packet to an external host
+. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
+. br-int adds VLAN tag for project network 1, and sends to packet to DVR namespace which contains mac MAC_G1
+. iptable service perform SNAT on the packet from instance 1 fixed IP 192.168.1.11 to 10.213.0.102
+. DVR namespace routes the packet to FIP namespace via a direct veth pair
+. FIP namespace routes the packet to 10.213.0.1, which is the default gw for provider network, sends it to br-int
+. br-int switches the traffic to br-ex
+. br-ex internal VLAN tag is stripped and replaced with actual VLAN tag used in provider network
+
 
 
 == Gateway port
@@ -248,4 +388,6 @@ James: BTW, for same network, does neutron pre-configure all the tunnel VTEP on 
 [bibliography]
 == References
 
-- [[[neutron-flows,1]]] https://docs.openstack.org/liberty/networking-guide/scenario-classic-ovs.html
+- [[[neutron-flows,1]]] https://docs.openstack.org/neutron/train/admin/deploy-ovs-selfservice.html
+- [[[neutron-flows-old,2]]] https://docs.openstack.org/liberty/networking-guide/scenario-classic-ovs.html
+- [[[neutron-dvr,3]]] https://docs.openstack.org/neutron/train/admin/deploy-ovs-ha-dvr.html
