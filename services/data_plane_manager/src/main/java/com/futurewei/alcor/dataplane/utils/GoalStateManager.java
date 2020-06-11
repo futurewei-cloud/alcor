@@ -196,6 +196,10 @@ public class GoalStateManager {
                                     .build();
 
                           subnetStateSet.add(subnetState);
+                          if (!(networkConfiguration.getOpType().equals(Common.OperationType.CREATE)
+                              && networkConfiguration
+                                  .getRsType()
+                                  .equals(Common.ResourceType.PORT))) {
                             // lookup vpc entity
                             final VpcEntity vpcEntity = vpcMap.get(subnetEntity1.getVpcId());
                             Vpc.VpcConfiguration vpcConfiguration =
@@ -212,6 +216,7 @@ public class GoalStateManager {
                                     .setOperationType(Common.OperationType.CREATE)
                                     .build();
                             vpcStateSet.add(vpcState);
+                          }
                         }
                       });
               // leave a dummy sg value since for now there is no impl for sg
