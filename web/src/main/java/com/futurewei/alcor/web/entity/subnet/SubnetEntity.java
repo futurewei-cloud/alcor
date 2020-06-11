@@ -22,7 +22,6 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import sun.security.provider.Sun;
 
 import java.util.ArrayList;
 import java.util.List;
