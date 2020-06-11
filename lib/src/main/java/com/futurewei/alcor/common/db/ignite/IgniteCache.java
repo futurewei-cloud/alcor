@@ -16,21 +16,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db.ignite;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.QueryFilter;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.client.ClientCache;
+import org.apache.ignite.client.ClientCacheConfiguration;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.util.Assert;
 
 import javax.cache.Cache;
+import javax.cache.expiry.ExpiryPolicy;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -48,14 +50,33 @@ public class IgniteCache<K, V> implements ICache<K, V> {
         try {
             cache = igniteClient.getOrCreateCache(name);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for vpc failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
         transaction = new IgniteTransaction(igniteClient);
 
-        Assert.notNull(igniteClient, "Create cache for vpc failed");
+        Assert.notNull(igniteClient, "Create cache for client " + name + "failed");
+    }
+
+    public IgniteCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
+        this.igniteClient = igniteClient;
+
+        try {
+            ClientCacheConfiguration cfg = new ClientCacheConfiguration();
+            cfg.setName(name);
+            cfg.setExpiryPolicy(ep);
+            cache = igniteClient.getOrCreateCache(cfg);
+        } catch (ClientException e) {
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        transaction = new IgniteTransaction(igniteClient);
+
+        Assert.notNull(igniteClient, "Create cache for client" + name + "failed");
     }
 
     @Override
@@ -90,7 +111,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
 
     @Override
     public Map<K, V> getAll() throws CacheException {
-        Query<Cache.Entry<K, V>> qry = new ScanQuery<K, V>();
+        Query<Cache.Entry<K, V>> qry = new ScanQuery<>();
 
         try {
             QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
