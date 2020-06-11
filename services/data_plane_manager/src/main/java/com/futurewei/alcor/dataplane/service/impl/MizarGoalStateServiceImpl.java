@@ -25,12 +25,11 @@ public class MizarGoalStateServiceImpl implements GoalStateService {
     @Override
     public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
     SendGoalStateToHosts() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setGoalState(Goalstate.GoalState goalState) {
-
     }
 
     @Override
