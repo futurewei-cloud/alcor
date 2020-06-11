@@ -108,9 +108,4 @@ public class RedisCache<K, V> implements ICache<K, V> {
     public Transaction getTransaction() {
         return transaction;
     }
-
-    public void keyLock(String key) {
-        String lockKey = "lock:" + key;
-        this.redisTemplate.opsForValue().setIfAbsent(lockKey, "lock");
-    }
 }
