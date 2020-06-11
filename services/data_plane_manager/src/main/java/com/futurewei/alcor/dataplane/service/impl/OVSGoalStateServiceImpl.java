@@ -24,6 +24,8 @@ import com.futurewei.alcor.schema.Goalstateprovisioner;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class OVSGoalStateServiceImpl implements GoalStateService {
@@ -61,12 +63,14 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
 
   GoalStateProvisionerClient gRpcClientForEpHost = null;
   MessageClient kafkaClient = null;
+  ExecutorService executorService = Executors.newCachedThreadPool();
 
   @Override
   public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
       SendGoalStateToHosts() {
 
     if (isFastPath) {
+      System.out.println("#### " + Thread.currentThread() + " " + ip);
       return new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
     } else {
       String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;

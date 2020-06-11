@@ -19,10 +19,16 @@ package com.futurewei.alcor.dataplane.controller;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.utils.GoalStateUtil;
 import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultNB;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class GSController {
@@ -39,7 +45,7 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public String[] createPort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> createPort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
     return service(gs);
@@ -55,7 +61,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
-  public String[] updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
     return service(gs);
@@ -71,7 +77,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
-  public String[] deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
     return service(gs);
@@ -88,7 +94,7 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public String[] createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
@@ -104,7 +110,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
-  public String[] updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
@@ -120,19 +126,38 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
-  public String[] deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
   }
 
-  private synchronized String[] service(NetworkConfiguration gs) throws Exception {
+  private List<InternalDPMResultNB> service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     GoalStateUtil goalStateUtil = new GoalStateUtil();
+    List<InternalDPMResultNB> result= new ArrayList<>();
     // leave isFast as true since SB GSinfo does not have fastpath attr
-    return goalStateUtil
-        .talkToACA(goalStateUtil.transformNorthToSouth(gs), true,
-                Integer.parseInt(config.getPort()),Boolean.valueOf(config.getOvs()))
-        .toArray(new String[0]);
+     goalStateUtil
+        .talkToACA(
+            goalStateUtil.transformNorthToSouth(gs),
+            true,
+            Integer.parseInt(config.getPort()),
+            Boolean.valueOf(config.getOvs()))
+        .stream()
+        .forEach(
+            e -> {
+               e.stream()
+                  .map(
+                      f -> {
+                        return new InternalDPMResultNB(
+                            f.getResourceId(),
+                            f.getResourceType().toString(),
+                            f.getOperationStatus().toString(),
+                            f.getStateElapseTime());
+                      })
+                       //also we could flatmap here
+                  .forEach(result::add);
+            });
+     return result;
   }
 }

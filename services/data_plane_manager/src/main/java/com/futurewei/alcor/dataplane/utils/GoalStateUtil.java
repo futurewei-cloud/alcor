@@ -21,29 +21,34 @@ import com.futurewei.alcor.dataplane.service.impl.OVSGoalStateServiceImpl;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.schema.Port.PortState;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB;
+import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntityNB;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
-import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntityNB;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 public class GoalStateUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(GoalStateUtil.class);
 
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) {
     com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB[] portStatesArr =
         networkConfiguration.getPortStates();
-    InternalSubnetEntityNB[] subnetArr =
-        networkConfiguration.getSubnets();
+    InternalSubnetEntityNB[] subnetArr = networkConfiguration.getSubnets();
     com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr = networkConfiguration.getVpcs();
 
     // TODO need to refactor subnet and vpc part when logic is clear and integration done
-    Map<String, Set<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB>>
+    Map<String, List<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB>>
         mapGroupedByHostIp = new HashMap();
     Map<String, InternalSubnetEntityNB> subnetMap = new HashMap<>();
     Map<String, com.futurewei.alcor.web.entity.vpc.VpcEntity> vpcMap = new HashMap<>();
@@ -61,13 +66,13 @@ public class GoalStateUtil {
       String bindingHostIP = portEntityNB.getBindingHostIP();
       InternalPortEntityNB currentPortEntity = portStatesArr[portCounter];
       if (!mapGroupedByHostIp.containsKey(bindingHostIP)) {
-        Set<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB> portStates =
-            new HashSet<>();
+        List<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB> portStates =
+            new ArrayList<>();
         fillSubnetAndVpcToPort(subnetMap, vpcMap, currentPortEntity, portStates);
         portCounter++;
         mapGroupedByHostIp.put(bindingHostIP, portStates);
       } else {
-        Set<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB> portStates =
+        List<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB> portStates =
             mapGroupedByHostIp.get(bindingHostIP);
         fillSubnetAndVpcToPort(subnetMap, vpcMap, currentPortEntity, portStates);
         portCounter++;
@@ -83,7 +88,7 @@ public class GoalStateUtil {
               Set<PortState> portStateHashSet = new HashSet<>();
               Set<Subnet.SubnetState> subnetStateSet = new HashSet();
               Set<Vpc.VpcState> vpcStateSet = new HashSet();
-              final Set<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB>
+              final List<com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB>
                   internalPortEntityNBSet = f.getValue();
               internalPortEntityNBSet.stream()
                   .forEach(
@@ -114,6 +119,7 @@ public class GoalStateUtil {
                             Port.PortConfiguration.newBuilder()
                                 .setName(e.getName())
                                 .setProjectId(e.getProjectId())
+                                .setVpcId(e.getSubnetEntities().iterator().next().getVpcId())
                                 .setFormatVersion(1)
                                 .setAdminStateUp(true)
                                 .setMacAddress(e.getMacAddress())
@@ -121,36 +127,36 @@ public class GoalStateUtil {
                                 .addAllFixedIps(fixedIps)
                                 .buildPartial();
                         if (hostinfo != null) {
-                          for (Port.PortConfiguration.HostInfo h : hostinfo)
+                          for (Port.PortConfiguration.HostInfo h : hostinfo) {
                             portConfiguration =
                                 portConfiguration
                                     .toBuilder()
-                                    .setNetworkTypeValue(
-                                        Common.OperationType.NEIGHBOR_CREATE_UPDATE_VALUE)
+                                    .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
                                     .setHostInfo(h)
                                     .setId(h.getMacAddress())
                                     .setMessageTypeValue(Port.MessageType.DELTA_VALUE)
                                     .build();
-                          final PortState portStateSB =
-                              PortState.newBuilder().setConfiguration(portConfiguration)
-                              .setOperationTypeValue(Common.OperationType.NEIGHBOR_CREATE_UPDATE_VALUE)
-                                      .setOperationType(Common.OperationType.NEIGHBOR_CREATE_UPDATE)
-                                      .build();
-                          portStateHashSet.add(portStateSB);
+                            final PortState portStateSB =
+                                PortState.newBuilder()
+                                    .setConfiguration(portConfiguration)
+                                    .setOperationType(Common.OperationType.NEIGHBOR_CREATE_UPDATE)
+                                    .build();
+                            portStateHashSet.add(portStateSB);
+                          }
                         } else {
                           portConfiguration =
                               portConfiguration
                                   .toBuilder()
                                   .setId(e.getId())
-                                  .setNetworkTypeValue(Common.OperationType.CREATE_VALUE)
+                                  .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
                                   .setMessageTypeValue(Port.MessageType.FULL_VALUE)
                                   .build();
 
                           final PortState portStateSB =
-                              PortState.newBuilder().setConfiguration(portConfiguration)
-                              .setOperationTypeValue(Common.OperationType.CREATE_VALUE)
-                                      .setOperationType(Common.OperationType.CREATE)
-                                      .build();
+                              PortState.newBuilder()
+                                  .setConfiguration(portConfiguration)
+                                  .setOperationType(Common.OperationType.CREATE)
+                                  .build();
                           portStateHashSet.add(portStateSB);
                         }
 
@@ -161,32 +167,45 @@ public class GoalStateUtil {
                                   .setId(subnetEntity1.getId())
                                   .setVpcId(subnetEntity1.getVpcId())
                                   .setProjectId(e.getProjectId())
+                                  .setCidr(subnetEntity1.getCidr())
                                   .setFormatVersion(1)
                                   .setTunnelId(subnetEntity1.getTunnelId())
                                   .build();
                           Subnet.SubnetState subnetState =
                               Subnet.SubnetState.newBuilder()
-                                  .setConfiguration(subnetConfiguration).
-                            setOperationTypeValue(Common.OperationType.CREATE_VALUE)
+                                  .setConfiguration(subnetConfiguration)
+                                  .buildPartial();
+                          if (networkConfiguration.getOpType().equals(Common.OperationType.CREATE)
+                              && networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
+                            subnetState =
+                                subnetState
+                                    .toBuilder()
+                                    .setOperationType(Common.OperationType.INFO)
+                                    .build();
+                          else
+                            subnetState =
+                                subnetState
+                                    .toBuilder()
                                     .setOperationType(Common.OperationType.CREATE)
-                                  .build();
+                                    .build();
+
                           subnetStateSet.add(subnetState);
-                          // lookup vpc entity
-                          final VpcEntity vpcEntity = vpcMap.get(subnetEntity1.getVpcId());
-                          Vpc.VpcConfiguration vpcConfiguration =
-                              Vpc.VpcConfiguration.newBuilder()
-                                  .setId(vpcEntity.getId())
-                                  .setCidr(vpcEntity.getCidr())
-                                  .setFormatVersion(1)
-                                  .setRevisionNumber(1)
-                                  .build();
-                          Vpc.VpcState vpcState =
-                              Vpc.VpcState.newBuilder().
-                                      setConfiguration(vpcConfiguration).
-                                      setOperationTypeValue(Common.OperationType.CREATE_VALUE)
-                                  .setOperationType(Common.OperationType.CREATE).
-                                      build();
-                          vpcStateSet.add(vpcState);
+                            // lookup vpc entity
+                            final VpcEntity vpcEntity = vpcMap.get(subnetEntity1.getVpcId());
+                            Vpc.VpcConfiguration vpcConfiguration =
+                                Vpc.VpcConfiguration.newBuilder()
+                                    .setId(vpcEntity.getId())
+                                    .setCidr(vpcEntity.getCidr())
+                                    .setFormatVersion(1)
+                                    .setRevisionNumber(1)
+                                    .build();
+                            Vpc.VpcState vpcState =
+                                Vpc.VpcState.newBuilder()
+                                    .setConfiguration(vpcConfiguration)
+                                    .setOperationTypeValue(Common.OperationType.CREATE_VALUE)
+                                    .setOperationType(Common.OperationType.CREATE)
+                                    .build();
+                            vpcStateSet.add(vpcState);
                         }
                       });
               // leave a dummy sg value since for now there is no impl for sg
@@ -200,12 +219,12 @@ public class GoalStateUtil {
                   Goalstate.GoalState.newBuilder()
                       .addAllPortStates(portStateHashSet)
                       .addAllSubnetStates(subnetStateSet)
-                      .addAllVpcStates(vpcStateSet)
                       .addSecurityGroupStates(0, securityGroupState)
+                      //                          .addAllVpcStates(vpcStateSet)
                       .build();
               goalStateHashMap.put(f.getKey(), goalState);
             });
-
+    LOG.info(goalStateHashMap.entrySet().toString());
     return goalStateHashMap;
   }
 
@@ -213,7 +232,7 @@ public class GoalStateUtil {
       Map<String, InternalSubnetEntityNB> subnetMap,
       Map<String, VpcEntity> vpcMap,
       InternalPortEntityNB currentPortEntity,
-      Set<InternalPortEntityNB> portStates) {
+      List<InternalPortEntityNB> portStates) {
     Set<InternalSubnetEntityNB> subnetEntity1HashSet = new HashSet<>();
     Set<VpcEntity> vpcEntityHashSet = new HashSet<>();
 
@@ -229,22 +248,39 @@ public class GoalStateUtil {
     portStates.add(currentPortEntity);
   }
 
+  ExecutorService executorService = Executors.newCachedThreadPool();
+
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       talkToACA(Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
     if (isOvs) {
-      GoalStateService goalStateService = new OVSGoalStateServiceImpl();
+      List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result =
+          new ArrayList<>();
 
-      return gss.entrySet()
-          .parallelStream()
+      gss.entrySet().parallelStream()
           .map(
               e -> {
-                goalStateService.setIp(e.getKey());
-                goalStateService.setGoalState(e.getValue());
-                goalStateService.setFastPath(isFast);
-                goalStateService.setPort(port);
-                return goalStateService.SendGoalStateToHosts();
+                return executorService.submit(
+                    () -> {
+                      GoalStateService goalStateService = new OVSGoalStateServiceImpl();
+                      goalStateService.setIp(e.getKey());
+                      goalStateService.setGoalState(e.getValue());
+                      goalStateService.setFastPath(isFast);
+                      goalStateService.setPort(port);
+                      return goalStateService.SendGoalStateToHosts();
+                    });
               })
-          .collect(Collectors.toList());
+          .collect(Collectors.toList()).stream()
+          .forEach(
+              e -> {
+                try {
+                  result.add(e.get());
+                } catch (InterruptedException ex) {
+                  ex.printStackTrace();
+                } catch (ExecutionException ex) {
+                  ex.printStackTrace();
+                }
+              });
+      return result;
     }
     throw new RuntimeException("protocol other than ovs is not supported for now");
   }
