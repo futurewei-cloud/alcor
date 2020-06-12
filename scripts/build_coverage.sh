@@ -8,6 +8,7 @@ mvn compile
 cd ..
 cd ./web
 mvn compile
+cd ..
 
 echo "Build service one by one under services directory"
 cd services
