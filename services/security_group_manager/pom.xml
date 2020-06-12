@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>security-group-manager</artifactId>
+    <artifactId>securitygroupmanager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SecurityGroupManager</name>
+    <name>AlcorSecurityGroupManager</name>
     <description>Security Group Manager Module</description>
 
     <properties>
