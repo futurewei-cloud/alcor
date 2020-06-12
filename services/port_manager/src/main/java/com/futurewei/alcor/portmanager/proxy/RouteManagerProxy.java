@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.entity.PortBindingRoute;
 import com.futurewei.alcor.portmanager.exception.GetRouteEntityException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -34,18 +35,20 @@ public class RouteManagerProxy {
     }
 
     /**
-     * Verify if the vpc of vpcId exists
-     * @param args Subnet id
+     * Get Subnet route by subnet id
+     * @param arg1 Port id
+     * @param arg1 Subnet id
      * @return RouteEntity
      * @throws Exception Rest request exception
      */
-    public RouteEntity getRouteBySubnetId(Object args) throws Exception {
-        String subnetId = (String)args;
+    public PortBindingRoute getRouteBySubnetId(Object arg1, Object arg2) throws Exception {
+        String portId = (String)arg1;
+        String subnetId = (String)arg2;
         RouteWebJson routeWebJson = routeManagerRestClient.getRouteBySubnetId(subnetId);
         if (routeWebJson == null || routeWebJson.getRoute() == null) {
             throw new GetRouteEntityException();
         }
 
-        return routeWebJson.getRoute();
+        return new PortBindingRoute(portId, routeWebJson.getRoute());
     }
 }

@@ -105,28 +105,19 @@ public class MockRestClientAndRepository {
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
                 .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId1))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId1))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId2))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId2))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
 
         Map<String, PortEntity> portStates = new HashMap<>();
         portStates.put(UnitTestConfig.portId1, newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findAllItems())
+        Mockito.when(portRepository.findAllPortEntities())
                 .thenReturn(portStates);
 
-        Mockito.when(portDao.findPort(UnitTestConfig.portId1))
-                .thenReturn(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
-
-        Mockito.when(portDao.findPort(UnitTestConfig.portId2))
-                .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
-
-        List<PortEntity> portStateList = new ArrayList<>();
-        portStateList.add(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
-
-        Mockito.when(portDao.listPort())
-                .thenReturn(portStateList);
+        Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
+                .thenReturn(newPortNeighbors());
     }
 }

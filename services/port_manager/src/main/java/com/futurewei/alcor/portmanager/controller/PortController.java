@@ -105,25 +105,25 @@ public class PortController {
 
     private void checkPort(PortEntity portEntity) throws Exception {
         //Check mac address
-        checkMacAddress(portEntity);
+        this.checkMacAddress(portEntity);
 
         //Check FixedIps
-        checkFixedIps(portEntity);
+        this.checkFixedIps(portEntity);
 
         //Check binding profile
-        checkBindingProfile(portEntity);
+        this.checkBindingProfile(portEntity);
 
         //Check binding vif details
-        checkBindingVifDetails(portEntity);
+        this.checkBindingVifDetails(portEntity);
 
         //Check binding vif type
-        checkBindingVifType(portEntity);
+        this.checkBindingVifType(portEntity);
 
         //Check binding vif type
-        checkBindingVnicType(portEntity);
+        this.checkBindingVnicType(portEntity);
 
         //Check ip allocation
-        checkIpAllocation(portEntity);
+        this.checkIpAllocation(portEntity);
     }
 
     /**
@@ -146,7 +146,7 @@ public class PortController {
             throw new NetworkIdRequired();
         }
 
-        checkPort(portEntity);
+        this.checkPort(portEntity);
 
         return portService.createPort(projectId, portWebJson);
     }
@@ -167,7 +167,7 @@ public class PortController {
     public PortWebBulkJson createPortBulk(@PathVariable("project_id") String projectId,
                                              @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
-            checkPort(portEntity);
+            this.checkPort(portEntity);
         }
 
         return portService.createPortBulk(projectId, portWebBulkJson);
@@ -188,7 +188,7 @@ public class PortController {
     public PortWebJson updatePort(@PathVariable("project_id") String projectId,
                                            @PathVariable("port_id") String portId,
                                            @RequestBody PortWebJson portWebJson) throws Exception {
-        checkPort(portWebJson.getPortEntity());
+        this.checkPort(portWebJson.getPortEntity());
         return portService.updatePort(projectId, portId, portWebJson);
     }
 
@@ -206,7 +206,7 @@ public class PortController {
     public PortWebBulkJson updatePortBulk(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
-            checkPort(portEntity);
+            this.checkPort(portEntity);
         }
 
         return portService.updatePortBulk(projectId, portWebBulkJson);

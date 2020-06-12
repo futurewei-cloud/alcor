@@ -13,11 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
-public class InternalSubnetEntityNB extends SubnetEntity {
-    @JsonProperty("tunnel_id")
-    private Long tunnelId;
+public class InternalPortEntity extends PortEntity {
+
+    @JsonProperty("routes")
+    private List<RouteEntity> routes;
+
+    @JsonProperty("neighbor_info")
+    private List<NeighborInfo> neighborInfos;
+
+    @JsonProperty("binding_host_ip")
+    private String bindingHostIP;
+
+    public InternalPortEntity(PortEntity portEntity, List<RouteEntity> routeEntities, List<NeighborInfo> neighborInfos, String bindingHostIP) {
+        super(portEntity);
+        this.routes = routeEntities;
+        this.neighborInfos = neighborInfos;
+        this.bindingHostIP = bindingHostIP;
+    }
 }

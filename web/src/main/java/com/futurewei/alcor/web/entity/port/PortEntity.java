@@ -133,14 +133,10 @@ public class PortEntity {
     @JsonProperty("mac_learning_enabled")
     private boolean macLearningEnabled;
 
-    public PortEntity() {
-
-    }
-
-    public PortEntity(String id, String projectId, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String id, String name, String projectId, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         this.id = id;
-        this.projectId = projectId;
         this.name = name;
+        this.projectId = projectId;
         this.description = description;
         this.vpcId = vpcId;
         this.tenantId = tenantId;
@@ -177,12 +173,16 @@ public class PortEntity {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public String getId() {
-        return id;
-    }
+    public static List<FixedIp> convertToFixedIps(String[] vpcIps, String subnetId) {
 
-    public void setId(String id) {
-        this.id = id;
+        List<FixedIp> fixedIps = new ArrayList<>();
+        if (vpcIps != null) {
+            for (String vpcIp : vpcIps) {
+                fixedIps.add(new FixedIp(subnetId, vpcIp));
+            }
+        }
+
+        return fixedIps;
     }
 
     public String getProjectId() {

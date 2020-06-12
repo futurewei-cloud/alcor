@@ -40,7 +40,11 @@ public class RedisCacheFactory implements ICacheFactory {
     }
 
     @Override
+<<<<<<< HEAD
     public <K, V> ICache getCache(Class<V> v, String cacheName) {
+=======
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         RedisTemplate<K, V> template = getRedisTemplate(v);
         return new RedisCache<>(template, cacheName);
     }

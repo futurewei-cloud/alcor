@@ -16,15 +16,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
+<<<<<<< HEAD
 import com.futurewei.alcor.portmanager.dao.PortDao;
+=======
+import com.futurewei.alcor.portmanager.entity.PortBindingHost;
+>>>>>>> Integration of Port Manager and Data-Plane Manager
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
+<<<<<<< HEAD
 import com.futurewei.alcor.portmanager.util.GoalStateUtil;
 import com.futurewei.alcor.schema.Goalstate.*;
 import com.futurewei.alcor.schema.Common.*;
+=======
+import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
+import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+>>>>>>> Integration of Port Manager and Data-Plane Manager
 import com.futurewei.alcor.web.entity.port.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +72,7 @@ public class PortServiceImpl implements PortService {
         }
     }
 
-    private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<Rollback> rollbacks) throws Exception {
+    private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<Rollback> rollbacks, boolean NeedPortNeighbors) throws Exception {
         //Verify VPC ID
         VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
         executor.runAsync(vpcManagerProxy::getVpcEntity, portEntity);
@@ -72,13 +83,11 @@ public class PortServiceImpl implements PortService {
         if (portEntity.getFixedIps() != null) {
             for (FixedIp fixedIp: portEntity.getFixedIps()) {
                 executor.runAsyncThenAccept(subnetManagerProxy::getSubnetEntity,
-                        ipManagerProxy::allocateFixedIpAddress,
-                        fixedIp, fixedIp);
+                        ipManagerProxy::allocateFixedIpAddress, fixedIp, fixedIp);
             }
         } else {
             executor.runAsyncThenApply(ipManagerProxy::allocateRandomIpAddress,
-                    subnetManagerProxy::getSubnetEntity,
-                    portEntity);
+                    subnetManagerProxy::getSubnetEntity, portEntity);
         }
 
         //Generate uuid for port
@@ -110,15 +119,25 @@ public class PortServiceImpl implements PortService {
         if (portEntity.getFixedIps() != null) {
             RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
 
+<<<<<<< HEAD
             for (FixedIp fixedIp: portEntity.getFixedIps()) {
                 executor.runAsync(routeManagerProxy::getRouteBySubnetId, fixedIp.getSubnetId());
+=======
+            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
+                executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
+>>>>>>> Integration of Port Manager and Data-Plane Manager
             }
         }
 
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity.getBindingHostId());
+            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+        }
+
+        //Get PortNeighbors
+        if (NeedPortNeighbors) {
+            executor.runAsync(portRepository::getPortNeighbors, portEntity.getVpcId());
         }
     }
 
@@ -132,6 +151,59 @@ public class PortServiceImpl implements PortService {
         executor.waitAll();
         rollBackAllOperations(rollbacks);
         throw e;
+    }
+
+    private Map<String, NodeInfo> getNodeInfos(List<Object> entities) {
+        Map<String, NodeInfo> nodeInfoMap = new HashMap<>();
+
+        for (Object entity: entities) {
+            if (entity instanceof PortBindingHost) {
+                PortBindingHost portBindingHost = (PortBindingHost) entity;
+                nodeInfoMap.put(portBindingHost.getPortId(), portBindingHost.getNodeInfo());
+            }
+        }
+
+        return nodeInfoMap;
+    }
+
+    private NeighborInfo buildNeighborInfo(PortEntity portEntity, Map<String, NodeInfo> nodeInfoMap) {
+        if (nodeInfoMap == null) {
+            return null;
+        }
+
+        NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getId());
+        if (nodeInfo == null) {
+            return null;
+        }
+
+        return new NeighborInfo(nodeInfo.getLocalIp(),
+                nodeInfo.getId(),
+                portEntity.getId(),
+                portEntity.getMacAddress());
+    }
+
+    private Map<String, List<NeighborInfo>> buildNeighborInfos(List<PortEntity> portEntities, Map<String, NodeInfo> nodeInfoMap) {
+        Map<String, List<NeighborInfo>> portNeighbors = new HashMap<>();
+        for (PortEntity portEntity: portEntities) {
+            NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getId());
+            if (nodeInfo == null) {
+                continue;
+            }
+
+            NeighborInfo neighborInfo = new NeighborInfo(nodeInfo.getLocalIp(),
+                    nodeInfo.getId(),
+                    portEntity.getId(),
+                    portEntity.getMacAddress());
+
+            if (!portNeighbors.containsKey(portEntity.getVpcId())) {
+                List<NeighborInfo> neighborInfos = new ArrayList<>();
+                portNeighbors.put(portEntity.getVpcId(), neighborInfos);
+            }
+
+            portNeighbors.get(portEntity.getVpcId()).add(neighborInfo);
+        }
+
+        return portNeighbors;
     }
 
     /**
@@ -155,22 +227,34 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-            createPortAsync(portEntity, executor, rollbacks);
+            this.createPortAsync(portEntity, executor, rollbacks, true);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
             entities.add(portEntity);
 
-            //Build GoalState and Send it to DPM
+            NeighborInfo neighborInfo = null;
             if (portEntity.getBindingHostId() != null) {
+<<<<<<< HEAD
                 GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
+=======
+                Map<String, NodeInfo> nodeInfoMap = getNodeInfos(entities);
+                neighborInfo = buildNeighborInfo(portEntity, nodeInfoMap);
+
+                //Build GoalState and Send it to DPM
+                NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-                dataPlaneManagerProxy.createGoalState(goalState);
+                dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
             }
 
             //Persist portEntity
+<<<<<<< HEAD
             //portRepository.addItem(portEntity);
             portDao.createPort(portEntity);
+=======
+            portRepository.createPortAndNeighbor(portEntity, neighborInfo);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -194,22 +278,31 @@ public class PortServiceImpl implements PortService {
     public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
+        List<PortEntity> portEntities = portWebBulkJson.getPortEntities();
+        Map<String, Boolean> getNeighborStatus = new HashMap<>();
 
         try {
-            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+            for (PortEntity portEntity: portEntities) {
                 portEntity.setProjectId(projectId);
-                createPortAsync(portEntity, executor, rollbacks);
+                boolean needPortNeighbors = !getNeighborStatus.containsKey(portEntity.getVpcId());
+                createPortAsync(portEntity, executor, rollbacks, needPortNeighbors);
+                getNeighborStatus.put(portEntity.getVpcId(), true);
             }
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
-            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+            for (PortEntity portEntity: portEntities) {
                 if (portEntity.getBindingHostId() != null) {
                     entities.add(portEntity);
                 }
             }
 
+            //Build neighborInfos
+            Map<String, List<NeighborInfo>> neighborInfos =
+                    buildNeighborInfos(portEntities, getNodeInfos(entities));
+
             //Build GoalState and Send it to DPM
+<<<<<<< HEAD
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
             GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
             if (goalState.getPortStatesCount() > 0) {
@@ -219,6 +312,16 @@ public class PortServiceImpl implements PortService {
             //Persist portEntities
             //portRepository.addItems(portWebBulkJson.getPortEntities());
             portDao.createPorts(portWebBulkJson.getPortEntities());
+=======
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+            if (networkConfiguration.getPortEntities() != null) {
+                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+                dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
+            }
+
+            //Persist portEntities and neighborInfos
+            portRepository.createPortAndNeighborBulk(portEntities, neighborInfos);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -428,7 +531,7 @@ public class PortServiceImpl implements PortService {
         return needNotifyDpm;
     }
 
-    private void getPortDependentResources(PortEntity portEntity, AsyncExecutor executor) {
+    private void getPortDependentResources(PortEntity portEntity, AsyncExecutor executor, boolean needPortNeighbors) {
         //Get VpcEntity
         VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(null);
         executor.runAsync(vpcManagerProxy::getVpcEntity, portEntity);
@@ -438,7 +541,7 @@ public class PortServiceImpl implements PortService {
         RouteManagerProxy routeManagerProxy = new RouteManagerProxy(null);
         for (FixedIp fixedIp: portEntity.getFixedIps()) {
             executor.runAsync(subnetManagerProxy::getSubnetEntity, fixedIp);
-            executor.runAsync(routeManagerProxy::getRouteBySubnetId, fixedIp.getSubnetId());
+            executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
         }
 
         //Get SecurityGroupEntity
@@ -454,10 +557,13 @@ public class PortServiceImpl implements PortService {
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity.getBindingHostId());
+            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
         }
 
-        //Get Neighbors
+        //Get portNeighbors
+        if (needPortNeighbors) {
+            executor.runAsync(portRepository::getPortNeighbors, portEntity.getVpcId());
+        }
     }
 
     /**
@@ -483,15 +589,19 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
+<<<<<<< HEAD
             //PortEntity oldPortEntity = portRepository.findItem(portId);
             PortEntity oldPortEntity = portDao.findPort(portId);
+=======
+            PortEntity oldPortEntity = portRepository.findPortEntity(portId);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
             if (oldPortEntity == null) {
                 throw new PortEntityNotFound();
             }
 
             boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
             if (needNotifyDpm) {
-                getPortDependentResources(oldPortEntity, executor);
+                this.getPortDependentResources(oldPortEntity, executor, true);
             }
 
             //Wait for all async functions to finish
@@ -500,7 +610,9 @@ public class PortServiceImpl implements PortService {
             //Build GoalState and send it to DPM
             if (needNotifyDpm) {
                 entities.add(oldPortEntity);
+                NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+<<<<<<< HEAD
                 GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
                 dataPlaneManagerProxy.updateGoalState(goalState);
             }
@@ -508,6 +620,19 @@ public class PortServiceImpl implements PortService {
             //Persist the new configuration of port to the db
             //portRepository.addItem(oldPortEntity);
             portDao.updatePort(oldPortEntity);
+=======
+                dataPlaneManagerProxy.updateNetworkConfig(networkConfiguration);
+            }
+
+            NeighborInfo neighborInfo = null;
+            if (portEntity.getBindingHostId() != null) {
+                Map<String, NodeInfo> nodeInfoMap = getNodeInfos(entities);
+                neighborInfo = buildNeighborInfo(portEntity, nodeInfoMap);
+            }
+
+            //Persist the new configuration of port to the db
+            portRepository.updatePortAndNeighbor(oldPortEntity, neighborInfo);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
             portWebJson.setPortEntity(oldPortEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -533,12 +658,17 @@ public class PortServiceImpl implements PortService {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
         List<PortEntity> portEntities = new ArrayList<>();
+        Map<String, Boolean> getNeighborStatus = new HashMap<>();
 
         try {
             for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
                 portEntity.setProjectId(projectId);
+<<<<<<< HEAD
                 //PortEntity oldPortEntity = portRepository.findItem(portEntity.getId());
                 PortEntity oldPortEntity = portDao.findPort(portEntity.getId());
+=======
+                PortEntity oldPortEntity = portRepository.findPortEntity(portEntity.getId());
+>>>>>>> Integration of Port Manager and Data-Plane Manager
                 if (oldPortEntity == null) {
                     throw new PortEntityNotFound();
                 }
@@ -546,7 +676,9 @@ public class PortServiceImpl implements PortService {
                 boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
                 if (needNotifyDpm) {
                     portEntities.add(oldPortEntity);
-                    getPortDependentResources(oldPortEntity, executor);
+                    boolean needPortNeighbors = !getNeighborStatus.containsKey(portEntity.getVpcId());
+                    this.getPortDependentResources(oldPortEntity, executor, needPortNeighbors);
+                    getNeighborStatus.put(portEntity.getVpcId(), true);
                 }
             }
 
@@ -555,6 +687,7 @@ public class PortServiceImpl implements PortService {
             entities.addAll(portEntities);
 
             //Build GoalState and send it to DPM
+<<<<<<< HEAD
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
             GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
             if (goalState.getPortStatesCount() > 0) {
@@ -564,6 +697,20 @@ public class PortServiceImpl implements PortService {
             //Persist portEntities
             //portRepository.addItems(portEntities);
             portDao.createPorts(portEntities);
+=======
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+            if (networkConfiguration.getPortEntities() != null) {
+                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+                dataPlaneManagerProxy.updateNetworkConfig(networkConfiguration);
+            }
+
+            //Build neighborInfos
+            Map<String, List<NeighborInfo>> portNeighbors =
+                    buildNeighborInfos(portEntities, getNodeInfos(entities));
+
+            //Persist portEntities and neighborInfos
+            portRepository.updatePortAndNeighborBulk(portEntities, portNeighbors);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
             portWebBulkJson.setPortEntities(portEntities);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -588,8 +735,12 @@ public class PortServiceImpl implements PortService {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
 
+<<<<<<< HEAD
         //PortEntity portEntity = portRepository.findItem(portId);
         PortEntity portEntity = portDao.findPort(portId);
+=======
+        PortEntity portEntity = portRepository.findPortEntity(portId);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -610,19 +761,26 @@ public class PortServiceImpl implements PortService {
             }
 
             //Get port dependent resources
-            getPortDependentResources(portEntity, executor);
+            this.getPortDependentResources(portEntity, executor, true);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
             entities.add(portEntity);
 
             //Build GoalState and send it to DPM
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+<<<<<<< HEAD
             GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.DELETE);
             dataPlaneManagerProxy.deleteGoalState(goalState);
 
             //portRepository.deleteItem(portId);
             portDao.deletePort(portId);
+=======
+            dataPlaneManagerProxy.deleteNetworkConfig(networkConfiguration);
+
+            portRepository.deletePortAndNeighbor(portId);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -639,8 +797,12 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     public PortWebJson getPort(String projectId, String portId) throws Exception {
+<<<<<<< HEAD
         //PortEntity portEntity = portRepository.findItem(portId);
         PortEntity portEntity = portDao.findPort(portId);
+=======
+        PortEntity portEntity = portRepository.findPortEntity(portId);
+>>>>>>> Integration of Port Manager and Data-Plane Manager
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -658,9 +820,14 @@ public class PortServiceImpl implements PortService {
     public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
+<<<<<<< HEAD
         //Map<String, PortEntity> portEntityMap = portRepository.findAllItems();
         List<PortEntity> portEntities = portDao.listPort();
         if (portEntities == null) {
+=======
+        Map<String, PortEntity> portEntityMap = portRepository.findAllPortEntities();
+        if (portEntityMap == null) {
+>>>>>>> Integration of Port Manager and Data-Plane Manager
             return result;
         }
 
