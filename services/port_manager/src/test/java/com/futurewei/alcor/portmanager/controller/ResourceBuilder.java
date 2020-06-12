@@ -26,8 +26,6 @@ import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrState;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
-import com.futurewei.alcor.web.entity.port.AllowAddressPair;
-import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -48,14 +46,14 @@ import java.util.Map;
 
 public class ResourceBuilder {
     public static PortWebJson newPortStateJson(String portId) {
-        List<FixedIp> fixedIps = new ArrayList<>();
-        fixedIps.add(new FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
         List<String> securityGroups = new ArrayList<>();
         securityGroups.add(UnitTestConfig.securityGroupId1);
 
-        List<AllowAddressPair> allowedAddressPairs = new ArrayList<>();
-        allowedAddressPairs.add(new AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
+        List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
+        allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
         PortEntity portEntity = new PortEntity();
         portEntity.setId(portId);

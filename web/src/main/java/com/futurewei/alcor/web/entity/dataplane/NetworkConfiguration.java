@@ -13,7 +13,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.schema.Common.OperationType;
@@ -40,7 +39,7 @@ public class NetworkConfiguration {
   private List<InternalSubnetEntity> subnetEntities;
 
   @JsonProperty("security_groups_internal")
-  private List<SecurityGroupEntity> securityGroupEntities;
+  private List<SecurityGroup> securityGroups;
 
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
@@ -66,10 +65,11 @@ public class NetworkConfiguration {
     this.subnetEntities.add(subnetEntity);
   }
 
-  public void addSecurityGroupEntity(SecurityGroupEntity securityGroupEntity) {
-    if (this.securityGroupEntities == null) {
-      this.securityGroupEntities = new ArrayList<>();
+  public void addSecurityGroupEntity(SecurityGroup securityGroup) {
+    if (this.securityGroups == null) {
+      this.securityGroups = new ArrayList<>();
     }
-  }
 
+    this.securityGroups.add(securityGroup);
+  }
 }

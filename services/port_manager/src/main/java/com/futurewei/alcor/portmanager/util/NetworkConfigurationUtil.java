@@ -26,7 +26,7 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import java.util.*;
@@ -68,7 +68,7 @@ public class NetworkConfigurationUtil {
         Map<String, NodeInfo> nodeInfoMap = new HashMap<>();
         Map<String, VpcEntity> vpcEntityMap = new HashMap<>();
         Map<String, SubnetEntity> subnetEntityMap = new HashMap<>();
-        Map<String, SecurityGroupEntity> securityGroupEntityMap = new HashMap<>();
+        Map<String, SecurityGroup> securityGroupMap = new HashMap<>();
         Map<String, List<RouteEntity>> portRouteEntityMap = new HashMap<>();
         Map<String, PortNeighbors> portNeighborsMap = new HashMap<>();
 
@@ -79,9 +79,9 @@ public class NetworkConfigurationUtil {
             } else if (entity instanceof SubnetEntity) {
                 SubnetEntity subnetEntity = (SubnetEntity) entity;
                 subnetEntityMap.put(subnetEntity.getId(), subnetEntity);
-            } else if (entity instanceof SecurityGroupEntity) {
-                SecurityGroupEntity securityGroupEntity = (SecurityGroupEntity) entity;
-                securityGroupEntityMap.put(securityGroupEntity.getId(), securityGroupEntity);
+            } else if (entity instanceof SecurityGroup) {
+                SecurityGroup securityGroupEntity = (SecurityGroup) entity;
+                securityGroupMap.put(securityGroupEntity.getId(), securityGroupEntity);
             } else if (entity instanceof PortBindingHost) {
                 PortBindingHost portBindingHost = (PortBindingHost) entity;
                 nodeInfoMap.put(portBindingHost.getPortId(), portBindingHost.getNodeInfo());
@@ -147,13 +147,13 @@ public class NetworkConfigurationUtil {
             //Build security group entities
             if (portEntity.getSecurityGroups() != null) {
                 for (String securityGroupId : portEntity.getSecurityGroups()) {
-                    SecurityGroupEntity securityGroupEntity = securityGroupEntityMap.get(securityGroupId);
-                    if (securityGroupEntity == null) {
+                    SecurityGroup securityGroup = securityGroupMap.get(securityGroupId);
+                    if (securityGroup == null) {
                         throw new SecurityGroupEntityNotFound();
                     }
 
                     if (!securityGroupUniqueIds.contains(securityGroupId)) {
-                        networkConfigMessage.addSecurityGroupEntity(securityGroupEntity);
+                        networkConfigMessage.addSecurityGroupEntity(securityGroup);
                         securityGroupUniqueIds.add(securityGroupId);
                     }
                 }

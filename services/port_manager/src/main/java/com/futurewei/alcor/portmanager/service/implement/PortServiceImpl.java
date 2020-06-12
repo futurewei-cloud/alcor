@@ -16,36 +16,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
-<<<<<<< HEAD
-import com.futurewei.alcor.portmanager.dao.PortDao;
-=======
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
->>>>>>> Integration of Port Manager and Data-Plane Manager
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
-<<<<<<< HEAD
-import com.futurewei.alcor.portmanager.util.GoalStateUtil;
-import com.futurewei.alcor.schema.Goalstate.*;
-import com.futurewei.alcor.schema.Common.*;
-=======
 import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
->>>>>>> Integration of Port Manager and Data-Plane Manager
 import com.futurewei.alcor.web.entity.port.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service
@@ -56,9 +42,6 @@ public class PortServiceImpl implements PortService {
 
     @Autowired
     private PortRepository portRepository;
-
-    @Autowired
-    private PortDao portDao;
 
     private void rollBackAllOperations(Stack<Rollback> rollbacks) {
         while (!rollbacks.isEmpty()) {
@@ -81,7 +64,7 @@ public class PortServiceImpl implements PortService {
         IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
         SubnetManagerProxy subnetManagerProxy = new SubnetManagerProxy(portEntity.getProjectId());
         if (portEntity.getFixedIps() != null) {
-            for (FixedIp fixedIp: portEntity.getFixedIps()) {
+            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
                 executor.runAsyncThenAccept(subnetManagerProxy::getSubnetEntity,
                         ipManagerProxy::allocateFixedIpAddress, fixedIp, fixedIp);
             }
@@ -119,13 +102,8 @@ public class PortServiceImpl implements PortService {
         if (portEntity.getFixedIps() != null) {
             RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
 
-<<<<<<< HEAD
-            for (FixedIp fixedIp: portEntity.getFixedIps()) {
-                executor.runAsync(routeManagerProxy::getRouteBySubnetId, fixedIp.getSubnetId());
-=======
             for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
                 executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
->>>>>>> Integration of Port Manager and Data-Plane Manager
             }
         }
 
@@ -235,26 +213,17 @@ public class PortServiceImpl implements PortService {
 
             NeighborInfo neighborInfo = null;
             if (portEntity.getBindingHostId() != null) {
-<<<<<<< HEAD
-                GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
-=======
                 Map<String, NodeInfo> nodeInfoMap = getNodeInfos(entities);
                 neighborInfo = buildNeighborInfo(portEntity, nodeInfoMap);
 
                 //Build GoalState and Send it to DPM
                 NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
->>>>>>> Integration of Port Manager and Data-Plane Manager
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
                 dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
             }
 
             //Persist portEntity
-<<<<<<< HEAD
-            //portRepository.addItem(portEntity);
-            portDao.createPort(portEntity);
-=======
             portRepository.createPortAndNeighbor(portEntity, neighborInfo);
->>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -302,17 +271,6 @@ public class PortServiceImpl implements PortService {
                     buildNeighborInfos(portEntities, getNodeInfos(entities));
 
             //Build GoalState and Send it to DPM
-<<<<<<< HEAD
-            DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.CREATE);
-            if (goalState.getPortStatesCount() > 0) {
-                dataPlaneManagerProxy.createGoalState(goalState);
-            }
-
-            //Persist portEntities
-            //portRepository.addItems(portWebBulkJson.getPortEntities());
-            portDao.createPorts(portWebBulkJson.getPortEntities());
-=======
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             if (networkConfiguration.getPortEntities() != null) {
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
@@ -321,7 +279,6 @@ public class PortServiceImpl implements PortService {
 
             //Persist portEntities and neighborInfos
             portRepository.createPortAndNeighborBulk(portEntities, neighborInfos);
->>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -329,10 +286,10 @@ public class PortServiceImpl implements PortService {
         return portWebBulkJson;
     }
 
-    private Map<String, Set<String>> fixedIpsToMap(List<FixedIp> fixedIps) {
+    private Map<String, Set<String>> fixedIpsToMap(List<PortEntity.FixedIp> fixedIps) {
         Map<String, Set<String>> subnetIpsMap = new HashMap<>();
 
-        for (FixedIp fixedIp: fixedIps) {
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
             if (subnetIpsMap.containsKey(fixedIp.getSubnetId())) {
                 subnetIpsMap.get(fixedIp.getSubnetId()).add(fixedIp.getIpAddress());
             } else {
@@ -345,11 +302,11 @@ public class PortServiceImpl implements PortService {
         return subnetIpsMap;
     }
 
-    private List<FixedIp> fixedIpsCompare(List<FixedIp> fixedIps1, List<FixedIp> fixedIps2) {
-        List<FixedIp> addFixedIps = new ArrayList<>();
+    private List<PortEntity.FixedIp> fixedIpsCompare(List<PortEntity.FixedIp> fixedIps1, List<PortEntity.FixedIp> fixedIps2) {
+        List<PortEntity.FixedIp> addFixedIps = new ArrayList<>();
         Map<String, Set<String>> subnetIpsMap = fixedIpsToMap(fixedIps2);
 
-        for (FixedIp fixedIp: fixedIps1) {
+        for (PortEntity.FixedIp fixedIp: fixedIps1) {
             String subnetId = fixedIp.getSubnetId();
             String ipAddress = fixedIp.getIpAddress();
             if (subnetIpsMap.containsKey(subnetId)) {
@@ -446,19 +403,19 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update extra_dhcp_opts
-        List<ExtraDhcpOpt> newExtraDhcpOpts = newPortEntity.getExtraDhcpOpts();
-        List<ExtraDhcpOpt> oldExtraDhcpOpts = oldPortEntity.getExtraDhcpOpts();
+        List<PortEntity.ExtraDhcpOpt> newExtraDhcpOpts = newPortEntity.getExtraDhcpOpts();
+        List<PortEntity.ExtraDhcpOpt> oldExtraDhcpOpts = oldPortEntity.getExtraDhcpOpts();
         if (newExtraDhcpOpts != null && !newExtraDhcpOpts.equals(oldExtraDhcpOpts)) {
             oldPortEntity.setExtraDhcpOpts(newExtraDhcpOpts);
             needNotifyDpm = true;
         }
 
         //Update fixed_ips
-        List<FixedIp> newFixedIps = newPortEntity.getFixedIps();
-        List<FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
+        List<PortEntity.FixedIp> newFixedIps = newPortEntity.getFixedIps();
+        List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
         if (newFixedIps != null && !newFixedIps.equals(oldFixedIps)) {
-            List<FixedIp> addFixedIps = fixedIpsCompare(newFixedIps, oldFixedIps);
-            List<FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, newFixedIps);
+            List<PortEntity.FixedIp> addFixedIps = fixedIpsCompare(newFixedIps, oldFixedIps);
+            List<PortEntity.FixedIp> delFixedIps = fixedIpsCompare(oldFixedIps, newFixedIps);
             IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, newPortEntity.getProjectId());
 
             if (delFixedIps.size() > 0) {
@@ -485,8 +442,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update allow_address_pairs
-        List<AllowAddressPair> newAllowedAddressPairs = newPortEntity.getAllowedAddressPairs();
-        List<AllowAddressPair> oldAllowedAddressPairs = oldPortEntity.getAllowedAddressPairs();
+        List<PortEntity.AllowAddressPair> newAllowedAddressPairs = newPortEntity.getAllowedAddressPairs();
+        List<PortEntity.AllowAddressPair> oldAllowedAddressPairs = oldPortEntity.getAllowedAddressPairs();
         if (newAllowedAddressPairs != null && !newAllowedAddressPairs.equals(oldAllowedAddressPairs)) {
             oldPortEntity.setAllowedAddressPairs(newAllowedAddressPairs);
             needNotifyDpm = true;
@@ -539,7 +496,7 @@ public class PortServiceImpl implements PortService {
         //Get SubnetEntity and subnet route
         SubnetManagerProxy subnetManagerProxy = new SubnetManagerProxy(portEntity.getProjectId());
         RouteManagerProxy routeManagerProxy = new RouteManagerProxy(null);
-        for (FixedIp fixedIp: portEntity.getFixedIps()) {
+        for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
             executor.runAsync(subnetManagerProxy::getSubnetEntity, fixedIp);
             executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
         }
@@ -589,12 +546,7 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-<<<<<<< HEAD
-            //PortEntity oldPortEntity = portRepository.findItem(portId);
-            PortEntity oldPortEntity = portDao.findPort(portId);
-=======
             PortEntity oldPortEntity = portRepository.findPortEntity(portId);
->>>>>>> Integration of Port Manager and Data-Plane Manager
             if (oldPortEntity == null) {
                 throw new PortEntityNotFound();
             }
@@ -612,15 +564,6 @@ public class PortServiceImpl implements PortService {
                 entities.add(oldPortEntity);
                 NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-<<<<<<< HEAD
-                GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
-                dataPlaneManagerProxy.updateGoalState(goalState);
-            }
-
-            //Persist the new configuration of port to the db
-            //portRepository.addItem(oldPortEntity);
-            portDao.updatePort(oldPortEntity);
-=======
                 dataPlaneManagerProxy.updateNetworkConfig(networkConfiguration);
             }
 
@@ -632,7 +575,6 @@ public class PortServiceImpl implements PortService {
 
             //Persist the new configuration of port to the db
             portRepository.updatePortAndNeighbor(oldPortEntity, neighborInfo);
->>>>>>> Integration of Port Manager and Data-Plane Manager
             portWebJson.setPortEntity(oldPortEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -663,12 +605,7 @@ public class PortServiceImpl implements PortService {
         try {
             for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
                 portEntity.setProjectId(projectId);
-<<<<<<< HEAD
-                //PortEntity oldPortEntity = portRepository.findItem(portEntity.getId());
-                PortEntity oldPortEntity = portDao.findPort(portEntity.getId());
-=======
                 PortEntity oldPortEntity = portRepository.findPortEntity(portEntity.getId());
->>>>>>> Integration of Port Manager and Data-Plane Manager
                 if (oldPortEntity == null) {
                     throw new PortEntityNotFound();
                 }
@@ -687,17 +624,6 @@ public class PortServiceImpl implements PortService {
             entities.addAll(portEntities);
 
             //Build GoalState and send it to DPM
-<<<<<<< HEAD
-            DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.UPDATE);
-            if (goalState.getPortStatesCount() > 0) {
-                dataPlaneManagerProxy.updateGoalState(goalState);
-            }
-
-            //Persist portEntities
-            //portRepository.addItems(portEntities);
-            portDao.createPorts(portEntities);
-=======
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             if (networkConfiguration.getPortEntities() != null) {
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
@@ -710,7 +636,6 @@ public class PortServiceImpl implements PortService {
 
             //Persist portEntities and neighborInfos
             portRepository.updatePortAndNeighborBulk(portEntities, portNeighbors);
->>>>>>> Integration of Port Manager and Data-Plane Manager
             portWebBulkJson.setPortEntities(portEntities);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -735,12 +660,7 @@ public class PortServiceImpl implements PortService {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
 
-<<<<<<< HEAD
-        //PortEntity portEntity = portRepository.findItem(portId);
-        PortEntity portEntity = portDao.findPort(portId);
-=======
         PortEntity portEntity = portRepository.findPortEntity(portId);
->>>>>>> Integration of Port Manager and Data-Plane Manager
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -770,17 +690,9 @@ public class PortServiceImpl implements PortService {
             //Build GoalState and send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-<<<<<<< HEAD
-            GoalState goalState = GoalStateUtil.buildGoalState(entities, OperationType.DELETE);
-            dataPlaneManagerProxy.deleteGoalState(goalState);
-
-            //portRepository.deleteItem(portId);
-            portDao.deletePort(portId);
-=======
             dataPlaneManagerProxy.deleteNetworkConfig(networkConfiguration);
 
             portRepository.deletePortAndNeighbor(portId);
->>>>>>> Integration of Port Manager and Data-Plane Manager
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -797,12 +709,7 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     public PortWebJson getPort(String projectId, String portId) throws Exception {
-<<<<<<< HEAD
-        //PortEntity portEntity = portRepository.findItem(portId);
-        PortEntity portEntity = portDao.findPort(portId);
-=======
         PortEntity portEntity = portRepository.findPortEntity(portId);
->>>>>>> Integration of Port Manager and Data-Plane Manager
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -820,19 +727,13 @@ public class PortServiceImpl implements PortService {
     public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
-<<<<<<< HEAD
-        //Map<String, PortEntity> portEntityMap = portRepository.findAllItems();
-        List<PortEntity> portEntities = portDao.listPort();
-        if (portEntities == null) {
-=======
         Map<String, PortEntity> portEntityMap = portRepository.findAllPortEntities();
         if (portEntityMap == null) {
->>>>>>> Integration of Port Manager and Data-Plane Manager
             return result;
         }
 
-        for (PortEntity portEntity: portEntities) {
-            PortWebJson portWebJson = new PortWebJson(portEntity);
+        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+            PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }
 

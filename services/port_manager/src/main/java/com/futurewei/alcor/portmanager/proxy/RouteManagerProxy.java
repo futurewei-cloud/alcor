@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.PortBindingRoute;
 import com.futurewei.alcor.portmanager.exception.GetRouteEntityException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
 
