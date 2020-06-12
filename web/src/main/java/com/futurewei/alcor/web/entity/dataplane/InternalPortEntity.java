@@ -15,13 +15,19 @@ package com.futurewei.alcor.web.entity.dataplane;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class InternalPortEntity extends PortEntity {
+
+    private Set<VpcEntity> vpcEntities;
+
+    private Set<InternalSubnetEntity> subnetEntities;
 
     @JsonProperty("routes")
     private List<RouteEntity> routes;
