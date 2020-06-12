@@ -1,9 +1,12 @@
 /*
 Copyright 2019 The Alcor Authors.
+
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
         You may obtain a copy of the License at
+
         http://www.apache.org/licenses/LICENSE-2.0
+
         Unless required by applicable law or agreed to in writing, software
         distributed under the License is distributed on an "AS IS" BASIS,
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,12 +20,12 @@ import com.futurewei.alcor.common.entity.CustomerResource;
 
 import java.util.List;
 
-public class SecurityGroupEntity extends CustomerResource {
+public class SecurityGroup extends CustomerResource {
     @JsonProperty("tenant_id")
     private String tenantId;
 
     @JsonProperty("security_group_rules")
-    private List<SecurityGroupRuleEntity> securityGroupRuleEntities;
+    private List<SecurityGroupRule> securityGroupRules;
 
     @JsonProperty("create_at")
     private String createAt;
@@ -30,28 +33,28 @@ public class SecurityGroupEntity extends CustomerResource {
     @JsonProperty("update_at")
     private String updateAt;
 
-    public SecurityGroupEntity() {
+    public SecurityGroup() {
     }
 
-    public SecurityGroupEntity(String tenantId, List<SecurityGroupRuleEntity> securityGroupRuleEntities, String createAt, String updateAt) {
+    public SecurityGroup(String tenantId, List<SecurityGroupRule> securityGroupRules, String createAt, String updateAt) {
         this.tenantId = tenantId;
-        this.securityGroupRuleEntities = securityGroupRuleEntities;
+        this.securityGroupRules = securityGroupRules;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
 
-    public SecurityGroupEntity(CustomerResource state, String tenantId, List<SecurityGroupRuleEntity> securityGroupRuleEntities, String createAt, String updateAt) {
+    public SecurityGroup(CustomerResource state, String tenantId, List<SecurityGroupRule> securityGroupRules, String createAt, String updateAt) {
         super(state);
         this.tenantId = tenantId;
-        this.securityGroupRuleEntities = securityGroupRuleEntities;
+        this.securityGroupRules = securityGroupRules;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
 
-    public SecurityGroupEntity(String projectId, String id, String name, String description, String tenantId, List<SecurityGroupRuleEntity> securityGroupRuleEntities, String createAt, String updateAt) {
+    public SecurityGroup(String projectId, String id, String name, String description, String tenantId, List<SecurityGroupRule> securityGroupRules, String createAt, String updateAt) {
         super(projectId, id, name, description);
         this.tenantId = tenantId;
-        this.securityGroupRuleEntities = securityGroupRuleEntities;
+        this.securityGroupRules = securityGroupRules;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
@@ -64,12 +67,12 @@ public class SecurityGroupEntity extends CustomerResource {
         this.tenantId = tenantId;
     }
 
-    public List<SecurityGroupRuleEntity> getSecurityGroupRuleEntities() {
-        return securityGroupRuleEntities;
+    public List<SecurityGroupRule> getSecurityGroupRules() {
+        return securityGroupRules;
     }
 
-    public void setSecurityGroupRuleEntities(List<SecurityGroupRuleEntity> securityGroupRuleEntities) {
-        this.securityGroupRuleEntities = securityGroupRuleEntities;
+    public void setSecurityGroupRules(List<SecurityGroupRule> securityGroupRules) {
+        this.securityGroupRules = securityGroupRules;
     }
 
     public String getCreateAt() {
@@ -92,7 +95,7 @@ public class SecurityGroupEntity extends CustomerResource {
     public String toString() {
         return "SecurityGroup{" +
                 "tenantId='" + tenantId + '\'' +
-                ", securityGroupRules=" + securityGroupRuleEntities +
+                ", securityGroupRules=" + securityGroupRules +
                 ", createAt='" + createAt + '\'' +
                 ", updateAt='" + updateAt + '\'' +
                 '}';

@@ -1,9 +1,12 @@
 /*
 Copyright 2019 The Alcor Authors.
+
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
         You may obtain a copy of the License at
+
         http://www.apache.org/licenses/LICENSE-2.0
+
         Unless required by applicable law or agreed to in writing, software
         distributed under the License is distributed on an "AS IS" BASIS,
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +18,7 @@ package com.futurewei.alcor.web.entity.securitygroup;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 
-public class SecurityGroupRuleEntity extends CustomerResource {
+public class SecurityGroupRule extends CustomerResource {
     @JsonProperty("tenant_id")
     private String tenantId;
 
@@ -95,10 +98,10 @@ public class SecurityGroupRuleEntity extends CustomerResource {
         }
     }
 
-    public SecurityGroupRuleEntity() {
+    public SecurityGroupRule() {
     }
 
-    public SecurityGroupRuleEntity(String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         this.securityGroupId = securityGroupId;
         this.remoteGroupId = remoteGroupId;
         this.direction = direction;
@@ -109,7 +112,7 @@ public class SecurityGroupRuleEntity extends CustomerResource {
         this.etherType = etherType;
     }
 
-    public SecurityGroupRuleEntity(String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         this.tenantId = tenantId;
         this.securityGroupId = securityGroupId;
         this.remoteGroupId = remoteGroupId;
@@ -121,7 +124,7 @@ public class SecurityGroupRuleEntity extends CustomerResource {
         this.etherType = etherType;
     }
 
-    public SecurityGroupRuleEntity(CustomerResource state, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(CustomerResource state, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         super(state);
         this.tenantId = tenantId;
         this.securityGroupId = securityGroupId;
@@ -134,7 +137,7 @@ public class SecurityGroupRuleEntity extends CustomerResource {
         this.etherType = etherType;
     }
 
-    public SecurityGroupRuleEntity(String projectId, String id, String name, String description, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(String projectId, String id, String name, String description, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         super(projectId, id, name, description);
         this.tenantId = tenantId;
         this.securityGroupId = securityGroupId;

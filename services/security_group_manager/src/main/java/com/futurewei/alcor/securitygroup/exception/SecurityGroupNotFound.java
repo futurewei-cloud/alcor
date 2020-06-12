@@ -13,11 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.exception;
+package com.futurewei.alcor.securitygroup.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Get SecurityGroupEntity exception")
-public class GetSecurityGroupEntityException extends Exception {
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Security group not found")
+public class SecurityGroupNotFound extends Exception {
 }

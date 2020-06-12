@@ -30,6 +30,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.Assert;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.logging.Level;
 
 @Configuration
@@ -83,5 +86,10 @@ public class IgniteConfiguration {
         //Assert.notNull(igniteClient, "IgniteClient is null");
 
         return igniteClient;
+    }
+
+    //@Bean
+    public Connection connectionInstance() throws SQLException {
+        return DriverManager.getConnection("jdbc:ignite:thin://" + host);
     }
 }

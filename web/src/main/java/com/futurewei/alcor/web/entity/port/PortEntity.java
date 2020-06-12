@@ -16,14 +16,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.port;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PortEntity extends CustomerResource {
+public class PortEntity {
+    @JsonProperty("id")
+    private String id;
+
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("project_id")
+    private String projectId;
+
+    @JsonProperty("description")
+    private String description;
+
     @JsonProperty("network_id")
     private String vpcId;
 
@@ -124,9 +134,14 @@ public class PortEntity extends CustomerResource {
     private boolean macLearningEnabled;
 
     public PortEntity() {
+
     }
 
-    public PortEntity(String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String id, String projectId, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+        this.id = id;
+        this.projectId = projectId;
+        this.name = name;
+        this.description = description;
         this.vpcId = vpcId;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
@@ -162,286 +177,36 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(CustomerResource state, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
-        super(state);
-        this.vpcId = vpcId;
-        this.tenantId = tenantId;
-        this.adminStateUp = adminStateUp;
-        this.macAddress = macAddress;
-        this.vethName = vethName;
-        this.fastPath = fastPath;
-        this.deviceId = deviceId;
-        this.deviceOwner = deviceOwner;
-        this.status = status;
-        this.fixedIps = fixedIps;
-        this.allowedAddressPairs = allowedAddressPairs;
-        this.extraDhcpOpts = extraDhcpOpts;
-        this.securityGroups = securityGroups;
-        this.bindingHostId = bindingHostId;
-        this.bindingProfile = bindingProfile;
-        this.bindingVifDetails = bindingVifDetails;
-        this.bindingVifType = bindingVifType;
-        this.bindingVnicType = bindingVnicType;
-        this.networkNamespace = networkNamespace;
-        this.dnsName = dnsName;
-        this.dnsDomain = dnsDomain;
-        this.dnsAssignment = dnsAssignment;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-        this.ipAllocation = ipAllocation;
-        this.portSecurityEnabled = portSecurityEnabled;
-        this.qosNetworkPolicyId = qosNetworkPolicyId;
-        this.qosPolicyId = qosPolicyId;
-        this.revisionNumber = revisionNumber;
-        this.resourceRequest = resourceRequest;
-        this.tags = tags;
-        this.uplinkStatusPropagation = uplinkStatusPropagation;
-        this.macLearningEnabled = macLearningEnabled;
+    public String getId() {
+        return id;
     }
 
-    public PortEntity(String projectId, String id, String name, String description, String vpcId, String tenantId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
-        super(projectId, id, name, description);
-        this.vpcId = vpcId;
-        this.tenantId = tenantId;
-        this.adminStateUp = adminStateUp;
-        this.macAddress = macAddress;
-        this.vethName = vethName;
-        this.fastPath = fastPath;
-        this.deviceId = deviceId;
-        this.deviceOwner = deviceOwner;
-        this.status = status;
-        this.fixedIps = fixedIps;
-        this.allowedAddressPairs = allowedAddressPairs;
-        this.extraDhcpOpts = extraDhcpOpts;
-        this.securityGroups = securityGroups;
-        this.bindingHostId = bindingHostId;
-        this.bindingProfile = bindingProfile;
-        this.bindingVifDetails = bindingVifDetails;
-        this.bindingVifType = bindingVifType;
-        this.bindingVnicType = bindingVnicType;
-        this.networkNamespace = networkNamespace;
-        this.dnsName = dnsName;
-        this.dnsDomain = dnsDomain;
-        this.dnsAssignment = dnsAssignment;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-        this.ipAllocation = ipAllocation;
-        this.portSecurityEnabled = portSecurityEnabled;
-        this.qosNetworkPolicyId = qosNetworkPolicyId;
-        this.qosPolicyId = qosPolicyId;
-        this.revisionNumber = revisionNumber;
-        this.resourceRequest = resourceRequest;
-        this.tags = tags;
-        this.uplinkStatusPropagation = uplinkStatusPropagation;
-        this.macLearningEnabled = macLearningEnabled;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public static List<FixedIp> convertToFixedIps(String[] vpcIps, String subnetId) {
-
-        List<FixedIp> fixedIps = new ArrayList<>();
-        if (vpcIps != null) {
-            for (String vpcIp : vpcIps) {
-                fixedIps.add(new FixedIp(subnetId, vpcIp));
-            }
-        }
-
-        return fixedIps;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public static class FixedIp {
-
-        @JsonProperty("subnet_id")
-        private String subnetId;
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        public FixedIp() {
-
-        }
-
-        public FixedIp(String subnetId, String ipAddress) {
-            this.subnetId = subnetId;
-            this.ipAddress = ipAddress;
-        }
-
-        public String getSubnetId() {
-            return subnetId;
-        }
-
-        public void setSubnetId(String subnetId) {
-            this.subnetId = subnetId;
-        }
-
-        public String getIpAddress() {
-            return ipAddress;
-        }
-
-        public void setIpAddress(String ipAddress) {
-            this.ipAddress = ipAddress;
-        }
-
-        @Override
-        public String toString() {
-            return "FixedIp{" +
-                    "subnetId='" + subnetId + '\'' +
-                    ", ipAddress='" + ipAddress + '\'' +
-                    '}';
-        }
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
-    public static class AllowAddressPair {
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        @JsonProperty("mac_address")
-        private String macAddress;
-
-        public AllowAddressPair(String ipAddress, String macAddress) {
-            this.ipAddress = ipAddress;
-            this.macAddress = macAddress;
-        }
-
-        public String getIpAddress() {
-            return ipAddress;
-        }
-
-        public void setIpAddress(String ipAddress) {
-            this.ipAddress = ipAddress;
-        }
-
-        public String getMacAddress() {
-            return macAddress;
-        }
-
-        public void setMacAddress(String macAddress) {
-            this.macAddress = macAddress;
-        }
+    public String getName() {
+        return name;
     }
 
-    public static class ExtraDhcpOpt {
-        @JsonProperty("ip_version")
-        private String ipVersion;
-
-        @JsonProperty("opt_name")
-        private String optName;
-
-        @JsonProperty("opt_value")
-        private String optValue;
-
-        public ExtraDhcpOpt(String ipVersion, String optName, String optValue) {
-            this.ipVersion = ipVersion;
-            this.optName = optName;
-            this.optValue = optValue;
-        }
-
-        public String getOptName() {
-            return optName;
-        }
-
-        public void setOptName(String optName) {
-            this.optName = optName;
-        }
-
-        public String getOptValue() {
-            return optValue;
-        }
-
-        public void setOptValue(String optValue) {
-            this.optValue = optValue;
-        }
-
-        public String getIpVersion() {
-            return ipVersion;
-        }
-
-        public void setIpVersion(String ipVersion) {
-            this.ipVersion = ipVersion;
-        }
-
-        @Override
-        public String toString() {
-            return "ExtraDhcpOpt{" +
-                    "ipVersion='" + ipVersion + '\'' +
-                    ", optName='" + optName + '\'' +
-                    ", optValue='" + optValue + '\'' +
-                    '}';
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public static class SecurityGroupId {
-        private String id;
-
-        public SecurityGroupId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return "SecurityGroupId{" +
-                    "id='" + id + '\'' +
-                    '}';
-        }
+    public String getDescription() {
+        return description;
     }
 
-    public static class DnsRecord {
-
-        @JsonProperty("host_name")
-        private String hostName;
-
-        @JsonProperty("ip_address")
-        private String ipAddress;
-
-        @JsonProperty("fqdn")
-        private String fqdn;
-
-        public DnsRecord(String hostName, String ipAddress, String fqdn) {
-            this.hostName = hostName;
-            this.ipAddress = ipAddress;
-            this.fqdn = fqdn;
-        }
-
-        public String getHostName() {
-            return hostName;
-        }
-
-        public void setHostName(String hostName) {
-            this.hostName = hostName;
-        }
-
-        public String getIpAddress() {
-            return ipAddress;
-        }
-
-        public void setIpAddress(String ipAddress) {
-            this.ipAddress = ipAddress;
-        }
-
-        public String getFqdn() {
-            return fqdn;
-        }
-
-        public void setFqdn(String fqdn) {
-            this.fqdn = fqdn;
-        }
-
-        @Override
-        public String toString() {
-            return "DnsRecord{" +
-                    "hostName='" + hostName + '\'' +
-                    ", ipAddress='" + ipAddress + '\'' +
-                    ", fqdn='" + fqdn + '\'' +
-                    '}';
-        }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getVpcId() {
@@ -560,6 +325,10 @@ public class PortEntity extends CustomerResource {
         return bindingProfile;
     }
 
+    public void setBindingProfile(String bindingProfile) {
+        this.bindingProfile = bindingProfile;
+    }
+
     public String getBindingVifDetails() {
         return bindingVifDetails;
     }
@@ -574,10 +343,6 @@ public class PortEntity extends CustomerResource {
 
     public void setBindingVifType(String bindingVifType) {
         this.bindingVifType = bindingVifType;
-    }
-
-    public void setBindingProfile(String bindingProfile) {
-        this.bindingProfile = bindingProfile;
     }
 
     public String getBindingVnicType() {

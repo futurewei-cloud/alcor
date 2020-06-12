@@ -18,6 +18,7 @@ package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.QueryFilter;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
