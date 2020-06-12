@@ -22,17 +22,45 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class InternalPortEntityNB extends PortEntity {
+public class InternalPortEntity extends PortEntity {
 
   @JsonProperty("routes")
   private List<RouteEntity> routes;
 
   @JsonProperty("neighbor_info")
-  private List<NeighborInfo> neighborIps;
+  private List<NeighborInfo> neighborInfos;
 
   @JsonProperty("binding_host_ip")
   private String bindingHostIP;
 
-  private Set<InternalSubnetEntityNB> subnetEntities;
+  private Set<InternalSubnetEntity> subnetEntities;
   private Set<VpcEntity> vpcEntities;
+
+  public List<RouteEntity> getRoutes() {
+    return routes;
+  }
+
+  public void setRoutes(List<RouteEntity> routes) {
+    this.routes = routes;
+  }
+
+  public List<NeighborInfo> getNeighborInfos() {
+    return neighborInfos;
+  }
+
+  public String getBindingHostIP() {
+    return bindingHostIP;
+  }
+
+  public Set<InternalSubnetEntity> getSubnetEntities() {
+    return subnetEntities;
+  }
+
+  public void setSubnetEntities(Set<InternalSubnetEntity> subnetEntities) {
+    this.subnetEntities = subnetEntities;
+  }
+
+  public void setVpcEntities(Set<VpcEntity> vpcEntities) {
+    this.vpcEntities = vpcEntities;
+  }
 }

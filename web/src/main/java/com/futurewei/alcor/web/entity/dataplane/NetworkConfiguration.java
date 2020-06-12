@@ -18,6 +18,8 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class NetworkConfiguration {
 
@@ -26,14 +28,95 @@ public class NetworkConfiguration {
   boolean allOrNone = true;
 
   @JsonProperty("ports")
-  private InternalPortEntityNB[] portStates;
+  private List<InternalPortEntity> portStates;
 
   @JsonProperty("vpcs")
-  private VpcEntity[] vpcs;
+  private List<VpcEntity> vpcs;
 
   @JsonProperty("subnets")
-  private InternalSubnetEntityNB[] subnets;
+  private List<InternalSubnetEntity> subnets;
 
   @JsonProperty("security_groups")
-  private SecurityGroupEntity[] securityGroupEntities;
+  private List<SecurityGroupEntity> securityGroupEntities;
+
+  public Common.ResourceType getRsType() {
+    return rsType;
+  }
+
+  public void setRsType(Common.ResourceType rsType) {
+    this.rsType = rsType;
+  }
+
+  public Common.OperationType getOpType() {
+    return opType;
+  }
+
+  public void setOpType(Common.OperationType opType) {
+    this.opType = opType;
+  }
+
+  public boolean isAllOrNone() {
+    return allOrNone;
+  }
+
+  public void setAllOrNone(boolean allOrNone) {
+    this.allOrNone = allOrNone;
+  }
+
+  public List<InternalPortEntity> getPortStates() {
+    return portStates;
+  }
+
+  public void setPortStates(List<InternalPortEntity> portStates) {
+    this.portStates = portStates;
+  }
+
+  public List<VpcEntity> getVpcs() {
+    return vpcs;
+  }
+
+  public void setVpcs(List<VpcEntity> vpcs) {
+    this.vpcs = vpcs;
+  }
+
+  public List<InternalSubnetEntity> getSubnets() {
+    return subnets;
+  }
+
+  public void setSubnets(List<InternalSubnetEntity> subnets) {
+    this.subnets = subnets;
+  }
+
+  public List<SecurityGroupEntity> getSecurityGroupEntities() {
+    return securityGroupEntities;
+  }
+
+  public void setSecurityGroupEntities(List<SecurityGroupEntity> securityGroupEntities) {
+    this.securityGroupEntities = securityGroupEntities;
+  }
+
+  public NetworkConfiguration(Common.ResourceType rsType,
+                              Common.OperationType opType, boolean allOrNone,
+                              List<InternalPortEntity> portStates,
+                              List<VpcEntity> vpcs,
+                              List<InternalSubnetEntity> subnets,
+                              List<SecurityGroupEntity> securityGroupEntities) {
+    this.rsType = rsType;
+    this.opType = opType;
+    this.allOrNone = allOrNone;
+    this.portStates = portStates;
+    this.vpcs = vpcs;
+    this.subnets = subnets;
+    this.securityGroupEntities = securityGroupEntities;
+  }
+
+  public NetworkConfiguration(List<InternalPortEntity> portStates,
+                              List<VpcEntity> vpcs,
+                              List<InternalSubnetEntity> subnets,
+                              List<SecurityGroupEntity> securityGroupEntities) {
+    this.portStates = portStates;
+    this.vpcs = vpcs;
+    this.subnets = subnets;
+    this.securityGroupEntities = securityGroupEntities;
+  }
 }
