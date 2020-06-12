@@ -157,6 +157,23 @@ public class NetworkConfigurationUtil {
                         securityGroupUniqueIds.add(securityGroupId);
                     }
                 }
+            } else {
+                SecurityGroup securityGroup = null;
+                for (Map.Entry<String, SecurityGroup> entry: securityGroupMap.entrySet()) {
+                    if ("default".equals(entry.getValue().getName())) {
+                        securityGroup = entry.getValue();
+                        break;
+                    }
+                }
+
+                if (securityGroup == null) {
+                    throw new DefaultSecurityGroupEntityNotFound();
+                }
+
+                if (!securityGroupUniqueIds.contains(securityGroup.getId())) {
+                    networkConfigMessage.addSecurityGroupEntity(securityGroup);
+                    securityGroupUniqueIds.add(securityGroup.getId());
+                }
             }
         }
 

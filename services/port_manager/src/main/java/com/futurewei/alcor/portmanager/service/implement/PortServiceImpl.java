@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @ComponentScan(value="com.futurewei.alcor.common.utils")
@@ -60,17 +61,22 @@ public class PortServiceImpl implements PortService {
         VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
         executor.runAsync(vpcManagerProxy::getVpcEntity, portEntity);
 
-        //Allocate IP address
+        //Allocate IP address, get subnetEntity and subnet route
         IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
         SubnetManagerProxy subnetManagerProxy = new SubnetManagerProxy(portEntity.getProjectId());
+        RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
         if (portEntity.getFixedIps() != null) {
             for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
                 executor.runAsyncThenAccept(subnetManagerProxy::getSubnetEntity,
                         ipManagerProxy::allocateFixedIpAddress, fixedIp, fixedIp);
+                executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
             }
         } else {
-            executor.runAsyncThenApply(ipManagerProxy::allocateRandomIpAddress,
+            CompletableFuture subnetFuture = executor.runAsyncThenApply(ipManagerProxy::allocateRandomIpAddress,
                     subnetManagerProxy::getSubnetEntity, portEntity);
+
+            //Another way to execute two asynchronous methods serially
+            executor.runAsync(routeManagerProxy::getRouteBySubnetFuture, portEntity.getId(), subnetFuture);
         }
 
         //Generate uuid for port
@@ -96,15 +102,6 @@ public class PortServiceImpl implements PortService {
         } else {
             //Do we need to bind default security group? No, we don't
             executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
-        }
-
-        //Get subnet route
-        if (portEntity.getFixedIps() != null) {
-            RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
-
-            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
-                executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
-            }
         }
 
         //Verify Binding Host ID
@@ -213,8 +210,8 @@ public class PortServiceImpl implements PortService {
 
             NeighborInfo neighborInfo = null;
             if (portEntity.getBindingHostId() != null) {
-                Map<String, NodeInfo> nodeInfoMap = getNodeInfos(entities);
-                neighborInfo = buildNeighborInfo(portEntity, nodeInfoMap);
+                Map<String, NodeInfo> nodeInfoMap = this.getNodeInfos(entities);
+                neighborInfo = this.buildNeighborInfo(portEntity, nodeInfoMap);
 
                 //Build GoalState and Send it to DPM
                 NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
@@ -268,7 +265,7 @@ public class PortServiceImpl implements PortService {
 
             //Build neighborInfos
             Map<String, List<NeighborInfo>> neighborInfos =
-                    buildNeighborInfos(portEntities, getNodeInfos(entities));
+                    this.buildNeighborInfos(portEntities, this.getNodeInfos(entities));
 
             //Build GoalState and Send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
@@ -569,8 +566,8 @@ public class PortServiceImpl implements PortService {
 
             NeighborInfo neighborInfo = null;
             if (portEntity.getBindingHostId() != null) {
-                Map<String, NodeInfo> nodeInfoMap = getNodeInfos(entities);
-                neighborInfo = buildNeighborInfo(portEntity, nodeInfoMap);
+                Map<String, NodeInfo> nodeInfoMap = this.getNodeInfos(entities);
+                neighborInfo = this.buildNeighborInfo(portEntity, nodeInfoMap);
             }
 
             //Persist the new configuration of port to the db
@@ -632,7 +629,7 @@ public class PortServiceImpl implements PortService {
 
             //Build neighborInfos
             Map<String, List<NeighborInfo>> portNeighbors =
-                    buildNeighborInfos(portEntities, getNodeInfos(entities));
+                    this.buildNeighborInfos(portEntities, this.getNodeInfos(entities));
 
             //Persist portEntities and neighborInfos
             portRepository.updatePortAndNeighborBulk(portEntities, portNeighbors);
