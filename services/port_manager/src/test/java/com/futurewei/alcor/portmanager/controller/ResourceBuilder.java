@@ -18,14 +18,14 @@ package com.futurewei.alcor.portmanager.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
+import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrState;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
-import com.futurewei.alcor.web.entity.port.AllowAddressPair;
-import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -40,18 +40,20 @@ import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ResourceBuilder {
     public static PortWebJson newPortStateJson(String portId) {
-        List<FixedIp> fixedIps = new ArrayList<>();
-        fixedIps.add(new FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
         List<String> securityGroups = new ArrayList<>();
         securityGroups.add(UnitTestConfig.securityGroupId1);
 
-        List<AllowAddressPair> allowedAddressPairs = new ArrayList<>();
-        allowedAddressPairs.add(new AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
+        List<PortEntity.AllowAddressPair> allowedAddressPairs = new ArrayList<>();
+        allowedAddressPairs.add(new PortEntity.AllowAddressPair(UnitTestConfig.ip2, UnitTestConfig.mac1));
 
         PortEntity portEntity = new PortEntity();
         portEntity.setId(portId);
@@ -175,5 +177,15 @@ public class ResourceBuilder {
         securityGroupJson.getSecurityGroup().setName("default");
 
         return securityGroupJson;
+    }
+
+    public static PortNeighbors newPortNeighbors() {
+        NeighborInfo neighborInfo = new NeighborInfo(UnitTestConfig.ip1,
+                UnitTestConfig.nodeId1, UnitTestConfig.portId1, UnitTestConfig.mac1);
+
+        Map<String, NeighborInfo> neighborInfoMap = new HashMap<>();
+        neighborInfoMap.put(UnitTestConfig.portId1, neighborInfo);
+
+        return new PortNeighbors(UnitTestConfig.vpcId, neighborInfoMap);
     }
 }

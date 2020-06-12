@@ -17,13 +17,58 @@ import lombok.Data;
 
 @Data
 public class NeighborInfo {
+    @JsonProperty("host_ip")
+    private String hostIp;
 
-  @JsonProperty("host_ip")
-  private String hostIp;
+    @JsonProperty("host_id")
+    private String hostId;
 
-  @JsonProperty("host_id")
-  private String hostId;
+    @JsonProperty("port_id")
+    private String portId;
 
-  @JsonProperty("port_id")
-  private String portId;
+    @JsonProperty("port_mac")
+    private String portMac;
+
+    public NeighborInfo() {
+
+    }
+
+    public NeighborInfo(String hostIp, String hostId, String portId, String portMac) {
+        this.hostIp = hostIp;
+        this.hostId = hostId;
+        this.portId = portId;
+        this.portMac = portMac;
+    }
+
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
+    }
+
+    public String getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
+    }
+
+    public String getPortId() {
+        return portId;
+    }
+
+    public void setPortId(String portId) {
+        this.portId = portId;
+    }
+
+    public String getPortMac() {
+        return portMac;
+    }
+
+    public void setPortMac(String portMac) {
+        this.portMac = portMac;
+    }
 }

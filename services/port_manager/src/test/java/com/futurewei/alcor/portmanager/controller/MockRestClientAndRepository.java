@@ -16,17 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
-import com.futurewei.alcor.portmanager.dao.PortDao;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.futurewei.alcor.portmanager.controller.ResourceBuilder.*;
@@ -58,9 +54,6 @@ public class MockRestClientAndRepository {
 
     @MockBean
     private PortRepository portRepository;
-
-    @MockBean
-    private PortDao portDao;
 
     protected void mockRestClientsAndRepositoryOperations() throws Exception {
         Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
@@ -105,28 +98,19 @@ public class MockRestClientAndRepository {
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
                 .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId1))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId1))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId2))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId2))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
 
         Map<String, PortEntity> portStates = new HashMap<>();
         portStates.put(UnitTestConfig.portId1, newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findAllItems())
+        Mockito.when(portRepository.findAllPortEntities())
                 .thenReturn(portStates);
 
-        Mockito.when(portDao.findPort(UnitTestConfig.portId1))
-                .thenReturn(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
-
-        Mockito.when(portDao.findPort(UnitTestConfig.portId2))
-                .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
-
-        List<PortEntity> portStateList = new ArrayList<>();
-        portStateList.add(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
-
-        Mockito.when(portDao.listPort())
-                .thenReturn(portStateList);
+        Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
+                .thenReturn(newPortNeighbors());
     }
 }

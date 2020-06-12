@@ -15,8 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.controller;
 
-import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
-import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
@@ -24,107 +22,13 @@ import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 
 @RestController
 public class PortController {
     @Autowired
     PortService portService;
-
-    private void checkMacAddress(PortEntity portEntity) throws Exception {
-        String macAddress = portEntity.getMacAddress();
-        if (macAddress != null) {
-            String regex = "([A-Fa-f0-9]{2}[-,:]){5}[A-Fa-f0-9]{2}";
-            if (!macAddress.matches(regex)) {
-                throw new MacAddressInvalid();
-            }
-        }
-    }
-
-    private void checkFixedIps(PortEntity portEntity) throws Exception {
-        List<FixedIp> fixedIps = portEntity.getFixedIps();
-        if (fixedIps != null) {
-            for (FixedIp fixedIp: fixedIps) {
-                if (!Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
-                        && !Ipv6AddrUtil.formatCheck(fixedIp.getIpAddress()) ) {
-                    throw new FixedIpsInvalid();
-                }
-            }
-        }
-    }
-
-    private void checkBindingProfile(PortEntity portEntity) {
-
-    }
-
-    private void checkBindingVifDetails(PortEntity portEntity) {
-
-    }
-
-    private void checkBindingVifType(PortEntity portEntity) throws VifTypeInvalid {
-        if (portEntity.getBindingVifType() != null) {
-            Set<VifType> vifTypeSet = new HashSet<>(Arrays.asList(VifType.values()));
-            for (VifType vifType: vifTypeSet) {
-                if (vifType.getVifType().equals(portEntity.getBindingVifType())) {
-                    return;
-                }
-            }
-
-            throw new VifTypeInvalid();
-        }
-    }
-
-    private void checkBindingVnicType(PortEntity portEntity) throws VnicTypeInvalid {
-        if (portEntity.getBindingVnicType() != null) {
-            Set<VnicType> vnicTypeSet = new HashSet<>(Arrays.asList(VnicType.values()));
-            for (VnicType vnicType: vnicTypeSet) {
-                if (vnicType.getVnicType().equals(portEntity.getBindingVnicType())) {
-                    return;
-                }
-            }
-
-            throw new VnicTypeInvalid();
-        }
-    }
-
-    private void checkIpAllocation(PortEntity portEntity) throws IpAllocationInvalid {
-        if (portEntity.getIpAllocation() != null) {
-            Set<IpAllocation> ipAllocationSet = new HashSet<>(Arrays.asList(IpAllocation.values()));
-            for (IpAllocation ipAllocation: ipAllocationSet) {
-                if (ipAllocation.getIpAllocation().equals(portEntity.getIpAllocation())) {
-                    return;
-                }
-            }
-
-            throw new IpAllocationInvalid();
-        }
-    }
-
-    private void checkPort(PortEntity portEntity) throws Exception {
-        //Check mac address
-        checkMacAddress(portEntity);
-
-        //Check FixedIps
-        checkFixedIps(portEntity);
-
-        //Check binding profile
-        checkBindingProfile(portEntity);
-
-        //Check binding vif details
-        checkBindingVifDetails(portEntity);
-
-        //Check binding vif type
-        checkBindingVifType(portEntity);
-
-        //Check binding vif type
-        checkBindingVnicType(portEntity);
-
-        //Check ip allocation
-        checkIpAllocation(portEntity);
-    }
 
     /**
      * Create a port, and call the interfaces of each micro-service according to the

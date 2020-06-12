@@ -38,7 +38,7 @@ public class IgniteCacheFactory implements ICacheFactory {
     }
 
     @Override
-    public <K, V> ICache getCache(Class<V> v, String cacheName) {
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
         return new IgniteCache<>(igniteClient, cacheName);
     }
 

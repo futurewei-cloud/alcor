@@ -23,7 +23,6 @@ import com.futurewei.alcor.portmanager.exception.VerifySubnetException;
 import com.futurewei.alcor.portmanager.rollback.AbstractIpAddrRollback;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
-import com.futurewei.alcor.web.entity.port.FixedIp;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
@@ -106,15 +105,15 @@ public class IpManagerProxy {
      * @return A list of IpAddrRequest
      * @throws Exception Rest request exception
      */
-    public FixedIp allocateRandomIpAddress(Object args) throws Exception {
+    public PortEntity.FixedIp allocateRandomIpAddress(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<FixedIp> fixedIps = new ArrayList<>();
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         PortEntity portEntity = (PortEntity)args;
 
         //Allocate a random ipv4 address
         IpAddrRequest ipv4Addr = ipManagerRestClient.allocateIpAddress(IpVersion.IPV4,
                 portEntity.getVpcId(), null, null);
-        FixedIp fixedIpv4 = new FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
+        PortEntity.FixedIp fixedIpv4 = new PortEntity.FixedIp(ipv4Addr.getSubnetId(), ipv4Addr.getIp());
         fixedIps.add(fixedIpv4);
         addIpAddrRollback(new AllocateIpAddrRollback(ipManagerRestClient), ipv4Addr);
 
@@ -138,7 +137,7 @@ public class IpManagerProxy {
 
     public IpAddrRequest allocateFixedIpAddress(Object arg1, Object arg2) throws Exception {
         SubnetEntity subnetEntity = (SubnetEntity)arg1;
-        FixedIp fixedIp = (FixedIp)arg2;
+        PortEntity.FixedIp fixedIp = (PortEntity.FixedIp)arg2;
 
         String rangeId = getRangeIdFromSubnetEntity(subnetEntity, getIpVersion(fixedIp.getIpAddress()));
         if (rangeId == null) {
@@ -160,9 +159,9 @@ public class IpManagerProxy {
      */
     public List<IpAddrRequest> allocateFixedIpAddresses(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<FixedIp> fixedIps = (List<FixedIp>)args;
+        List<PortEntity.FixedIp> fixedIps = (List<PortEntity.FixedIp>)args;
 
-        for (FixedIp fixedIp: fixedIps) {
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
             if (rangeId == null) {
@@ -188,9 +187,9 @@ public class IpManagerProxy {
      */
     public List<IpAddrRequest> releaseIpAddressBulk(Object args) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        List<FixedIp> fixedIps = (List<FixedIp>)args;
+        List<PortEntity.FixedIp> fixedIps = (List<PortEntity.FixedIp>)args;
 
-        for (FixedIp fixedIp: fixedIps) {
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
             int ipVersion = getIpVersion(fixedIp.getIpAddress());
             String rangeId = getRangeIdBySubnetId(fixedIp.getSubnetId(), ipVersion);
             if (rangeId == null) {

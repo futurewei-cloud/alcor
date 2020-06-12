@@ -40,7 +40,7 @@ public class RedisCacheFactory implements ICacheFactory {
     }
 
     @Override
-    public <K, V> ICache getCache(Class<V> v, String cacheName) {
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
         RedisTemplate<K, V> template = getRedisTemplate(v);
         return new RedisCache<>(template, cacheName);
     }

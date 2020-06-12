@@ -13,27 +13,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.port;
+package com.futurewei.alcor.portmanager.rollback;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 
-public class PortTag {
-    @JsonProperty("tag")
-    private String tag;
+public class UpdateNetworkConfigRollback extends NetworkConfigRollback {
 
-    public PortTag() {
-
+    public UpdateNetworkConfigRollback(DataPlaneManagerRestClient dataPlaneManagerRestClient) {
+        super(dataPlaneManagerRestClient);
     }
 
-    public PortTag(String tag) {
-        this.tag = tag;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
+    @Override
+    public void doRollback() throws Exception {
+        for (NetworkConfiguration message: updatedNetworkConfigs) {
+            dataPlaneManagerRestClient.updateNetworkConfig(message);
+        }
     }
 }

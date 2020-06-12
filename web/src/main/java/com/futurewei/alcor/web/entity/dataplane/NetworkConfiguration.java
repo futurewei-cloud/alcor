@@ -13,27 +13,63 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.schema.Common.ResourceType;
+import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class NetworkConfiguration {
 
-  private Common.ResourceType rsType;
-  private Common.OperationType opType;
+  private ResourceType rsType;
+  private OperationType opType;
   boolean allOrNone = true;
 
-  @JsonProperty("ports")
-  private InternalPortEntityNB[] portStates;
+  @JsonProperty("ports_internal")
+  private List<InternalPortEntity> portEntities;
 
-  @JsonProperty("vpcs")
-  private VpcEntity[] vpcs;
+  @JsonProperty("vpcs_internal")
+  private List<VpcEntity> vpcEntities;
 
-  @JsonProperty("subnets")
-  private InternalSubnetEntityNB[] subnets;
+  @JsonProperty("subnets_internal")
+  private List<InternalSubnetEntity> subnetEntities;
 
-  @JsonProperty("security_groups")
-  private SecurityGroup[] securityGroups;
+  @JsonProperty("security_groups_internal")
+  private List<SecurityGroup> securityGroups;
+
+  public void addPortEntity(InternalPortEntity portEntity) {
+    if (this.portEntities == null) {
+      this.portEntities = new ArrayList<>();
+    }
+
+    this.portEntities.add(portEntity);
+  }
+
+  public void addVpcEntity(VpcEntity vpcEntity) {
+    if (this.vpcEntities == null) {
+      this.vpcEntities = new ArrayList<>();
+    }
+
+    this.vpcEntities.add(vpcEntity);
+  }
+
+  public void addSubnetEntity(InternalSubnetEntity subnetEntity) {
+    if (this.subnetEntities == null) {
+      this.subnetEntities = new ArrayList<>();
+    }
+
+    this.subnetEntities.add(subnetEntity);
+  }
+
+  public void addSecurityGroupEntity(SecurityGroup securityGroup) {
+    if (this.securityGroups == null) {
+      this.securityGroups = new ArrayList<>();
+    }
+
+    this.securityGroups.add(securityGroup);
+  }
 }
