@@ -20,18 +20,16 @@ import com.futurewei.alcor.schema.Goalstateprovisioner;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+
 @Service
 public interface GoalStateService {
 
-    List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
-    SendGoalStateToHosts();
+  List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+      SendGoalStateToHosts(
+          Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs);
 
-    public void setGoalState(Goalstate.GoalState goalState);
+  public void setIp(String ip);
 
-    public void setIp(String ip);
-
-    public void setPort(int port);
-
-    public void setFastPath(boolean fastPath);
-
+  public void setPort(int port);
 }

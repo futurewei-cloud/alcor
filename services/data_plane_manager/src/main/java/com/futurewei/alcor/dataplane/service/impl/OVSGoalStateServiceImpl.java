@@ -23,21 +23,18 @@ import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Service
 public class OVSGoalStateServiceImpl implements GoalStateService {
   private int port;
-  private Goalstate.GoalState goalState;
   private String ip;
-  private boolean isFastPath = false;
-
-  @Override
-  public void setGoalState(Goalstate.GoalState goalState) {
-    this.goalState = goalState;
-  }
 
   @Override
   public void setIp(String ip) {
@@ -49,29 +46,52 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
     this.port = port;
   }
 
-  public void setFastPath(boolean fastPath) {
-    isFastPath = fastPath;
-  }
-
   public MessageClient getKafkaClient() {
     return kafkaClient;
   }
 
-  public void setKafkaClient(MessageClient kafkaClient) {
-    this.kafkaClient = kafkaClient;
-  }
-
-  GoalStateProvisionerClient gRpcClientForEpHost = null;
   MessageClient kafkaClient = null;
   ExecutorService executorService = Executors.newCachedThreadPool();
 
   @Override
-  public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
-      SendGoalStateToHosts() {
+  public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+      SendGoalStateToHosts(
+          Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
 
-    if (isFastPath) {
+    if (isOvs) {
+      List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result =
+          new ArrayList<>();
+
+      gss.entrySet()
+          .parallelStream()
+          .map(
+              e -> {
+                return executorService.submit(
+                    () -> {
+                      return this.doSend(e.getValue(), isFast, port, e.getKey());
+                    });
+              })
+          .collect(Collectors.toList())
+          .forEach(
+              e -> {
+                try {
+                  result.add(e.get());
+                } catch (InterruptedException ex) {
+                  ex.printStackTrace();
+                } catch (ExecutionException ex) {
+                  ex.printStackTrace();
+                }
+              });
+      return result;
+    }
+    throw new RuntimeException("protocol other than ovs is not supported for now");
+  }
+
+  private List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> doSend(
+      Goalstate.GoalState goalState, boolean isFast, int port, String ip) {
+    if (isFast) {
       System.out.println("#### " + Thread.currentThread() + " " + ip);
-      return new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
+        return new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
     } else {
       String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;
       getKafkaClient().runProducer(topicForEndpoint, goalState);

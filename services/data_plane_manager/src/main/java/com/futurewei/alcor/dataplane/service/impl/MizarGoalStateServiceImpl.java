@@ -20,30 +20,19 @@ import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 
 import java.util.List;
+import java.util.Map;
 
 public class MizarGoalStateServiceImpl implements GoalStateService {
-    @Override
-    public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
-    SendGoalStateToHosts() {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+      SendGoalStateToHosts(
+          Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public void setGoalState(Goalstate.GoalState goalState) {
-    }
+  @Override
+  public void setIp(String ip) {}
 
-    @Override
-    public void setIp(String ip) {
-
-    }
-
-    @Override
-    public void setPort(int port) {
-
-    }
-
-    @Override
-    public void setFastPath(boolean fastPath) {
-
-    }
+  @Override
+  public void setPort(int port) {}
 }

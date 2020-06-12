@@ -17,7 +17,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.service.GoalStateService;
-import com.futurewei.alcor.dataplane.service.impl.OVSGoalStateServiceImpl;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.schema.Port.PortState;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB;
@@ -32,21 +31,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 @Component
 public class GoalStateManager {
   private static final Logger LOG = LoggerFactory.getLogger(GoalStateManager.class);
-  @Autowired
-  private GoalStateService goalStateService ;
+  @Autowired private GoalStateService goalStateService;
 
-
-    public Map<String, Goalstate.GoalState> transformNorthToSouth(
+  public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) {
     com.futurewei.alcor.web.entity.dataplane.InternalPortEntityNB[] portStatesArr =
         networkConfiguration.getPortStates();
@@ -259,39 +252,8 @@ public class GoalStateManager {
     portStates.add(currentPortEntity);
   }
 
-  ExecutorService executorService = Executors.newCachedThreadPool();
-
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       talkToACA(Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
-    if (isOvs) {
-      List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result =
-          new ArrayList<>();
-
-      gss.entrySet().parallelStream()
-          .map(
-              e -> {
-                return executorService.submit(
-                    () -> { goalStateService = new OVSGoalStateServiceImpl();
-                      goalStateService.setIp(e.getKey());
-                      goalStateService.setGoalState(e.getValue());
-                      goalStateService.setFastPath(isFast);
-                      goalStateService.setPort(port);
-                      return goalStateService.SendGoalStateToHosts();
-                    });
-              })
-          .collect(Collectors.toList()).stream()
-          .forEach(
-              e -> {
-                try {
-                  result.add(e.get());
-                } catch (InterruptedException ex) {
-                  ex.printStackTrace();
-                } catch (ExecutionException ex) {
-                  ex.printStackTrace();
-                }
-              });
-      return result;
-    }
-    throw new RuntimeException("protocol other than ovs is not supported for now");
+    return goalStateService.SendGoalStateToHosts(gss, isFast, port, isOvs);
   }
 }

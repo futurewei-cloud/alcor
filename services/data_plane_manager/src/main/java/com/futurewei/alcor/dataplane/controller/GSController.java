@@ -25,15 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class GSController {
-  @Autowired
-  private Config config;
-  @Autowired
-  private GoalStateManager goalStateManager;
+  @Autowired private Config config;
+  @Autowired private GoalStateManager goalStateManager;
 
   /**
    * Accept north bound calls then transfer to ACA calls in southbound
@@ -46,7 +45,8 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResultNB> createPort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> createPort(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
     return service(gs);
@@ -62,7 +62,8 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResultNB> updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> updatePort(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
     return service(gs);
@@ -78,7 +79,8 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResultNB> deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> deletePort(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
     return service(gs);
@@ -95,7 +97,8 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResultNB> createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> createSubnet(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
@@ -111,7 +114,8 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResultNB> updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> updateSubnet(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
@@ -127,7 +131,8 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResultNB> deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
+  public List<InternalDPMResultNB> deleteSubnet(@RequestBody NetworkConfiguration gs)
+      throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
@@ -135,30 +140,23 @@ public class GSController {
 
   private List<InternalDPMResultNB> service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
-//    GoalStateManager goalStateManager = new GoalStateManager();
-    List<InternalDPMResultNB> result= new ArrayList<>();
     // leave isFast as true since SB GSinfo does not have fastpath attr
-     goalStateManager
+    return goalStateManager
         .talkToACA(
             goalStateManager.transformNorthToSouth(gs),
             true,
             Integer.parseInt(config.getPort()),
             Boolean.valueOf(config.getOvs()))
         .stream()
-        .forEach(
-            e -> {
-               e.stream()
-                  .map(
-                      f -> {
-                        return new InternalDPMResultNB(
-                            f.getResourceId(),
-                            f.getResourceType().toString(),
-                            f.getOperationStatus().toString(),
-                            f.getStateElapseTime());
-                      })
-                       //also we could flatmap here
-                  .forEach(result::add);
-            });
-     return result;
+        .flatMap(Collection::stream)
+        .map(
+            f -> {
+              return new InternalDPMResultNB(
+                  f.getResourceId(),
+                  f.getResourceType().toString(),
+                  f.getOperationStatus().toString(),
+                  f.getStateElapseTime());
+            })
+        .collect(Collectors.toList());
   }
 }
