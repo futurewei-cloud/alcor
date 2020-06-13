@@ -48,12 +48,7 @@ iptables vs openflow
 
 Need numbers to justify the adventage.
 
-[Eric/James] is looking at how dragonflow use openflow. Can we write a standalone POC app to act as router using openflow?
-
-
-== Customer Workflow
-
-[Liguang] Would the customer create a router, gateway ports and connect it to the router? Or Alcor will create those by default?
+[Eric/James] is looking at how dragonflow use openflow. 
 
 
 == Workflow on Router programming
@@ -65,8 +60,10 @@ What are the steps to program our router/DVR, FIP manager, SNAT manager
 
 Picture of how our controller/network/compute node looks like.
 
+James, please provide an image.
 
-== Packet flows without DVR
+
+== Packet flows without DVR (neutron namespace/iptable way)
 
 === Case 1: East-west for instances on different compute hosts on different networks
 
@@ -110,8 +107,6 @@ In Network Node
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to compute node 2 via the tunnel interface
-
-[Eric/James] need to move from using qrouter namespace to openflow table
 
 In Compute Node 2
 
@@ -157,8 +152,6 @@ In Network Node
 . br-int adds VLAN tag and forwards the packet to br-ex
 . br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
 
-[Eric/James] need to move from using qrouter namespace to openflow table
-
 Note: Return traffic follows similar steps in reverse.
 
 === Case 3: North-south for instances with a floating IP address
@@ -193,8 +186,6 @@ In Network Node
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
 . br-tun forwards the packet to compute node 1 via the tunnel interface
 
-[Eric/James] need to move from using qrouter namespace to openflow table
-
 In Compute Node 1
 
 . For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
@@ -202,7 +193,7 @@ In Compute Node 1
 . br-tun forwards the packet to br-int
 . br-int forwards the packet to tap interface on instance 1
 
-Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instnace to external network.
+Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network.
 
 
 == Why DVR?
@@ -217,7 +208,9 @@ Before DVR, Neutron router has the following major issues:
 With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed all most of the issues above. Although it comes at a cost of code and provision complexity.
 
 
-== Packet flow DVR
+== Packet flow DVR (Alcor openflow way)
+
+[Eric] to provide picture for Case 1
 
 === Case 1: East-west for instances on different compute hosts on different networks
 
@@ -239,27 +232,37 @@ Compute node 2
 
 * Instance 2: 192.168.2.11 using project network 2
 
+prerequistite
+
+. needed DVR instance(s) created in ACA
+. DVR gw interface macs programmed as openflow rule to route traffic to ACA
+. ACA has route programmed in all DVR instance(s)
+
+[Eric] to check Ali, AWS or Tencent cloud
+
+
 In Compute Node 1
 
 . Instance 1 sends a packet to instance 2
-. Instance 1 tab interface forwards packet to br-int. The packet contains its gateway destination mac MAC_G1 because the destination resides on another network
+. Instance 1 tap interface forwards packet to br-int. The packet contains its gateway destination MAC_G1 because the destination resides on another network
 . br-int adds VLAN tag for project network 1
-. br-int removes the VLAN tag and forwards the packet to its gateway mac MAC_G1 in DVR namespace
-. DVR routes the packet to project network 2
-. project network 2 interface 192.168.2.1 in DVR namespace forwards the packet to br-int
+. br-int removes the VLAN tag and forwards the packet to its gateway MAC_G1
+. packet sends to ACA based on openflow rule for MAC_G1 and routes to project network 2
+. ACA sends the packet to br-int (to be confirmed)
 . br-int adds VLAN tag for project network 2
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 2
 . br-tun forwards the packet to compute node 2 via the tunnel interface
 
-[Eric/James] need to figure out how to do #5, #6 using openflow table and ACA application
-
 In Compute Node 2
 
-. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. For VxLAN and GRE project networks, tunnel interface forwards the packet to br-tun
 . br-tun unwraps the packet and adds VLAN tag for project network 2
 . br-tun forwards the packet to br-int
 . br-int forwards the packet to tap inetrface on instance 2
+
+Note: Return traffic follows similar steps in reverse except Compute Node 2 will be using its own local DVR to route from project network 2 to project network 1
+
 
 === Case 2: North-south for instances with a fixed IP address
 
@@ -300,7 +303,7 @@ In Network Node
 . br-int adds VLAN tag and forwards the packet to br-ex
 . br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
 
-[Eric/James] need to move from using qrouter namespace to openflow table
+[Liguang/Eric/James] to discuss a new design without using network node, use a shared external IP, and change to openflow way.
 
 Note: Return traffic follows similar steps in reverse
 
@@ -335,9 +338,9 @@ In Compute Node 1
 . qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
 . br-int adds the VLAN tag for project network 1, and forwards the packet to tap interface on instance 1
 
-[Eric/James] need to move from using qrouter namespace to openflow table
+[Liguang/Eric/James] to discuss this design, and change to openflow way.
 
-Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instnace to external network. Below is the complete flow:
+Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network. Below is the complete flow:
 
 In Compute Node 1
 
@@ -351,12 +354,11 @@ In Compute Node 1
 . br-ex internal VLAN tag is stripped and replaced with actual VLAN tag used in provider network
 
 
-
 == Gateway port
 
-In order for two virtual subnets/networks to communicate with each other, both subnets/networks needs to have a gateway port connects to a router instance, similar to how physical network works. 
+In order for two virtual subnets/networks to communicate with each other, both subnets needs to have a gateway port connects to a router instance, similar to how physical network works. 
 
-For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, both of the linux network device and OVS ports needs to be created by ACA, together with its configuration and bring up online and usable for routing.
+For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
 
 
 == L2 Population Optimization
@@ -374,16 +376,13 @@ For scenario with two local ports on the same compute host, connected to the sam
 
 How can we do better than the current Openstack setup (DVR)?
 
-James: the current assumption is neutron only install the DVR instance as needed on a compute node, want to confirm that.
-
-James: BTW, for same network, does neutron pre-configure all the tunnel VTEP on all machines even when it is not needed? I saw that on my microstack setup, want to confirm that on a real openstack setup. 
-
 
 == Pending Items
 
 . what happen if host crashed, do we just leverage the ovsdb stored data? Or we ask the Alcor controller for the whole set of configuration upon restart?
 
 . how does Neutron router manages connection flows with HA router?
+
 
 [bibliography]
 == References
