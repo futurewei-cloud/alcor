@@ -8,22 +8,37 @@ NOTE: This document is under development
 
 == Architecture Overview
 
-Picture of different routing components including router/DVR, FIP manager, SNAT manager
+Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
+
+Note, Aliyun mostly use highlevel programming languages: Java/Python/Go/PHP: https://github.com/aliyun, similar thing for tencent cloud
+
 
 == Requirements
 
-We need to supports:
+We want to have a design that is:
 
-. fast port provision to enable VMs <-> VMs within the same or different subnet
-. fast migration of VMs
-. scale to support 65,000 ports in a VPC, and 1,00,000 machines in a region
-. direct VM to VM communication (first packet may go through a gateway or DVR)
+. fast provision - port provision (enabling VMs <-> VMs within same or different subnet)
+. scalable - needs to handle 65,000 ports in a VPC, and 1,00,000 machines in a region
+. high performance - fast direct VM to VM communication (first packet may go through a gateway)
+. lean - minimal resource overhead on host (e.g. namespace, bridges)
+. fast migration - VMs migration should have network blackout time < a few seconds
 
 
-== Current Openstack pain points
+== Neutron implementation before DVR
+
+Neutron routers has the following major issues:
+
+1. VM to VM with different subnets need to go through router in the network node.
+2. Even VMs hosted on the same compute node needs to route through the virtual router if they belongs to different subnet.
+3. All north-south traffic needs to route through the virtual router in the network node.
+4. The virtual router in network node has become the bottleneck, and also single point of failure.
+
+With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed all most of the issues above. Although it comes at a cost of code and provision complexity.
 
 
 == Design Options 1 (DVR approach)
+
+[Eric] to add
 
 
 == Design Options 2 (Gateway approach)
@@ -46,14 +61,29 @@ challenge - we need the compute host to be able to measure the bandwidth used on
 
 iptables vs openflow
 
-Need numbers to justify the adventage.
+We will move away from neutron's which requires resources for the namespace, latency of using linux devices and TCP stack, overhead of using iptables. We will use the more modern openflow rules + openflow controller application to implement our virtual router, which consumes much less resource and provides high routing performance because it doesn't need to go through the full kernel TCP stack.
 
-[Eric/James] is looking at how dragonflow use openflow. 
+[Eric/James] Need numbers to justify the adventage once we have our POC implemented.
+
+[Eric/James] is looking at how dragonflow use openflow. Next step is to submodule ovs repro and try to build an app similar to ovs-ofctl, unless we want to integrate ovs-ofctl into aca in one shot.
 
 
 == Workflow on Router programming
 
-What are the steps to program our router/DVR, FIP manager, SNAT manager
+[Eric] What are the steps to program our router/DVR, FIP manager, SNAT manager
+
+
+== Virtual Router Implementation
+
+A virtual router will be implemented as part of ACA. When Alcor Controller sends down the goal state messages to compute hosts, ACA will create the in memory virtual router object and also the (virtual) gateway ports connected to it. ACA will then configure routing rules in the virtual router object. The last step ACA will do is to program openflow rules so that packets destinated to virtual router's gateway interface will be send to openflow controller that's ACA in our case.
+
+To implementation in virtual router as DVR in compute node, it needs to have:
+
+. virtual router object
+. virtual gateway interface(s) connected
+. routing rules, router caches
+. ARP responder
+. ICMP responder
 
 
 == Example Configuration?
@@ -85,11 +115,10 @@ Compute node 2
 
 * Instance 2: 192.168.2.11 using project network 2
 
-
 In Compute Node 1
 
 . Instance 1 sends a packet to instance 2
-. Instance 1 tab interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
+. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
 . br-int adds VLAN tag for project network 1
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
@@ -196,18 +225,6 @@ In Compute Node 1
 Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network.
 
 
-== Why DVR?
-
-Before DVR, Neutron router has the following major issues:
-
-1. VM to VM with different subnets need to go through router in the network node.
-2. Even VMs hosted on the same compute node needs to route through the virtual router if they belongs to different subnet.
-3. All north-south traffic needs to route through the virtual router in the network node.
-4. The virtual router in network node has become the bottleneck, and also single point of failure.
-
-With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed all most of the issues above. Although it comes at a cost of code and provision complexity.
-
-
 == Packet flow DVR (Alcor openflow way)
 
 [Eric] to provide picture for Case 1
@@ -237,9 +254,6 @@ prerequistite
 . needed DVR instance(s) created in ACA
 . DVR gw interface macs programmed as openflow rule to route traffic to ACA
 . ACA has route programmed in all DVR instance(s)
-
-[Eric] to check Ali, AWS or Tencent cloud
-
 
 In Compute Node 1
 
