@@ -16,6 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.utils;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+import java.util.regex.Pattern;
+
 public class Ipv4AddrUtil {
 
     public static boolean formatCheck(String strIpv4) {
@@ -62,5 +67,14 @@ public class Ipv4AddrUtil {
         result[4] = (byte) Integer.parseInt(strIpv4.substring(pos3 + 1));
 
         return result;
+    }
+
+    public static boolean ipv4PrefixCheck(String strIpv4) {
+        List<String> patternList = ImmutableList.of("^(?:(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}"
+                + "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"
+                + "/(([0-9])|([1-2][0-9])|(3[0-2])))$");
+        Pattern patterns = Pattern.compile(patternList.get(0));
+
+        return patterns.matcher(strIpv4).matches();
     }
 }

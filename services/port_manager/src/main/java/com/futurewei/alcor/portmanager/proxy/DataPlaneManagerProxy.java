@@ -16,10 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.portmanager.rollback.CreateGoalStateRollback;
-import com.futurewei.alcor.portmanager.rollback.DeleteGoalStateRollback;
+import com.futurewei.alcor.portmanager.rollback.CreateNetworkConfigRollback;
+import com.futurewei.alcor.portmanager.rollback.DeleteNetworkConfigRollback;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import java.util.Stack;
 
@@ -32,34 +32,34 @@ public class DataPlaneManagerProxy {
         this.rollbacks = rollbacks;
     }
 
-    public Goalstate.GoalState createGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.createGoalState(goalState);
+    public NetworkConfiguration createNetworkConfig(Object arg) throws Exception {
+        NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.createNetworkConfig(networkConfiguration);
 
-        CreateGoalStateRollback rollback = new CreateGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.createGoalState(goalState);
+        CreateNetworkConfigRollback rollback = new CreateNetworkConfigRollback(dataPlaneManagerRestClient);
+        rollback.createNetworkConfig(networkConfiguration);
         rollbacks.add(rollback);
 
-        return goalState;
+        return networkConfiguration;
     }
 
-    public void deleteGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.deleteGoalState(goalState);
+    public void deleteNetworkConfig(Object arg) throws Exception {
+        NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.deleteNetworkConfig(networkConfiguration);
 
-        DeleteGoalStateRollback rollback = new DeleteGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.createGoalState(goalState);
+        DeleteNetworkConfigRollback rollback = new DeleteNetworkConfigRollback(dataPlaneManagerRestClient);
+        rollback.deleteNetworkConfig(networkConfiguration);
         rollbacks.add(rollback);
     }
 
-    public Goalstate.GoalState updateGoalState(Object arg) throws Exception {
-        Goalstate.GoalState goalState = (Goalstate.GoalState)arg;
-        dataPlaneManagerRestClient.updateGoalState(goalState);
+    public NetworkConfiguration updateNetworkConfig(Object arg) throws Exception {
+        NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
+        dataPlaneManagerRestClient.updateNetworkConfig(networkConfiguration);
 
-        CreateGoalStateRollback rollback = new CreateGoalStateRollback(dataPlaneManagerRestClient);
-        rollback.updateGoalState(goalState);
+        CreateNetworkConfigRollback rollback = new CreateNetworkConfigRollback(dataPlaneManagerRestClient);
+        rollback.updateNetworkConfig(networkConfiguration);
         rollbacks.add(rollback);
 
-        return goalState;
+        return networkConfiguration;
     }
 }
