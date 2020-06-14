@@ -10,8 +10,6 @@ NOTE: This document is under development
 
 Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
 
-Note, Aliyun mostly use highlevel programming languages: Java/Python/Go/PHP: https://github.com/aliyun, similar thing for tencent cloud
-
 
 == Requirements
 
