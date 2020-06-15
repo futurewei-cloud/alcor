@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
 public class SecurityGroupManagerProxy {
+
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private String projectId;
 
