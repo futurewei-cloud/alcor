@@ -22,7 +22,6 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +89,7 @@ public class MockRestClientAndRepository {
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId2))
                 .thenReturn(newSecurityGroupWebJson(UnitTestConfig.securityGroupId2));
 
-        Mockito.when(securityGroupManagerRestClient.getDefaultSecurityGroup(UnitTestConfig.projectId))
+        Mockito.when(securityGroupManagerRestClient.getDefaultSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.tenantId))
                 .thenReturn(newDefaultSecurityGroupWebJson());
 
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId1))
@@ -99,16 +98,19 @@ public class MockRestClientAndRepository {
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
                 .thenReturn(newNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId1))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId1))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findItem(UnitTestConfig.portId2))
+        Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId2))
                 .thenReturn(newPortStateJson(UnitTestConfig.portId2).getPortEntity());
 
         Map<String, PortEntity> portStates = new HashMap<>();
         portStates.put(UnitTestConfig.portId1, newPortStateJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findAllItems())
+        Mockito.when(portRepository.findAllPortEntities())
                 .thenReturn(portStates);
+
+        Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
+                .thenReturn(newPortNeighbors());
     }
 }

@@ -38,6 +38,7 @@
         <module>services/port_manager</module>
         <module>services/node_manager</module>
         <module>services/data_plane_manager</module>
+        <module>services/security_group_manager</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -108,7 +109,6 @@
                 </configuration>
             </plugin>
         </plugins>
-
         <resources>
             <resource>
                 <directory>src/resources</directory>

@@ -15,10 +15,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.common.utils;
 
+import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class Ipv6AddrUtil {
     public static boolean formatCheck(String strIp) {
@@ -110,5 +114,30 @@ public class Ipv6AddrUtil {
         }
 
         return new BigInteger(bytes);
+    }
+
+    public static boolean ipv6PrefixCheck(String strIpv6) {
+       List<String> patternList = ImmutableList.of("^(?:((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}"
+                + "((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|"
+                + "(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}"
+                + "(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))"
+                + "(/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8]))))$",
+                "^(?:(([^:]+:){6}(([^:]+:[^:]+)|(.*\\..*)))|"
+                + "((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)"
+                + "(/.+))$");
+
+        Pattern[] patterns = new Pattern[patternList.size()];
+
+        for (int i = 0; i < patternList.size(); ++i) {
+           patterns[i] = Pattern.compile(patternList.get(i));
+        }
+
+        for (int i = 0; i < patterns.length; ++i) {
+            if (!patterns[i].matcher(strIpv6).matches()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

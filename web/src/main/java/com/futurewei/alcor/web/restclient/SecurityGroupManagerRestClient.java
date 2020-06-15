@@ -15,9 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
-import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupWebJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 
@@ -25,9 +24,9 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
     @Value("${microservices.securitygroup.service.url:#{\"\"}}")
     private String securityGroupManagerUrl;
 
-    public SecurityGroupWebJson getSecurityGroup(String projectId, String securityGroupId) throws Exception {
+    public SecurityGroupJson getSecurityGroup(String projectId, String securityGroupId) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/security-groups/" + securityGroupId;
-        SecurityGroupWebJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupWebJson.class);
+        SecurityGroupJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupJson.class);
         if (securityGroupWebJson == null) {
             throw new Exception("Get security group failed");
         }
@@ -35,9 +34,9 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
         return securityGroupWebJson;
     }
 
-    public SecurityGroupWebJson getDefaultSecurityGroup(String projectId) throws Exception {
-        String url = securityGroupManagerUrl + "/project/" + projectId + "/security-groups/default";
-        SecurityGroupWebJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupWebJson.class);
+    public SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception {
+        String url = securityGroupManagerUrl + "/project/" + projectId + "/security-groups/default/" + tenantId;
+        SecurityGroupJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupJson.class);
         if (securityGroupWebJson == null) {
             throw new Exception("Get default security group failed");
         }

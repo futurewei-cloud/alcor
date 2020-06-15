@@ -16,54 +16,40 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db;
 
-import com.futurewei.alcor.common.db.ignite.IgniteCache;
-import com.futurewei.alcor.common.db.redis.RedisCache;
+import com.futurewei.alcor.common.db.ignite.IgniteCacheFactory;
+import com.futurewei.alcor.common.db.redis.RedisCacheFactory;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 
 @ComponentScan
 @Component
 public class CacheFactory {
-    @Autowired(required = false)
-    private IgniteClient igniteClient;
 
-    @Autowired
-    LettuceConnectionFactory lettuceConnectionFactory;
+    private ICacheFactory iCacheFactory;
 
-    @Bean
-    CacheFactory cacheFactoryInstance() {
-        return new CacheFactory();
-    }
-
-    private ICache getIgniteCache(String cacheName) {
-        return new IgniteCache<>(igniteClient, cacheName);
-    }
-
-    public <K, V> ICache getRedisCache(Class<V> v, String cacheName) {
-        RedisTemplate<K, V> template = new RedisTemplate<K, V>();
-        template.setConnectionFactory(lettuceConnectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-
-        template.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(v));
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(v));
-        template.afterPropertiesSet();
-
-        return new RedisCache<>(template, cacheName);
-    }
-
-    public <K, V> ICache getCache(Class<V> v) {
-        if (igniteClient != null) {
-            return getIgniteCache(v.getName());
+    public CacheFactory(@Autowired(required=false)IgniteClient igniteClient, LettuceConnectionFactory lettuceConnectionFactory){
+        if(igniteClient == null){
+            this.iCacheFactory = new RedisCacheFactory(lettuceConnectionFactory);
+        }else{
+            this.iCacheFactory = new IgniteCacheFactory(igniteClient);
         }
+    }
 
-        return getRedisCache(v, v.getName());
+    public <K, V> ICache<K, V> getCache(Class<V> v) {
+        return iCacheFactory.getCache(v);
+    }
+
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
+        return iCacheFactory.getCache(v, cacheName);
+    }
+
+    public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){
+        return iCacheFactory.getExpireCache(v, timeout, timeUnit);
     }
 }
