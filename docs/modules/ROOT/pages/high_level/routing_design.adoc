@@ -31,7 +31,7 @@ Neutron routers has the following major issues:
 3. All north-south traffic needs to route through the virtual router in the network node.
 4. The virtual router in network node has become the bottleneck, and also single point of failure.
 
-With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed all most of the issues above. Although it comes at a cost of code and provision complexity.
+With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed almost of the issues above, although it comes at a cost of code and provision complexity.
 
 
 == Design Options 1 (DVR approach)
@@ -55,11 +55,11 @@ Can we start with a simple gateway approach where:
 challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flow + NACL info.
 
 
-== Route Rule implementation
+== Route Rule implementation (iptables vs openflow)
 
-iptables vs openflow
+We will move away from neutron's which requires resources for the namespace which loads a complete TCP/IP stack with ARP and routing table, which will remove the latency and host CPU consumption of using linux devices and TCP/IP stack, and overhead of using iptables. 
 
-We will move away from neutron's which requires resources for the namespace, latency of using linux devices and TCP stack, overhead of using iptables. We will use the more modern openflow rules + openflow controller application to implement our virtual router, which consumes much less resource and provides high routing performance because it doesn't need to go through the full kernel TCP stack.
+We will use the more modern openflow rules + openflow controller application to implement our virtual router, which eliminates the usage of TCP/IP stack. It consumes much less resource and provides high routing performance by providing routing support using Openflow rules only.
 
 [Eric/James] Need numbers to justify the adventage once we have our POC implemented.
 
@@ -73,15 +73,71 @@ We will move away from neutron's which requires resources for the namespace, lat
 
 == Virtual Router Implementation
 
-A virtual router will be implemented as part of ACA. When Alcor Controller sends down the goal state messages to compute hosts, ACA will create the in memory virtual router object and also the (virtual) gateway ports connected to it. ACA will then configure routing rules in the virtual router object. The last step ACA will do is to program openflow rules so that packets destinated to virtual router's gateway interface will be send to openflow controller that's ACA in our case.
+A virtual router will be implemented as part of ACA. When Alcor Controller sends down the goal state messages to compute hosts, ACA will create the in memory virtual router object and also the (virtual) gateway ports connected to it. ACA will then configure routing rules in the virtual router object. 
 
 To implementation in virtual router as DVR in compute node, it needs to have:
 
 . virtual router object
 . virtual gateway interface(s) connected
-. routing rules, router caches
-. ARP responder
-. ICMP responder
+. host virtual router MAC that's unique in the region
+
+TO support L3 routing, ACA will program two sets of rules: the essential set, and the on-demand set.
+
+=== Openflow Essential Rules
+
+The Openflow essential rules are programmed as soon as virtual router information is pushed down to ACA regardless of traffic. We need them to support:
+
+. Intra-subnet traffic (ports in the same subnet that doesn't need routing), send using NORMAL path
+. Traffic destinated to one the virtual router port, first packet send to ACA to program the openflow rule
+. ARP and ICMP responder so that controller doesn't need to handle it
+
+=== Openflow On-Demand Rules
+
+For inter-subnet L3 traffic between VMs, the first packet will be sent to controller since the on-demand openflow rules has not been programmed yet. This model is used based on the assumption that most VMs don't talk to each other in the cloud environment. Since we don't want to flood our openflow rule table with ton of entries with large scale setup. We have this on-demand model to program the needed rule when needed.
+
+With the first packet sends to CONTROLLER, ACA is acting as the openflow controller and look up its router objects. ACA will find the matching router and then program the corresonding openflow rules on the local machine. Once the openflow rules have been programmed, ACA will simply send the first packet back to OVS to route using the on-demand openflow rule just programmed. 
+
+In order to keep the set of openflow rules lean and small as we scale. The on-demand rule will have an idle timeout of 60s. That means all the ongoing traffic will keep the rule alive, but if there is no traffic hitting the on-demand rule for 60s. The particular on-demand will be removed and any new traffic will hit the essential first packet rule agent to perform the on-demand rule programming. The idle timeout of 60s is the default and can be configured in ACA.
+
+=== ACA Virtual Router Packet Flow
+
+[Eric]  prototype rules
+
+Table Triage: (openflow table 0)
+
+If nothing matches, send to Table Packet Classifier
+
+Table Packet Classifier: (openflow table 50)
+
+. if ARP, send to Table ARP Responder
+. if ICMP, send to Table ICMP Responder
+. [Eric/James] need special handling for broadcast/multicast? or simply send to Normal?
+. else send to Table Forwarding
+
+Table ARP Responder: (openflow table 51)
+
+. if local VLAN and ARP target IP matches an openflow rule, send ARP response
+. else send to Normal path
+
+Table ICMP Responder: (openflow table 52)
+
+. if local VLAN and ICMP target matches an openflow rule, send ICMP response
+. else send ICMP error
+
+[Eric/James] should we send the ICMP to controller?
+
+Table Forwarding: (openflow table 55)
+
+. (on demand rule) if inter-subnet communication matches an openflow rule, perform L3 forwarding, programmed in last 60s
+. (L3 essential rule) if segment ID and destination L3 subnet matches an openflow rule, send to ACA
+. (L2 essential rule) if local vlan and local subnet matches an openflow rule, send to Normal path
+. else send to Table Public, this is traffic to external
+
+=== Gateway port
+
+In order for two virtual subnets/networks to communicate with each other, both subnets needs to have a gateway port connects to a router instance, similar to how physical network works. 
+
+For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
 
 
 == Example Configuration?
@@ -91,7 +147,7 @@ Picture of how our controller/network/compute node looks like.
 James, please provide an image.
 
 
-== Packet flows without DVR (neutron namespace/iptable way)
+== E2E Packet flows without DVR (neutron namespace/iptable way)
 
 === Case 1: East-west for instances on different compute hosts on different networks
 
@@ -223,7 +279,7 @@ In Compute Node 1
 Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network.
 
 
-== Packet flow DVR (Alcor openflow way)
+== E2E Packet flow DVR (Alcor openflow way)
 
 [Eric] to provide picture for Case 1
 
@@ -364,13 +420,6 @@ In Compute Node 1
 . FIP namespace routes the packet to 10.213.0.1, which is the default gw for provider network, sends it to br-int
 . br-int switches the traffic to br-ex
 . br-ex internal VLAN tag is stripped and replaced with actual VLAN tag used in provider network
-
-
-== Gateway port
-
-In order for two virtual subnets/networks to communicate with each other, both subnets needs to have a gateway port connects to a router instance, similar to how physical network works. 
-
-For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
 
 
 == L2 Population Optimization
