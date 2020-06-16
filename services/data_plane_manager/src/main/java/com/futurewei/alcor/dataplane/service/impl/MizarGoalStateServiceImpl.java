@@ -29,10 +29,4 @@ public class MizarGoalStateServiceImpl implements GoalStateService {
           Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
     throw new UnsupportedOperationException();
   }
-
-  @Override
-  public void setIp(String ip) {}
-
-  @Override
-  public void setPort(int port) {}
 }

@@ -13,9 +13,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
-import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.schema.Common.OperationType;
+import com.futurewei.alcor.schema.Common.ResourceType;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
@@ -27,42 +27,41 @@ public class NetworkConfiguration {
 
   private ResourceType rsType;
   private OperationType opType;
-  boolean allOrNone = true;
 
   @JsonProperty("ports_internal")
-  private List<InternalPortEntity> portEntities;
+  private List<InternalPortEntity> portStates;
 
   @JsonProperty("vpcs_internal")
-  private List<VpcEntity> vpcEntities;
+  private List<VpcEntity> vpcs;
 
   @JsonProperty("subnets_internal")
-  private List<InternalSubnetEntity> subnetEntities;
+  private List<InternalSubnetEntity> subnets;
 
   @JsonProperty("security_groups_internal")
   private List<SecurityGroup> securityGroups;
 
   public void addPortEntity(InternalPortEntity portEntity) {
-    if (this.portEntities == null) {
-      this.portEntities = new ArrayList<>();
+    if (this.portStates == null) {
+      this.portStates = new ArrayList<>();
     }
 
-    this.portEntities.add(portEntity);
+    this.portStates.add(portEntity);
   }
 
   public void addVpcEntity(VpcEntity vpcEntity) {
-    if (this.vpcEntities == null) {
-      this.vpcEntities = new ArrayList<>();
+    if (this.vpcs == null) {
+      this.vpcs = new ArrayList<>();
     }
 
-    this.vpcEntities.add(vpcEntity);
+    this.vpcs.add(vpcEntity);
   }
 
   public void addSubnetEntity(InternalSubnetEntity subnetEntity) {
-    if (this.subnetEntities == null) {
-      this.subnetEntities = new ArrayList<>();
+    if (this.subnets == null) {
+      this.subnets = new ArrayList<>();
     }
 
-    this.subnetEntities.add(subnetEntity);
+    this.subnets.add(subnetEntity);
   }
 
   public void addSecurityGroupEntity(SecurityGroup securityGroup) {

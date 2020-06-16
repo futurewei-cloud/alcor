@@ -21,6 +21,8 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,18 +35,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class OVSGoalStateServiceImpl implements GoalStateService {
+  private static final Logger LOG = LoggerFactory.getLogger(OVSGoalStateServiceImpl.class);
+
   private int port;
   private String ip;
-
-  @Override
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
-
-  @Override
-  public void setPort(int port) {
-    this.port = port;
-  }
 
   public MessageClient getKafkaClient() {
     return kafkaClient;
@@ -90,7 +84,7 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
   private List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> doSend(
       Goalstate.GoalState goalState, boolean isFast, int port, String ip) {
     if (isFast) {
-      System.out.println("#### " + Thread.currentThread() + " " + ip);
+        LOG.debug("#### " + Thread.currentThread() + " " + ip);
         return new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
     } else {
       String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;

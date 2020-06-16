@@ -39,36 +39,4 @@ public class NeighborInfo {
         this.portId = portId;
         this.portMac = portMac;
     }
-
-    public String getHostIp() {
-        return hostIp;
-    }
-
-    public void setHostIp(String hostIp) {
-        this.hostIp = hostIp;
-    }
-
-    public String getHostId() {
-        return hostId;
-    }
-
-    public void setHostId(String hostId) {
-        this.hostId = hostId;
-    }
-
-    public String getPortId() {
-        return portId;
-    }
-
-    public void setPortId(String portId) {
-        this.portId = portId;
-    }
-
-    public String getPortMac() {
-        return portMac;
-    }
-
-    public void setPortMac(String portMac) {
-        this.portMac = portMac;
-    }
 }

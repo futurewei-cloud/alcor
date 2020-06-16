@@ -28,8 +28,4 @@ public interface GoalStateService {
   List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       SendGoalStateToHosts(
           Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs);
-
-  public void setIp(String ip);
-
-  public void setPort(int port);
 }
