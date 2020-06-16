@@ -10,6 +10,7 @@ NOTE: This document is under development
 
 Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
 
+image::ovs-dvr-architecture.jpg[]
 
 == Requirements
 
@@ -88,7 +89,7 @@ To implementation in virtual router as DVR in compute node, it needs to have:
 
 Picture of how our controller/network/compute node looks like.
 
-James, please provide an image.
+image::example-configuration.jpg[]
 
 
 == Packet flows without DVR (neutron namespace/iptable way)
