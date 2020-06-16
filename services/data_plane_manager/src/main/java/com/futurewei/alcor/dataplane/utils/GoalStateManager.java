@@ -42,7 +42,7 @@ public class GoalStateManager {
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) {
     InternalPortEntity[] portStatesArr =
-        networkConfiguration.getPortStates().toArray(new InternalPortEntity[0]);
+        networkConfiguration.getPortEntities().toArray(new InternalPortEntity[0]);
     InternalSubnetEntity[] subnetArr = networkConfiguration.getSubnets().toArray(new InternalSubnetEntity[0]);
     com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr = networkConfiguration.getVpcs().toArray(new com.futurewei.alcor.web.entity.vpc.VpcEntity[0]);
 

@@ -29,7 +29,7 @@ public class NetworkConfiguration {
   private OperationType opType;
 
   @JsonProperty("ports_internal")
-  private List<InternalPortEntity> portStates;
+  private List<InternalPortEntity> portEntities;
 
   @JsonProperty("vpcs_internal")
   private List<VpcEntity> vpcs;
@@ -41,11 +41,11 @@ public class NetworkConfiguration {
   private List<SecurityGroup> securityGroups;
 
   public void addPortEntity(InternalPortEntity portEntity) {
-    if (this.portStates == null) {
-      this.portStates = new ArrayList<>();
+    if (this.portEntities == null) {
+      this.portEntities = new ArrayList<>();
     }
 
-    this.portStates.add(portEntity);
+    this.portEntities.add(portEntity);
   }
 
   public void addVpcEntity(VpcEntity vpcEntity) {
