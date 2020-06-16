@@ -10,7 +10,7 @@ NOTE: This document is under development
 
 Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
 
-image::ovs-dvr-architecture.jpg[] 
+image::example-configuration.jpg[] 
 
 
 == Requirements
@@ -145,9 +145,6 @@ For a regular port used by VM/Container, the linux network device and OVS port i
 == Example Configuration?
 
 Picture of how our controller/network/compute node looks like.
-
-image::example-configuration.jpg[]
-
 
 == E2E Packet flows without DVR (neutron namespace/iptable way)
 
