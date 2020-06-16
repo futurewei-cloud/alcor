@@ -65,8 +65,6 @@ We will use the more modern openflow rules + openflow controller application to 
 
 [Eric/James] Need numbers to justify the adventage once we have our POC implemented.
 
-[Eric/James] is looking at how dragonflow use openflow. Next step is to submodule ovs repro and try to build an app similar to ovs-ofctl, unless we want to integrate ovs-ofctl into aca in one shot.
-
 
 == Workflow on Router programming
 
@@ -83,7 +81,7 @@ To implementation in virtual router as DVR in compute node, it needs to have:
 . virtual gateway interface(s) connected
 . host virtual router MAC that's unique in the region
 
-TO support L3 routing, ACA will program two sets of rules: the essential set, and the on-demand set.
+To support L3 routing, ACA will program two sets of rules: the essential set, and the on-demand set.
 
 === Openflow Essential Rules
 
@@ -113,7 +111,7 @@ Table Packet Classifier: (openflow table 50)
 
 . if ARP, send to Table ARP Responder
 . if ICMP, send to Table ICMP Responder
-. [Eric/James] need special handling for broadcast/multicast? or simply send to Normal?
+. We may need to handle broadcast/multicast, by simply send to Normal
 . else send to Table Forwarding
 
 Table ARP Responder: (openflow table 51)
@@ -142,9 +140,9 @@ In order for two virtual subnets/networks to communicate with each other, both s
 For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
 
 
-== Example Configuration?
+== Example Configuration
 
-Picture of how our controller/network/compute node looks like.
+Here is how our controller/network and compute nodes looks like:
 
 == E2E Packet flows without DVR (neutron namespace/iptable way)
 
@@ -312,10 +310,13 @@ In Compute Node 1
 
 . Instance 1 sends a packet to instance 2
 . Instance 1 tap interface forwards packet to br-int. The packet contains its gateway destination MAC_G1 because the destination resides on another network
-. br-int adds VLAN tag for project network 1
-. br-int removes the VLAN tag and forwards the packet to its gateway MAC_G1
-. packet sends to ACA based on openflow rule for MAC_G1 and routes to project network 2
-. ACA sends the packet to br-int (to be confirmed)
+. br-int adds VLAN tag for project network 1 because of OVS port setting
+. br-int sends the packet to openflow Table Packet Classifier
+. openflow Table Packet Classifier sends the packet to Table Forwarding
+. openflow Table Forwarding cannot find a matching on-demand rule, sends packet to ACA based on essential rule
+. ACA matches the gateway port MAC_G1 and found the corresponding virtual router object, confirm it can route to project network 2
+. ACA adds on-demand openflow rule and sends the first packet back to br-int
+. br-int routes to project network 2 based on the just added on-demand rule, remove the VLAN tag at the same time
 . br-int adds VLAN tag for project network 2
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
 . br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 2

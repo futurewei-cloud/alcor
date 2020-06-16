@@ -1,0 +1,50 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+autonumber
+collections Instance_1_tap_interface
+collections br_int_Compute_Host_1
+collections openflow_table_classifier
+collections openflow_table_forwarding
+collections Alcor_Control_Agent
+collections br_int_Compute_Host_1
+collections br_tun_Compute_Host_1
+collections br_tun_Compute_Host_2
+collections br_int_Compute_Host_2
+collections Instance_2_tap_interface
+
+==East-west for instances on different compute hosts on different networks==
+Instance_1_tap_interface -> br_int_Compute_Host_1: Packet sends to gateway
+br_int_Compute_Host_1 -> br_int_Compute_Host_1: +VLAN tag for network 1
+br_int_Compute_Host_1 -> openflow_table_classifier: Is it ARP or ICMP?
+openflow_table_classifier -> openflow_table_forwarding: Using the default rule
+openflow_table_forwarding -> Alcor_Control_Agent: No on-demand rule matched
+Alcor_Control_Agent -> Alcor_Control_Agent: Matches the gateway port MAC
+Alcor_Control_Agent -> Alcor_Control_Agent: Found the corresponding router
+Alcor_Control_Agent -> Alcor_Control_Agent: Adds on-demand routing rule
+Alcor_Control_Agent -> br_int_Compute_Host_1: sends back to br-int
+br_int_Compute_Host_1 -> br_int_Compute_Host_1: Routes to network 2
+br_int_Compute_Host_1 -> br_int_Compute_Host_1: VLAN tag -> network 2
+br_int_Compute_Host_1 -> br_tun_Compute_Host_1: Sends to br-tun
+br_tun_Compute_Host_1 -> br_tun_Compute_Host_2: Wraps the packet
+br_tun_Compute_Host_1 -> br_tun_Compute_Host_2: Sends to VxLAN tunnel
+br_tun_Compute_Host_2 -> br_tun_Compute_Host_2: Unwraps the packet
+br_tun_Compute_Host_2 -> br_tun_Compute_Host_2: +VLAN tag for network 2
+br_tun_Compute_Host_2 -> br_int_Compute_Host_2: 
+br_int_Compute_Host_2 -> Instance_2_tap_interface
+
+@enduml
