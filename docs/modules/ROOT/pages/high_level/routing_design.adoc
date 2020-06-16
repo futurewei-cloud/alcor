@@ -10,7 +10,8 @@ NOTE: This document is under development
 
 Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
 
-image::ovs-dvr-architecture.jpg[]
+image::ovs-dvr-architecture.jpg[] 
+
 
 == Requirements
 
