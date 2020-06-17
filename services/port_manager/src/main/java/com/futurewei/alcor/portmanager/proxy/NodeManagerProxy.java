@@ -16,10 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import java.util.Stack;
 
@@ -38,13 +39,13 @@ public class NodeManagerProxy {
      * @return The information of host/node
      * @throws Exception Rest request exception
      */
-    public NodeInfo getNodeInfo(Object args) throws Exception {
-        String nodeId = (String)args;
-        NodeInfoJson nodeInfoJson = nodeManagerRestClient.getNodeInfo(nodeId);
+    public PortBindingHost getNodeInfo(Object args) throws Exception {
+        PortEntity portEntity = (PortEntity)args;
+        NodeInfoJson nodeInfoJson = nodeManagerRestClient.getNodeInfo(portEntity.getBindingHostId());
         if (nodeInfoJson == null || nodeInfoJson.getNodeInfo() == null) {
             throw new GetNodeInfoException();
         }
 
-        return nodeInfoJson.getNodeInfo();
+        return new PortBindingHost(portEntity.getId(), nodeInfoJson.getNodeInfo());
     }
 }

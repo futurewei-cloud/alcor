@@ -27,6 +27,12 @@ public interface ICacheFactory {
     <K, V> ICache<K, V> getCache(Class<V> v);
 
     /**
+     * get a persistence cache with cache name
+     * @return
+     */
+    <K, V> ICache<K, V> getCache(Class<V> v, String cacheName);
+
+    /**
      * get a cache with auto set expire time
      * @return
      */
