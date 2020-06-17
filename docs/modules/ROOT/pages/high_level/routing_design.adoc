@@ -22,9 +22,7 @@ We want to have a design that is:
 . fast migration - VMs migration should have network blackout time < a few seconds
 
 
-== Neutron implementation before DVR
-
-Neutron routers has the following major issues:
+== Neutron router issues before DVR
 
 1. VM to VM with different subnets need to go through router in the network node.
 2. Even VMs hosted on the same compute node needs to route through the virtual router if they belongs to different subnet.
@@ -34,25 +32,30 @@ Neutron routers has the following major issues:
 With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed almost of the issues above, although it comes at a cost of code and provision complexity.
 
 
-== Design Options 1 (DVR approach)
+== Design Options 1 (Current: Alcor DVR approach)
 
-[Eric] to add
+The prefered design would be a DVR solution which provides direct VM to VM cross subnet communication. It will support all neutron DVR features and have improvement on top of it. The advantages includes:
+
+. Direct and not chatty Alcor controller to Alcor control agent communication
+. Using a much leaner openflow rules for routing instead of using namespace and TCP/IP stack (more detail below)
+. Openflow routing rules are installed on-demand and cleaned by after idle timer (e.g. 60s) which keeps the active openflow table entries small for fast look up
+. The design enable scale and performance from ground up, addressing the biggest pain point on neutron
 
 
-== Design Options 2 (Gateway approach)
+== Design Options 2 (Next: Gateway approach)
 
-Can we start with a simple gateway approach where:
+A simple gateway approach:
 
 . only program the compute host for the new port and gateway
 . install a default flow in the compute host to route all unknown traffic to a gateway
 . when gateway saw the VM to VM communication (different network)
-.. somehow install the flow in the sender host (how)
-.. should the flow has a timeout like 300 mins (maybe not for now)
-.. how to install the network ACL during the flow install? Maybe same approach as DVR
+.. download and install the routing flow in the sender host
+.. the flow would have a idle timeout like 60s
+.. will need to download and install the corresponding NACL 
 .. should this be trigger on the gateway or compute host? 
-... compute host can do better bandwidth measurement when needed and it is more distributed
+... compute host can do better bandwidth measurement locally and it is more distributed
 
-challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flow + NACL info.
+challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flows + NACL info.
 
 
 == Route Rule implementation (iptables vs openflow)
@@ -66,7 +69,7 @@ We will use the more modern openflow rules + openflow controller application to 
 
 == Workflow on Router programming
 
-[Eric] What are the steps to program our router/DVR, FIP manager, SNAT manager
+[Eric/James] What are the steps to program our router/DVR, FIP manager, SNAT manager?
 
 
 == Virtual Router Implementation
