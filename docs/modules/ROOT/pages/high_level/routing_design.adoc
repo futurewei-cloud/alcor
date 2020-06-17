@@ -8,8 +8,6 @@ NOTE: This document is under development
 
 == Architecture Overview
 
-Picture of different routing components including router/DVR, FIP manager, SNAT manager. Can use the picture from James.
-
 image::example-configuration.jpg[] 
 
 
@@ -139,10 +137,6 @@ In order for two virtual subnets/networks to communicate with each other, both s
 
 For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
 
-
-== Example Configuration
-
-Here is how our controller/network and compute nodes looks like:
 
 == E2E Packet flows without DVR (neutron namespace/iptable way)
 
