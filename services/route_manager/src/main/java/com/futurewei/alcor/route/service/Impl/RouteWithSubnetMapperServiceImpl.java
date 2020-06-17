@@ -143,7 +143,9 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
                 break;
             }
         }
-        routeIds.remove(index);
+        if (index != -1) {
+            routeIds.remove(index);
+        }
         routeWithSubnetMapper.setRouteIds(routeIds);
 
         this.routeWithSubnetMapperRepository.addItem(routeWithSubnetMapper);

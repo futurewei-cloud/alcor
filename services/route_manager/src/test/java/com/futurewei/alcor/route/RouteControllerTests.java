@@ -37,7 +37,7 @@ public class RouteControllerTests {
     @MockBean
     private RouteDatabaseService routeDatabaseService;
 
-    private String getByIdUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes/" + UnitTestConfig.routeId;
+    private String getByIdUri = "/routes/" + UnitTestConfig.routeId;
     private String createSubnetUri = "/subnets/" + UnitTestConfig.subnetId + "/routes";
     private String createVpcUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes";
     private String deleteUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes/" + UnitTestConfig.routeId;

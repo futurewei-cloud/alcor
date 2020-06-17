@@ -144,7 +144,9 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
                 break;
             }
         }
-        routeIds.remove(index);
+        if (index != -1) {
+            routeIds.remove(index);
+        }
         routeWithVpcMapper.setRouteIds(routeIds);
 
         this.routeWithVpcMapperRepository.addItem(routeWithVpcMapper);
