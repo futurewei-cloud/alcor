@@ -17,8 +17,8 @@ package com.futurewei.alcor.networkaclmanager.controller;
 
 import com.futurewei.alcor.networkaclmanager.config.UnitTestConfig;
 import com.futurewei.alcor.networkaclmanager.repo.NetworkAclRepository;
-import com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
+import com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,54 +37,54 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class GetNetworkAclTest {
+public class GetNetworkAclRuleTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private NetworkAclRepository networkAclRepository;
 
-    private String getNetworkAclUrl = UnitTestConfig.networkAclUrl + "/" + UnitTestConfig.networkAclId1;
-    private String listNetworkAclUrl = UnitTestConfig.networkAclUrl;
+    private String getNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId;
+    private String listNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl;
 
     @Test
-    public void getExistNetworkAclTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+    public void getExistNetworkAclRuleTest() throws Exception {
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
 
-        this.mockMvc.perform(get(getNetworkAclUrl))
+        this.mockMvc.perform(get(getNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.network_acl.id")
-                        .value(UnitTestConfig.networkAclId1)
+                        .jsonPath("$.network_acl_rule.id")
+                        .value(UnitTestConfig.networkAclRuleId)
                 );
     }
 
     @Test
-    public void getNonExistNetworkAclTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+    public void getNonExistNetworkAclRuleTest() throws Exception {
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
                 .thenReturn(null);
 
-        this.mockMvc.perform(get(getNetworkAclUrl))
+        this.mockMvc.perform(get(getNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    public void listNetworkAclTest() throws Exception {
-        Map<String, NetworkAclEntity> networkAclEntityMap = new HashMap<>();
-        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
+    public void listNetworkAclRuleTest() throws Exception {
+        Map<String, NetworkAclRuleEntity> networkAclRuleEntityMap = new HashMap<>();
+        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
 
-        Mockito.when(networkAclRepository.getAllNetworkAcls())
-                .thenReturn(networkAclEntityMap);
+        Mockito.when(networkAclRepository.getAllNetworkAclRules())
+                .thenReturn(networkAclRuleEntityMap);
 
-        this.mockMvc.perform(get(listNetworkAclUrl))
+        this.mockMvc.perform(get(listNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$[0].id")
-                        .value(UnitTestConfig.networkAclId1)
+                        .value(UnitTestConfig.networkAclRuleId)
                 );
     }
 }

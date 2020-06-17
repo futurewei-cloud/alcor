@@ -17,7 +17,7 @@ package com.futurewei.alcor.networkaclmanager.controller;
 
 import com.futurewei.alcor.networkaclmanager.config.UnitTestConfig;
 import com.futurewei.alcor.networkaclmanager.repo.NetworkAclRepository;
-import com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder;
+import com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,31 +32,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DeleteNetworkAclTest {
+public class DeleteNetworkAclRuleTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private NetworkAclRepository networkAclRepository;
 
-    private String deleteNetworkAclUrl = UnitTestConfig.networkAclUrl + "/" + UnitTestConfig.networkAclId1;
+    private String deleteNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId;
 
     @Test
-    public void deleteExistNetworkAclTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+    public void deleteExistNetworkAclRuleTest() throws Exception {
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
 
-        this.mockMvc.perform(delete(deleteNetworkAclUrl))
+        this.mockMvc.perform(delete(deleteNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void deleteNonExistNetworkAclTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+    public void deleteNonExistNetworkAclRuleTest() throws Exception {
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclId1))
                 .thenReturn(null);
 
-        this.mockMvc.perform(delete(deleteNetworkAclUrl))
+        this.mockMvc.perform(delete(deleteNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
     }

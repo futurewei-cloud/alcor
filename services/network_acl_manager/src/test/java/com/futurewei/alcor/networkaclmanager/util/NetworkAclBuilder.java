@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkAclBuilder {
-    public static NetworkAclEntity buildNetworkAclEntity() throws Exception {
+    public static NetworkAclEntity buildNetworkAclEntity() {
         NetworkAclEntity networkAclEntity = new NetworkAclEntity();
-        networkAclEntity.setId(UnitTestConfig.networkAclId);
+        networkAclEntity.setId(UnitTestConfig.networkAclId1);
         networkAclEntity.setName(UnitTestConfig.networkAclName1);
         networkAclEntity.setVpcId(UnitTestConfig.vpcId1);
         networkAclEntity.setVpcId(UnitTestConfig.vpcId1);
@@ -38,7 +38,8 @@ public class NetworkAclBuilder {
         return networkAclEntity;
     }
 
-    public static NetworkAclEntity buildNetworkAclEntity(String id, String name, String vpcId, List<String> subnetIds) throws Exception {
+    public static NetworkAclEntity buildNetworkAclEntity(String id, String name, String vpcId,
+                                                         List<String> subnetIds) {
         NetworkAclEntity networkAclEntity = new NetworkAclEntity();
         networkAclEntity.setId(id);
         networkAclEntity.setName(name);
@@ -47,11 +48,12 @@ public class NetworkAclBuilder {
         return networkAclEntity;
     }
 
-    public static NetworkAclWebJson buildNetworkAclWebJson() throws Exception {
+    public static NetworkAclWebJson buildNetworkAclWebJson() {
         return new NetworkAclWebJson(buildNetworkAclEntity());
     }
 
-    public static NetworkAclWebJson buildNetworkAclWebJson(String id, String name, String vpcId, List<String> subnetIds) throws Exception {
+    public static NetworkAclWebJson buildNetworkAclWebJson(String id, String name,
+                                                           String vpcId, List<String> subnetIds) {
         return new NetworkAclWebJson(buildNetworkAclEntity(id, name, vpcId, subnetIds));
     }
 
@@ -62,7 +64,8 @@ public class NetworkAclBuilder {
         return objectMapper.writeValueAsString(networkAclWebJson);
     }
 
-    public static String buildNetworkAclWebJsonString(String id, String name, String vpcId, List<String> subnetIds) throws Exception {
+    public static String buildNetworkAclWebJsonString(String id, String name, String vpcId,
+                                                      List<String> subnetIds) throws Exception {
         NetworkAclWebJson networkAclWebJson = new NetworkAclWebJson(buildNetworkAclEntity(id, name, vpcId, subnetIds));
 
         ObjectMapper objectMapper = new ObjectMapper();

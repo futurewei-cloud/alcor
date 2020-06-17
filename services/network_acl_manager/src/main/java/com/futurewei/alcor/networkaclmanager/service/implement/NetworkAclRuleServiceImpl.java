@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
@@ -46,9 +47,14 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
             throw new NetworkAclNotFound();
         }
 
+        //Generate uuid for networkAclRuleEntity
+        if (networkAclRuleEntity.getId() == null) {
+            networkAclRuleEntity.setId(UUID.randomUUID().toString());
+        }
+
         //Check if number has been occupied
         Integer number = networkAclRuleEntity.getNumber();
-        if (networkAclRepository.getNetworkAclRulesByNumber(number) != null) {
+        if (!networkAclRepository.getNetworkAclRulesByNumber(number).isEmpty()) {
             throw new RuleNumberOccupied();
         }
 
@@ -68,11 +74,39 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
 
         boolean needUpdate = false;
 
+        //Update name
+        if (networkAclRuleEntity.getName() != null) {
+            if (!networkAclRuleEntity.getName().equals(oldNetworkAclRuleEntity.getName())) {
+                oldNetworkAclRuleEntity.setName(networkAclRuleEntity.getName());
+                needUpdate = true;
+            }
+        }
+
+        //Update description
+        if (networkAclRuleEntity.getDescription() != null) {
+            if (!networkAclRuleEntity.getDescription().equals(oldNetworkAclRuleEntity.getDescription())) {
+                oldNetworkAclRuleEntity.setDescription(networkAclRuleEntity.getDescription());
+                needUpdate = true;
+            }
+        }
+
+        //Update network acl id
+        String newNetworkAclId = networkAclRuleEntity.getNetworkAclId();
+        String oldNetworkAclId = oldNetworkAclRuleEntity.getNetworkAclId();
+        if (newNetworkAclId != null && !newNetworkAclId.equals(oldNetworkAclId)) {
+            if (networkAclRepository.getNetworkAcl(newNetworkAclId) == null) {
+                throw new NetworkAclNotFound();
+            }
+
+            oldNetworkAclRuleEntity.setNetworkAclId(newNetworkAclId);
+            needUpdate = true;
+        }
+
         //Update rule number
         Integer newNumber = networkAclRuleEntity.getNumber();
         Integer oldNumber = oldNetworkAclRuleEntity.getNumber();
         if (newNumber != null && !newNumber.equals(oldNumber)) {
-            if (networkAclRepository.getNetworkAclRulesByNumber(newNumber) != null) {
+            if (!networkAclRepository.getNetworkAclRulesByNumber(newNumber).isEmpty()) {
                 throw new RuleNumberOccupied();
             }
 
@@ -114,15 +148,41 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
 
         //Update protocol
         String newProtocol = networkAclRuleEntity.getProtocol();
-        if (newProtocol != null) {
-            if (Protocol.ICMP.getProtocol().equals(newProtocol)) {
-                oldNetworkAclRuleEntity.setIcmpCode(networkAclRuleEntity.getIcmpCode());
-                oldNetworkAclRuleEntity.setIcmpType(networkAclRuleEntity.getIcmpType());
-            } else {
-                oldNetworkAclRuleEntity.setPortRangeMax(networkAclRuleEntity.getPortRangeMax());
-                oldNetworkAclRuleEntity.setPortRangeMin(networkAclRuleEntity.getPortRangeMin());
-            }
+        String oldProtocol = oldNetworkAclRuleEntity.getProtocol();
+        if (newProtocol != null && !newProtocol.equals(oldProtocol)) {
+            oldNetworkAclRuleEntity.setProtocol(newProtocol);
+            needUpdate = true;
+        }
 
+        //Update icmp type
+        Integer newIcmpType = networkAclRuleEntity.getIcmpType();
+        Integer oldIcmpType = oldNetworkAclRuleEntity.getIcmpType();
+        if (newIcmpType != null && !newIcmpType.equals(oldIcmpType)) {
+            oldNetworkAclRuleEntity.setIcmpType(networkAclRuleEntity.getIcmpType());
+            needUpdate = true;
+        }
+
+        //Update icmp code
+        Integer newIcmpCode = networkAclRuleEntity.getIcmpCode();
+        Integer oldIcmpCode = oldNetworkAclRuleEntity.getIcmpCode();
+        if (newIcmpCode != null && !newIcmpCode.equals(oldIcmpCode)) {
+            oldNetworkAclRuleEntity.setIcmpCode(networkAclRuleEntity.getIcmpCode());
+            needUpdate = true;
+        }
+
+        //Update port range max
+        Integer newPortRangeMax = networkAclRuleEntity.getPortRangeMax();
+        Integer oldPortRangeMax = oldNetworkAclRuleEntity.getPortRangeMax();
+        if (newPortRangeMax != null && !newPortRangeMax.equals(oldPortRangeMax)) {
+            oldNetworkAclRuleEntity.setPortRangeMax(networkAclRuleEntity.getPortRangeMax());
+            needUpdate = true;
+        }
+
+        //Update port range min
+        Integer newRangeMin = networkAclRuleEntity.getPortRangeMin();
+        Integer oldRangeMin = oldNetworkAclRuleEntity.getPortRangeMin();
+        if (newRangeMin != null && !newRangeMin.equals(oldRangeMin)) {
+            oldNetworkAclRuleEntity.setPortRangeMin(networkAclRuleEntity.getPortRangeMin());
             needUpdate = true;
         }
 

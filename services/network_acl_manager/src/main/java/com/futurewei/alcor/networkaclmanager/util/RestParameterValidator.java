@@ -71,7 +71,8 @@ public class RestParameterValidator {
                 throw new ProtocolInvalid();
             }
 
-            if (Protocol.ICMP.getProtocol().equals(protocol)) {
+            if (Protocol.ICMP.getProtocol().equals(protocol)
+                    ||Protocol.ICMPV6.getProtocol().equals(protocol)) {
                 Integer icmpType = networkAclRuleEntity.getIcmpType();
                 Integer icmpCode = networkAclRuleEntity.getIcmpCode();
 
@@ -119,22 +120,22 @@ public class RestParameterValidator {
         }
 
         if (networkAclRuleEntity.getDirection() != null) {
-            List<String> actions = Arrays.asList(Direction.values())
+            List<String> directions = Arrays.asList(Direction.values())
                     .stream()
                     .map(Direction::getDirection)
                     .collect(Collectors.toList());
-            if (!actions.contains(networkAclRuleEntity.getDirection())) {
+            if (!directions.contains(networkAclRuleEntity.getDirection())) {
                 throw new DirectionInvalid();
             }
         }
 
         String etherType = networkAclRuleEntity.getEtherType();
         if (etherType != null) {
-            List<String> actions = Arrays.asList(EtherType.values())
+            List<String> etherTypes = Arrays.asList(EtherType.values())
                     .stream()
                     .map(EtherType::getEtherType)
                     .collect(Collectors.toList());
-            if (!actions.contains(etherType)) {
+            if (!etherTypes.contains(etherType)) {
                 throw new EtherTypeInvalid();
             }
 
@@ -147,8 +148,17 @@ public class RestParameterValidator {
 
         String ipPrefix = networkAclRuleEntity.getIpPrefix();
         if (ipPrefix != null) {
-            if (!Ipv4AddrUtil.ipv4PrefixCheck(ipPrefix) && !Ipv6AddrUtil.ipv6PrefixCheck(ipPrefix)) {
+            boolean ipv4Prefix = Ipv4AddrUtil.ipv4PrefixCheck(ipPrefix);
+            boolean ipv6Prefix = Ipv6AddrUtil.ipv6PrefixCheck(ipPrefix);
+            if (!ipv4Prefix && !ipv6Prefix) {
                 throw new IpPrefixInvalid();
+            }
+
+            if ((EtherType.IPV4.getEtherType().equals(etherType) && !ipv4Prefix)
+                    || (EtherType.IPV6.getEtherType().equals(etherType) && !ipv6Prefix)) {
+                if (!ipv4Prefix) {
+                    throw new EtherTypeIpPrefixConflict();
+                }
             }
         }
     }

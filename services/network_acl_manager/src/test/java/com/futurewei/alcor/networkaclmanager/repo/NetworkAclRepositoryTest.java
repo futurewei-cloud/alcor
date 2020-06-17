@@ -18,7 +18,9 @@ package com.futurewei.alcor.networkaclmanager.repo;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.networkaclmanager.config.UnitTestConfig;
 import com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder;
+import com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder;
 import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,11 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("unchecked")
 public class NetworkAclRepositoryTest {
     private static NetworkAclRepository networkAclRepository;
-    private static ICache networkAclCache;
-    private static ICache networkAclRuleCache;
+    private static ICache<String, NetworkAclEntity> networkAclCache;
+    private static ICache<String, NetworkAclRuleEntity> networkAclRuleCache;
 
     @BeforeAll
     public static void beforeAllTestCases() {
@@ -48,33 +49,78 @@ public class NetworkAclRepositoryTest {
         networkAclRepository.addNetworkAcl(NetworkAclBuilder.buildNetworkAclEntity());
 
         Mockito.verify(networkAclCache, Mockito.times(1))
-                .put(UnitTestConfig.networkAclId, NetworkAclBuilder.buildNetworkAclEntity());
+                .put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
     }
 
     @Test
     public void deleteNetworkAclTest() throws Exception {
-        networkAclRepository.deleteNetworkAcl(UnitTestConfig.networkAclId);
+        networkAclRepository.deleteNetworkAcl(UnitTestConfig.networkAclId1);
 
         Mockito.verify(networkAclCache, Mockito.times(1))
-                .remove(UnitTestConfig.networkAclId);
+                .remove(UnitTestConfig.networkAclId1);
     }
 
     @Test
     public void getNetworkAclTest() throws Exception {
-        Mockito.when(networkAclCache.get(UnitTestConfig.networkAclId))
+        Mockito.when(networkAclCache.get(UnitTestConfig.networkAclId1))
                 .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
 
-        assertNotNull(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId));
+        assertNotNull(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1));
     }
 
     @Test
     public void listNetworkAclTest() throws Exception {
         Map<String, NetworkAclEntity> networkAclEntityMap = new HashMap<>();
-        networkAclEntityMap.put(UnitTestConfig.networkAclId, NetworkAclBuilder.buildNetworkAclEntity());
+        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
         Mockito.when(networkAclCache.getAll())
                 .thenReturn(networkAclEntityMap);
 
         Map<String, NetworkAclEntity> allNetworkAcls = networkAclRepository.getAllNetworkAcls();
         assertEquals(allNetworkAcls.size(), 1);
+    }
+
+    @Test
+    public void addNetworkAclRuleTest() throws Exception {
+        networkAclRepository.addNetworkAclRule(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+
+        Mockito.verify(networkAclRuleCache, Mockito.times(1))
+                .put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+    }
+
+    @Test
+    public void deleteNetworkAclRuleTest() throws Exception {
+        networkAclRepository.deleteNetworkAclRule(UnitTestConfig.networkAclRuleId);
+
+        Mockito.verify(networkAclRuleCache, Mockito.times(1))
+                .remove(UnitTestConfig.networkAclRuleId);
+    }
+
+    @Test
+    public void getNetworkAclRuleTest() throws Exception {
+        Mockito.when(networkAclRuleCache.get(UnitTestConfig.networkAclRuleId))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+
+        assertNotNull(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId));
+    }
+
+    @Test
+    public void listNetworkAclRuleTest() throws Exception {
+        Map<String, NetworkAclRuleEntity> networkAclRuleEntityMap = new HashMap<>();
+        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        Mockito.when(networkAclRuleCache.getAll())
+                .thenReturn(networkAclRuleEntityMap);
+
+        Map<String, NetworkAclRuleEntity> allNetworkAclRules = networkAclRepository.getAllNetworkAclRules();
+        assertEquals(allNetworkAclRules.size(), 1);
+    }
+
+    @Test
+    public void getNetworkAclRulesByNumberTest() throws Exception {
+        //FIXME:not support yet!!!
+    }
+
+    @Test
+    public void getNetworkAclRulesByNetworkAclIdTest() throws Exception {
+        //FIXME:not support yet!!!
     }
 }

@@ -52,7 +52,12 @@ public class NetworkAclRepository {
         networkAclRuleCache = cacheFactory.getCache(NetworkAclRuleEntity.class);
     }
 
-    private NetworkAclRuleEntity createDefaultNetworkAclRule(String ipPrefix, String direction) {
+    @PostConstruct
+    private void init() throws Exception {
+        LOG.info("NetworkAclRepository init done");
+    }
+
+    private NetworkAclRuleEntity buildDefaultNetworkAclRule(String ipPrefix, String direction) {
         NetworkAclRuleEntity networkAclRuleEntity = new NetworkAclRuleEntity();
         networkAclRuleEntity.setId(UUID.randomUUID().toString());
         networkAclRuleEntity.setNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
@@ -64,8 +69,7 @@ public class NetworkAclRepository {
         return networkAclRuleEntity;
     }
 
-    @PostConstruct
-    private void init() throws Exception {
+    private void createDefaultNetworkAclRules() throws Exception {
         try (Transaction tx = networkAclCache.getTransaction().start()) {
             List<NetworkAclRuleEntity> networkAclRules = getDefaultNetworkAclRules();
 
@@ -80,7 +84,7 @@ public class NetworkAclRepository {
 
                     for (Direction direction : directions) {
                         NetworkAclRuleEntity networkAclRuleEntity =
-                                createDefaultNetworkAclRule(ipPrefix, direction.getDirection());
+                                buildDefaultNetworkAclRule(ipPrefix, direction.getDirection());
                         networkAclRuleEntityMap.put(networkAclRuleEntity.getId(), networkAclRuleEntity);
                     }
                 }
@@ -90,8 +94,21 @@ public class NetworkAclRepository {
 
             tx.commit();
         }
+    }
 
-        LOG.info("NetworkAclRepository init done");
+    private List<NetworkAclRuleEntity> getDefaultNetworkAclRules() throws Exception {
+        List<NetworkAclRuleEntity> networkAclRules = getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
+        if (networkAclRules.isEmpty()) {
+            try {
+                createDefaultNetworkAclRules();
+            } catch (Exception e) {
+                LOG.warn("Create default Network ACL rules failed");
+            }
+
+            networkAclRules = getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
+        }
+
+        return networkAclRules;
     }
 
     public void addNetworkAcl(NetworkAclEntity networkAclEntity) throws CacheException {
@@ -105,7 +122,7 @@ public class NetworkAclRepository {
         networkAclCache.remove(networkAclId);
     }
 
-    public NetworkAclEntity getNetworkAcl(String networkAclId) throws CacheException {
+    public NetworkAclEntity getNetworkAcl(String networkAclId) throws Exception {
         NetworkAclEntity networkAclEntity = networkAclCache.get(networkAclId);
         if (networkAclEntity == null) {
             return null;
@@ -122,7 +139,7 @@ public class NetworkAclRepository {
         return networkAclEntity;
     }
 
-    public Map<String, NetworkAclEntity> getAllNetworkAcls() throws CacheException {
+    public Map<String, NetworkAclEntity> getAllNetworkAcls() throws Exception {
         Map<String, NetworkAclEntity> networkAclEntityMap = networkAclCache.getAll();
         if (networkAclEntityMap == null) {
             return null;
@@ -155,22 +172,19 @@ public class NetworkAclRepository {
         return networkAclRuleCache.get(networkAclRuleId);
     }
 
-    public List<NetworkAclRuleEntity> getNetworkAclRulesByNumber(Integer number) throws CacheException {
-        //FIXME: not support yet
-        return null;
+    public Map<String, NetworkAclRuleEntity> getAllNetworkAclRules() throws CacheException {
+        return networkAclRuleCache.getAll();
     }
 
-    public List<NetworkAclRuleEntity> getDefaultNetworkAclRules() throws CacheException {
-        return getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
+    public List<NetworkAclRuleEntity> getNetworkAclRulesByNumber(Integer number) throws CacheException {
+        List<NetworkAclRuleEntity> networkAclRuleEntities = new ArrayList<>();
+        //FIXME: not support yet
+        return networkAclRuleEntities;
     }
 
     public List<NetworkAclRuleEntity> getNetworkAclRulesByNetworkAclId(String networkAclId) throws CacheException {
+        List<NetworkAclRuleEntity> networkAclRuleEntities = new ArrayList<>();
         //FIXME: not support yet,
-
-        return null;
-    }
-
-    public Map<String, NetworkAclRuleEntity> getAllNetworkAclRules() throws CacheException {
-        return networkAclRuleCache.getAll();
+        return networkAclRuleEntities;
     }
 }

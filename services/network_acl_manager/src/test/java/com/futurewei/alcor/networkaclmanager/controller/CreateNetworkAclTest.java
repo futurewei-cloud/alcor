@@ -56,13 +56,13 @@ public class CreateNetworkAclTest {
 
     @Test
     public void createNetworkAclWithIdTest() throws Exception {
-        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId,
+        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId1,
                 UnitTestConfig.networkAclName1,
                 UnitTestConfig.vpcId1,
                 subnetIds);
 
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId,
+        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId1,
                         UnitTestConfig.networkAclName1,
                         UnitTestConfig.vpcId1,
                         subnetIds));
@@ -72,7 +72,7 @@ public class CreateNetworkAclTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.network_acl.id").value(UnitTestConfig.networkAclId));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.network_acl.id").value(UnitTestConfig.networkAclId1));
     }
 
     @Test
@@ -82,8 +82,8 @@ public class CreateNetworkAclTest {
                 UnitTestConfig.vpcId1,
                 subnetIds);
 
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId,
+        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId1,
                         UnitTestConfig.networkAclName1,
                         UnitTestConfig.vpcId1,
                         subnetIds));
@@ -97,13 +97,13 @@ public class CreateNetworkAclTest {
 
     @Test
     public void createNetworkAclWithoutVpcIdTest() throws Exception {
-        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId,
+        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId1,
                 UnitTestConfig.networkAclName1,
                 null,
                 subnetIds);
 
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId,
+        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId1,
                         UnitTestConfig.networkAclName1,
                         null,
                         subnetIds));
@@ -117,13 +117,13 @@ public class CreateNetworkAclTest {
 
     @Test
     public void createNetworkAclWithoutNameTest() throws Exception {
-        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId,
+        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId1,
                 null,
                 UnitTestConfig.vpcId1,
                 subnetIds);
 
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId,
+        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId1,
                         null,
                         UnitTestConfig.vpcId1,
                         subnetIds));
@@ -137,13 +137,13 @@ public class CreateNetworkAclTest {
 
     @Test
     public void createNetworkAclWithoutAssociatedSubnetTest() throws Exception {
-        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId,
+        String body = buildNetworkAclWebJsonString(UnitTestConfig.networkAclId1,
                 UnitTestConfig.networkAclName1,
                 UnitTestConfig.vpcId1,
                 null);
 
-        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId,
+        Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity(UnitTestConfig.networkAclId1,
                         UnitTestConfig.networkAclName1,
                         UnitTestConfig.vpcId1,
                         null));
