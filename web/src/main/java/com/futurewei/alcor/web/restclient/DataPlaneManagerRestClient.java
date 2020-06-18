@@ -16,6 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +35,8 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
-        //logger.info(JSONObject.toJSONString(message));
-        restTemplate.postForObject(dataPlaneManagerUrl, request, String[].class);
+        logger.info(new ObjectMapper().writeValueAsString(request));
+        restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
     }
 
     public void deleteNetworkConfig(NetworkConfiguration message) throws Exception {

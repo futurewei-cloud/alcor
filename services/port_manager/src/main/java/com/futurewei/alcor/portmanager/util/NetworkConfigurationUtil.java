@@ -183,6 +183,9 @@ public class NetworkConfigurationUtil {
 
     public static int getHashCode (String vpcId) {
         int hashcode = vpcId.hashCode();
+        if (hashcode < 0) {
+            hashcode = -hashcode;
+        }
         double num = (double)(4096 * 4096) / (double)Integer.MAX_VALUE;
         hashcode = (int)(hashcode * num);
 
