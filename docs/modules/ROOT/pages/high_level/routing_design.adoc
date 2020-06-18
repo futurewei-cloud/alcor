@@ -102,37 +102,101 @@ In order to keep the set of openflow rules lean and small as we scale. The on-de
 
 === ACA Virtual Router Packet Flow
 
-[Eric]  prototype rules
-
-Table Triage: (openflow table 0)
+==== Table Triage: (openflow table 0)
 
 If nothing matches, send to Table Packet Classifier
 
-Table Packet Classifier: (openflow table 50)
+[source,shell]
+------------------------------------------------------------
+table=0 ...
+table=0, priority=0 actions=resubmit(,50) (to table Packet Classifier)
+------------------------------------------------------------
+
+==== Table Packet Classifier: (openflow table 50)
 
 . if ARP, send to Table ARP Responder
 . if ICMP, send to Table ICMP Responder
-. We may need to handle broadcast/multicast, by simply send to Normal
+. We likely need to handle broadcast/multicast, by simply send to Normal path
 . else send to Table Forwarding
 
-Table ARP Responder: (openflow table 51)
+[source,shell]
+------------------------------------------------------------
+table=50, priority=50,proto=‘arp’ actions=resubmit(,51) (to table ARP Responder)
+table=50, priority=50,proto=‘icmp’ actions=resubmit(,52) (to table ICMP Responder)
+table=50, priority=10,dl_dst=01:00:00:00:00:00/01:00:00:00:00:00 actions=NORMAL (for multicast)
+table=50, priority=10,dl_dst=ff:ff:ff:ff:ff:ff actions=NORMAL (for broadcast)
+table=50, priority=0 actions=resubmit(,55) (to table Forwarding)
+------------------------------------------------------------
+
+==== Table ARP Responder: (openflow table 51)
 
 . if local VLAN and ARP target IP matches an openflow rule, send ARP response
 . else send to Normal path
 
-Table ICMP Responder: (openflow table 52)
+[source,shell]
+------------------------------------------------------------
+table=51, priority=50,proto=‘arp’,dl_vlan=[VLAN tag],nw_dst=[Target IP] actions=
+
+    ‘move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[],’ – Put the source MAC address of the request (The requesting VM) as the new reply’s destination MAC address
+
+    ‘mod_dl_src:%(mac)s,’ – Put the requested MAC address of the remote VM as this message’s source MAC address
+
+    ‘load:0x2->NXM_OF_ARP_OP[],’ – Put an 0x2 code as the type of the ARP message. 0x2 is an ARP response.
+
+    ‘move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[],’ – Place the ARP request’s source hardware address (MAC) as this new message’s ARP target / destination hardware address
+
+    ‘move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[],’ – Place the ARP request’s source protocol / IP address as the new message’s ARP destination IP address
+
+    ‘load:%(mac)->NXM_NX_ARP_SHA[],’ – Place the requested VM’s MAC address as the source MAC address of the ARP reply
+
+    ‘load:%(ip)->NXM_OF_ARP_SPA[],’ – Place the requested VM’s IP address as the source IP address of the ARP reply
+
+    ‘load:0->NXM_OF_IN_PORT[]‘ – Send the message back to the port it came from
+
+table=51, priority=0 actions=strip_vlan,actions=NORMAL
+------------------------------------------------------------
+
+==== Table ICMP Responder: (openflow table 52)
 
 . if local VLAN and ICMP target matches an openflow rule, send ICMP response
-. else send ICMP error
+. else send to Normal path?
 
-[Eric/James] should we send the ICMP to controller?
+[source,shell]
+------------------------------------------------------------
+table=52, priority=50,proto=icmp,dl_vlan=[VLAN tag],nw_dst=[Target IP] actions= 
+    ‘move:NXM_OF_IP_SRC[]->NXM_OF_IP_DST[],mod_nw_src:[Target IP],
+        load:0xff->NXM_NX_IP_TTL[],load:0->NXM_OF_ICMP_TYPE[],load:0->NXM_OF_IN_PORT[]‘
 
-Table Forwarding: (openflow table 55)
+table=52, priority=0 actions=NORMAL
+------------------------------------------------------------
+
+==== Table Forwarding: (openflow table 55)
 
 . (on demand rule) if inter-subnet communication matches an openflow rule, perform L3 forwarding, programmed in last 60s
 . (L3 essential rule) if segment ID and destination L3 subnet matches an openflow rule, send to ACA
 . (L2 essential rule) if local vlan and local subnet matches an openflow rule, send to Normal path
 . else send to Table Public, this is traffic to external
+
+[source,shell]
+------------------------------------------------------------
+(on demand rule)table=55, priority=50,dl_vlan=[VLAN tag of network 1],dl_dst=[mac of GW for network 1] actions=
+
+    ‘strip_vlan,load:[VLAN tag of network 2->NXM_NX_TUN_ID[],‘ - Replace to network 2 VLAN tag
+
+    ‘mod_dl_dst=[destination VM MAC]‘ – replace the GW mac to destination VM’s MAC 
+
+    ‘actions=NORMAL‘
+
+(L3 essential rule)table=55, priority=10,dl_vlan=[VLAN tag of network 1],dl_dst=[mac of GW for network 1] actions=CONTROLLER
+
+(L2 essential rule)table=55, priority=10,dl_vlan=[VLAN tag of network 1], [match local subnet] actions = NORMAL
+
+table=55, priority=0 actions=resubmit(,60) (to table External)
+------------------------------------------------------------
+
+==== Table External: (openflow table 60)
+
+. TBD
 
 === Gateway port
 
