@@ -20,17 +20,17 @@ import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWithVpcMapper;
+import com.futurewei.alcor.web.entity.route.VpcToRouteMapper;
 
 import java.util.List;
 import java.util.Map;
 
 public interface RouteWithVpcMapperService {
 
-    public RouteWithVpcMapper getByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
+    public VpcToRouteMapper getByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
     public List<RouteEntity> getRuleByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllMappers () throws CacheException;
-    public void addMapper (RouteWithVpcMapper routeWithVpcMapper) throws DatabasePersistenceException;
+    public void addMapper (VpcToRouteMapper vpcToRouteMapper) throws DatabasePersistenceException;
     public void addMapperByRouteEntity (String vpcId, RouteEntity routeEntity) throws DatabasePersistenceException;
     public void deleteMapper (String id) throws CacheException;
     public void deleteMapperByRouteId (String vpcId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException;

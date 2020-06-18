@@ -20,17 +20,17 @@ import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWithSubnetMapper;
+import com.futurewei.alcor.web.entity.route.SubnetToRouteMapper;
 
 import java.util.List;
 import java.util.Map;
 
 public interface RouteWithSubnetMapperService {
 
-    public RouteWithSubnetMapper getBySubnetId (String subnetId) throws ResourceNotFoundException, ResourcePersistenceException;
+    public SubnetToRouteMapper getBySubnetId (String subnetId) throws ResourceNotFoundException, ResourcePersistenceException;
     public List<RouteEntity> getRuleBySubnetId (String subnetId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllMappers () throws CacheException;
-    public void addMapper (RouteWithSubnetMapper routeWithSubnetMapper) throws DatabasePersistenceException;
+    public void addMapper (SubnetToRouteMapper subnetToRouteMapper) throws DatabasePersistenceException;
     public void addMapperByRouteEntity (String subnetId, RouteEntity routeEntity) throws DatabasePersistenceException;
     public void deleteMapper (String id) throws CacheException;
     public void deleteMapperByRouteId (String subnetId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException;

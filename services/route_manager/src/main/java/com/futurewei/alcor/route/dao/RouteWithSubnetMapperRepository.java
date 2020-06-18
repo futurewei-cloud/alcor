@@ -21,7 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.route.RouteWithSubnetMapper;
+import com.futurewei.alcor.web.entity.route.SubnetToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -32,19 +32,19 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class RouteWithSubnetMapperRepository implements ICacheRepository<RouteWithSubnetMapper> {
+public class RouteWithSubnetMapperRepository implements ICacheRepository<SubnetToRouteMapper> {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
-    public ICache<String, RouteWithSubnetMapper> getCache() {
+    public ICache<String, SubnetToRouteMapper> getCache() {
         return cache;
     }
 
-    private ICache<String, RouteWithSubnetMapper> cache;
+    private ICache<String, SubnetToRouteMapper> cache;
 
     @Autowired
     public RouteWithSubnetMapperRepository (CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(RouteWithSubnetMapper.class);
+        cache = cacheFactory.getCache(SubnetToRouteMapper.class);
     }
 
     @PostConstruct
@@ -53,19 +53,19 @@ public class RouteWithSubnetMapperRepository implements ICacheRepository<RouteWi
     }
 
     @Override
-    public RouteWithSubnetMapper findItem(String id) throws CacheException {
+    public SubnetToRouteMapper findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, RouteWithSubnetMapper> findAllItems() throws CacheException {
+    public Map<String, SubnetToRouteMapper> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(RouteWithSubnetMapper routeWithSubnetMapper) throws CacheException {
-        logger.log(Level.INFO, "Add routeWithSubnetMapper, mapper Id:" + routeWithSubnetMapper.getSubnetId());
-        cache.put(routeWithSubnetMapper.getSubnetId(), routeWithSubnetMapper);
+    public void addItem(SubnetToRouteMapper subnetToRouteMapper) throws CacheException {
+        logger.log(Level.INFO, "Add routeWithSubnetMapper, mapper Id:" + subnetToRouteMapper.getSubnetId());
+        cache.put(subnetToRouteMapper.getSubnetId(), subnetToRouteMapper);
     }
 
     @Override

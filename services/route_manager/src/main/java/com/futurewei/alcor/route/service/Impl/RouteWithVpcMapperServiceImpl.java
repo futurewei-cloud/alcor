@@ -23,7 +23,7 @@ import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithVpcMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWithVpcMapper;
+import com.futurewei.alcor.web.entity.route.VpcToRouteMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     RouteRepository routeRepository;
 
     @Override
-    public RouteWithVpcMapper getByVpcId(String vpcId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public VpcToRouteMapper getByVpcId(String vpcId) throws ResourceNotFoundException, ResourcePersistenceException {
         try {
             return this.routeWithVpcMapperRepository.findItem(vpcId);
         }catch (Exception e) {
@@ -59,12 +59,12 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
         List<RouteEntity> routes = new ArrayList<>();
 
         try {
-            RouteWithVpcMapper routeWithVpcMapper =  this.routeWithVpcMapperRepository.findItem(vpcId);
-            if (routeWithVpcMapper == null) {
+            VpcToRouteMapper vpcToRouteMapper =  this.routeWithVpcMapperRepository.findItem(vpcId);
+            if (vpcToRouteMapper == null) {
                 return null;
             }
 
-            List<String> routeIds = routeWithVpcMapper.getRouteIds();
+            List<String> routeIds = vpcToRouteMapper.getRouteIds();
             for (String routeId : routeIds) {
                 RouteEntity route = this.routeRepository.findItem(routeId);
                 if (route != null) {
@@ -85,9 +85,9 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
-    public void addMapper(RouteWithVpcMapper routeWithVpcMapper) throws DatabasePersistenceException {
+    public void addMapper(VpcToRouteMapper vpcToRouteMapper) throws DatabasePersistenceException {
         try {
-            this.routeWithVpcMapperRepository.addItem(routeWithVpcMapper);
+            this.routeWithVpcMapperRepository.addItem(vpcToRouteMapper);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }
@@ -101,19 +101,19 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
             }
 
             String routeId = routeEntity.getId();
-            RouteWithVpcMapper routeWithVpcMapper = getByVpcId(vpcId);
-            if (routeWithVpcMapper == null) {
-                routeWithVpcMapper = new RouteWithVpcMapper();
-                routeWithVpcMapper.setVpcId(vpcId);
+            VpcToRouteMapper vpcToRouteMapper = getByVpcId(vpcId);
+            if (vpcToRouteMapper == null) {
+                vpcToRouteMapper = new VpcToRouteMapper();
+                vpcToRouteMapper.setVpcId(vpcId);
             }
-            List<String> routeIds = routeWithVpcMapper.getRouteIds();
+            List<String> routeIds = vpcToRouteMapper.getRouteIds();
             if (routeIds == null) {
                 routeIds = new ArrayList<>();
             }
             routeIds.add(routeId);
-            routeWithVpcMapper.setRouteIds(routeIds);
+            vpcToRouteMapper.setRouteIds(routeIds);
 
-            this.routeWithVpcMapperRepository.addItem(routeWithVpcMapper);
+            this.routeWithVpcMapperRepository.addItem(vpcToRouteMapper);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }
@@ -129,11 +129,11 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
         if (vpcId == null || routeId == null) {
             return;
         }
-        RouteWithVpcMapper routeWithVpcMapper = getByVpcId(vpcId);
-        if (routeWithVpcMapper == null) {
+        VpcToRouteMapper vpcToRouteMapper = getByVpcId(vpcId);
+        if (vpcToRouteMapper == null) {
             return;
         }
-        List<String> routeIds = routeWithVpcMapper.getRouteIds();
+        List<String> routeIds = vpcToRouteMapper.getRouteIds();
         if (routeIds == null) {
             return;
         }
@@ -147,8 +147,8 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
         if (index != -1) {
             routeIds.remove(index);
         }
-        routeWithVpcMapper.setRouteIds(routeIds);
+        vpcToRouteMapper.setRouteIds(routeIds);
 
-        this.routeWithVpcMapperRepository.addItem(routeWithVpcMapper);
+        this.routeWithVpcMapperRepository.addItem(vpcToRouteMapper);
     }
 }

@@ -21,7 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.route.RouteWithVpcMapper;
+import com.futurewei.alcor.web.entity.route.VpcToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -32,18 +32,18 @@ import java.util.logging.Level;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class RouteWithVpcMapperRepository implements ICacheRepository<RouteWithVpcMapper> {
+public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRouteMapper> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    public ICache<String, RouteWithVpcMapper> getCache() {
+    public ICache<String, VpcToRouteMapper> getCache() {
         return cache;
     }
 
-    private ICache<String, RouteWithVpcMapper> cache;
+    private ICache<String, VpcToRouteMapper> cache;
 
     @Autowired
     public RouteWithVpcMapperRepository (CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(RouteWithVpcMapper.class);
+        cache = cacheFactory.getCache(VpcToRouteMapper.class);
     }
 
     @PostConstruct
@@ -52,19 +52,19 @@ public class RouteWithVpcMapperRepository implements ICacheRepository<RouteWithV
     }
 
     @Override
-    public RouteWithVpcMapper findItem(String id) throws CacheException {
+    public VpcToRouteMapper findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, RouteWithVpcMapper> findAllItems() throws CacheException {
+    public Map<String, VpcToRouteMapper> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public void addItem(RouteWithVpcMapper routeWithVpcMapper) throws CacheException {
-        logger.log(Level.INFO, "Add RouteWithVpcMapper, mapper Id:" + routeWithVpcMapper.getVpcId());
-        cache.put(routeWithVpcMapper.getVpcId(), routeWithVpcMapper);
+    public void addItem(VpcToRouteMapper vpcToRouteMapper) throws CacheException {
+        logger.log(Level.INFO, "Add RouteWithVpcMapper, mapper Id:" + vpcToRouteMapper.getVpcId());
+        cache.put(vpcToRouteMapper.getVpcId(), vpcToRouteMapper);
     }
 
     @Override

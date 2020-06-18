@@ -23,7 +23,7 @@ import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithSubnetMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWithSubnetMapper;
+import com.futurewei.alcor.web.entity.route.SubnetToRouteMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     RouteRepository routeRepository;
 
     @Override
-    public RouteWithSubnetMapper getBySubnetId(String subnetId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public SubnetToRouteMapper getBySubnetId(String subnetId) throws ResourceNotFoundException, ResourcePersistenceException {
         try {
             return this.routeWithSubnetMapperRepository.findItem(subnetId);
         }catch (Exception e) {
@@ -58,12 +58,12 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
         List<RouteEntity> routes = new ArrayList<>();
 
         try {
-            RouteWithSubnetMapper routeWithSubnetMapper =  this.routeWithSubnetMapperRepository.findItem(subnetId);
-            if (routeWithSubnetMapper == null) {
+            SubnetToRouteMapper subnetToRouteMapper =  this.routeWithSubnetMapperRepository.findItem(subnetId);
+            if (subnetToRouteMapper == null) {
                 return null;
             }
 
-            List<String> routeIds = routeWithSubnetMapper.getRouteIds();
+            List<String> routeIds = subnetToRouteMapper.getRouteIds();
             for (String routeId : routeIds) {
                 RouteEntity route = this.routeRepository.findItem(routeId);
                 if (route != null) {
@@ -84,9 +84,9 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
-    public void addMapper(RouteWithSubnetMapper routeWithSubnetMapper) throws DatabasePersistenceException {
+    public void addMapper(SubnetToRouteMapper subnetToRouteMapper) throws DatabasePersistenceException {
         try {
-            this.routeWithSubnetMapperRepository.addItem(routeWithSubnetMapper);
+            this.routeWithSubnetMapperRepository.addItem(subnetToRouteMapper);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }
@@ -100,19 +100,19 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
             }
 
             String routeId = routeEntity.getId();
-            RouteWithSubnetMapper routeWithSubnetMapper = getBySubnetId(subnetId);
-            if (routeWithSubnetMapper == null) {
-                routeWithSubnetMapper = new RouteWithSubnetMapper();
-                routeWithSubnetMapper.setSubnetId(subnetId);
+            SubnetToRouteMapper subnetToRouteMapper = getBySubnetId(subnetId);
+            if (subnetToRouteMapper == null) {
+                subnetToRouteMapper = new SubnetToRouteMapper();
+                subnetToRouteMapper.setSubnetId(subnetId);
             }
-            List<String> routeIds = routeWithSubnetMapper.getRouteIds();
+            List<String> routeIds = subnetToRouteMapper.getRouteIds();
             if (routeIds == null) {
                 routeIds = new ArrayList<>();
             }
             routeIds.add(routeId);
-            routeWithSubnetMapper.setRouteIds(routeIds);
+            subnetToRouteMapper.setRouteIds(routeIds);
 
-            this.routeWithSubnetMapperRepository.addItem(routeWithSubnetMapper);
+            this.routeWithSubnetMapperRepository.addItem(subnetToRouteMapper);
         } catch (Exception e) {
             throw new DatabasePersistenceException(e.getMessage());
         }
@@ -128,11 +128,11 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
         if (subnetId == null || routeId == null) {
             return;
         }
-        RouteWithSubnetMapper routeWithSubnetMapper = getBySubnetId(subnetId);
-        if (routeWithSubnetMapper == null) {
+        SubnetToRouteMapper subnetToRouteMapper = getBySubnetId(subnetId);
+        if (subnetToRouteMapper == null) {
             return;
         }
-        List<String> routeIds = routeWithSubnetMapper.getRouteIds();
+        List<String> routeIds = subnetToRouteMapper.getRouteIds();
         if (routeIds == null) {
             return;
         }
@@ -146,8 +146,8 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
         if (index != -1) {
             routeIds.remove(index);
         }
-        routeWithSubnetMapper.setRouteIds(routeIds);
+        subnetToRouteMapper.setRouteIds(routeIds);
 
-        this.routeWithSubnetMapperRepository.addItem(routeWithSubnetMapper);
+        this.routeWithSubnetMapperRepository.addItem(subnetToRouteMapper);
     }
 }

@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class RouteWithSubnetMapper {
+public class VpcToRouteMapper {
 
-    @JsonProperty("subnet_id")
-    private String subnetId;
+    @JsonProperty("vpc_id")
+    private String vpcId;
 
     @JsonProperty("route_ids")
     private List<String> routeIds;
@@ -41,10 +41,10 @@ public class RouteWithSubnetMapper {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public RouteWithSubnetMapper () {}
+    public VpcToRouteMapper() {}
 
-    public RouteWithSubnetMapper(String subnetId, List<String> routeIds, String created_at, String updated_at) {
-        this.subnetId = subnetId;
+    public VpcToRouteMapper(String vpcId, List<String> routeIds, String created_at, String updated_at) {
+        this.vpcId = vpcId;
         this.routeIds = routeIds;
         this.created_at = created_at;
         this.updated_at = updated_at;
