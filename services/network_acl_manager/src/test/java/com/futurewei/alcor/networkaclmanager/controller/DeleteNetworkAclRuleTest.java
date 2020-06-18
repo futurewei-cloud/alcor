@@ -39,12 +39,12 @@ public class DeleteNetworkAclRuleTest {
     @MockBean
     private NetworkAclRepository networkAclRepository;
 
-    private String deleteNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId;
+    private String deleteNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId1;
 
     @Test
     public void deleteExistNetworkAclRuleTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
-                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId1))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
 
         this.mockMvc.perform(delete(deleteNetworkAclRuleUrl))
                 .andDo(print())

@@ -31,8 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildNetworkAclRuleEntity;
-import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildNetworkAclRuleWebJsonString;
+import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,9 +49,9 @@ public class CreateNetworkAclRuleTest {
 
     @BeforeEach
     public void beforeEachTestCase() throws Exception {
-        networkAclRuleEntity = buildNetworkAclRuleEntity();
+        networkAclRuleEntity = buildNetworkAclRuleEntity1();
         Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity1());
     }
 
     @Test
@@ -63,7 +62,7 @@ public class CreateNetworkAclRuleTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.network_acl_rule.id").value(UnitTestConfig.networkAclRuleId));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.network_acl_rule.id").value(UnitTestConfig.networkAclRuleId1));
     }
 
     @Test
@@ -366,5 +365,15 @@ public class CreateNetworkAclRuleTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void createNetworkAclRuleBulkTest() throws Exception {
+        String body = buildNetworkAclRuleBulkWebJsonString();
+        this.mockMvc.perform(post(UnitTestConfig.networkAclRuleBulkUrl)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 }

@@ -17,6 +17,7 @@ package com.futurewei.alcor.networkaclmanager.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.networkaclmanager.config.UnitTestConfig;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclBulkWebJson;
 import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
 import com.futurewei.alcor.web.entity.networkacl.NetworkAclWebJson;
 
@@ -24,11 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkAclBuilder {
-    public static NetworkAclEntity buildNetworkAclEntity() {
+    public static NetworkAclEntity buildNetworkAclEntity1() {
         NetworkAclEntity networkAclEntity = new NetworkAclEntity();
         networkAclEntity.setId(UnitTestConfig.networkAclId1);
         networkAclEntity.setName(UnitTestConfig.networkAclName1);
-        networkAclEntity.setVpcId(UnitTestConfig.vpcId1);
         networkAclEntity.setVpcId(UnitTestConfig.vpcId1);
 
         List<String> subnetIds = new ArrayList<>();
@@ -38,8 +38,32 @@ public class NetworkAclBuilder {
         return networkAclEntity;
     }
 
-    public static NetworkAclEntity buildNetworkAclEntity(String id, String name, String vpcId,
-                                                         List<String> subnetIds) {
+    public static NetworkAclEntity buildNetworkAclEntity2() {
+        NetworkAclEntity networkAclEntity = new NetworkAclEntity();
+        networkAclEntity.setId(UnitTestConfig.networkAclId2);
+        networkAclEntity.setName(UnitTestConfig.networkAclName2);
+        networkAclEntity.setVpcId(UnitTestConfig.vpcId2);
+
+        List<String> subnetIds = new ArrayList<>();
+        subnetIds.add(UnitTestConfig.subnetId2);
+        networkAclEntity.setAssociatedSubnets(subnetIds);
+
+        return networkAclEntity;
+    }
+
+    public static List<NetworkAclEntity> buildNetworkAclEntities() {
+        NetworkAclEntity networkAclEntity1 = buildNetworkAclEntity1();
+        NetworkAclEntity networkAclEntity2 = buildNetworkAclEntity2();
+
+        List<NetworkAclEntity> networkAclEntities = new ArrayList<>();
+        networkAclEntities.add(networkAclEntity1);
+        networkAclEntities.add(networkAclEntity2);
+
+        return networkAclEntities;
+    }
+
+    public static NetworkAclEntity buildNetworkAclEntity1(String id, String name, String vpcId,
+                                                          List<String> subnetIds) {
         NetworkAclEntity networkAclEntity = new NetworkAclEntity();
         networkAclEntity.setId(id);
         networkAclEntity.setName(name);
@@ -49,24 +73,32 @@ public class NetworkAclBuilder {
     }
 
     public static NetworkAclWebJson buildNetworkAclWebJson() {
-        return new NetworkAclWebJson(buildNetworkAclEntity());
+        return new NetworkAclWebJson(buildNetworkAclEntity1());
     }
 
     public static NetworkAclWebJson buildNetworkAclWebJson(String id, String name,
                                                            String vpcId, List<String> subnetIds) {
-        return new NetworkAclWebJson(buildNetworkAclEntity(id, name, vpcId, subnetIds));
+        return new NetworkAclWebJson(buildNetworkAclEntity1(id, name, vpcId, subnetIds));
     }
 
     public static String buildNetworkAclWebJsonString() throws Exception {
-        NetworkAclWebJson networkAclWebJson = new NetworkAclWebJson(buildNetworkAclEntity());
+        NetworkAclWebJson networkAclWebJson = new NetworkAclWebJson(buildNetworkAclEntity1());
 
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(networkAclWebJson);
     }
 
+    public static String buildNetworkAclBulkWebJsonString() throws Exception {
+        List<NetworkAclEntity> networkAclEntities = buildNetworkAclEntities();
+        NetworkAclBulkWebJson networkAclBulkWebJson = new NetworkAclBulkWebJson(networkAclEntities);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(networkAclBulkWebJson);
+    }
+
     public static String buildNetworkAclWebJsonString(String id, String name, String vpcId,
                                                       List<String> subnetIds) throws Exception {
-        NetworkAclWebJson networkAclWebJson = new NetworkAclWebJson(buildNetworkAclEntity(id, name, vpcId, subnetIds));
+        NetworkAclWebJson networkAclWebJson = new NetworkAclWebJson(buildNetworkAclEntity1(id, name, vpcId, subnetIds));
 
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(networkAclWebJson);

@@ -22,6 +22,7 @@ public class UnitTestConfig {
     public static String subnetId1 = "3d53801c-32ce-4e97-9572-bb966fab628";
     public static String subnetId2 = "3d53801c-32ce-4e97-9572-bb966f76ae1";
     public static String networkAclUrl = "/project/" + projectId + "/network-acls";
+    public static String networkAclBulkUrl = "/project/" + projectId + "/network-acls/bulk";
     public static String vpcId1 = "3d53801c-32ce-4e97-9572-bb966fac7632";
     public static String vpcId2 = "3d53801c-32ce-4e97-9572-bb966faab241";
     public static String networkAclId1 = "3d53801c-32ce-4e97-9572-bb966f77ab4";
@@ -30,10 +31,12 @@ public class UnitTestConfig {
     public static String networkAclName2 = "test_network_acl2";
 
     //Network ACL Rule config
-    public static String networkAclRuleId = "3d53801c-32ce-4e97-9572-bb966f88ca4";
+    public static String networkAclRuleId1 = "3d53801c-32ce-4e97-9572-bb966f88ca4";
+    public static String networkAclRuleId2 = "3d53801c-32ce-4e97-9572-bb966f992b1";
     public static String networkAclRuleName1 = "test_network_acl_rule1";
     public static String networkAclRuleName2 = "test_network_acl_rule2";
     public static String networkAclRuleUrl = "/project/" + projectId + "/network-acl-rules";
+    public static String networkAclRuleBulkUrl = "/project/" + projectId + "/network-acl-rules/bulk";
     public static Integer number1 = 10;
     public static Integer number2 = 20;
     public static Integer numberInvalid1 = 32767;

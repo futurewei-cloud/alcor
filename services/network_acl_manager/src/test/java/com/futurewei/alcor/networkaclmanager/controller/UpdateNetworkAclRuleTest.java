@@ -36,9 +36,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder.buildNetworkAclWebJsonString;
-import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildNetworkAclRuleEntity;
-import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildNetworkAclRuleWebJsonString;
+import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,17 +50,20 @@ public class UpdateNetworkAclRuleTest {
     @MockBean
     private NetworkAclRepository networkAclRepository;
     private NetworkAclRuleEntity networkAclRuleEntity;
-    private String updateNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId;
+    private String updateNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId1;
 
     @BeforeEach
     public void beforeEachTestCase() throws Exception {
-        networkAclRuleEntity = buildNetworkAclRuleEntity();
+        networkAclRuleEntity = buildNetworkAclRuleEntity1();
 
         Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity1());
 
-        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
-                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId1))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
+
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId2))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity2());
     }
 
     @Test
@@ -82,7 +83,7 @@ public class UpdateNetworkAclRuleTest {
 
     @Test
     public void updateNetworkAclRuleNetworkAclIdTest() throws Exception {
-        NetworkAclEntity networkAclEntity = NetworkAclBuilder.buildNetworkAclEntity();
+        NetworkAclEntity networkAclEntity = NetworkAclBuilder.buildNetworkAclEntity1();
         networkAclEntity.setId(UnitTestConfig.networkAclId2);
         Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId2))
                 .thenReturn(networkAclEntity);
@@ -241,7 +242,7 @@ public class UpdateNetworkAclRuleTest {
         String body = buildNetworkAclRuleWebJsonString(networkAclRuleEntity);
 
         List<NetworkAclRuleEntity> networkAclRuleEntities = new ArrayList<>();
-        networkAclRuleEntities.add(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        networkAclRuleEntities.add(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
         Mockito.when(networkAclRepository.getNetworkAclRulesByNumber(UnitTestConfig.number2))
                 .thenReturn(networkAclRuleEntities);
 
@@ -293,6 +294,17 @@ public class UpdateNetworkAclRuleTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$.network_acl_rule.id")
-                        .value(UnitTestConfig.networkAclRuleId));
+                        .value(UnitTestConfig.networkAclRuleId1));
+    }
+
+    @Test
+    public void updateNetworkAclRuleBulkTest() throws Exception {
+        String body = buildNetworkAclRuleBulkWebJsonString();
+
+        this.mockMvc.perform(put(UnitTestConfig.networkAclRuleBulkUrl)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

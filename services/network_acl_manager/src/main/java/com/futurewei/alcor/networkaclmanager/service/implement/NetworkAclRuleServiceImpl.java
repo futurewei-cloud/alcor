@@ -42,8 +42,8 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
     public NetworkAclRuleEntity createNetworkAclRule(NetworkAclRuleEntity networkAclRuleEntity) throws Exception {
         //Check if Network ACL exists
         String networkAclId = networkAclRuleEntity.getNetworkAclId();
-        NetworkAclEntity networkAcl = networkAclRepository.getNetworkAcl(networkAclId);
-        if (networkAcl == null) {
+        NetworkAclEntity networkAclEntity = networkAclRepository.getNetworkAcl(networkAclId);
+        if (networkAclEntity == null) {
             throw new NetworkAclNotFound();
         }
 
@@ -63,6 +63,30 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
         LOG.info("Update Network ACL Rule success, networkAclRuleWebJson: {}", networkAclRuleEntity);
 
         return networkAclRuleEntity;
+    }
+
+    @Override
+    public List<NetworkAclRuleEntity> createNetworkAclRuleBulk(List<NetworkAclRuleEntity> networkAclRuleEntities) throws Exception {
+        for (NetworkAclRuleEntity networkAclRuleEntity: networkAclRuleEntities) {
+            NetworkAclEntity networkAclEntity = networkAclRepository.
+                    getNetworkAcl(networkAclRuleEntity.getNetworkAclId());
+            if (networkAclEntity == null) {
+                throw new NetworkAclNotFound();
+            }
+
+            if (networkAclRuleEntity.getId() == null) {
+                networkAclRuleEntity.setId(UUID.randomUUID().toString());
+            }
+
+            Integer number = networkAclRuleEntity.getNumber();
+            if (!networkAclRepository.getNetworkAclRulesByNumber(number).isEmpty()) {
+                throw new RuleNumberOccupied();
+            }
+        }
+
+        networkAclRepository.addNetworkAclRuleBulk(networkAclRuleEntities);
+
+        return networkAclRuleEntities;
     }
 
     @Override
@@ -193,6 +217,16 @@ public class NetworkAclRuleServiceImpl implements NetworkAclRuleService {
         LOG.info("Update Network ACL Rule success, networkAclRuleEntity: {}", networkAclRuleEntity);
 
         return oldNetworkAclRuleEntity;
+    }
+
+    @Override
+    public List<NetworkAclRuleEntity> updateNetworkAclRuleBulk(List<NetworkAclRuleEntity> networkAclRuleEntities) throws Exception {
+        List<NetworkAclRuleEntity> result = new ArrayList<>();
+        for (NetworkAclRuleEntity networkAclRuleEntity: networkAclRuleEntities) {
+            result.add(updateNetworkAclRule(networkAclRuleEntity.getId(), networkAclRuleEntity));
+        }
+
+        return result;
     }
 
     @Override

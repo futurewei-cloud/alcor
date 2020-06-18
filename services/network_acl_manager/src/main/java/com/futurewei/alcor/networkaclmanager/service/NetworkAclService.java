@@ -1,18 +1,17 @@
 package com.futurewei.alcor.networkaclmanager.service;
 
 import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclWebJson;
 
 import java.util.List;
 
 public interface NetworkAclService {
-    NetworkAclEntity createNetworkAcl(NetworkAclEntity networkAclEntity) throws Exception;
+    NetworkAclEntity createNetworkAcl(String projectId, NetworkAclEntity networkAclEntity) throws Exception;
 
-    //NetworkAclBulkJson createNetworkAclBulk(NetworkAclWebBulkJson networkAclWebBulkJson) throws Exception;
+    List<NetworkAclEntity> createNetworkAclBulk(String projectId, List<NetworkAclEntity> networkAclEntities) throws Exception;
 
-    NetworkAclEntity updateNetworkAcl(String networkAclId, NetworkAclEntity networkAclEntity) throws Exception;
+    NetworkAclEntity updateNetworkAcl(String projectId, String networkAclId, NetworkAclEntity networkAclEntity) throws Exception;
 
-    //NetworkAclBulkJson updateNetworkAclBulk(NetworkAclWebBulkJson networkAclWebBulkJson) throws Exception;
+    List<NetworkAclEntity> updateNetworkAclBulk(String projectId, List<NetworkAclEntity> networkAclEntities) throws Exception;
 
     void deleteNetworkAcl(String networkAclId) throws Exception;
 

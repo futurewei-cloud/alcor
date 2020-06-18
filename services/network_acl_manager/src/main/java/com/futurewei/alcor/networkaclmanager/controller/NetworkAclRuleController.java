@@ -16,15 +16,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.networkaclmanager.controller;
 
 import com.futurewei.alcor.networkaclmanager.service.NetworkAclRuleService;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleWebJson;
+import com.futurewei.alcor.web.entity.networkacl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.futurewei.alcor.networkaclmanager.util.RestParameterValidator.checkNetworkAclRule;
+import static com.futurewei.alcor.networkaclmanager.util.RestParameterValidator.*;
 
 @RestController
 public class NetworkAclRuleController {
@@ -42,6 +41,23 @@ public class NetworkAclRuleController {
         return networkAclRuleWebJson;
     }
 
+    @PostMapping("/project/{project_id}/network-acl-rules/bulk")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkAclRuleBulkWebJson createNetworkAclRuleBulk(@PathVariable("project_id") String projectId,
+                                                              @RequestBody NetworkAclRuleBulkWebJson networkAclRuleBulkWebJson) throws Exception {
+        checkProjectId(projectId);
+        List<NetworkAclRuleEntity> networkAclRuleEntities =
+                networkAclRuleBulkWebJson.getNetworkAclRuleEntities();
+        for (NetworkAclRuleEntity networkAclRuleEntity: networkAclRuleEntities) {
+            checkNetworkAclRule(networkAclRuleEntity);
+        }
+
+        networkAclRuleBulkWebJson.setNetworkAclRuleEntities(
+                networkAclRuleService.createNetworkAclRuleBulk(networkAclRuleEntities));
+        return networkAclRuleBulkWebJson;
+    }
+
     @PutMapping("/project/{project_id}/network-acl-rules/{network_acl_rule_id}")
     public NetworkAclRuleWebJson updateNetworkAclRule(@PathVariable("project_id") String projectId,
                                               @PathVariable("network_acl_rule_id") String networkAclRuleId,
@@ -50,6 +66,21 @@ public class NetworkAclRuleController {
         checkNetworkAclRule(networkAclRuleEntity);
         networkAclRuleWebJson.setNetworkAclRuleEntity(networkAclRuleService.updateNetworkAclRule(networkAclRuleId, networkAclRuleEntity));
         return networkAclRuleWebJson;
+    }
+
+    @PutMapping("/project/{project_id}/network-acl-rules/bulk")
+    public NetworkAclRuleBulkWebJson updateNetworkAclBulk(@PathVariable("project_id") String projectId,
+                                                      @RequestBody NetworkAclRuleBulkWebJson networkAclRuleBulkWebJson) throws Exception {
+        checkProjectId(projectId);
+        List<NetworkAclRuleEntity> networkAclRuleEntities =
+                networkAclRuleBulkWebJson.getNetworkAclRuleEntities();
+        for (NetworkAclRuleEntity networkAclRuleEntity: networkAclRuleEntities) {
+            checkNetworkAclRule(networkAclRuleEntity);
+        }
+
+        networkAclRuleBulkWebJson.setNetworkAclRuleEntities(
+                networkAclRuleService.updateNetworkAclRuleBulk(networkAclRuleEntities));
+        return networkAclRuleBulkWebJson;
     }
 
     @DeleteMapping("/project/{project_id}/network-acl-rules/{network_acl_rule_id}")

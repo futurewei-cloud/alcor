@@ -27,17 +27,27 @@ import java.util.function.Supplier;
 
 public class AsyncExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
-    public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            ThreadPoolExecutorConfig.corePoolSize,
-            ThreadPoolExecutorConfig.maximumPoolSize,
-            ThreadPoolExecutorConfig.KeepAliveTime,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
-            new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
-    private List<CompletableFuture> futures;
+    private ThreadPoolExecutor executor;
+    private List<CompletableFuture> futures = new ArrayList<>();
 
     public AsyncExecutor() {
-        futures = new ArrayList<>();
+        executor = new ThreadPoolExecutor(
+                ThreadPoolExecutorConfig.corePoolSize,
+                ThreadPoolExecutorConfig.maximumPoolSize,
+                ThreadPoolExecutorConfig.KeepAliveTime,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
+                new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
+    }
+
+    public AsyncExecutor(int corePoolSize, int maximumPoolSize, int KeepAliveTime, int capacity) {
+        executor = new ThreadPoolExecutor(
+                corePoolSize,
+                maximumPoolSize,
+                KeepAliveTime,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(capacity),
+                new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
     }
 
     public <T>CompletableFuture runAsync(Supplier<T> supplier) {

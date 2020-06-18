@@ -46,10 +46,10 @@ public class NetworkAclRepositoryTest {
 
     @Test
     public void addNetworkAclTest() throws Exception {
-        networkAclRepository.addNetworkAcl(NetworkAclBuilder.buildNetworkAclEntity());
+        networkAclRepository.addNetworkAcl(NetworkAclBuilder.buildNetworkAclEntity1());
 
         Mockito.verify(networkAclCache, Mockito.times(1))
-                .put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
+                .put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity1());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class NetworkAclRepositoryTest {
     @Test
     public void getNetworkAclTest() throws Exception {
         Mockito.when(networkAclCache.get(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity1());
 
         assertNotNull(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1));
     }
@@ -71,7 +71,7 @@ public class NetworkAclRepositoryTest {
     @Test
     public void listNetworkAclTest() throws Exception {
         Map<String, NetworkAclEntity> networkAclEntityMap = new HashMap<>();
-        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
+        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity1());
         Mockito.when(networkAclCache.getAll())
                 .thenReturn(networkAclEntityMap);
 
@@ -81,32 +81,32 @@ public class NetworkAclRepositoryTest {
 
     @Test
     public void addNetworkAclRuleTest() throws Exception {
-        networkAclRepository.addNetworkAclRule(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        networkAclRepository.addNetworkAclRule(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
 
         Mockito.verify(networkAclRuleCache, Mockito.times(1))
-                .put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+                .put(UnitTestConfig.networkAclRuleId1, NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
     }
 
     @Test
     public void deleteNetworkAclRuleTest() throws Exception {
-        networkAclRepository.deleteNetworkAclRule(UnitTestConfig.networkAclRuleId);
+        networkAclRepository.deleteNetworkAclRule(UnitTestConfig.networkAclRuleId1);
 
         Mockito.verify(networkAclRuleCache, Mockito.times(1))
-                .remove(UnitTestConfig.networkAclRuleId);
+                .remove(UnitTestConfig.networkAclRuleId1);
     }
 
     @Test
     public void getNetworkAclRuleTest() throws Exception {
-        Mockito.when(networkAclRuleCache.get(UnitTestConfig.networkAclRuleId))
-                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        Mockito.when(networkAclRuleCache.get(UnitTestConfig.networkAclRuleId1))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
 
-        assertNotNull(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId));
+        assertNotNull(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId1));
     }
 
     @Test
     public void listNetworkAclRuleTest() throws Exception {
         Map<String, NetworkAclRuleEntity> networkAclRuleEntityMap = new HashMap<>();
-        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId1, NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
         Mockito.when(networkAclRuleCache.getAll())
                 .thenReturn(networkAclRuleEntityMap);
 

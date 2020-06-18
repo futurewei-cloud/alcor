@@ -44,26 +44,26 @@ public class GetNetworkAclRuleTest {
     @MockBean
     private NetworkAclRepository networkAclRepository;
 
-    private String getNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId;
+    private String getNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl + "/" + UnitTestConfig.networkAclRuleId1;
     private String listNetworkAclRuleUrl = UnitTestConfig.networkAclRuleUrl;
 
     @Test
     public void getExistNetworkAclRuleTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
-                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId1))
+                .thenReturn(NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
 
         this.mockMvc.perform(get(getNetworkAclRuleUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$.network_acl_rule.id")
-                        .value(UnitTestConfig.networkAclRuleId)
+                        .value(UnitTestConfig.networkAclRuleId1)
                 );
     }
 
     @Test
     public void getNonExistNetworkAclRuleTest() throws Exception {
-        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId))
+        Mockito.when(networkAclRepository.getNetworkAclRule(UnitTestConfig.networkAclRuleId1))
                 .thenReturn(null);
 
         this.mockMvc.perform(get(getNetworkAclRuleUrl))
@@ -74,7 +74,7 @@ public class GetNetworkAclRuleTest {
     @Test
     public void listNetworkAclRuleTest() throws Exception {
         Map<String, NetworkAclRuleEntity> networkAclRuleEntityMap = new HashMap<>();
-        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId, NetworkAclRuleBuilder.buildNetworkAclRuleEntity());
+        networkAclRuleEntityMap.put(UnitTestConfig.networkAclRuleId1, NetworkAclRuleBuilder.buildNetworkAclRuleEntity1());
 
         Mockito.when(networkAclRepository.getAllNetworkAclRules())
                 .thenReturn(networkAclRuleEntityMap);
@@ -84,7 +84,7 @@ public class GetNetworkAclRuleTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$[0].id")
-                        .value(UnitTestConfig.networkAclRuleId)
+                        .value(UnitTestConfig.networkAclRuleId1)
                 );
     }
 }

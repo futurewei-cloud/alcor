@@ -28,6 +28,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
@@ -96,7 +98,7 @@ public class NetworkAclRepository {
         }
     }
 
-    private List<NetworkAclRuleEntity> getDefaultNetworkAclRules() throws Exception {
+    public List<NetworkAclRuleEntity> getDefaultNetworkAclRules() throws Exception {
         List<NetworkAclRuleEntity> networkAclRules = getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
         if (networkAclRules.isEmpty()) {
             try {
@@ -115,6 +117,14 @@ public class NetworkAclRepository {
         LOG.debug("Add Network ACL:{}", networkAclEntity);
 
         networkAclCache.put(networkAclEntity.getId(), networkAclEntity);
+    }
+
+    public void addNetworkAclBulk(List<NetworkAclEntity> networkAclEntities) throws CacheException {
+        LOG.debug("Add Network ACL Bulk:{}", networkAclEntities);
+
+        Map<String, NetworkAclEntity> networkAclEntityMap = networkAclEntities.stream()
+                .collect(Collectors.toMap(NetworkAclEntity::getId, Function.identity()));
+        networkAclCache.putAll(networkAclEntityMap);
     }
 
     public void deleteNetworkAcl(String networkAclId) throws CacheException {
@@ -161,6 +171,14 @@ public class NetworkAclRepository {
         LOG.debug("Add Network ACL Rule:{}", networkAclRuleEntity);
 
         networkAclRuleCache.put(networkAclRuleEntity.getId(), networkAclRuleEntity);
+    }
+
+    public void addNetworkAclRuleBulk(List<NetworkAclRuleEntity> networkAclRuleEntities) throws Exception {
+        LOG.debug("Add Network ACL Rule Bulk:{}", networkAclRuleEntities);
+
+        Map<String, NetworkAclRuleEntity> networkAclRuleEntityMap = networkAclRuleEntities.stream()
+                .collect(Collectors.toMap(NetworkAclRuleEntity::getId, Function.identity()));
+        networkAclRuleCache.putAll(networkAclRuleEntityMap);
     }
 
     public void deleteNetworkAclRule(String networkAclRuleId) throws CacheException {

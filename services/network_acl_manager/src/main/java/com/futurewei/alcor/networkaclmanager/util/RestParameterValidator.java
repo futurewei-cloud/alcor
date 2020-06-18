@@ -26,6 +26,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RestParameterValidator {
+    public static void checkProjectId(String projectId) throws ProjectIdRequired {
+        if (StringUtils.isEmpty(projectId)) {
+            throw new ProjectIdRequired();
+        }
+    }
 
     public static void checkNetworkAcl(NetworkAclEntity networkAclEntity) throws Exception {
         if (networkAclEntity == null) {

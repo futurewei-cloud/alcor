@@ -44,7 +44,7 @@ public class DeleteNetworkAclTest {
     @Test
     public void deleteExistNetworkAclTest() throws Exception {
         Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity1());
 
         this.mockMvc.perform(delete(deleteNetworkAclUrl))
                 .andDo(print())

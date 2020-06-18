@@ -50,7 +50,7 @@ public class GetNetworkAclTest {
     @Test
     public void getExistNetworkAclTest() throws Exception {
         Mockito.when(networkAclRepository.getNetworkAcl(UnitTestConfig.networkAclId1))
-                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity());
+                .thenReturn(NetworkAclBuilder.buildNetworkAclEntity1());
 
         this.mockMvc.perform(get(getNetworkAclUrl))
                 .andDo(print())
@@ -74,7 +74,7 @@ public class GetNetworkAclTest {
     @Test
     public void listNetworkAclTest() throws Exception {
         Map<String, NetworkAclEntity> networkAclEntityMap = new HashMap<>();
-        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity());
+        networkAclEntityMap.put(UnitTestConfig.networkAclId1, NetworkAclBuilder.buildNetworkAclEntity1());
 
         Mockito.when(networkAclRepository.getAllNetworkAcls())
                 .thenReturn(networkAclEntityMap);
