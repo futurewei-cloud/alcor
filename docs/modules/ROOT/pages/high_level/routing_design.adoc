@@ -175,7 +175,7 @@ table=52, priority=0 actions=NORMAL
 . (on demand rule) if inter-subnet communication matches an openflow rule, perform L3 forwarding, programmed in last 60s
 . (L3 essential rule) if segment ID and destination L3 subnet matches an openflow rule, send to ACA
 . (L2 essential rule) if local vlan and local subnet matches an openflow rule, send to Normal path
-. else send to Table Public, this is traffic to external
+. else send to Table External, this is traffic to external
 
 [source,shell]
 ------------------------------------------------------------
@@ -339,7 +339,7 @@ Note: Return traffic follows similar steps in reverse, but the network node perf
 
 == E2E Packet flow DVR (Alcor openflow way)
 
-[Eric] to provide picture for Case 1
+image::cross_subnet_with_DVR.png[] 
 
 === Case 1: East-west for instances on different compute hosts on different networks
 
