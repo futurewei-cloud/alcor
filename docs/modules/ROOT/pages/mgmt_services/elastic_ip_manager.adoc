@@ -59,19 +59,19 @@ Note that those IP ranges should be owned by cloud provider.
 |Create an elastic IP
 |POST
 |/project/{project_id}/elasticips
-|elasticip info
+|elasticip state
 <<Elastic_IP_Create,[sample]>>
 
 |Get the elastic IP
 |GET
 |/project/{project_id}/elasticips/{elasticip_id}
-|elasticip info
+|elasticip state
 <<Elastic_IP_Get,[sample]>>
 
 |Get all elastic IPs
 |GET
 |/project/{project_id}/elasticips
-|elasticip info list
+|elasticip state list
 <<Elastic_IP_Get_List,[sample]>>
 
 |Delete the elastic IP
@@ -83,7 +83,7 @@ Note that those IP ranges should be owned by cloud provider.
 |Bulk create elastic IPs
 |POST
 |/project/{project_id}/elasticips
-|elasticip info list
+|elasticip state list
 <<Elastic_IP_Bulk_Create,[sample]>>
 
 |Bulk delete elastic IPs
@@ -95,37 +95,37 @@ Note that those IP ranges should be owned by cloud provider.
 |Update the elastic IP
 |PUT
 |/project/{project_id}/elasticips/{elasticip_id}
-|elasticip info
+|elasticip state
 <<Elastic_IP_Update,[sample]>>
 
 |Create an elastic IP range
 |POST
-|/elasticip-ranges
-|elasticip range info
+|/project/{project_id}/elasticip-ranges
+|elasticip range state
 <<Elastic_IP_Range_Create,[sample]>>
 
 |Get the elastic IP range
 |GET
-|/elasticip-ranges/{elasticip_range_id}
-|elasticip range info
+|/project/{project_id}/elasticip-ranges/{elasticip_range_id}
+|elasticip range state
 <<Elastic_IP_Range_Get,[sample]>>
 
 |Get all elastic IP ranges
 |GET
-|/elasticip-ranges
-|elasticip range info list
+|/project/{project_id}/elasticip-ranges
+|elasticip range state list
 <<Elastic_IP_Range_Get_List,[sample]>>
 
 |Delete the elastic IP range
 |DELETE
-|/elasticip-ranges/{elasticip_range_id}
+|/project/{project_id}/elasticip-ranges/{elasticip_range_id}
 |
 <<Elastic_IP_Range_Delete,[sample]>>
 
 |Update the elastic IP range
 |PUT
 |/project/{project_id}/elasticip-ranges/{elasticip_range_id}
-|elasticip range info
+|elasticip range state
 <<Elastic_IP_Range_Update,[sample]>>
 
 |===
@@ -141,7 +141,7 @@ anchor:Elastic_IP_Create[]
 
 * Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpStateJson elasticip`
 
-* Response: elastic ip info
+* Response: elastic ip state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -202,7 +202,7 @@ anchor:Elastic_IP_Get[]
 
 * Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id`
 
-* Response: elastic ip info
+* Response: elastic ip state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -243,7 +243,7 @@ anchor:Elastic_IP_Get_List[]
 
 * Request Parameter: `@PathVariable String project_id`
 
-* Response: elasticip info list
+* Response: elasticip state list
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -325,7 +325,7 @@ anchor:Elastic_IP_Bulk_Create[]
 
 * Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpsStateJson elasticips`
 
-* Response: elasticip info list
+* Response: elasticip state list
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -481,7 +481,7 @@ anchor:Elastic_IP_Update[]
 
 * Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id, @RequestBody ElasticIpsStateJson elasticips`
 
-* Response: elastic ip info
+* Response: elastic ip state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -538,11 +538,11 @@ anchor:Elastic_IP_Range_Create[]
 
 * Method: `POST`
 
-* Request: `/elasticip-ranges`
+* Request: `/project/{project_id}/elasticip-ranges`
 
-* Request Parameter: `@RequestBody ElasticIpRangeStateJson elasticip_range`
+* Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpRangeStateJson elasticip_range`
 
-* Response: elasticip range info
+* Response: elasticip range state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -587,11 +587,11 @@ anchor:Elastic_IP_Range_Get[]
 
 * Method: `GET`
 
-* Request: `/elasticip-range/{elasticip_range_id}`
+* Request: `/project/{project_id}/elasticip-range/{elasticip_range_id}`
 
-* Request Parameter: `@PathVariable String elasticip_range_id`
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_range_id`
 
-* Response: elasticip range info
+* Response: elasticip range state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -622,11 +622,11 @@ anchor:Elastic_IP_Range_Get_List[]
 
 * Method: `GET`
 
-* Request: `/elasticip-ranges`
+* Request: `/project/{project_id}/elasticip-ranges`
 
-* Request Parameter: ``
+* Request Parameter: `@PathVariable String project_id`
 
-* Response: elasticip range info list
+* Response: elasticip range state list
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -668,9 +668,9 @@ anchor:Elastic_IP_Range_Delete[]
 
 * Method: `DELETE`
 
-* Request: `/elasticip-range/{elasticip_range_id}`
+* Request: `/project/{project_id}/elasticip-range/{elasticip_range_id}`
 
-* Request Parameter: `@PathVariable String elasticip_range_id`
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_range_id`
 
 * Response: null
 * Normal response codes: 200
@@ -696,7 +696,7 @@ anchor:Elastic_IP_Range_Update[]
 
 * Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id, @RequestBody ElasticIpsStateJson elasticips`
 
-* Response: elasticip range info
+* Response: elasticip range state
 * Normal response codes: 200
 * Error response codes: 400, 412, 500
 
@@ -738,18 +738,21 @@ Response:
 
 == Database Data Schema
 
-=== Elastic IP State
-One Elastic IP falls into one of two states:
+=== IP Address State
+One IP address falls into one of three states:
 
 [width="100%",cols="30%,70%"]
 |===
 |*State* |*Details*
 
 |Activated
-|Elastic IP is associated with a port.
+|IP address is allocated to a port AND it is in use. This is default.
 
 |Deactivated
-|Elastic IP is not associated with any port.
+|IP address is allocated to a port AND it is NOT in use.
+
+|Free
+|IP address is NOT allocated to a port yet.
 |===
 
 == IP allocation algorithm
