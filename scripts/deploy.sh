@@ -3,7 +3,7 @@
 CtrlContainer="alcor-controller"
 RedisContainer="alcor-redis"
 IgniteContainer="alcor-ignite"
-IgniteImage="apacheignite/ignite:2.8.0"
+IgniteImage="apacheignite/ignite:2.8.1"
 DbType="redis"
 
 # Parse all params
