@@ -16,7 +16,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.utils;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.exception.QueryParamTypeNotSupportException;
+import com.google.common.collect.ObjectArrays;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ControllerUtil {
+
+    private static final String PROTECT_FIELD_NAME = "fields";
 
     private static String GenereateMacAddress(int index) {
         return "0e:73:ae:c8:" + Integer.toHexString((index + 6) / 256) + ":" + Integer.toHexString((index + 6) % 256);
@@ -41,4 +53,67 @@ public class ControllerUtil {
         }
         return true;
     }
+
+    /**
+     * transform url query params to Map<String, Object[]></>
+     *
+     * @param params the request params,
+     * @param modelClass the entity class
+     * @return Map<String, Object>
+     */
+    public static <T> Map<String, Object[]> transformUrlPathParams(Map<String, String[]> params, Class<T> modelClass)
+    throws QueryParamTypeNotSupportException {
+        Map<String, Object[]> queryParams = new HashMap<>(params.size());
+        Field[] fields = getAllDeclaredFields(modelClass);
+        Map<String, Field> fieldMap = new HashMap<>(fields.length*2);
+        for(Field field: fields){
+            JsonProperty jsonAnnotate = field.getAnnotation(JsonProperty.class);
+            if(jsonAnnotate != null){
+                fieldMap.put(jsonAnnotate.value(), field);
+            }else{
+                fieldMap.put(field.getName(), field);
+            }
+        }
+        for(Map.Entry<String, String[]> entry: params.entrySet()){
+            String queryName = entry.getKey();
+            String[] queryValues = entry.getValue();
+            if(queryValues.length <= 0 || PROTECT_FIELD_NAME.equals(queryName)){
+                continue;
+            }
+
+            if(fieldMap.containsKey(queryName)){
+                Field field = fieldMap.get(queryName);
+
+                Object[] values = new Object[queryValues.length];
+                for(int i=0;i<queryValues.length;i++){
+                    values[i] = castStr(queryValues[i], field.getType());
+                }
+                queryParams.put(field.getName(), values);
+            }
+        }
+        return queryParams;
+    }
+
+    private static <T> Field[] getAllDeclaredFields(Class<T> tClass){
+        Field[] selfFields = tClass.getDeclaredFields();
+        Class<? super T> superClass = tClass.getSuperclass();
+        if(superClass != null && !superClass.getName().equals(Object.class.getName())) {
+            return ObjectArrays.concat(selfFields, getAllDeclaredFields(superClass), Field.class);
+        }
+        return selfFields;
+    }
+
+    private static <T> Object castStr(String str, Class<T> tClass) throws QueryParamTypeNotSupportException{
+        String className = tClass.getName();
+        if(className.equals(String.class.getName())){
+            return str;
+        }else if(className.equals(boolean.class.getName()) || className.equals(Boolean.class.getName())){
+            return Boolean.valueOf(str);
+        }else if(className.equals(Integer.class.getName()) || className.equals(int.class.getName())){
+            return Integer.valueOf(str);
+        }else{
+            throw new QueryParamTypeNotSupportException("query param not support type: " + className);
+        }
+    }
+
 }

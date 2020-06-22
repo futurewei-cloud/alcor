@@ -20,9 +20,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.client.ClientException;
-import org.apache.ignite.client.ClientTransaction;
-import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.internal.client.thin.ClientServerError;
 
 import java.util.logging.Level;
@@ -33,16 +32,17 @@ import static org.apache.ignite.transactions.TransactionIsolation.SERIALIZABLE;
 public class IgniteTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    private IgniteClient igniteClient;
-    private ClientTransaction clientTransaction;
+    private Ignite client;
+    private org.apache.ignite.transactions.Transaction transaction;
 
-    public IgniteTransaction(IgniteClient igniteClient) {
-        this.igniteClient = igniteClient;
+    public IgniteTransaction(Ignite client) {
+        this.client = client;
     }
 
+    @Override
     public Transaction start() throws CacheException {
-        try {
-            clientTransaction = igniteClient.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
+        try{
+            transaction = client.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
         } catch (ClientServerError e) {
             logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -54,9 +54,10 @@ public class IgniteTransaction implements Transaction {
         return this;
     }
 
+    @Override
     public void commit() throws CacheException {
         try {
-            clientTransaction.commit();
+            transaction.commit();
         } catch (ClientServerError e) {
             logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -66,9 +67,10 @@ public class IgniteTransaction implements Transaction {
         }
     }
 
+    @Override
     public void rollback() throws CacheException {
         try {
-            clientTransaction.rollback();
+            transaction.rollback();
         } catch (ClientServerError e) {
             logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -80,8 +82,8 @@ public class IgniteTransaction implements Transaction {
 
     @Override
     public void close() {
-        if (clientTransaction != null) {
-            clientTransaction.close();
+        if (transaction != null) {
+            transaction.close();
         }
     }
 }

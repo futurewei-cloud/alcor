@@ -19,6 +19,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
@@ -26,12 +27,15 @@ import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +53,9 @@ public class VpcController {
     @Autowired
     private VpcService vpcService;
 
+    @Autowired
+    private HttpServletRequest request;
+
     /**
      * hows details for a network
      * @param projectid
@@ -56,6 +63,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @FieldFilter(type=VpcEntity.class)
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -247,23 +255,27 @@ public class VpcController {
 
     /**
      * Lists networks to which the project has access
-     * @param projectid
+     * @param projectId
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
+    @FieldFilter(type=VpcEntity.class)
     @RequestMapping(
             method = GET,
-            value = "/project/{projectid}/vpcs")
-    public Map getVpcStatesByProjectId(@PathVariable String projectid) throws Exception {
+            value = "/project/{projectId}/vpcs")
+    public Map getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
 
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            RestPreconditionsUtil.verifyResourceFound(projectid);
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
+        queryParams.put("project_id", new String[]{projectId});
 
-            vpcStates = this.vpcDatabaseService.getAllVpcs();
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            RestPreconditionsUtil.verifyResourceFound(projectId);
+
+            vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
             vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> projectid.equalsIgnoreCase(state.getValue().getProjectId()))
                     .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {

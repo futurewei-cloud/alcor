@@ -19,7 +19,7 @@ package com.futurewei.alcor.privateipmanager.repo;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
 import com.futurewei.alcor.privateipmanager.entity.VpcIpRange;
@@ -36,7 +36,7 @@ import java.util.*;
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
-public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
+public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrRangeRepo.class);
     private ICache<String, IpAddrRange> ipAddrRangeCache;
     private ICache<String, VpcIpRange> vpcIpRangeCache;
@@ -74,6 +74,18 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     public synchronized Map<String, IpAddrRange> findAllItems() {
         try {
             return ipAddrRangeCache.getAll();
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("IpRangeRepository findAllItems() exception:", e);
+        }
+
+        return new HashMap();
+    }
+
+    @Override
+    public Map<String, IpAddrRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        try {
+            return ipAddrRangeCache.getAll(queryParams);
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("IpRangeRepository findAllItems() exception:", e);

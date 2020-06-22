@@ -15,21 +15,30 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.controller;
 
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
+
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 
 @RestController
 public class PortController {
+
     @Autowired
     PortService portService;
 
+    @Autowired
+    private HttpServletRequest request;
     /**
      * Create a port, and call the interfaces of each micro-service according to the
      * configuration of the port to create various required resources for the port.
@@ -138,6 +147,7 @@ public class PortController {
      * @return PortWebJson
      * @throws Exception Db operation exception
      */
+    @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
     public PortWebJson getPort(@PathVariable("project_id") String projectId,
                                     @PathVariable("port_id") String portId) throws Exception {
@@ -150,8 +160,12 @@ public class PortController {
      * @return A list of port information
      * @throws Exception Db operation exception
      */
+    @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     public List<PortWebJson> listPort(@PathVariable("project_id") String projectId) throws Exception {
-        return portService.listPort(projectId);
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
+        queryParams.put("project_id", new String[]{projectId});
+        return portService.listPort(projectId, queryParams);
     }
 }

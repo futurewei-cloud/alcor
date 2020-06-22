@@ -18,7 +18,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +72,17 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
     @Override
     public Map findAllItems() throws CacheException {
         return cache.getAll();
+    }
+
+    /**
+     * find all nodes' information by filter
+     * @param queryParams url request params
+     * @return
+     * @throws CacheException
+     */
+    @Override
+    public Map<String, NodeInfo> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
     }
 
     /**

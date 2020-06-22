@@ -18,16 +18,22 @@ package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.ClientConfiguration;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
+import org.apache.ignite.ssl.SslContextFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Collections;
 import java.util.logging.Level;
 
 @Configuration
@@ -55,7 +61,8 @@ public class IgniteConfiguration {
     @Value("${ignite.trust-store-password:#{null}}")
     private String trustStorePassword;
 
-    @Bean
+
+    //@Bean
     public IgniteClient igniteClientInstance() {
         ClientConfiguration cfg = new ClientConfiguration()
                 .setAddresses(host + ":" + port);
@@ -81,5 +88,55 @@ public class IgniteConfiguration {
         //Assert.notNull(igniteClient, "IgniteClient is null");
 
         return igniteClient;
+    }
+
+    @Bean
+    public Ignite igniteInstance() {
+        org.apache.ignite.configuration.IgniteConfiguration cfg =
+                new org.apache.ignite.configuration.IgniteConfiguration();
+
+        // The node will be started as a client node.
+        cfg.setClientMode(true);
+
+        // Classes of custom Java logic will be transferred over the wire from this app.
+        cfg.setPeerClassLoadingEnabled(true);
+
+        // Setting up an IP Finder to ensure the client can locate the servers.
+        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+        ipFinder.setAddresses(Collections.singletonList(host + ":" + port));
+        TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
+        tcpDiscoverySpi.setIpFinder(ipFinder);
+        tcpDiscoverySpi.setJoinTimeout(1000);
+        tcpDiscoverySpi.setStatisticsPrintFrequency(0);
+        cfg.setDiscoverySpi(tcpDiscoverySpi);
+
+
+        if (keyStorePath != null && keyStorePassword != null) {
+            SslContextFactory factory = new SslContextFactory();
+            factory.setKeyStoreFilePath(keyStorePath);
+            factory.setKeyStorePassword(keyStorePassword.toCharArray());
+            if(trustStorePath != null && trustStorePassword != null) {
+                factory.setTrustStoreFilePath(trustStorePath);
+                factory.setTrustStorePassword(trustStorePassword.toCharArray());
+            }else{
+                factory.setTrustManagers(SslContextFactory.getDisabledTrustManager());
+            }
+
+            cfg.setSslContextFactory(factory);
+        }
+
+        Ignite client = null;
+
+        try {
+            client = Ignition.start(cfg);
+        } catch (ClientException e) {
+            logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        // Assert.notNull(client, "Ignite client is null");
+
+        return client;
     }
 }

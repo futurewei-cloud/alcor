@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db.redis;
 
+import com.futurewei.alcor.common.db.query.CachePredicate;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.CacheException;
@@ -101,6 +102,26 @@ public class RedisCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public V get(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> V get(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+        return null;
     }
 
     @Override
