@@ -87,12 +87,16 @@ public class GoalStateManager {
     portsInSameSubnetMap.keySet().stream()
         .forEach(
             sid -> {
-              portsInSameSubnetMap.get(sid).stream()
-                  .forEach(
-                      pid -> {
+              for (String pid:portsInSameSubnetMap.get(sid))
+                       {
                         final Set<NeighborInfo> neighborInfos =
                             neighborInfoInSameSubenetMap.get(sid);
                         final InternalPortEntity internalPortEntity = portMap.get(pid);
+                        if (internalPortEntity==null)
+                        {
+                            LOG.error("portId: "+pid+" provided in neighbor but NOT in port_internal, skip for now, likely to be dpm client error");
+                            continue;
+                        }
                         try {
                           final NeighborInfo neighborInfo =
                               new NeighborInfo(
@@ -115,10 +119,11 @@ public class GoalStateManager {
                           }
                           neighborInfos.add(neighborInfo);
                         } catch (Exception e) {
+                            e.printStackTrace();
                           LOG.error(e.getMessage());
                           throw e;
                         }
-                      });
+                      }
             });
 
     // construct sb msg by ip

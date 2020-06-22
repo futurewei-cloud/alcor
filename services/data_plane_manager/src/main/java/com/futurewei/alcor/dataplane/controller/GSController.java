@@ -161,6 +161,7 @@ public class GSController {
               })
           .collect(Collectors.toList());
     } catch (Exception e) {
+      e.printStackTrace();
       InternalDPMResultNB t =
           new InternalDPMResultNB(
               "DPM Internal Error", " please check if input to dpm is valid", "500", -1);
