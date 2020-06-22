@@ -30,7 +30,6 @@ public class NeighborInfo {
     private String portMac;
 
     public NeighborInfo() {
-
     }
 
     public NeighborInfo(String hostIp, String hostId, String portId, String portMac) {
@@ -38,5 +37,16 @@ public class NeighborInfo {
         this.hostId = hostId;
         this.portId = portId;
         this.portMac = portMac;
+    }
+
+    @Override
+    public int hashCode() {
+       return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        NeighborInfo o=(NeighborInfo)obj;
+        return this.hostId.equals(o.hostId)&&this.hostIp.equals(o.hostIp)&&this.portId.equals(o.portId);
     }
 }

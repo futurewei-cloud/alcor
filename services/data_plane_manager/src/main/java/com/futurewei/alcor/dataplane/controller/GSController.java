@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -141,22 +142,31 @@ public class GSController {
   private List<InternalDPMResultNB> service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
-    return goalStateManager
-        .talkToACA(
-            goalStateManager.transformNorthToSouth(gs),
-            true,
-            Integer.parseInt(config.getPort()),
-            Boolean.valueOf(config.getOvs()))
-        .stream()
-        .flatMap(Collection::stream)
-        .map(
-            f -> {
-              return new InternalDPMResultNB(
-                  f.getResourceId(),
-                  f.getResourceType().toString(),
-                  f.getOperationStatus().toString(),
-                  f.getStateElapseTime());
-            })
-        .collect(Collectors.toList());
+    try {
+      return goalStateManager
+          .talkToACA(
+              goalStateManager.transformNorthToSouth(gs),
+              true,
+              Integer.parseInt(config.getPort()),
+              Boolean.valueOf(config.getOvs()))
+          .stream()
+          .flatMap(Collection::stream)
+          .map(
+              f -> {
+                return new InternalDPMResultNB(
+                    f.getResourceId(),
+                    f.getResourceType().toString(),
+                    f.getOperationStatus().toString(),
+                    f.getStateElapseTime());
+              })
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      InternalDPMResultNB t =
+          new InternalDPMResultNB(
+              "DPM Internal Error", " please check if input to dpm is valid", "500", -1);
+      List<InternalDPMResultNB> r = new ArrayList<>();
+      r.add(t);
+      return r;
+    }
   }
 }
