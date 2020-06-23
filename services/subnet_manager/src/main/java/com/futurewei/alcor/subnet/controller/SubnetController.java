@@ -19,6 +19,7 @@ package com.futurewei.alcor.subnet.controller;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -34,6 +35,7 @@ import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -270,18 +272,19 @@ public class SubnetController {
             value = {"/project/{projectId}/subnets/{subnetId}"})
     public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetRequestWebJson resource) throws Exception {
 
-        SubnetEntity subnetEntity = new SubnetEntity();
+        SubnetEntity subnetEntity = null;
 
         try {
 
-            if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
-                throw new ResourceNotValidException("request resource is invalid");
-            }
+//            if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
+//                throw new ResourceNotValidException("request resource is invalid");
+//            }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
             SubnetWebRequestObject inSubnetWebResponseObject = resource.getSubnet();
-            RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
+            Preconditions.checkNotNull(inSubnetWebResponseObject, "Empty resource");
+//            RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetWebResponseObject, projectId);
 
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
@@ -290,7 +293,8 @@ public class SubnetController {
             }
 
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
-            BeanUtils.copyProperties(inSubnetWebResponseObject, subnetEntity);
+            BeanUtils.copyProperties(inSubnetWebResponseObject, subnetEntity,
+                    CommonUtil.getBeanNullPropertyNames(inSubnetWebResponseObject));
             Integer revisionNumber = subnetEntity.getRevisionNumber();
             if (revisionNumber == null || revisionNumber < 1) {
                 subnetEntity.setRevisionNumber(1);
@@ -364,8 +368,6 @@ public class SubnetController {
             RestPreconditionsUtil.verifyResourceFound(projectId);
 
             subnetStates = this.subnetDatabaseService.getAllSubnets(queryParams);
-            subnetStates = subnetStates.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         } catch (ParameterNullOrEmptyException | ResourceNotFoundException e) {
             logger.error(e.getMessage());
