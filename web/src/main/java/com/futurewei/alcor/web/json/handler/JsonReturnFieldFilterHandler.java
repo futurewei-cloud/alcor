@@ -70,11 +70,9 @@ public class JsonReturnFieldFilterHandler implements HandlerMethodReturnValueHan
                                          Class<?> clasz) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         // if no fields param in request params, ignore it
-        if(fields != null && fields.length > 0) {
-            JacksonJsonFilter jacksonJsonFilter = new JacksonJsonFilter(fields);
-            mapper.setFilterProvider(jacksonJsonFilter);
-            mapper.addMixIn(clasz, JacksonJsonFilter.class);
-        }
+        JacksonJsonFilter jacksonJsonFilter = new JacksonJsonFilter(fields);
+        mapper.setFilterProvider(jacksonJsonFilter);
+        mapper.addMixIn(clasz, JacksonJsonFilter.class);
         return mapper.writeValueAsString(returnValue);
     }
 }
