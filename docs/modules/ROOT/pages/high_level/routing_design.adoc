@@ -352,14 +352,16 @@ Project network 2
 
 * Network: 192.168.2.0/24
 * Gateway: 192.168.2.1 with MAC address MAC_G2
+* VNI: VNI_NET_2
 
 Compute node 1
 
-* Instance 1: 192.168.1.11 using project network 1
+* Instance 1: 192.168.1.11 with MAC address MAC_VM1 using project network 1
+* Compute host 1 unique DVR mac is MAC_HOST1_DVR
 
 Compute node 2
 
-* Instance 2: 192.168.2.11 using project network 2
+* Instance 2: 192.168.2.11 with MAC address MAC_VM2 using project network 2
 
 prerequistite
 
@@ -370,25 +372,27 @@ prerequistite
 In Compute Node 1
 
 . Instance 1 sends a packet to instance 2
-. Instance 1 tap interface forwards packet to br-int. The packet contains its gateway destination MAC_G1 because the destination resides on another network
+. Instance 1 tap interface forwards packet to br-int. The packet contains its gateway destination MAC_G1 because the destination resides on another network 
+    .. (src mac = MAC_VM1, dest mac = MAC_G1)
 . br-int adds VLAN tag for project network 1 because of OVS port setting
-. br-int sends the packet to openflow Table Packet Classifier
-. openflow Table Packet Classifier sends the packet to Table Forwarding
-. openflow Table Forwarding cannot find a matching on-demand rule, sends packet to ACA based on essential rule
+. br-int sends the packet to openflow Table 0 (Triage) to Table 50 (Packet Classifier)
+. openflow Table 50 (Packet Classifier) sends the packet to Table 55 (Forwarding)
+. openflow Table 55 (Forwarding) cannot find a matching on-demand rule, sends packet to ACA based on essential rule
 . ACA matches the gateway port MAC_G1 and found the corresponding virtual router object, confirm it can route to project network 2
-. ACA adds on-demand openflow rule and sends the first packet back to br-int
-. br-int routes to project network 2 based on the just added on-demand rule, remove the VLAN tag at the same time
-. br-int adds VLAN tag for project network 2
+. ACA adds on-demand openflow rule to Table 55 (Forwarding) and sends the first packet back to br-int
+. br-int routes to project network 2 based on the just added on-demand rule, replace the VLAN tag to project network 2, set src mac to MAC_G2 
+    .. (src mac = MAC_HOST1_DVR, dest mac = MAC_VM2)
 . For VxLAN/GRE project networks, br-int forwards the packet to br-tun
-. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 2
+. br-tun matches vlan, wraps the packet in VxLAN or GRE tunnel and adds tag VNI_NET_2 to identify project network 2
 . br-tun forwards the packet to compute node 2 via the tunnel interface
 
 In Compute Node 2
 
 . For VxLAN and GRE project networks, tunnel interface forwards the packet to br-tun
-. br-tun unwraps the packet and adds VLAN tag for project network 2
-. br-tun forwards the packet to br-int
-. br-int forwards the packet to tap inetrface on instance 2
+. br-tun matches VNI_NET_2, unwraps the packet and adds VLAN tag for project network 2
+. br-tun matches source mac of MAC_HOST1_DVR, restore src mac to MAC_G2
+    .. (src mac = MAC_G2, dest mac = MAC_VM2)
+. br-int forwards the packet to tap interface on instance 2
 
 Note: Return traffic follows similar steps in reverse except Compute Node 2 will be using its own local DVR to route from project network 2 to project network 1
 
