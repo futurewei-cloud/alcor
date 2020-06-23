@@ -188,13 +188,14 @@ public class PortRepository {
 
     }
 
-    public void deletePortAndNeighbor(String portId) throws Exception {
+    public void deletePortAndNeighbor(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Delete portEntity from portCache
+            String portId = portEntity.getId();
             portCache.remove(portId);
 
             //Delete neighborInfo from neighborCache
-            PortNeighbors portNeighbors = neighborCache.get(portId);
+            PortNeighbors portNeighbors = neighborCache.get(portEntity.getVpcId());
             if (portNeighbors != null && portNeighbors.getNeighbors().containsKey(portId)) {
                 portNeighbors.getNeighbors().remove(portId);
                 neighborCache.put(portNeighbors.getVpcId(), portNeighbors);

@@ -689,7 +689,7 @@ public class PortServiceImpl implements PortService {
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
             dataPlaneManagerProxy.deleteNetworkConfig(networkConfiguration);
 
-            portRepository.deletePortAndNeighbor(portId);
+            portRepository.deletePortAndNeighbor(portEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
