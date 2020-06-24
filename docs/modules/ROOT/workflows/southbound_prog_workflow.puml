@@ -14,29 +14,136 @@
 
 @startuml
 
-title Southbound Workflow of Port Provisioning
+title Southbound Workflow of Port Provisioning - v1
 
 skinparam monochrome true
 collections "Port Manager" as pm
 collections "Data Plane Manager" as dpm
 collections "Message Queue" as mq
-participant "Host 1" as host1
-participant "Host 2" as host2
+participant "ACA@Host 1" as host1
+participant "ACA@Host 2" as host2
 
-==Create the first Port P1 in Host 1==
+==Scenario A: Create the first Port P1 at Host 1==
 autonumber "<b>[0]"
-pm -> dpm: POST /port with RequestBody\nNetworkConfiguration={[P1],[Subnet]}
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P1 w/ neighbor_info={}],[Subnet],[VPC],[SG]}
+activate dpm
 dpm -> host1: Send a GoalState message {[(P1,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
 host1 -> dpm: Reply a GoalStateOperationReply message on P1 programming status
+deactivate host1
 dpm -> pm: Reply an InternalProgrammingStatus message on P1 programming status
+deactivate dpm
 
-==Create the second Port in a VPC==
-autonumber "<b>[0]"
+==Create the second Port P2 at Host 1==
+autonumber 5 "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P2 w/ neighbor_info={}],[Subnet],[VPC],[SG]}
+activate dpm
 
-==Update a Port==
-autonumber "<b>[0]"
+dpm -> host1: Send a GoalState message \n{[(P2,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+deactivate host1
 
-==Delete a Port==
+dpm -> pm: Once receiving response from Host1, reply an InternalProgrammingStatus\nmessage on P2 programming status
+deactivate dpm
+==================================================
+
+==Scenario B: Create Ports (P1, P2) at Host 1==
 autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P1,P2 w/ neighbor_info={}],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 2 "<b>[0]"
+dpm -> host1: Send a GoalState message \n{[(P1,CREATE),(P2,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+deactivate host1
+
+autonumber 4 "<b>[0]"
+dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P2 programming status
+deactivate dpm
+
+
+==Scenario C: Create the first Port P1 at Host 1==
+autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P1 w/ neighbor_info={}],[Subnet],[VPC],[SG]}
+activate dpm
+dpm -> host1: Send a GoalState message {[(P1,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 programming status
+deactivate host1
+dpm -> pm: Reply an InternalProgrammingStatus message on P1 programming status
+deactivate dpm
+
+==Create the second Port P2 at Host 2==
+autonumber 5 "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P2 w/ neighbor_info={P1}],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 6 "<b>[0a]"
+dpm -> host2: Send a GoalState message \n{[(P2,CREATE),(P1,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host2
+host2 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+deactivate host2
+
+autonumber 6 "<b>[0b]"
+dpm -> host1: Send a GoalState message \n{[(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+deactivate host1
+
+autonumber 8 "<b>[0]"
+dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P2 programming status
+deactivate dpm
+==================================================
+
+==Scenario D: Create Ports (P1, P2) at Host 1, (P3, P4) at Host 2==
+autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P1,P2,P3,P4 w/ neighbor_info={}],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 2 "<b>[0a]"
+dpm -> host1: Send a GoalState message \n{[(P1,CREATE),(P2,CREATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P4,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+deactivate host1
+
+autonumber 2 "<b>[0b]"
+dpm -> host2: Send a GoalState message \n{[(P3,CREATE),(P4,CREATE),(P1,NEIGHBOR_CREATE_UPDATE),\n(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host2
+host2 -> dpm: Reply a GoalStateOperationReply message on P3 and P4 programming status
+deactivate host2
+
+autonumber 2 "<b>[0b]"
+
+autonumber 4 "<b>[0]"
+dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P1..4 programming status
+deactivate dpm
+
+==================================================
+
+==Scenario E: Create Ports (P1, P2) at Host 1, (P3, P4) at Host 2, P0 is already on Host 1==
+autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody\nNetworkConfiguration={[P1,P2,P3,P4 each w/ neighbor_info={P0}],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 2 "<b>[0a]"
+dpm -> host1: Send a GoalState message \n{[(P1,CREATE),(P2,CREATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P4,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+deactivate host1
+
+autonumber 2 "<b>[0b]"
+dpm -> host2: Send a GoalState message \n{[(P3,CREATE),(P4,CREATE),(P0,NEIGHBOR_CREATE_UPDATE),(P1,NEIGHBOR_CREATE_UPDATE),\n(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+activate host2
+host2 -> dpm: Reply a GoalStateOperationReply message on P3 and P4 programming status
+deactivate host2
+
+autonumber 2 "<b>[0b]"
+
+autonumber 4 "<b>[0]"
+dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P1..4 programming status
+deactivate dpm
+
 
 @enduml
