@@ -17,7 +17,6 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -96,7 +96,7 @@ public class PortServiceImpl implements PortService {
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
             for (String securityGroupId: portEntity.getSecurityGroups()) {
-                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
+                //executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
                 executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
             }
         } else {
