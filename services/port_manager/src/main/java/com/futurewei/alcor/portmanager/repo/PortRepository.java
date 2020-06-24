@@ -116,10 +116,11 @@ public class PortRepository {
             //Add neighborInfos to neighborCache
             if (neighbors != null) {
                 for (Map.Entry<String, List<NeighborInfo>> entry: neighbors.entrySet()) {
-                    PortNeighbors portNeighbors = neighborCache.get(entry.getKey());
+                    String vpcId = entry.getKey();
+                    PortNeighbors portNeighbors = neighborCache.get(vpcId);
                     if (portNeighbors == null) {
                         portNeighbors = new PortNeighbors();
-                        portNeighbors.setVpcId(entry.getKey());
+                        portNeighbors.setVpcId(vpcId);
                         portNeighbors.setNeighbors(new HashMap<>());
                     }
 
@@ -127,7 +128,7 @@ public class PortRepository {
                         portNeighbors.getNeighbors().put(neighborInfo.getPortId(), neighborInfo);
                     }
 
-                    neighborCache.put(entry.getKey(), portNeighbors);
+                    neighborCache.put(vpcId, portNeighbors);
                 }
             }
 
