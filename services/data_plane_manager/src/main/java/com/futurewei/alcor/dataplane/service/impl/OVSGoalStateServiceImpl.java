@@ -82,10 +82,15 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
   }
 
   private List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> doSend(
-      Goalstate.GoalState goalState, boolean isFast, int port, String ip) {
+      Goalstate.GoalState goalState, boolean isFast, int port, String ip) throws InterruptedException {
     if (isFast) {
         LOG.debug("#### " + Thread.currentThread() + " " + ip);
-        return new GoalStateProvisionerClient(ip, port).PushNetworkResourceStates(goalState);
+        GoalStateProvisionerClient goalStateProvisionerClient =
+                new GoalStateProvisionerClient(ip, port);
+        List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> goalStateOperationStatuses =
+                goalStateProvisionerClient.PushNetworkResourceStates(goalState);
+        goalStateProvisionerClient.shutdown();
+        return goalStateOperationStatuses;
     } else {
       String topicForEndpoint = Config.PRODUCER_CLIENT_ID + ip;
       getKafkaClient().runProducer(topicForEndpoint, goalState);

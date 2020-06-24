@@ -87,43 +87,48 @@ public class GoalStateManager {
     portsInSameSubnetMap.keySet().stream()
         .forEach(
             sid -> {
-              for (String pid:portsInSameSubnetMap.get(sid))
-                       {
-                        final Set<NeighborInfo> neighborInfos =
-                            neighborInfoInSameSubenetMap.get(sid);
-                        final InternalPortEntity internalPortEntity = portMap.get(pid);
-                        if (internalPortEntity==null)
-                        {
-                            LOG.error("portId: "+pid+" provided in neighbor but NOT in port_internal, skip for now, likely to be dpm client error");
-                            continue;
-                        }
-                        try {
-                          final NeighborInfo neighborInfo =
-                              new NeighborInfo(
-                                  internalPortEntity.getBindingHostIP(),
-                                  internalPortEntity.getBindingHostId(),
-                                  internalPortEntity.getId(),
-                                  internalPortEntity.getMacAddress());
-                          neighborInfos.remove(neighborInfo);
+              for (String pid : portsInSameSubnetMap.get(sid)) {
+                final Set<NeighborInfo> neighborInfos = neighborInfoInSameSubenetMap.get(sid);
+                final InternalPortEntity internalPortEntity = portMap.get(pid);
+                if (internalPortEntity == null) {
+                  LOG.error(
+                      "portId: "
+                          + pid
+                          + " provided in neighbor but NOT in port_internal, skip for now, likely to be dpm client error");
+                  continue;
+                }
+                try {
+                  final Set<NeighborInfo> neighborInfos3 = new HashSet<>();
+                  for (NeighborInfo n : neighborInfos) {
+                    if (!n.getHostIp().equals(internalPortEntity.getBindingHostIP()))
+                      neighborInfos3.add(n);
+                  }
+                  //                            final NeighborInfo neighborInfo =
+                  //                              new NeighborInfo(
+                  //                                  internalPortEntity.getBindingHostIP(),
+                  //                                  internalPortEntity.getBindingHostId(),
+                  //                                  internalPortEntity.getId(),
+                  //                                  internalPortEntity.getMacAddress());
+                  //                          neighborInfos.remove(neighborInfo);
 
-                          if (internalPortEntity.getInternalNeighborInfo1() == null
-                              || internalPortEntity.getInternalNeighborInfo1().isEmpty()) {
-                            final Set<NeighborInfo> neighborInfos2 = new HashSet<>();
-                            neighborInfos2.addAll(neighborInfos);
-                            internalPortEntity.setInternalNeighborInfo1(neighborInfos2);
-                          } else {
-                            final Set<NeighborInfo> neighborInfos1 =
-                                internalPortEntity.getInternalNeighborInfo1();
-                            neighborInfos1.addAll(neighborInfos);
-                            internalPortEntity.setInternalNeighborInfo1(neighborInfos);
-                          }
-                          neighborInfos.add(neighborInfo);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                          LOG.error(e.getMessage());
-                          throw e;
-                        }
-                      }
+                  if (internalPortEntity.getInternalNeighborInfo1() == null
+                      || internalPortEntity.getInternalNeighborInfo1().isEmpty()) {
+                    final Set<NeighborInfo> neighborInfos2 = new HashSet<>();
+                    neighborInfos2.addAll(neighborInfos3);
+                    internalPortEntity.setInternalNeighborInfo1(neighborInfos2);
+                  } else {
+                    final Set<NeighborInfo> neighborInfos1 =
+                        internalPortEntity.getInternalNeighborInfo1();
+                    neighborInfos1.addAll(neighborInfos3);
+                    internalPortEntity.setInternalNeighborInfo1(neighborInfos);
+                  }
+                  //                          neighborInfos.add(neighborInfo);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                  LOG.error(e.getMessage());
+                  throw e;
+                }
+              }
             });
 
     // construct sb msg by ip
@@ -136,6 +141,7 @@ public class GoalStateManager {
               Set<Subnet.SubnetState> subnetStateSet = new HashSet();
               Set<Vpc.VpcState> vpcStateSet = new HashSet();
               final List<InternalPortEntity> internalPortEntitySet = eachGSOnSingleIP.getValue();
+              boolean m = false;
               internalPortEntitySet.stream()
                   .forEach(
                       portStateWithEverythingFilledNB -> {
@@ -180,22 +186,24 @@ public class GoalStateManager {
                                 .addAllFixedIps(fixedIps)
                                 .buildPartial();
                         // since dpm has to do everything including neighbor in 1 shot
-                        for (Port.PortConfiguration.HostInfo h : neighborSB) {
-
-                          Port.PortConfiguration portConfiguration1 =
-                              portConfiguration
-                                  .toBuilder()
-                                  .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
-                                  .setHostInfo(h)
-                                  .setId(h.getMacAddress())
-                                  .setMessageTypeValue(Port.MessageType.DELTA_VALUE)
-                                  .build();
-                          final PortState portStateSB =
-                              PortState.newBuilder()
-                                  .setConfiguration(portConfiguration1)
-                                  .setOperationType(Common.OperationType.NEIGHBOR_CREATE_UPDATE)
-                                  .build();
-                          portStateHashSet.add(portStateSB);
+                        if (portStateHashSet.size() < neighborSB.size()) {
+                          for (Port.PortConfiguration.HostInfo h : neighborSB) {
+                            String pid = h.getMacAddress();
+                            Port.PortConfiguration portConfiguration1 =
+                                portConfiguration
+                                    .toBuilder()
+                                    .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
+                                    .setId(pid)
+                                    .setHostInfo(h)
+                                    .setMessageTypeValue(Port.MessageType.DELTA_VALUE)
+                                    .build();
+                            final PortState portStateSB =
+                                PortState.newBuilder()
+                                    .setConfiguration(portConfiguration1)
+                                    .setOperationType(Common.OperationType.NEIGHBOR_CREATE_UPDATE)
+                                    .build();
+                            portStateHashSet.add(portStateSB);
+                          }
                         }
                         Port.PortConfiguration portConfiguration2 =
                             portConfiguration
@@ -229,8 +237,7 @@ public class GoalStateManager {
                               Subnet.SubnetState.newBuilder()
                                   .setConfiguration(subnetConfiguration)
                                   .buildPartial();
-                          if (networkConfiguration.getOpType().equals(Common.OperationType.CREATE)
-                              && networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
+                          if (networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
                             subnetState =
                                 subnetState
                                     .toBuilder()
