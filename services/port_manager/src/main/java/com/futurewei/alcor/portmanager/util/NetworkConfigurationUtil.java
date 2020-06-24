@@ -29,6 +29,7 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+
 import java.util.*;
 
 public class NetworkConfigurationUtil {
@@ -59,6 +60,7 @@ public class NetworkConfigurationUtil {
 
     /**
      * Util method to generate a network configuration message for Data-Plane Manager.
+     *
      * @param entities A list of network entities
      * @return NetworkConfiguration
      * @throws Exception Various exceptions that may occur during the create process
@@ -88,13 +90,13 @@ public class NetworkConfigurationUtil {
             } else if (entity instanceof PortEntity) {
                 portEntities.add((PortEntity) entity);
             } else if (entity instanceof PortBindingRoute) {
-                PortBindingRoute portBindingRoute = (PortBindingRoute)entity;
+                PortBindingRoute portBindingRoute = (PortBindingRoute) entity;
                 if (!portRouteEntityMap.containsKey(portBindingRoute.getPortId())) {
                     portRouteEntityMap.put(portBindingRoute.getPortId(), new ArrayList<>());
                 }
                 portRouteEntityMap.get(portBindingRoute.getPortId()).add(portBindingRoute.getRouteEntity());
             } else if (entity instanceof PortNeighbors) {
-                PortNeighbors portNeighbors = (PortNeighbors)entity;
+                PortNeighbors portNeighbors = (PortNeighbors) entity;
                 portNeighborsMap.put(portNeighbors.getVpcId(), portNeighbors);
             }
         }
@@ -137,7 +139,7 @@ public class NetworkConfigurationUtil {
                 }
 
                 if (!subnetUniqueIds.contains(subnetId)) {
-                    Long tunnelId = subnetEntity.getTenantId() !=null ? Long.valueOf(subnetEntity.getTenantId()): null;
+                    Long tunnelId = subnetEntity.getTenantId() != null ? Long.valueOf(subnetEntity.getTenantId()) : null;
                     InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, tunnelId);
                     networkConfigMessage.addSubnetEntity(internalSubnetEntity);
                     subnetUniqueIds.add(subnetId);
@@ -159,7 +161,7 @@ public class NetworkConfigurationUtil {
                 }
             } else {
                 SecurityGroup securityGroup = null;
-                for (Map.Entry<String, SecurityGroup> entry: securityGroupMap.entrySet()) {
+                for (Map.Entry<String, SecurityGroup> entry : securityGroupMap.entrySet()) {
                     if ("default".equals(entry.getValue().getName())) {
                         securityGroup = entry.getValue();
                         break;
