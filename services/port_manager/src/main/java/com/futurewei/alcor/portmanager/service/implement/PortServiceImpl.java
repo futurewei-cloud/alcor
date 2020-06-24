@@ -158,7 +158,7 @@ public class PortServiceImpl implements PortService {
                 portEntity.getMacAddress());
     }
 
-    private Map<String, List<NeighborInfo>> buildNeighborInfos(List<PortEntity> portEntities, Map<String, NodeInfo> nodeInfoMap) {
+    private Map<String, List<NeighborInfo>> buildNeighborInfosForNewHosts(List<PortEntity> portEntities, Map<String, NodeInfo> nodeInfoMap) {
         Map<String, List<NeighborInfo>> portNeighbors = new HashMap<>();
         for (PortEntity portEntity : portEntities) {
             NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getId());
@@ -267,8 +267,8 @@ public class PortServiceImpl implements PortService {
             }
 
             //Build neighborInfos
-            Map<String, List<NeighborInfo>> neighborInfos =
-                    this.buildNeighborInfos(portEntities, this.getNodeInfos(entities));
+            Map<String, List<NeighborInfo>> neighborInfoMapForNewHosts =
+                    this.buildNeighborInfosForNewHosts(portEntities, this.getNodeInfos(entities));
 
             //Build GoalState and Send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
@@ -278,7 +278,7 @@ public class PortServiceImpl implements PortService {
             }
 
             //Persist portEntities and neighborInfos
-            portRepository.createPortAndNeighborBulk(portEntities, neighborInfos);
+            portRepository.createPortAndNeighborBulk(portEntities, neighborInfoMapForNewHosts);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -633,11 +633,11 @@ public class PortServiceImpl implements PortService {
             }
 
             //Build neighborInfos
-            Map<String, List<NeighborInfo>> portNeighbors =
-                    this.buildNeighborInfos(portEntities, this.getNodeInfos(entities));
+            Map<String, List<NeighborInfo>> neighborInfoMapForUpdatedHosts =
+                    this.buildNeighborInfosForNewHosts(portEntities, this.getNodeInfos(entities));
 
             //Persist portEntities and neighborInfos
-            portRepository.updatePortAndNeighborBulk(portEntities, portNeighbors);
+            portRepository.updatePortAndNeighborBulk(portEntities, neighborInfoMapForUpdatedHosts);
             portWebBulkJson.setPortEntities(portEntities);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);

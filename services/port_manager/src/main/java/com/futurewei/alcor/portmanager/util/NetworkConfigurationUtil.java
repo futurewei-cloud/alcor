@@ -31,6 +31,7 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NetworkConfigurationUtil {
 
@@ -45,15 +46,18 @@ public class NetworkConfigurationUtil {
             return null;
         }
 
-        List<NeighborInfo> neighborInfos = null;
+        List<NeighborInfo> neighborInfoList, filteredNeighborInfoList = null;
         if (portNeighborsMap.get(portEntity.getVpcId()).getNeighbors() != null) {
-            neighborInfos = new ArrayList<>(portNeighborsMap.get(
-                    portEntity.getVpcId()).getNeighbors().values());
+            neighborInfoList = new ArrayList<>(portNeighborsMap.get(portEntity.getVpcId()).getNeighbors().values());
+            filteredNeighborInfoList = neighborInfoList.stream()
+                    .filter(n -> !portEntity.getBindingHostId().equals(n.getHostId()))
+                    .collect(Collectors.toList());
         }
 
-        String bindingHostIp = nodeInfoMap.get(portEntity.getId()).getLocalIp();
         List<RouteEntity> routeEntities = portRouteEntityMap.get(portEntity.getId());
-        InternalPortEntity internalPortEntity = new InternalPortEntity(portEntity, routeEntities, neighborInfos, bindingHostIp);
+        String bindingHostIp = nodeInfoMap.get(portEntity.getId()).getLocalIp();
+
+        InternalPortEntity internalPortEntity = new InternalPortEntity(portEntity, routeEntities, filteredNeighborInfoList, bindingHostIp);
 
         return internalPortEntity;
     }
