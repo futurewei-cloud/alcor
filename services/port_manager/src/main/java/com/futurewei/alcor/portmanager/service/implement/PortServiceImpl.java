@@ -95,7 +95,10 @@ public class PortServiceImpl implements PortService {
         //Verify and bind security group
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
-             executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
+            for (String securityGroupId: portEntity.getSecurityGroups()) {
+                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
+            }
+            executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
         } else {
             //Do we need to bind default security group? No, we don't
             executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
