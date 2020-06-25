@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv4;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv6;
+import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAvailableBucketsSet;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpExistsException;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpParameterException;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
@@ -29,13 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 
 @ComponentScan(value="com.futurewei.alcor.common.db")
@@ -43,302 +40,282 @@ import java.util.Set;
 public class ElasticIpAllocator {
     private static final Random random = new Random(System.currentTimeMillis());
     private static final Logger LOG = LoggerFactory.getLogger(ElasticIpAllocator.class);
-    public static final int IPv4_ALLOCATION_DEVISOR = 100;
-    public static final BigInteger EIGHT_BYTES_SCOPE_MASK = BigInteger.valueOf(Long.MAX_VALUE).multiply(
-            BigInteger.valueOf(2)).add(BigInteger.valueOf(1));
+    public static final int IPv4_BUCKETS_COUNT = 512;
+    private static final int IPV4_ALLOCATION_MAX_RETRY_COUNT = 10;
+    private static final int IPV6_ALLOCATION_MAX_RETRY_COUNT = 2000;
+    public static final BigInteger EIGHT_BYTES_SCOPE_RANGE = BigInteger.valueOf(Long.MAX_VALUE).multiply(
+            BigInteger.valueOf(2)).add(BigInteger.valueOf(2));
 
-    private ICache<String, ElasticIpAllocatedIpv4> allocatedIpv4Cache;
-    private ICache<String, ElasticIpAllocatedIpv6> allocatedIpv6Cache;
-    private IDistributedLock allocatedIpv4Lock;
-    private IDistributedLock allocatedIpv6Lock;
+    private final ICache<String, ElasticIpAllocatedIpv4> allocatedIpv4Cache;
+    private final ICache<String, ElasticIpAllocatedIpv6> allocatedIpv6Cache;
+    private final ICache<String, ElasticIpAvailableBucketsSet> availableBucketsCache;
+    private final IDistributedLock allocatedIpv4Lock;
+    private final IDistributedLock allocatedIpv6Lock;
+    private final IDistributedLock availableBucketsLock;
 
     @Autowired
     public ElasticIpAllocator(CacheFactory cacheFactor, DistributedLockFactory lockFactory) {
         allocatedIpv4Cache = cacheFactor.getCache(ElasticIpAllocatedIpv4.class);
         allocatedIpv6Cache = cacheFactor.getCache(ElasticIpAllocatedIpv6.class);
+        availableBucketsCache = cacheFactor.getCache(ElasticIpAvailableBucketsSet.class);
         allocatedIpv4Lock = lockFactory.getDistributedLock(ElasticIpAllocatedIpv4.class);
         allocatedIpv6Lock = lockFactory.getDistributedLock(ElasticIpAllocatedIpv6.class);
+        availableBucketsLock = lockFactory.getDistributedLock(ElasticIpAvailableBucketsSet.class);
     }
 
-    private String allocateIpv4Loop(long start, long end, Set<Long> allocatedIps)
-            throws CacheException, DistributedLockException{
-        String ipv4Address = null;
-        for (long i = start; i < end; i += IPv4_ALLOCATION_DEVISOR) {
-            if (!allocatedIps.contains(i)) {
-                allocatedIps.add(i);
-                ipv4Address = Ipv4AddrUtil.longToIpv4(i);
-                break;
+    private int getNextAvailableBucket(BitSet availableBucketsBitset, int startOffset) {
+        int availableBucketIndex = availableBucketsBitset.nextSetBit(startOffset);
+        if (availableBucketIndex >= IPv4_BUCKETS_COUNT) {
+            availableBucketIndex = availableBucketsBitset.nextSetBit(0);
+            if (availableBucketIndex >= IPv4_BUCKETS_COUNT) {
+                return -1;
             }
         }
-        return ipv4Address;
+
+        return availableBucketIndex;
     }
 
-    private String tryAllocateOneIpv4Address(String rangeId, int tail, long start, long end) {
-        String ipv4Address = null;
-        String ipv4AllocKey = rangeId + "-ipv4-" + tail;
-        try {
-            // add resource lock
-            allocatedIpv4Lock.lock(ipv4AllocKey);
+    private void setBucketState(String rangeId, int bucketIndex, boolean isAvailable)
+            throws CacheException, DistributedLockException {
+        String availableBucketsKey = rangeId + "-available-buckets-ipv4";
+        // add resource lock
+        availableBucketsLock.lock(availableBucketsKey);
 
-            ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
-            if (ipv4Alloc == null) {
-                ipv4Alloc = new ElasticIpAllocatedIpv4(rangeId, tail);
-                allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
-            }
+        ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+        BitSet bitSet = glance.getAvailableBucketsBitset();
 
-            long scopeSize = (end - start) + 1;
-            Assert.isTrue(scopeSize <= Integer.MAX_VALUE, "The ipv4 allocation range should " +
-                    "not be larger than 0x7fffffff");
-            int offset = random.nextInt((int)scopeSize);
-            long adjustedOffset = offset + (IPv4_ALLOCATION_DEVISOR - ((start + offset) % IPv4_ALLOCATION_DEVISOR))
-                    + tail;
-            Set<Long> allocatedIps = ipv4Alloc.getAllocatedIps();
-            ipv4Address = allocateIpv4Loop(start + adjustedOffset, end+1, allocatedIps);
-            if (ipv4Address == null) {
-                ipv4Address = allocateIpv4Loop(start, adjustedOffset, allocatedIps);
-            }
-
-            if (ipv4Address != null) {
-                // update allocated ipv4 cache
-                allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
-            }
-
-            // release lock
-            allocatedIpv4Lock.unlock(ipv4AllocKey);
-
-        } catch (CacheException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateOneIpv4Address cache exception:", e);
-            return null;
-        } catch (DistributedLockException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateOneIpv4Address lock exception:", e);
-            return null;
+        if (isAvailable) {
+            bitSet.set(bucketIndex);
+        } else {
+            bitSet.clear(bucketIndex);
         }
 
-        return ipv4Address;
-    }
+        availableBucketsCache.put(availableBucketsKey, glance);
 
-    private String tryAllocateTheSpecifiedIpv4Address(String rangeId, long start, long end, String specifiedIp
-    ) throws ElasticIpExistsException {
-        long address = Ipv4AddrUtil.ipv4ToLong(specifiedIp);
-        int tail = (int)address % IPv4_ALLOCATION_DEVISOR;
-        String ipv4Address = null;
-        String ipv4AllocKey = rangeId + "-ipv4-" + tail;
-        try {
-            // add resource lock
-            allocatedIpv4Lock.lock(ipv4AllocKey);
-
-            ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
-            if (ipv4Alloc == null) {
-                ipv4Alloc = new ElasticIpAllocatedIpv4(rangeId, tail);
-                allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
-            }
-            Set<Long> allocatedIps = ipv4Alloc.getAllocatedIps();
-            if (allocatedIps.contains(address)) {
-                // release lock
-                allocatedIpv4Lock.unlock(ipv4AllocKey);
-                throw new ElasticIpExistsException();
-            }
-            allocatedIps.add(address);
-            ipv4Address = Ipv4AddrUtil.longToIpv4(address);
-            // update allocated ipv4 cache
-            allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
-
-            // release lock
-            allocatedIpv4Lock.unlock(ipv4AllocKey);
-        } catch (CacheException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateTheSpecifiedIpv4Address cache exception:", e);
-            return null;
-        } catch (DistributedLockException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateTheSpecifiedIpv4Address lock exception:", e);
-            return null;
-        }
-
-        return ipv4Address;
+        // release resource lock
+        availableBucketsLock.unlock(availableBucketsKey);
     }
 
     public String allocateIpv4Address(ElasticIpRange range, String specifiedIp) throws Exception {
 
         String ipAddress = null;
-        List<ElasticIpRange.AllocationRange> cidrs = range.getAllocationRanges();
         if (specifiedIp != null) {
-            for (ElasticIpRange.AllocationRange cidr: cidrs) {
-                long start = Ipv4AddrUtil.ipv4ToLong(cidr.getStart());
-                long end = Ipv4AddrUtil.ipv4ToLong(cidr.getEnd());
-                ipAddress = tryAllocateTheSpecifiedIpv4Address(range.getId(), start, end, specifiedIp);
-                if (ipAddress != null) {
-                    break;
+            long assignedIp =  Ipv4AddrUtil.ipv4ToLong(specifiedIp);
+            int bucketIndex = (int)(assignedIp % IPv4_BUCKETS_COUNT);
+            String ipv4AllocKey = range.getId() + "-ipv4-" + bucketIndex;
+
+            try {
+                // add resource lock
+                allocatedIpv4Lock.lock(ipv4AllocKey);
+
+                ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
+                if (ipv4Alloc != null) {
+                    Set<Long> availableIps = ipv4Alloc.getAvailableIps();
+                    if (availableIps.contains(assignedIp)) {
+                        availableIps.remove(assignedIp);
+                        ipv4Alloc.getAllocatedIps().add(assignedIp);
+
+                        allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
+
+                        if (availableIps.isEmpty()) {
+                            this.setBucketState(range.getId(), bucketIndex, false);
+                        }
+
+                        ipAddress = Ipv4AddrUtil.longToIpv4(assignedIp);
+                    } else {
+                        LOG.debug("The specified ip address is not within the elastic ip range");
+                        throw new ElasticIpParameterException();
+                    }
                 }
+
+                // release lock
+                allocatedIpv4Lock.unlock(ipv4AllocKey);
+            } catch (CacheException e) {
+                e.printStackTrace();
+                LOG.error("allocateIpv4Address cache exception:", e);
+                return null;
+            } catch (DistributedLockException e) {
+                e.printStackTrace();
+                LOG.error("allocateIpv4Address lock exception:", e);
+                return null;
             }
-            if (ipAddress == null) {
-                LOG.debug("The specified ip address is not within the elastic ip range");
-                throw new ElasticIpParameterException();
-            }
+
         } else {
 
-            int startOffset = random.nextInt(cidrs.size());
-            List<ElasticIpRange.AllocationRange> sortedCidrs = new ArrayList<>();
-            for (int i = startOffset; i < cidrs.size(); i++) {
-                sortedCidrs.add(cidrs.get(i));
-            }
-            for (int i  =0; i < startOffset; i++) {
-                sortedCidrs.add(cidrs.get(i));
-            }
+            Set<Integer> foreachedBuckets = new HashSet<>();
+            int retryCount = 0;
+            String availableBucketsKey = range.getId() + "-available-buckets-ipv4";
 
-            for (ElasticIpRange.AllocationRange allocation: sortedCidrs ) {
-                long start = Ipv4AddrUtil.ipv4ToLong(allocation.getStart());
-                long end = Ipv4AddrUtil.ipv4ToLong(allocation.getEnd());
+            try {
+                ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+                BitSet bitSet = glance.getAvailableBucketsBitset();
+                int availableBucketIndex = random.nextInt(IPv4_BUCKETS_COUNT);
 
-                int offset = random.nextInt(IPv4_ALLOCATION_DEVISOR);
-                for (int i = offset; i < IPv4_ALLOCATION_DEVISOR; i++) {
-                    ipAddress = tryAllocateOneIpv4Address(range.getId(), offset, start, end);
+                while (retryCount < IPV4_ALLOCATION_MAX_RETRY_COUNT) {
+                    availableBucketIndex = this.getNextAvailableBucket(bitSet, availableBucketIndex);
+                    if (availableBucketIndex < 0 || foreachedBuckets.contains(availableBucketIndex)) {
+                        LOG.debug("The IPv4 allocation range is full");
+                        return null;
+                    }
+                    foreachedBuckets.add(availableBucketIndex);
+
+                    String ipv4AllocKey = range.getId() + "-ipv4-" + availableBucketIndex;
+                    // add resource lock
+                    allocatedIpv4Lock.lock(ipv4AllocKey);
+
+                    ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
+                    if (ipv4Alloc != null) {
+
+                        Set<Long> availableIps = ipv4Alloc.getAvailableIps();
+                        if (!availableIps.isEmpty()) {
+                            Long assignedIp = availableIps.iterator().next();
+
+                            availableIps.remove(assignedIp);
+                            ipv4Alloc.getAllocatedIps().add(assignedIp);
+
+                            allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
+
+                            if (availableIps.isEmpty()) {
+                                this.setBucketState(range.getId(), availableBucketIndex, false);
+                            }
+
+                            ipAddress = Ipv4AddrUtil.longToIpv4(assignedIp);
+                        } else {
+                            LOG.debug("Concurrence conflict occurs, the IPv4 allocation bucket is full:"
+                                    + availableBucketIndex);
+                        }
+                    } else {
+                        LOG.error("The IPv4 allocation bucket is not found:" + availableBucketIndex);
+                    }
+
+                    // release lock
+                    allocatedIpv4Lock.unlock(ipv4AllocKey);
+
                     if (ipAddress != null) {
                         break;
                     }
+                    retryCount += 1;
                 }
-                if (ipAddress == null) {
-                    for (int i = 0; i < offset; i++) {
-                        ipAddress = tryAllocateOneIpv4Address(range.getId(), offset, start, end);
-                        if (ipAddress != null) {
-                            break;
-                        }
-                    }
-                }
+            } catch (CacheException e) {
+                e.printStackTrace();
+                LOG.error("allocateIpv4Address cache exception:", e);
+                return null;
+            } catch (DistributedLockException e) {
+                e.printStackTrace();
+                LOG.error("allocateIpv4Address lock exception:", e);
+                return null;
             }
         }
 
         return ipAddress;
     }
 
-    private String AllocateIpv6Loop(BigInteger start, BigInteger end, String rangeId)
-            throws CacheException, DistributedLockException{
-        String ipv6AllocKeyPrefix = rangeId + "-ipv6-";
-        String ipv6Address = null;
-        for (BigInteger i = start; i.compareTo(end) < 0; i.add(BigInteger.ONE)) {
-            String ipv6AllocKey = ipv6AllocKeyPrefix+ i;
-            // add resource lock
-            allocatedIpv6Lock.lock(ipv6AllocKey);
-
-            ElasticIpAllocatedIpv6 ipv6Alloc = allocatedIpv6Cache.get(ipv6AllocKeyPrefix + i);
-            if (ipv6Alloc == null) {
-                ipv6Address = Ipv6AddrUtil.bigIntToIpv6(i);
-                ipv6Alloc = new ElasticIpAllocatedIpv6(rangeId, ipv6Address);
-                allocatedIpv6Cache.put(ipv6AllocKeyPrefix+ i, ipv6Alloc);
-
-                // release lock
-                allocatedIpv6Lock.unlock(ipv6AllocKey);
-                break;
-            }
-
-            // release lock
-            allocatedIpv6Lock.unlock(ipv6AllocKey);
-        }
-        return ipv6Address;
-    }
-
-    private String tryAllocateOneIpv6Address(String rangeId, BigInteger start, BigInteger end) {
-        String ipv6Address = null;
-        String ipv6AllocKeyPrefix = rangeId + "-ipv6-";
-        try {
-            BigInteger scopeSize = end.subtract(start).add(BigInteger.ONE);
-            Assert.isTrue(scopeSize.compareTo(EIGHT_BYTES_SCOPE_MASK) <= 0,
-                    "The ipv6 allocation range should not be larger than 0xffffffffffffffff");
-            BigInteger rawOffset = BigInteger.valueOf(random.nextLong());
-            if (rawOffset.compareTo(BigInteger.ZERO) < 0) {
-                rawOffset = rawOffset.add(EIGHT_BYTES_SCOPE_MASK).add(BigInteger.ONE);
-            }
-            rawOffset = rawOffset.mod(scopeSize);
-
-            BigInteger loopStart = start.add(rawOffset);
-            ipv6Address = AllocateIpv6Loop(loopStart, end.add(BigInteger.ONE), rangeId);
-            if (ipv6Address == null) {
-                ipv6Address = AllocateIpv6Loop(BigInteger.ZERO, loopStart, rangeId);
-            }
-
-        } catch (CacheException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateIpv6Address exception:", e);
-            return null;
-        } catch (DistributedLockException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateIpv6Address lock exception:", e);
-            return null;
-        }
-
-        return ipv6Address;
-    }
-
-    private String tryAllocateTheSpecifiedIpv6Address(String rangeId, BigInteger start, BigInteger end, String specifiedIp
-    ) throws Exception {
-        String ipv6AllocKey = rangeId + "-ipv6-" + specifiedIp;
-
-        try {
-            // add resource lock
-            allocatedIpv6Lock.lock(ipv6AllocKey);
-
-            ElasticIpAllocatedIpv6 ipv6Alloc = allocatedIpv6Cache.get(ipv6AllocKey);
-            if (ipv6Alloc != null) {
-                // release lock
-                allocatedIpv6Lock.unlock(ipv6AllocKey);
-                throw new ElasticIpExistsException();
-            }
-
-            ipv6Alloc = new ElasticIpAllocatedIpv6(rangeId, specifiedIp);
-            allocatedIpv6Cache.put(ipv6AllocKey, ipv6Alloc);
-
-            // release lock
-            allocatedIpv6Lock.unlock(ipv6AllocKey);
-        } catch (CacheException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateTheSpecifiedIpv6Address exception:", e);
-            return null;
-        } catch (DistributedLockException e) {
-            e.printStackTrace();
-            LOG.error("tryAllocateIpv6Address lock exception:", e);
-            return null;
-        }
-
-        return specifiedIp;
-    }
-
     public String allocateIpv6Address(ElasticIpRange range, String specifiedIp) throws Exception {
         String ipv6Address = null;
+        String rangeId = range.getId();
+        String ipv6AllocKeyPrefix = rangeId + "-ipv6-";
         List<ElasticIpRange.AllocationRange> cidrs = range.getAllocationRanges();
 
-        if (specifiedIp != null) {
-            for (ElasticIpRange.AllocationRange cidr: cidrs) {
-                BigInteger start = Ipv6AddrUtil.ipv6ToBitInt(cidr.getStart());
-                BigInteger end = Ipv6AddrUtil.ipv6ToBitInt(cidr.getEnd());
-                ipv6Address = tryAllocateTheSpecifiedIpv6Address(range.getId(), start, end, specifiedIp);
-                if (ipv6Address != null) {
-                    break;
+        try {
+            if (specifiedIp != null) {
+                boolean validCheck = false;
+                BigInteger assignedIp = Ipv6AddrUtil.ipv6ToBitInt(specifiedIp);
+                for (ElasticIpRange.AllocationRange cidr: cidrs) {
+                    BigInteger start = Ipv6AddrUtil.ipv6ToBitInt(cidr.getStart());
+                    BigInteger end = Ipv6AddrUtil.ipv6ToBitInt(cidr.getEnd());
+                    if ((assignedIp.compareTo(start) >= 0) && (assignedIp.compareTo(end) <= 0)) {
+                        validCheck = true;
+                        break;
+                    }
                 }
-            }
-            if (ipv6Address == null) {
-                LOG.debug("The specified ipv6 address is not within the elastic ip range");
-                throw new ElasticIpParameterException();
-            }
-        } else {
-            int startOffset = random.nextInt(cidrs.size());
-            List<ElasticIpRange.AllocationRange> sortedCidrs = new ArrayList<>();
-            for (int i = startOffset; i < cidrs.size(); i++) {
-                sortedCidrs.add(cidrs.get(i));
-            }
-            for (int i  =0; i < startOffset; i++) {
-                sortedCidrs.add(cidrs.get(i));
-            }
+                if (!validCheck) {
+                    LOG.debug("The specified ipv6 address is not within the elastic ip range");
+                    throw new ElasticIpParameterException();
+                }
 
-            for (ElasticIpRange.AllocationRange allocation: sortedCidrs) {
-                BigInteger start = Ipv6AddrUtil.ipv6ToBitInt(allocation.getStart());
-                BigInteger end = Ipv6AddrUtil.ipv6ToBitInt(allocation.getEnd());
-                ipv6Address = tryAllocateOneIpv6Address(range.getId(), start, end);
-                if (ipv6Address != null) {
-                    break;
+                String ipv6AllocKey = rangeId + "-ipv6-" + specifiedIp;
+                // add resource lock
+                allocatedIpv6Lock.lock(ipv6AllocKey);
+
+                ElasticIpAllocatedIpv6 ipv6Alloc = allocatedIpv6Cache.get(ipv6AllocKey);
+                if (ipv6Alloc != null) {
+                    // release lock
+                    allocatedIpv6Lock.unlock(ipv6AllocKey);
+                    throw new ElasticIpExistsException();
+                }
+
+                ipv6Alloc = new ElasticIpAllocatedIpv6(rangeId, specifiedIp);
+                allocatedIpv6Cache.put(ipv6AllocKey, ipv6Alloc);
+
+                // release lock
+                allocatedIpv6Lock.unlock(ipv6AllocKey);
+
+            } else {
+                int startOffset = random.nextInt(cidrs.size());
+
+                ListIterator<ElasticIpRange.AllocationRange> iterator = cidrs.listIterator(startOffset);
+                ElasticIpRange.AllocationRange allocation;
+                while (iterator.hasNext()) {
+                    allocation = iterator.next();
+
+                    BigInteger start = Ipv6AddrUtil.ipv6ToBitInt(allocation.getStart());
+                    BigInteger end = Ipv6AddrUtil.ipv6ToBitInt(allocation.getEnd());
+
+                    BigInteger scopeSize = end.subtract(start).add(BigInteger.ONE);
+                    if (scopeSize.compareTo(EIGHT_BYTES_SCOPE_RANGE) < 0) {
+                        LOG.error("The ipv6 allocation range should not be larger than 2 ^ 64");
+                    }
+
+                    BigInteger rawOffset = BigInteger.valueOf(random.nextLong());
+                    if (rawOffset.compareTo(BigInteger.ZERO) < 0) {
+                        rawOffset = rawOffset.add(EIGHT_BYTES_SCOPE_RANGE);
+                    }
+                    rawOffset = rawOffset.mod(scopeSize);
+
+                    BigInteger addressOffset = start.add(rawOffset);
+                    BigInteger loop = addressOffset;
+                    int retryCount = 0;
+                    while (retryCount < IPV6_ALLOCATION_MAX_RETRY_COUNT) {
+                        String ipv6AllocKey = ipv6AllocKeyPrefix + loop;
+                        // add resource lock
+                        allocatedIpv6Lock.lock(ipv6AllocKey);
+
+                        ElasticIpAllocatedIpv6 ipv6Alloc1 = allocatedIpv6Cache.get(ipv6AllocKeyPrefix + loop);
+                        if (ipv6Alloc1 == null) {
+                            ipv6Address = Ipv6AddrUtil.bigIntToIpv6(loop);
+                            ipv6Alloc1 = new ElasticIpAllocatedIpv6(rangeId, ipv6Address);
+                            allocatedIpv6Cache.put(ipv6AllocKeyPrefix + loop, ipv6Alloc1);
+                        }
+
+                        // release lock
+                        allocatedIpv6Lock.unlock(ipv6AllocKey);
+
+                        if (ipv6Address != null) {
+                            break;
+                        }
+
+                        retryCount += 1;
+                        loop.add(BigInteger.ONE);
+                        if (loop.compareTo(end) > 0) {
+                            loop = start;
+                        } else if (loop.equals(addressOffset)) {
+                            break;
+                        }
+                    }
+
+                    if (ipv6Address != null) {
+                        break;
+                    }
                 }
             }
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("allocateIpv6Address exception:", e);
+            return null;
+        } catch (DistributedLockException e) {
+            e.printStackTrace();
+            LOG.error("allocateIpv6Address lock exception:", e);
+            return null;
         }
 
         return ipv6Address;
@@ -346,26 +323,27 @@ public class ElasticIpAllocator {
 
     public void releaseIpv4Address(String rangeId, String ipAddress) {
         long address = Ipv4AddrUtil.ipv4ToLong(ipAddress);
-        int tail = (int)address % IPv4_ALLOCATION_DEVISOR;
-        String ipv4AllocKey = rangeId + "-ipv4-" + tail;
+        int bucketIndex = (int)(address % IPv4_BUCKETS_COUNT);
+        String ipv4AllocKey = rangeId + "-ipv4-" + bucketIndex;
         try {
             // add resource lock
             allocatedIpv4Lock.lock(ipv4AllocKey);
 
             ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
-            if (ipv4Alloc == null) {
-                // release lock
-                allocatedIpv4Lock.unlock(ipv4AllocKey);
-                return;
-            }
-            Set<Long> allocatedIps = ipv4Alloc.getAllocatedIps();
-            if (allocatedIps.contains(address)) {
-                allocatedIps.remove(address);
-                if (allocatedIps.size() == 0) {
-                    allocatedIpv4Cache.remove(ipv4AllocKey);
-                } else {
+            if (ipv4Alloc != null) {
+                Set<Long> allocatedIps = ipv4Alloc.getAllocatedIps();
+                if (allocatedIps.contains(address)) {
+                    allocatedIps.remove(address);
+
+                    Set<Long> availableIps = ipv4Alloc.getAvailableIps();
+                    availableIps.add(address);
+
                     // update allocated ipv4 cache
                     allocatedIpv4Cache.put(ipv4AllocKey, ipv4Alloc);
+
+                    if (availableIps.size() == 1) {
+                        this.setBucketState(rangeId, bucketIndex, true);
+                    }
                 }
             }
 
@@ -402,4 +380,5 @@ public class ElasticIpAllocator {
             LOG.error("releaseIpv6Address lock exception:", e);
         }
     }
+
 }
