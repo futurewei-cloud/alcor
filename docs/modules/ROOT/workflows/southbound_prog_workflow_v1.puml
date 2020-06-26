@@ -19,7 +19,7 @@ title Southbound Workflow of Port Provisioning - v1
 skinparam monochrome true
 collections "Port Manager" as pm
 collections "Data Plane Manager" as dpm
-collections "Message Queue" as mq
+'collections "Message Queue" as mq
 participant "ACA@Host 1" as host1
 participant "ACA@Host 2" as host2
 participant "ACA@Host 3" as host3
