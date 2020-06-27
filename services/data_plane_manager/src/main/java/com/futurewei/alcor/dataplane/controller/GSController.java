@@ -19,7 +19,7 @@ package com.futurewei.alcor.dataplane.controller;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultNB;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResult;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,7 +46,7 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResultNB> createPort(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> createPort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -63,7 +63,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResultNB> updatePort(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> updatePort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
@@ -80,7 +80,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResultNB> deletePort(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> deletePort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -98,7 +98,7 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResultNB> createSubnet(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> createSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -115,7 +115,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResultNB> updateSubnet(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> updateSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -132,14 +132,14 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResultNB> deleteSubnet(@RequestBody NetworkConfiguration gs)
+  public List<InternalDPMResult> deleteSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
   }
 
-  private List<InternalDPMResultNB> service(NetworkConfiguration gs) {
+  private List<InternalDPMResult> service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
     try {
@@ -153,7 +153,7 @@ public class GSController {
           .flatMap(Collection::stream)
           .map(
               f -> {
-                return new InternalDPMResultNB(
+                return new InternalDPMResult(
                     f.getResourceId(),
                     f.getResourceType().toString(),
                     f.getOperationStatus().toString(),
@@ -162,10 +162,10 @@ public class GSController {
           .collect(Collectors.toList());
     } catch (Exception e) {
       e.printStackTrace();
-      InternalDPMResultNB t =
-          new InternalDPMResultNB(
+      InternalDPMResult t =
+          new InternalDPMResult(
               "DPM Internal Error", " please check if input to dpm is valid", "500", -1);
-      List<InternalDPMResultNB> r = new ArrayList<>();
+      List<InternalDPMResult> r = new ArrayList<>();
       r.add(t);
       return r;
     }

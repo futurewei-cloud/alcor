@@ -33,6 +33,54 @@ public class InternalPortEntity extends PortEntity {
   @JsonProperty("binding_host_ip")
   private String bindingHostIP;
 
+  public List<RouteEntity> getRoutes() {
+    return routes;
+  }
+
+  public void setRoutes(List<RouteEntity> routes) {
+    this.routes = routes;
+  }
+
+  public List<NeighborInfo> getNeighborInfos() {
+    return neighborInfos;
+  }
+
+  public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+    this.neighborInfos = neighborInfos;
+  }
+
+  public String getBindingHostIP() {
+    return bindingHostIP;
+  }
+
+  public void setBindingHostIP(String bindingHostIP) {
+    this.bindingHostIP = bindingHostIP;
+  }
+
+  public Set<NeighborInfo> getInternalNeighborInfo1() {
+    return internalNeighborInfo1;
+  }
+
+  public void setInternalNeighborInfo1(Set<NeighborInfo> internalNeighborInfo1) {
+    this.internalNeighborInfo1 = internalNeighborInfo1;
+  }
+
+  public Set<InternalSubnetEntity> getSubnetEntities() {
+    return subnetEntities;
+  }
+
+  public void setSubnetEntities(Set<InternalSubnetEntity> subnetEntities) {
+    this.subnetEntities = subnetEntities;
+  }
+
+  public Set<VpcEntity> getVpcEntities() {
+    return vpcEntities;
+  }
+
+  public void setVpcEntities(Set<VpcEntity> vpcEntities) {
+    this.vpcEntities = vpcEntities;
+  }
+
   private Set<NeighborInfo> internalNeighborInfo1;
   private Set<InternalSubnetEntity> subnetEntities;
   private Set<VpcEntity> vpcEntities;

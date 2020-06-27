@@ -29,7 +29,42 @@ public class NeighborInfo {
     @JsonProperty("port_mac")
     private String portMac;
 
+    @JsonProperty("port_ip")
+    private String portIp;
+
     public NeighborInfo() {
+    }
+
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
+    }
+
+    public String getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
+    }
+
+    public String getPortId() {
+        return portId;
+    }
+
+    public void setPortId(String portId) {
+        this.portId = portId;
+    }
+
+    public String getPortMac() {
+        return portMac;
+    }
+
+    public void setPortMac(String portMac) {
+        this.portMac = portMac;
     }
 
     public NeighborInfo(String hostIp, String hostId, String portId, String portMac) {

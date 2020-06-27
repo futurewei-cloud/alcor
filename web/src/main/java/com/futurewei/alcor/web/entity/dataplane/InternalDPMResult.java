@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class InternalDPMResultNB {
+public class InternalDPMResult {
   @JsonProperty("resource_id")
   private String resourceId;
 
@@ -17,7 +17,7 @@ public class InternalDPMResultNB {
   @JsonProperty("elapse_time")
   private int elapseTime;
 
-  public InternalDPMResultNB(
+  public InternalDPMResult(
       String resourceId, String resourceType, String status, int elapseTime) {
     this.resourceId = resourceId;
     this.resourceType = resourceType;

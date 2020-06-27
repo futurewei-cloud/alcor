@@ -331,13 +331,18 @@ public class GoalStateManager {
       PortEntity.FixedIp fixedIp,
       Set<String> tempPorts,
       Set<NeighborInfo> tempNeighbor) {
-    tempNeighbor.add(
-        new NeighborInfo(
-            currentPortEntity.getBindingHostIP(),
-            currentPortEntity.getBindingHostId(),
-            currentPortEntity.getId(),
-            currentPortEntity.getMacAddress()));
-    tempPorts.add(currentPortEntity.getId());
+    if (!(currentPortEntity.getNeighborInfos() == null
+        || currentPortEntity.getNeighborInfos().isEmpty())) {
+      tempNeighbor.addAll(currentPortEntity.getNeighborInfos());
+      }
+      tempNeighbor.add(
+          new NeighborInfo(
+              currentPortEntity.getBindingHostIP(),
+              currentPortEntity.getBindingHostId(),
+              currentPortEntity.getId(),
+              currentPortEntity.getMacAddress()));
+      tempPorts.add(currentPortEntity.getId());
+
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
     neighborInfoInSameSubenetMap.put(fixedIp.getSubnetId(), tempNeighbor);
   }
