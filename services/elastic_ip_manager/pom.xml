@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.futurewei.alcor</groupId>
     <artifactId>elasticipmanager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>AlcorElasticIpManager</name>
     <description>Alcor Elastic Ip Manager Module</description>
 
