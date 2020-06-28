@@ -24,7 +24,9 @@ import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv6;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAvailableBucketsSet;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpExistsException;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpParameterException;
+import com.futurewei.alcor.elasticipmanager.exception.ElasticIpRangeInUseException;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
+import com.futurewei.alcor.web.entity.ip.IpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ import java.util.*;
 public class ElasticIpAllocator {
     private static final Random random = new Random(System.currentTimeMillis());
     private static final Logger LOG = LoggerFactory.getLogger(ElasticIpAllocator.class);
-    public static final int IPv4_BUCKETS_COUNT = 512;
+    public static final int IPv4_BUCKETS_COUNT = 256;
     private static final int IPV4_ALLOCATION_MAX_RETRY_COUNT = 10;
     private static final int IPV6_ALLOCATION_MAX_RETRY_COUNT = 2000;
     public static final BigInteger EIGHT_BYTES_SCOPE_RANGE = BigInteger.valueOf(Long.MAX_VALUE).multiply(
@@ -75,6 +77,26 @@ public class ElasticIpAllocator {
         return availableBucketIndex;
     }
 
+    private ElasticIpAvailableBucketsSet createBucketState(String rangeId)
+            throws CacheException, DistributedLockException {
+        String availableBucketsKey = rangeId + "-available-buckets-ipv4";
+
+        ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+        if (glance == null) {
+            glance = availableBucketsCache.get(availableBucketsKey);
+            if (glance == null) {
+                // initial the available buckets set
+                BitSet initialBitset = new BitSet(IPv4_BUCKETS_COUNT);
+                initialBitset.set(0, IPv4_BUCKETS_COUNT, true);
+                glance = new ElasticIpAvailableBucketsSet(rangeId, initialBitset);
+
+                availableBucketsCache.put(availableBucketsKey, glance);
+            }
+        }
+
+        return glance;
+    }
+
     private void setBucketState(String rangeId, int bucketIndex, boolean isAvailable)
             throws CacheException, DistributedLockException {
         String availableBucketsKey = rangeId + "-available-buckets-ipv4";
@@ -82,6 +104,11 @@ public class ElasticIpAllocator {
         availableBucketsLock.lock(availableBucketsKey);
 
         ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+        if (glance == null) {
+            // initial the available buckets set
+            glance = this.createBucketState(rangeId);
+        }
+
         BitSet bitSet = glance.getAvailableBucketsBitset();
 
         if (isAvailable) {
@@ -96,7 +123,25 @@ public class ElasticIpAllocator {
         availableBucketsLock.unlock(availableBucketsKey);
     }
 
-    public String allocateIpv4Address(ElasticIpRange range, String specifiedIp) throws Exception {
+    private ElasticIpAvailableBucketsSet getOrCreateBucketState(String rangeId)
+            throws CacheException, DistributedLockException {
+        String availableBucketsKey = rangeId + "-available-buckets-ipv4";
+
+        ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+        if (glance == null) {
+            // add resource lock
+            availableBucketsLock.lock(availableBucketsKey);
+            // initial the available buckets set
+            glance = this.createBucketState(rangeId);
+
+            // release resource lock
+            availableBucketsLock.unlock(availableBucketsKey);
+        }
+
+        return glance;
+    }
+
+    private String allocateIpv4Address(ElasticIpRange range, String specifiedIp) throws Exception {
 
         String ipAddress = null;
         if (specifiedIp != null) {
@@ -105,6 +150,8 @@ public class ElasticIpAllocator {
             String ipv4AllocKey = range.getId() + "-ipv4-" + bucketIndex;
 
             try {
+                // todo get global read lock
+
                 // add resource lock
                 allocatedIpv4Lock.lock(ipv4AllocKey);
 
@@ -123,6 +170,11 @@ public class ElasticIpAllocator {
 
                         ipAddress = Ipv4AddrUtil.longToIpv4(assignedIp);
                     } else {
+                        // release lock
+                        allocatedIpv4Lock.unlock(ipv4AllocKey);
+
+                        // todo release global read lock
+
                         LOG.debug("The specified ip address is not within the elastic ip range");
                         throw new ElasticIpParameterException();
                     }
@@ -130,6 +182,9 @@ public class ElasticIpAllocator {
 
                 // release lock
                 allocatedIpv4Lock.unlock(ipv4AllocKey);
+
+                // todo release global read lock
+
             } catch (CacheException e) {
                 e.printStackTrace();
                 LOG.error("allocateIpv4Address cache exception:", e);
@@ -144,17 +199,20 @@ public class ElasticIpAllocator {
 
             Set<Integer> foreachedBuckets = new HashSet<>();
             int retryCount = 0;
-            String availableBucketsKey = range.getId() + "-available-buckets-ipv4";
 
             try {
-                ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+                ElasticIpAvailableBucketsSet glance = this.getOrCreateBucketState(range.getId());
                 BitSet bitSet = glance.getAvailableBucketsBitset();
                 int availableBucketIndex = random.nextInt(IPv4_BUCKETS_COUNT);
 
                 while (retryCount < IPV4_ALLOCATION_MAX_RETRY_COUNT) {
+                    // todo get global read lock
+
                     availableBucketIndex = this.getNextAvailableBucket(bitSet, availableBucketIndex);
                     if (availableBucketIndex < 0 || foreachedBuckets.contains(availableBucketIndex)) {
                         LOG.debug("The IPv4 allocation range is full");
+
+                        // todo release global read lock
                         return null;
                     }
                     foreachedBuckets.add(availableBucketIndex);
@@ -191,6 +249,8 @@ public class ElasticIpAllocator {
                     // release lock
                     allocatedIpv4Lock.unlock(ipv4AllocKey);
 
+                    // todo release global read lock
+
                     if (ipAddress != null) {
                         break;
                     }
@@ -210,13 +270,15 @@ public class ElasticIpAllocator {
         return ipAddress;
     }
 
-    public String allocateIpv6Address(ElasticIpRange range, String specifiedIp) throws Exception {
+    private String allocateIpv6Address(ElasticIpRange range, String specifiedIp) throws Exception {
         String ipv6Address = null;
         String rangeId = range.getId();
         String ipv6AllocKeyPrefix = rangeId + "-ipv6-";
         List<ElasticIpRange.AllocationRange> cidrs = range.getAllocationRanges();
 
         try {
+            // todo get global read lock
+
             if (specifiedIp != null) {
                 boolean validCheck = false;
                 BigInteger assignedIp = Ipv6AddrUtil.ipv6ToBitInt(specifiedIp);
@@ -230,6 +292,9 @@ public class ElasticIpAllocator {
                 }
                 if (!validCheck) {
                     LOG.debug("The specified ipv6 address is not within the elastic ip range");
+
+                    // todo release global read lock
+
                     throw new ElasticIpParameterException();
                 }
 
@@ -241,6 +306,9 @@ public class ElasticIpAllocator {
                 if (ipv6Alloc != null) {
                     // release lock
                     allocatedIpv6Lock.unlock(ipv6AllocKey);
+
+                    // todo release global read lock
+
                     throw new ElasticIpExistsException();
                 }
 
@@ -249,7 +317,6 @@ public class ElasticIpAllocator {
 
                 // release lock
                 allocatedIpv6Lock.unlock(ipv6AllocKey);
-
             } else {
                 int startOffset = random.nextInt(cidrs.size());
 
@@ -308,6 +375,8 @@ public class ElasticIpAllocator {
                     }
                 }
             }
+            // todo release global read lock
+
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("allocateIpv6Address exception:", e);
@@ -321,11 +390,24 @@ public class ElasticIpAllocator {
         return ipv6Address;
     }
 
-    public void releaseIpv4Address(String rangeId, String ipAddress) {
+    public String allocateIpAddress(ElasticIpRange range, String specifiedIp) throws Exception {
+        String ipAddress = null;
+        if (range.getIpVersion() == IpVersion.IPV4.getVersion()) {
+            ipAddress = this.allocateIpv4Address(range, specifiedIp);
+        } else if (range.getIpVersion() == IpVersion.IPV6.getVersion()) {
+            ipAddress = this.allocateIpv6Address(range, specifiedIp);
+        }
+
+        return ipAddress;
+    }
+
+    private void releaseIpv4Address(String rangeId, String ipAddress) {
         long address = Ipv4AddrUtil.ipv4ToLong(ipAddress);
         int bucketIndex = (int)(address % IPv4_BUCKETS_COUNT);
         String ipv4AllocKey = rangeId + "-ipv4-" + bucketIndex;
         try {
+            // todo get global read lock
+
             // add resource lock
             allocatedIpv4Lock.lock(ipv4AllocKey);
 
@@ -349,6 +431,9 @@ public class ElasticIpAllocator {
 
             // release lock
             allocatedIpv4Lock.unlock(ipv4AllocKey);
+
+            // todo release global read lock
+
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("releaseIpv4Address cache exception:", e);
@@ -358,10 +443,12 @@ public class ElasticIpAllocator {
         }
     }
 
-    public void releaseIpv6Address(String rangeId, String ipAddress) {
+    private void releaseIpv6Address(String rangeId, String ipAddress) {
         BigInteger address = Ipv6AddrUtil.ipv6ToBitInt(ipAddress);
         String ipv6AllocKey = rangeId + "-ipv6-" + address;
         try {
+            // todo get global read lock
+
             // add resource lock
             allocatedIpv6Lock.lock(ipv6AllocKey);
 
@@ -372,12 +459,226 @@ public class ElasticIpAllocator {
 
             // release lock
             allocatedIpv6Lock.unlock(ipv6AllocKey);
+
+            // todo release global read lock
+
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("releaseIpv6Address cache exception:", e);
         } catch (DistributedLockException e) {
             e.printStackTrace();
             LOG.error("releaseIpv6Address lock exception:", e);
+        }
+    }
+
+    public void releaseIpAddress(String rangeId, Integer ipVersion, String ipAddress) {
+        if (ipVersion == IpVersion.IPV4.getVersion()) {
+            this.releaseIpv4Address(rangeId, ipAddress);
+        } else if (ipVersion == IpVersion.IPV6.getVersion()) {
+            this.releaseIpv6Address(rangeId, ipAddress);
+        }
+    }
+
+    private void elasticIpv4RangeUpdate(String rangeId, List<ElasticIpRange.AllocationRange> pools)
+            throws ElasticIpRangeInUseException {
+
+        Map<String, Set<Long>> newPools = new HashMap<>();
+        String ipv4AllocKey;
+        Set<Long> poolLoop;
+        for (ElasticIpRange.AllocationRange rangeItem: pools) {
+            long start = Ipv4AddrUtil.ipv4ToLong(rangeItem.getStart());
+            long end = Ipv4AddrUtil.ipv4ToLong(rangeItem.getEnd());
+
+            for (long loop = start; loop <= end; loop++) {
+                int bucketIndex = (int)(loop % IPv4_BUCKETS_COUNT);
+                ipv4AllocKey = rangeId + "-ipv4-" + bucketIndex;
+                poolLoop = newPools.computeIfAbsent(ipv4AllocKey, k -> new HashSet<>());
+                poolLoop.add(loop);
+            }
+        }
+
+        try {
+            // todo get global write lock
+
+            Map<String, ElasticIpAllocatedIpv4> oldPoolInfos = new HashMap<>();
+            for (int loop = 0; loop < IPv4_BUCKETS_COUNT; loop++) {
+                ipv4AllocKey = rangeId + "-ipv4-" + loop;
+
+                ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
+                if (ipv4Alloc != null) {
+                    oldPoolInfos.put(ipv4AllocKey, ipv4Alloc);
+                }
+            }
+
+            // valid check and get new available ips
+            boolean valid = true;
+            for (ElasticIpAllocatedIpv4 poolInfoItem: oldPoolInfos.values()) {
+                Set<Long> allocatedIps = poolInfoItem.getAllocatedIps();
+
+                ipv4AllocKey = rangeId + "-ipv4-" + poolInfoItem.getIndexId();
+                poolLoop = newPools.get(ipv4AllocKey);
+                if (poolLoop != null) {
+                    if (poolLoop.containsAll(allocatedIps)) {
+                        poolLoop.removeAll(allocatedIps);
+                    } else {
+                        valid = false;
+                    }
+                } else if (!allocatedIps.isEmpty()) {
+                    valid = false;
+                }
+
+                if (!valid) {
+                    // todo release global write lock
+
+                    throw new ElasticIpRangeInUseException();
+                }
+            }
+
+            // update available ips
+            String availableBucketsKey = rangeId + "-available-buckets-ipv4";
+            ElasticIpAvailableBucketsSet glance = availableBucketsCache.get(availableBucketsKey);
+            if (glance == null) {
+                // initial the available buckets set
+                glance = this.createBucketState(rangeId);
+            }
+            BitSet availableBucketSet = glance.getAvailableBucketsBitset();
+
+            ElasticIpAllocatedIpv4 poolInfoLoop;
+            for (int loop = 0; loop < IPv4_BUCKETS_COUNT; loop++) {
+                ipv4AllocKey = rangeId + "-ipv4-" + loop;
+                poolLoop = newPools.get(ipv4AllocKey);
+                poolInfoLoop = oldPoolInfos.get(ipv4AllocKey);
+                if (poolInfoLoop == null) {
+                    poolInfoLoop = new ElasticIpAllocatedIpv4(rangeId, loop);
+                    if (poolLoop != null) {
+                        poolInfoLoop.setAvailableIps(poolLoop);
+                    }
+                } else {
+                    if (poolLoop != null) {
+                        poolInfoLoop.setAvailableIps(poolLoop);
+                    } else {
+                        poolInfoLoop.setAvailableIps(new HashSet<Long>());
+                    }
+                }
+
+                allocatedIpv4Cache.put(ipv4AllocKey, poolInfoLoop);
+
+                if (!poolInfoLoop.getAvailableIps().isEmpty()) {
+                    availableBucketSet.set(loop);
+                }
+            }
+
+            availableBucketsCache.put(availableBucketsKey, glance);
+
+            // todo release global write lock
+
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("elasticIpRangedUpdate cache exception:", e);
+        } catch (DistributedLockException e) {
+            e.printStackTrace();
+            LOG.error("elasticIpRangedUpdate lock exception:", e);
+        }
+    }
+
+    private void elasticIpv6RangeUpdate(String rangeId, List<ElasticIpRange.AllocationRange> pools)
+            throws ElasticIpRangeInUseException {
+
+        try {
+            // todo get global write lock
+
+            Map<String, ElasticIpAllocatedIpv6> allocatedIps = allocatedIpv6Cache.getAll();
+            BigInteger addressLoop;
+            BigInteger start;
+            BigInteger end;
+            for (ElasticIpAllocatedIpv6 allocatedIpv6: allocatedIps.values()) {
+                addressLoop = Ipv6AddrUtil.ipv6ToBitInt(allocatedIpv6.getAllocatedIpv6());
+                boolean valid = false;
+                for (ElasticIpRange.AllocationRange rangeLoop: pools) {
+                    start = Ipv6AddrUtil.ipv6ToBitInt(rangeLoop.getStart());
+                    end = Ipv6AddrUtil.ipv6ToBitInt(rangeLoop.getEnd());
+                    if (addressLoop.compareTo(start) >= 0 && addressLoop.compareTo(end) <= 0) {
+                        valid = true;
+                    }
+                }
+                if (!valid) {
+                    // todo release global write lock
+
+                    throw new ElasticIpRangeInUseException();
+                }
+            }
+
+            // todo release global write lock
+
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("allocateIpv6Address exception:", e);
+        }
+    }
+
+    public void elasticIpRangedUpdate(String rangeId, Integer ipVersion,
+                                      List<ElasticIpRange.AllocationRange> allocationRanges)
+            throws ElasticIpRangeInUseException {
+
+        if (ipVersion == IpVersion.IPV4.getVersion()) {
+            this.elasticIpv4RangeUpdate(rangeId, allocationRanges);
+        } else if (ipVersion == IpVersion.IPV6.getVersion()) {
+            this.elasticIpv6RangeUpdate(rangeId, allocationRanges);
+        }
+    }
+
+    private void elasticIpv4RangeDelete(String rangeId) throws ElasticIpRangeInUseException {
+
+        try {
+            // todo get global write lock
+
+            String ipv4AllocKey;
+            for (int loop = 0; loop < IPv4_BUCKETS_COUNT; loop++) {
+                ipv4AllocKey = rangeId + "-ipv4-" + loop;
+
+                ElasticIpAllocatedIpv4 ipv4Alloc = allocatedIpv4Cache.get(ipv4AllocKey);
+                if (ipv4Alloc != null && !ipv4Alloc.getAllocatedIps().isEmpty()) {
+                    // todo release global write lock
+
+                    throw new ElasticIpRangeInUseException();
+                }
+            }
+
+            // todo release global write lock
+
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("elasticIpv4RangeDelete cache exception:", e);
+        }
+    }
+
+    private void elasticIpv6RangeDelete(String rangeId) throws ElasticIpRangeInUseException {
+        try {
+            // todo get global write lock
+
+            Map<String, ElasticIpAllocatedIpv6> allocatedIps = allocatedIpv6Cache.getAll();
+            for (ElasticIpAllocatedIpv6 allocatedIpv6: allocatedIps.values()) {
+                if (allocatedIpv6.getRangeId().equals(rangeId)) {
+                    // todo release global write lock
+
+                    throw new ElasticIpRangeInUseException();
+                }
+            }
+
+            // todo release global write lock
+
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("elasticIpv6RangeDelete cache exception:", e);
+        }
+
+    }
+
+    public void elasticIpRangedDelete(String rangeId, Integer ipVersion) throws ElasticIpRangeInUseException {
+        if (ipVersion == IpVersion.IPV4.getVersion()) {
+            this.elasticIpv4RangeDelete(rangeId);
+        } else if (ipVersion == IpVersion.IPV6.getVersion()) {
+            this.elasticIpv6RangeDelete(rangeId);
         }
     }
 
