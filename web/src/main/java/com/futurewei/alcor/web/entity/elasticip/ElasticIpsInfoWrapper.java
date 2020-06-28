@@ -4,23 +4,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class ElasticIpsStateJson {
+public class ElasticIpsInfoWrapper {
 
     @JsonProperty("elastic_ips")
-    private List<ElasticIpState> elasticips;
+    private List<ElasticIpInfo> elasticips;
 
-    public ElasticIpsStateJson() {
+    public ElasticIpsInfoWrapper() {
     }
 
-    public ElasticIpsStateJson(List<ElasticIpState> elasticipsState) {
+    public ElasticIpsInfoWrapper(List<ElasticIpInfo> elasticipsState) {
         this.elasticips = elasticipsState;
     }
 
-    public List<ElasticIpState> getElasticips() {
+    public List<ElasticIpInfo> getElasticips() {
         return this.elasticips;
     }
 
-    public void setElasticips(List<ElasticIpState> elasticipsState) {
+    public void setElasticips(List<ElasticIpInfo> elasticipsState) {
         this.elasticips = elasticipsState;
     }
 

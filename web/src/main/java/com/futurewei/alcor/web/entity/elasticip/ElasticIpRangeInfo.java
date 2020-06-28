@@ -3,15 +3,15 @@ package com.futurewei.alcor.web.entity.elasticip;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-public class ElasticIpRangeState extends ElasticIpRange {
+public class ElasticIpRangeInfo extends ElasticIpRange {
 
     @JsonProperty("used_ip_count")
     private Long used_ip_count;
 
-    public ElasticIpRangeState() {
+    public ElasticIpRangeInfo() {
     }
 
-    public ElasticIpRangeState(ElasticIpRange elasticIpRange) {
+    public ElasticIpRangeInfo(ElasticIpRange elasticIpRange) {
         super(elasticIpRange);
         used_ip_count = 0L;
     }
@@ -26,7 +26,7 @@ public class ElasticIpRangeState extends ElasticIpRange {
 
     @Override
     public String toString() {
-        return "ElasticipRangeState{" +
+        return "ElasticIpRangeInfo{" +
                 "used_ip_count='" + used_ip_count + '\'' +
                 "} " + super.toString();
     }

@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Alcor Authors.
+Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception;
+package com.futurewei.alcor.elasticipmanager;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Elastic IP range parameter is invalid")
-public class ElasticIpRangeParameterException extends Exception {
+@SpringBootApplication
+public class ElasticIpManagerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ElasticIpManagerApplication.class, args);
+    }
+
 }
