@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Alcor Authors.
+Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -13,12 +13,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.elasticipmanager.config;
 
-package com.futurewei.alcor.elasticipmanager.exception;
+public enum IpVersion {
+    IPV4(4),
+    IPV6(6);
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+    private int version;
 
-@ResponseStatus(code= HttpStatus.NOT_ACCEPTABLE, reason="The elastic ip range is in use")
-public class ElasticIpRangeInUseException extends Exception {
+    IpVersion(int version) {
+        this.version = version;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 }
+

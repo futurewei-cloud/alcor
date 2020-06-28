@@ -1,14 +1,13 @@
 package com.futurewei.alcor.web.entity.elasticip;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public enum ElasticIpState {
+    ACTIVATED("activated"),
+    DEACTIVATED("deactivated");
 
-
-public class ElasticIpState extends ElasticIp {
-
-    @JsonProperty("state")
     private String state;
 
-    public ElasticIpState() {
+    ElasticIpState(String state) {
+        this.state = state;
     }
 
     public String getState() {
@@ -21,7 +20,7 @@ public class ElasticIpState extends ElasticIp {
 
     @Override
     public String toString() {
-        return "ElasticipState{" +
+        return "ElasticIpState{" +
                 "state='" + state + '\'' +
                 "} " + super.toString();
     }
