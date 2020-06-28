@@ -28,8 +28,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
-@Configuration
-@EnableConfigurationProperties(SubnetWebDestinations.class)
+//@Configuration
+//@EnableConfigurationProperties(SubnetWebDestinations.class)
 public class SubnetWebConfiguration {
 
     @Bean
