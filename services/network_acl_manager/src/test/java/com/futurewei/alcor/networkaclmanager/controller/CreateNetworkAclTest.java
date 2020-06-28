@@ -39,6 +39,7 @@ import java.util.List;
 
 import static com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder.buildNetworkAclBulkWebJsonString;
 import static com.futurewei.alcor.networkaclmanager.util.NetworkAclBuilder.buildNetworkAclWebJsonString;
+import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildDefaultNetworkAclRules;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +76,9 @@ public class CreateNetworkAclTest {
 
         Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId2))
                 .thenReturn(SubnetBuilder.buildSubnetStateJson());
+
+        Mockito.when(networkAclRepository.getDefaultNetworkAclRules())
+                .thenReturn(buildDefaultNetworkAclRules());
     }
 
     @Test

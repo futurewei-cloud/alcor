@@ -73,7 +73,7 @@ public class NetworkAclRepository {
 
     private void createDefaultNetworkAclRules() throws Exception {
         try (Transaction tx = networkAclCache.getTransaction().start()) {
-            List<NetworkAclRuleEntity> networkAclRules = getDefaultNetworkAclRules();
+            List<NetworkAclRuleEntity> networkAclRules = getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
 
             if (networkAclRules == null) {
                 List<String> ipPrefixes = Arrays.asList(NetworkAclRuleEntity.DEFAULT_IPV4_PREFIX,

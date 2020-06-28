@@ -24,12 +24,15 @@ import com.futurewei.alcor.web.entity.networkacl.NetworkAclWebJson;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.futurewei.alcor.networkaclmanager.util.NetworkAclRuleBuilder.buildDefaultNetworkAclRules;
+
 public class NetworkAclBuilder {
     public static NetworkAclEntity buildNetworkAclEntity1() {
         NetworkAclEntity networkAclEntity = new NetworkAclEntity();
         networkAclEntity.setId(UnitTestConfig.networkAclId1);
         networkAclEntity.setName(UnitTestConfig.networkAclName1);
         networkAclEntity.setVpcId(UnitTestConfig.vpcId1);
+        networkAclEntity.setNetworkAclRuleEntities(buildDefaultNetworkAclRules());
 
         List<String> subnetIds = new ArrayList<>();
         subnetIds.add(UnitTestConfig.subnetId1);

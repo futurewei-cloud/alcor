@@ -17,12 +17,9 @@ package com.futurewei.alcor.networkaclmanager.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.networkaclmanager.config.UnitTestConfig;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleBulkWebJson;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
-import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleWebJson;
+import com.futurewei.alcor.web.entity.networkacl.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class NetworkAclRuleBuilder {
     public static NetworkAclRuleEntity buildNetworkAclRuleEntity1() {
@@ -61,6 +58,31 @@ public class NetworkAclRuleBuilder {
         networkAclRuleEntity.setProtocol(UnitTestConfig.protocolTcp);
 
         return networkAclRuleEntity;
+    }
+
+    public static List<NetworkAclRuleEntity> buildDefaultNetworkAclRules() {
+        List<NetworkAclRuleEntity> networkAclRuleEntities = new ArrayList<>();
+
+        List<String> ipPrefixes = Arrays.asList(NetworkAclRuleEntity.DEFAULT_IPV4_PREFIX,
+                NetworkAclRuleEntity.DEFAULT_IPV6_PREFIX);
+
+        for (String ipPrefix: ipPrefixes) {
+            List<Direction> directions = Arrays.asList(Direction.INGRESS,
+                    Direction.EGRESS);
+            for (Direction direction : directions) {
+                NetworkAclRuleEntity networkAclRuleEntity = new NetworkAclRuleEntity();
+                networkAclRuleEntity.setId(UUID.randomUUID().toString());
+                networkAclRuleEntity.setNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
+                networkAclRuleEntity.setIpPrefix(ipPrefix);
+                networkAclRuleEntity.setProtocol(Protocol.ALL.getProtocol());
+                networkAclRuleEntity.setDirection(direction.getDirection());
+                networkAclRuleEntity.setAction(Action.DENY.getAction());
+
+                networkAclRuleEntities.add(networkAclRuleEntity);
+            }
+        }
+
+        return networkAclRuleEntities;
     }
 
     public static List<NetworkAclRuleEntity> buildNetworkAclRuleEntities() {
