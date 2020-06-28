@@ -49,6 +49,18 @@ public class ElasticIp extends CustomerResource {
     public ElasticIp() {
     }
 
+    public ElasticIp(ElasticIp eip) {
+        super(eip.getProjectId(), eip.getId(), eip.getName(), eip.getDescription());
+        this.rangeId = eip.getRangeId();
+        this.elasticIpVersion = eip.getElasticIpVersion();
+        this.elasticIp = eip.getElasticIp();
+        this.portId = eip.getPortId();
+        this.privateIpVersion = eip.getPrivateIpVersion();
+        this.privateIp = eip.getPrivateIp();
+        this.dnsName = eip.getDnsName();
+        this.dnsDomain = eip.getDnsDomain();
+    }
+
     public ElasticIp(String projectId, String id, String name, String description,
                      String rangeId, Integer elasticIpVersion, String elasticIp, String portId,
                      Integer privateIpVersion, String privateIp, String dnsName, String dnsDomain) {
