@@ -263,7 +263,7 @@ public class VpcController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectId}/vpcs")
-    public Map getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
+    public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
 
         Map<String, Object[]> queryParams =
@@ -275,8 +275,6 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceFound(projectId);
 
             vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
-            vpcStates = vpcStates.entrySet().stream()
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -284,7 +282,7 @@ public class VpcController {
             throw new Exception(e);
         }
 
-        return vpcStates;
+        return new VpcsWebJson(new ArrayList<>(vpcStates.values()));
     }
 
     /**
