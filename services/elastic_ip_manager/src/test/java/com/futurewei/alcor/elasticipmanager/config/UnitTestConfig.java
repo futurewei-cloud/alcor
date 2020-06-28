@@ -52,13 +52,13 @@ public class UnitTestConfig {
             "        \"description\":\"" + elasticIpDescription1 + "\",\n" +
             "        \"range_id\":\"" + elasticIpRange1 + "\",\n" +
             "        \"elastic_ip_version\":\"" + elasticIpVersion1 + "\",\n" +
-            "        \"elastic_ip\"::\"" + elasticIpv4Address1 + "\",\n" +
+            "        \"elastic_ip\":\"" + elasticIpv4Address1 + "\",\n" +
             "        \"port_id\":\"" + elasticIpPort1 + "\",\n" +
             "        \"private_ip_version\":\"" + elasticIpPrivateIpVersion1 + "\",\n" +
             "        \"private_ip\":\"" + elasticIpPrivateIp1 + "\",\n" +
-            "        \"dns_name\"::\"" + elasticIpDnsName1 + "\",\n" +
-            "        \"dns_domain\"::\"" + elasticIpDnsDomain1 + "\",\n" +
-            "        \"state\"::\"" + state1 + "\",\n" +
+            "        \"dns_name\":\"" + elasticIpDnsName1 + "\",\n" +
+            "        \"dns_domain\":\"" + elasticIpDnsDomain1 + "\",\n" +
+            "        \"state\":\"" + state1 + "\",\n" +
             "    }\n" +
             "}";
 }

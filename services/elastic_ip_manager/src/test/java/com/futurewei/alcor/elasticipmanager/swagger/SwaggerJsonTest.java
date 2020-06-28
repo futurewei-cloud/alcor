@@ -35,13 +35,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import io.github.swagger2markup.Swagger2MarkupConverter;
-import io.github.swagger2markup.Swagger2MarkupProperties;
 import io.github.swagger2markup.Swagger2MarkupConfig;
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
