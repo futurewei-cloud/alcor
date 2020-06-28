@@ -26,8 +26,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 
@@ -162,10 +167,15 @@ public class PortController {
      */
     @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
-    public List<PortWebJson> listPort(@PathVariable("project_id") String projectId) throws Exception {
+    public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
         queryParams.put("project_id", new String[]{projectId});
-        return portService.listPort(projectId, queryParams);
+        List<PortWebJson> portWebJsonList = portService.listPort(projectId, queryParams);
+        List<PortEntity> portsList = portWebJsonList.stream()
+                .map(PortWebJson::getPortEntity)
+                .collect(Collectors.toList());
+
+        return new PortWebBulkJson(portsList);
     }
 }
