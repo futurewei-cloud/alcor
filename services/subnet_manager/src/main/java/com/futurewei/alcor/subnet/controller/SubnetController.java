@@ -312,7 +312,8 @@ public class SubnetController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectId}/subnets/{subnetId}"})
-    public ResponseId deleteSubnetState(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
+    public ResponseId deleteSubnetState(@PathVariable String projectId, @PathVariable String subnetId)
+            throws Exception {
 
         SubnetEntity subnetEntity = null;
 
