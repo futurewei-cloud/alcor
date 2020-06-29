@@ -43,7 +43,8 @@ public class CommonRouteConfiguration {
                     .filters(f -> f.filter((exchange, chain) -> {
                         ServerHttpResponse response = exchange.getResponse();
 
-                        BodyInserter bodyInserter = BodyInserters.fromPublisher(Mono.just("{\"extensions\":{}}"), String.class);
+                        System.out.println(response.getHeaders().getClass().getName());
+                        BodyInserter bodyInserter = BodyInserters.fromObject("{\"extensions\":{}}");
                         CustomerBodyOutputMessage outputMessage = new CustomerBodyOutputMessage(exchange);
                         return bodyInserter.insert(outputMessage, new BodyInserterContext())
                                 .then(Mono.defer(() -> {

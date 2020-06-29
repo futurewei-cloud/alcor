@@ -28,8 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
-import java.net.NetworkInterface;
-
 @Configuration
 public class VpcRouteConfiguration {
 
@@ -46,7 +44,8 @@ public class VpcRouteConfiguration {
                                 (exchange, vpcsWebJson) -> {
                                     NetworksWebJson networksWebJson = new NetworksWebJson(vpcsWebJson.getVpcs());
                                     return Mono.just(networksWebJson);
-                                })))
+                                }))
+                        .uri(vpcUrl))
                 .route(r -> r
                         .path("/*/networks", "/*/vpcs", "/*/networks/*", "/*/vpcs/*")
                         .uri(vpcUrl))

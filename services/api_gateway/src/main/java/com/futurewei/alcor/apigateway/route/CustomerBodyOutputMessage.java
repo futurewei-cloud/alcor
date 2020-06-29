@@ -46,7 +46,7 @@ public class CustomerBodyOutputMessage implements ReactiveHttpOutputMessage {
 
     public CustomerBodyOutputMessage(ServerWebExchange exchange) {
         this.bufferFactory = exchange.getResponse().bufferFactory();
-        this.httpHeaders = exchange.getRequest().getHeaders();
+        this.httpHeaders = exchange.getResponse().getHeaders();
     }
 
     @Override
