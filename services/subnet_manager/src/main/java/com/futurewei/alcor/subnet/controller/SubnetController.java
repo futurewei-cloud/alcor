@@ -42,6 +42,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -117,6 +118,11 @@ public class SubnetController {
         AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
         AtomicReference<IpAddrRequest> ipResponseAtomic = new AtomicReference<>();
         String portId = UUID.randomUUID().toString();
+
+        if(StringUtils.isEmpty(resource.getSubnet().getId())){
+            String subnetId = UUID.randomUUID().toString();
+            resource.getSubnet().setId(subnetId);
+        }
 
         try {
             if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
@@ -279,7 +285,7 @@ public class SubnetController {
 //            if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
 //                throw new ResourceNotValidException("request resource is invalid");
 //            }
-
+            Preconditions.checkNotNull(resource, "resource can not be null");
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
             SubnetWebRequestObject inSubnetWebResponseObject = resource.getSubnet();

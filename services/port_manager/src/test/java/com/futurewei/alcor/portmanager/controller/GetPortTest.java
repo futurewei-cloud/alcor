@@ -55,7 +55,7 @@ public class GetPortTest extends MockRestClientAndRepository {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].port.id")
+                        .jsonPath("$.ports[0].id")
                         .value(UnitTestConfig.portId1)
                 );
     }

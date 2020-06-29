@@ -19,6 +19,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
@@ -34,12 +35,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -111,6 +110,11 @@ public class VpcController {
     @ResponseStatus(HttpStatus.CREATED)
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         VpcEntity inVpcState = new VpcEntity();
+
+        if(StringUtils.isEmpty(resource.getNetwork().getId())){
+            UUID vpcId = UUID.randomUUID();
+            resource.getNetwork().setId(vpcId.toString());
+        }
 
         try {
 
@@ -184,17 +188,17 @@ public class VpcController {
         VpcEntity inVpcState = new VpcEntity();
 
         try {
-
-            if (!VpcManagementUtil.checkVpcRequestResourceIsValid(resource)) {
-                throw new ResourceNotValidException("request resource is invalid");
-            }
+            //TODO for update it's incremental update, so no need check this
+//            if (!VpcManagementUtil.checkVpcRequestResourceIsValid(resource)) {
+//                throw new ResourceNotValidException("request resource is invalid");
+//            }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
 
             VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
             BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
-            RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
+//            RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
             RestPreconditionsUtil.populateResourceVpcId(inVpcState, vpcid);
 
@@ -203,7 +207,9 @@ public class VpcController {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            // null field no need copy
+            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState,
+                    CommonUtil.getBeanNullPropertyNames(vpcWebRequestObject));
             Integer revisionNumber = inVpcState.getRevisionNumber();
             if (revisionNumber == null) {
                 inVpcState.setRevisionNumber(1);
