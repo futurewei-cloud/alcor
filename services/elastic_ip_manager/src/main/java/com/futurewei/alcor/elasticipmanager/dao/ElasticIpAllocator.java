@@ -22,9 +22,9 @@ import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv4;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv6;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAvailableBucketsSet;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpExistsException;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpParameterException;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpRangeInUseException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpExistsException;
+import com.futurewei.alcor.elasticipmanager.exception.ElasticIpQueryFormatException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import org.slf4j.Logger;
@@ -176,7 +176,7 @@ public class ElasticIpAllocator {
                         // todo release global read lock
 
                         LOG.debug("The specified ip address is not within the elastic ip range");
-                        throw new ElasticIpParameterException();
+                        throw new ElasticIpQueryFormatException();
                     }
                 }
 
@@ -295,7 +295,7 @@ public class ElasticIpAllocator {
 
                     // todo release global read lock
 
-                    throw new ElasticIpParameterException();
+                    throw new ElasticIpQueryFormatException();
                 }
 
                 String ipv6AllocKey = rangeId + "-ipv6-" + specifiedIp;
