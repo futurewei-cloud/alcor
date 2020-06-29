@@ -402,7 +402,7 @@ public class ElasticIpController {
         return new ElasticIpRangeInfoWrapper(eipRange);
     }
 
-    @GetMapping(value = {"/project/{project_id}/elasticips"})
+    @GetMapping(value = {"/elasticip-ranges"})
     public ElasticIpRangesInfoWrapper getElasticIpRanges() throws Exception {
 
         List<ElasticIpRangeInfo> eipRanges = elasticIpRangeService.getElasticIpRanges();
