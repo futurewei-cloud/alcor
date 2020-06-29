@@ -71,7 +71,7 @@ public class NetworkAclRepository {
         return networkAclRuleEntity;
     }
 
-    private void createDefaultNetworkAclRules() throws Exception {
+    private synchronized void createDefaultNetworkAclRules() throws Exception {
         try (Transaction tx = networkAclCache.getTransaction().start()) {
             List<NetworkAclRuleEntity> networkAclRules = getNetworkAclRulesByNumber(NetworkAclRuleEntity.NUMBER_MAX_VALUE);
 
