@@ -19,8 +19,13 @@ package com.futurewei.alcor.elasticipmanager.service.implement;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
-import com.futurewei.alcor.elasticipmanager.exception.*;
-import com.futurewei.alcor.privateipmanager.service.ElasticIpService;
+import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpAllocationException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpInUseException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpNotFoundException;
+import com.futurewei.alcor.elasticipmanager.exception.ElasticIpQueryFormatException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeNotFoundException;
+import com.futurewei.alcor.elasticipmanager.service.ElasticIpService;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIp;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
@@ -53,7 +58,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
             throw new ElasticIpRangeNotFoundException();
         }
         if (!range.getIpVersion().equals(request.getElasticIpVersion())) {
-            throw new ElasticIpParameterException();
+            throw new ElasticIpQueryFormatException();
         }
 
         ElasticIp eip = new ElasticIp(request);
@@ -172,14 +177,22 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         }
 
         if (!validCheck) {
-            throw new ElasticIpParameterException();
+            throw new ElasticIpQueryFormatException();
         }
 
         String newPortId = request.getPortId();
         if (newPortId != null) {
-            // todo query port for verify
-
             eip.setPortId(newPortId);
+            if (newPortId.isEmpty()) {
+                eip.setPrivateIp("");
+            } else {
+                // todo query port for verify
+
+                if (request.getPrivateIp() != null) {
+                    eip.setPrivateIp(request.getPrivateIp());
+                    eip.setPrivateIpVersion(request.getPrivateIpVersion());
+                }
+            }
         }
 
         if (request.getDescription() != null) {

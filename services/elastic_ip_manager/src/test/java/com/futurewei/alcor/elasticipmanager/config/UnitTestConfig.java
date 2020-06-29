@@ -58,7 +58,7 @@ public class UnitTestConfig {
             "        \"private_ip\":\"" + elasticIpPrivateIp1 + "\",\n" +
             "        \"dns_name\":\"" + elasticIpDnsName1 + "\",\n" +
             "        \"dns_domain\":\"" + elasticIpDnsDomain1 + "\",\n" +
-            "        \"state\":\"" + state1 + "\",\n" +
+            "        \"state\":\"" + state1 + "\"\n" +
             "    }\n" +
             "}";
 }

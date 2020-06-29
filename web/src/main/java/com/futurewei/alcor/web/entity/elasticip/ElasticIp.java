@@ -104,7 +104,7 @@ public class ElasticIp extends CustomerResource {
     }
 
     public void setPortId(String portId) {
-        portId = portId;
+        this.portId = portId;
     }
 
     public Integer getPrivateIpVersion() {

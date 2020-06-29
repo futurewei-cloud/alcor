@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ElasticIpRangeInfoWrapper {
 
-    @JsonProperty("elastic_ip_range")
+    @JsonProperty("elasticip-range")
     private ElasticIpRangeInfo elasticIpRange;
 
     public ElasticIpRangeInfoWrapper() {
