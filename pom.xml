@@ -42,7 +42,6 @@
     <packaging>pom</packaging>
 
     <dependencies>
-        <!-- Compile -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
