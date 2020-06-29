@@ -13,11 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.privateipmanager.controller;
+package com.futurewei.alcor.elasticipmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.privateipmanager.config.UnitTestConfig;
-import com.futurewei.alcor.privateipmanager.repo.IpAddrRangeRepo;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
+import com.futurewei.alcor.elasticipmanager.config.UnitTestConfig;
 import com.futurewei.alcor.web.entity.ip.IpAddrRangeRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
@@ -25,20 +25,15 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.futurewei.alcor.privateipmanager.util.IpAddressBuilder.buildIpAddrAlloc;
-import static com.futurewei.alcor.privateipmanager.util.IpAddressBuilder.buildIpAddrRange;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,12 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class IpAddrControllerTest {
+public class IpAddrControllerTest extends MockIgniteServer {
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private IpAddrRangeRepo ipAddrRangeRepo;
 
     @Test
     public void Test01_createIpAddrRangeTest() throws Exception {
@@ -60,7 +52,7 @@ public class IpAddrControllerTest {
                 UnitTestConfig.rangeId,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.firstIp,
                 UnitTestConfig.lastIp);
 
@@ -76,9 +68,6 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test02_getIpAddrRangeTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.getIpAddrRange(UnitTestConfig.rangeId))
-                .thenReturn(buildIpAddrRange());
-
         this.mockMvc.perform(get(UnitTestConfig.ipRangeUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -93,11 +82,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test04_allocateIpAddrTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.allocateIpAddr(Mockito.any(IpAddrRequest.class)))
-                .thenReturn(buildIpAddrAlloc());
-
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -117,9 +103,6 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test05_getIpAddrTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.getIpAddr(UnitTestConfig.rangeId, UnitTestConfig.ip1))
-                .thenReturn(buildIpAddrAlloc());
-
         this.mockMvc.perform(get(UnitTestConfig.ipAddrUrl + "/" +
                 UnitTestConfig.rangeId + "/" + UnitTestConfig.ip1))
                 .andDo(print())
@@ -129,7 +112,7 @@ public class IpAddrControllerTest {
     @Test
     public void Test06_deactivateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -148,7 +131,7 @@ public class IpAddrControllerTest {
     @Test
     public void Test07_activateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -221,14 +204,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test11_deactivateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.deactivated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -255,14 +238,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test12_activateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.activated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -289,14 +272,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test13_releaseIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 null);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipv4,
+                UnitTestConfig.ipVersion,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
