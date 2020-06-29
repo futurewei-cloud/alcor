@@ -100,25 +100,25 @@ Note that those IP ranges should be owned by cloud provider.
 
 |Create an elastic IP range
 |POST
-|/project/{project_id}/elasticip-ranges
+|/elasticip-ranges
 |elasticip range info
 <<Elastic_IP_Range_Create,[sample]>>
 
 |Get the elastic IP range
 |GET
-|/project/{project_id}/elasticip-ranges/{elasticip_range_id}
+|/elasticip-ranges/{elasticip_range_id}
 |elasticip range info
 <<Elastic_IP_Range_Get,[sample]>>
 
 |Get all elastic IP ranges
 |GET
-|/project/{project_id}/elasticip-ranges
+|/elasticip-ranges
 |elasticip range info list
 <<Elastic_IP_Range_Get_List,[sample]>>
 
 |Delete the elastic IP range
 |DELETE
-|/project/{project_id}/elasticip-ranges/{elasticip_range_id}
+|/elasticip-ranges/{elasticip_range_id}
 |
 <<Elastic_IP_Range_Delete,[sample]>>
 
@@ -538,9 +538,9 @@ anchor:Elastic_IP_Range_Create[]
 
 * Method: `POST`
 
-* Request: `/project/{project_id}/elasticip-ranges`
+* Request: `/elasticip-ranges`
 
-* Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpRangeStateJson elasticip_range`
+* Request Parameter: `@RequestBody ElasticIpRangeStateJson elasticip_range`
 
 * Response: elasticip range info
 * Normal response codes: 200
@@ -587,9 +587,9 @@ anchor:Elastic_IP_Range_Get[]
 
 * Method: `GET`
 
-* Request: `/project/{project_id}/elasticip-range/{elasticip_range_id}`
+* Request: `/elasticip-range/{elasticip_range_id}`
 
-* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_range_id`
+* Request Parameter: `@PathVariable String elasticip_range_id`
 
 * Response: elasticip range info
 * Normal response codes: 200
@@ -622,9 +622,9 @@ anchor:Elastic_IP_Range_Get_List[]
 
 * Method: `GET`
 
-* Request: `/project/{project_id}/elasticip-ranges`
+* Request: `/elasticip-ranges`
 
-* Request Parameter: `@PathVariable String project_id`
+* Request Parameter: ``
 
 * Response: elasticip range info list
 * Normal response codes: 200
@@ -668,9 +668,9 @@ anchor:Elastic_IP_Range_Delete[]
 
 * Method: `DELETE`
 
-* Request: `/project/{project_id}/elasticip-range/{elasticip_range_id}`
+* Request: `/elasticip-range/{elasticip_range_id}`
 
-* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_range_id`
+* Request Parameter: `@PathVariable String elasticip_range_id`
 
 * Response: null
 * Normal response codes: 200

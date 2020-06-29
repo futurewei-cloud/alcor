@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ElasticIpInfoWrapper {
 
-    @JsonProperty("elastic_ip")
+    @JsonProperty("elasticip")
     private ElasticIpInfo elasticip;
 
     public ElasticIpInfoWrapper() {
