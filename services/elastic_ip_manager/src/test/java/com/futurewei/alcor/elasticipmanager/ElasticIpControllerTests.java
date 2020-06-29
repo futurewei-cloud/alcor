@@ -17,12 +17,12 @@ package com.futurewei.alcor.elasticipmanager;
 
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpRangeService;
 import com.futurewei.alcor.elasticipmanager.config.UnitTestConfig;
-import com.futurewei.alcor.privateipmanager.service.ElasticIpService;
+import com.futurewei.alcor.elasticipmanager.service.ElasticIpService;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIp;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +96,7 @@ public class ElasticIpControllerTests {
                 .content(UnitTestConfig.ElasticIpInfoWithPort))
                 .andDo(print())
                 .andExpect(status().is(201))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.elasitcip.id").value(UnitTestConfig.elasticIp1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.id").value(UnitTestConfig.elasticIp1));
     }
 
     @Before

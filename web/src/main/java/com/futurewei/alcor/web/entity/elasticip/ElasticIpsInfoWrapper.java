@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ElasticIpsInfoWrapper {
 
-    @JsonProperty("elastic_ips")
+    @JsonProperty("elasticips")
     private List<ElasticIpInfo> elasticips;
 
     public ElasticIpsInfoWrapper() {
