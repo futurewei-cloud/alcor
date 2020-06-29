@@ -55,7 +55,7 @@ public class SecurityGroupRepository {
         LOG.info("SecurityGroupRepository init done");
     }
 
-    public void addSecurityGroup(SecurityGroup securityGroup) throws Exception {
+    public synchronized void addSecurityGroup(SecurityGroup securityGroup) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //Add all security group rules
@@ -71,7 +71,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void addSecurityGroupBulk(List<SecurityGroup> securityGroups) throws Exception {
+    public synchronized void addSecurityGroupBulk(List<SecurityGroup> securityGroups) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
             //Add all security group rules
             Map<String, SecurityGroupRule> securityGroupRules = new HashMap<>();
@@ -92,7 +92,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void deleteSecurityGroup(String id) throws Exception {
+    public synchronized void deleteSecurityGroup(String id) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //If securityGroup is null, an exception will be thrown
@@ -125,7 +125,7 @@ public class SecurityGroupRepository {
      * @param defaultSecurityGroup
      * @throws Exception
      */
-    public void createDefaultSecurityGroup(SecurityGroup defaultSecurityGroup) throws Exception {
+    public synchronized void createDefaultSecurityGroup(SecurityGroup defaultSecurityGroup) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //Add all security group rules
@@ -141,7 +141,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void deleteDefaultSecurityGroup(String id) throws Exception {
+    public synchronized void deleteDefaultSecurityGroup(String id) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //If securityGroup is null, an exception will be thrown
@@ -160,7 +160,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void addSecurityGroupRule(SecurityGroup securityGroup, SecurityGroupRule securityGroupRule) throws Exception {
+    public synchronized void addSecurityGroupRule(SecurityGroup securityGroup, SecurityGroupRule securityGroupRule) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //Add security group rule to security group
@@ -174,7 +174,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void addSecurityGroupRuleBulk(List<SecurityGroupRule> securityGroupRules) throws Exception {
+    public synchronized void addSecurityGroupRuleBulk(List<SecurityGroupRule> securityGroupRules) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
             //Add security group rule to security group
             for (SecurityGroupRule securityGroupRule: securityGroupRules) {
@@ -198,7 +198,7 @@ public class SecurityGroupRepository {
         }
     }
 
-    public void deleteSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
+    public synchronized void deleteSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
             //Delete the security group rule from security group
