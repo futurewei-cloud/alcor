@@ -45,6 +45,10 @@ public class CacheFactory {
         return iCacheFactory.getCache(v);
     }
 
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
+        return iCacheFactory.getCache(v, cacheName);
+    }
+
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){
         return iCacheFactory.getExpireCache(v, timeout, timeUnit);
     }

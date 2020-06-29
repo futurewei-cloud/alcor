@@ -53,15 +53,17 @@ public class NodeFileLoader {
         try {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOST);
-            nodeList.forEach(node -> {
-                NodeInfo hostNode = null;
-                try {
-                    hostNode = this.parseNodeObject((JSONObject) node);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                if (hostNode != null) nodeInfos.add(hostNode);
-            });
+            if(nodeList != null){
+                nodeList.forEach(node -> {
+                    NodeInfo hostNode = null;
+                    try {
+                        hostNode = this.parseNodeObject((JSONObject) node);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (hostNode != null) nodeInfos.add(hostNode);
+                });
+            }
         } catch (FileNotFoundException e) {
             logger.error(strMethodName+e.getMessage());
             throw e;

@@ -16,24 +16,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
+import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
-import com.futurewei.alcor.portmanager.util.GoalStateUtil;
-import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
+import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
-@ComponentScan(value="com.futurewei.alcor.common.utils")
-@ComponentScan(value="com.futurewei.alcor.web.restclient")
+@ComponentScan(value = "com.futurewei.alcor.common.utils")
+@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -52,24 +57,27 @@ public class PortServiceImpl implements PortService {
         }
     }
 
-    private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<Rollback> rollbacks) throws Exception {
+    private void createPortAsync(PortEntity portEntity, AsyncExecutor executor, Stack<Rollback> rollbacks, boolean NeedPortNeighbors) throws Exception {
         //Verify VPC ID
         VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(rollbacks);
         executor.runAsync(vpcManagerProxy::getVpcEntity, portEntity);
 
-        //Allocate IP address
+        //Allocate IP address, get subnetEntity and subnet route
         IpManagerProxy ipManagerProxy = new IpManagerProxy(rollbacks, portEntity.getProjectId());
         SubnetManagerProxy subnetManagerProxy = new SubnetManagerProxy(portEntity.getProjectId());
+        RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
         if (portEntity.getFixedIps() != null) {
-            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
+            for (PortEntity.FixedIp fixedIp : portEntity.getFixedIps()) {
                 executor.runAsyncThenAccept(subnetManagerProxy::getSubnetEntity,
-                        ipManagerProxy::allocateFixedIpAddress,
-                        fixedIp, fixedIp);
+                        ipManagerProxy::allocateFixedIpAddress, fixedIp, fixedIp);
+                executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
             }
         } else {
-            executor.runAsyncThenApply(ipManagerProxy::allocateRandomIpAddress,
-                    subnetManagerProxy::getSubnetEntity,
-                    portEntity);
+            CompletableFuture subnetFuture = executor.runAsyncThenApply(ipManagerProxy::allocateRandomIpAddress,
+                    subnetManagerProxy::getSubnetEntity, portEntity);
+
+            //Another way to execute two asynchronous methods serially
+            executor.runAsync(routeManagerProxy::getRouteBySubnetFuture, portEntity.getId(), subnetFuture);
         }
 
         //Generate uuid for port
@@ -88,28 +96,24 @@ public class PortServiceImpl implements PortService {
         //Verify and bind security group
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
-            for (String securityGroupId: portEntity.getSecurityGroups()) {
-                executor.runAsync(securityGroupManagerProxy::getSecurityGroupEntity, securityGroupId);
-                executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
+            for (String securityGroupId : portEntity.getSecurityGroups()) {
+                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
             }
+            executor.runAsync(securityGroupManagerProxy::bindSecurityGroup, portEntity);
         } else {
             //Do we need to bind default security group? No, we don't
-            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, null);
-        }
-
-        //Get subnet route
-        if (portEntity.getFixedIps() != null) {
-            RouteManagerProxy routeManagerProxy = new RouteManagerProxy(rollbacks);
-
-            for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
-                executor.runAsync(routeManagerProxy::getRouteBySubnetId, fixedIp.getSubnetId());
-            }
+            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
         }
 
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity.getBindingHostId());
+            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+        }
+
+        //Get PortNeighbors
+        if (NeedPortNeighbors) {
+            executor.runAsync(portRepository::getPortNeighbors, portEntity.getVpcId());
         }
     }
 
@@ -125,12 +129,66 @@ public class PortServiceImpl implements PortService {
         throw e;
     }
 
+    private Map<String, NodeInfo> getNodeInfos(List<Object> entities) {
+        Map<String, NodeInfo> nodeInfoMap = new HashMap<>();
+
+        for (Object entity : entities) {
+            if (entity instanceof PortBindingHost) {
+                PortBindingHost portBindingHost = (PortBindingHost) entity;
+                nodeInfoMap.put(portBindingHost.getPortId(), portBindingHost.getNodeInfo());
+            }
+        }
+
+        return nodeInfoMap;
+    }
+
+    private NeighborInfo buildNeighborInfo(PortEntity portEntity, Map<String, NodeInfo> nodeInfoMap) {
+        if (nodeInfoMap == null) {
+            return null;
+        }
+
+        NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getId());
+        if (nodeInfo == null) {
+            return null;
+        }
+
+        return new NeighborInfo(nodeInfo.getLocalIp(),
+                nodeInfo.getId(),
+                portEntity.getId(),
+                portEntity.getMacAddress());
+    }
+
+    private Map<String, List<NeighborInfo>> buildNeighborInfosForNewHosts(List<PortEntity> portEntities, Map<String, NodeInfo> nodeInfoMap) {
+        Map<String, List<NeighborInfo>> portNeighbors = new HashMap<>();
+        for (PortEntity portEntity : portEntities) {
+            NodeInfo nodeInfo = nodeInfoMap.get(portEntity.getId());
+            if (nodeInfo == null) {
+                continue;
+            }
+
+            NeighborInfo neighborInfo = new NeighborInfo(nodeInfo.getLocalIp(),
+                    nodeInfo.getId(),
+                    portEntity.getId(),
+                    portEntity.getMacAddress());
+
+            if (!portNeighbors.containsKey(portEntity.getVpcId())) {
+                List<NeighborInfo> neighborInfos = new ArrayList<>();
+                portNeighbors.put(portEntity.getVpcId(), neighborInfos);
+            }
+
+            portNeighbors.get(portEntity.getVpcId()).add(neighborInfo);
+        }
+
+        return portNeighbors;
+    }
+
     /**
      * Create a port, and call the interfaces of each micro-service according to the
      * configuration of the port to create various required resources for the port.
      * If any exception occurs in the added process, we need to roll back
      * the resource allocated from each micro-service.
-     * @param projectId Project the port belongs to
+     *
+     * @param projectId   Project the port belongs to
      * @param portWebJson Port configuration
      * @return PortWebJson
      * @throws Exception Various exceptions that may occur during the create process
@@ -146,21 +204,25 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-            createPortAsync(portEntity, executor, rollbacks);
+            this.createPortAsync(portEntity, executor, rollbacks, true);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
             entities.add(portEntity);
 
-            //Build GoalState and Send it to DPM
+            NeighborInfo neighborInfo = null;
             if (portEntity.getBindingHostId() != null) {
-                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
+                Map<String, NodeInfo> nodeInfoMap = this.getNodeInfos(entities);
+                neighborInfo = this.buildNeighborInfo(portEntity, nodeInfoMap);
+
+                //Build GoalState and Send it to DPM
+                NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-                dataPlaneManagerProxy.createGoalState(goalState);
+                dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
             }
 
             //Persist portEntity
-            portRepository.addItem(portEntity);
+            portRepository.createPortAndNeighbor(portEntity, neighborInfo);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -175,7 +237,8 @@ public class PortServiceImpl implements PortService {
      * configuration of the port to create various required resources for all ports.
      * If an exception occurs during the creation of multiple ports, we need to roll back
      * the resource allocated from each micro-service.
-     * @param projectId Project the port belongs to
+     *
+     * @param projectId       Project the port belongs to
      * @param portWebBulkJson Multiple ports configuration
      * @return PortWebBulkJson
      * @throws Exception Various exceptions that may occur during the create process
@@ -184,30 +247,38 @@ public class PortServiceImpl implements PortService {
     public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
+        List<PortEntity> portEntities = portWebBulkJson.getPortEntities();
+        Map<String, Boolean> getNeighborStatus = new HashMap<>();
 
         try {
-            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+            for (PortEntity portEntity : portEntities) {
                 portEntity.setProjectId(projectId);
-                createPortAsync(portEntity, executor, rollbacks);
+                boolean needPortNeighbors = !getNeighborStatus.containsKey(portEntity.getVpcId());
+                createPortAsync(portEntity, executor, rollbacks, needPortNeighbors);
+                getNeighborStatus.put(portEntity.getVpcId(), true);
             }
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
-            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+            for (PortEntity portEntity : portEntities) {
                 if (portEntity.getBindingHostId() != null) {
                     entities.add(portEntity);
                 }
             }
 
+            //Build neighborInfos
+            Map<String, List<NeighborInfo>> neighborInfoMapForNewHosts =
+                    this.buildNeighborInfosForNewHosts(portEntities, this.getNodeInfos(entities));
+
             //Build GoalState and Send it to DPM
-            DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.CREATE);
-            if (goalState.getPortStatesCount() > 0) {
-                dataPlaneManagerProxy.createGoalState(goalState);
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+            if (networkConfiguration.getPortEntities() != null) {
+                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+                dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
             }
 
-            //Persist portEntities
-            portRepository.addItems(portWebBulkJson.getPortEntities());
+            //Persist portEntities and neighborInfos
+            portRepository.createPortAndNeighborBulk(portEntities, neighborInfoMapForNewHosts);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -218,7 +289,7 @@ public class PortServiceImpl implements PortService {
     private Map<String, Set<String>> fixedIpsToMap(List<PortEntity.FixedIp> fixedIps) {
         Map<String, Set<String>> subnetIpsMap = new HashMap<>();
 
-        for (PortEntity.FixedIp fixedIp: fixedIps) {
+        for (PortEntity.FixedIp fixedIp : fixedIps) {
             if (subnetIpsMap.containsKey(fixedIp.getSubnetId())) {
                 subnetIpsMap.get(fixedIp.getSubnetId()).add(fixedIp.getIpAddress());
             } else {
@@ -235,7 +306,7 @@ public class PortServiceImpl implements PortService {
         List<PortEntity.FixedIp> addFixedIps = new ArrayList<>();
         Map<String, Set<String>> subnetIpsMap = fixedIpsToMap(fixedIps2);
 
-        for (PortEntity.FixedIp fixedIp: fixedIps1) {
+        for (PortEntity.FixedIp fixedIp : fixedIps1) {
             String subnetId = fixedIp.getSubnetId();
             String ipAddress = fixedIp.getIpAddress();
             if (subnetIpsMap.containsKey(subnetId)) {
@@ -251,7 +322,7 @@ public class PortServiceImpl implements PortService {
     }
 
     private boolean updatePortAsync(PortEntity newPortEntity, PortEntity oldPortEntity, AsyncExecutor executor,
-                                 Stack<Rollback> rollbacks) throws Exception {
+                                    Stack<Rollback> rollbacks) throws Exception {
         boolean needNotifyDpm = false;
 
         //Update name
@@ -389,7 +460,7 @@ public class PortServiceImpl implements PortService {
         //Update qos_policy_id
         String newQosPolicyId = newPortEntity.getQosPolicyId();
         String oldQosPolicyId = oldPortEntity.getQosPolicyId();
-        if (newQosPolicyId!= null && !newQosPolicyId.equals(oldQosPolicyId)) {
+        if (newQosPolicyId != null && !newQosPolicyId.equals(oldQosPolicyId)) {
             oldPortEntity.setQosPolicyId(newQosPolicyId);
             needNotifyDpm = true;
         }
@@ -417,7 +488,7 @@ public class PortServiceImpl implements PortService {
         return needNotifyDpm;
     }
 
-    private void getPortDependentResources(PortEntity portEntity, AsyncExecutor executor) {
+    private void getPortDependentResources(PortEntity portEntity, AsyncExecutor executor, boolean needPortNeighbors) {
         //Get VpcEntity
         VpcManagerProxy vpcManagerProxy = new VpcManagerProxy(null);
         executor.runAsync(vpcManagerProxy::getVpcEntity, portEntity);
@@ -425,28 +496,31 @@ public class PortServiceImpl implements PortService {
         //Get SubnetEntity and subnet route
         SubnetManagerProxy subnetManagerProxy = new SubnetManagerProxy(portEntity.getProjectId());
         RouteManagerProxy routeManagerProxy = new RouteManagerProxy(null);
-        for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
+        for (PortEntity.FixedIp fixedIp : portEntity.getFixedIps()) {
             executor.runAsync(subnetManagerProxy::getSubnetEntity, fixedIp);
-            executor.runAsync(routeManagerProxy::getRouteBySubnetId, fixedIp.getSubnetId());
+            executor.runAsync(routeManagerProxy::getRouteBySubnetId, portEntity.getId(), fixedIp.getSubnetId());
         }
 
         //Get SecurityGroupEntity
         SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
         if (portEntity.getSecurityGroups() != null) {
-            for (String securityGroupId: portEntity.getSecurityGroups()) {
-                executor.runAsync(securityGroupManagerProxy::getSecurityGroupEntity, securityGroupId);
+            for (String securityGroupId : portEntity.getSecurityGroups()) {
+                executor.runAsync(securityGroupManagerProxy::getSecurityGroup, securityGroupId);
             }
         } else {
-            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, null);
+            executor.runAsync(securityGroupManagerProxy::getDefaultSecurityGroupEntity, portEntity.getTenantId());
         }
 
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity.getBindingHostId());
+            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
         }
 
-        //Get Neighbors
+        //Get portNeighbors
+        if (needPortNeighbors) {
+            executor.runAsync(portRepository::getPortNeighbors, portEntity.getVpcId());
+        }
     }
 
     /**
@@ -454,8 +528,9 @@ public class PortServiceImpl implements PortService {
      * micro-services may need to be updated according to the new configuration of port.
      * If any exception occurs in the updated process, we need to roll back
      * the resource added or deleted operation of each micro-service.
-     * @param projectId Project the port belongs to
-     * @param portId Id of port
+     *
+     * @param projectId   Project the port belongs to
+     * @param portId      Id of port
      * @param portWebJson The new configuration of port
      * @return The new configuration of port
      * @throws Exception Various exceptions that may occur during the update process
@@ -472,14 +547,14 @@ public class PortServiceImpl implements PortService {
         portEntity.setProjectId(projectId);
 
         try {
-            PortEntity oldPortEntity = portRepository.findItem(portId);
+            PortEntity oldPortEntity = portRepository.findPortEntity(portId);
             if (oldPortEntity == null) {
                 throw new PortEntityNotFound();
             }
 
             boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
             if (needNotifyDpm) {
-                getPortDependentResources(oldPortEntity, executor);
+                this.getPortDependentResources(oldPortEntity, executor, true);
             }
 
             //Wait for all async functions to finish
@@ -488,13 +563,19 @@ public class PortServiceImpl implements PortService {
             //Build GoalState and send it to DPM
             if (needNotifyDpm) {
                 entities.add(oldPortEntity);
+                NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-                Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.UPDATE);
-                dataPlaneManagerProxy.updateGoalState(goalState);
+                dataPlaneManagerProxy.updateNetworkConfig(networkConfiguration);
+            }
+
+            NeighborInfo neighborInfo = null;
+            if (portEntity.getBindingHostId() != null) {
+                Map<String, NodeInfo> nodeInfoMap = this.getNodeInfos(entities);
+                neighborInfo = this.buildNeighborInfo(portEntity, nodeInfoMap);
             }
 
             //Persist the new configuration of port to the db
-            portRepository.addItem(oldPortEntity);
+            portRepository.updatePortAndNeighbor(oldPortEntity, neighborInfo);
             portWebJson.setPortEntity(oldPortEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -510,7 +591,8 @@ public class PortServiceImpl implements PortService {
      * micro-services may need to be updated according to the new configuration of ports.
      * If an exception occurs during the update, we need to roll back
      * the resource added or deleted operation of each micro-service.
-     * @param projectId Project the port belongs to
+     *
+     * @param projectId       Project the port belongs to
      * @param portWebBulkJson The new configuration of ports
      * @return The new configuration of ports
      * @throws Exception Various exceptions that may occur during the update process
@@ -520,11 +602,12 @@ public class PortServiceImpl implements PortService {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
         List<PortEntity> portEntities = new ArrayList<>();
+        Map<String, Boolean> getNeighborStatus = new HashMap<>();
 
         try {
-            for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
+            for (PortEntity portEntity : portWebBulkJson.getPortEntities()) {
                 portEntity.setProjectId(projectId);
-                PortEntity oldPortEntity = portRepository.findItem(portEntity.getId());
+                PortEntity oldPortEntity = portRepository.findPortEntity(portEntity.getId());
                 if (oldPortEntity == null) {
                     throw new PortEntityNotFound();
                 }
@@ -532,7 +615,9 @@ public class PortServiceImpl implements PortService {
                 boolean needNotifyDpm = updatePortAsync(portEntity, oldPortEntity, executor, rollbacks);
                 if (needNotifyDpm) {
                     portEntities.add(oldPortEntity);
-                    getPortDependentResources(oldPortEntity, executor);
+                    boolean needPortNeighbors = !getNeighborStatus.containsKey(portEntity.getVpcId());
+                    this.getPortDependentResources(oldPortEntity, executor, needPortNeighbors);
+                    getNeighborStatus.put(portEntity.getVpcId(), true);
                 }
             }
 
@@ -541,14 +626,18 @@ public class PortServiceImpl implements PortService {
             entities.addAll(portEntities);
 
             //Build GoalState and send it to DPM
-            DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.UPDATE);
-            if (goalState.getPortStatesCount() > 0) {
-                dataPlaneManagerProxy.updateGoalState(goalState);
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
+            if (networkConfiguration.getPortEntities() != null) {
+                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
+                dataPlaneManagerProxy.updateNetworkConfig(networkConfiguration);
             }
 
-            //Persist portEntities
-            portRepository.addItems(portEntities);
+            //Build neighborInfos
+            Map<String, List<NeighborInfo>> neighborInfoMapForUpdatedHosts =
+                    this.buildNeighborInfosForNewHosts(portEntities, this.getNodeInfos(entities));
+
+            //Persist portEntities and neighborInfos
+            portRepository.updatePortAndNeighborBulk(portEntities, neighborInfoMapForUpdatedHosts);
             portWebBulkJson.setPortEntities(portEntities);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
@@ -562,8 +651,9 @@ public class PortServiceImpl implements PortService {
      * the resources requested by the port from each micro-service.
      * If any exception occurs in the deleted process, we need to roll back
      * the resource deletion operation of each micro-service.
+     *
      * @param projectId Project the port belongs to
-     * @param portId Id of port
+     * @param portId    Id of port
      * @throws Exception Various exceptions that may occur during the delete process
      */
     @Override
@@ -573,7 +663,7 @@ public class PortServiceImpl implements PortService {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
 
-        PortEntity portEntity = portRepository.findItem(portId);
+        PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -594,18 +684,18 @@ public class PortServiceImpl implements PortService {
             }
 
             //Get port dependent resources
-            getPortDependentResources(portEntity, executor);
+            this.getPortDependentResources(portEntity, executor, true);
 
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
             entities.add(portEntity);
 
             //Build GoalState and send it to DPM
+            NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
-            Goalstate.GoalState goalState = GoalStateUtil.buildGoalState(entities, Common.OperationType.DELETE);
-            dataPlaneManagerProxy.deleteGoalState(goalState);
+            dataPlaneManagerProxy.deleteNetworkConfig(networkConfiguration);
 
-            portRepository.deleteItem(portId);
+            portRepository.deletePortAndNeighbor(portEntity);
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
@@ -615,14 +705,15 @@ public class PortServiceImpl implements PortService {
 
     /**
      * Get the configuration of the port by port id
+     *
      * @param projectId Project the port belongs to
-     * @param portId Id of port
+     * @param portId    Id of port
      * @return PortWebJson
      * @throws Exception Db operation exception
      */
     @Override
     public PortWebJson getPort(String projectId, String portId) throws Exception {
-        PortEntity portEntity = portRepository.findItem(portId);
+        PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
@@ -632,6 +723,7 @@ public class PortServiceImpl implements PortService {
 
     /**
      * Get all port information
+     *
      * @param projectId Project the port belongs to
      * @return A list of port information
      * @throws Exception Db operation exception
@@ -640,12 +732,12 @@ public class PortServiceImpl implements PortService {
     public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
-        Map<String, PortEntity> portEntityMap = portRepository.findAllItems();
+        Map<String, PortEntity> portEntityMap = portRepository.findAllPortEntities();
         if (portEntityMap == null) {
             return result;
         }
 
-        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+        for (Map.Entry<String, PortEntity> entry : portEntityMap.entrySet()) {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }

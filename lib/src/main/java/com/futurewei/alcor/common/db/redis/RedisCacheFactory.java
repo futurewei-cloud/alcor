@@ -40,6 +40,12 @@ public class RedisCacheFactory implements ICacheFactory {
     }
 
     @Override
+    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
+        RedisTemplate<K, V> template = getRedisTemplate(v);
+        return new RedisCache<>(template, cacheName);
+    }
+
+    @Override
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit) {
         RedisTemplate<K, V> template = getRedisTemplate(v);
         return new RedisExpireCache<>(template, timeout, timeUnit);

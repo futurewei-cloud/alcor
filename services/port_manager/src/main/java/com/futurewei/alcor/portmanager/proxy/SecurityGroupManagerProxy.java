@@ -16,11 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.proxy;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.portmanager.exception.GetSecurityGroupEntityException;
+import com.futurewei.alcor.portmanager.exception.GetSecurityGroupException;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupWebJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
 public class SecurityGroupManagerProxy {
@@ -32,27 +32,28 @@ public class SecurityGroupManagerProxy {
         this.projectId = projectId;
     }
 
-    public SecurityGroupEntity getSecurityGroupEntity(Object args) throws Exception {
-        String securityGroupId = (String)args;
-        SecurityGroupWebJson securityGroupWebJson = securityGroupManagerRestClient.getSecurityGroup(projectId, securityGroupId);
-        if (securityGroupWebJson == null || securityGroupWebJson.getSecurityGroupEntity() == null) {
-            throw new GetSecurityGroupEntityException();
+    public SecurityGroup getSecurityGroup(Object args) throws Exception {
+        String securityGroupId = (String) args;
+        SecurityGroupJson securityGroupJson = securityGroupManagerRestClient.getSecurityGroup(projectId, securityGroupId);
+        if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
+            throw new GetSecurityGroupException();
         }
 
-        return securityGroupWebJson.getSecurityGroupEntity();
+        return securityGroupJson.getSecurityGroup();
     }
 
-    public SecurityGroupEntity getDefaultSecurityGroupEntity(Object args) throws Exception {
-        SecurityGroupWebJson securityGroupWebJson = securityGroupManagerRestClient.getDefaultSecurityGroup(projectId);
-        if (securityGroupWebJson == null || securityGroupWebJson.getSecurityGroupEntity() == null) {
-            throw new GetSecurityGroupEntityException();
+    public SecurityGroup getDefaultSecurityGroupEntity(Object args) throws Exception {
+        String tenantId = (String) args;
+        SecurityGroupJson securityGroupJson = securityGroupManagerRestClient.getDefaultSecurityGroup(projectId, tenantId);
+        if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
+            throw new GetSecurityGroupException();
         }
 
-        return securityGroupWebJson.getSecurityGroupEntity();
+        return securityGroupJson.getSecurityGroup();
     }
 
     public PortSecurityGroupsJson bindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity)args;
+        PortEntity portEntity = (PortEntity) args;
 
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(portEntity.getId());
@@ -62,7 +63,7 @@ public class SecurityGroupManagerProxy {
     }
 
     public PortSecurityGroupsJson unbindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity)args;
+        PortEntity portEntity = (PortEntity) args;
 
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(portEntity.getId());
