@@ -3,9 +3,9 @@ package com.futurewei.alcor.elasticipmanager.service.implement;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpRangeExistsException;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpRangeNotFoundException;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpRangeParameterException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeExistsException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeNotFoundException;
+import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeParameterException;
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpRangeService;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIp;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
@@ -15,10 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
@@ -37,19 +34,17 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
     public ElasticIpRangeInfo createElasticIpRange(ElasticIpRangeInfo request) throws Exception {
         LOG.debug("Create an elastic ip range, request: {}", request);
 
-        String elasticIpRangeId = request.getId();
-        if (elasticIpRangeId == null) {
-            // todo allocate a uuid
-            elasticIpRangeId = "11223344-5566-7788-9900-112233445566";
-        } else if (elasticIpRangeRepo.findItem(elasticIpRangeId) != null) {
+        if (request.getId() == null) {
+            request.setId(UUID.randomUUID().toString());;
+        } else if (elasticIpRangeRepo.findItem(request.getId()) != null) {
             throw new ElasticIpRangeExistsException();
         }
-        request.setId(elasticIpRangeId);
+
         ElasticIpRange elasticIpRange = new ElasticIpRange(request);
 
         elasticIpRangeRepo.addItem(elasticIpRange);
 
-        elasticIpAllocator.elasticIpRangedUpdate(elasticIpRangeId, request.getIpVersion(),
+        elasticIpAllocator.elasticIpRangedUpdate(request.getId(), request.getIpVersion(),
                 request.getAllocationRanges());
 
         request.setUsed_ip_count(0L);

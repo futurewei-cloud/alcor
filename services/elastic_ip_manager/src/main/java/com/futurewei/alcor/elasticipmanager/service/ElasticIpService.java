@@ -1,4 +1,4 @@
-package com.futurewei.alcor.privateipmanager.service;
+package com.futurewei.alcor.elasticipmanager.service;
 
 import com.futurewei.alcor.web.entity.elasticip.*;
 

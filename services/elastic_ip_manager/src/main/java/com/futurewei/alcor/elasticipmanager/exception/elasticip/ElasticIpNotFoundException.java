@@ -14,30 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.web.entity.elasticip;
+package com.futurewei.alcor.elasticipmanager.exception.elasticip;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-
-public class ElasticIpsInfoWrapper {
-
-    @JsonProperty("elasticips")
-    private List<ElasticIpInfo> elasticips;
-
-    public ElasticIpsInfoWrapper() {
-    }
-
-    public ElasticIpsInfoWrapper(List<ElasticIpInfo> elasticipsState) {
-        this.elasticips = elasticipsState;
-    }
-
-    public List<ElasticIpInfo> getElasticips() {
-        return this.elasticips;
-    }
-
-    public void setElasticips(List<ElasticIpInfo> elasticipsState) {
-        this.elasticips = elasticipsState;
-    }
-
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="The elastic ip is not found")
+public class ElasticIpNotFoundException extends Exception {
 }
