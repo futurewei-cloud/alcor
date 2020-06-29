@@ -56,6 +56,7 @@ public class SecurityGroupBindingsRepository {
 
 
     public void addSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+        // FIXME: https://github.com/futurewei-cloud/alcor/issues/264
         try (Transaction tx = bindingCache.getTransaction().start()) {
             String portId = portSecurityGroupsJson.getPortId();
 
