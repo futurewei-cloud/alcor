@@ -26,11 +26,13 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.IgniteException;
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.client.ClientException;
+import org.apache.ignite.transactions.TransactionException;
 import org.springframework.util.Assert;
 
 import javax.cache.Cache;
@@ -83,7 +85,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public V get(K key) throws CacheException {
         try {
             return cache.get(key);
-        } catch (ClientException e) {
+        } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -93,7 +95,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public void put(K key, V value) throws CacheException {
         try {
             cache.put(key, value);
-        } catch (ClientException e) {
+        } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteCache put operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -103,7 +105,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public boolean containsKey(K key) throws CacheException {
         try {
             return cache.containsKey(key);
-        } catch (ClientException e) {
+        } catch (TransactionException e) {
             logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -117,7 +119,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
             QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
             return cur.getAll().stream().collect(Collectors
                     .toMap(Cache.Entry::getKey, Cache.Entry::getValue));
-        } catch (Exception e) {
+        } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteCache getAll operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -127,7 +129,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public void putAll(Map<? extends K, ? extends V> items) throws CacheException {
         try {
             cache.putAll(items);
-        } catch (ClientException e) {
+        } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteCache putAll operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -137,7 +139,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public boolean remove(K key) throws CacheException {
         try {
             return cache.remove(key);
-        } catch (ClientException e) {
+        } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
