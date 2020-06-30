@@ -29,175 +29,185 @@ nova create a vm will through four stage.
 In scenario column on below table, tag by above scenario and features.
 
 nova call neutron apis
-|===
-|Name |method |params |fields |neutron api |alcor status |scenario
+[width="100%",cols="1,1,1,1,1,1,1", options="header"]
+|====================
+|Name |Method |Params |Fields |Neutron API |Alcor status |Scenario
 
 |show_network
 |get
 |net_id
-|provider:physical_network,provider:network_type
-|/v2.0/networks/{net_id}
-|/project/{projectId}/vpcs/{vpcId}
-|stage 1;find a physical network not in multi-segments network
+|provider: physical_network, provider: network_type
+|/v2.0/networks/ {net_id}
+|/project/{projectId}/ vpcs/{vpcId}
+|stage 1: find a physical network not in multi-segments network
 
 |show_network
 |get
 |net_id
 |dns_domain
-|/v2.0/networks/{net_id}
-|/project/{projectId}/vpcs/{vpcId}
-|stage 3;get network dns_domain for deallocate network
+|/v2.0/networks/ {net_id}
+|/project/{projectId}/ vpcs/{vpcId}
+|stage 3: get network dns_domain for deallocate network
 
 |show_network
 |get
 |net_id
 |segments
-|/v2.0/networks/{net_id}
-|/project/{projectId}/vpcs/{vpcId}
-|stage 1;find a first segment that provides a physical network in multi-segments network
+|/v2.0/networks/ {net_id}
+|/project/{projectId}/ vpcs/{vpcId}
+|stage 1: find a first segment that provides a physical network in multi-segments network
 
 |list_network
 |get
 |net_ids
 |
 |/v2.0/networks
-|/project/{project_id}/vpcs
-|stage: 1,2; get all request networks
+|/project/{project_id}/ vpcs
+|stage 1,2: get all request networks
 
 |list_network
 |get
 |tenant_id: project_id, shared: False
 |
 |/v2.0/networks
-|/project/{project_id}/vpcs(no support)
-|stage: 1,2; get all tenant user not shared networks if request no networks
+|/project/{project_id}/ vpcs(no support)
+|stage 1,2: get all tenant user not shared networks if request no networks
 
 |list_network
 |get
 |tenant_id: project_id, shared: False, admin_state_up: True
 |
 |/v2.0/networks
-|/project/{project_id}/vpcs(no support)
-|stage: 1,2; get all tenant user not shared networks if request no networks and vm network is auto_allocate
+|/project/{project_id}/ vpcs(no support)
+|stage 1,2: get all tenant user not shared networks if request no networks and vm network is auto_allocate
 
 |list_network
 |get
 |shared: True
 |
 |/v2.0/networks
-|/project/{project_id}/vpcs(no support)
-|stage: 1,2; get all shared networks for vm create,finals all_networks = available + shared=True
+|/project/{project_id}/ vpcs(no support)
+|stage 1,2: get all shared networks for vm create, finals all_networks = available + shared=True
 
 |list_subnets
 |get
 |id: [subnet_id]
 |
 |/v2.0/networks
-|/project/{project_id}/subnets
-|stage 2:get subnet info from port if have request port and port exist
+|/project/{project_id}/ subnets
+|stage 2: get subnet info from port if have request port and port exist
 
 |show_port
 |get
 |
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage: 1,2; get request port info, confirm port info is ok for instance
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 1,2: get request port info, confirm port info is ok for instance
 
 |show_port
 |get
 |
 |binding_profile, network_id
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 3;get port info for unbind port
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 3: get port info for unbind port
 
 |show_port
 |get
 |
-|binding:vnic_type,network_id,binding_profile,resource_request
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 1; retrieve port vNIC info
+|binding: vnic_type, network_id, binding_profile, resource_request
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 1: retrieve port vNIC info
 
 |list_ports
 |get
 |device_id: instance.uuid
 |
 |/v2.0/ports
-|/project/{project_id}/ports(no support)
-|stage 3; get instance ports for deallocate resources
+|/project/{project_id}/ ports(no support)
+|stage 3: get instance ports for deallocate resources
 
 |list_ports
 |get
 |device_id: instance.uuid, tenant_id: project_id
 |
 |/v2.0/ports
-|/project/{project_id}/ports(no support)
-|stage 2; get ports info for build network resource
+|/project/{project_id}/ ports (not support)
+|stage 2: get ports info for build network resource
 
 |list_ports
 |get
 |network_id: net_id, device_owner: network:dhcp
 |
 |/v2.0/ports
-|/project/{project_id}/ports(no support)
-|stage 2; get dhcp ports info if have request port and port exist in network
+|/project/{project_id}/ ports(no support)
+|stage 2: get dhcp ports info if have request port and port exist in network
 
 |list_ports
 |get
 |network_id: net_id, fixed_ips: ip_addrs
 |device_id
 |/v2.0/ports
-|/project/{project_id}/ports(no support)
-|stage: 1; confirm request ip address not in use
+|/project/{project_id}/ ports(no support)
+|stage 1: confirm request ip address not in use
 
 |create_port
 |post
-|port: {device_id: instance.uuid, fixed_ips: {ip_address:fixed_ip}, network_id: net_id, admin_state_up: True, tenant_id: project_id, security——groups:{}}
+|port: {device_id: instance.uuid,
+fixed_ips: {ip_address: fixed_ip},
+network_id: net_id,
+admin_state_up: True,
+tenant_id: project_id,
+security_groups:{}}
 |
 |/v2.0/ports
-|/project/{project_id}/ports
-|stage 2;create port for instance
+|/project/{project_id}/ ports
+|stage 2: create port for instance
 
 |update_port
 |put
-|port: {device_id: '', device_owner: '', 'binding:host_id': None, 'binding:profile': {}, dns_name:''}
+|port: {device_id: '',
+device_owner: '',
+'binding:host_id': None,
+'binding:profile': {},
+dns_name:''}
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 4;unbind instance port
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 4: unbind instance port
 
 |update_port
 |put
 |port: {dns_name: ''}
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 4;reset port dns name
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 4: reset port dns name
 
 |update_port
 |put
 |port: {'binding:host_id': host, device_owner: 'compute:zone', 'binding:profile':{} }
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 2;update port binding for instance in build network resource(have request port id and port exist in network)
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 2: update port binding for instance in build network resource(have request port id and port exist in network)
 
 |update_port
 |put
 |port: {'binding:host_id': host, device_owner: 'compute:zone', 'binding:profile':{}, 'dns_name': network.dns_domain or instance.hostname, mac_address: mac}
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
-|stage 2;update port for instance in build network resource
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
+|stage 2: update port for instance in build network resource
 
 |delete_port
 |delete
 |
 |
-|/v2.0/ports/{port_id}
-|/project/{project_id}/ports/{port_id}
+|/v2.0/ports/ {port_id}
+|/project/{project_id}/ ports/{port_id}
 |stage 3;delete port for instance
 
 |list_floatingips
@@ -206,40 +216,44 @@ nova call neutron apis
 |
 |/v2.0/floatingips
 |
-|stage 2; get port floatingip if have request port and request port is exist
+|stage 2: get port floatingip if have request port and request port is exist
 
 |show_quota
 |get
 |
 |
-|/v2.0/quotas/{project_id}
+|/v2.0/quotas/ {project_id}
 |
-|stage 1;confirm tenant user have enough ports resources
+|stage 1: confirm tenant user have enough ports resources
 
 |list_extensions
 |get
 |
-|return example:{'extensions':{{updated: 2017-07-17T10:00:00-00：00， name:port_binding_extended, links:[], alias: binding-extended, description: Expose port binding of a virtual port to external application}}}
+|return example: {'extensions': {{'updated': "2017-07-17T10:00:00-00：00",
+name: port_binding_ extended,
+links: [],
+alias: binding-extended,
+description: "Expose port binding of a virtual port to external application"}}}
 |/v2.0/extensions
 |
 |stage 1, 2: get all support extension options
 
-|get_auto_allocated_topology
+|get_auto_allocated_ topology
 |get
 |
 |
-|/v2.0/auto-allocated-topology/{project_id}
+|/v2.0/auto-allocated-topology/ {project_id}
 | optional api
-| stage 2:auto allocate network if no request network and no available network
+| stage 2: auto allocate network if no request network and no available network
 
-|list_security_groups
+|list_security_ groups
 |get
 |tenant_id: project_id
 |
 |/v2.0/security-groups
 |no support
 | stage 2: process security groups for instance in build network resource
-|===
+|====================
 
 === VM Creation Workflow
 image::vm_create.png["VM creation workflow", width=1024, link="vm_create.png"]
