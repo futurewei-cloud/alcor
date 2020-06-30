@@ -22,11 +22,13 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Data
 public class CustomerResource implements Serializable {
 
     @JsonProperty("project_id")
     private String projectId;
+
+    @JsonProperty("tenant_id")
+    private String tenantId;
 
     @JsonProperty("id")
     private String id;
@@ -82,6 +84,14 @@ public class CustomerResource implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTenantId() {
+        return this.tenantId == null ? this.projectId : this.tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     @Override

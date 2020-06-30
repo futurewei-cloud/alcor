@@ -50,9 +50,6 @@ public class VpcEntity extends CustomerResource {
     @JsonProperty("shared")
     private boolean shared;
 
-    @JsonProperty("tenant_id")
-    private String tenantId;
-
     @JsonProperty("vlan_transparent")
     private boolean vlanTransparent;
 
@@ -104,7 +101,7 @@ public class VpcEntity extends CustomerResource {
         this.routeEntities = routeEntities;
     }
 
-    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, String tenantId, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetEntity> subnets, String cidr) {
+    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetEntity> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routeEntities = routeEntities;
         this.adminStateUp = adminStateUp;
@@ -117,7 +114,6 @@ public class VpcEntity extends CustomerResource {
         this.routerExternal = routerExternal;
         this.segments = segments;
         this.shared = shared;
-        this.tenantId = tenantId;
         this.vlanTransparent = vlanTransparent;
         this.isDefault = isDefault;
         this.availabilityZoneHints = availabilityZoneHints;

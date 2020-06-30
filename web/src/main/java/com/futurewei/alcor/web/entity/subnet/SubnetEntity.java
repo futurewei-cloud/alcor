@@ -87,9 +87,6 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("sort_key")
     private String sortKey;
 
-    @JsonProperty("tenant_id")
-    private String tenantId;
-
     @JsonProperty("subnetpool_id")
     private String subnetpoolId;
 
@@ -158,7 +155,7 @@ public class SubnetEntity extends CustomerResource {
                         String secondaryDns, List<RouteEntity> routeEntities, String gatewayMacAddress, List<String> dnsList,
                         Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode,
                         Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey,
-                        String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny,
+                        String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny,
                         String notTags, String notTagsAny, String fields, List<String> dnsNameservers, List<AllocationPool> allocationPools,
                         List<HostRoute> hostRoutes, Integer prefixlen, boolean useDefaultSubnetpool, List<String> serviceTypes, String created_at,
                         String updated_at) {
@@ -183,7 +180,6 @@ public class SubnetEntity extends CustomerResource {
         this.shared = shared;
         this.sortDir = sortDir;
         this.sortKey = sortKey;
-        this.tenantId = tenantId;
         this.subnetpoolId = subnetpoolId;
         this.dnsPublishFixedIp = dnsPublishFixedIp;
         this.tags = tags;
@@ -207,7 +203,7 @@ public class SubnetEntity extends CustomerResource {
                 subnetEntity.getSecondaryDns(), subnetEntity.getRouteEntities(), subnetEntity.getGatewayMacAddress(), subnetEntity.getDnsList(),
                 subnetEntity.getIpVersion(), subnetEntity.getIpV4RangeId(), subnetEntity.getIpV6RangeId(), subnetEntity.getIpv6AddressMode(), subnetEntity.getIpv6RaMode(),
                 subnetEntity.getRevisionNumber(), subnetEntity.getSegmentId(), subnetEntity.getShared(), subnetEntity.getSortDir(), subnetEntity.getSortKey(),
-                subnetEntity.getTenantId(), subnetEntity.getSubnetpoolId(), subnetEntity.dnsPublishFixedIp, subnetEntity.getTags(), subnetEntity.getTagsAny(),
+                subnetEntity.getSubnetpoolId(), subnetEntity.dnsPublishFixedIp, subnetEntity.getTags(), subnetEntity.getTagsAny(),
                 subnetEntity.getNotTags(), subnetEntity.getNotTagsAny(), subnetEntity.getFields(), subnetEntity.getDnsNameservers(), subnetEntity.getAllocationPools(),
                 subnetEntity.getHostRoutes(), subnetEntity.getPrefixlen(), subnetEntity.useDefaultSubnetpool, subnetEntity.getServiceTypes(), subnetEntity.getCreated_at(),
                 subnetEntity.getUpdated_at());
