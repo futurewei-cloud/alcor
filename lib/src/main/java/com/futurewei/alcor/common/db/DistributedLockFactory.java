@@ -31,10 +31,10 @@ public class DistributedLockFactory {
     @Autowired(required = false)
     private IgniteClient igniteClient;
 
-    @Value("${lock.try.interval}")
+    @Value("${lock.try.interval:10}")
     private int tryLockInterval;
 
-    @Value("${lock.expire.time}")
+    @Value("${lock.expire.time:120}")
     private int expireTime;
 
     @Autowired
