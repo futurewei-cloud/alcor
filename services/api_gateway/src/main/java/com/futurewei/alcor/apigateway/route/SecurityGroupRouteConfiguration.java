@@ -25,17 +25,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SubnetRouteConfiguration {
+public class SecurityGroupRouteConfiguration {
 
-    @Value("${microservices.subnet.service.url}")
-    private String subnetUrl;
+    @Value("${microservices.sg.service.url}")
+    private String sgUrl;
 
     @Bean
-    public RouteLocator subnetRouteLocator(RouteLocatorBuilder builder){
+    public RouteLocator securityGroupLocator(RouteLocatorBuilder builder){
         return builder.routes()
-                .route(r -> r.path("/*/subnets", "/*/subnets/*",
-                        "/project/*/subnets", "/project/*/subnets/*")
-                        .uri(subnetUrl))
+                .route(r -> r.path("/*/security-groups", "/*/security-groups/*",
+                        "/*/security-group-rules", "/*/security-group-rules/*",
+                        "/project/*/security-groups", "/project/*/security-groups/*",
+                        "/project/*/security-group-rules", "/project/*/security-group-rules/*")
+                .uri(sgUrl))
                 .build();
+
     }
 }

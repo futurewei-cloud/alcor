@@ -34,7 +34,9 @@ public class PortRouteConfiguration {
     @Bean
     public RouteLocator portRouteLocator(RouteLocatorBuilder builder){
         return builder.routes()
-                .route(r -> r.path("/*/ports", "/*/ports/*").uri(portUrl))
+                .route(r -> r.path("/*/ports", "/*/ports/*",
+                        "/project/*/ports", "/project/*/ports/*")
+                        .uri(portUrl))
                 .build();
     }
 

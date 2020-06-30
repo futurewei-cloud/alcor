@@ -19,23 +19,21 @@
 package com.futurewei.alcor.common.db.query.impl;
 
 import com.futurewei.alcor.common.db.query.CachePredicate;
-import com.google.common.collect.ImmutableMap;
 import org.apache.ignite.binary.BinaryObject;
-import org.apache.ignite.cache.query.ScanQuery;
 
 import java.util.Map;
 
 
 public class MapPredicate implements CachePredicate<String, BinaryObject> {
 
-    private ImmutableMap<String, Object[]> params;
+    private Map<String, Object[]> params;
 
     public static MapPredicate getInstance(Map<String, Object[]> params){
         return new MapPredicate(params);
     }
 
     public MapPredicate(Map<String, Object[]> params){
-        this.params = new ImmutableMap.Builder<String, Object[]>().putAll(params).build();
+        this.params = params;
     }
 
     @Override

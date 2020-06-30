@@ -38,7 +38,7 @@ public class VpcRouteConfiguration {
     public RouteLocator vpcRouteLocator(RouteLocatorBuilder builder){
         return builder.routes()
                 .route(r -> r
-                        .path("/*networks", "/*/vpcs")
+                        .path("/*/networks", "/*/vpcs", "/project/*/vpcs")
                         .and().method(HttpMethod.GET)
                         .filters(f -> f.modifyResponseBody(VpcsWebJson.class, NetworksWebJson.class,
                                 (exchange, vpcsWebJson) -> {
@@ -47,7 +47,8 @@ public class VpcRouteConfiguration {
                                 }))
                         .uri(vpcUrl))
                 .route(r -> r
-                        .path("/*/networks", "/*/vpcs", "/*/networks/*", "/*/vpcs/*")
+                        .path("/*/networks", "/*/networks/*",
+                                "/project/*/vpcs",  "/project/*/vpcs/*")
                         .uri(vpcUrl))
                 .build();
     }

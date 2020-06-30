@@ -27,7 +27,6 @@ public interface ICache<K, V> {
     /**
      * Get Cache value from cache db by multi params
      *
-     * @param var1 the cache key
      * @param filterParams a map of params name and value
      * @return cache value
      * @throws CacheException if any exception
@@ -37,7 +36,6 @@ public interface ICache<K, V> {
     /**
      * Get Cache value from cache db by a {@link CachePredicate}
      *
-     * @param var1 the cache key
      * @param cachePredicate a implement of {@link CachePredicate}
      * @return cache value
      * @throws CacheException if any exception
