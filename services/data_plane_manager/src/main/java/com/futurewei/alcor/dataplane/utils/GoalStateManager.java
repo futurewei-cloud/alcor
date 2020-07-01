@@ -338,17 +338,17 @@ public class GoalStateManager {
               currentPortEntity.getId(),
               currentPortEntity.getMacAddress()));
       tempPorts.add(currentPortEntity.getId());
-
-      for(NeighborInfo neighborInfo:currentPortEntity.getNeighborInfos())
-      {
-          tempNeighbor.add(
-                  new NeighborInfo(
-                          neighborInfo.getHostIp(),
-                          neighborInfo.getHostId(),
-                          neighborInfo.getPortId(),
-                          neighborInfo.getPortMac(),
-                  neighborInfo.getPortIp()));
-          tempPorts.add(neighborInfo.getPortId());
+    if (currentPortEntity.getNeighborInfos() != null) {
+      for (NeighborInfo neighborInfo : currentPortEntity.getNeighborInfos()) {
+        tempNeighbor.add(
+            new NeighborInfo(
+                neighborInfo.getHostIp(),
+                neighborInfo.getHostId(),
+                neighborInfo.getPortId(),
+                neighborInfo.getPortMac(),
+                neighborInfo.getPortIp()));
+        tempPorts.add(neighborInfo.getPortId());
+      }
       }
 
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
