@@ -60,7 +60,7 @@ public class IpAddrControllerTest {
                 UnitTestConfig.rangeId,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.firstIp,
                 UnitTestConfig.lastIp);
 
@@ -97,7 +97,7 @@ public class IpAddrControllerTest {
                 .thenReturn(buildIpAddrAlloc());
 
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -129,7 +129,7 @@ public class IpAddrControllerTest {
     @Test
     public void Test06_deactivateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -148,7 +148,7 @@ public class IpAddrControllerTest {
     @Test
     public void Test07_activateIpAddrStateTest() throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -221,14 +221,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test11_deactivateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.deactivated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -255,14 +255,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test12_activateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 UnitTestConfig.activated);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
@@ -289,14 +289,14 @@ public class IpAddrControllerTest {
     @Test
     public void Test13_releaseIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 UnitTestConfig.ip2,
                 null);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,

@@ -19,11 +19,12 @@ import com.futurewei.alcor.privateipmanager.config.UnitTestConfig;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
 import com.futurewei.alcor.web.entity.ip.IpAddrRangeRequest;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 
 public class IpAddressBuilder {
     public static IpAddrAlloc buildIpAddrAlloc() {
         IpAddrAlloc ipAddrAlloc = new IpAddrAlloc();
-        ipAddrAlloc.setIpVersion(UnitTestConfig.ipVersion);
+        ipAddrAlloc.setIpVersion(UnitTestConfig.ipv4);
         ipAddrAlloc.setState(UnitTestConfig.activated);
         ipAddrAlloc.setRangeId(UnitTestConfig.rangeId);
         ipAddrAlloc.setSubnetId(UnitTestConfig.subnetId);
@@ -35,10 +36,33 @@ public class IpAddressBuilder {
         IpAddrRange ipAddrRange = new IpAddrRange(UnitTestConfig.rangeId,
                 UnitTestConfig.vpcId,
                 UnitTestConfig.subnetId,
-                UnitTestConfig.ipVersion,
+                UnitTestConfig.ipv4,
                 UnitTestConfig.firstIp,
                 UnitTestConfig.lastIp);
 
         return ipAddrRange;
+    }
+
+    public static IpAddrRequest buildIpAddrRequest() {
+        IpAddrRequest ipAddrRequest = new IpAddrRequest(
+                UnitTestConfig.ipv4,
+                UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.rangeId,
+                UnitTestConfig.ip1,
+                UnitTestConfig.activated);
+
+        return ipAddrRequest;
+    }
+
+    public static IpAddrRangeRequest buildIpAddrRangeRequest() {
+        IpAddrRangeRequest ipAddrRangeRequest = new IpAddrRangeRequest(
+                UnitTestConfig.rangeId,
+                UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
+                UnitTestConfig.ipv4,
+                UnitTestConfig.firstIp,
+                UnitTestConfig.lastIp);
+        return ipAddrRangeRequest;
     }
 }
