@@ -74,9 +74,26 @@ public class NeighborInfo {
         this.portMac = portMac;
     }
 
+    public NeighborInfo(String hostIp, String hostId, String portId,
+                        String portMac, String portIp) {
+        this.hostIp = hostIp;
+        this.hostId = hostId;
+        this.portId = portId;
+        this.portMac = portMac;
+        this.portIp = portIp;
+    }
+
+    public String getPortIp() {
+        return portIp;
+    }
+
+    public void setPortIp(String portIp) {
+        this.portIp = portIp;
+    }
+
     @Override
     public int hashCode() {
-       return super.hashCode();
+       return 1;
     }
 
     @Override
