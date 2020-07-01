@@ -20,6 +20,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.entity.VpcIpRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

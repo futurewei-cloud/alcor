@@ -23,7 +23,6 @@ import com.futurewei.alcor.common.repo.ICache;
 import com.futurewei.alcor.common.repo.Transaction;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetOperations;
 
 import java.util.Map;
 import java.util.logging.Level;
