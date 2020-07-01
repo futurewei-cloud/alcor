@@ -33,7 +33,7 @@ import java.lang.reflect.Field;
  * this class config {@link CacheFactory#iCacheFactory} to a mock ignite client for micro service use
  *
  */
-@Component
+//@Component
 public class TestBeanPostProcessor implements BeanPostProcessor {
 
     @Override

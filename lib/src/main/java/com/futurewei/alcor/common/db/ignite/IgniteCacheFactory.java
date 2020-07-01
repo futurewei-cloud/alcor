@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 public class IgniteCacheFactory implements ICacheFactory {
 
-    private Ignite ignite;
+    private final Ignite ignite;
 
     public IgniteCacheFactory(Ignite ignite) {
         this.ignite = ignite;

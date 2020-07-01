@@ -20,35 +20,44 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteException;
+import org.apache.ignite.client.ClientException;
+import org.apache.ignite.client.ClientTransaction;
+import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.internal.client.thin.ClientServerError;
+import org.springframework.context.annotation.Description;
 
 import java.util.logging.Level;
 
 import static org.apache.ignite.transactions.TransactionConcurrency.PESSIMISTIC;
 import static org.apache.ignite.transactions.TransactionIsolation.SERIALIZABLE;
 
-public class IgniteTransaction implements Transaction {
+public class IgniteClientTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    private final Ignite client;
-    private org.apache.ignite.transactions.Transaction transaction;
+    private final IgniteClient igniteClient;
+    private ClientTransaction clientTransaction;
 
-    public IgniteTransaction(Ignite client) {
-        this.client = client;
+    public IgniteClientTransaction(IgniteClient igniteClient) {
+        this.igniteClient = igniteClient;
     }
 
     @Override
     public Transaction start() throws CacheException {
-        transaction = client.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
+        try{
+            clientTransaction = igniteClient.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
+        } catch (ClientServerError | ClientException e) {
+            logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
+
         return this;
     }
 
     @Override
     public void commit() throws CacheException {
-        try {
-            transaction.commit();
-        } catch (IgniteException e) {
+        try{
+            clientTransaction.commit();
+        } catch (ClientServerError | ClientException e) {
             logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -56,9 +65,9 @@ public class IgniteTransaction implements Transaction {
 
     @Override
     public void rollback() throws CacheException {
-        try {
-            transaction.rollback();
-        } catch (IgniteException e) {
+        try{
+            clientTransaction.rollback();
+        } catch (ClientServerError | ClientException e) {
             logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -66,8 +75,8 @@ public class IgniteTransaction implements Transaction {
 
     @Override
     public void close() {
-        if (transaction != null) {
-            transaction.close();
+        if (clientTransaction != null) {
+            clientTransaction.close();
         }
     }
 }

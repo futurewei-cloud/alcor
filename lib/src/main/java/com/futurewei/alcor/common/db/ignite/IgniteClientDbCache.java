@@ -1,18 +1,20 @@
 /*
-Copyright 2019 The Alcor Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-*/
+ *
+ * Copyright 2019 The Alcor Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *         you may not use this file except in compliance with the License.
+ *         You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *         See the License for the specific language governing permissions and
+ *         limitations under the License.
+ * /
+ */
 
 package com.futurewei.alcor.common.db.ignite;
 
@@ -23,15 +25,14 @@ import com.futurewei.alcor.common.db.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.db.query.impl.MapPredicate;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteException;
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
+import org.apache.ignite.client.ClientCache;
+import org.apache.ignite.client.ClientException;
+import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.lang.IgniteBiPredicate;
-import org.apache.ignite.transactions.TransactionException;
 import org.springframework.util.Assert;
 
 import javax.cache.Cache;
@@ -42,48 +43,40 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-
-public class IgniteDbCache<K, V> implements ICache<K, V> {
+public class IgniteClientDbCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
 
     private static final int RESULT_THRESHOLD_SIZE = 100000;
-    private IgniteCache<K, V> cache;
-    private final IgniteTransaction transaction;
+    private ClientCache<K, V> cache;
+    private final IgniteClientTransaction transaction;
 
-    public IgniteDbCache(Ignite ignite, String name) {
-
+    public IgniteClientDbCache(IgniteClient igniteClient, String name) {
         try {
-            this.cache = ignite.getOrCreateCache(name);
-        } catch (javax.cache.CacheException e) {
+            this.cache = igniteClient.getOrCreateCache(name);
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
-        }
-
-        Assert.notNull(cache, "Create cache for client " + name + "failed");
-        this.transaction = new IgniteTransaction(ignite);
-    }
-
-    public IgniteDbCache(Ignite client, String name, ExpiryPolicy ep) {
-
-        try {
-            this.cache = client.getOrCreateCache(name);
-            this.cache = this.cache.withExpiryPolicy(ep);
-        } catch (javax.cache.CacheException e) {
-            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
         Assert.notNull(this.cache, "Create cache for client " + name + "failed");
-        this.transaction = new IgniteTransaction(client);
+        this.transaction = new IgniteClientTransaction(igniteClient);
+    }
+
+    public IgniteClientDbCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
+        try {
+            this.cache = igniteClient.getOrCreateCache(name).withExpirePolicy(ep);
+        } catch (ClientException e) {
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
+        }
+
+        Assert.notNull(this.cache, "Create cache for client " + name + "failed");
+        this.transaction = new IgniteClientTransaction(igniteClient);
     }
 
     @Override
     public V get(K key) throws CacheException {
         try {
             return cache.get(key);
-        } catch (TransactionException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -93,7 +86,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public void put(K key, V value) throws CacheException {
         try {
             cache.put(key, value);
-        } catch (TransactionException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache put operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -103,7 +96,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public boolean containsKey(K key) throws CacheException {
         try {
             return cache.containsKey(key);
-        } catch (TransactionException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -112,7 +105,6 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     @Override
     public Map<K, V> getAll() throws CacheException {
         Query<Cache.Entry<K, V>> qry = new ScanQuery<>();
-
         QueryCursor<Cache.Entry<K, V>> cur = cache.query(qry);
         return cur.getAll().stream().collect(Collectors
                 .toMap(Cache.Entry::getKey, Cache.Entry::getValue));
@@ -122,7 +114,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public void putAll(Map<? extends K, ? extends V> items) throws CacheException {
         try {
             cache.putAll(items);
-        } catch (IgniteException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache putAll operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
@@ -132,7 +124,7 @@ public class IgniteDbCache<K, V> implements ICache<K, V> {
     public boolean remove(K key) throws CacheException {
         try {
             return cache.remove(key);
-        } catch (IgniteException e) {
+        } catch (ClientException e) {
             logger.log(Level.WARNING, "IgniteCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }

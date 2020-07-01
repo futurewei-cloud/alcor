@@ -18,15 +18,15 @@
 
 package com.futurewei.alcor.common.db.query.impl;
 
-import com.futurewei.alcor.common.db.query.CachePredicate;
 import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.lang.IgniteBiPredicate;
 
 import java.util.Map;
 
 
-public class MapPredicate implements CachePredicate<String, BinaryObject> {
+public class MapPredicate implements IgniteBiPredicate<String, BinaryObject> {
 
-    private Map<String, Object[]> params;
+    private final Map<String, Object[]> params;
 
     public static MapPredicate getInstance(Map<String, Object[]> params){
         return new MapPredicate(params);

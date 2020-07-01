@@ -19,9 +19,9 @@ package com.futurewei.alcor.common.db.redis;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.db.query.CachePredicate;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -120,7 +120,7 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public <E1, E2> V get(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+    public <E1, E2> V get(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
         return null;
     }
 
@@ -130,7 +130,7 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public <E1, E2> Map<K, V> getAll(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+    public <E1, E2> Map<K, V> getAll(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
         return null;
     }
 

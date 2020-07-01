@@ -19,10 +19,11 @@
 package com.futurewei.alcor.common.db.query;
 
 import org.apache.ignite.cache.query.ScanQuery;
+import org.apache.ignite.lang.IgniteBiPredicate;
 
 public class ScanQueryBuilder {
 
-    public static <E1, E2> ScanQuery<E1, E2> newScanQuery(CachePredicate<E1, E2> cachePredicate){
-        return new ScanQuery<E1, E2>(cachePredicate::apply);
+    public static <E1, E2> ScanQuery<E1, E2> newScanQuery(IgniteBiPredicate<E1, E2> igniteBiPredicate){
+        return new ScanQuery<E1, E2>(igniteBiPredicate);
     }
 }

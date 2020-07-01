@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -31,14 +32,12 @@ import java.util.logging.Level;
 public class RedisCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    private RedisTemplate<K, V> redisTemplate;
-    private HashOperations hashOperations;
-    private RedisTransaction transaction;
-    private String name;
+    private final HashOperations<String, K, V> hashOperations;
+    private final RedisTransaction transaction;
+    private final String name;
 
-    public RedisCache(RedisTemplate<K, V> redisTemplate, String name) {
-        this.redisTemplate = redisTemplate;
-        hashOperations = redisTemplate.opsForHash();
+    public RedisCache(RedisTemplate<String, Object> redisTemplate, String name) {
+        hashOperations = redisTemplate.<K, V>opsForHash();
         this.name = name;
 
         transaction = new RedisTransaction(redisTemplate);
@@ -47,7 +46,7 @@ public class RedisCache<K, V> implements ICache<K, V> {
     @Override
     public V get(K key) throws CacheException {
         try {
-            return (V) hashOperations.get(name, key);
+            return hashOperations.get(name, key);
         } catch (Exception e) {
             logger.log(Level.WARNING, "RedisCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -110,7 +109,7 @@ public class RedisCache<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public <E1, E2> V get(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+    public <E1, E2> V get(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
         return null;
     }
 
@@ -120,7 +119,7 @@ public class RedisCache<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public <E1, E2> Map<K, V> getAll(CachePredicate<E1, E2> cachePredicate) throws CacheException {
+    public <E1, E2> Map<K, V> getAll(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
         return null;
     }
 
