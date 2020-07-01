@@ -215,7 +215,7 @@ public class PortServiceImpl implements PortService {
                 Map<String, NodeInfo> nodeInfoMap = this.getNodeInfos(entities);
                 neighborInfo = this.buildNeighborInfo(portEntity, nodeInfoMap);
 
-                //Build GoalState and Send it to DPM
+                //Build NetworkConfiguration and Send it to DPM
                 NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
                 dataPlaneManagerProxy.createNetworkConfig(networkConfiguration);
@@ -270,7 +270,7 @@ public class PortServiceImpl implements PortService {
             Map<String, List<NeighborInfo>> neighborInfoMapForNewHosts =
                     this.buildNeighborInfosForNewHosts(portEntities, this.getNodeInfos(entities));
 
-            //Build GoalState and Send it to DPM
+            //Build NetworkConfiguration and Send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             if (networkConfiguration.getPortEntities() != null) {
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
@@ -560,7 +560,7 @@ public class PortServiceImpl implements PortService {
             //Wait for all async functions to finish
             List<Object> entities = executor.joinAll();
 
-            //Build GoalState and send it to DPM
+            //Build NetworkConfiguration and send it to DPM
             if (needNotifyDpm) {
                 entities.add(oldPortEntity);
                 NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
@@ -625,7 +625,7 @@ public class PortServiceImpl implements PortService {
             List<Object> entities = executor.joinAll();
             entities.addAll(portEntities);
 
-            //Build GoalState and send it to DPM
+            //Build NetworkConfiguration and send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             if (networkConfiguration.getPortEntities() != null) {
                 DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
@@ -690,7 +690,7 @@ public class PortServiceImpl implements PortService {
             List<Object> entities = executor.joinAll();
             entities.add(portEntity);
 
-            //Build GoalState and send it to DPM
+            //Build NetworkConfiguration and send it to DPM
             NetworkConfiguration networkConfiguration = NetworkConfigurationUtil.buildNetworkConfiguration(entities);
             DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy(rollbacks);
             dataPlaneManagerProxy.deleteNetworkConfig(networkConfiguration);
