@@ -16,13 +16,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.web.entity.elasticip;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 
 
 public class ElasticIp extends CustomerResource {
 
-    @JsonProperty("range_id")
+    @JsonIgnore
     private String rangeId;
 
     @JsonProperty("elastic_ip_version")
@@ -35,9 +37,11 @@ public class ElasticIp extends CustomerResource {
     private String portId;
 
     @JsonProperty("private_ip_version")
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private Integer privateIpVersion;
 
     @JsonProperty("private_ip")
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String privateIp;
 
     @JsonProperty("dns_name")
