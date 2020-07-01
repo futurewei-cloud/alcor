@@ -47,6 +47,12 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         vpcIpRangeCache = cacheFactory.getCache(VpcIpRange.class);
     }
 
+    public IpAddrRangeRepo(ICache<String, IpAddrRange> ipAddrRangeCache,
+                           ICache<String, VpcIpRange> vpcIpRangeCache) {
+        this.ipAddrRangeCache = ipAddrRangeCache;
+        this.vpcIpRangeCache = vpcIpRangeCache;
+    }
+
     @PostConstruct
     private void init() {
         LOG.info("IpRangeRepository init done");
@@ -327,6 +333,6 @@ public class  IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     public synchronized IpAddrRange getIpAddrRange(String rangeId) throws Exception {
-            return ipAddrRangeCache.get(rangeId);
+        return ipAddrRangeCache.get(rangeId);
     }
 }
