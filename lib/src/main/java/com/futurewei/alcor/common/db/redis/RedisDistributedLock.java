@@ -23,30 +23,36 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class RedisDistributedLock implements IDistributedLock {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    final private StringRedisTemplate redisTemplate;
-    final private String name;
+    private final StringRedisTemplate redisTemplate;
+    private final String name;
+    private int tryInterval;
+    private int expireTime;
 
-    public RedisDistributedLock(StringRedisTemplate redisTemplate, String name) {
+    public RedisDistributedLock(StringRedisTemplate redisTemplate, String name, int tryInterval, int expireTime) {
         this.redisTemplate = redisTemplate;
         this.name = name;
+        this.tryInterval = tryInterval;
+        this.expireTime = expireTime;
     }
 
     @Override
     public void lock(String lockKey) throws DistributedLockException {
         Boolean locked = false;
-        String lockKeyWithPrefix = name + " lock:" + lockKey;
+        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
 
         try {
             while (!locked) {
-                locked = redisTemplate.opsForValue().setIfAbsent(lockKeyWithPrefix, "lock");
+                locked = redisTemplate.opsForValue().setIfAbsent(lockKeyWithPrefix, "lock",
+                        this.expireTime, TimeUnit.SECONDS);
                 Assert.notNull(locked, "Redis lock should not run within a transaction");
                 if (!locked) {
-                    Thread.sleep(10);
+                    Thread.sleep(this.expireTime);
                 }
             }
         } catch (Exception e) {
@@ -57,7 +63,7 @@ public class RedisDistributedLock implements IDistributedLock {
 
     @Override
     public void unlock(String lockKey) throws DistributedLockException {
-        String lockKeyWithPrefix = name + " lock:" + lockKey;
+        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
 
         try {
             redisTemplate.delete(lockKeyWithPrefix);

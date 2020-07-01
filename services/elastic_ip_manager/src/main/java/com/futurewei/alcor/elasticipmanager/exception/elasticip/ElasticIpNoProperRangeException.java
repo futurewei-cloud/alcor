@@ -19,6 +19,6 @@ package com.futurewei.alcor.elasticipmanager.exception.elasticip;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Parameter range_id is null")
-public class ElasticIpNoRangeIdException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="There is no proper elastic ip range")
+public class ElasticIpNoProperRangeException extends Exception {
 }

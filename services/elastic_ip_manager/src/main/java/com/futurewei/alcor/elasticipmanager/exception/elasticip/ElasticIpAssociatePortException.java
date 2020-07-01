@@ -14,11 +14,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception;
+package com.futurewei.alcor.elasticipmanager.exception.elasticip;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Query format is invalid")
-public class ElasticIpQueryFormatException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Should disassociate with the port before associate a new port")
+public class ElasticIpAssociatePortException extends Exception {
 }

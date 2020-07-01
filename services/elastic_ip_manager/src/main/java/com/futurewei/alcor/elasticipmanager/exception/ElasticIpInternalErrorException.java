@@ -19,6 +19,6 @@ package com.futurewei.alcor.elasticipmanager.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Query format is invalid")
-public class ElasticIpQueryFormatException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Internal error occurs")
+public class ElasticIpInternalErrorException extends Exception {
 }

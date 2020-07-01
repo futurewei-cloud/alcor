@@ -113,10 +113,6 @@ public class ElasticIpController {
             throw new ElasticIpProjectIdConflictException();
         }
 
-        if (StringUtils.isEmpty(elasticIpInfo.getRangeId())) {
-            throw new ElasticIpNoRangeIdException();
-        }
-
         if (elasticIpInfo.getElasticIpVersion() == null) {
             elasticIpInfo.setElasticIpVersion(IpVersion.IPV4.getVersion());
         } else if (this.isIpVersionInvalid(elasticIpInfo.getElasticIpVersion())) {
@@ -129,18 +125,23 @@ public class ElasticIpController {
             }
         }
 
-        if (StringUtils.isEmpty(elasticIpInfo.getPortId())) {
+        if (elasticIpInfo.getPortId() == null) {
+            elasticIpInfo.setPortId("");
+        }
+        if (elasticIpInfo.getPortId().isEmpty()) {
             if (elasticIpInfo.getPrivateIp()!= null || elasticIpInfo.getPrivateIpVersion() != null) {
                 throw new ElasticIpNoPortIdException();
             }
         } else {
-            if (elasticIpInfo.getPrivateIpVersion() == null) {
-                elasticIpInfo.setPrivateIpVersion(IpVersion.IPV4.getVersion());
-            } else if (this.isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
+            if (elasticIpInfo.getPrivateIpVersion() != null &&
+                    this.isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
                 throw new ElasticIpPipVersionException();
             }
 
             if (elasticIpInfo.getPrivateIp() != null) {
+                if (elasticIpInfo.getPrivateIpVersion() == null) {
+                    elasticIpInfo.setPrivateIpVersion(IpVersion.IPV4.getVersion());
+                }
                 if (this.isIpAddressInvalid(elasticIpInfo.getPrivateIp(), elasticIpInfo.getPrivateIpVersion())) {
                     throw new ElasticIpPipAddressException();
                 }
@@ -271,6 +272,14 @@ public class ElasticIpController {
         }
     }
 
+    /**
+     * Create an elastic ip, and communicate with port and node services if the
+     * elastic ip associated with a port.
+     * @param projectId Project the elastic ip belongs to
+     * @param request Elastic ip configuration
+     * @return ElasticIpInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @PostMapping("/project/{project_id}/elasticips")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -286,21 +295,38 @@ public class ElasticIpController {
         return new ElasticIpInfoWrapper(result);
     }
 
+    /**
+     * Update an elastic ip, and communicate with port and node services if
+     * the elastic ip's association state is changed.
+     * @param projectId Project the elastic ip belongs to
+     * @param elasticIpId Uuid of the elastic ip
+     * @param request Elastic ip configuration
+     * @return ElasticIpInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @PutMapping("/project/{project_id}/elasticips/{elasticip_id}")
     @ResponseBody
     public ElasticIpInfoWrapper updateElasticIp(@PathVariable("project_id") String projectId,
-                                                @PathVariable("elasticip_id") String elasticipId,
+                                                @PathVariable("elasticip_id") String elasticIpId,
                                                 @RequestBody ElasticIpInfoWrapper request) throws Exception {
 
         ElasticIpInfo requestInfo = request.getElasticip();
 
-        this.updateElasticIpParameterProcess(projectId, elasticipId, requestInfo);
+        this.updateElasticIpParameterProcess(projectId, elasticIpId, requestInfo);
 
         ElasticIpInfo result = elasticipService.updateElasticIp(requestInfo);
 
         return new ElasticIpInfoWrapper(result);
     }
 
+    /**
+     * Delete an elastic ip, and communicate with port and node services if the elastic ip
+     * associated with a port.
+     * @param projectId Project the elastic ip belongs to
+     * @param elasticIpId Uuid of the elastic ip
+     * @return ResponseId
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @DeleteMapping("/project/{project_id}/elasticips/{elasticip_id}")
     public ResponseId deleteElasticIp(@PathVariable("project_id") String projectId,
                                       @PathVariable("elasticip_id") String elasticIpId) throws Exception {
@@ -318,6 +344,13 @@ public class ElasticIpController {
         return new ResponseId(elasticIpId);
     }
 
+    /**
+     * Get the information of an elastic ip.
+     * @param projectId Project the elastic ip belongs to
+     * @param elasticIpId Uuid of the elastic ip
+     * @return ElasticIpInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @GetMapping(value = {"/project/{project_id}/elasticips/{elasticip_id}"})
     public ElasticIpInfoWrapper getElasticIp(@PathVariable String projectId, @PathVariable String elasticIpId)
             throws Exception {
@@ -335,6 +368,12 @@ public class ElasticIpController {
         return new ElasticIpInfoWrapper(eip);
     }
 
+    /**
+     * Get a list of information of each elastic ip belongs to the project.
+     * @param projectId Project the elastic ip belongs to
+     * @return ElasticIpsInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @GetMapping(value = {"/project/{project_id}/elasticips"})
     public ElasticIpsInfoWrapper getElasticIps(@PathVariable String projectId)
             throws Exception {
@@ -348,6 +387,13 @@ public class ElasticIpController {
         return new ElasticIpsInfoWrapper(eips);
     }
 
+    /**
+     * Create an elastic ip range, of which a list of allocation address ranges
+     * included for assigning addresses to elastic ips.
+     * @param request Elastic ip range configuration
+     * @return ElasticIpRangeInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @PostMapping("/elasticip-ranges")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -363,20 +409,35 @@ public class ElasticIpController {
         return new ElasticIpRangeInfoWrapper(result);
     }
 
+    /**
+     * Update an elastic ip range.
+     * @param elasticIpRangeId Uuid of the elastic ip range
+     * @param request Elastic ip range configuration
+     * @return ElasticIpRangeInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @PutMapping("/elasticip-ranges/{elasticip_range_id}")
     @ResponseBody
-    public ElasticIpRangeInfoWrapper updateElasticIp(@PathVariable("elasticip_range_id") String elasticipRangeId,
-                                                @RequestBody ElasticIpRangeInfoWrapper request) throws Exception {
+    public ElasticIpRangeInfoWrapper updateElasticIpRange(@PathVariable("elasticip_range_id") String elasticIpRangeId,
+                                                          @RequestBody ElasticIpRangeInfoWrapper request)
+            throws Exception {
 
         ElasticIpRangeInfo requestInfo = request.getElasticIpRange();
 
-        this.updateElasticIpRangeParameterProcess(elasticipRangeId, requestInfo);
+        this.updateElasticIpRangeParameterProcess(elasticIpRangeId, requestInfo);
 
         ElasticIpRangeInfo result = elasticIpRangeService.createElasticIpRange(requestInfo);
 
         return new ElasticIpRangeInfoWrapper(result);
     }
 
+    /**
+     * Delete an elastic ip range. It will throw a exception if there is any elastic ip
+     * has assigned an address belongs to this elastic ip range.
+     * @param elasticIpRangeId Uuid of the elastic ip range
+     * @return ResponseId
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @DeleteMapping("/elasticip-ranges/{elasticip_range_id}")
     public ResponseId deleteElasticIpRange(@PathVariable("elasticip_range_id") String elasticIpRangeId)
             throws Exception {
@@ -390,6 +451,12 @@ public class ElasticIpController {
         return new ResponseId(elasticIpRangeId);
     }
 
+    /**
+     * Get the information of an elastic ip range.
+     * @param elasticIpRangeId Uuid of the elastic ip range
+     * @return ElasticIpRangeInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @GetMapping(value = {"/elasticip-ranges/{elasticip_range_id}"})
     public ElasticIpRangeInfoWrapper getElasticIpRange(@PathVariable String elasticIpRangeId) throws Exception {
 
@@ -402,6 +469,11 @@ public class ElasticIpController {
         return new ElasticIpRangeInfoWrapper(eipRange);
     }
 
+    /**
+     * Get a list of information of each elastic ip range.
+     * @return ElasticIpRangesInfoWrapper
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     @GetMapping(value = {"/elasticip-ranges"})
     public ElasticIpRangesInfoWrapper getElasticIpRanges() throws Exception {
 
