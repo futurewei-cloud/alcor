@@ -1,12 +1,9 @@
 /*
 Copyright 2019 The Alcor Authors.
-
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
         You may obtain a copy of the License at
-
         http://www.apache.org/licenses/LICENSE-2.0
-
         Unless required by applicable law or agreed to in writing, software
         distributed under the License is distributed on an "AS IS" BASIS,
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +28,6 @@ import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteTableType;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
@@ -46,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ResourceBuilder {
-    public static PortWebJson newPortStateJson(String portId) {
+    public static PortEntity buildPortEntity(String portId) {
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         fixedIps.add(new PortEntity.FixedIp(UnitTestConfig.subnetId, UnitTestConfig.ip1));
 
@@ -68,10 +64,14 @@ public class ResourceBuilder {
         portEntity.setSecurityGroups(securityGroups);
         portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
-        return new PortWebJson(portEntity);
+        return portEntity;
     }
 
-    public static IpAddrRequest newIpv4AddrRequest() {
+    public static PortWebJson buildPortWebJson(String portId) {
+        return new PortWebJson(buildPortEntity(portId));
+    }
+
+    public static IpAddrRequest buildIpv4AddrRequest() {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
         ipAddrRequest.setSubnetId(UnitTestConfig.subnetId);
@@ -82,7 +82,7 @@ public class ResourceBuilder {
         return ipAddrRequest;
     }
 
-    public static IpAddrRequest newIpv6AddrRequest() {
+    public static IpAddrRequest buildIpv6AddrRequest() {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
         ipAddrRequest.setIpVersion(UnitTestConfig.ipv6Version);
@@ -92,12 +92,12 @@ public class ResourceBuilder {
         return ipAddrRequest;
     }
 
-    public static String newPortStateJsonStr() throws JsonProcessingException {
+    public static String buildPortStateJsonStr() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(newPortStateJson(UnitTestConfig.portId1));
+        return objectMapper.writeValueAsString(buildPortWebJson(UnitTestConfig.portId1));
     }
 
-    public static VpcWebJson newVpcStateJson() {
+    public static VpcWebJson buildVpcStateJson() {
         VpcEntity vpcState = new VpcEntity();
         vpcState.setId(UnitTestConfig.vpcId);
         vpcState.setProjectId(UnitTestConfig.projectId);
@@ -106,7 +106,7 @@ public class ResourceBuilder {
         return new VpcWebJson(vpcState);
     }
 
-    public static SubnetWebJson newSubnetStateJson() {
+    public static SubnetWebJson buildSubnetStateJson() {
         SubnetEntity subnetState = new SubnetEntity();
         subnetState.setProjectId(UnitTestConfig.projectId);
         subnetState.setId(UnitTestConfig.subnetId);
@@ -120,7 +120,7 @@ public class ResourceBuilder {
         return new SubnetWebJson(subnetState);
     }
 
-    public static MacStateJson newMacStateJson(String portId, String macAddress) {
+    public static MacStateJson buildMacStateJson(String portId, String macAddress) {
         MacState macState = new MacState();
         macState.setProjectId(UnitTestConfig.projectId);
         macState.setVpcId(UnitTestConfig.vpcId);
@@ -130,7 +130,7 @@ public class ResourceBuilder {
         return new MacStateJson(macState);
     }
 
-    public static NodeInfoJson newNodeInfoJson(String nodeId, String ipAddress) {
+    public static NodeInfoJson buildNodeInfoJson(String nodeId, String ipAddress) {
         NodeInfo nodeInfo = new NodeInfo();
         nodeInfo.setId(nodeId);
         nodeInfo.setLocalIp(ipAddress);
@@ -139,17 +139,16 @@ public class ResourceBuilder {
         return new NodeInfoJson(nodeInfo);
     }
 
-    public static RoutesWebJson newRouteWebJson() {
+    public static RouteWebJson buildRouteWebJson() {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
         route.setTarget(UnitTestConfig.routeTarget);
         route.setAssociatedType(RouteTableType.MAIN);
-        List<RouteEntity> routes = new ArrayList<RouteEntity>(){{add(route);}};
 
-        return new RoutesWebJson(routes);
+        return new RouteWebJson(route);
     }
 
-    public static SecurityGroupJson newSecurityGroupWebJson(String securityGroupId) {
+    public static SecurityGroupJson buildSecurityGroupWebJson(String securityGroupId) {
         SecurityGroup securityGroup = new SecurityGroup();
         securityGroup.setId(securityGroupId);
         securityGroup.setName(UnitTestConfig.securityGroupName);
@@ -174,19 +173,25 @@ public class ResourceBuilder {
         return new SecurityGroupJson(securityGroup);
     }
 
-    public static SecurityGroupJson newDefaultSecurityGroupWebJson() {
-        SecurityGroupJson securityGroupJson = newSecurityGroupWebJson(UnitTestConfig.securityGroupId1);
+    public static SecurityGroupJson buildDefaultSecurityGroupWebJson() {
+        SecurityGroupJson securityGroupJson = buildSecurityGroupWebJson(UnitTestConfig.securityGroupId1);
         securityGroupJson.getSecurityGroup().setName("default");
 
         return securityGroupJson;
     }
 
-    public static PortNeighbors newPortNeighbors() {
+    public static NeighborInfo buildNeighborInfo(String portId) {
         NeighborInfo neighborInfo = new NeighborInfo(UnitTestConfig.ip1,
-                UnitTestConfig.nodeId1, UnitTestConfig.portId1, UnitTestConfig.mac1);
+                UnitTestConfig.nodeId1, portId, UnitTestConfig.mac1);
+
+        return neighborInfo;
+    }
+
+    public static PortNeighbors buildPortNeighbors(String portId) {
+        NeighborInfo neighborInfo = buildNeighborInfo(portId);
 
         Map<String, NeighborInfo> neighborInfoMap = new HashMap<>();
-        neighborInfoMap.put(UnitTestConfig.portId1, neighborInfo);
+        neighborInfoMap.put(portId, neighborInfo);
 
         return new PortNeighbors(UnitTestConfig.vpcId, neighborInfoMap);
     }
