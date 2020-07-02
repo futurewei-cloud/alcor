@@ -1,0 +1,43 @@
+= Route Manager Design Specification
+Liguang Xie <lxie@futurewei.com>, Eunju Kim <eunju.kim@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+Networking provides networks, subnets, and routers as object abstractions.
+Each abstraction has functionality that mimics its physical counterpart: networks contain subnets,
+and routers route traffic between different subnets and networks.
+
+For the outside network to access VMs, and vice versa, routers between the networks are needed.
+Each router has one gateway that is connected to an external network and one or more interfaces connected to internal networks.
+Like a physical router, subnets can access machines on other subnets that are connected to the same router,
+and machines can access the outside network through the gateway for the router.
+
+
+MAC manager is an Alcor microservice which manages the lifecycle of all MAC addresses.
+Its responsibilities include but not limited to, allocating a unique mac address for a given port,
+releasing the mac address when not needed, and onboarding a region-specific mac ranges.
+It interacts with Subnet Manager and Port Manager to allocate mac addresses for gateway ports and customer ports.
+
+== Service Requirements
+
+[arabic]
+. Allow connectivity between subnets in the same tenant network
+. Allow connectivity between multiple tenants networks and/or external/provider networks
+. Allocate IP addresses on external networks to ports on the internal network. Support floating IPs when the external network is Internet.
+. Concurrency control mechanism should be provided to process multiple concurrent MAC allocation requests.
+
+== Comparison with Public Cloud Offering
+
+OpenStack Neutron Router
+
+AWS Router
+
+Azure Virtual Networking Routers
+
+
+
+
