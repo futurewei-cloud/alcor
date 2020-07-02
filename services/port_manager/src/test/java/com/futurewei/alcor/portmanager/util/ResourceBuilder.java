@@ -28,6 +28,7 @@ import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteTableType;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
@@ -146,6 +147,18 @@ public class ResourceBuilder {
         route.setAssociatedType(RouteTableType.MAIN);
 
         return new RouteWebJson(route);
+    }
+
+    public static RoutesWebJson buildRoutesWebJson() {
+        RouteEntity route = new RouteEntity();
+        route.setDestination(UnitTestConfig.routeDestination);
+        route.setTarget(UnitTestConfig.routeTarget);
+        route.setAssociatedType(RouteTableType.MAIN);
+
+        List<RouteEntity> routes = new ArrayList<>();
+        routes.add(route);
+
+        return new RoutesWebJson(routes);
     }
 
     public static SecurityGroupJson buildSecurityGroupWebJson(String securityGroupId) {
