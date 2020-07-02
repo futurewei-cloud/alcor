@@ -55,7 +55,7 @@ public class SecurityGroupBindingsRepository {
     }
 
 
-    public void addSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+    public synchronized void addSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         try (Transaction tx = bindingCache.getTransaction().start()) {
             String portId = portSecurityGroupsJson.getPortId();
 
@@ -83,7 +83,7 @@ public class SecurityGroupBindingsRepository {
         }
     }
 
-    public void deleteSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+    public synchronized void deleteSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         try (Transaction tx = bindingCache.getTransaction().start()) {
             String portId = portSecurityGroupsJson.getPortId();
 

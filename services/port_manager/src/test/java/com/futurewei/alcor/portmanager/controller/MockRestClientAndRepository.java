@@ -84,7 +84,7 @@ public class MockRestClientAndRepository {
 
         Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(buildRoutesWebJson());
-
+      
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId1))
                 .thenReturn(buildSecurityGroupWebJson(UnitTestConfig.securityGroupId1));
 

@@ -38,8 +38,6 @@ public class GetPortTest extends MockRestClientAndRepository {
 
     @Test
     public void getPortState() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(get(getPortUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -51,8 +49,6 @@ public class GetPortTest extends MockRestClientAndRepository {
 
     @Test
     public void listPortTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(get(listPortUrl))
                 .andDo(print())
                 .andExpect(status().isOk())

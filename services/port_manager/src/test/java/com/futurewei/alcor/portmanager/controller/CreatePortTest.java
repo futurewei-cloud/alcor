@@ -39,8 +39,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithFixedIpsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithFixedIps))
                 .andDo(print())
@@ -51,8 +49,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutFixedIpsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutFixedIps))
                 .andDo(print())
@@ -63,8 +59,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithMacAddressTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithMacAddress))
                 .andDo(print())
@@ -75,8 +69,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutMacAddressTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutMacAddress))
                 .andDo(print())
@@ -87,8 +79,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithSecurityGroupTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithSecurityGroup))
                 .andDo(print())
@@ -99,8 +89,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutSecurityGroupTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutSecurityGroup))
                 .andDo(print())
@@ -111,8 +99,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortBulkTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortBulkUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.createPortBulk))
                 .andDo(print())

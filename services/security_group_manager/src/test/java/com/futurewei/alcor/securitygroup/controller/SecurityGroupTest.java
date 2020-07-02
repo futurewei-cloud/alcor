@@ -338,4 +338,41 @@ public class SecurityGroupTest extends MockIgniteServer {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void Test18_concurrentBindSecurityGroupTest() throws Throwable {
+        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
+        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
+        List<String> securityGroups = new ArrayList<>();
+        securityGroups.add(UnitTestConfig.securityGroupId);
+        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+
+        Test02_createSecurityGroupTest();
+
+        Thread[] threads = new Thread[4];
+        for (int i = 0; i < 4; i++) {
+            threads[i] = new Thread(()-> {
+                try {
+                    this.mockMvc.perform(post(UnitTestConfig.bindSecurityGroupUrl)
+                            .content(body)
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                            .andExpect(status().isCreated())
+                            .andDo(print());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].start();
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].join();
+        }
+    }
 }
