@@ -17,13 +17,13 @@ These creation workflow involves multiple microservice types:
 . Customer Resource Management services, each managing a specific resource including VPC, subnet, port, route, IP and MAC
 . Infrastructure services that are invisible to end-users including data-plane managers and node manager
 
-=== Vpc/Network Workflow
+=== Creation Workflow
 
 image::../images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="../images/create_api_workflow.jpg"]
 
 plantuml::../../workflows/vpc_create.puml[format="svg", align="center"]
 
-=== Subnet Workflow
+To be updated..
 
 plantuml::../../workflows/subnet_create.puml[format="svg", align="center"]
 
