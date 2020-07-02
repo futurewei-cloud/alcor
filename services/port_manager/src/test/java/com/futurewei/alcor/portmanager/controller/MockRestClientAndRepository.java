@@ -25,7 +25,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.futurewei.alcor.portmanager.controller.ResourceBuilder.*;
+import static com.futurewei.alcor.portmanager.util.ResourceBuilder.*;
 
 public class MockRestClientAndRepository {
     @MockBean
