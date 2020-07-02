@@ -2,7 +2,6 @@
 Zhonghao Lyu <zlyu@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-05-04
 :toc: right
-:imagesdir: ../../images
 
 == Overview
 
@@ -32,11 +31,11 @@ It interacts with Subnet Manager and Port Manager to provide networks for them.
 
 == Database Schema
 === Network Vlan Range and Vlan State
-image::network_type_vlan.PNG[]
+image::../images/network_type_vlan.PNG[]
 === Network Vxlan Range and Vxlan State
-image::network_type_vxlan.PNG[]
+image::../images/network_type_vxlan.PNG[]
 === Network Gre Range and Gre State
-image::network_type_gre.PNG[]
+image::../images/network_type_gre.PNG[]
 == REST APIs
 
 === API Snapshot

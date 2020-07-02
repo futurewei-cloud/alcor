@@ -2,7 +2,6 @@
 Liguang Xie <lxie@futurewei.com>
 v0.1, 2019-10-27
 :toc: right
-:imagesdir: ../../images
 
 == Overview
 
@@ -453,7 +452,7 @@ The downside is that data replication takes more time when data update is across
 This could be countered by Ignite's in-memory capabilities and persistence model that a write operation
 could be acknowledged right after the data reaches RAM and operation is recorded in write-ahead log.
 
-image::database.JPG["Database and Cache Architecture", width=1024, link="database.JPG"]
+image::../images/database.JPG["Database and Cache Architecture", width=1024, link="../images/database.JPG"]
 
 [#single-az-design]
 === Design Option: Single-AZ Architecture

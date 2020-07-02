@@ -2,7 +2,6 @@
 Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-08
 :toc: right
-:imagesdir: ../../images
 
 == Overview
 
@@ -359,10 +358,10 @@ One MAC address falls into one of three states:
 
 === MAC Range
 
-image::services_macrange.png[]
+image::../images/Services_MacRange.png[]
 
 === MAC State
-image::services_macstate.png[]
+image::../images/Services_MacState.png[]
 
 == Concurrency Handling
 

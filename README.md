@@ -1,10 +1,3 @@
-[![Build Status](https://travis-ci.org/futurewei-cloud/alcor.svg?branch=master)](https://travis-ci.org/futurewei-cloud/alcor)
-[![codecov](https://codecov.io/gh/futurewei-cloud/alcor/branch/master/graph/badge.svg)](https://codecov.io/gh/futurewei-cloud/alcor)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://github.com/futurewei-cloud/alcor)
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/futurewei-cloud/alcor.svg)](http://isitmaintained.com/project/futurewei-cloud/alcor "Percentage of issues still open")
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/futurewei-cloud/alcor.svg)](http://isitmaintained.com/project/futurewei-cloud/alcor "Average time to resolve an issue")
-
 # Alcor
 A Hyperscale Cloud Native SDN Platform
 
@@ -42,7 +35,7 @@ application aware fast path when provisioning containers and serverless applicat
 
 The following diagram illustrates the high-level architecture of Alcor control plane.
 
-![Alcor architecture](docs/modules/ROOT/images/alcor_architecture.PNG)
+![Alcor architecture](docs/modules/ROOT/pages/images/alcor_architecture.PNG)
 
 Detailed design docs:
 
