@@ -2,7 +2,6 @@
 Zhonghao Lyu <zlyu@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-05-04
 :toc: right
-:imagesdir: ../../images
 
 == Overview
 
@@ -32,19 +31,11 @@ It interacts with Subnet Manager and Port Manager to provide networks for them.
 
 == Database Schema
 === Network Vlan Range and Vlan State
-<<<<<<< HEAD:docs/modules/ROOT/pages/mgmt_services/vpc_manager.adoc
-image::network_type_vlan.PNG[]
-=== Network Vxlan Range and Vxlan State
-image::network_type_vxlan.PNG[]
-=== Network Gre Range and Gre State
-image::network_type_gre.PNG[]
-=======
 image::../images/network_type_vlan.PNG[]
 === Network Vxlan Range and Vxlan State
 image::../images/network_type_vxlan.PNG[]
 === Network Gre Range and Gre State
 image::../images/network_type_gre.PNG[]
->>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/vpc_manager.adoc
 == REST APIs
 
 === API Snapshot
@@ -249,4 +240,4 @@ public synchronized Long allocateVlanKey (String rangeId) throws Exception {
         return key;
     }
 ....
-//include::../../../services/vpc_manager/target/swagger/swagger.adoc[]
+include::../../services/vpc_manager/target/swagger/swagger.adoc[]

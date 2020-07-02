@@ -1,10 +1,4 @@
 = Alcor Regional Controller Design
-Liguang Xie <lxie@futurewei.com>
-v0.1, 2019-11-20
-:toc: right
-:imagesdir: ../images
-
-NOTE: This document is under development
 
 NOTE: This document is under development
 
@@ -12,11 +6,7 @@ NOTE: This document is under development
 
 == High-Level Architecture
 
-<<<<<<< HEAD:docs/modules/ROOT/pages/controller.adoc
-image::controller.JPG["Controller architecture", width=1024, link="controller.JPG"]
-=======
 image::../images/controller.JPG["Controller architecture", width=1024, link="../images/controller.JPG"]
->>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/controller.adoc
 
 === Design Principles
 

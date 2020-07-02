@@ -1,8 +1,4 @@
 = Control Plane Rescue Path
-Liguang Xie <lxie@futurewei.com>, Eric Li <eli1@futurewei.com>
-v0.1, 2019-11-20
-:toc: right
-:imagesdir: ../../images
 
 Skip local crashed agent and call neighbor agent to pass network configuration
 
@@ -18,11 +14,7 @@ With the lines of code increase to support complex requirements and customer fea
 The following diagram illustrates the architecture of the network control plane rescue path, 
 and how it communicate to peer compute host to help with network configuration and date plane programming:
 
-<<<<<<< HEAD:docs/modules/ROOT/pages/comm_protocol/rescue_path.adoc
-image::rescue_path.GIF["Rescue path architecture", width=1024, link="rescue_path.GIF"]
-=======
 image::../images/rescue_path.GIF["Rescue path architecture", width=1024, link="../images/rescue_path.GIF"]
->>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/rescue_path.adoc
 
 == Design
 
