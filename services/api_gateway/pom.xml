@@ -11,9 +11,9 @@
     <description>Alcor API Gateway</description>
 
     <properties>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
     </properties>

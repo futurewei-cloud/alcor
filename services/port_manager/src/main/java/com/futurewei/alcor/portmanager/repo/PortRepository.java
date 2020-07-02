@@ -50,6 +50,11 @@ public class PortRepository {
         neighborCache= cacheFactory.getCache(PortNeighbors.class);
     }
 
+    public PortRepository(ICache<String, PortEntity> portCache, ICache<String, PortNeighbors> neighborCache) {
+        this.portCache = portCache;
+        this.neighborCache= neighborCache;
+    }
+
     @PostConstruct
     private void init() {
         LOG.info("PortRepository init done");
@@ -63,7 +68,7 @@ public class PortRepository {
         return portCache.getAll();
     }
 
-    public void createPortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
+    public synchronized void createPortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Add portEntity to portCache
             portCache.put(portEntity.getId(), portEntity);
@@ -85,29 +90,37 @@ public class PortRepository {
         }
     }
 
-    public void updatePortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
+    public synchronized void updatePortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Update portEntity to portCache
             portCache.put(portEntity.getId(), portEntity);
 
             //Update neighborInfo to neighborCache
             PortNeighbors portNeighbors = neighborCache.get(portEntity.getVpcId());
-            if (portNeighbors == null && neighborInfo != null) {
-                portNeighbors = new PortNeighbors();
-                portNeighbors.setVpcId(portEntity.getVpcId());
-                portNeighbors.setNeighbors(new HashMap<>());
+            if (portNeighbors == null) {
+                if (neighborInfo != null) {
+                    portNeighbors = new PortNeighbors();
+                    portNeighbors.setVpcId(portEntity.getVpcId());
+                    portNeighbors.setNeighbors(new HashMap<>());
 
-                portNeighbors.getNeighbors().put(portEntity.getId(), neighborInfo);
+                    portNeighbors.getNeighbors().put(neighborInfo.getPortId(), neighborInfo);
+                    neighborCache.put(portEntity.getVpcId(), portNeighbors);
+                }
+            } else {
+                if (neighborInfo == null) {
+                    portNeighbors.getNeighbors().remove(portEntity.getId());
+                } else {
+                    portNeighbors.getNeighbors().replace(neighborInfo.getPortId(), neighborInfo);
+                }
+
                 neighborCache.put(portEntity.getVpcId(), portNeighbors);
-            } else if (portNeighbors != null && neighborInfo == null) {
-                portNeighbors.getNeighbors().remove(portEntity.getId());
             }
 
             tx.commit();
         }
     }
 
-    public void createPortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+    public synchronized void createPortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Add portEntities to portCache
             Map<String, PortEntity> portEntityMap = portEntities
@@ -138,7 +151,7 @@ public class PortRepository {
         }
     }
 
-    public void updatePortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+    public synchronized void updatePortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Update portEntities to portCache
             Map<String, PortEntity> portEntityMap = portEntities
@@ -191,7 +204,7 @@ public class PortRepository {
 
     }
 
-    public void deletePortAndNeighbor(PortEntity portEntity) throws Exception {
+    public synchronized void deletePortAndNeighbor(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Delete portEntity from portCache
             String portId = portEntity.getId();

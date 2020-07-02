@@ -24,7 +24,9 @@ public class UnitTestConfig {
     public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f476ec";
     public static String activated = "activated";
     public static String deactivated = "deactivated";
-    public static int ipVersion = 4;
+    public static String free = "free";
+    public static int ipv4 = 4;
+    public static int ipv6 = 6;
     public static String firstIp = "11.11.11.1";
     public static String lastIp = "11.11.11.254";
     public static String ip1 = "11.11.11.1";
