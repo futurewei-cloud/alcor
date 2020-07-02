@@ -27,10 +27,10 @@ import java.util.function.Supplier;
 
 public class AsyncExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
-    private ThreadPoolExecutor executor;
-    private List<CompletableFuture> futures = new ArrayList<>();
+    private static final ThreadPoolExecutor executor;
 
-    public AsyncExecutor() {
+    //Make sure we have only one thread pool
+    static {
         executor = new ThreadPoolExecutor(
                 ThreadPoolExecutorConfig.corePoolSize,
                 ThreadPoolExecutorConfig.maximumPoolSize,
@@ -38,17 +38,12 @@ public class AsyncExecutor {
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
                 new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
+
+        //Release threads in the thread pool when they are not needed
+        executor.allowCoreThreadTimeOut(true);
     }
 
-    public AsyncExecutor(int corePoolSize, int maximumPoolSize, int KeepAliveTime, int capacity) {
-        executor = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                KeepAliveTime,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(capacity),
-                new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
-    }
+    private List<CompletableFuture> futures = new ArrayList<>();
 
     public <T>CompletableFuture runAsync(Supplier<T> supplier) {
         return CompletableFuture.supplyAsync(supplier);
