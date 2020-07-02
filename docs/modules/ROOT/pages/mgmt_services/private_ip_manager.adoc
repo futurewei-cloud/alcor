@@ -2,6 +2,7 @@
 Piaoping Chen <chenpiaoping@yeah.net>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-04-08
 :toc: right
+:imagesdir: ../../images
 
 == Overview
 
@@ -315,7 +316,7 @@ anchor:IP_Put1[]
 
 * Request: `/ips`
 
-* Request Parameter: 
+* Request Parameter:
 
 * Response: `ip state`
 
@@ -355,7 +356,7 @@ anchor:IP_Put1_Bulk[]
 
 * Request: `/ips/bulk`
 
-* Request Parameter: 
+* Request Parameter:
 
 * Response: `ip state list`
 
@@ -683,7 +684,7 @@ anchor:IP_Range_List[]
 
 * Request: `/ips/range`
 
-* Request Parameter: 
+* Request Parameter:
 
 * Response: ip range list
 * Normal response codes: 200
@@ -698,22 +699,22 @@ http://127.0.0.1:8080/ips/range
 Response:
 [
   {
-    "ip_version": 4, 
+    "ip_version": 4,
     "id": "3d53801c-32ce-4e97-9572-bb966f476ec",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcab",
     "first_ip": "11.11.11.1",
     "last_ip": "11.11.11.254"
 	"used_ips": 0,
-    "total_ips": 5	
+    "total_ips": 5
   },
   {
-    "ip_version": 4, 
+    "ip_version": 4,
     "id": "9db428a0-7fbf-11ea-8cc4-000c29f4bc8b",
 	"subnet_id": "174ac5e4-7fb5-11ea-8cc4-000c29f4bcac",
     "first_ip": "12.12.12.1",
     "last_ip": "12.12.12.254"
 	"used_ips": 0,
-    "total_ips": 5	
+    "total_ips": 5
   }
 ]
 
@@ -772,7 +773,7 @@ and no need to store tenant and vpc related information (this information should
 The addresses in each ip range include assigned ip addresses and free ip addresses, and each ip address has three states: activated, deactivated, and free.
 The status of no assigned ip addresses is free, the status of each assigned ip address may be activated or deactivated, in order to efficiently manage assigned and no assigned ip addresses and reduce memory usage, BitSet is used to record whether each ip address in an ip range has been assigned. 0 indicates that it is not assigned, 1 indicates that it has been allocated.
 
-image::../images/private_ip_manager_bitset.png[]
+image::private_ip_manager_bitset.png[]
 
 When assigning an ip address, start from the first location of BitSet to find a free location, add the value of firtIp as the value of the destination ip address, and then convert it to String type ip address.
 Similarly, when deleting an ip address, the String type ip address is first converted to a numeric value, substract the value of firstIp, find the location of the ip address in BitSet according to the subtraction result, and finally set the value of this location to 0.
@@ -782,7 +783,8 @@ Therefore, the assigned ip address is described by the IpAddrAlloc class, and th
 Each assigned ip address will be added to the Map < String, IpAddrAlloc > allocated.
 In this way, the Get request can quickly find the assigned ip address, and the activate or deactivate request can quickly modify its state.
 
-image::../images/private_ip_manager_hashmap.png[]
+image::private_ip_manager_hashmap.png[]
+
 
 
 

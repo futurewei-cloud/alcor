@@ -69,21 +69,13 @@ public class ResourceBuilder {
         portEntity.setAllowedAddressPairs(allowedAddressPairs);
 
         return portEntity;
-<<<<<<< HEAD:services/port_manager/src/test/java/com/futurewei/alcor/portmanager/util/ResourceBuilder.java
     }
+
 
     public static PortWebJson buildPortWebJson(String portId) {
         return new PortWebJson(buildPortEntity(portId));
     }
 
-=======
-    }
-
-    public static PortWebJson buildPortWebJson(String portId) {
-        return new PortWebJson(buildPortEntity(portId));
-    }
-
->>>>>>> 0b5c23de435d8815d88c0bf41d5399f892ce70a4:services/port_manager/src/test/java/com/futurewei/alcor/portmanager/controller/ResourceBuilder.java
     public static IpAddrRequest buildIpv4AddrRequest() {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
@@ -161,7 +153,6 @@ public class ResourceBuilder {
         return new RouteWebJson(route);
     }
 
-<<<<<<< HEAD:services/port_manager/src/test/java/com/futurewei/alcor/portmanager/util/ResourceBuilder.java
     public static RoutesWebJson buildRoutesWebJson() {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
@@ -174,8 +165,6 @@ public class ResourceBuilder {
         return new RoutesWebJson(routes);
     }
 
-=======
->>>>>>> 0b5c23de435d8815d88c0bf41d5399f892ce70a4:services/port_manager/src/test/java/com/futurewei/alcor/portmanager/controller/ResourceBuilder.java
     public static SecurityGroupJson buildSecurityGroupWebJson(String securityGroupId) {
         SecurityGroup securityGroup = new SecurityGroup();
         securityGroup.setId(securityGroupId);
