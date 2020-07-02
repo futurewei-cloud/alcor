@@ -47,7 +47,7 @@ public class IgniteClientTransaction implements Transaction {
             clientTransaction = igniteClient.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
         } catch (ClientServerError | ClientException e) {
             logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
-            throw new CacheException(e.getMessage());
+            throw new CacheException("IgniteTransaction start error:" + e.getMessage());
         }
 
         return this;
@@ -59,7 +59,7 @@ public class IgniteClientTransaction implements Transaction {
             clientTransaction.commit();
         } catch (ClientServerError | ClientException e) {
             logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
-            throw new CacheException(e.getMessage());
+            throw new CacheException("IgniteTransaction commit error:" + e.getMessage());
         }
     }
 
@@ -69,7 +69,7 @@ public class IgniteClientTransaction implements Transaction {
             clientTransaction.rollback();
         } catch (ClientServerError | ClientException e) {
             logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
-            throw new CacheException(e.getMessage());
+            throw new CacheException("IgniteTransaction rollback error:" + e.getMessage());
         }
     }
 

@@ -50,7 +50,7 @@ public class IgniteTransaction implements Transaction {
             transaction.commit();
         } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
-            throw new CacheException(e.getMessage());
+            throw new CacheException("IgniteTransaction commit error:" + e.getMessage());
         }
     }
 
@@ -60,14 +60,19 @@ public class IgniteTransaction implements Transaction {
             transaction.rollback();
         } catch (IgniteException e) {
             logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
-            throw new CacheException(e.getMessage());
+            throw new CacheException("IgniteTransaction rollback error:" + e.getMessage());
         }
     }
 
     @Override
-    public void close() {
+    public void close() throws CacheException {
         if (transaction != null) {
-            transaction.close();
+            try {
+                transaction.close();
+            } catch (IgniteException e) {
+                logger.log(Level.WARNING, "IgniteTransaction close error: " + e.getMessage());
+                throw new CacheException("IgniteTransaction close error: " + e.getMessage());
+            }
         }
     }
 }
