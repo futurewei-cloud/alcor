@@ -120,17 +120,7 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public <E1, E2> V get(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
-        return null;
-    }
-
-    @Override
     public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
-        return null;
-    }
-
-    @Override
-    public <E1, E2> Map<K, V> getAll(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException {
         return null;
     }
 

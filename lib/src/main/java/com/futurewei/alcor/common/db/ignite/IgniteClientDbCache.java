@@ -21,8 +21,8 @@ package com.futurewei.alcor.common.db.ignite;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.db.query.ScanQueryBuilder;
-import com.futurewei.alcor.common.db.query.impl.MapPredicate;
+import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
+import com.futurewei.alcor.common.db.ignite.query.MapPredicate;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.binary.BinaryObject;
@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class IgniteClientDbCache<K, V> implements ICache<K, V> {
+public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
 
     private static final int RESULT_THRESHOLD_SIZE = 100000;

@@ -15,8 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.common.db;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.futurewei.alcor.common.db.ignite.IgniteTransaction;
+import com.futurewei.alcor.common.entity.CustomerResource;
+import org.apache.ignite.lang.IgniteBiPredicate;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class MockCache<K, V> implements ICache<K, V> {
     private Map<K, V> cache = new HashMap<>();
@@ -60,5 +65,53 @@ public class MockCache<K, V> implements ICache<K, V> {
     @Override
     public Transaction getTransaction() {
         return transaction;
+    }
+
+    @Override
+    public V get(Map<String, Object[]> filterParams) throws CacheException {
+        Collection<V> collection = filter(filterParams).values();
+        Object[] vs = collection.toArray();
+        return vs.length == 1 ? (V)vs[0]: null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
+        return filter(filterParams);
+    }
+
+    private Map<K, V> filter(Map<String, Object[]> filterParams){
+        Map<K, V> result = new HashMap<>();
+
+        for(Map.Entry<K, V> entry: cache.entrySet()){
+            for(Map.Entry<String, Object[]> filterEntry: filterParams.entrySet()){
+                Object value = getObjectFieldValue(entry.getValue(), filterEntry.getKey());
+                if(value == null){
+                    continue;
+                }
+
+                boolean fieldMatch = false;
+                for(Object expectValue: filterEntry.getValue()){
+                    fieldMatch |= expectValue.equals(value);
+                }
+
+                if(fieldMatch){
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        return result;
+    }
+
+    private Object getObjectFieldValue(Object obj, String fieldName){
+        Field field = ReflectionUtils.findField(obj.getClass(), fieldName);
+        if(field == null){
+            return null;
+        }
+        field.setAccessible(true);
+        try {
+            return field.get(obj);
+        } catch (IllegalAccessException e) {
+            return null;
+        }
     }
 }

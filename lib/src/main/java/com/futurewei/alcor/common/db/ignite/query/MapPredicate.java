@@ -16,7 +16,7 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.query.impl;
+package com.futurewei.alcor.common.db.ignite.query;
 
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.lang.IgniteBiPredicate;

@@ -16,7 +16,7 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.query;
+package com.futurewei.alcor.common.db.ignite.query;
 
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.lang.IgniteBiPredicate;

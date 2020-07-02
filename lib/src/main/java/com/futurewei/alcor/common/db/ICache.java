@@ -16,9 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db;
 
-
-import org.apache.ignite.lang.IgniteBiPredicate;
-
 import java.util.Map;
 
 public interface ICache<K, V> {
@@ -32,15 +29,6 @@ public interface ICache<K, V> {
      * @throws CacheException if any exception
      */
     V get(Map<String, Object[]> filterParams) throws CacheException;
-
-    /**
-     * Get Cache value from cache db by a {@link IgniteBiPredicate}
-     *
-     * @param igniteBiPredicate a implement of {@link IgniteBiPredicate}
-     * @return cache value
-     * @throws CacheException if any exception
-     */
-    <E1, E2> V get(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException;
 
     void put(K var1, V var2) throws CacheException;
 
@@ -56,15 +44,6 @@ public interface ICache<K, V> {
      * @throws CacheException if any exception
      */
     <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException;
-
-    /**
-     * Get Cache values from cache db by a {@link IgniteBiPredicate}
-     *
-     * @param igniteBiPredicate a implement of {@link IgniteBiPredicate}
-     * @return cache value
-     * @throws CacheException if any exception
-     */
-    <E1, E2> Map<K, V> getAll(IgniteBiPredicate<E1, E2> igniteBiPredicate) throws CacheException;
 
     void putAll(Map<? extends K, ? extends V> var1) throws CacheException;
 
