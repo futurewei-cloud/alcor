@@ -15,7 +15,7 @@ spec:
       serviceAccountName: ignite
       containers:
       - name: ignite-node
-        image: apacheignite/ignite:2.8.0
+        image: apacheignite/ignite:2.8.1
         env:
         - name: OPTION_LIBS
           value: ignite-kubernetes

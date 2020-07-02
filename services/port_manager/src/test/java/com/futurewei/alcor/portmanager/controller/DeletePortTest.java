@@ -36,8 +36,6 @@ public class DeletePortTest extends MockRestClientAndRepository {
 
     @Test
     public void deletePortTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(delete(deletePortUrl))
                 .andDo(print())
                 .andExpect(status().isOk());
