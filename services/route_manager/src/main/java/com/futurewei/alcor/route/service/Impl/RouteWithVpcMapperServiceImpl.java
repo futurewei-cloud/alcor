@@ -17,8 +17,6 @@ package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithVpcMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
@@ -45,16 +43,16 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     RouteRepository routeRepository;
 
     @Override
-    public VpcToRouteMapper getByVpcId(String vpcId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public VpcToRouteMapper getByVpcId(String vpcId) {
         try {
             return this.routeWithVpcMapperRepository.findItem(vpcId);
-        }catch (Exception e) {
+        }catch (CacheException e) {
             return null;
         }
     }
 
     @Override
-    public List<RouteEntity> getRuleByVpcId(String vpcId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public List<RouteEntity> getRuleByVpcId(String vpcId) {
 
         List<RouteEntity> routes = new ArrayList<>();
 
@@ -74,7 +72,7 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
 
             return routes;
 
-        }catch (Exception e) {
+        }catch (CacheException e) {
             return null;
         }
     }
@@ -99,7 +97,6 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
             if (routeEntity == null) {
                 return;
             }
-
             String routeId = routeEntity.getId();
             VpcToRouteMapper vpcToRouteMapper = getByVpcId(vpcId);
             if (vpcToRouteMapper == null) {
@@ -120,12 +117,12 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
-    public void deleteMapper(String id) throws CacheException {
+    public void deleteMapper(String id) throws Exception {
         this.routeWithVpcMapperRepository.deleteItem(id);
     }
 
     @Override
-    public void deleteMapperByRouteId(String vpcId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException {
+    public void deleteMapperByRouteId(String vpcId, String routeId) throws Exception {
         if (vpcId == null || routeId == null) {
             return;
         }

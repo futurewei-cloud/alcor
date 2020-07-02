@@ -32,8 +32,8 @@ public interface RouteWithSubnetMapperService {
     public Map getAllMappers () throws CacheException;
     public void addMapper (SubnetToRouteMapper subnetToRouteMapper) throws DatabasePersistenceException;
     public void addMapperByRouteEntity (String subnetId, RouteEntity routeEntity) throws DatabasePersistenceException;
-    public void deleteMapper (String id) throws CacheException;
-    public void deleteMapperByRouteId (String subnetId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException;
+    public void deleteMapper (String id) throws Exception;
+    public void deleteMapperByRouteId (String subnetId, String routeId) throws Exception;
 
 
 }

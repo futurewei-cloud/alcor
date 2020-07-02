@@ -17,7 +17,6 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +33,7 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
-        logger.info(new ObjectMapper().writeValueAsString(request));
+        //logger.info(new ObjectMapper().writeValueAsString(request));
         restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
     }
 

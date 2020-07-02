@@ -17,8 +17,6 @@ package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithSubnetMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
@@ -45,16 +43,16 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     RouteRepository routeRepository;
 
     @Override
-    public SubnetToRouteMapper getBySubnetId(String subnetId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public SubnetToRouteMapper getBySubnetId(String subnetId) {
         try {
             return this.routeWithSubnetMapperRepository.findItem(subnetId);
-        }catch (Exception e) {
+        }catch (CacheException e) {
             return null;
         }
     }
 
     @Override
-    public List<RouteEntity> getRuleBySubnetId(String subnetId) throws ResourceNotFoundException, ResourcePersistenceException {
+    public List<RouteEntity> getRuleBySubnetId(String subnetId) {
         List<RouteEntity> routes = new ArrayList<>();
 
         try {
@@ -73,7 +71,7 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
 
             return routes;
 
-        }catch (Exception e) {
+        }catch (CacheException e) {
             return null;
         }
     }
@@ -119,12 +117,12 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
-    public void deleteMapper(String id) throws CacheException {
+    public void deleteMapper(String id) throws Exception {
         this.routeWithSubnetMapperRepository.deleteItem(id);
     }
 
     @Override
-    public void deleteMapperByRouteId(String subnetId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException {
+    public void deleteMapperByRouteId(String subnetId, String routeId) throws Exception {
         if (subnetId == null || routeId == null) {
             return;
         }

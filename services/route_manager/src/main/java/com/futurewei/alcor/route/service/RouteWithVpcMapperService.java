@@ -32,7 +32,7 @@ public interface RouteWithVpcMapperService {
     public Map getAllMappers () throws CacheException;
     public void addMapper (VpcToRouteMapper vpcToRouteMapper) throws DatabasePersistenceException;
     public void addMapperByRouteEntity (String vpcId, RouteEntity routeEntity) throws DatabasePersistenceException;
-    public void deleteMapper (String id) throws CacheException;
-    public void deleteMapperByRouteId (String vpcId, String routeId) throws CacheException, ResourceNotFoundException, ResourcePersistenceException;
+    public void deleteMapper (String id) throws Exception;
+    public void deleteMapperByRouteId (String vpcId, String routeId) throws Exception;
 
 }
