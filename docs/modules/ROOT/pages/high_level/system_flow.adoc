@@ -5,6 +5,17 @@ v0.1, 2019-11-20
 :imagesdir: ../../images
 
 NOTE: This document is under development
+<<<<<<< HEAD:docs/modules/ROOT/pages/high_level/system_flow.adoc
+=======
+
+//Option 1:
+//
+//image::images/workflow_create.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/workflow_create.JPG"]
+//
+//Option 2:
+//
+//image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option2.JPG"]
+>>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/system_flow.adoc
 
 == VPC/Subnet/Port Workflow
 
@@ -15,6 +26,7 @@ These creation workflow involves multiple microservice types:
 
 === Vpc/Network Workflow
 
+<<<<<<< HEAD:docs/modules/ROOT/pages/high_level/system_flow.adoc
 image::create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="create_api_workflow.jpg"]
 
 //plantuml::../../workflows/vpc_create.puml[format="svg", align="center"]
@@ -22,6 +34,15 @@ image::create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port a
 === Subnet Workflow
 
 //plantuml::../../workflows/subnet_create.puml[format="svg", align="center"]
+=======
+image::../images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="../images/create_api_workflow.jpg"]
+
+plantuml::../../workflows/vpc_create.puml[format="svg", align="center"]
+
+=== Subnet Workflow
+
+plantuml::../../workflows/subnet_create.puml[format="svg", align="center"]
+>>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/system_flow.adoc
 
 === Port Workflow
 

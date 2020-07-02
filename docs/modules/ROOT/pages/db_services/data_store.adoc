@@ -453,7 +453,11 @@ The downside is that data replication takes more time when data update is across
 This could be countered by Ignite's in-memory capabilities and persistence model that a write operation
 could be acknowledged right after the data reaches RAM and operation is recorded in write-ahead log.
 
+<<<<<<< HEAD:docs/modules/ROOT/pages/db_services/data_store.adoc
 image::database.JPG["Database and Cache Architecture", width=1024, link="database.JPG"]
+=======
+image::../images/database.JPG["Database and Cache Architecture", width=1024, link="../images/database.JPG"]
+>>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/data_store.adoc
 
 [#single-az-design]
 === Design Option: Single-AZ Architecture

@@ -13,7 +13,11 @@ v0.1, 2019-11-20
 The following diagram illustrates the architecture of the monitoring plane.
 It also outline the communication with Control plane and Compute Host Machine.
 
+<<<<<<< HEAD:docs/modules/ROOT/pages/sys_monitoring/monitoring.adoc
 image::monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, link="monitoring_plane.GIF"]
+=======
+image::../images/monitoring_plane.GIF["Monitoring Plane Architecture", width=1024, link="../images/monitoring_plane.GIF"]
+>>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/monitoring.adoc
 
 == Node Monitoring
 

@@ -32,11 +32,19 @@ It interacts with Subnet Manager and Port Manager to provide networks for them.
 
 == Database Schema
 === Network Vlan Range and Vlan State
+<<<<<<< HEAD:docs/modules/ROOT/pages/mgmt_services/vpc_manager.adoc
 image::network_type_vlan.PNG[]
 === Network Vxlan Range and Vxlan State
 image::network_type_vxlan.PNG[]
 === Network Gre Range and Gre State
 image::network_type_gre.PNG[]
+=======
+image::../images/network_type_vlan.PNG[]
+=== Network Vxlan Range and Vxlan State
+image::../images/network_type_vxlan.PNG[]
+=== Network Gre Range and Gre State
+image::../images/network_type_gre.PNG[]
+>>>>>>> c15dc8513262a277de2d066776407449acc1668b:docs/design/vpc_manager.adoc
 == REST APIs
 
 === API Snapshot
