@@ -47,7 +47,6 @@ public class PortRepository {
     @Autowired
     public PortRepository(CacheFactory cacheFactory) {
         portCache = cacheFactory.getCache(PortEntity.class);
-
         neighborCache= cacheFactory.getCache(PortNeighbors.class);
     }
 
