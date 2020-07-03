@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -60,18 +61,22 @@ public class PortRepository {
         LOG.info("PortRepository init done");
     }
 
+    @DurationStatistics
     public PortEntity findPortEntity(String portId) throws CacheException {
         return portCache.get(portId);
     }
 
+    @DurationStatistics
     public Map<String, PortEntity> findAllPortEntities() throws CacheException {
         return portCache.getAll();
     }
 
+    @DurationStatistics
     public Map<String, PortEntity> findAllPortEntities(Map<String, Object[]> queryParams) throws CacheException {
         return portCache.getAll(queryParams);
     }
 
+    @DurationStatistics
     public synchronized void createPortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Add portEntity to portCache
@@ -94,6 +99,7 @@ public class PortRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void updatePortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Update portEntity to portCache
@@ -124,6 +130,7 @@ public class PortRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void createPortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Add portEntities to portCache
@@ -155,6 +162,7 @@ public class PortRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void updatePortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Update portEntities to portCache
@@ -208,6 +216,7 @@ public class PortRepository {
 
     }
 
+    @DurationStatistics
     public synchronized void deletePortAndNeighbor(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Delete portEntity from portCache
@@ -225,6 +234,7 @@ public class PortRepository {
         }
     }
 
+    @DurationStatistics
     public PortNeighbors getPortNeighbors(Object arg) throws CacheException {
         String vpcId = (String) arg;
         PortNeighbors portNeighbors = neighborCache.get(vpcId);
