@@ -20,6 +20,7 @@ import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResult;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResult> createPort(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -63,7 +64,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResult> updatePort(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList updatePort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
@@ -80,7 +81,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
-  public List<InternalDPMResult> deletePort(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList deletePort(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -98,7 +99,7 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public List<InternalDPMResult> createSubnet(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList createSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -115,7 +116,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResult> updateSubnet(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList updateSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -132,42 +133,40 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
-  public List<InternalDPMResult> deleteSubnet(@RequestBody NetworkConfiguration gs)
+  public InternalDPMResultList deleteSubnet(@RequestBody NetworkConfiguration gs)
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return service(gs);
   }
 
-  private List<InternalDPMResult> service(NetworkConfiguration gs) {
+  private InternalDPMResultList service(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
+    long start = System.currentTimeMillis();
+    List<InternalDPMResult> result=null;
+    InternalDPMResultList resultAll=new InternalDPMResultList();
+
     try {
-      return goalStateManager
-          .talkToACA(
-              goalStateManager.transformNorthToSouth(gs),
-              true,
-              Integer.parseInt(config.getPort()),
-              Boolean.valueOf(config.getOvs()))
-          .stream()
-          .flatMap(Collection::stream)
-          .map(
-              f -> {
-                return new InternalDPMResult(
-                    f.getResourceId(),
-                    f.getResourceType().toString(),
-                    f.getOperationStatus().toString(),
-                    f.getStateElapseTime());
-              })
-          .collect(Collectors.toList());
+       result =
+              goalStateManager.talkToACA(goalStateManager.transformNorthToSouth(gs), true, Integer.parseInt(config.getPort()), Boolean.valueOf(config.getOvs())).stream().flatMap(Collection::stream).map(f -> {
+        return new InternalDPMResult(f.getResourceId(),
+                f.getResourceType().toString(),
+                f.getOperationStatus().toString(), f.getStateElapseTime());
+      }).collect(Collectors.toList());
     } catch (Exception e) {
       e.printStackTrace();
       InternalDPMResult t =
           new InternalDPMResult(
-              "DPM Internal Error", " please check if input to dpm is valid", "500", -1);
+              "DPM Internal Error", " please check if input to dpm is valid",
+                  "500", -1);
       List<InternalDPMResult> r = new ArrayList<>();
       r.add(t);
-      return r;
+      result= r;
     }
+    long done = System.currentTimeMillis();
+    resultAll.setResultList(result);
+    resultAll.setOverrallTime(done-start);
+    return resultAll;
   }
 }
