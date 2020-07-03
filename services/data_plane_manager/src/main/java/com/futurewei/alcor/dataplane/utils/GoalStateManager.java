@@ -25,19 +25,21 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+
 
 import java.util.*;
+import java.util.logging.Level;
 
 import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 @Component
 public class GoalStateManager {
   @Autowired private GoalStateService goalStateService;
-  private static final Logger LOG = LoggerFactory.getLogger(GoalStateManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger();
 
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
@@ -104,10 +106,10 @@ public class GoalStateManager {
                 final Set<NeighborInfo> neighborInfos = neighborInfoInSameSubenetMap.get(sid);
                 final InternalPortEntity internalPortEntity = portMap.get(pid);
                 if (internalPortEntity == null) {
-                  LOG.error(
+                  LOG.log(Level.WARNING, (
                       "portId: "
                           + pid
-                          + " provided in neighbor but NOT in port_internal, skip for now, likely to be dpm client error");
+                          + " provided in neighbor but NOT in port_internal, skip for now, likely to be dpm client error"));
                   continue;
                 }
                 try {
@@ -116,13 +118,6 @@ public class GoalStateManager {
                     if (!n.getHostIp().equals(internalPortEntity.getBindingHostIP()))
                       neighborInfos3.add(n);
                   }
-                  //                            final NeighborInfo neighborInfo =
-                  //                              new NeighborInfo(
-                  //                                  internalPortEntity.getBindingHostIP(),
-                  //                                  internalPortEntity.getBindingHostId(),
-                  //                                  internalPortEntity.getId(),
-                  //                                  internalPortEntity.getMacAddress());
-                  //                          neighborInfos.remove(neighborInfo);
 
                   if (internalPortEntity.getInternalNeighborInfo1() == null
                       || internalPortEntity.getInternalNeighborInfo1().isEmpty()) {
@@ -135,10 +130,10 @@ public class GoalStateManager {
                     neighborInfos1.addAll(neighborInfos3);
                     internalPortEntity.setInternalNeighborInfo1(neighborInfos);
                   }
-                  //                          neighborInfos.add(neighborInfo);
                 } catch (Exception e) {
                   e.printStackTrace();
-                  LOG.error(e.getMessage());
+                  LOG.log(Level.WARNING,
+                          e.getMessage());
                   throw e;
                 }
               }
@@ -303,7 +298,8 @@ public class GoalStateManager {
                       .build();
               goalStateHashMap.put(eachGSOnSingleIP.getKey(), goalState);
             });
-    LOG.info(goalStateHashMap.entrySet().toString());
+    LOG.log(Level.INFO,
+            goalStateHashMap.entrySet().toString());
     return goalStateHashMap;
   }
 

@@ -21,8 +21,9 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,11 +32,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Service
 public class OVSGoalStateServiceImpl implements GoalStateService {
-  private static final Logger LOG = LoggerFactory.getLogger(OVSGoalStateServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger();
 
   private int port;
   private String ip;
@@ -84,7 +86,8 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
   private List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> doSend(
       Goalstate.GoalState goalState, boolean isFast, int port, String ip) throws InterruptedException {
     if (isFast) {
-        LOG.debug("#### " + Thread.currentThread() + " " + ip);
+        LOG.log(Level.FINE,
+                "#### " + Thread.currentThread() + " " + ip);
         GoalStateProvisionerClient goalStateProvisionerClient =
                 new GoalStateProvisionerClient(ip, port);
         List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> goalStateOperationStatuses =
