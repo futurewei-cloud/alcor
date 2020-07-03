@@ -143,7 +143,8 @@ public class NetworkConfigurationUtil {
                 }
 
                 if (!subnetUniqueIds.contains(subnetId)) {
-                    Long tunnelId = subnetEntity.getTenantId() != null ? Long.valueOf(subnetEntity.getTenantId()) : null;
+                    // FIXME ：subnetEntity.getVpcId().hashCode() need to be changed to segmentId
+                    Long tunnelId = getTunnelId(subnetEntity);
                     InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, tunnelId);
                     networkConfigMessage.addSubnetEntity(internalSubnetEntity);
                     subnetUniqueIds.add(subnetId);
@@ -184,5 +185,24 @@ public class NetworkConfigurationUtil {
         }
 
         return networkConfigMessage;
+    }
+    
+    public static Long getTunnelId (SubnetEntity subnetEntity) {
+        if (subnetEntity.getTenantId() == null) {
+            return null;
+        }
+
+        return Long.valueOf(getHashCode(subnetEntity.getVpcId()));
+    }
+
+    public static int getHashCode (String vpcId) {
+        int hashcode = vpcId.hashCode();
+        if (hashcode < 0) {
+            hashcode = -hashcode;
+        }
+        double num = (double)(4096 * 4096) / (double)Integer.MAX_VALUE;
+        hashcode = (int)(hashcode * num);
+
+        return hashcode;
     }
 }

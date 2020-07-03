@@ -83,8 +83,8 @@ public class MockRestClientAndRepository {
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
 
         Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
-                .thenReturn(buildRouteWebJson());
-
+                .thenReturn(buildRoutesWebJson());
+      
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId1))
                 .thenReturn(buildSecurityGroupWebJson(UnitTestConfig.securityGroupId1));
 

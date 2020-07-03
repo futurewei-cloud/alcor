@@ -1,5 +1,7 @@
 package com.futurewei.alcor.route;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -7,6 +9,8 @@ import static org.junit.Assert.*;
 
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
+import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
+import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +41,13 @@ public class RouteControllerTests {
     @MockBean
     private RouteDatabaseService routeDatabaseService;
 
-    private String getByIdUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes/" + UnitTestConfig.routeId;
+    @MockBean
+    private RouteWithVpcMapperService routeWithVpcMapperService;
+
+    @MockBean
+    private RouteWithSubnetMapperService routeWithSubnetMapperService;
+
+    private String getByIdUri = "/routes/" + UnitTestConfig.routeId;
     private String createSubnetUri = "/subnets/" + UnitTestConfig.subnetId + "/routes";
     private String createVpcUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes";
     private String deleteUri = "/vpcs/" + UnitTestConfig.vpcId + "/routes/" + UnitTestConfig.routeId;
@@ -65,6 +75,7 @@ public class RouteControllerTests {
 
     @Test
     public void createVpcRoute_create_pass () throws Exception {
+        doNothing().when(routeWithVpcMapperService).addMapperByRouteEntity(eq(UnitTestConfig.vpcId), any(RouteEntity.class));
         this.mockMvc.perform(post(createVpcUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.vpcResource))
                 .andDo(print())
@@ -75,6 +86,7 @@ public class RouteControllerTests {
     @Test
     public void createVpcRoute_parameterNullOrEmpty_notPass () throws Exception {
         try {
+            doNothing().when(routeWithVpcMapperService).addMapperByRouteEntity(eq(UnitTestConfig.vpcId), any(RouteEntity.class));
             this.mockMvc.perform(post(createVpcUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.vpcResource))
                     .andDo(print())
@@ -87,6 +99,7 @@ public class RouteControllerTests {
 
     @Test
     public void createSubnetRoute_create_pass () throws Exception {
+        doNothing().when(routeWithSubnetMapperService).addMapperByRouteEntity(eq(UnitTestConfig.subnetId), any(RouteEntity.class));
         this.mockMvc.perform(post(createSubnetUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
                 .andDo(print())
@@ -97,6 +110,7 @@ public class RouteControllerTests {
     @Test
     public void createSubnetRoute_parameterNullOrEmpty_notPass () throws Exception {
         try {
+            doNothing().when(routeWithSubnetMapperService).addMapperByRouteEntity(eq(UnitTestConfig.subnetId), any(RouteEntity.class));
             this.mockMvc.perform(post(createSubnetUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
                     .andDo(print())
