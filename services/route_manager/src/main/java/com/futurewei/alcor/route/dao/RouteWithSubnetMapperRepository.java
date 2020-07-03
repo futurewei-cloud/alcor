@@ -63,6 +63,11 @@ public class RouteWithSubnetMapperRepository implements ICacheRepository<SubnetT
     }
 
     @Override
+    public Map<String, SubnetToRouteMapper> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(SubnetToRouteMapper subnetToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add routeWithSubnetMapper, mapper Id:" + subnetToRouteMapper.getSubnetId());
         cache.put(subnetToRouteMapper.getSubnetId(), subnetToRouteMapper);

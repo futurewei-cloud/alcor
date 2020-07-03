@@ -62,6 +62,11 @@ public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRoute
     }
 
     @Override
+    public Map<String, VpcToRouteMapper> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(VpcToRouteMapper vpcToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add RouteWithVpcMapper, mapper Id:" + vpcToRouteMapper.getVpcId());
         cache.put(vpcToRouteMapper.getVpcId(), vpcToRouteMapper);
