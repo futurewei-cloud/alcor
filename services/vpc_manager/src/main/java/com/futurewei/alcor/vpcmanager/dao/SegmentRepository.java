@@ -48,6 +48,11 @@ public class SegmentRepository implements ICacheRepository<SegmentEntity> {
     }
 
     @Override
+    public Map<String, SegmentEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(SegmentEntity newItem) throws CacheException {
         logger.log(Level.INFO, "Add segment, Segment Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);

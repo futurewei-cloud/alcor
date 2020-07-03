@@ -20,12 +20,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-@Data
 public class CustomerResource implements Serializable {
 
     @JsonProperty("project_id")
     private String projectId;
+
+    @JsonProperty("tenant_id")
+    private String tenantId;
 
     @JsonProperty("id")
     private String id;
@@ -81,5 +84,39 @@ public class CustomerResource implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTenantId() {
+        return this.tenantId == null ? this.projectId : this.tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerResource that = (CustomerResource) o;
+        return Objects.equals(projectId, that.projectId) &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId, id, name, description);
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerResource{" +
+                "projectId='" + projectId + '\'' +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

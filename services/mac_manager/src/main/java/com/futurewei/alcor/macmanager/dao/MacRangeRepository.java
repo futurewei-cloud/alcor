@@ -18,7 +18,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +86,25 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
             throw e;
         }
         return hashMap;
+    }
+
+    /**
+     * get all MAC ranges by params filters
+     *
+     * @param queryParams url request params
+     * @return map of MAC ranges
+     * @throws CacheException Db or cache operation exception
+     */
+    @Override
+    public Map<String, MacRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        Map<String, MacRange> map = new HashMap<String, MacRange>();
+        try {
+            map = cache.getAll(queryParams);
+        } catch (CacheException e) {
+            logger.error("MacRangeRepository findAllItems() exception:", e);
+            throw e;
+        }
+        return map;
     }
 
     /**

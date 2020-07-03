@@ -17,7 +17,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.db;
 
 import com.futurewei.alcor.common.db.ignite.IgniteCacheFactory;
+import com.futurewei.alcor.common.db.ignite.IgniteClientCacheFactory;
 import com.futurewei.alcor.common.db.redis.RedisCacheFactory;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,20 +28,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-
 @ComponentScan
 @Component
 public class CacheFactory {
 
+    @Autowired
     private ICacheFactory iCacheFactory;
-
-    public CacheFactory(@Autowired(required=false)IgniteClient igniteClient, LettuceConnectionFactory lettuceConnectionFactory){
-        if(igniteClient == null){
-            this.iCacheFactory = new RedisCacheFactory(lettuceConnectionFactory);
-        }else{
-            this.iCacheFactory = new IgniteCacheFactory(igniteClient);
-        }
-    }
 
     public <K, V> ICache<K, V> getCache(Class<V> v) {
         return iCacheFactory.getCache(v);

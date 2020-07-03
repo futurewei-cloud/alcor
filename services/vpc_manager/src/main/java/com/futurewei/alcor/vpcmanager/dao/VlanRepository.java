@@ -49,6 +49,11 @@ public class VlanRepository implements ICacheRepository<NetworkVlanType> {
     }
 
     @Override
+    public Map<String, NetworkVlanType> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(NetworkVlanType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Vlan, Vlan Id:" + newItem.getVlanId());
         cache.put(newItem.getVlanId(), newItem);

@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-@Service
+//@Service
 public class VpcManagerServiceProxy {
 
     private VpcWebDestinations webDestinations;

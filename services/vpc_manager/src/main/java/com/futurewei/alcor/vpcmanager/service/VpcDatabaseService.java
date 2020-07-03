@@ -13,6 +13,7 @@ public interface VpcDatabaseService {
 
     public VpcEntity getByVpcId (String vpcId) throws ResourceNotFoundException, ResourcePersistenceException;
     public Map getAllVpcs () throws CacheException;
+    public Map getAllVpcs (Map<String, Object[]> queryParams) throws CacheException;
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
     public ICache<String, VpcEntity> getCache ();

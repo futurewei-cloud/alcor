@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ConfigurationProperties(prefix = "subnet.destinations")
+//@ConfigurationProperties(prefix = "subnet.destinations")
 public class SubnetWebDestinations {
 
     @Value("${microservices.subnet.service.url}")

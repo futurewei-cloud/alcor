@@ -48,6 +48,11 @@ public class RouteRepository implements ICacheRepository<RouteEntity> {
     }
 
     @Override
+    public Map<String, RouteEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(RouteEntity routeEntity) throws CacheException {
         logger.log(Level.INFO, "Add route, route Id:" + routeEntity.getId());
         cache.put(routeEntity.getId(), routeEntity);

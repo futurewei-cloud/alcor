@@ -79,6 +79,11 @@ public class MacPoolRepository implements ICacheRepository<MacPool> {
         return cache.getAll();
     }
 
+    @Override
+    public Map<String, MacPool> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
     /**
      * add a MAC address to MAC pool repository
      *
