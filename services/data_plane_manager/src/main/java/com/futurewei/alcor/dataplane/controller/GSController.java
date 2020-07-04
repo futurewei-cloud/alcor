@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -140,10 +139,6 @@ public class GSController {
     return program(gs);
   }
 
-
-
-//  gson.to// <---   .create();    MyObj obj = new MyObj(1, 2);  String json = gson.toJson(obj);  Assert.assertEquals("{\"y\":2}", json);
-
     private InternalDPMResultList program(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
@@ -158,15 +153,11 @@ public class GSController {
                 f.getResourceType().toString(),
                 f.getOperationStatus().toString(), f.getStateElapseTime());
       }).collect(Collectors.toList());
-    } catch (Exception e) {
+      resultAll.setResultMessage("Successfully Handle request !!");
+
+    } catch (RuntimeException e) {
       e.printStackTrace();
-      InternalDPMResult t =
-          new InternalDPMResult(
-              "DPM Internal Error", " please check if input to dpm is valid",
-                  "500", -1);
-      List<InternalDPMResult> r = new ArrayList<>();
-      r.add(t);
-      result= r;
+      resultAll.setResultMessage("Failure Handle request reason: "+e.getMessage());
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);

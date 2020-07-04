@@ -8,4 +8,5 @@ import java.util.List;
 public class InternalDPMResultList {
     private List<InternalDPMResult> resultList;
     private long overrallTime;
+    private String resultMessage;
 }

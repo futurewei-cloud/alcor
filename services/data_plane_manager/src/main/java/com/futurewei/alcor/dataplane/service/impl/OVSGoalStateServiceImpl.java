@@ -18,6 +18,8 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.common.message.MessageClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
+import com.futurewei.alcor.dataplane.exception.ACAFailureException;
+import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
@@ -74,13 +76,15 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
                   result.add(e.get());
                 } catch (InterruptedException ex) {
                   ex.printStackTrace();
+                  throw new DPMFailureException(ex.getMessage());
                 } catch (ExecutionException ex) {
                   ex.printStackTrace();
+                  throw new DPMFailureException(ex.getMessage());
                 }
               });
       return result;
     }
-    throw new RuntimeException("protocol other than ovs is not supported for now");
+    throw new DPMFailureException("protocol other than ovs is not supported for now");
   }
 
   private List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> doSend(

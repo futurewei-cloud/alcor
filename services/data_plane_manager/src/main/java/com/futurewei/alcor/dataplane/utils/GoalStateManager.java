@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.utils;
 
+import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.schema.Port.PortState;
@@ -121,7 +122,7 @@ public class GoalStateManager {
                   e.printStackTrace();
                   LOG.log(Level.WARNING,
                           e.getMessage());
-                  throw e;
+                  throw new DPMFailureException(e.getMessage());
                 }
               }
             });
