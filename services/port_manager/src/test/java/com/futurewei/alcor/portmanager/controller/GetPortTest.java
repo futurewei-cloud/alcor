@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GetPortTest extends MockRestClientAndRepository {
@@ -38,8 +40,6 @@ public class GetPortTest extends MockRestClientAndRepository {
 
     @Test
     public void getPortState() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(get(getPortUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -51,13 +51,11 @@ public class GetPortTest extends MockRestClientAndRepository {
 
     @Test
     public void listPortTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(get(listPortUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].port.id")
+                        .jsonPath("$.ports[0].id")
                         .value(UnitTestConfig.portId1)
                 );
     }

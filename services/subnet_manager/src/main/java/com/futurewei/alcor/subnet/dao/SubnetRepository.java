@@ -67,6 +67,11 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     }
 
     @Override
+    public Map<String, SubnetEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
         cache.put(subnet.getId(), subnet);

@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +87,18 @@ public class MacStateRepository implements ICacheRepository<MacState> {
             throw e;
         }
         return hashMap;
+    }
+
+    @Override
+    public Map<String, MacState> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        Map map = new HashMap();
+        try {
+            map = cache.getAll(queryParams);
+        } catch (CacheException e) {
+            logger.error("MacStateRepository findAllItems() exception:", e);
+            throw e;
+        }
+        return map;
     }
 
     /**

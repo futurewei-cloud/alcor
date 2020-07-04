@@ -36,6 +36,11 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
+    public Map getAllVpcs(Map<String, Object[]> queryParams) throws CacheException {
+        return this.vpcRepository.findAllItems(queryParams);
+    }
+
+    @Override
     public void addVpc(VpcEntity vpcState) throws DatabasePersistenceException {
         try {
             this.vpcRepository.addItem(vpcState);

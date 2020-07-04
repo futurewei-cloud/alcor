@@ -48,6 +48,11 @@ public class GreRepository implements ICacheRepository<NetworkGREType> {
     }
 
     @Override
+    public Map<String, NetworkGREType> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(NetworkGREType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Gre, Gre Id:" + newItem.getGreId());
         cache.put(newItem.getGreId(), newItem);

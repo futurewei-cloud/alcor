@@ -13,7 +13,7 @@ public class VpcsWebJson {
     public VpcsWebJson() {
     }
 
-    public VpcsWebJson(List<VpcEntity> vpcs) {
-        this.vpcs = new ArrayList<>(vpcs);
+    public VpcsWebJson(List<VpcEntity> networks) {
+        this.vpcs = new ArrayList<>(networks);
     }
 }

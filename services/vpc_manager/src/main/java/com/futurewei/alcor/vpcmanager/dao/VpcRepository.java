@@ -63,6 +63,11 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     }
 
     @Override
+    public Map<String, VpcEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(VpcEntity vpcState) throws CacheException {
         logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
         cache.put(vpcState.getId(), vpcState);

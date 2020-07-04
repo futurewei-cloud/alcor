@@ -18,7 +18,7 @@ package com.futurewei.alcor.privateipmanager.repo;
 
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +62,18 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
     public synchronized Map findAllItems() {
         try {
             return cache.getAll();
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("IpAddrRepo findAllItems() exception:", e);
+        }
+
+        return new HashMap();
+    }
+
+    @Override
+    public Map<String, IpAddrAlloc> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        try {
+            return cache.getAll(queryParams);
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("IpAddrRepo findAllItems() exception:", e);

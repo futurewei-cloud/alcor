@@ -16,18 +16,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db.ignite;
 
+import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.ClientConfiguration;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
+import org.apache.ignite.ssl.SslContextFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.util.Assert;
+
+import java.util.Collections;
 import java.util.logging.Level;
 
 @Configuration
@@ -36,6 +46,8 @@ import java.util.logging.Level;
 @ConditionalOnProperty(prefix = "ignite", name = "host")
 public class IgniteConfiguration {
     private static final Logger logger = LoggerFactory.getLogger();
+
+    private static final int JOIN_TIMEOUT = 1000;
 
     @Value("${ignite.host}")
     private String host;
@@ -55,8 +67,19 @@ public class IgniteConfiguration {
     @Value("${ignite.trust-store-password:#{null}}")
     private String trustStorePassword;
 
+    @Value("${ignite.thin.client.enable: #{false}}")
+    private boolean thinClientEnable;
+
     @Bean
-    public IgniteClient igniteClientInstance() {
+    @Primary
+    public ICacheFactory igniteClientFactoryInstance(){
+        if(thinClientEnable){
+            return thinIgniteClientFactory();
+        }
+        return igniteClientFactory();
+    }
+
+    private ICacheFactory thinIgniteClientFactory() {
         ClientConfiguration cfg = new ClientConfiguration()
                 .setAddresses(host + ":" + port);
 
@@ -78,8 +101,56 @@ public class IgniteConfiguration {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
-        //Assert.notNull(igniteClient, "IgniteClient is null");
+        Assert.notNull(igniteClient, "IgniteClient is null");
 
-        return igniteClient;
+        return new IgniteClientCacheFactory(igniteClient);
+    }
+
+    private ICacheFactory igniteClientFactory() {
+        org.apache.ignite.configuration.IgniteConfiguration cfg =
+                new org.apache.ignite.configuration.IgniteConfiguration();
+
+        // The node will be started as a client node.
+        cfg.setClientMode(true);
+
+        // Classes of custom Java logic will be transferred over the wire from this app.
+        cfg.setPeerClassLoadingEnabled(true);
+
+        // Setting up an IP Finder to ensure the client can locate the servers.
+        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+        ipFinder.setAddresses(Collections.singletonList(host + ":" + port));
+        TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
+        tcpDiscoverySpi.setIpFinder(ipFinder);
+        tcpDiscoverySpi.setJoinTimeout(JOIN_TIMEOUT);
+        tcpDiscoverySpi.setStatisticsPrintFrequency(0);
+        cfg.setDiscoverySpi(tcpDiscoverySpi);
+
+        if (keyStorePath != null && keyStorePassword != null) {
+            SslContextFactory factory = new SslContextFactory();
+            factory.setKeyStoreFilePath(keyStorePath);
+            factory.setKeyStorePassword(keyStorePassword.toCharArray());
+            if(trustStorePath != null && trustStorePassword != null) {
+                factory.setTrustStoreFilePath(trustStorePath);
+                factory.setTrustStorePassword(trustStorePassword.toCharArray());
+            }else{
+                factory.setTrustManagers(SslContextFactory.getDisabledTrustManager());
+            }
+
+            cfg.setSslContextFactory(factory);
+        }
+
+        Ignite client = null;
+
+        try {
+            client = Ignition.start(cfg);
+        } catch (IgniteException e) {
+            logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        Assert.notNull(client, "Ignite client is null");
+
+        return new IgniteCacheFactory(client);
     }
 }

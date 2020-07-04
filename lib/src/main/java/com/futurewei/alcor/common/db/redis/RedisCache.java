@@ -16,11 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db.redis;
 
+import com.futurewei.alcor.common.db.query.CachePredicate;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -30,14 +32,12 @@ import java.util.logging.Level;
 public class RedisCache<K, V> implements ICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
 
-    private RedisTemplate<K, V> redisTemplate;
-    private HashOperations hashOperations;
-    private RedisTransaction transaction;
-    private String name;
+    private final HashOperations<String, K, V> hashOperations;
+    private final RedisTransaction transaction;
+    private final String name;
 
-    public RedisCache(RedisTemplate<K, V> redisTemplate, String name) {
-        this.redisTemplate = redisTemplate;
-        hashOperations = redisTemplate.opsForHash();
+    public RedisCache(RedisTemplate<String, Object> redisTemplate, String name) {
+        hashOperations = redisTemplate.<K, V>opsForHash();
         this.name = name;
 
         transaction = new RedisTransaction(redisTemplate);
@@ -46,7 +46,7 @@ public class RedisCache<K, V> implements ICache<K, V> {
     @Override
     public V get(K key) throws CacheException {
         try {
-            return (V) hashOperations.get(name, key);
+            return hashOperations.get(name, key);
         } catch (Exception e) {
             logger.log(Level.WARNING, "RedisCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
@@ -101,6 +101,16 @@ public class RedisCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public V get(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
     }
 
     @Override

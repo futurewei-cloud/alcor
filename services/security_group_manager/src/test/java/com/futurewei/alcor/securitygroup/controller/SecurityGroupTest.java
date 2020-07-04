@@ -27,6 +27,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -337,5 +339,42 @@ public class SecurityGroupTest extends MockIgniteServer {
                 UnitTestConfig.securityGroupId))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Test18_concurrentBindSecurityGroupTest() throws Throwable {
+        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
+        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
+        List<String> securityGroups = new ArrayList<>();
+        securityGroups.add(UnitTestConfig.securityGroupId);
+        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+
+        Test02_createSecurityGroupTest();
+
+        Thread[] threads = new Thread[4];
+        for (int i = 0; i < 4; i++) {
+            threads[i] = new Thread(()-> {
+                try {
+                    this.mockMvc.perform(post(UnitTestConfig.bindSecurityGroupUrl)
+                            .content(body)
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                            .andExpect(status().isCreated())
+                            .andDo(print());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].start();
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].join();
+        }
     }
 }

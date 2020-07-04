@@ -20,6 +20,7 @@ import com.futurewei.alcor.common.exception.CacheException;
 
 import java.util.Map;
 
+@Deprecated
 public interface ICache<K, V> {
     V get(K var1) throws CacheException;
 

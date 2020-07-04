@@ -18,10 +18,12 @@ package com.futurewei.alcor.web.restclient;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 
+@Configuration
 public class SecurityGroupManagerRestClient extends  AbstractRestClient {
-    @Value("${microservices.securitygroup.service.url:#{\"\"}}")
+    @Value("${microservices.sg.service.url:#{\"\"}}")
     private String securityGroupManagerUrl;
 
     public SecurityGroupJson getSecurityGroup(String projectId, String securityGroupId) throws Exception {

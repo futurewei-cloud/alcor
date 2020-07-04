@@ -17,6 +17,7 @@ package com.futurewei.alcor.nodemanager.controller;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
@@ -26,9 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +75,12 @@ public class NodeController {
     @RequestMapping(
             method = GET,
             value = {"/nodes", "/v4/nodes"})
-    public List<NodeInfo> getAllNodes() throws Exception {
+    public List<NodeInfo> getAllNodes() throws ParameterNullOrEmptyException, Exception {
         List<NodeInfo> nodes = null;
         try {
             nodes = service.getAllNodes();
         } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
+            throw e;
         }
         if (nodes == null) {
             return new ArrayList();
@@ -93,19 +92,25 @@ public class NodeController {
             method = POST,
             value = {"/nodes", "/v4/nodes"})
     @ResponseStatus(HttpStatus.CREATED)
-    public NodeInfoJson createNodeInfo(@RequestBody NodeInfoJson resource) throws Exception {
+    public NodeInfoJson createNodeInfo(@RequestBody NodeInfoJson resource) throws ParameterNullOrEmptyException, InvalidDataException, ResourcePersistenceException, Exception  {
         NodeInfo hostInfo = null;
         try {
             NodeInfo inNodeInfo = resource.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
+            if(inNodeInfo != null) {
+                if(inNodeInfo.validateIp(inNodeInfo.getLocalIp()) == false)
+                    throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
+            }
             hostInfo = service.createNodeInfo(inNodeInfo);
             if (hostInfo == null) {
                 throw new ResourcePersistenceException();
             }
         } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        } catch (Exception e) {
-            throw new Exception(e);
+            throw e;
+        } catch(InvalidDataException e){
+            throw e;
+        }catch (Exception e) {
+            throw e;
         }
         return new NodeInfoJson(hostInfo);
     }
@@ -143,7 +148,7 @@ public class NodeController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
             macAddress = service.deleteNodeInfo(nodeid);
         } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
+            throw e;
         }
         return "{Node(Node) Id: " + nodeid + "}";
     }

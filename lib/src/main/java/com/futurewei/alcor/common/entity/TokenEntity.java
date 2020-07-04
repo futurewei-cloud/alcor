@@ -18,11 +18,12 @@ package com.futurewei.alcor.common.entity;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Data
-public class TokenEntity {
+public class TokenEntity implements Serializable {
 
     String token;
     Date expireAt;

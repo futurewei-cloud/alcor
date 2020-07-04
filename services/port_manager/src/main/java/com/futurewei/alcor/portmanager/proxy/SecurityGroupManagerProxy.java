@@ -33,7 +33,7 @@ public class SecurityGroupManagerProxy {
     }
 
     public SecurityGroup getSecurityGroup(Object args) throws Exception {
-        String securityGroupId = (String)args;
+        String securityGroupId = (String) args;
         SecurityGroupJson securityGroupJson = securityGroupManagerRestClient.getSecurityGroup(projectId, securityGroupId);
         if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
             throw new GetSecurityGroupException();
@@ -43,7 +43,7 @@ public class SecurityGroupManagerProxy {
     }
 
     public SecurityGroup getDefaultSecurityGroupEntity(Object args) throws Exception {
-        String tenantId = (String)args;
+        String tenantId = (String) args;
         SecurityGroupJson securityGroupJson = securityGroupManagerRestClient.getDefaultSecurityGroup(projectId, tenantId);
         if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
             throw new GetSecurityGroupException();
@@ -53,7 +53,7 @@ public class SecurityGroupManagerProxy {
     }
 
     public PortSecurityGroupsJson bindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity)args;
+        PortEntity portEntity = (PortEntity) args;
 
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(portEntity.getId());
@@ -63,7 +63,7 @@ public class SecurityGroupManagerProxy {
     }
 
     public PortSecurityGroupsJson unbindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity)args;
+        PortEntity portEntity = (PortEntity) args;
 
         PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
         portSecurityGroupsJson.setPortId(portEntity.getId());
