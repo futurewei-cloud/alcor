@@ -52,7 +52,7 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
   @Override
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       SendGoalStateToHosts(
-          Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
+          Map<String, Goalstate.GoalState> gss, boolean isFast, int grpcPort, boolean isOvs) {
 
     if (isOvs) {
       List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result =
@@ -64,7 +64,7 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
               e -> {
                 return executorService.submit(
                     () -> {
-                      return this.doSend(e.getValue(), isFast, port, e.getKey());
+                      return this.doSend(e.getValue(), isFast, grpcPort, e.getKey());
                     });
               })
           .collect(Collectors.toList())

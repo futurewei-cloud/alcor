@@ -51,7 +51,7 @@ public class GSController {
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
-    return service(gs);
+    return program(gs);
   }
 
   /**
@@ -68,7 +68,7 @@ public class GSController {
       throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
-    return service(gs);
+    return program(gs);
   }
 
   /**
@@ -85,7 +85,7 @@ public class GSController {
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
-    return service(gs);
+    return program(gs);
   }
 
   /**
@@ -103,7 +103,7 @@ public class GSController {
       throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return service(gs);
+    return program(gs);
   }
 
   /**
@@ -120,7 +120,7 @@ public class GSController {
       throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return service(gs);
+    return program(gs);
   }
 
   /**
@@ -137,10 +137,14 @@ public class GSController {
       throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return service(gs);
+    return program(gs);
   }
 
-  private InternalDPMResultList service(NetworkConfiguration gs) {
+
+
+//  gson.to// <---   .create();    MyObj obj = new MyObj(1, 2);  String json = gson.toJson(obj);  Assert.assertEquals("{\"y\":2}", json);
+
+    private InternalDPMResultList program(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
     long start = System.currentTimeMillis();

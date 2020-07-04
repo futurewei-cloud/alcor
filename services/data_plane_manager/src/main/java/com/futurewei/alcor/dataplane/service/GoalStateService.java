@@ -27,5 +27,5 @@ public interface GoalStateService {
 
   List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       SendGoalStateToHosts(
-          Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs);
+          Map<String, Goalstate.GoalState> gss, boolean isFast, int grpcPort, boolean isOvs);
 }

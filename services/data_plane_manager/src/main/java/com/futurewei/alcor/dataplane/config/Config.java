@@ -28,9 +28,9 @@ import java.io.IOException;
 @Data
 public class Config {
 
-  @Value("${isovs}")
+  @Value("${dataplane.isovs}")
   private  String ovs;
-  @Value("${grpc.port}")
+  @Value("${dataplane.grpc.port}")
   public String port ;
 
   public static FileWriter TIME_STAMP_FILE;

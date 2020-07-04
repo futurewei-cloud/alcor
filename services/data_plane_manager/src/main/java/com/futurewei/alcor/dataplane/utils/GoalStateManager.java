@@ -76,26 +76,13 @@ public class GoalStateManager {
       InternalPortEntity currentPortEntity = portStatesArr[portCounter];
       if (!mapGroupedByHostIp.containsKey(bindingHostIP)) {
         List<InternalPortEntity> portStates = new ArrayList<>();
-        fillSubnetAndVpcToPort(
-            subnetMap,
-            vpcMap,
-            currentPortEntity,
-            portStates,
-            neighborInfoInSameSubenetMap,
-            portsInSameSubnetMap);
-        portCounter++;
-        mapGroupedByHostIp.put(bindingHostIP, portStates);
+        portCounter = bindHostWithPorts(portsInSameSubnetMap,
+                neighborInfoInSameSubenetMap, mapGroupedByHostIp, subnetMap,
+                vpcMap, portCounter, bindingHostIP, currentPortEntity,
+                portStates);
       } else {
         List<InternalPortEntity> portStates = mapGroupedByHostIp.get(bindingHostIP);
-        fillSubnetAndVpcToPort(
-            subnetMap,
-            vpcMap,
-            currentPortEntity,
-            portStates,
-            neighborInfoInSameSubenetMap,
-            portsInSameSubnetMap);
-        portCounter++;
-        mapGroupedByHostIp.put(bindingHostIP, portStates);
+        portCounter = bindHostWithPorts(portsInSameSubnetMap, neighborInfoInSameSubenetMap, mapGroupedByHostIp, subnetMap, vpcMap, portCounter, bindingHostIP, currentPortEntity, portStates);
       }
     }
 
@@ -301,6 +288,16 @@ public class GoalStateManager {
     LOG.log(Level.INFO,
             goalStateHashMap.entrySet().toString());
     return goalStateHashMap;
+  }
+
+  private int bindHostWithPorts(Map<String, Set<String>> portsInSameSubnetMap
+          , Map<String, Set<NeighborInfo>> neighborInfoInSameSubenetMap,
+                                Map<String, List<InternalPortEntity>> mapGroupedByHostIp, Map<String, InternalSubnetEntity> subnetMap, Map<String, VpcEntity> vpcMap, int portCounter, String bindingHostIP, InternalPortEntity currentPortEntity, List<InternalPortEntity> portStates) {
+    fillSubnetAndVpcToPort(subnetMap, vpcMap, currentPortEntity, portStates,
+            neighborInfoInSameSubenetMap, portsInSameSubnetMap);
+    portCounter++;
+    mapGroupedByHostIp.put(bindingHostIP, portStates);
+    return portCounter;
   }
 
   private void fillSubnetAndVpcToPort(
