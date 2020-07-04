@@ -22,6 +22,9 @@ import com.futurewei.alcor.schema.Goalstateprovisioner;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * would add more logic when needed for sb impl
+ */
 public class MizarGoalStateServiceImpl implements GoalStateService {
   @Override
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>

@@ -42,6 +42,13 @@ public class GoalStateManager {
   @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
 
+  /**
+   * transform client of dpm msg to aca protobuf format
+   *
+   * @param networkConfiguration  msg to be transformmed
+   * @return Map<String, Goalstate.GoalState>
+   * @throws RuntimeException Various exceptions that may occur during the send process
+   */
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
     Map<String, Set<String>> portsInSameSubnetMap = new HashMap<>();
@@ -291,9 +298,26 @@ public class GoalStateManager {
     return goalStateHashMap;
   }
 
+  /**
+   * bind Host With Ports
+   *
+   * @param neighborInfoInSameSubenetMap same subnet neighborInfo mapping
+   * @param portsInSameSubnetMap same subnet portId mapping
+   * @param mapGroupedByHostIp portsList hostIp  mapping
+   * @param subnetMap
+   * @param vpcMap
+   * @param bindingHostIP
+   * @param currentPortEntity
+   * @param portStates
+   */
   private int bindHostWithPorts(Map<String, Set<String>> portsInSameSubnetMap
           , Map<String, Set<NeighborInfo>> neighborInfoInSameSubenetMap,
-                                Map<String, List<InternalPortEntity>> mapGroupedByHostIp, Map<String, InternalSubnetEntity> subnetMap, Map<String, VpcEntity> vpcMap, int portCounter, String bindingHostIP, InternalPortEntity currentPortEntity, List<InternalPortEntity> portStates) {
+                                Map<String, List<InternalPortEntity>> mapGroupedByHostIp,
+                                Map<String, InternalSubnetEntity> subnetMap,
+                                Map<String, VpcEntity> vpcMap,
+                                int portCounter, String bindingHostIP,
+                                InternalPortEntity currentPortEntity,
+                                List<InternalPortEntity> portStates) {
     fillSubnetAndVpcToPort(subnetMap, vpcMap, currentPortEntity, portStates,
             neighborInfoInSameSubenetMap, portsInSameSubnetMap);
     portCounter++;
@@ -301,6 +325,16 @@ public class GoalStateManager {
     return portCounter;
   }
 
+  /**
+   * fill all resources to ports
+   *
+   * @param subnetMap hostip and subnetEntity mapping
+   * @param vpcMap hostIp and Vpc mapping
+   * @param currentPortEntity
+   * @param portStates
+   * @param neighborInfoInSameSubenetMap same subnet neighborInfo mapping
+   * @param portsInSameSubnetMap same subnet portId mapping
+   */
   private void fillSubnetAndVpcToPort(
       Map<String, InternalSubnetEntity> subnetMap,
       Map<String, VpcEntity> vpcMap,
@@ -347,6 +381,17 @@ public class GoalStateManager {
     portStates.add(currentPortEntity);
   }
 
+
+  /**
+   * group neighbor and ports by subnetid
+   *
+   * @param currentPortEntity
+   * @param fixedIp
+   * @param tempPorts
+   * @param tempNeighbor
+   * @param neighborInfoInSameSubenetMap same subnet neighborInfo mapping
+   * @param portsInSameSubnetMap same subnet portId mapping
+   */
   private void groupNeighborAndPortsBySubnet(
       InternalPortEntity currentPortEntity,
       PortEntity.FixedIp fixedIp,
@@ -377,7 +422,17 @@ public class GoalStateManager {
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
     neighborInfoInSameSubenetMap.put(fixedIp.getSubnetId(), tempNeighbor);
   }
-
+  /**
+   * deploy GoalState to ACA in parallel and return ACA processing result
+   * to upper layer
+   *
+   * @param gss   bindHostIp realated goalstate
+   * @param isFast is Fastpath
+   * @param port is grpc port
+   * @param isOvs is is ovs or mizar etc
+   * @return List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+   * @throws RuntimeException Various exceptions that may occur during the send process
+   */
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       talkToACA(Map<String, Goalstate.GoalState> gss, boolean isFast, int port, boolean isOvs) {
     return goalStateService.SendGoalStateToHosts(gss, isFast, port, isOvs);

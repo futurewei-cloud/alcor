@@ -46,8 +46,7 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
     return program(gs);
@@ -63,8 +62,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
-  public InternalDPMResultList updatePort(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
     return program(gs);
@@ -80,8 +78,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
-  public InternalDPMResultList deletePort(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
     return program(gs);
@@ -98,8 +95,7 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
-  public InternalDPMResultList createSubnet(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return program(gs);
@@ -115,8 +111,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
-  public InternalDPMResultList updateSubnet(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return program(gs);
@@ -132,36 +127,48 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
-  public InternalDPMResultList deleteSubnet(@RequestBody NetworkConfiguration gs)
-      throws Exception {
+  public InternalDPMResultList deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
     return program(gs);
   }
 
-    private InternalDPMResultList program(NetworkConfiguration gs) {
+  // method do the real job
+  private InternalDPMResultList program(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
     long start = System.currentTimeMillis();
-    List<InternalDPMResult> result=null;
-    InternalDPMResultList resultAll=new InternalDPMResultList();
+    List<InternalDPMResult> result = null;
+    InternalDPMResultList resultAll = new InternalDPMResultList();
 
     try {
-       result =
-              goalStateManager.talkToACA(goalStateManager.transformNorthToSouth(gs), true, Integer.parseInt(config.getPort()), Boolean.valueOf(config.getOvs())).stream().flatMap(Collection::stream).map(f -> {
-        return new InternalDPMResult(f.getResourceId(),
-                f.getResourceType().toString(),
-                f.getOperationStatus().toString(), f.getStateElapseTime());
-      }).collect(Collectors.toList());
+      result =
+          goalStateManager
+              .talkToACA(
+                  goalStateManager.transformNorthToSouth(gs),
+                  true,
+                  Integer.parseInt(config.getPort()),
+                  Boolean.valueOf(config.getOvs()))
+              .stream()
+              .flatMap(Collection::stream)
+              .map(
+                  f -> {
+                    return new InternalDPMResult(
+                        f.getResourceId(),
+                        f.getResourceType().toString(),
+                        f.getOperationStatus().toString(),
+                        f.getStateElapseTime());
+                  })
+              .collect(Collectors.toList());
       resultAll.setResultMessage("Successfully Handle request !!");
 
     } catch (RuntimeException e) {
       e.printStackTrace();
-      resultAll.setResultMessage("Failure Handle request reason: "+e.getMessage());
+      resultAll.setResultMessage("Failure Handle request reason: " + e.getMessage());
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);
-    resultAll.setOverrallTime(done-start);
+    resultAll.setOverrallTime(done - start);
     return resultAll;
   }
 }

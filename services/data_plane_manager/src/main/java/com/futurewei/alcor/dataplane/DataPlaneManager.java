@@ -24,9 +24,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableAutoConfiguration
 public class DataPlaneManager {
 
-    public static void main(String[] args) {
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "10");
-        SpringApplication.run(DataPlaneManager.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(DataPlaneManager.class, args);
+  }
 }
