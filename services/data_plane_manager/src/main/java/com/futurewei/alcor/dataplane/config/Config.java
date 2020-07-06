@@ -28,6 +28,7 @@ import java.io.IOException;
 @Data
 public class Config {
 
+  public static final int SHUTDOWN_TIMEOUT = 5;
   @Value("${dataplane.isovs}")
   private  String ovs;
   @Value("${dataplane.grpc.port}")

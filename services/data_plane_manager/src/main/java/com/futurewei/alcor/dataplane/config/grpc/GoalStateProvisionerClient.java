@@ -18,6 +18,7 @@ package com.futurewei.alcor.dataplane.config.grpc;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
@@ -54,7 +55,7 @@ public class GoalStateProvisionerClient {
     }
 
     public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        channel.shutdown().awaitTermination(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
     }
 
     public List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>
