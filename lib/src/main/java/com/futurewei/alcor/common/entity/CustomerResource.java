@@ -17,15 +17,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-import java.io.Serializable;
+import java.util.Objects;
 
-@Data
+
 public class CustomerResource extends Resource {
 
     @JsonProperty("project_id")
     private String projectId;
+
+    @JsonProperty("tenant_id")
+    private String tenantId;
 
     @JsonProperty("name")
     private String name;
@@ -69,5 +71,39 @@ public class CustomerResource extends Resource {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTenantId() {
+        return this.tenantId == null ? this.projectId : this.tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerResource that = (CustomerResource) o;
+        return Objects.equals(projectId, that.projectId) &&
+                Objects.equals(this.getId(), that.getId()) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId, this.getId(), name, description);
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerResource{" +
+                "projectId='" + projectId + '\'' +
+                ", id='" + this.getId() + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
