@@ -31,6 +31,9 @@ public class DistributedLockFactory {
     @Autowired(required = false)
     private IgniteClient igniteClient;
 
+    @Autowired(required = false)
+    private MockDistributedLock mockDistributedLock;
+
     @Value("${lock.try.interval:10}")
     private int tryLockInterval;
 
@@ -52,6 +55,11 @@ public class DistributedLockFactory {
     }
 
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
+        if (mockDistributedLock != null) {
+            // Only for unit test environment
+            return mockDistributedLock;
+        }
+
         if (igniteClient != null) {
             return getIgniteDistributedLock(t.getName());
         }

@@ -70,7 +70,7 @@ public class ElasticIpAllocator {
 
     private int getNextAvailableBucket(BitSet availableBucketsBitset, int startOffset) {
         int availableBucketIndex = availableBucketsBitset.nextSetBit(startOffset);
-        if (availableBucketIndex >= IPv4_BUCKETS_COUNT) {
+        if (availableBucketIndex >= IPv4_BUCKETS_COUNT || availableBucketIndex < 0) {
             availableBucketIndex = availableBucketsBitset.nextSetBit(0);
             if (availableBucketIndex >= IPv4_BUCKETS_COUNT) {
                 return -1;
@@ -181,6 +181,9 @@ public class ElasticIpAllocator {
                         LOG.debug("The specified ip address is not within the elastic ip range");
                         throw new ElasticIpAllocationException();
                     }
+                } else {
+                    LOG.error("The IPv4 allocation bucket is not found:" + bucketIndex);
+                    throw new ElasticIpAllocationException();
                 }
 
                 // release lock
@@ -255,7 +258,10 @@ public class ElasticIpAllocator {
 
                     if (ipAddress != null) {
                         break;
-                     }
+                    } else {
+                        // offset available bucket index
+                        availableBucketIndex += 1;
+                    }
                 }
                 if (ipAddress == null) {
                     throw new ElasticIpAllocationException();
@@ -302,7 +308,7 @@ public class ElasticIpAllocator {
                     throw new ElasticIpAllocationException();
                 }
 
-                String ipv6AllocKey = rangeId + "-ipv6-" + specifiedIp;
+                String ipv6AllocKey = ipv6AllocKeyPrefix + assignedIp.toString();
                 // add resource lock
                 allocatedIpv6Lock.lock(ipv6AllocKey);
 
@@ -316,6 +322,7 @@ public class ElasticIpAllocator {
                     throw new ElasticIpAllocationException();
                 }
 
+                ipv6Address = specifiedIp;
                 ipv6Alloc = new ElasticIpAllocatedIpv6(rangeId, specifiedIp);
                 allocatedIpv6Cache.put(ipv6AllocKey, ipv6Alloc);
 

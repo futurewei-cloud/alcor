@@ -155,6 +155,14 @@ public class ElasticIpController {
         if (elasticIpInfo.getDescription() == null) {
             elasticIpInfo.setDescription("");
         }
+
+        if (elasticIpInfo.getDnsDomain() == null) {
+            elasticIpInfo.setDnsDomain("");
+        }
+
+        if (elasticIpInfo.getDnsName() == null) {
+            elasticIpInfo.setDnsName("");
+        }
     }
 
     private void updateElasticIpParameterProcess(String projectId, String elasticIpId, ElasticIpInfo elasticIpInfo)
@@ -266,6 +274,9 @@ public class ElasticIpController {
 
         List<ElasticIpRange.AllocationRange> allocationRanges = elasticIpRangeInfo.getAllocationRanges();
         if (allocationRanges != null) {
+            if (elasticIpRangeInfo.getIpVersion() == null) {
+                elasticIpRangeInfo.setIpVersion(IpVersion.IPV4.getVersion());
+            }
             if (this.isAllocationRangesInvalid(elasticIpRangeInfo.getIpVersion(), allocationRanges)) {
                 throw new ElasticIpRangeBadRangesException();
             }
@@ -352,7 +363,8 @@ public class ElasticIpController {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @GetMapping(value = {"/project/{project_id}/elasticips/{elasticip_id}"})
-    public ElasticIpInfoWrapper getElasticIp(@PathVariable String projectId, @PathVariable String elasticIpId)
+    public ElasticIpInfoWrapper getElasticIp(@PathVariable("project_id") String projectId,
+                                             @PathVariable("elasticip_id") String elasticIpId)
             throws Exception {
 
         if (StringUtils.isEmpty(projectId)) {
@@ -375,7 +387,7 @@ public class ElasticIpController {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @GetMapping(value = {"/project/{project_id}/elasticips"})
-    public ElasticIpsInfoWrapper getElasticIps(@PathVariable String projectId)
+    public ElasticIpsInfoWrapper getElasticIps(@PathVariable("project_id") String projectId)
             throws Exception {
 
         if (StringUtils.isEmpty(projectId)) {
@@ -426,7 +438,7 @@ public class ElasticIpController {
 
         this.updateElasticIpRangeParameterProcess(elasticIpRangeId, requestInfo);
 
-        ElasticIpRangeInfo result = elasticIpRangeService.createElasticIpRange(requestInfo);
+        ElasticIpRangeInfo result = elasticIpRangeService.updateElasticIpRange(requestInfo);
 
         return new ElasticIpRangeInfoWrapper(result);
     }
@@ -458,7 +470,8 @@ public class ElasticIpController {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @GetMapping(value = {"/elasticip-ranges/{elasticip_range_id}"})
-    public ElasticIpRangeInfoWrapper getElasticIpRange(@PathVariable String elasticIpRangeId) throws Exception {
+    public ElasticIpRangeInfoWrapper getElasticIpRange(@PathVariable("elasticip_range_id") String elasticIpRangeId)
+            throws Exception {
 
         if (StringUtils.isEmpty(elasticIpRangeId)) {
             throw new ElasticIpNoIdException();
