@@ -21,7 +21,6 @@ import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpInternalErrorException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticip.*;
-import com.futurewei.alcor.elasticipmanager.exception.ElasticIpQueryFormatException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpService;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIp;
@@ -67,7 +66,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         if (eip.getId() == null) {
             eip.setId(UUID.randomUUID().toString());
         } else if (elasticIpRepo.findItem(eip.getId()) != null) {
-            throw new ElasticIpRangeInUseException();
+            throw new ElasticIpInUseException();
         }
 
         Map<String, ElasticIpRange> rangeMap = elasticIpRangeRepo.findAllItems();
@@ -82,6 +81,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
             throw new ElasticIpNoProperRangeException();
         }
 
+        eip.setRangeId(range.getId());
         String ipAddress = elasticIpAllocator.allocateIpAddress(range, request.getElasticIp());
         eip.setElasticIp(ipAddress);
 
@@ -117,7 +117,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         }
 
         String portId = eip.getPortId();
-        if (portId != null) {
+        if (!StringUtils.isEmpty(portId)) {
             throw new ElasticIpInUseException();
         }
 

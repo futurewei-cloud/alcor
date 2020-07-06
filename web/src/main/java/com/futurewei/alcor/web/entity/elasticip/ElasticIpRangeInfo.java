@@ -29,7 +29,6 @@ public class ElasticIpRangeInfo extends ElasticIpRange {
 
     public ElasticIpRangeInfo(ElasticIpRange elasticIpRange) {
         super(elasticIpRange);
-        used_ip_count = 0L;
     }
 
     public Long getUsed_ip_count() {

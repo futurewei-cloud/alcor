@@ -31,7 +31,7 @@ public class ElasticIpRange extends Resource {
     private String description;
 
     @JsonProperty("ip_version")
-    private int ipVersion;
+    private Integer ipVersion;
 
     @JsonProperty("allocation_ranges")
     private List<AllocationRange> allocationRanges;
@@ -54,13 +54,15 @@ public class ElasticIpRange extends Resource {
         this.description = elasticIpRange.getDescription();
         this.ipVersion = elasticIpRange.getIpVersion();
         this.allocationRanges = new ArrayList<>();
-        for (AllocationRange range: elasticIpRange.getAllocationRanges()) {
-            allocationRanges.add(new AllocationRange(range));
+        if (elasticIpRange.getAllocationRanges() != null) {
+            for (AllocationRange range: elasticIpRange.getAllocationRanges()) {
+                allocationRanges.add(new AllocationRange(range));
+            }
         }
     }
 
 
-    public class AllocationRange {
+    public static class AllocationRange {
 
         @JsonProperty("start")
         private String start;
@@ -125,7 +127,7 @@ public class ElasticIpRange extends Resource {
         return ipVersion;
     }
 
-    public void setIpVersion(int ipVersion) {
+    public void setIpVersion(Integer ipVersion) {
         this.ipVersion = ipVersion;
     }
 

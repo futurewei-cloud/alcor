@@ -4,8 +4,6 @@ import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpInternalErrorException;
-import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpAllocationException;
-import com.futurewei.alcor.elasticipmanager.exception.elasticip.ElasticIpNoProperRangeException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeExistsException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeNotFoundException;

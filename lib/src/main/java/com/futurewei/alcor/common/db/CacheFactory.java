@@ -33,10 +33,15 @@ public class CacheFactory {
 
     private ICacheFactory iCacheFactory;
 
-    public CacheFactory(@Autowired(required=false)IgniteClient igniteClient, LettuceConnectionFactory lettuceConnectionFactory){
-        if(igniteClient == null){
+    public CacheFactory(@Autowired(required=false)IgniteClient igniteClient,
+                        LettuceConnectionFactory lettuceConnectionFactory,
+                        @Autowired(required=false)MockCacheFactory mockCacheFactory){
+        if (mockCacheFactory != null) {
+            // Only for unit test environment
+            this.iCacheFactory = mockCacheFactory;
+        } else if (igniteClient == null){
             this.iCacheFactory = new RedisCacheFactory(lettuceConnectionFactory);
-        }else{
+        } else {
             this.iCacheFactory = new IgniteCacheFactory(igniteClient);
         }
     }

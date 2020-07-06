@@ -20,6 +20,10 @@ public class UnitTestConfig {
     public static String elasticIp2 = "11223344-1122-1122-1122-112233440002";
     public static String elasticIpv4Address1 = "200.1.1.10";
     public static String elasticIpv6Address1 = "2002:100::10";
+    public static String elasticIpv4Address2 = "200.1.1.20";
+    public static String elasticIpv6Address2 = "2002:100::20";
+    public static String elasticIpv4Address3 = "200.1.2.10";
+    public static String elasticIpv6Address3 = "2002:200::10";
     public static String elasticIpName1 = "eip1";
     public static String elasticIpName2 = "eip2";
     public static String elasticIpDescription1 = "elastic ip 1";
@@ -43,22 +47,19 @@ public class UnitTestConfig {
     public static String projectId2 = "11223344-1122-1122-1122-112233440008";
     public static String state1 = "activated";
     public static String state2 = "deactivated";
+    public static String elasticIpRangeName1= "eiprange1";
+    public static String elasticIpRangeName2= "eiprange2";
+    public static String elasticIpRangeDescription1= "elastic ip range 1";
+    public static String elasticIpRangeDescription2= "elastic ip range 2";
+    public static Integer elasticIpRangeIpVersion1 = 4;
+    public static Integer elasticIpRangeIpVersion2 = 6;
+    public static String elasticIpRangeStart1 = "200.1.1.2";
+    public static String elasticIpRangeStart2 = "2002:100::2";
+    public static String elasticIpRangeStart3 = "200.1.2.2";
+    public static String elasticIpRangeStart4 = "2002:200::2";
+    public static String elasticIpRangeEnd1 = "200.1.1.254";
+    public static String elasticIpRangeEnd2 = "2002:100::FFFF:FFFF:FFFF:FFFE";
+    public static String elasticIpRangeEnd3 = "200.1.2.254";
+    public static String elasticIpRangeEnd4 = "2002:200::FFFF:FFFF:FFFF:FFFE";
 
-    public static String ElasticIpInfoWithPort = "{\n" +
-            "    \"elasticip\": {\n" +
-            "        \"id\":\"" + elasticIp1 + "\",\n" +
-            "        \"project_id\":\"" + projectId1 + "\",\n" +
-            "        \"name\":\"" + elasticIpName1 + "\",\n" +
-            "        \"description\":\"" + elasticIpDescription1 + "\",\n" +
-            "        \"range_id\":\"" + elasticIpRange1 + "\",\n" +
-            "        \"elastic_ip_version\":\"" + elasticIpVersion1 + "\",\n" +
-            "        \"elastic_ip\":\"" + elasticIpv4Address1 + "\",\n" +
-            "        \"port_id\":\"" + elasticIpPort1 + "\",\n" +
-            "        \"private_ip_version\":\"" + elasticIpPrivateIpVersion1 + "\",\n" +
-            "        \"private_ip\":\"" + elasticIpPrivateIp1 + "\",\n" +
-            "        \"dns_name\":\"" + elasticIpDnsName1 + "\",\n" +
-            "        \"dns_domain\":\"" + elasticIpDnsDomain1 + "\",\n" +
-            "        \"state\":\"" + state1 + "\"\n" +
-            "    }\n" +
-            "}";
 }
