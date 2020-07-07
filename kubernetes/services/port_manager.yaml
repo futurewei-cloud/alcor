@@ -4,7 +4,7 @@ metadata:
   name: port-configmap
 data:
   application.properties: |
-    ignite.host=ignite-ip-service.default.svc.cluster.local
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
@@ -26,7 +26,6 @@ spec:
     matchLabels:
       app: portmanager
   replicas: 3
-  #replicas: 3
   template:
     metadata:
       labels:

@@ -4,7 +4,7 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    ignite.host=ignite-ip-service.default.svc.cluster.local
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
@@ -24,7 +24,6 @@ spec:
     matchLabels:
       app: vpcmanager
   replicas: 3
-  #replicas: 3
   template:
     metadata:
       labels:

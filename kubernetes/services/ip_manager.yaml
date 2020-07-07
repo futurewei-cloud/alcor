@@ -4,7 +4,7 @@ metadata:
   name: ip-configmap
 data:
   application.properties: |
-    ignite.host=ignite-ip-service.default.svc.cluster.local
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
 ---
 apiVersion: apps/v1
@@ -18,7 +18,6 @@ spec:
     matchLabels:
       app: ipmanager
   replicas: 3
-  #replicas: 3
   template:
     metadata:
       labels:
