@@ -4,17 +4,17 @@ metadata:
   name: subnet-configmap
 data:
   application.properties: |
-    ignite.host=10.99.135.32
+    ignite.host=ignite-ip-service.default.svc.cluster.local
     ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.vpc.service.url=http://10.213.43.166:30001/project/
-    microservices.mac.service.url=http://10.213.43.166:30005/macs
-    microservices.route.service.url=http://10.213.43.166:30003/
-    microservices.ip.service.url=http://10.213.43.166:30007/ips/
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001/project/
+    microservices.mac.service.url=http://macmanager-service.default.svc.cluster.local:9005/macs
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/
+    microservices.ip.service.url=http://ipmanager-service.default.svc.cluster.local:9004/ips/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +26,7 @@ spec:
   selector:
     matchLabels:
       app: subnetmanager
-  replicas: 1
+  replicas: 3
   #replicas: 3
   template:
     metadata:
@@ -64,7 +64,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8002
+    - port: 9002
       targetPort: 8080
       nodePort: 30006
   selector:
