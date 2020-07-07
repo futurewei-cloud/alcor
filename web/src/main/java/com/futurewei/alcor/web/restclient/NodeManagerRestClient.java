@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ public class NodeManagerRestClient extends AbstractRestClient {
     @Value("${microservices.node.service.url:#{\"\"}}")
     private String nodeManagerUrl;
 
+    @DurationStatistics
     public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
         String url = nodeManagerUrl + "/" + nodeId;
         return getRequest(url, NodeInfoJson.class);

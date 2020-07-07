@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ public class SubnetManagerRestClient extends AbstractRestClient {
     @Value("${microservices.subnet.service.url:#{\"\"}}")
     private String subnetManagerUrl;
 
+    @DurationStatistics
     public SubnetWebJson getSubnet(String projectId, String subnetId) throws Exception {
         String url = subnetManagerUrl + "/project/" + projectId + "/subnets/" + subnetId;
 

@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,12 +40,14 @@ public class MacManagerRestClient extends AbstractRestClient {
         return new MacStateJson(macState);
     }
 
+    @DurationStatistics
     public void releaseMacAddress(String macAddress) throws Exception {
         String url = macManagerUrl + "/" + macAddress;
 
         restTemplate.delete(url);
     }
 
+    @DurationStatistics
     public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
         MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
         HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
@@ -56,6 +59,7 @@ public class MacManagerRestClient extends AbstractRestClient {
         return result;
     }
 
+    @DurationStatistics
     public MacStateJson updateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
         MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
         HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
