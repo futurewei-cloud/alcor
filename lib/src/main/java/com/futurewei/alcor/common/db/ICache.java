@@ -16,17 +16,34 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.common.db;
 
-
 import java.util.Map;
 
 public interface ICache<K, V> {
     V get(K var1) throws CacheException;
+
+    /**
+     * Get Cache value from cache db by multi params
+     *
+     * @param filterParams a map of params name and value
+     * @return cache value
+     * @throws CacheException if any exception
+     */
+    V get(Map<String, Object[]> filterParams) throws CacheException;
 
     void put(K var1, V var2) throws CacheException;
 
     boolean containsKey(K var1) throws CacheException;
 
     Map<K, V> getAll() throws CacheException;
+
+    /**
+     * Get Cache values from cache db by multi params
+     *
+     * @param filterParams a map of params name and value
+     * @return cache value
+     * @throws CacheException if any exception
+     */
+    <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException;
 
     void putAll(Map<? extends K, ? extends V> var1) throws CacheException;
 

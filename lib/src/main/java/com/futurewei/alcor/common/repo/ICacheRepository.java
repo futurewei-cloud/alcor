@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 
 import java.util.Map;
 
+@Deprecated
 public interface ICacheRepository<T> {
 
     T findItem(String id) throws CacheException, ResourceNotFoundException;

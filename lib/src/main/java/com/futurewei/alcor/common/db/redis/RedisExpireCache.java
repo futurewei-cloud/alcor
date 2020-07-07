@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -111,6 +112,16 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public V get(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
     }
 
     @Override

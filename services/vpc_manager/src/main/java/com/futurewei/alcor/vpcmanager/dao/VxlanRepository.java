@@ -48,6 +48,11 @@ public class VxlanRepository implements ICacheRepository<NetworkVxlanType> {
     }
 
     @Override
+    public Map<String, NetworkVxlanType> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(NetworkVxlanType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Vxlan, Vxlan Id:" + newItem.getVxlanId());
         cache.put(newItem.getVxlanId(), newItem);

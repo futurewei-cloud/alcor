@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -255,7 +256,7 @@ public class KeystoneClient {
             }else{
                 cache.put(token, new TokenEntity(token,true));
             }
-        } catch (IOException | CacheException | ParseException e) {
+        } catch (IOException | CacheException | ParseException | HttpClientErrorException e) {
             LOG.error("verify token failed, {}", e.getMessage());
         }
         return "";

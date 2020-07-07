@@ -1,4 +1,8 @@
 = Control Plane Rescue Path
+Liguang Xie <lxie@futurewei.com>, Eric Li <eli1@futurewei.com>
+v0.1, 2019-11-20
+:toc: right
+:imagesdir: ../../images
 
 Skip local crashed agent and call neighbor agent to pass network configuration
 
@@ -11,10 +15,10 @@ With the lines of code increase to support complex requirements and customer fea
 
 == Architecture
 
-The following diagram illustrates the architecture of the network control plane rescue path, 
+The following diagram illustrates the architecture of the network control plane rescue path,
 and how it communicate to peer compute host to help with network configuration and date plane programming:
 
-image::../images/rescue_path.GIF["Rescue path architecture", width=1024, link="../images/rescue_path.GIF"]
+image::rescue_path.GIF["Rescue path architecture", width=1024, link="rescue_path.GIF"]
 
 == Design
 
@@ -24,7 +28,7 @@ All network control agent tasks were designed to have high throughput, and low l
 
 For remote host network configuration, a neighbor network control agent will simply invoke remote SSH to the other compute host using the TargetHostIP supplied in the GoalState message from network controller. For Mizar dataplane programming, network controller agent can use remote RPC to invoke Mizar dataplane API on the other compute host.
 
-During usage the network control plane rescue path, all existing customer deployments should continue to work without impact. Although the compute node will be marked as unhealthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visible performance degradation. 
+During usage the network control plane rescue path, all existing customer deployments should continue to work without impact. Although the compute node will be marked as unhealthy, new VMs/Containers or network endpoints can still be deployed to this compute node without customer visible performance degradation.
 
 == Updated Contract between Controller and Agent
 

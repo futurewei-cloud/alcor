@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ConfigurationProperties(prefix = "vpc.destinations")
+//@ConfigurationProperties(prefix = "vpc.destinations")
 public class VpcWebDestinations {
 
     @Value("${microservices.vpc.service.url}")

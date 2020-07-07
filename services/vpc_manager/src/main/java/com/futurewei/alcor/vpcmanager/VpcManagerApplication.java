@@ -18,8 +18,11 @@ package com.futurewei.alcor.vpcmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication()
+@ComponentScan(value="com.futurewei.alcor.web.json")
+@ComponentScan(value="com.futurewei.alcor.vpcmanager")
 public class VpcManagerApplication {
 
     public static void main(String[] args) {

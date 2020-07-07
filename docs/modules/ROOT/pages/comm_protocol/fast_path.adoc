@@ -2,6 +2,7 @@
 Liguang Xie <lxie@futurewei.com>
 v1.0, 2019-08-15
 :toc: right
+:imagesdir: ../../images
 
 == Introduction
 
@@ -29,7 +30,7 @@ With this fast path, time-critical applications will benefit from the low latenc
 The following diagram illustrates the architecture of the network control plane fast path,
 and the bi-directional communication channel between the Network Controllers and Control Agents.
 
-image::../images/fast_path.GIF["Fast path architecture", width=1024, link="../images/fast_path.GIF"]
+image::fast_path.GIF["Fast path architecture", width=1024, link="fast_path.GIF"]
 
 === Bi-directional Communication Channel
 The top-down communication channel from Controllers to Agents can be used in many scenarios which require low E2E latency for network configuration update:
@@ -72,7 +73,7 @@ For example, if the Network Controller calls the same Control Agent twice and at
 //=== Client Hedging to Reduce Tail Latency
 
 //=== Secure Channels via SSL/TLS
-//A gRPC channel are secure by default via SSL/TLS until TLS is disabled for debugging or other purposes. 
+//A gRPC channel are secure by default via SSL/TLS until TLS is disabled for debugging or other purposes.
 
 
 == Contract between Controller and Agent
@@ -98,9 +99,9 @@ service GoalStateProvisioner {
 
    // Push a group of network resource states
    //
-   // Input: a GoalState object consists of a list of operation requests, and each request contains an 
-   //        operation type and a resource configuration 
-   // Results consist of a list of operation statuses, and each status is a response to one operation 
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an
+   //        operation type and a resource configuration
+   // Results consist of a list of operation statuses, and each status is a response to one operation
    //        request in the input
    //
    // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
@@ -238,4 +239,3 @@ The control plane fast path would requires the following changes:
 - [[kafka_benchmark2]] Benchmarking Kafka Performance: https://hackernoon.com/benchmarking-kafka-performance-part-1-write-throughput-7c7a76ab7db1
 - [[serverless_limit]] Limitations of Serverless: https://www.oreilly.com/library/view/what-is-serverless/9781491984178/ch04.html
 - [[gRPC_benchmark]] gRPC Official Performance Benchmark: https://performance-dot-grpc-testing.appspot.com/explore?dashboard=5652536396611584
-

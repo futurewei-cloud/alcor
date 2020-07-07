@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,13 +25,13 @@ public class RouteManagerRestClient extends AbstractRestClient {
     @Value("${microservices.route.service.url:#{\"\"}}")
     private String routeManagerUrl;
 
-    public RouteWebJson getRouteBySubnetId(String subnetId) throws Exception {
-        String url = routeManagerUrl + "/subnets/" + subnetId + "/routes/" + "routeId";
-        RouteWebJson routeWebJson = restTemplate.getForObject(url, RouteWebJson.class);
-        if (routeWebJson == null) {
+    public RoutesWebJson getRouteBySubnetId(String subnetId) throws Exception {
+        String url = routeManagerUrl + "/subnets/" + subnetId + "/get";
+        RoutesWebJson routesWebJson = restTemplate.getForObject(url, RoutesWebJson.class);
+        if (routesWebJson == null) {
             throw new Exception("Get route by subnet id failed");
         }
 
-        return routeWebJson;
+        return routesWebJson;
     }
 }

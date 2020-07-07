@@ -18,6 +18,7 @@ package com.futurewei.alcor.common.repo;
 
 import com.futurewei.alcor.common.exception.CacheException;
 
+@Deprecated
 public interface Transaction {
     void start() throws CacheException;
 

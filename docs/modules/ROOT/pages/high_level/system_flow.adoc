@@ -1,14 +1,10 @@
 = Key System Flows
+Liguang Xie <lxie@futurewei.com>
+v0.1, 2019-11-20
+:toc: right
+:imagesdir: ../../images
 
 NOTE: This document is under development
-
-//Option 1:
-//
-//image::images/workflow_create.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/workflow_create.JPG"]
-//
-//Option 2:
-//
-//image::images/Create_workflow_option2.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="images/Create_workflow_option2.JPG"]
 
 == VPC/Subnet/Port Workflow
 
@@ -17,15 +13,15 @@ These creation workflow involves multiple microservice types:
 . Customer Resource Management services, each managing a specific resource including VPC, subnet, port, route, IP and MAC
 . Infrastructure services that are invisible to end-users including data-plane managers and node manager
 
-=== Creation Workflow
+=== Vpc/Network Workflow
 
-image::../images/create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="../images/create_api_workflow.jpg"]
+image::create_api_workflow.jpg["API Workflows of Creating VPC, subnet and port across various microservices", width=1024, link="create_api_workflow.jpg"]
 
-plantuml::../../workflows/vpc_create.puml[format="svg", align="center"]
+//plantuml::../../workflows/vpc_create.puml[format="svg", align="center"]
 
-To be updated..
+=== Subnet Workflow
 
-plantuml::../../workflows/subnet_create.puml[format="svg", align="center"]
+//plantuml::../../workflows/subnet_create.puml[format="svg", align="center"]
 
 === Port Workflow
 

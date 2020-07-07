@@ -744,4 +744,21 @@ public class PortServiceImpl implements PortService {
 
         return result;
     }
+
+    @Override
+    public List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception {
+        List<PortWebJson> result = new ArrayList<>();
+
+        Map<String, PortEntity> portEntityMap = portRepository.findAllPortEntities(queryParams);
+        if (portEntityMap == null) {
+            return result;
+        }
+
+        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+            PortWebJson portWebJson = new PortWebJson(entry.getValue());
+            result.add(portWebJson);
+        }
+
+        return result;
+    }
 }
