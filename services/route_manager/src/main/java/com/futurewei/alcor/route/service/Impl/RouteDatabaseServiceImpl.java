@@ -24,7 +24,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     public RouteEntity getByRouteId(String routeId) {
         try {
             return this.routeRepository.findItem(routeId);
-        }catch (Exception e) {
+        }catch (CacheException e) {
             return null;
         }
     }
@@ -44,7 +44,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
-    public void deleteRoute(String id) throws CacheException {
+    public void deleteRoute(String id) throws Exception {
         this.routeRepository.deleteItem(id);
     }
 }

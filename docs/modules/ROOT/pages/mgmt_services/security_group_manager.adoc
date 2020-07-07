@@ -6,8 +6,8 @@ v0.1, 2020-04-08
 == Overview
 
 Security Group Manager is an Alcor microservice which manages the lifecycle of all security groups and security group rules.
-It provides rest interfaces for creating security group, updating security group, deleting security group, creating security group rule, 
-deleting security group rule, port binding security groups, and port unbinding security groups. Port Manager binds port to security groups by 
+It provides rest interfaces for creating security group, updating security group, deleting security group, creating security group rule,
+deleting security group rule, port binding security groups, and port unbinding security groups. Port Manager binds port to security groups by
 interacting with Security Group Manager.By default, each tenant has at least one security group, the default security group, which contains two default ingress security group rules. When tenant creates the first security group, Security Group Manager determines whether the tenant has a default security group, if it does not, create a default security group. If the tenant does not specify a security group when creating the port, the port should bind to the default security group.
 A port can bind to multiple security groups, but bind at least one. When port binds to a security group, Security Group Manager creates a binding relationship table entry between port and security group, and deletes the binding relationship table entry when port is released.
 
@@ -1120,13 +1120,4 @@ None
 
 
 == Concurrency Handling
-
-
-
-
-
-
-
-
-
 

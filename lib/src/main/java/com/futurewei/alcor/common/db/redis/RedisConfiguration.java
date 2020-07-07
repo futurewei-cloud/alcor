@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.db.redis;
 
 
+import com.futurewei.alcor.common.db.ICacheFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -39,11 +40,11 @@ public class RedisConfiguration {
     private int redisHostPort;
 
     @Bean
-    LettuceConnectionFactory lettuceConnectionFactory() {
+    public ICacheFactory redisCacheFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(redisHostName);
         configuration.setPort(redisHostPort);
-        return new LettuceConnectionFactory(configuration);
+        return new RedisCacheFactory(new LettuceConnectionFactory(configuration));
     }
 }
 

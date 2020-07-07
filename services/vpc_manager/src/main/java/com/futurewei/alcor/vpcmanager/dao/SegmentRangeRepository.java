@@ -48,6 +48,11 @@ public class SegmentRangeRepository implements ICacheRepository<NetworkSegmentRa
     }
 
     @Override
+    public Map<String, NetworkSegmentRangeEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
     public void addItem(NetworkSegmentRangeEntity newItem) throws CacheException {
         logger.log(Level.INFO, "Add segment range, Segment Range Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);

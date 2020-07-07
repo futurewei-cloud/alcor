@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.futurewei.alcor.portmanager.util.ResourceBuilder.*;
+import static org.mockito.ArgumentMatchers.anyMap;
 
 public class MockRestClientAndRepository {
     @MockBean
@@ -83,8 +84,8 @@ public class MockRestClientAndRepository {
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
 
         Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
-                .thenReturn(buildRouteWebJson());
-
+                .thenReturn(buildRoutesWebJson());
+      
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId1))
                 .thenReturn(buildSecurityGroupWebJson(UnitTestConfig.securityGroupId1));
 
@@ -109,7 +110,7 @@ public class MockRestClientAndRepository {
         Map<String, PortEntity> portStates = new HashMap<>();
         portStates.put(UnitTestConfig.portId1, buildPortWebJson(UnitTestConfig.portId1).getPortEntity());
 
-        Mockito.when(portRepository.findAllPortEntities())
+        Mockito.when(portRepository.findAllPortEntities(anyMap()))
                 .thenReturn(portStates);
 
         Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))

@@ -68,6 +68,10 @@ public class PortRepository {
         return portCache.getAll();
     }
 
+    public Map<String, PortEntity> findAllPortEntities(Map<String, Object[]> queryParams) throws CacheException {
+        return portCache.getAll(queryParams);
+    }
+
     public synchronized void createPortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             //Add portEntity to portCache
