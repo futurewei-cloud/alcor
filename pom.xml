@@ -37,6 +37,7 @@
         <module>services/private_ip_manager</module>
         <module>services/port_manager</module>
         <module>services/node_manager</module>
+        <module>services/data_plane_manager</module>
         <module>services/security_group_manager</module>
     </modules>
     <packaging>pom</packaging>
