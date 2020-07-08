@@ -55,7 +55,7 @@ A simple gateway approach:
 .. should this be trigger on the gateway or compute host? 
 ... compute host can do better bandwidth measurement locally and it is more distributed
 
-challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flows + NACL info.
+Challenge - we need the compute host to be able to measure the bandwidth used one a VM to VM communication. Only when the bandwidth exceeds some threshold, then we will download the flow rules and NACL to support VM to VM direct communication. This way, we won't overwhelm Alcor server or Gateway to send down too many flows + NACL info.
 
 
 == Route Rule implementation (iptables vs openflow)
@@ -64,12 +64,12 @@ We will move away from neutron's which requires resources for the namespace whic
 
 We will use the more modern openflow rules + openflow controller application to implement our virtual router, which eliminates the usage of TCP/IP stack. It consumes much less resource and provides high routing performance by providing routing support using Openflow rules only.
 
-[Eric/James] Need numbers to justify the adventage once we have our POC implemented.
+[TODO] Need numbers to justify the adventage once we have our POC implemented.
 
 
 == Workflow on Router programming
 
-[Eric/James] What are the steps to program our router/DVR, FIP manager, SNAT manager?
+[TODO] What are the steps to program our router/DVR, FIP manager, SNAT manager?
 
 
 == Virtual Router Implementation
@@ -102,17 +102,9 @@ In order to keep the set of openflow rules lean and small as we scale. The on-de
 
 === ACA Virtual Router Packet Flow
 
+[Eric] to update per current implementation
+
 ==== Table Triage: (openflow table 0)
-
-If nothing matches, send to Table Packet Classifier
-
-[source,shell]
-------------------------------------------------------------
-table=0 ...
-table=0, priority=0 actions=resubmit(,50) (to table Packet Classifier)
-------------------------------------------------------------
-
-==== Table Packet Classifier: (openflow table 50)
 
 . if ARP, send to Table ARP Responder
 . if ICMP, send to Table ICMP Responder
@@ -491,23 +483,19 @@ In Compute Node 1
 
 It is an optional feature to prevent the flooding of ARP packet in the datacenter. Since Neutron server is aware of all virtual mac and virtual IP mappings, we can use that information to prepopluation forwarding entries on all tunnel bridges.
 
-[Eric/James] How does the openflow rule look like? Currently table 20 in openstack.
-
 For scenario with two local ports on the same compute host, connected to the same br-int. The current thinking is to follow the same approach. That's to let the arp packet flood to br-tun, using the prepopulated br-tun's arp responder openflow rule. 
-
-[Eric/James] needs to confirm this and check neutron
 
 
 == Comparison with Neutron router/DVR
 
-How can we do better than the current Openstack setup (DVR)?
+[TODO] How is Alcor DVR solution better than the Openstack setup (DVR)?
 
 
 == Pending Items
 
-. what happen if host crashed, do we just leverage the ovsdb stored data? Or we ask the Alcor controller for the whole set of configuration upon restart?
+. What happen if host crashed, do we just leverage the ovsdb stored data? Or we ask the Alcor controller for the whole set of configuration upon restart?
 
-. how does Neutron router manages connection flows with HA router?
+. How does Neutron router manages connection flows with HA router?
 
 
 [bibliography]
