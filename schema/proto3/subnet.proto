@@ -32,7 +32,9 @@ message SubnetConfiguration {
     string vpc_id = 5;
     string name = 6;
     string cidr = 7;
-    uint32 tunnel_id = 8;
+
+    // TODO: change to uint32 but that would require change in DPM
+    uint64 tunnel_id = 8;
 
     message Gateway {
         string ip_address = 3;
