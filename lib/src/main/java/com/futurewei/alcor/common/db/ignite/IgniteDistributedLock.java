@@ -1,38 +1,49 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.exception.DistributedLockException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import org.apache.ignite.client.ClientCache;
-import org.apache.ignite.client.ClientCacheConfiguration;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.client.ClientException;
-import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.util.Assert;
 
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
-import javax.cache.expiry.ExpiryPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class IgniteDistributedLock implements IDistributedLock {
     private static final Logger logger = LoggerFactory.getLogger();
     private final String name;
-    private ClientCache<String, String> cache;
-    private IgniteClient igniteClient;
+    private IgniteCache<String, String> cache;
     private int tryInterval;
 
-    public IgniteDistributedLock(IgniteClient igniteClient, String name, int tryInterval, int expireTime) {
-        this.igniteClient = igniteClient;
+    public IgniteDistributedLock(Ignite ignite, String name, int tryInterval, int expireTime) {
         this.name = name;
 
         try {
-            ClientCacheConfiguration cfg = new ClientCacheConfiguration();
-            ExpiryPolicy ep = CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, expireTime)).create();
+            CacheConfiguration<String, String> cfg = new CacheConfiguration<>();
             cfg.setName(name);
-            cfg.setExpiryPolicy(ep);
-            cache = igniteClient.getOrCreateCache(cfg);
+            cfg.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, expireTime)));
+            cache = ignite.getOrCreateCache(cfg);
             this.tryInterval = tryInterval;
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create distributed lock cache failed:" + e.getMessage());
@@ -40,18 +51,17 @@ public class IgniteDistributedLock implements IDistributedLock {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
         }
 
-        Assert.notNull(igniteClient, "Create distributed lock failed");
+        Assert.notNull(ignite, "Create distributed lock failed");
     }
 
     @Override
     public void lock(String lockKey) throws DistributedLockException {
-        Boolean locked = false;
+        boolean locked = false;
         String lockKeyWithPrefix = this.name + " lock:" + lockKey;
 
         try {
             while (!locked) {
                 locked = cache.putIfAbsent(lockKeyWithPrefix, "lock");
-                Assert.notNull(locked, "Ignite lock should not run within a transaction");
                 if (!locked) {
                     Thread.sleep(this.tryInterval);
                 }
@@ -64,7 +74,7 @@ public class IgniteDistributedLock implements IDistributedLock {
 
     @Override
     public void unlock(String lockKey) throws DistributedLockException {
-        String lockKeyWithPrefix = this.name + "lock:" + lockKey;
+        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
 
         try {
             cache.remove(lockKeyWithPrefix);

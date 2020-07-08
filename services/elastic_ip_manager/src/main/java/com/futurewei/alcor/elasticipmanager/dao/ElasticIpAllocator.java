@@ -33,6 +33,7 @@ import com.futurewei.alcor.web.entity.ip.IpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
@@ -43,14 +44,20 @@ import java.util.*;
 @ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
 public class ElasticIpAllocator {
+
+    @Value("${elasticip.ipv4.bucket-size:256}")
+    public int IPv4_BUCKETS_COUNT;
+
+    @Value("${elasticip.ipv4.retry-count:10}")
+    private int IPV4_ALLOCATION_MAX_RETRY_COUNT;
+
+    @Value("${elasticip.ipv6.retry-count:2000}")
+    private int IPV6_ALLOCATION_MAX_RETRY_COUNT;
+
     private static final Random random = new Random(System.currentTimeMillis());
     private static final Logger LOG = LoggerFactory.getLogger(ElasticIpAllocator.class);
-    public static final int IPv4_BUCKETS_COUNT = 256;
-    private static final int IPV4_ALLOCATION_MAX_RETRY_COUNT = 10;
-    private static final int IPV6_ALLOCATION_MAX_RETRY_COUNT = 2000;
     public static final BigInteger EIGHT_BYTES_SCOPE_RANGE = BigInteger.valueOf(Long.MAX_VALUE).multiply(
             BigInteger.valueOf(2)).add(BigInteger.valueOf(2));
-
     private final ICache<String, ElasticIpAllocatedIpv4> allocatedIpv4Cache;
     private final ICache<String, ElasticIpAllocatedIpv6> allocatedIpv6Cache;
     private final ICache<String, ElasticIpAvailableBucketsSet> availableBucketsCache;
@@ -182,6 +189,9 @@ public class ElasticIpAllocator {
                         throw new ElasticIpAllocationException();
                     }
                 } else {
+                    // release lock
+                    allocatedIpv4Lock.unlock(ipv4AllocKey);
+
                     LOG.error("The IPv4 allocation bucket is not found:" + bucketIndex);
                     throw new ElasticIpAllocationException();
                 }

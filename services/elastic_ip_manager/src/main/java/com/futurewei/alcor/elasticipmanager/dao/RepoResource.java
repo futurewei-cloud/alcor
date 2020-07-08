@@ -47,6 +47,19 @@ public abstract class RepoResource<T extends Resource> implements ICacheReposito
     }
 
     @Override
+    public Map<String, T> findAllItems(Map<String, Object[]> queryParams) {
+        try {
+            return cache.getAll(queryParams);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error(this.getClass().getName() + " findAllItems(queryParams) exception:", e);
+        }
+
+        return new HashMap<String, T>();
+    }
+
+
+    @Override
     public void addItem(T resource) {
         try {
             cache.put(resource.getId(), resource);

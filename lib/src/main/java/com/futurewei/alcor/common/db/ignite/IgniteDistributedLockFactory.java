@@ -13,21 +13,29 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.db;
+package com.futurewei.alcor.common.db.ignite;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
+import com.futurewei.alcor.common.db.IDistributedLock;
+import com.futurewei.alcor.common.db.IDistributedLockFactory;
+import org.apache.ignite.Ignite;
 
-@ComponentScan
-@Component
-public class DistributedLockFactory {
 
-    @Autowired
-    private IDistributedLockFactory distributedLockFactory;
+public class IgniteDistributedLockFactory implements IDistributedLockFactory {
+    private final Ignite ignite;
+    private final int tryLockInterval;
+    private final int expireTime;
 
+    public IgniteDistributedLockFactory(Ignite ignite, int interval, int expire) {
+        this.ignite = ignite;
+        this.tryLockInterval = interval;
+        this.expireTime = expire;
+    }
+
+    @Override
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
 
-        return this.distributedLockFactory.getDistributedLock(t);
+        return new IgniteDistributedLock(this.ignite, t.getName(), this.tryLockInterval, this.expireTime);
     }
+
+
 }

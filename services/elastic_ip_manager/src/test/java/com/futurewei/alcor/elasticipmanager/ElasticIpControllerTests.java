@@ -18,6 +18,7 @@ package com.futurewei.alcor.elasticipmanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.config.UnitTestConfig;
@@ -33,8 +34,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -57,8 +58,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
-@ActiveProfiles("AclorTest")
-public class ElasticIpControllerTests {
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
+public class ElasticIpControllerTests extends MockIgniteServer {
 
     @Autowired
     private MockMvc mockMvc;
@@ -1017,7 +1018,7 @@ public class ElasticIpControllerTests {
     }
 
     @Before
-    public void init() throws IOException {
+    public void before() throws IOException {
         System.out.println("Start Test-----------------");
     }
 

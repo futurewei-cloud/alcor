@@ -15,19 +15,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.common.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
+public interface IDistributedLockFactory {
 
-@ComponentScan
-@Component
-public class DistributedLockFactory {
-
-    @Autowired
-    private IDistributedLockFactory distributedLockFactory;
-
-    public <T> IDistributedLock getDistributedLock(Class<T> t) {
-
-        return this.distributedLockFactory.getDistributedLock(t);
-    }
+    /**
+     * get a spin lock
+     * @param t class type
+     * @return IDistributedLock
+     */
+    <T> IDistributedLock getDistributedLock(Class<T> t);
 }

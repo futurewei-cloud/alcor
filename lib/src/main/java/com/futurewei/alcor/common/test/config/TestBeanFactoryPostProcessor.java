@@ -19,6 +19,7 @@
 package com.futurewei.alcor.common.test.config;
 
 import com.futurewei.alcor.common.db.ignite.IgniteCacheFactory;
+import com.futurewei.alcor.common.db.ignite.IgniteDistributedLockFactory;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -44,19 +45,29 @@ public class TestBeanFactoryPostProcessor implements BeanDefinitionRegistryPostP
 
     private static final Logger LOG = LoggerFactory.getLogger();
     private static final String IGNITE_BEAN_FACTORY_NAME = "igniteClientFactoryInstance";
+    private static final String IGNITE_DISTRIBUTED_LOCK_BEAN_FACTORY_NAME = "igniteDistributedLockFactoryInstance";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         try {
             System.out.println(Arrays.asList(registry.getBeanDefinitionNames()).toString());
+
             registry.removeBeanDefinition(IGNITE_BEAN_FACTORY_NAME);
             BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
                     .genericBeanDefinition(IgniteCacheFactory.class, () -> {
                         return new IgniteCacheFactory(MockIgniteServer.getIgnite());
                     });
             registry.registerBeanDefinition(IGNITE_BEAN_FACTORY_NAME, beanDefinitionBuilder.getRawBeanDefinition());
+
+            registry.removeBeanDefinition(IGNITE_DISTRIBUTED_LOCK_BEAN_FACTORY_NAME);
+            beanDefinitionBuilder = BeanDefinitionBuilder
+                    .genericBeanDefinition(IgniteDistributedLockFactory.class, () -> {
+                        return new IgniteDistributedLockFactory(MockIgniteServer.getIgnite(), 10, 120);
+                    });
+            registry.registerBeanDefinition(IGNITE_DISTRIBUTED_LOCK_BEAN_FACTORY_NAME,
+                    beanDefinitionBuilder.getRawBeanDefinition());
         } catch (NoSuchBeanDefinitionException e) {
-            LOG.log(Level.WARNING, "get ignite client bean failed : " + e.getMessage());
+            LOG.log(Level.WARNING, "get ignite bean failed : " + e.getMessage());
         }
     }
 
