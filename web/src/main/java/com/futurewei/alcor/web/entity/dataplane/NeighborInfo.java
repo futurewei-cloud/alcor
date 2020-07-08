@@ -29,15 +29,10 @@ public class NeighborInfo {
     @JsonProperty("port_mac")
     private String portMac;
 
+    @JsonProperty("port_ip")
+    private String portIp;
+
     public NeighborInfo() {
-
-    }
-
-    public NeighborInfo(String hostIp, String hostId, String portId, String portMac) {
-        this.hostIp = hostIp;
-        this.hostId = hostId;
-        this.portId = portId;
-        this.portMac = portMac;
     }
 
     public String getHostIp() {
@@ -70,5 +65,40 @@ public class NeighborInfo {
 
     public void setPortMac(String portMac) {
         this.portMac = portMac;
+    }
+
+    public NeighborInfo(String hostIp, String hostId, String portId, String portMac) {
+        this.hostIp = hostIp;
+        this.hostId = hostId;
+        this.portId = portId;
+        this.portMac = portMac;
+    }
+
+    public NeighborInfo(String hostIp, String hostId, String portId,
+                        String portMac, String portIp) {
+        this.hostIp = hostIp;
+        this.hostId = hostId;
+        this.portId = portId;
+        this.portMac = portMac;
+        this.portIp = portIp;
+    }
+
+    public String getPortIp() {
+        return portIp;
+    }
+
+    public void setPortIp(String portIp) {
+        this.portIp = portIp;
+    }
+
+    @Override
+    public int hashCode() {
+       return 1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        NeighborInfo o=(NeighborInfo)obj;
+        return this.hostId.equals(o.hostId)&&this.hostIp.equals(o.hostIp)&&this.portId.equals(o.portId);
     }
 }

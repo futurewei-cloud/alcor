@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 
 import org.slf4j.Logger;
@@ -31,17 +32,20 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @Value("${microservices.dataplane.service.url:#{\"\"}}")
     private String dataPlaneManagerUrl;
 
+    @DurationStatistics
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         //logger.info(new ObjectMapper().writeValueAsString(request));
         restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
     }
 
+    @DurationStatistics
     public void deleteNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request);
     }
 
+    @DurationStatistics
     public void updateNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);

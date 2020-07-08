@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
     @Value("${microservices.sg.service.url:#{\"\"}}")
     private String securityGroupManagerUrl;
 
+    @DurationStatistics
     public SecurityGroupJson getSecurityGroup(String projectId, String securityGroupId) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/security-groups/" + securityGroupId;
         SecurityGroupJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupJson.class);
@@ -36,6 +38,7 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
         return securityGroupWebJson;
     }
 
+    @DurationStatistics
     public SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/security-groups/default/" + tenantId;
         SecurityGroupJson securityGroupWebJson = restTemplate.getForObject(url, SecurityGroupJson.class);
@@ -46,6 +49,7 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
         return securityGroupWebJson;
     }
 
+    @DurationStatistics
     public PortSecurityGroupsJson bindSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/bind-security-groups";
         HttpEntity<PortSecurityGroupsJson> request = new HttpEntity<>(portSecurityGroupsJson);
@@ -57,6 +61,7 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
         return result;
     }
 
+    @DurationStatistics
     public PortSecurityGroupsJson unbindSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/unbind-security-groups";
         HttpEntity<PortSecurityGroupsJson> request = new HttpEntity<>(portSecurityGroupsJson);

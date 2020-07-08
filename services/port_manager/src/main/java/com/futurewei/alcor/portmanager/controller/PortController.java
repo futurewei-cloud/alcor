@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.controller;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
@@ -22,21 +23,19 @@ import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class PortController {
 
     @Autowired
@@ -57,6 +56,7 @@ public class PortController {
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebJson portWebJson) throws Exception {
         PortEntity portEntity = portWebJson.getPortEntity();
@@ -82,6 +82,7 @@ public class PortController {
     @PostMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public PortWebBulkJson createPortBulk(@PathVariable("project_id") String projectId,
                                              @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
@@ -103,6 +104,7 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
+    @DurationStatistics
     public PortWebJson updatePort(@PathVariable("project_id") String projectId,
                                            @PathVariable("port_id") String portId,
                                            @RequestBody PortWebJson portWebJson) throws Exception {
@@ -121,6 +123,7 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @PutMapping({"/project/{project_id}/ports/bulk", "v4/{project_id}/ports/bulk"})
+    @DurationStatistics
     public PortWebBulkJson updatePortBulk(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebBulkJson portWebBulkJson) throws Exception {
         for (PortEntity portEntity: portWebBulkJson.getPortEntities()) {
@@ -140,6 +143,7 @@ public class PortController {
      * @throws Exception Various exceptions that may occur during the delete process
      */
     @DeleteMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
+    @DurationStatistics
     public void deletePort(@PathVariable("project_id") String projectId,
                                 @PathVariable("port_id") String portId) throws Exception {
         portService.deletePort(projectId, portId);
@@ -154,6 +158,7 @@ public class PortController {
      */
     @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
+    @DurationStatistics
     public PortWebJson getPort(@PathVariable("project_id") String projectId,
                                     @PathVariable("port_id") String portId) throws Exception {
         return portService.getPort(projectId, portId);
@@ -167,6 +172,7 @@ public class PortController {
      */
     @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
+    @DurationStatistics
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);

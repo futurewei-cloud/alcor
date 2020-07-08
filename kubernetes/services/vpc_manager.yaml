@@ -4,14 +4,14 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    ignite.host=10.99.135.32
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.route.service.url=http://10.213.43.166:30003/vpcs/
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/vpcs/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,8 +23,7 @@ spec:
   selector:
     matchLabels:
       app: vpcmanager
-  replicas: 1
-  #replicas: 3
+  replicas: 3
   template:
     metadata:
       labels:
@@ -61,7 +60,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8001
+    - port: 9001
       targetPort: 8080
       nodePort: 30001
   selector:

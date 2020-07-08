@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
@@ -194,6 +195,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @Override
+    @DurationStatistics
     public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
@@ -244,6 +246,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @Override
+    @DurationStatistics
     public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
@@ -536,6 +539,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @Override
+    @DurationStatistics
     public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Update port, projectId: {}, portId: {}, PortWebJson: {}",
                 projectId, portId, portWebJson);
@@ -598,6 +602,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the update process
      */
     @Override
+    @DurationStatistics
     public PortWebBulkJson updatePortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
@@ -657,6 +662,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Various exceptions that may occur during the delete process
      */
     @Override
+    @DurationStatistics
     public void deletePort(String projectId, String portId) throws Exception {
         LOG.debug("Delete port, projectId: {}, portId: {}", projectId, portId);
 
@@ -712,6 +718,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Db operation exception
      */
     @Override
+    @DurationStatistics
     public PortWebJson getPort(String projectId, String portId) throws Exception {
         PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
@@ -729,6 +736,7 @@ public class PortServiceImpl implements PortService {
      * @throws Exception Db operation exception
      */
     @Override
+    @DurationStatistics
     public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
@@ -746,6 +754,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 

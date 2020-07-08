@@ -4,15 +4,16 @@ metadata:
   name: port-configmap
 data:
   application.properties: |
-    ignite.host=10.99.135.32
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
-    microservices.vpc.service.url=http://10.213.43.166:30001
-    microservices.subnet.service.url=http://10.213.43.166:30006
-    microservices.ip.service.url=http://10.213.43.166:30007/ips
-    microservices.mac.service.url=http://10.213.43.166:30005/macs
-    microservices.sg.service.url=http://127.0.0.1:8080/securitygroups
-    microservices.route.service.url=http://10.213.43.166:30003/routes
-    microservices.node.service.url=http://10.213.43.166:30009/nodes
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+    microservices.ip.service.url=http://ipmanager-service.default.svc.cluster.local:9004/ips
+    microservices.mac.service.url=http://macmanager-service.default.svc.cluster.local:9005/macs
+    microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008/securitygroups
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
+    microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
+    microservices.dataplane.service.url=http://localhost:8080/v4/port/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,8 +25,7 @@ spec:
   selector:
     matchLabels:
       app: portmanager
-  replicas: 1
-  #replicas: 3
+  replicas: 3
   template:
     metadata:
       labels:
@@ -62,7 +62,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8006
+    - port: 9006
       targetPort: 8080
       nodePort: 30008
   selector:
