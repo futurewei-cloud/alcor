@@ -18,9 +18,8 @@ package com.futurewei.alcor.privateipmanager.service.implement;
 
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
-import com.futurewei.alcor.privateipmanager.exception.IpAddrRangeNotFoundException;
 import com.futurewei.alcor.web.entity.ip.*;
-import com.futurewei.alcor.elasticipmanager.exception.*;
+import com.futurewei.alcor.privateipmanager.exception.*;
 import com.futurewei.alcor.privateipmanager.repo.IpAddrRangeRepo;
 import com.futurewei.alcor.privateipmanager.service.IpAddrService;
 import org.slf4j.Logger;
