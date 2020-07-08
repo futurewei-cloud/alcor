@@ -13,7 +13,7 @@ data:
     microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008/securitygroups
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
-    microservices.dataplane.service.url=http://localhost:8080/v4/port/
+    microservices.dataplane.service.url=http://dpmmanager-service.default.svc.cluster.local:9010/v4/port/
 ---
 apiVersion: apps/v1
 kind: Deployment
