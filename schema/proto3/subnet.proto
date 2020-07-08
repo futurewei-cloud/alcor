@@ -32,11 +32,9 @@ message SubnetConfiguration {
     string vpc_id = 5;
     string name = 6;
     string cidr = 7;
-    int64 tunnel_id = 8;
+    uint32 tunnel_id = 8;
 
     message Gateway {
-        string vpc_id = 1;
-        string subnet_id = 2;
         string ip_address = 3;
         string mac_address = 4;
     }
@@ -46,17 +44,6 @@ message SubnetConfiguration {
     string availability_zone = 11;
     string primary_dns = 12;
     string secondary_dns = 13;
-
-    // start Mizar specific session
-    // note that repeated field are inherently optional
-    message TransitSwitch {
-        string vpc_id = 1;
-        string subnet_id = 2;
-        string ip_address = 3;
-        string mac_address = 4;
-    }
-    repeated TransitSwitch transit_switches = 14;
-    // end Mizar specific session
 }
 
 message SubnetState {
