@@ -4,7 +4,7 @@ metadata:
   name: sg-configmap
 data:
   application.properties: |
-    ignite.host=10.99.135.32
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
 ---
 apiVersion: apps/v1
@@ -17,8 +17,7 @@ spec:
   selector:
     matchLabels:
       app: sgmanager
-  replicas: 1
-  #replicas: 3
+  replicas: 3
   template:
     metadata:
       labels:
@@ -55,7 +54,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8008
+    - port: 9008
       targetPort: 8080
       nodePort: 30010
   selector:
