@@ -35,7 +35,7 @@ spec:
         #- image: fwnetworking/controller:dpm_manager-v0.3.0
           name: dpmmanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorDataPlaneManager-0.1.0.jar", "--spring.config.location=/etc/dpm/application.properties"]
+          command: ["java", "-jar", "/app/AlcorDataPlaneManager-0.1.0-SNAPSHOT.jar", "--spring.config.location=/etc/dpm/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
