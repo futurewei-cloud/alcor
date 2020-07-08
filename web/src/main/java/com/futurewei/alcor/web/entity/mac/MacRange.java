@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.security.DrbgParameters;
 import java.util.BitSet;
 
 @Data
@@ -35,8 +36,9 @@ public class MacRange implements Serializable {
     @JsonProperty("state")
     private String state;
 
-    @JsonIgnore
-    private BitSet bitSet;
+    private long capacity;
+//    @JsonIgnore
+//    private BitSet bitSet;
 
     public MacRange() {
     }
@@ -50,16 +52,53 @@ public class MacRange implements Serializable {
         this.from = from;
         this.to = to;
         this.state = state;
-        this.bitSet = new BitSet();
-
+//        this.bitSet = new BitSet();
+        this.capacity = Long.valueOf(to, 16) - Long.valueOf(from, 16);
     }
 
-    public MacRange(String rangeId, String from, String to, String state, BitSet bitset) {
+//    public MacRange(String rangeId, String from, String to, String state, BitSet bitset) {
+//        this.rangeId = rangeId;
+//        this.from = from;
+//        this.to = to;
+//        this.state = state;
+//        this.bitSet = bitset;
+//    }
+
+
+    public String getRangeId() {
+        return rangeId;
+    }
+
+    public void setRangeId(String rangeId) {
         this.rangeId = rangeId;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
         this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
         this.to = to;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
         this.state = state;
-        this.bitSet = bitset;
+    }
+
+    public long getCapacity() {
+        return capacity;
     }
 }
 
