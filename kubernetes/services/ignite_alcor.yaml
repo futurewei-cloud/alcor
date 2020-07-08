@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ignite-alcor-service
   labels:
-    app: ignite-ip
+    app: ignite-alcor
 spec:
   ports:
     - name: start
@@ -13,26 +13,26 @@ spec:
       port: 10800
       targetPort: 10800
   selector:
-    app: ignite-ip
+    app: ignite-alcor
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: ignite-ip
-  name: ignite-ip
+    app: ignite-alcor
+  name: ignite-alcor
 spec:
   selector:
     matchLabels:
-      app: ignite-ip
-  replicas: 1
+      app: ignite-alcor
+  replicas: 3
   template:
     metadata:
       labels:
-        app: ignite-ip
+        app: ignite-alcor
     spec:
       containers:
-        - name: ignite-ip-node
+        - name: ignite-alcor-node
           image: apacheignite/ignite
           imagePullPolicy: IfNotPresent
 #          env:
@@ -56,7 +56,7 @@ spec:
             - name: port10900
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
-            - name: ignite-ip-config-volume
+            - name: ignite-alcor-config-volume
               mountPath: /opt/ignite/config
       volumes:
-        - name: ignite-ip-config-volume
+        - name: ignite-alcor-config-volume
