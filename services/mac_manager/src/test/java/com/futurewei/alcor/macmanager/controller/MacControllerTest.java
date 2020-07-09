@@ -16,9 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.macmanager.dao.MacAllocatedRepository;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
-import com.futurewei.alcor.macmanager.dao.MacPoolRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import org.junit.After;
@@ -37,11 +37,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.IOException;
-import java.util.BitSet;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,11 +54,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MacControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
     @MockBean
-    MacPoolRepository mockMacPoolRepository;
-    @MockBean
     MacRangeRepository mockMacRangeRepository;
     @MockBean
     MacStateRepository mockMacStateRepository;
+    @MockBean
+    MacAllocatedRepository mockMacAllocatedRepository;
     @Autowired
     private MockMvc mockMvc;
 
@@ -82,24 +82,19 @@ public class MacControllerTest extends MockIgniteServer {
         String strPort = "port1";
         String strState = "Active";
 
-        MacRange macRange = new MacRange("range0", "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
+        MacRange macRange = new MacRange(strRangeId, "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
         MacState macState1 = new MacState("", strProjectId, strVpc, strPort, strState);
         MacState macState2 = new MacState(strMac, strProjectId, strVpc, strPort, strState);
         MacStateJson macStateJson1 = new MacStateJson(macState1);
-        MacStateJson macStateJson2 = new MacStateJson(macState2);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(macStateJson1);
-        when(mockMacRangeRepository.findItem("range0")).thenReturn(macRange);
-        when(mockMacPoolRepository.getSize("range0")).thenReturn((long) 100);
+        String json = om.writeValueAsString(macStateJson1);
+        when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         doNothing().when(mockMacStateRepository).addItem(macState2);
-        doNothing().when(mockMacPoolRepository).addItem("range0", strMac);
-        when(mockMacPoolRepository.getRandomItem("range0")).thenReturn(strMac);
         MvcResult result = this.mockMvc.perform(post("/macs")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.mac_state.mac_address").value(strMac))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.mac_state.mac_address").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.mac_state.project_id").value(strProjectId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.mac_state.vpc_id").value(strVpc))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.mac_state.port_id").value(strPort))
@@ -111,8 +106,7 @@ public class MacControllerTest extends MockIgniteServer {
     @Test
     public void test_createMacState_invalidInput_null() throws Exception {
         MacStateJson macStateJson = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(macStateJson);
+        String json = om.writeValueAsString(macStateJson);
         this.mockMvc.perform(post("/macs")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -123,7 +117,6 @@ public class MacControllerTest extends MockIgniteServer {
     @Test
     public void test_getMacStateByMacAddress() throws Exception {
         MacState macState = new MacState("AA-BB-CC-01-01-01", "project1", "vpc1", "port2", "Active");
-        MacStateJson macStateJson = new MacStateJson(macState);
         String strTestMac = "AA-BB-CC-01-01-01";
         when(mockMacStateRepository.findItem(strTestMac)).thenReturn(macState);
         this.mockMvc.perform(get("/macs/" + strTestMac))
@@ -135,7 +128,6 @@ public class MacControllerTest extends MockIgniteServer {
     @Test
     public void test_getMacStateByMacAddress_invalidMac() throws Exception {
         MacState macState = new MacState("AA-BB-CC-01-01-01", "project1", "vpc1", "port2", "Active");
-        MacStateJson macStateJson = new MacStateJson(macState);
         String strTestMac = "AA-BB-CC-010101";
         try {
             this.mockMvc.perform(get("/macs/" + strTestMac))
@@ -153,19 +145,13 @@ public class MacControllerTest extends MockIgniteServer {
         String strVpc = "vpc1";
         String strPort = "port1";
         String strState = "Active";
-        MacAddress macAddress = new MacAddress("AA-BB-CC", "00-00-00");
-        long nNicLength = (long) Math.pow(2, macAddress.getNicLength());
-        String strFrom = MacAddress.longToNic(0, macAddress.getNicLength());
-        String strTo = MacAddress.longToNic(nNicLength - 1, macAddress.getNicLength());
-        BitSet bitSet = new BitSet((int) nNicLength);
         MacRange macRange = new MacRange("range0", "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
-        macRange.setBitSet(bitSet);
         MacState macState = new MacState("", strProjectId, strVpc, strPort, strState);
         when(mockMacStateRepository.findItem(strMac)).thenReturn(macState);
         doNothing().when(mockMacStateRepository).deleteItem(strMac);
         doNothing().when(mockMacRangeRepository).addItem(macRange);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
-        MvcResult result = this.mockMvc.perform(delete("/macs/" + strMac))
+        this.mockMvc.perform(delete("/macs/" + strMac))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.mac_address").doesNotExist())
@@ -174,7 +160,6 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_activateMacState() throws Exception {
-        String strRangeId = "range0";
         String strMac = "AA-BB-CC-01-01-04";
         String strProjectId = "project1";
         String strVpc = "vpc1";
@@ -183,11 +168,8 @@ public class MacControllerTest extends MockIgniteServer {
         String strState2 = "Active";
         MacState macState1 = new MacState(strMac, strProjectId, strVpc, strPort, strState);
         MacState macState2 = new MacState(strMac, strProjectId, strVpc, strPort, strState2);
-        MacStateJson macStateJson1 = new MacStateJson(macState1);
         MacStateJson macStateJson2 = new MacStateJson(macState2);
-        String strTestMac = macState1.getMacAddress();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(macStateJson2);
+        String json = om.writeValueAsString(macStateJson2);
         when(mockMacStateRepository.findItem(macState1.getMacAddress())).thenReturn(macState2);
         doNothing().when(mockMacStateRepository).addItem(macState2);
         this.mockMvc.perform(put("/macs/" + strMac)
@@ -204,20 +186,15 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_deactivateMacState() throws Exception {
-        String strRangeId = "range0";
         String strMac = "AA-BB-CC-01-01-05";
         String strProjectId = "project1";
         String strVpc = "vpc1";
         String strPort = "port5";
-        String strState = "Active";
         String strState2 = "Inactive";
-        MacState macState1 = new MacState(strMac, strProjectId, strVpc, strPort, strState);
         MacState macState2 = new MacState(strMac, strProjectId, strVpc, strPort, strState2);
-        MacStateJson macStateJson1 = new MacStateJson(macState1);
         MacStateJson macStateJson2 = new MacStateJson(macState2);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(macStateJson2);
-        when(mockMacStateRepository.findItem(macState1.getMacAddress())).thenReturn(macState2);
+        String json = om.writeValueAsString(macStateJson2);
+        when(mockMacStateRepository.findItem(strMac)).thenReturn(macState2);
         doNothing().when(mockMacStateRepository).addItem(macState2);
         this.mockMvc.perform(put("/macs/" + strMac)
                 .content(json)
@@ -235,7 +212,6 @@ public class MacControllerTest extends MockIgniteServer {
     public void test_getMacRangeByMacRangeId() throws Exception {
         MacRange macRange = new MacRange("range1", "00-AA-BB-11-11-11", "00-AA-BB-11-11-FF", "Active");
         String strRangeId = macRange.getRangeId();
-        MacRangeJson macRangeJson = new MacRangeJson(macRange);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         this.mockMvc.perform(get("/macs/ranges/" + strRangeId))
                 .andDo(print())
@@ -246,13 +222,14 @@ public class MacControllerTest extends MockIgniteServer {
     public void test_getAllMacRanges() throws Exception {
         MacRange macRange2 = new MacRange("range2", "00-AA-BB-11-22-22", "00-AA-BB-11-22-FF", "Active");
         MacRange macRange3 = new MacRange("range3", "00-AA-BB-11-33-33", "00-AA-BB-11-22-FF", "Active");
-        Map<String, MacRange> map = new HashMap<String, MacRange>();
+        Map<String, MacRange> map = new Hashtable<>();
         map.put(macRange2.getRangeId(), macRange2);
         map.put(macRange3.getRangeId(), macRange3);
-        when(mockMacRangeRepository.findAllItems()).thenReturn(map);
+        when(mockMacRangeRepository.findAllItems(any())).thenReturn(map);
         this.mockMvc.perform(get("/macs/ranges"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.mac_ranges[0].range_id").value("range2"));
     }
 
     @Test
@@ -273,10 +250,7 @@ public class MacControllerTest extends MockIgniteServer {
     public void updateMacRange() throws Exception {
         MacRange macRange = new MacRange("range5", "00-AA-BB-11-11-11", "00-AA-BB-55-55-55", "Inactive");
         MacRangeJson macRangeJson = new MacRangeJson(macRange);
-        MacRange macRange2 = new MacRange("range5", "00-AA-BB-11-11-11", "00-AA-BB-55-55-55", "Active");
-        MacRangeJson macRangeJson2 = new MacRangeJson(macRange2);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(macRangeJson);
+        String json = om.writeValueAsString(macRangeJson);
         this.mockMvc.perform(put("/macs/ranges/range5")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))

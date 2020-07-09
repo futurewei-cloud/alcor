@@ -23,7 +23,7 @@ public interface MacService {
 
     MacRange getMacRangeByMacRangeId(String macRangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException;
 
-    Map<String, MacRange> getAllMacRanges() throws MacRepositoryTransactionErrorException;
+    Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws MacRepositoryTransactionErrorException;
 
     MacRange createMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException;
 

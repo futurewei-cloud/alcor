@@ -19,6 +19,7 @@ package com.futurewei.alcor.macmanager.controller;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.futurewei.alcor.web.entity.mac.MacRangeJson;
 import com.futurewei.alcor.macmanager.service.MacService;
@@ -27,10 +28,13 @@ import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
 import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
 import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +46,9 @@ public class MacController {
 
     @Autowired
     private MacService service;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @RequestMapping(
             method = GET,
@@ -56,11 +63,7 @@ public class MacController {
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
             MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
             macState = service.getMacStateByMacAddress(macaddress);
-        } catch (ParameterNullOrEmptyException e) {
-            throw e;
-        } catch (MacAddressInvalidException e) {
-            throw e;
-        } catch (MacRepositoryTransactionErrorException e) {
+        } catch (ParameterNullOrEmptyException | MacRepositoryTransactionErrorException | MacAddressInvalidException e) {
             throw e;
         }
 
@@ -172,14 +175,19 @@ public class MacController {
         return new MacRangeJson(macRange);
     }
 
+    @FieldFilter(type = MacRange.class)
     @RequestMapping(
             method = GET,
             value = {"/macs/ranges", "/v4/macs/ranges"})
     public Map<String, Collection<MacRange>> getAllMacRanges() throws Exception {
+
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), MacRange.class);
+
         Map<String, MacRange> macRanges;
         HashMap<String, Collection<MacRange>> map = new HashMap<String, Collection<MacRange>>();
         try {
-            macRanges = service.getAllMacRanges();
+            macRanges = service.getAllMacRanges(queryParams);
         } catch (Exception e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -223,6 +231,9 @@ public class MacController {
         MacRange macRange = null;
         try {
             MacRange inMacRange = resource.getMacRange();
+            if(inMacRange.getRangeId() == null){
+                inMacRange.setRangeId(rangeid);
+            }
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);
             MacManagerRestPreconditionsUtil.verifyMacRangeData(inMacRange);
             MacManagerRestPreconditionsUtil.verifyMacAddressFormat(inMacRange.getFrom());

@@ -18,7 +18,10 @@
 
 package com.futurewei.alcor.macmanager.generate.impl;
 
+import com.futurewei.alcor.macmanager.exception.MacAddressFullException;
+import com.futurewei.alcor.macmanager.exception.MacAddressRetryLimitExceedException;
 import com.futurewei.alcor.macmanager.generate.Generator;
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.RandomUtils;
@@ -41,35 +44,48 @@ public class RandomGenerator implements Generator {
     private static final float HIGH_LOAD_FACTOR = 0.75f;
     private static final float TOP_LOAD_FACTOR = 0.9f;
 
-    @Value("{bottom-request-numbers: #{2}}")
+    @Value("${bottom-request-numbers: 2}")
     private int bottomRequestNumbers;
 
-    @Value("{low-request-numbers: #{6}}")
+    @Value("${low-request-numbers: 6}")
     private int lowRequestNumbers;
 
-    @Value("{middle-request-numbers: #{10}}")
+    @Value("${middle-request-numbers: 10}")
     private int middleRequestNumbers;
 
-    @Value("{high-request-numbers: #{20}}")
+    @Value("${high-request-numbers: 20}")
     private int highRequestNumbers;
 
-    @Value("{top-request-numbers: #{50}}")
+    @Value("${top-request-numbers: 50}")
     private int topRequestNumbers;
 
+    @Value("${macmanager.retrylimit}")
+    private long nRetryLimit;
+
     @Override
-    public Set<String> allocateMac(String oui, MacRange macRange, long used, Function<String[], Set<String>> checker) {
+    public Set<String> allocateMac(String oui, MacRange macRange, long used, Function<String[], Set<String>> checker) throws MacAddressFullException, MacAddressRetryLimitExceedException {
         String fromHexSuffix = getMacSuffix(oui, macRange.getFrom());
         String toHexSuffix = getMacSuffix(oui, macRange.getTo());
         long start = macToLong(fromHexSuffix);
         long end = macToLong(toHexSuffix);
+
+        if(used >= macRange.getCapacity()){
+            throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
+        }
+
         float loadRate = (float) used/macRange.getCapacity();
 
         String[] macs = null;
         Set<String> checkResult = null;
+        int retryTime = 0;
         do {
+            if(retryTime >= nRetryLimit){
+                throw new MacAddressRetryLimitExceedException(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
+            }
             long next = RandomUtils.nextLong(start, end);
             if (loadRate < BOTTOM_LOAD_FACTOR) {
                 macs = new String[]{longToMac(oui, next)};
+                checkResult = checker.apply(macs);
                 break;
             }
 
@@ -94,6 +110,7 @@ public class RandomGenerator implements Generator {
             }
 
             checkResult = checker.apply(macs);
+            retryTime ++;
         }while(checkResult == null || checkResult.size() == macs.length);
 
         Set<String> newAllocatedMacs = new HashSet<>();

@@ -24,11 +24,11 @@ import com.futurewei.alcor.web.entity.mac.MacAddress;
 public class MacUtils {
 
     public static String hexToNic(String hex, int nNicLength) {
-        int length = nNicLength / 4;
-        int lengthDelimiter = Math.round(length / 2) - 1;
+        int lengthDelimiter = Math.round(nNicLength / 2) - 1;
         StringBuilder hexBuilder = new StringBuilder(hex.toUpperCase());
-        while (hexBuilder.length() < length)
+        while (hexBuilder.length() < nNicLength) {
             hexBuilder.insert(0, "0");
+        }
         for (int i = 1; i <= lengthDelimiter; i++) {
             hexBuilder.insert(i * 2 + (i - 1), MacAddress.MAC_DELIMITER);
         }

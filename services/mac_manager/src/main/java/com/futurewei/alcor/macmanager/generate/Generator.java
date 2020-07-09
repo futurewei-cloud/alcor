@@ -18,6 +18,8 @@
 
 package com.futurewei.alcor.macmanager.generate;
 
+import com.futurewei.alcor.macmanager.exception.MacAddressFullException;
+import com.futurewei.alcor.macmanager.exception.MacAddressRetryLimitExceedException;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 
 import java.util.Set;
@@ -25,5 +27,5 @@ import java.util.function.Function;
 
 public interface Generator {
 
-    Set<String> allocateMac(String oui, MacRange macRange, long used, Function<String[], Set<String>> function);
+    Set<String> allocateMac(String oui, MacRange macRange, long used, Function<String[], Set<String>> function) throws MacAddressFullException, MacAddressRetryLimitExceedException;
 }

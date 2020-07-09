@@ -78,20 +78,20 @@ public class MacStateRepository implements ICacheRepository<MacState> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
-    public Map findAllItems() throws CacheException {
-        HashMap hashMap = new HashMap();
+    public Map<String, MacState> findAllItems() throws CacheException {
+        Map<String, MacState> map = null;
         try {
-            hashMap = new HashMap(cache.getAll());
+            map = cache.getAll();
         } catch (CacheException e) {
             logger.error("MacStateRepository findAllItems() exception:", e);
             throw e;
         }
-        return hashMap;
+        return map;
     }
 
     @Override
     public Map<String, MacState> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        Map map = new HashMap();
+        Map<String, MacState> map = null;
         try {
             map = cache.getAll(queryParams);
         } catch (CacheException e) {

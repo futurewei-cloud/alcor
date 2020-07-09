@@ -78,14 +78,14 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      */
     @Override
     public Map<String, MacRange> findAllItems() throws CacheException {
-        HashMap<String, MacRange> hashMap = new HashMap<String, MacRange>();
+        Map<String, MacRange> map = null;
         try {
-            hashMap = new HashMap(cache.getAll());
+            map = cache.getAll();
         } catch (CacheException e) {
             logger.error("MacRangeRepository findAllItems() exception:", e);
             throw e;
         }
-        return hashMap;
+        return map;
     }
 
     /**
@@ -97,7 +97,7 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      */
     @Override
     public Map<String, MacRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        Map<String, MacRange> map = new HashMap<String, MacRange>();
+        Map<String, MacRange> map = null;
         try {
             map = cache.getAll(queryParams);
         } catch (CacheException e) {

@@ -53,7 +53,8 @@ public class MacRange implements Serializable {
         this.to = to;
         this.state = state;
 //        this.bitSet = new BitSet();
-        this.capacity = Long.valueOf(to, 16) - Long.valueOf(from, 16);
+        this.capacity = Long.valueOf(to.replaceAll(MacAddress.MAC_DELIMITER, ""), 16)
+                - Long.valueOf(from.replaceAll(MacAddress.MAC_DELIMITER, ""), 16);
     }
 
 //    public MacRange(String rangeId, String from, String to, String state, BitSet bitset) {
