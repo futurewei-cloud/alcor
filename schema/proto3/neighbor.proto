@@ -23,17 +23,23 @@ option java_outer_classname = "Neighbor";
 
 import "common.proto";
 
+enum NeighborType { 
+    L2 = 0; // the default type
+    L3 = 1;
+    HOST_DVR_MAC;
+}
+
 message NeighborConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
     string id = 3;
-    NetworkType network_type = 4;
-    string project_id = 5;
-    string vpc_id = 6;
-    string name = 7;
-    string mac_address = 8;
-    bool admin_state_up = 9;
+    NeighborType neighbor_type = 4;
+    NetworkType network_type = 5;
+    string project_id = 6;
+    string vpc_id = 7;
+    string name = 8;
+    string mac_address = 9;
     string host_ip_address = 10;
     repeated string host_dvr_mac_addresses = 11;
 

@@ -29,12 +29,12 @@ We want to have a design that is:
 3. All north-south traffic needs to route through the virtual router in the network node.
 4. The virtual router in network node has become the bottleneck, and also single point of failure.
 
-With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed almost of the issues above, although it comes at a cost of code and provision complexity.
+With DVR, an instance of virtual router is installed on the compute node as needed to service the VM, and addressed most of the issues mentioned above, although it comes at a cost of code and provision complexity.
 
 
 == Design Options 1 (Current: Alcor DVR approach)
 
-The prefered design would be a DVR solution which provides direct VM to VM cross subnet communication. It will support all neutron DVR features and have improvement on top of it. The advantages includes:
+The prefered design would be a DVR solution which provides direct VM to VM cross subnet communication. It will support all neutron DVR features and have improvement on top of it. The advantages compare to Neutron DVR includes:
 
 . Direct and not chatty Alcor controller to Alcor control agent communication
 . Using a much leaner openflow rules for routing instead of using namespace and TCP/IP stack (more detail below)
@@ -74,7 +74,7 @@ We will use the more modern openflow rules + openflow controller application to 
 
 == Virtual Router Implementation
 
-A virtual router will be implemented as part of ACA. When Alcor Controller sends down the goal state messages to compute hosts, ACA will create the in memory virtual router object and also the (virtual) gateway ports connected to it. ACA will then configure routing rules in the virtual router object. 
+A virtual router will be implemented by ACA. When Alcor Controller sends down the goal state messages to compute hosts, ACA will create in memory virtual router object and also the (virtual) gateway ports connected to it. ACA will then configure routing rules in the virtual router object. 
 
 To implementation in virtual router as DVR in compute node, it needs to have:
 
@@ -100,9 +100,7 @@ With the first packet sends to CONTROLLER, ACA is acting as the openflow control
 
 In order to keep the set of openflow rules lean and small as we scale. The on-demand rule will have an idle timeout of 60s. That means all the ongoing traffic will keep the rule alive, but if there is no traffic hitting the on-demand rule for 60s. The particular on-demand will be removed and any new traffic will hit the essential first packet rule agent to perform the on-demand rule programming. The idle timeout of 60s is the default and can be configured in ACA.
 
-=== ACA Virtual Router Packet Flow
-
-[Eric] to update per current implementation
+=== ACA Virtual Router Packet Flow with openflow tables
 
 ==== Table Triage: (openflow table 0)
 
@@ -195,138 +193,6 @@ table=55, priority=0 actions=resubmit(,60) (to table External)
 In order for two virtual subnets/networks to communicate with each other, both subnets needs to have a gateway port connects to a router instance, similar to how physical network works. 
 
 For a regular port used by VM/Container, the linux network device and OVS port is created by Nova agent on the compute node. For gateway port, ACA will create a virtual gateway port inside its virtual router implementation.
-
-
-== E2E Packet flows without DVR (neutron namespace/iptable way)
-
-=== Case 1: East-west for instances on different compute hosts on different networks
-
-Project network 1
-
-* Network: 192.168.1.0/24
-* Gateway: 192.168.1.1 with MAC address MAC_G1
-
-Project network 2
-
-* Network: 192.168.2.0/24
-* Gateway: 192.168.2.1 with MAC address MAC_G2
-
-Compute node 1
-
-* Instance 1: 192.168.1.11 using project network 1
-
-Compute node 2
-
-* Instance 2: 192.168.2.11 using project network 2
-
-In Compute Node 1
-
-. Instance 1 sends a packet to instance 2
-. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
-. br-int adds VLAN tag for project network 1
-. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
-. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
-. br-tun forwards the packet to network node via the tunnel interface
-
-In Network Node
-
-. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds VLAN tag for project network 1
-. br-tun forwards the packet to br-int
-. br-int removes the VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
-. qrouter namespace routes packet to qr-2 which contains project network 2 gateway IP 192.168.2.1 with MAC_G2
-. qrouter namespace forwards the packet to br-int
-. br-int adds the VLAN tag for project network 2
-. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
-. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
-. br-tun forwards the packet to compute node 2 via the tunnel interface
-
-In Compute Node 2
-
-. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds VLAN tag for project network 2
-. br-tun forwards the packet to br-int
-. br-int forwards the packet to tap inetrface on instance 2
-
-=== Case 2: North-south for instances with a fixed IP address
-
-External network
-
-* Network: 10.213.0.0/24
-* IP allocation 10.213.0.101 to 10.213.0.200
-* Network router interface 10.213.0.101
-
-Project network 1
-
-* Network: 192.168.1.0/24
-* Gateway: 192.168.1.1 with MAC address MAC_G1
-
-Compute node 1
-
-* Instance 1: 192.168.1.11 using project network 1
-
-In Compute Node 1
-
-. Instance 1 sends a packet to an external host
-. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
-. br-int adds VLAN tag for project network 1
-. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
-. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
-. br-tun forwards the packet to network node via the tunnel interface
-
-In Network Node
-
-. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds VLAN tag for project network 1
-. br-tun forwards the packet to br-int
-. br-int removes VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
-. iptable service perform SNAT on the packet using qg interface as the source IP, qg contains external network router interface 10.213.0.101, and send it to the gateway IP on the provider network
-. qrouter namespace forwards the packet to br-int via qg
-. br-int adds VLAN tag and forwards the packet to br-ex
-. br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
-
-Note: Return traffic follows similar steps in reverse.
-
-=== Case 3: North-south for instances with a floating IP address
-
-External network
-
-* Network: 10.213.0.0/24
-* IP allocation 10.213.0.101 to 10.213.0.200
-* Network router interface 10.213.0.101
-
-[Eric] do we need to make 10.213.0.101 as a gateway interface so that external traffic can be routed to it?
-
-Project network 1
-
-* Network: 192.168.1.0/24
-* Gateway: 192.168.1.1 with MAC address MAC_G1
-
-Compute node 1
-
-* Instance 1: 192.168.1.11 using project network 1, and floating IP 10.213.0.102
-
-In Network Node
-
-. an external host sends a packet to instance 1 using its floating IP 10.213.0.102
-. external interface forwards the packet to br-ex
-. br-ex swaps actual VLAN tag with internal VLAN tag, and forwards the packet to br-int
-. br-int forwards the packet to qg in qrouter namespace, since qg contains instance 1 floating IP 10.213.0.102
-. iptable service perform DNAT on the packet with instance 1 fixed IP 192.168.1.11  
-. qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
-. br-int adds the VLAN tag for project network 1
-. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
-. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
-. br-tun forwards the packet to compute node 1 via the tunnel interface
-
-In Compute Node 1
-
-. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
-. br-tun unwraps the packet and adds VLAN tag for project network 1
-. br-tun forwards the packet to br-int
-. br-int forwards the packet to tap interface on instance 1
-
-Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network.
 
 
 == E2E Packet flow DVR (Alcor openflow way)
@@ -428,7 +294,7 @@ In Network Node
 . br-int adds VLAN tag and forwards the packet to br-ex
 . br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
 
-[Liguang/Eric/James] to discuss a new design without using network node, use a shared external IP, and change to openflow way.
+[TODO] discuss a new design without using network node, use a shared external IP, and change to openflow way.
 
 Note: Return traffic follows similar steps in reverse
 
@@ -440,8 +306,8 @@ External network
 * IP allocation 10.213.0.101 to 10.213.0.200
 * Network router interface 10.213.0.101
 
-[Eric] how can external traffic can be routed to 10.213.0.101 even for floating IP 10.213.0.102?
-[answer] FIP namespace does proxy arp to response to any arp request for any floating IP addresses including 10.213.0.102.
+[Question] how can external traffic can be routed to 10.213.0.101 even for floating IP 10.213.0.102?
+[Answer] FIP namespace does proxy arp to response to any arp request for any floating IP addresses including 10.213.0.102.
 
 Project network 1
 
@@ -463,7 +329,7 @@ In Compute Node 1
 . qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
 . br-int adds the VLAN tag for project network 1, and forwards the packet to tap interface on instance 1
 
-[Liguang/Eric/James] to discuss this design, and change to openflow way.
+[TODO] close on this design, and change to openflow way.
 
 Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network. Below is the complete flow:
 
@@ -478,17 +344,141 @@ In Compute Node 1
 . br-int switches the traffic to br-ex
 . br-ex internal VLAN tag is stripped and replaced with actual VLAN tag used in provider network
 
+== E2E Packet flows without DVR (neutron namespace/iptable way for reference)
+
+=== Case 1: East-west for instances on different compute hosts on different networks
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+
+Project network 2
+
+* Network: 192.168.2.0/24
+* Gateway: 192.168.2.1 with MAC address MAC_G2
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1
+
+Compute node 2
+
+* Instance 2: 192.168.2.11 using project network 2
+
+In Compute Node 1
+
+. Instance 1 sends a packet to instance 2
+. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
+. br-int adds VLAN tag for project network 1
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
+. br-tun forwards the packet to network node via the tunnel interface
+
+In Network Node
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 1
+. br-tun forwards the packet to br-int
+. br-int removes the VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. qrouter namespace routes packet to qr-2 which contains project network 2 gateway IP 192.168.2.1 with MAC_G2
+. qrouter namespace forwards the packet to br-int
+. br-int adds the VLAN tag for project network 2
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
+. br-tun forwards the packet to compute node 2 via the tunnel interface
+
+In Compute Node 2
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 2
+. br-tun forwards the packet to br-int
+. br-int forwards the packet to tap inetrface on instance 2
+
+=== Case 2: North-south for instances with a fixed IP address
+
+External network
+
+* Network: 10.213.0.0/24
+* IP allocation 10.213.0.101 to 10.213.0.200
+* Network router interface 10.213.0.101
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1
+
+In Compute Node 1
+
+. Instance 1 sends a packet to an external host
+. Instance 1 tap interface forwards packet to br-int. The packet contains destination mac MAC_G1 because the destination resides on another network
+. br-int adds VLAN tag for project network 1
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
+. br-tun forwards the packet to network node via the tunnel interface
+
+In Network Node
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 1
+. br-tun forwards the packet to br-int
+. br-int removes VLAN tag and forwards the packet to qr-1 on qrouter namespace, since qr-1 contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. iptable service perform SNAT on the packet using qg interface as the source IP, qg contains external network router interface 10.213.0.101, and send it to the gateway IP on the provider network
+. qrouter namespace forwards the packet to br-int via qg
+. br-int adds VLAN tag and forwards the packet to br-ex
+. br-ex swaps internal VLAN tag to actual VLAN tag, and forwards the packet to external network via the external interface
+
+Note: Return traffic follows similar steps in reverse.
+
+=== Case 3: North-south for instances with a floating IP address
+
+External network
+
+* Network: 10.213.0.0/24
+* IP allocation 10.213.0.101 to 10.213.0.200
+* Network router interface 10.213.0.101
+
+Project network 1
+
+* Network: 192.168.1.0/24
+* Gateway: 192.168.1.1 with MAC address MAC_G1
+
+Compute node 1
+
+* Instance 1: 192.168.1.11 using project network 1, and floating IP 10.213.0.102
+
+In Network Node
+
+. an external host sends a packet to instance 1 using its floating IP 10.213.0.102
+. external interface forwards the packet to br-ex
+. br-ex swaps actual VLAN tag with internal VLAN tag, and forwards the packet to br-int
+. br-int forwards the packet to qg in qrouter namespace, since qg contains instance 1 floating IP 10.213.0.102
+. iptable service perform DNAT on the packet with instance 1 fixed IP 192.168.1.11  
+. qrouter namespace forwards the packet to br-int via qr-1 since it contains the project network 1 gateway IP 192.168.1.1 with MAC_G1
+. br-int adds the VLAN tag for project network 1
+. For VxLAN/GRE project networks, br-int forwards the packet to br-tun
+. br-tun wraps the packet in VxLAN or GRE tunnel and adds a tag (VNI) to identify project network 1
+. br-tun forwards the packet to compute node 1 via the tunnel interface
+
+In Compute Node 1
+
+. For VxLAN and GRE project networks, tunnel interface forward the packet to br-tun
+. br-tun unwraps the packet and adds VLAN tag for project network 1
+. br-tun forwards the packet to br-int
+. br-int forwards the packet to tap interface on instance 1
+
+Note: Return traffic follows similar steps in reverse, but the network node performs SNAT on traffic passing from instance to external network.
+
 
 == L2 Population Optimization
 
 It is an optional feature to prevent the flooding of ARP packet in the datacenter. Since Neutron server is aware of all virtual mac and virtual IP mappings, we can use that information to prepopluation forwarding entries on all tunnel bridges.
 
-For scenario with two local ports on the same compute host, connected to the same br-int. The current thinking is to follow the same approach. That's to let the arp packet flood to br-tun, using the prepopulated br-tun's arp responder openflow rule. 
-
-
-== Comparison with Neutron router/DVR
-
-[TODO] How is Alcor DVR solution better than the Openstack setup (DVR)?
+For scenario with two local ports on the same compute host, connected to the same br-int. The current design is to let the arp packet flood to br-tun, using the prepopulated br-tun's arp responder openflow rule. 
 
 
 == Pending Items
