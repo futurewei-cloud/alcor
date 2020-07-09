@@ -31,6 +31,9 @@ public class MockCache<K, V> implements ICache<K, V> {
         this.transaction = transaction;
     }
 
+    public MockCache() {
+    }
+
     @Override
     public V get(K key) throws CacheException {
         return cache.get(key);

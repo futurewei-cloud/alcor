@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICacheFactory;
+import com.futurewei.alcor.common.db.IDistributedLockFactory;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignite;
@@ -70,16 +71,33 @@ public class IgniteConfiguration {
     @Value("${ignite.thin.client.enable: #{false}}")
     private boolean thinClientEnable;
 
+    @Value("${lock.try.interval:10}")
+    private int tryLockInterval;
+
+    @Value("${lock.expire.time:120}")
+    private int expireTime;
+
     @Bean
     @Primary
     public ICacheFactory igniteClientFactoryInstance(){
         if(thinClientEnable){
-            return thinIgniteClientFactory();
+            return new IgniteClientCacheFactory(this.getThinIgniteClient());
         }
-        return igniteClientFactory();
+        return new IgniteCacheFactory(this.getIgniteClient());
     }
 
-    private ICacheFactory thinIgniteClientFactory() {
+    @Bean
+    @Primary
+    public IDistributedLockFactory igniteDistributedLockFactoryInstance(){
+        if(thinClientEnable){
+            return new IgniteClientDistributedLockFactory(this.getThinIgniteClient(),
+                    this.tryLockInterval, this.expireTime);
+        }
+        return new IgniteDistributedLockFactory(this.getIgniteClient(),
+                this.tryLockInterval, this.expireTime);
+    }
+
+    private IgniteClient getThinIgniteClient() {
         ClientConfiguration cfg = new ClientConfiguration()
                 .setAddresses(host + ":" + port);
 
@@ -103,10 +121,10 @@ public class IgniteConfiguration {
 
         Assert.notNull(igniteClient, "IgniteClient is null");
 
-        return new IgniteClientCacheFactory(igniteClient);
+        return igniteClient;
     }
 
-    private ICacheFactory igniteClientFactory() {
+    private Ignite getIgniteClient() {
         org.apache.ignite.configuration.IgniteConfiguration cfg =
                 new org.apache.ignite.configuration.IgniteConfiguration();
 
@@ -151,6 +169,7 @@ public class IgniteConfiguration {
 
         Assert.notNull(client, "Ignite client is null");
 
-        return new IgniteCacheFactory(client);
+        return client;
     }
+
 }

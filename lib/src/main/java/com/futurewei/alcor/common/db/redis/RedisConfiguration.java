@@ -18,14 +18,18 @@ package com.futurewei.alcor.common.db.redis;
 
 
 import com.futurewei.alcor.common.db.ICacheFactory;
+import com.futurewei.alcor.common.db.IDistributedLock;
+import com.futurewei.alcor.common.db.IDistributedLockFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 @ComponentScan("com.futurewei.alcor.common.db")
@@ -39,12 +43,28 @@ public class RedisConfiguration {
     @Value("${spring.redis.port}")
     private int redisHostPort;
 
+    @Value("${lock.try.interval:10}")
+    private int tryLockInterval;
+
+    @Value("${lock.expire.time:120}")
+    private int expireTime;
+
     @Bean
     public ICacheFactory redisCacheFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(redisHostName);
         configuration.setPort(redisHostPort);
         return new RedisCacheFactory(new LettuceConnectionFactory(configuration));
+    }
+
+    @Bean
+    public IDistributedLockFactory redisDistributedLockFactory() {
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName(redisHostName);
+        configuration.setPort(redisHostPort);
+
+        return new RedisDistributedLockFactory(new LettuceConnectionFactory(configuration),
+                tryLockInterval, expireTime);
     }
 }
 
