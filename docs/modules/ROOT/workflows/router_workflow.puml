@@ -1,0 +1,89 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+
+collections "Port Manager"
+collections "Data Plane Manager"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \nHost 1"
+end box
+
+box "Compute Host 2" #LightGreen
+participant "ACA on \nHost 2"
+end box
+
+==All Scenarios: Alcor DVR created with both GREEN and RED network gateway connected==
+
+==Scenario 0: Alcor DVR creation flow ==
+autonumber 0
+"Port Manager" -> "Data Plane Manager": Create DVR on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Router=CREATE\n(contains unique host 1 DVR mac)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(HOST_DVR_MAC)=CREATE\n(contains host 2 DVR MAC)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+
+"Port Manager" -> "Data Plane Manager": Create DVR on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Router=CREATE\n(contains unique host 2 DVR mac)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(HOST_DVR_MAC)=CREATE\n(contains host 1 DVR MAC)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+
+
+==Scenarios A: GREEN network VM1 on Host 1, RED network VM2 on Host 2==
+
+==Scenario A1: Setup GREEN network VM1 on Host 1 ==
+autonumber 10
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)
+
+==Scenario A2: Setup RED network VM2 on Host 2 ==
+autonumber 20
+"Port Manager" -> "Data Plane Manager": Configure RED network VM2 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)
+
+
+==Scenarios B: GREEN network VM1 and VM3 on Host 1, RED network VM2 and VM4 on Host 2==
+
+==Scenario B1: Setup GREEN network VM1 and VM3 on Host 1 ==
+autonumber 30
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and VM3 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM2 and VM4\n+Subnet=INFO(RED)
+
+==Scenario B2: Setup RED network VM2 and VM4 on Host 2 ==
+autonumber 40
+"Port Manager" -> "Data Plane Manager": Configure RED network VM2 and VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1 and VM3\n+Subnet=INFO(GREEN)
+
+
+==Scenarios C: GREEN network VM1 on Host 1, VM3 on Host 2, RED network VM2 on Host 1, VM4 on Host 2==
+
+==Scenario C1: Setup GREEN network VM1 and RED network VM2 on Host 1 ==
+autonumber 50
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+
+==Scenario C2: Setup GREEN network VM3 and RED network VM4 on Host 2 ==
+autonumber 60
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM3 and RED network VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
+==Scenarios D: GREEN network VM1 on Host 1, RED network VM2 on Host 1 also==
+
+autonumber 70
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+@enduml
+
