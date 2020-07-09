@@ -26,7 +26,7 @@ import "common.proto";
 enum NeighborType { 
     L2 = 0; // the default type
     L3 = 1;
-    HOST_DVR_MAC;
+    HOST_DVR_MAC = 2;
 }
 
 message NeighborConfiguration {
