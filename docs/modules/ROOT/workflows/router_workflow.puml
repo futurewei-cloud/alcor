@@ -66,24 +66,28 @@ autonumber 40
 "Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1 and VM3\n+Subnet=INFO(GREEN)
 
 
-==Scenarios C: GREEN network VM1 on Host 1, VM3 on Host 2, RED network VM2 on Host 1, VM4 on Host 2==
+==Scenarios C: GREEN network VM1 on Host 1, RED network VM2 on Host 1 also==
 
-==Scenario C1: Setup GREEN network VM1 and RED network VM2 on Host 1 ==
 autonumber 50
 "Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
-"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
-
-==Scenario C2: Setup GREEN network VM3 and RED network VM4 on Host 2 ==
-autonumber 60
-"Port Manager" -> "Data Plane Manager": Configure GREEN network VM3 and RED network VM4 on Host 2
 "Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
 
 
-==Scenarios D: GREEN network VM1 on Host 1, RED network VM2 on Host 1 also==
+==Scenarios D: GREEN network VM1 on Host 1, VM3 on Host 2, RED network VM2 on Host 1, VM4 on Host 2==
 
-autonumber 70
+==Scenario D1: Setup GREEN network VM1 and RED network VM2 on Host 1 ==
+autonumber 60
 "Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
 "Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+
+==Scenario D2: Setup GREEN network VM3 and RED network VM4 on Host 2 ==
+autonumber 70
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM3 and RED network VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
 
 @enduml
 

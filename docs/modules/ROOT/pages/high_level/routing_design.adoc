@@ -69,7 +69,9 @@ We will use the more modern openflow rules + openflow controller application to 
 
 == Workflow on Router programming
 
-[TODO] What are the steps to program our router/DVR, FIP manager, SNAT manager?
+image::router_workflow.png[] 
+
+[TODO] What are the steps to program FIP manager, SNAT manager?
 
 
 == Virtual Router Implementation
