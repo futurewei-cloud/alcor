@@ -34,14 +34,18 @@ message NeighborConfiguration {
     uint32 revision_number = 2;
 
     string id = 3;
-    NeighborType neighbor_type = 4;
-    NetworkType network_type = 5;
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
-    string mac_address = 9;
-    string host_ip_address = 10;
-    repeated string host_dvr_mac_addresses = 11;
+    NetworkType network_type = 4;  // we may move this to subnet level
+    string project_id = 5;
+    string vpc_id = 6;
+    string name = 7;
+    string mac_address = 8;
+    string host_ip_address = 9;
+    NeighborType neighbor_type = 10; // L2 (default) or L3 or HOST_DVR_MAC
+
+    message HostDvrMacAddress {
+        string subnet_id = 1;
+        string host_dvr_mac_address = 2;
+    }
 
     message FixedIp {
         string subnet_id = 1;
@@ -53,6 +57,7 @@ message NeighborConfiguration {
         string mac_address = 2;
     }
 
+    repeated HostDvrMacAddress host_dvr_mac_addresses = 11;
     repeated FixedIp fixed_ips = 12;
     repeated AllowAddressPair allow_address_pairs = 13;
 }
