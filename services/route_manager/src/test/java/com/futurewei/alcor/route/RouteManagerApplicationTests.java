@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @AutoConfigureMockMvc
-class RouteApplicationTests {
+class RouteManagerApplicationTests {
 
     @Test
     void contextLoads() {
