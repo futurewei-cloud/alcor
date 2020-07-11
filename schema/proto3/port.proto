@@ -34,13 +34,12 @@ message PortConfiguration {
     MessageType message_type = 3;
 
     string id = 4;
-    NetworkType network_type = 5;
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
-    string network_ns = 9;
-    string mac_address = 10;
-    bool admin_state_up = 11;
+    string project_id = 5;
+    string vpc_id = 6;
+    string name = 7;
+    string network_ns = 8;
+    string mac_address = 9;
+    bool admin_state_up = 10;
 
     message HostInfo {
         string ip_address = 1;
@@ -61,10 +60,10 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 12;
-    repeated FixedIp fixed_ips = 13;
-    repeated AllowAddressPair allow_address_pairs = 14;
-    repeated SecurityGroupId security_group_ids = 15;
+    HostInfo host_info = 11;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated SecurityGroupId security_group_ids = 14;
 
     // start Mizar specific session
     string veth_name = 16;
