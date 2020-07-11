@@ -34,7 +34,7 @@ message PortConfiguration {
     MessageType message_type = 3;
 
     string id = 4;
-    NetworkType network_type = 5;
+    NetworkType network_type = 5; // to be removed, will use the one in subnet
     string project_id = 6;
     string vpc_id = 7;
     string name = 8;
