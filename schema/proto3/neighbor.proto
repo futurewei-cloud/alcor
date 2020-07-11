@@ -19,32 +19,31 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Port";
+option java_outer_classname = "Neighbor";
 
 import "common.proto";
 
-enum MessageType { 
-    DELTA = 0; // the default type
-    FULL = 1;
+enum NeighborType { 
+    L2 = 0; // the default type
+    L3 = 1;
+    HOST_DVR = 2;
 }
 
-message PortConfiguration {
+message NeighborConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
-    MessageType message_type = 3;
 
-    string id = 4;
-    NetworkType network_type = 5; // to be removed, will use the one in subnet
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
-    string network_ns = 9;
-    string mac_address = 10;
-    bool admin_state_up = 11;
+    string id = 3;
+    NeighborType neighbor_type = 4; // L2 (default) or L3 or HOST_DVR_MAC
+    string project_id = 5;
+    string vpc_id = 6;
+    string name = 7;
+    string mac_address = 8;
+    string host_ip_address = 9;
 
-    message HostInfo {
-        string ip_address = 1;
-        string mac_address = 2;
+    message HostDvrMacAddress {
+        string subnet_id = 1;
+        string host_dvr_mac_address = 2;
     }
 
     message FixedIp {
@@ -57,17 +56,12 @@ message PortConfiguration {
         string mac_address = 2;
     }
 
-    message SecurityGroupId {
-        string id = 1;
-    }
-
-    HostInfo host_info = 12;
-    repeated FixedIp fixed_ips = 13;
-    repeated AllowAddressPair allow_address_pairs = 14;
-    repeated SecurityGroupId security_group_ids = 15;
+    repeated HostDvrMacAddress host_dvr_mac_addresses = 10;
+    repeated FixedIp fixed_ips = 11;
+    repeated AllowAddressPair allow_address_pairs = 12;
 }
 
-message PortState {
+message NeighborState {
     OperationType operation_type = 1;
-    PortConfiguration configuration = 2;
+    NeighborConfiguration configuration = 2;
 }

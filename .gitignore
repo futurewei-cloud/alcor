@@ -79,3 +79,6 @@ lib/target/
 
 # Ignite
 ignite/
+
+# mac system file
+.DS_Store
