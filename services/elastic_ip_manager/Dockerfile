@@ -1,6 +1,6 @@
 # Dockerfile for Elastic Ip Manager
 
-FROM openjdk:8
+FROM openjdk:11
 
 MAINTAINER Wei Yuan <dakuaiera@sina.com>
 

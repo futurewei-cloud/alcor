@@ -1,6 +1,6 @@
 # Dockerfile for VPC Manager
 
-FROM openjdk:8
+FROM openjdk:11
 
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
@@ -18,7 +18,5 @@ EXPOSE 8080
 # Generate container image and run container
 #COPY ./target/swagger/swagger.json /app/swagger.json
 COPY ./target/vpcmanager-0.1.0-SNAPSHOT.jar /app/AlcorVpcManager-0.1.0.jar
-#COPY ./config/machine.json /app/config/machine.json
 
 CMD ["java", "-jar", "/app/AlcorVpcManager-0.1.0.jar"]
-

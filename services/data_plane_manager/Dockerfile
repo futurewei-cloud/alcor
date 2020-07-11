@@ -1,6 +1,6 @@
 # Dockerfile for Data Plane Manager
 
-FROM openjdk:8
+FROM openjdk:11
 
 MAINTAINER xzhang2 <xzhang2@futurewei.com>
 

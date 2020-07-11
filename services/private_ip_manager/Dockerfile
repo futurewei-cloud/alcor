@@ -1,6 +1,6 @@
 # Dockerfile for Private Ip Manager
 
-FROM openjdk:8
+FROM openjdk:11
 
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
