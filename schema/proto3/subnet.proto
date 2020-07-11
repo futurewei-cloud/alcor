@@ -28,7 +28,7 @@ message SubnetConfiguration {
     uint32 revision_number = 2;
 
     string id = 3;
-    NetworkType network_type = 4;  // Migrating this to subnet level
+    NetworkType network_type = 4;
     string project_id = 5;
     string vpc_id = 6;
     string name = 7;
