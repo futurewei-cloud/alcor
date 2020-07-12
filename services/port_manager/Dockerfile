@@ -7,7 +7,7 @@ MAINTAINER Piaoping Chen <chenpiaoping@yeah.net>
 EXPOSE 8080
 
 # Generate container image and run container
-COPY ./target/portmanager-0.0.1-SNAPSHOT.jar /app/AlcorPortManager-0.0.1-SNAPSHOT.jar
+COPY ./target/portmanager-0.1.0-SNAPSHOT.jar /app/AlcorPortManager-0.1.0.jar
 
 CMD java -jar /app/AlcorPortManager-0.1.0.jar \
     --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
