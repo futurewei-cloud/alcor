@@ -7,7 +7,7 @@ MAINTAINER Piaoping Chen <chenpiaoping@yeah.net>
 EXPOSE 9008
 
 # Generate container image and run container
-COPY ./target/securitygroupmanager-0.0.1-SNAPSHOT.jar /app/AlcorSecurityGroupManager-0.0.1-SNAPSHOT.jar
+COPY ./target/securitygroupmanager-0.0.1-SNAPSHOT.jar /app/AlcorSecurityGroupManager-0.1.0.jar
 
 CMD java -jar /app/AlcorSecurityGroupManager-0.1.0.jar \
     --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
