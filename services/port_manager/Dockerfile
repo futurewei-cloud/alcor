@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Piaoping Chen <chenpiaoping@yeah.net>
 
-EXPOSE 8080
+EXPOSE 9006
 
 # Generate container image and run container
 COPY ./target/portmanager-0.1.0-SNAPSHOT.jar /app/AlcorPortManager-0.1.0.jar

@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
-EXPOSE 8080
+EXPOSE 9003
 
 # Generate container image and run container
 COPY ./target/routemanager-0.1.0-SNAPSHOT.jar /app/AlcorRouteManager-0.1.0.jar

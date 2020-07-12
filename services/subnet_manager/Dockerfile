@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
-EXPOSE 8080
+EXPOSE 9002
 
 # Generate container image and run container
 COPY ./target/subnetmanager-0.1.0-SNAPSHOT.jar /app/AlcorSubnetManager-0.1.0.jar

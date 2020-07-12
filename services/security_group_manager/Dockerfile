@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Piaoping Chen <chenpiaoping@yeah.net>
 
-EXPOSE 8080
+EXPOSE 9008
 
 # Generate container image and run container
 COPY ./target/securitygroupmanager-0.0.1-SNAPSHOT.jar /app/AlcorSecurityGroupManager-0.0.1-SNAPSHOT.jar

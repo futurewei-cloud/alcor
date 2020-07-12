@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Liguang Xie <lxie@futurewei.com>
 
-EXPOSE 8080
+EXPOSE 9007
 
 # Generate container image and run container
 COPY ./target/nodemanager-0.1.0-SNAPSHOT.jar /app/AlcorNodeManager-0.1.0.jar

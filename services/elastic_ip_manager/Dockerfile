@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Wei Yuan <dakuaiera@sina.com>
 
-EXPOSE 8080
+EXPOSE 9011
 
 # Generate container image and run container
 COPY ./target/elasticipmanager-0.1.0-SNAPSHOT.jar /app/AlcorElasticIpManager-0.1.0.jar

@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 
-EXPOSE 8080
+EXPOSE 9005
 
 # Generate container image and run container
 COPY ./target/macmanager-0.1.0-SNAPSHOT.jar /app/AlcorMacManager-0.1.0.jar

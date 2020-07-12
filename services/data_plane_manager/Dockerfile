@@ -5,7 +5,7 @@ FROM jboss/base-jdk:11
 MAINTAINER xzhang2 <xzhang2@futurewei.com>
 
 # Data Plane Manager process
-EXPOSE 8080
+EXPOSE 9010
 
 # Generate container image and run container
 COPY ./target/dataplanemanager-0.1.0-SNAPSHOT.jar /app/AlcorDataPlaneManager-0.1.0.jar
