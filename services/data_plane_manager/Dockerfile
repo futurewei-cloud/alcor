@@ -8,7 +8,7 @@ MAINTAINER xzhang2 <xzhang2@futurewei.com>
 EXPOSE 8080
 
 # Generate container image and run container
-COPY ./target/AlcorDataPlaneManager-0.1.0-SNAPSHOT.jar /app/AlcorDataPlaneManager-0.1.0-SNAPSHOT.jar
+COPY ./target/dataplanemanager-0.1.0-SNAPSHOT.jar /app/AlcorDataPlaneManager-0.1.0.jar
 
 CMD java -jar /app/AlcorDataPlaneManager-0.1.0.jar \
     --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
