@@ -97,60 +97,38 @@ public class MacController {
             value = {"/macs/bulk", "/v4/macs/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
     public MacStateBulkJson createMacStateBulk(@RequestBody MacStateBulkJson resource) throws Exception {
-        MacStateBulkJson macStates = null;
-        try {
-            for(MacState macState: resource.getMacStates()){
-                MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
-                MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
-            }
-
-            macState = service.createMacStateBulk(resource);
-            if (macState == null) {
-                throw new ResourcePersistenceException();
-            }
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        } catch (Exception e) {
-            throw new Exception(e);
+        for(MacState macState: resource.getMacStates()){
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
+            MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
         }
-        return new MacStateBulkJson(macState);
+
+        return service.createMacStateBulk(resource);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/macs/range/{rangeid}/bulk", "/v4/macs/range/{rangeid}/bulk"})
+            value = {"/macs/range/{rangeId}/bulk", "/v4/macs/range/{rangeId}/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
-    public MacStateBulkJson createMacStateBulkInRange(@RequestBody MacStateBulkJson resource) throws Exception {
-        MacStateBulkJson macStates = null;
-        try {
-            for(MacState macState: resource.getMacStates()){
-                MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
-                MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
-            }
-
-            macState = service.createMacStateBulk(resource);
-            if (macState == null) {
-                throw new ResourcePersistenceException();
-            }
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        } catch (Exception e) {
-            throw new Exception(e);
+    public MacStateBulkJson createMacStateBulkInRange(@PathVariable String rangeId, @RequestBody MacStateBulkJson resource) throws Exception {
+        for(MacState macState: resource.getMacStates()){
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
+            MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
         }
-        return new MacStateBulkJson(macState);
+
+        return service.createMacStateBulkInRange(rangeId, resource);
     }
 
     @RequestMapping(
             method = POST,
-            value = {"/macs/range/{rangeid}", "/v4/macs/range/{rangeid}"})
+            value = {"/macs/range/{rangeId}", "/v4/macs/range/{rangeId}"})
     @ResponseStatus(HttpStatus.CREATED)
-    public MacStateJson createMacStateInRange(@PathVariable String rangeid, @RequestBody MacStateJson resource) throws Exception {
+    public MacStateJson createMacStateInRange(@PathVariable String rangeId, @RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
         try {
             MacState inMacState = resource.getMacState();
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacState);
             MacManagerRestPreconditionsUtil.verifyMacStateData(inMacState);
-            macState = service.createMacStateInRange(rangeid, inMacState);
+            macState = service.createMacStateInRange(rangeId, inMacState);
             if (macState == null) {
                 throw new ResourcePersistenceException();
             }
