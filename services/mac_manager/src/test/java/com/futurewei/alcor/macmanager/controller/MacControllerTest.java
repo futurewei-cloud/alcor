@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.macmanager.dao.MacAllocatedRepository;
+import com.futurewei.alcor.macmanager.dao.MacRangeMappingRepository;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
@@ -58,7 +58,7 @@ public class MacControllerTest extends MockIgniteServer {
     @MockBean
     MacStateRepository mockMacStateRepository;
     @MockBean
-    MacAllocatedRepository mockMacAllocatedRepository;
+    MacRangeMappingRepository mockMacAllocatedRepository;
     @Autowired
     private MockMvc mockMvc;
 
@@ -84,11 +84,10 @@ public class MacControllerTest extends MockIgniteServer {
 
         MacRange macRange = new MacRange(strRangeId, "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
         MacState macState1 = new MacState("", strProjectId, strVpc, strPort, strState);
-        MacState macState2 = new MacState(strMac, strProjectId, strVpc, strPort, strState);
         MacStateJson macStateJson1 = new MacStateJson(macState1);
         String json = om.writeValueAsString(macStateJson1);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
-        doNothing().when(mockMacStateRepository).addItem(macState2);
+        when(mockMacStateRepository.putIfAbsent(any())).thenReturn(true);
         MvcResult result = this.mockMvc.perform(post("/macs")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -225,7 +224,7 @@ public class MacControllerTest extends MockIgniteServer {
         Map<String, MacRange> map = new Hashtable<>();
         map.put(macRange2.getRangeId(), macRange2);
         map.put(macRange3.getRangeId(), macRange3);
-        when(mockMacRangeRepository.findAllItems(any())).thenReturn(map);
+        when(mockMacRangeRepository.findAllItems()).thenReturn(map);
         this.mockMvc.perform(get("/macs/ranges"))
                 .andDo(print())
                 .andExpect(status().isOk())

@@ -16,16 +16,22 @@
  * /
  */
 
-package com.futurewei.alcor.macmanager.generate;
+package com.futurewei.alcor.common.db.repo;
 
-import com.futurewei.alcor.macmanager.exception.MacAddressFullException;
-import com.futurewei.alcor.macmanager.exception.MacAddressRetryLimitExceedException;
-import com.futurewei.alcor.web.entity.mac.MacRange;
 
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
+
+import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
-public interface Generator {
+public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
 
-    void allocateMac(String oui, MacRange macRange, long used, Function<String[], Boolean> function) throws MacAddressFullException, MacAddressRetryLimitExceedException;
+    long size();
+
+    Boolean putIfAbsent(T newItem) throws CacheException;
+
+    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
+
+    Boolean contains(String key) throws CacheException;
 }

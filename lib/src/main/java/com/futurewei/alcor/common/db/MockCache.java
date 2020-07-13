@@ -66,6 +66,25 @@ public class MockCache<K, V> implements ICache<K, V> {
     }
 
     @Override
+    public Boolean putIfAbsent(K var1, V var2) throws CacheException {
+        return cache.putIfAbsent(var1, var2).equals(var2);
+    }
+
+    @Override
+    public Map<K, V> getAll(Set<K> keys) throws CacheException {
+        Map<K, V> filterMap = new HashMap<>();
+        for(K k: keys){
+            filterMap.put(k, cache.getOrDefault(k, null));
+        }
+        return filterMap;
+    }
+
+    @Override
+    public long size() {
+        return cache.size();
+    }
+
+    @Override
     public Transaction getTransaction() {
         return transaction;
     }

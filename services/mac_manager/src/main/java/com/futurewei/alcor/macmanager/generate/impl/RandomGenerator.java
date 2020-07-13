@@ -47,23 +47,23 @@ public class RandomGenerator implements Generator {
     @Value("${bottom-request-numbers: 2}")
     private int bottomRequestNumbers;
 
-    @Value("${low-request-numbers: 6}")
+    @Value("${low-request-numbers: 10}")
     private int lowRequestNumbers;
 
-    @Value("${middle-request-numbers: 10}")
+    @Value("${middle-request-numbers: 20}")
     private int middleRequestNumbers;
 
-    @Value("${high-request-numbers: 20}")
+    @Value("${high-request-numbers: 60}")
     private int highRequestNumbers;
 
-    @Value("${top-request-numbers: 50}")
+    @Value("${top-request-numbers: 400}")
     private int topRequestNumbers;
 
     @Value("${macmanager.retrylimit}")
     private long nRetryLimit;
 
     @Override
-    public Set<String> allocateMac(String oui, MacRange macRange, long used, Function<String[], Set<String>> checker) throws MacAddressFullException, MacAddressRetryLimitExceedException {
+    public void allocateMac(String oui, MacRange macRange, long used, Function<String[], Boolean> checker) throws MacAddressFullException, MacAddressRetryLimitExceedException {
         String fromHexSuffix = getMacSuffix(oui, macRange.getFrom());
         String toHexSuffix = getMacSuffix(oui, macRange.getTo());
         long start = macToLong(fromHexSuffix);
@@ -75,8 +75,8 @@ public class RandomGenerator implements Generator {
 
         float loadRate = (float) used/macRange.getCapacity();
 
-        String[] macs = null;
-        Set<String> checkResult = null;
+        String[] macs;
+        Boolean checkResult;
         int retryTime = 0;
         do {
             if(retryTime >= nRetryLimit){
@@ -85,41 +85,33 @@ public class RandomGenerator implements Generator {
             long next = RandomUtils.nextLong(start, end);
             if (loadRate < BOTTOM_LOAD_FACTOR) {
                 macs = new String[]{longToMac(oui, next)};
+                checkResult  = checker.apply(macs);
+            }else {
+
+                int requestNumbers = getRequestNumbers(loadRate);
+                requestNumbers = requestNumbers > macRange.getCapacity() ? (int) macRange.getCapacity() : requestNumbers;
+                long left = next - requestNumbers / 2;
+                long right = next + requestNumbers / 2 + requestNumbers % 2;
+
+                if (left < start) {
+                    right += start - left;
+                    left = start;
+                }
+
+                if (right > end) {
+                    left -= right - end;
+                    right = end + 1;
+                }
+
+                macs = new String[requestNumbers];
+                for (long i = left; i < right; i++) {
+                    macs[(int) (i - left)] = longToMac(oui, next);
+                }
+
                 checkResult = checker.apply(macs);
-                break;
             }
-
-            int requestNumbers = getRequestNumbers(loadRate);
-            requestNumbers = requestNumbers > macRange.getCapacity() ? (int) macRange.getCapacity() : requestNumbers;
-            long left = next - requestNumbers / 2;
-            long right = next + requestNumbers / 2 + requestNumbers % 2;
-
-            if (left < start) {
-                right += start - left;
-                left = start;
-            }
-
-            if (right > end) {
-                left -= right - end;
-                right = end + 1;
-            }
-
-            macs = new String[requestNumbers];
-            for (long i = left; i < right; i++) {
-                macs[(int) (i - left)] = longToMac(oui, next);
-            }
-
-            checkResult = checker.apply(macs);
             retryTime ++;
-        }while(checkResult == null || checkResult.size() == macs.length);
-
-        Set<String> newAllocatedMacs = new HashSet<>();
-        for(String mac: macs){
-            if (!checkResult.contains(mac)){
-                newAllocatedMacs.add(mac);
-            }
-        }
-        return newAllocatedMacs;
+        }while(!checkResult);
     }
 
     private int getRequestNumbers(float loadRate){

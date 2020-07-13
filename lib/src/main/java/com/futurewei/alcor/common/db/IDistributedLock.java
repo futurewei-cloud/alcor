@@ -21,6 +21,7 @@ public interface IDistributedLock {
 
     void lock(String lockKey) throws DistributedLockException;
 
+
     void unlock(String lockKey) throws DistributedLockException;
 
     /**
@@ -30,4 +31,5 @@ public interface IDistributedLock {
      * @throws DistributedLockException
      */
     Boolean tryLock(String lockKey) throws DistributedLockException;
+
 }
