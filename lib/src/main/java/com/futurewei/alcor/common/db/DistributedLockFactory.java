@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 public class DistributedLockFactory {
 
     @Autowired
-    private IDistributedLockFactory distributedLockFactory;
+    private ICacheFactory distributedLockFactory;
 
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
 

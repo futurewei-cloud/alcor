@@ -37,4 +37,11 @@ public interface ICacheFactory {
      * @return
      */
     <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit);
+
+    /**
+     * get a spin lock
+     * @param t class type
+     * @return IDistributedLock
+     */
+    <T> IDistributedLock getDistributedLock(Class<T> t);
 }

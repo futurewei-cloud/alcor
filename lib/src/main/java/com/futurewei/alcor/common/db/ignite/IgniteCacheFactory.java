@@ -18,6 +18,7 @@ package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
+import com.futurewei.alcor.common.db.IDistributedLock;
 import org.apache.ignite.Ignite;
 
 import javax.cache.expiry.CreatedExpiryPolicy;
@@ -28,9 +29,13 @@ import java.util.concurrent.TimeUnit;
 public class IgniteCacheFactory implements ICacheFactory {
 
     private final Ignite ignite;
+    private final int tryLockInterval;
+    private final int expireTime;
 
-    public IgniteCacheFactory(Ignite ignite) {
+    public IgniteCacheFactory(Ignite ignite, int interval, int expire) {
         this.ignite = ignite;
+        this.tryLockInterval = interval;
+        this.expireTime = expire;
     }
 
     @Override
@@ -49,4 +54,8 @@ public class IgniteCacheFactory implements ICacheFactory {
         return new IgniteDbCache<K, V>(ignite, v.getName(), ep);
     }
 
+    @Override
+    public <T> IDistributedLock getDistributedLock(Class<T> t) {
+        return new IgniteDistributedLock(this.ignite, t.getName(), this.tryLockInterval, this.expireTime);
+    }
 }
