@@ -25,11 +25,8 @@ import com.futurewei.alcor.macmanager.dao.MacRangeMappingRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import com.futurewei.alcor.macmanager.generate.Generator;
-import com.futurewei.alcor.web.entity.mac.MacAddress;
-import com.futurewei.alcor.web.entity.mac.MacAllocate;
-import com.futurewei.alcor.web.entity.mac.MacRange;
+import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.macmanager.exception.*;
 import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
 import com.google.common.collect.Sets;
@@ -99,29 +96,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressRetryLimitExceedException    MAC addresss creation is tried more than limit
      */
     public MacState createMacState(MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressFullException, MacAddressRetryLimitExceedException {
-        if (macState == null)
-            throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-
-        String macAddress = macState.getMacAddress();
-        if(!StringUtils.isEmpty(macAddress)){
-            try {
-                MacState dbMacState = macStateRepository.findItem(macAddress);
-                if(dbMacState != null){
-                    throw new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION);
-                }
-                macStateRepository.addItem(macState);
-                return macState;
-            } catch (CacheException e) {
-                throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
-            }
-        }
-
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
-        try {
-            macState = createMacStateInRange(rangeId, macState);
-        } catch (CacheException e) {
-            throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
-        }
+        macState = createMacStateInRange(rangeId, macState);
         return macState;
     }
 
@@ -142,44 +118,43 @@ public class MacServiceImpl implements MacService {
     public MacState createMacStateInRange(String rangeId, MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressRetryLimitExceedException, MacAddressFullException {
         if (macState == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
-        MacAddress macAddress = new MacAddress();
-        if (macState.getState() == null)
+        if (StringUtils.isEmpty(macState.getState()))
             macState.setState(MacManagerConstant.MAC_STATE_ACTIVE);
-        else if (macState.getState().trim().length() == 0)
-            macState.setState(MacManagerConstant.MAC_STATE_ACTIVE);
-        try {
-            MacRange range = macRangeRepository.findItem(rangeId);
-            /* Default MAC range: MAC address is generated in a MAC range betwen from ~ to, if there is no active user defined MAC range, by default default MAC range is applied.
-             *  Default MAC range: name is defined MacManagerConstant class, range is all oui range. e.g.)
-             * if oui=AA-BB-CC then default MAC range is AA-BB-CC-00-00-00 ~ AA-BB-CC-FF-FF-FF. */
-            if (range == null) {
-                if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE)) {
-                    range = createDefaultRange(oui);
-                } else {
-                    throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_NOT_EXISTING);
+
+        // check macState if have mac
+        String macAddress = macState.getMacAddress();
+        if(!StringUtils.isEmpty(macAddress)){
+            try {
+                MacState dbMacState = macStateRepository.findItem(macAddress);
+                if(dbMacState != null){
+                    throw new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION);
                 }
-            } else if (!range.getState().equals(MacManagerConstant.MAC_RANGE_STATE_ACTIVE)) {
-                throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_NOT_ACTIVE);
+                macStateRepository.addItem(macState);
+                return macState;
+            } catch (CacheException e) {
+                throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
             }
+        }
+
+        try {
+            MacRange range = ensureRange(rangeId);
 
             final String realRangeId = range.getRangeId();
-            macState.setRangeId(realRangeId);
 
             long used = macRangeMappingRepository.size(realRangeId);
             generator.allocateMac(oui, range, used, allocatedMacs -> {
-                boolean flag = false;
                 int len = allocatedMacs.length;
                 if (len < MUTIL_QUERY_THRESHOLD){
                     for(String mac: allocatedMacs){
                         macState.setMacAddress(mac);
-                        if(flag = trySaveMac(realRangeId, mac, macState)){
-                            break;
+                        if(trySaveMac(realRangeId, mac, macState)){
+                           return true;
                         }
                     }
                 }else{
                     // get too many result change to bulk handle
                     Set<String> keys = Sets.newHashSet(allocatedMacs);
-                    Map<String, MacState> map = null;
+                    Map<String, MacState> map;
                     try {
                         map = macStateRepository.findAllItems(keys);
                     } catch (CacheException e) {
@@ -188,14 +163,14 @@ public class MacServiceImpl implements MacService {
                     for(String mac: allocatedMacs){
                         if(!map.containsKey(mac)){
                             macState.setMacAddress(mac);
-                            if(flag = trySaveMac(realRangeId, mac, macState)){
-                                break;
+                            if(trySaveMac(realRangeId, mac, macState)){
+                                return true;
                             }
                         }
                     }
                 }
 
-                return flag;
+                return false;
             });
 
         } catch (CacheException e) {
@@ -396,6 +371,102 @@ public class MacServiceImpl implements MacService {
     }
 
     /**
+     * create bulk MacState in default MAC range
+     *
+     * @param macStateBulkJson MAC allocation states
+     * @return MAC allocation state with an allocated MAC address
+     * @throws Exception create Exceptions
+     */
+    @Override
+    public MacStateBulkJson createMacStateBulk(MacStateBulkJson macStateBulkJson) throws Exception {
+        return createMacStateBulkInRange(MacManagerConstant.DEFAULT_RANGE, macStateBulkJson);
+    }
+
+    /**
+     * create bulk MacState in range
+     *
+     * @param macStateBulkJson MAC allocation state
+     * @param rangeId  MAC address range to create
+     * @return MAC allocation state with an allocated MAC address
+     * @throws Exception create Exceptions
+     */
+    @Override
+    public MacStateBulkJson createMacStateBulkInRange(String rangeId, MacStateBulkJson macStateBulkJson) throws Exception {
+        // handle exist macs
+        List<MacState> createNewMacList = new ArrayList<>();
+        Iterator<MacState> macStateIterator = macStateBulkJson.getMacStates().iterator();
+        while(macStateIterator.hasNext()){
+            MacState macState = macStateIterator.next();
+            if(StringUtils.isEmpty(macState.getMacAddress())){
+                createNewMacList.add(macState);
+            }else if(!trySaveMac(rangeId, macState.getMacAddress(), macState)){
+                macStateIterator.remove();
+            }
+        }
+        if(createNewMacList.isEmpty()){
+            return macStateBulkJson;
+        }
+
+        // ensure range is created
+        MacRange range = ensureRange(rangeId);
+
+        Iterator<MacState> newIt = createNewMacList.iterator();
+        final String realRangeId = range.getRangeId();
+        long used = macRangeMappingRepository.size(realRangeId);
+        generator.allocateMac(oui, range, used, allocatedMacs -> {
+            MacState macState;
+            if(newIt.hasNext()){
+                macState = newIt.next();
+            }else{
+                return true;
+            }
+
+            int len = allocatedMacs.length;
+            if (len < MUTIL_QUERY_THRESHOLD){
+                for(int i=0;i<allocatedMacs.length;i++){
+                    String mac = allocatedMacs[i];
+                    macState.setMacAddress(mac);
+                    if(trySaveMac(realRangeId, mac, macState)){
+                        if(!newIt.hasNext()){
+                            return true;
+                        }
+                        if(i < allocatedMacs.length - 1) {
+                            macState = newIt.next();
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // get too many result change to bulk handle
+            Set<String> keys = Sets.newHashSet(allocatedMacs);
+            Map<String, MacState> map;
+            try {
+                map = macStateRepository.findAllItems(keys);
+            } catch (CacheException e) {
+                map = new HashMap<>();
+            }
+            for(int i=0;i<allocatedMacs.length;i++){
+                String mac = allocatedMacs[i];
+                if(!map.containsKey(mac)){
+                    macState.setMacAddress(mac);
+                    if(trySaveMac(realRangeId, mac, macState)){
+
+                        if(!newIt.hasNext()){
+                            return true;
+                        }
+                        if(i < allocatedMacs.length - 1) {
+                            macState = newIt.next();
+                        }
+                    }
+                }
+            }
+            return false;
+        });
+        return macStateBulkJson;
+    }
+
+    /**
      * verify MAC range values
      *
      * @param macRange MAC range data
@@ -408,6 +479,32 @@ public class MacServiceImpl implements MacService {
         long from = MacAddress.macToLong(new MacAddress(strFrom).getNic());
         long to = MacAddress.macToLong(new MacAddress(strTo).getNic());
         return from < to;
+    }
+
+    /**
+     * ensure range is created
+     * @param rangeId the range id
+     * @return MacRange
+     * @throws CacheException
+     * @throws MacRangeInvalidException
+     */
+    private MacRange ensureRange(String rangeId) throws CacheException, MacRangeInvalidException {
+        MacRange range = macRangeRepository.findItem(rangeId);
+
+        if(range != null){
+            if (!range.getState().equals(MacManagerConstant.MAC_RANGE_STATE_ACTIVE)){
+                throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_NOT_ACTIVE);
+            }
+            return range;
+        }
+        /* Default MAC range: MAC address is generated in a MAC range betwen from ~ to, if there is no active user defined MAC range, by default default MAC range is applied.
+         *  Default MAC range: name is defined MacManagerConstant class, range is all oui range. e.g.)
+         * if oui=AA-BB-CC then default MAC range is AA-BB-CC-00-00-00 ~ AA-BB-CC-FF-FF-FF. */
+        if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE)) {
+            return createDefaultRange(oui);
+        } else {
+            throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_NOT_EXISTING);
+        }
     }
 
     /**
@@ -439,6 +536,7 @@ public class MacServiceImpl implements MacService {
     private boolean trySaveMac(String rangeId, String macAddress, MacState macState){
         boolean flag = false;
         try {
+            macState.setRangeId(rangeId);
             flag = macStateRepository.putIfAbsent(macState);
             if(flag){
                 macRangeMappingRepository.addItem(rangeId, new MacAllocate(rangeId, macAddress));

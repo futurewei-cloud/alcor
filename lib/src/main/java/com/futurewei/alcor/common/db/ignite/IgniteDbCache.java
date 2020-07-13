@@ -207,7 +207,6 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public long size() {
-        cache.destroy();
         return cache.size(CachePeekMode.ALL);
     }
 

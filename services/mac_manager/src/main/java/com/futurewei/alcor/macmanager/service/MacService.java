@@ -6,6 +6,7 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.macmanager.exception.*;
+import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 
 
 import java.util.Map;
@@ -30,4 +31,8 @@ public interface MacService {
     MacRange updateMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException;
 
     String deleteMacRange(String rangeid) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeDeleteNotAllowedException;
+
+    MacStateBulkJson createMacStateBulk(MacStateBulkJson macStateBulkJson) throws Exception;
+
+    MacStateBulkJson createMacStateBulkInRange(String rangeId, MacStateBulkJson macStateBulkJson) throws Exception;
 }

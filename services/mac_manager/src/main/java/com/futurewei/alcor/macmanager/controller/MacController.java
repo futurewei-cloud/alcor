@@ -20,11 +20,8 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
-import com.futurewei.alcor.web.entity.mac.MacRange;
-import com.futurewei.alcor.web.entity.mac.MacRangeJson;
+import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.web.entity.mac.MacState;
-import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
 import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
 import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
@@ -93,6 +90,54 @@ public class MacController {
             throw new Exception(e);
         }
         return new MacStateJson(macState);
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/macs/bulk", "/v4/macs/bulk"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public MacStateBulkJson createMacStateBulk(@RequestBody MacStateBulkJson resource) throws Exception {
+        MacStateBulkJson macStates = null;
+        try {
+            for(MacState macState: resource.getMacStates()){
+                MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
+                MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
+            }
+
+            macState = service.createMacStateBulk(resource);
+            if (macState == null) {
+                throw new ResourcePersistenceException();
+            }
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+        return new MacStateBulkJson(macState);
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/macs/range/{rangeid}/bulk", "/v4/macs/range/{rangeid}/bulk"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public MacStateBulkJson createMacStateBulkInRange(@RequestBody MacStateBulkJson resource) throws Exception {
+        MacStateBulkJson macStates = null;
+        try {
+            for(MacState macState: resource.getMacStates()){
+                MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
+                MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
+            }
+
+            macState = service.createMacStateBulk(resource);
+            if (macState == null) {
+                throw new ResourcePersistenceException();
+            }
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+        return new MacStateBulkJson(macState);
     }
 
     @RequestMapping(
