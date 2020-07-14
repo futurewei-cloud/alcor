@@ -52,8 +52,6 @@ public class IgniteConfiguration {
 
     private static final String THICK_CLIENT = "ThickClient";
 
-    private static final String DISTRIBUTED_LOCK_CLIENT = "DistributedLockClient";
-
     @Value("${ignite.host}")
     private String host;
 
@@ -85,19 +83,11 @@ public class IgniteConfiguration {
     @Primary
     public ICacheFactory igniteClientFactoryInstance(){
         if(thinClientEnable){
-            return new IgniteClientCacheFactory(this.getThinIgniteClient());
-        }
-        return new IgniteCacheFactory(this.getIgniteClient(THICK_CLIENT));
-    }
 
-    @Bean
-    @Primary
-    public IDistributedLockFactory igniteDistributedLockFactoryInstance(){
-        if(thinClientEnable){
-            return new IgniteClientDistributedLockFactory(this.getThinIgniteClient(),
+            return new IgniteClientCacheFactory(this.getThinIgniteClient(),
                     this.tryLockInterval, this.expireTime);
         }
-        return new IgniteDistributedLockFactory(this.getIgniteClient(DISTRIBUTED_LOCK_CLIENT),
+        return new IgniteCacheFactory(this.getIgniteClient(THICK_CLIENT),
                 this.tryLockInterval, this.expireTime);
     }
 
@@ -140,7 +130,7 @@ public class IgniteConfiguration {
         cfg.setClientMode(true);
 
         // Classes of custom Java logic will be transferred over the wire from this app.
-        cfg.setPeerClassLoadingEnabled(false);
+        cfg.setPeerClassLoadingEnabled(true);
 
         // Setting up an IP Finder to ensure the client can locate the servers.
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();

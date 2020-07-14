@@ -54,17 +54,7 @@ public class RedisConfiguration {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(redisHostName);
         configuration.setPort(redisHostPort);
-        return new RedisCacheFactory(new LettuceConnectionFactory(configuration));
-    }
-
-    @Bean
-    public IDistributedLockFactory redisDistributedLockFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(redisHostName);
-        configuration.setPort(redisHostPort);
-
-        return new RedisDistributedLockFactory(new LettuceConnectionFactory(configuration),
-                tryLockInterval, expireTime);
+        return new RedisCacheFactory(new LettuceConnectionFactory(configuration), tryLockInterval, expireTime);
     }
 }
 
