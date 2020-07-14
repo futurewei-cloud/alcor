@@ -25,6 +25,7 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 public class IgniteCacheFactory implements ICacheFactory {
 
@@ -56,6 +57,6 @@ public class IgniteCacheFactory implements ICacheFactory {
 
     @Override
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
-        return new IgniteDistributedLock(this.ignite, t.getName(), this.tryLockInterval, this.expireTime);
+        return new IgniteDistributedLock(this.ignite, LOCK_PREFIX + t.getName(), this.tryLockInterval, this.expireTime);
     }
 }

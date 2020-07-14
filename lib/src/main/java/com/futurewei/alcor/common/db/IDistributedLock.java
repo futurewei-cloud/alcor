@@ -22,4 +22,12 @@ public interface IDistributedLock {
     void lock(String lockKey) throws DistributedLockException;
 
     void unlock(String lockKey) throws DistributedLockException;
+
+    /**
+     * try lock once, return immediately
+     * @param lockKey
+     * @return true if locked success else return false
+     * @throws DistributedLockException
+     */
+    Boolean tryLock(String lockKey) throws DistributedLockException;
 }

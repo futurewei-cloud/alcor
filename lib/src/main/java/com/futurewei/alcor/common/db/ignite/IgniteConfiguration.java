@@ -130,7 +130,7 @@ public class IgniteConfiguration {
         cfg.setClientMode(true);
 
         // Classes of custom Java logic will be transferred over the wire from this app.
-        cfg.setPeerClassLoadingEnabled(false);
+        cfg.setPeerClassLoadingEnabled(true);
 
         // Setting up an IP Finder to ensure the client can locate the servers.
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();

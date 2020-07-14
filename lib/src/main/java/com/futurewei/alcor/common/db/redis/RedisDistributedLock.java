@@ -73,4 +73,15 @@ public class RedisDistributedLock implements IDistributedLock {
         }
     }
 
+    @Override
+    public Boolean tryLock(String lockKey) throws DistributedLockException {
+        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        try {
+            return redisTemplate.opsForValue().setIfAbsent(lockKeyWithPrefix, "lock",
+                    this.expireTime, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Redis lock error:" + e.getMessage());
+            throw new DistributedLockException(e.getMessage());
+        }
+    }
 }

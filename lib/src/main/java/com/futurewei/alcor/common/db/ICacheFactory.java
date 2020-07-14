@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 public interface ICacheFactory {
 
+    String LOCK_PREFIX = "lock-";
+
     /**
      * get a persistence cache
      * @return

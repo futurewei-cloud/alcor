@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
 public class IgniteDistributedLock implements IDistributedLock {
@@ -82,5 +83,11 @@ public class IgniteDistributedLock implements IDistributedLock {
             logger.log(Level.WARNING, "Ignite unlock error:" + e.getMessage());
             throw new DistributedLockException(e.getMessage());
         }
+    }
+
+    @Override
+    public Boolean tryLock(String lockKey) throws DistributedLockException {
+        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        return cache.putIfAbsent(lockKeyWithPrefix, "lock");
     }
 }

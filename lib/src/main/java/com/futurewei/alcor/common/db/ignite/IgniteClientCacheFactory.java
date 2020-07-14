@@ -63,6 +63,6 @@ public class IgniteClientCacheFactory implements ICacheFactory {
 
     @Override
     public <T> IDistributedLock getDistributedLock(Class<T> t) {
-        return new IgniteClientDistributedLock(this.igniteClient, t.getName(), this.tryLockInterval, this.expireTime);
+        return new IgniteClientDistributedLock(this.igniteClient, LOCK_PREFIX + t.getName(), this.tryLockInterval, this.expireTime);
     }
 }

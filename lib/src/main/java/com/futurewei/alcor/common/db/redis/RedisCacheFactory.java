@@ -77,6 +77,6 @@ public class RedisCacheFactory implements ICacheFactory {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(lettuceConnectionFactory);
 
-        return new RedisDistributedLock(template, t.getName(), tryLockInterval, expireTime);
+        return new RedisDistributedLock(template, LOCK_PREFIX + t.getName(), tryLockInterval, expireTime);
     }
 }
