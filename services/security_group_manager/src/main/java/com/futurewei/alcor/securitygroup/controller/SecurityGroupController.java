@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.securitygroup.controller;
 
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -26,6 +27,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,7 @@ import java.util.Map;
 import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SecurityGroupController {
 
     @Autowired
@@ -47,6 +50,7 @@ public class SecurityGroupController {
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SecurityGroupJson createSecurityGroup(@PathVariable("project_id") String projectId,
                                                  @RequestBody SecurityGroupJson securityGroupJson) throws Exception {
         checkProjectId(projectId);
@@ -60,6 +64,7 @@ public class SecurityGroupController {
     @PostMapping({"/project/{project_id}/security-groups/bulk", "v4/{project_id}/security-groups/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SecurityGroupBulkJson createSecurityGroupBulk(@PathVariable("project_id") String projectId,
                                                          @RequestBody SecurityGroupBulkJson securityGroupBulkJson) throws Exception {
         checkProjectId(projectId);
@@ -81,6 +86,7 @@ public class SecurityGroupController {
     }
 
     @PutMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
+    @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(@PathVariable("project_id") String projectId,
                                                  @PathVariable("security_group_id") String securityGroupId,
                                                  @RequestBody SecurityGroupJson securityGroupJson) throws Exception {
@@ -92,6 +98,7 @@ public class SecurityGroupController {
     }
 
     @DeleteMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
+    @DurationStatistics
     public void deleteSecurityGroup(@PathVariable("project_id") String projectId,
                                     @PathVariable("security_group_id") String securityGroupId) throws Exception {
         checkProjectId(projectId);
@@ -102,6 +109,7 @@ public class SecurityGroupController {
 
     @FieldFilter(type=SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
+    @DurationStatistics
     public SecurityGroupJson getSecurityGroup(@PathVariable("project_id") String projectId,
                                               @PathVariable("security_group_id") String securityGroupId) throws Exception {
         checkProjectId(projectId);
@@ -111,6 +119,7 @@ public class SecurityGroupController {
     }
 
     @GetMapping({"/project/{project_id}/security-groups/default/{tenant_id}", "v4/{project_id}/security-groups/default/{tenant_id}}"})
+    @DurationStatistics
     public SecurityGroupJson getDefaultSecurityGroup(@PathVariable("project_id") String projectId,
                                                      @PathVariable("tenant_id") String tenantId) throws Exception {
         checkProjectId(projectId);
@@ -121,6 +130,7 @@ public class SecurityGroupController {
 
     @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
+    @DurationStatistics
     public SecurityGroupsJson listSecurityGroup(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
 
@@ -143,6 +153,7 @@ public class SecurityGroupController {
     @PostMapping({"/project/{project_id}/bind-security-groups", "v4/{project_id}/bind-security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public PortSecurityGroupsJson bindSecurityGroups(@PathVariable("project_id") String projectId,
                                                      @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         checkPortSecurityGroups(projectId, portSecurityGroupsJson);
@@ -153,6 +164,7 @@ public class SecurityGroupController {
     @PostMapping({"/project/{project_id}/unbind-security-groups", "v4/{project_id}/unbind-security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public PortSecurityGroupsJson unbindSecurityGroups(@PathVariable("project_id") String projectId,
                                                        @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         checkPortSecurityGroups(projectId, portSecurityGroupsJson);

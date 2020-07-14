@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.privateipmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.privateipmanager.config.UnitTestConfig;
 import com.futurewei.alcor.privateipmanager.repo.IpAddrRangeRepo;
 import com.futurewei.alcor.web.entity.ip.IpAddrRangeRequest;
@@ -49,12 +50,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class IpAddrControllerTest {
+public class IpAddrControllerTest extends MockIgniteServer {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private IpAddrRangeRepo ipAddrRangeRepo;
+    //@MockBean
+    //private IpAddrRangeRepo ipAddrRangeRepo;
 
     @Test
     public void Test01_createIpAddrRangeTest() throws Exception {
@@ -78,8 +79,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test02_getIpAddrRangeTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.getIpAddrRange(UnitTestConfig.rangeId))
-                .thenReturn(buildIpAddrRange());
+        //Mockito.when(ipAddrRangeRepo.getIpAddrRange(UnitTestConfig.rangeId))
+        //        .thenReturn(buildIpAddrRange());
 
         this.mockMvc.perform(get(UnitTestConfig.ipRangeUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
@@ -95,8 +96,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test04_allocateIpAddrTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.allocateIpAddr(Mockito.any(IpAddrRequest.class)))
-                .thenReturn(buildIpAddrAlloc());
+        //Mockito.when(ipAddrRangeRepo.allocateIpAddr(Mockito.any(IpAddrRequest.class)))
+        //        .thenReturn(buildIpAddrAlloc());
 
         IpAddrRequest ipAddrRequest = new IpAddrRequest(
                 UnitTestConfig.ipv4,
@@ -119,8 +120,8 @@ public class IpAddrControllerTest {
 
     @Test
     public void Test05_getIpAddrTest() throws Exception {
-        Mockito.when(ipAddrRangeRepo.getIpAddr(UnitTestConfig.rangeId, UnitTestConfig.ip1))
-                .thenReturn(buildIpAddrAlloc());
+        //Mockito.when(ipAddrRangeRepo.getIpAddr(UnitTestConfig.rangeId, UnitTestConfig.ip1))
+        //       .thenReturn(buildIpAddrAlloc());
 
         this.mockMvc.perform(get(UnitTestConfig.ipAddrUrl + "/" +
                 UnitTestConfig.rangeId + "/" + UnitTestConfig.ip1))

@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.RemoteSecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
@@ -40,6 +41,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     SecurityGroupRepository securityGroupRepository;
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson createSecurityGroupRule(SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRuleJson.getSecurityGroupRule();
         String remoteGroupId = securityGroupRule.getRemoteGroupId();
@@ -68,6 +70,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleBulkJson createSecurityGroupRuleBulk(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
         List<SecurityGroupRule> securityGroupRules = securityGroupRuleBulkJson.getSecurityGroupRules();
         for (SecurityGroupRule securityGroupRule: securityGroupRules) {
@@ -92,11 +95,13 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson updateSecurityGroupRule(String securityGroupRuleId, SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
         return null;
     }
 
     @Override
+    @DurationStatistics
     public void deleteSecurityGroupRule(String securityGroupRuleId) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRepository.getSecurityGroupRule(securityGroupRuleId);
         if (securityGroupRule == null) {
@@ -109,6 +114,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson getSecurityGroupRule(String securityGroupRuleId) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRepository.getSecurityGroupRule(securityGroupRuleId);
         if (securityGroupRule == null) {
@@ -121,6 +127,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRulesJson listSecurityGroupRule() throws Exception {
         List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
 

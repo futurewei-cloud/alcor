@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
 import com.futurewei.alcor.web.entity.ip.*;
@@ -28,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
-
-
 @Service
 public class IpAddrServiceImpl implements IpAddrService {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrServiceImpl.class);
@@ -37,6 +36,8 @@ public class IpAddrServiceImpl implements IpAddrService {
     @Autowired
     IpAddrRangeRepo ipAddrRangeRepo;
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest allocateIpAddr(IpAddrRequest request) throws Exception {
         LOG.debug("Allocate ip address, request: {}", request);
 
@@ -53,6 +54,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Allocate ip address bulk, requestBulk: {}", requestBulk);
 
@@ -89,6 +92,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return requestBulk;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest modifyIpAddrState(IpAddrRequest request) throws Exception {
         LOG.debug("Modify ip address state, request: {}", request);
 
@@ -99,6 +104,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequestBulk modifyIpAddrStateBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Modify ip address state bulk, requestBulk: {}", requestBulk);
 
@@ -114,6 +121,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return requestBulk;
     }
 
+    @Override
+    @DurationStatistics
     public void releaseIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Release ip address, ipAddr: {}", ipAddr);
 
@@ -122,6 +131,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Release ip address success, result: {}", ipAddr);
     }
 
+    @Override
+    @DurationStatistics
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
 
@@ -144,6 +155,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Release ip address bulk done, requestBulk: {}", requestBulk);
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest getIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Get ip address, rangeId: {}, ipAddr: {}", rangeId, ipAddr);
 
@@ -161,6 +174,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public List<IpAddrRequest> getIpAddrBulk(String rangeId) throws Exception {
         LOG.debug("List ip address, rangeId: {}", rangeId);
 
@@ -182,6 +197,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRangeRequest createIpAddrRange(IpAddrRangeRequest request) throws Exception {
         LOG.debug("Create ip address range, request: {}", request);
 
@@ -196,6 +213,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public void deleteIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
@@ -204,6 +223,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Get ip address range, rangeId: {}", rangeId);
 
@@ -227,6 +248,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public List<IpAddrRangeRequest> listIpAddrRange() {
         LOG.debug("List ip address range");
 

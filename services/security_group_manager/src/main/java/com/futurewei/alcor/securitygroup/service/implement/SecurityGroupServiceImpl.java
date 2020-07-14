@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupBindingsRepository;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
@@ -83,6 +84,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson createSecurityGroup(SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         String tenantId = securityGroup.getTenantId();
@@ -126,6 +128,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupBulkJson createSecurityGroupBulk(String tenantId, String projectId, SecurityGroupBulkJson securityGroupBulkJson) throws Exception {
         List<SecurityGroup> securityGroups = securityGroupBulkJson.getSecurityGroups();
         String currentTime = TimeUtil.getCurrentTime();
@@ -173,6 +176,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(String securityGroupId, SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         SecurityGroup oldSecurityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
@@ -215,6 +219,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteSecurityGroup(String securityGroupId) throws Exception {
         SecurityGroup securityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
         if (securityGroup == null) {
@@ -235,6 +240,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson getSecurityGroup(String SecurityGroupId) throws Exception {
         SecurityGroup securityGroup = securityGroupRepository.getSecurityGroup(SecurityGroupId);
         if (securityGroup == null) {
@@ -247,6 +253,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception {
         SecurityGroup defaultSecurityGroup = securityGroupRepository.getSecurityGroup(tenantId);
         if (defaultSecurityGroup == null) {
@@ -264,6 +271,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupsJson listSecurityGroup() throws Exception {
         List<SecurityGroup> securityGroups = new ArrayList<>();
 
@@ -309,6 +317,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         securityGroupBindingsRepository.addSecurityGroupBinding(portSecurityGroupsJson);
 
@@ -318,6 +327,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public PortSecurityGroupsJson unbindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         securityGroupBindingsRepository.deleteSecurityGroupBinding(portSecurityGroupsJson);
 

@@ -13,6 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -29,72 +30,38 @@ public class InternalPortEntity extends PortEntity {
 
   @JsonProperty("neighbor_info")
   private List<NeighborInfo> neighborInfos;
+  
+    @JsonProperty("binding_host_ip")
+    private String bindingHostIp;
 
-  @JsonProperty("binding_host_ip")
-  private String bindingHostIP;
+    public InternalPortEntity(PortEntity portEntity, List<RouteEntity> routes, List<NeighborInfo> neighborInfos, String bindingHostIp) {
+        super(portEntity);
+        this.routes = routes;
+        this.neighborInfos = neighborInfos;
+        this.bindingHostIp = bindingHostIp;
+    }
 
-  public List<RouteEntity> getRoutes() {
-    return routes;
-  }
+    public List<RouteEntity> getRoutes() {
+        return routes;
+    }
 
-  public void setRoutes(List<RouteEntity> routes) {
-    this.routes = routes;
-  }
+    public void setRoutes(List<RouteEntity> routes) {
+        this.routes = routes;
+    }
 
-  public List<NeighborInfo> getNeighborInfos() {
-    return neighborInfos;
-  }
+    public List<NeighborInfo> getNeighborInfos() {
+        return neighborInfos;
+    }
 
-  public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
-    this.neighborInfos = neighborInfos;
-  }
+    public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+        this.neighborInfos = neighborInfos;
+    }
 
-  public String getBindingHostIP() {
-    return bindingHostIP;
-  }
+    public String getBindingHostIp() {
+        return bindingHostIp;
+    }
 
-  public void setBindingHostIP(String bindingHostIP) {
-    this.bindingHostIP = bindingHostIP;
-  }
-
-  public Set<NeighborInfo> getInternalNeighborInfo1() {
-    return internalNeighborInfo1;
-  }
-
-  public void setInternalNeighborInfo1(Set<NeighborInfo> internalNeighborInfo1) {
-    this.internalNeighborInfo1 = internalNeighborInfo1;
-  }
-
-  public Set<InternalSubnetEntity> getSubnetEntities() {
-    return subnetEntities;
-  }
-
-  public void setSubnetEntities(Set<InternalSubnetEntity> subnetEntities) {
-    this.subnetEntities = subnetEntities;
-  }
-
-  public Set<VpcEntity> getVpcEntities() {
-    return vpcEntities;
-  }
-
-  public void setVpcEntities(Set<VpcEntity> vpcEntities) {
-    this.vpcEntities = vpcEntities;
-  }
-
-  private Set<NeighborInfo> internalNeighborInfo1;
-  private Set<InternalSubnetEntity> subnetEntities;
-  private Set<VpcEntity> vpcEntities;
-
-  public InternalPortEntity() {}
-
-  public InternalPortEntity(
-      PortEntity portEntity,
-      List<RouteEntity> routeEntities,
-      List<NeighborInfo> neighborInfos,
-      String bindingHostIP) {
-    super(portEntity);
-    this.routes = routeEntities;
-    this.neighborInfos = neighborInfos;
-    this.bindingHostIP = bindingHostIP;
-  }
+    public void setBindingHostIp(String bindingHostIp) {
+        this.bindingHostIp = bindingHostIp;
+    }
 }

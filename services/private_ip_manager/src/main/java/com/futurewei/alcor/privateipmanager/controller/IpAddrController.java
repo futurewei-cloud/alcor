@@ -16,12 +16,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.controller;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.exception.*;
 import com.futurewei.alcor.privateipmanager.service.implement.IpAddrServiceImpl;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,7 @@ import java.util.List;
 
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class IpAddrController {
     @Autowired
     IpAddrServiceImpl ipAddrService;
@@ -82,6 +85,7 @@ public class IpAddrController {
     @PostMapping("/ips")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
         if (request.getVpcId() == null && request.getRangeId() == null) {
             throw new IpRangeIdInvalidException();
@@ -106,6 +110,7 @@ public class IpAddrController {
     @PostMapping("/ips/bulk")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
@@ -116,6 +121,7 @@ public class IpAddrController {
 
     @PutMapping("/ips")
     @ResponseBody
+    @DurationStatistics
     public IpAddrRequest modifyIpAddrState(@RequestBody IpAddrRequest request) throws Exception {
         checkRangeId(request.getRangeId());
         checkIpAddr(request.getIp());
@@ -126,6 +132,7 @@ public class IpAddrController {
 
     @PutMapping("/ips/bulk")
     @ResponseBody
+    @DurationStatistics
     public IpAddrRequestBulk modifyIpAddrStateBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
@@ -138,6 +145,7 @@ public class IpAddrController {
 
     @DeleteMapping("/ips/{range_id}/{ip}")
     @ResponseBody
+    @DurationStatistics
     public void releaseIpAddr(@PathVariable("range_id") String rangeId,
                               @PathVariable("ip") String ipAddr) throws Exception {
         checkRangeId(rangeId);
@@ -148,6 +156,7 @@ public class IpAddrController {
 
     @DeleteMapping("/ips/bulk")
     @ResponseBody
+    @DurationStatistics
     public void releaseIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpRequests()) {
             checkRangeId(request.getRangeId());
@@ -159,6 +168,7 @@ public class IpAddrController {
 
     @GetMapping("/ips/{range_id}/{ip}")
     @ResponseBody
+    @DurationStatistics
     public IpAddrRequest getIpAddr(@PathVariable("range_id") String rangeId,
                                    @PathVariable("ip") String ipAddr) throws Exception {
         checkRangeId(rangeId);
@@ -169,12 +179,14 @@ public class IpAddrController {
 
     @GetMapping("/ips/{range_id}")
     @ResponseBody
+    @DurationStatistics
     public List<IpAddrRequest> getIpAddrBulk(@PathVariable("range_id") String rangeId) throws Exception {
         return ipAddrService.getIpAddrBulk(rangeId);
     }
 
     @PostMapping("/ips/range")
     @ResponseBody
+    @DurationStatistics
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
         checkVpcId(request.getVpcId());
@@ -203,12 +215,14 @@ public class IpAddrController {
 
     @DeleteMapping("/ips/range/{range_id}")
     @ResponseBody
+    @DurationStatistics
     public void deleteIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
         ipAddrService.deleteIpAddrRange(rangeId);
     }
 
     @GetMapping("/ips/range/{range_id}")
     @ResponseBody
+    @DurationStatistics
     public IpAddrRangeRequest getIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
         checkRangeId(rangeId);
 
@@ -217,6 +231,7 @@ public class IpAddrController {
 
     @GetMapping("/ips/range")
     @ResponseBody
+    @DurationStatistics
     public List<IpAddrRangeRequest> listIpAddrRange() {
         return ipAddrService.listIpAddrRange();
     }

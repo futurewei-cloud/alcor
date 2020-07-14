@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SegmentController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,6 +45,7 @@ public class SegmentController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public SegmentWebResponseJson getSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentEntity segmentEntity = null;
@@ -75,6 +79,7 @@ public class SegmentController {
             method = POST,
             value = {"/project/{projectid}/segments"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SegmentWebResponseJson createSegment(@PathVariable String projectid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentEntity segmentEntity = new SegmentEntity();
@@ -137,6 +142,7 @@ public class SegmentController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public SegmentWebResponseJson updateSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentEntity segmentEntity = new SegmentEntity();
@@ -190,6 +196,7 @@ public class SegmentController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public ResponseId deleteSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentEntity segmentEntity = null;
@@ -235,6 +242,7 @@ public class SegmentController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/segments")
+    @DurationStatistics
     public Map getSegmentsByProjectId(@PathVariable String projectid) throws Exception {
 
         Map<String, SegmentEntity> segments = null;

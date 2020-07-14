@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
@@ -53,7 +54,7 @@ public class SecurityGroupBindingsRepository {
         return bindingCache.get(id);
     }
 
-
+    @DurationStatistics
     public synchronized void addSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         try (Transaction tx = bindingCache.getTransaction().start()) {
             String portId = portSecurityGroupsJson.getPortId();
@@ -82,6 +83,7 @@ public class SecurityGroupBindingsRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void deleteSecurityGroupBinding(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         try (Transaction tx = bindingCache.getTransaction().start()) {
             String portId = portSecurityGroupsJson.getPortId();
