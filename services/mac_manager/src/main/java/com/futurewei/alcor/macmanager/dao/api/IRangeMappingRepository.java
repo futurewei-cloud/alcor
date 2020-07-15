@@ -21,15 +21,19 @@ package com.futurewei.alcor.macmanager.dao.api;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.web.entity.mac.MacAllocate;
 
+import java.util.Set;
+
 public interface IRangeMappingRepository {
 
     long size(String rangeId) throws CacheException;
 
-    void addItem(String rangeId, MacAllocate newItem) throws CacheException;
+    void addItem(String rangeId, Long macLong) throws CacheException;
 
-    Boolean putIfAbsent(String rangeId, MacAllocate macAllocate) throws CacheException;
+    Boolean putIfAbsent(String rangeId, Long macLong) throws CacheException;
 
-    Boolean releaseMac(String rangeId, String macAddress) throws CacheException;
+    Boolean releaseMac(String rangeId, Long macLong) throws CacheException;
 
     void removeRange(String rangeId) throws CacheException;
+
+    Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException;
 }

@@ -42,6 +42,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -58,7 +59,7 @@ public class MacControllerTest extends MockIgniteServer {
     @MockBean
     MacStateRepository mockMacStateRepository;
     @MockBean
-    MacRangeMappingRepository mockMacAllocatedRepository;
+    MacRangeMappingRepository macRangeMappingRepository;
     @Autowired
     private MockMvc mockMvc;
 
@@ -88,6 +89,8 @@ public class MacControllerTest extends MockIgniteServer {
         String json = om.writeValueAsString(macStateJson1);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         when(mockMacStateRepository.putIfAbsent(any())).thenReturn(true);
+        when(macRangeMappingRepository.size(strRangeId)).thenReturn(0L);
+        when(macRangeMappingRepository.putIfAbsent(any(String.class), anyLong())).thenReturn(true);
         MvcResult result = this.mockMvc.perform(post("/macs")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))

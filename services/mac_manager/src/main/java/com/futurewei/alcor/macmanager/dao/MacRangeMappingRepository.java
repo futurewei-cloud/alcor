@@ -29,13 +29,15 @@ import org.springframework.stereotype.Repository;
 import org.w3c.dom.ranges.Range;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacRangeMappingRepository implements IRangeMappingRepository {
 
-    private final Map<String, ICache<String, MacAllocate>> mappingCache;
+    private final Map<String, ICache<Long, String>> mappingCache;
 
     private final CacheFactory cacheFactory;
 
@@ -54,33 +56,45 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     }
 
     @Override
-    public Boolean putIfAbsent(String rangeId, MacAllocate macAllocate) throws CacheException {
+    public Boolean putIfAbsent(String rangeId, Long macLong) throws CacheException {
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
         }
-        return mappingCache.get(rangeId).putIfAbsent(macAllocate.getMac(), macAllocate);
+        return mappingCache.get(rangeId).putIfAbsent(macLong, rangeId);
     }
 
     @Override
-    public void addItem(String rangeId, MacAllocate newItem) throws CacheException {
-        mappingCache.get(rangeId).put(newItem.getMac(), newItem);
+    public void addItem(String rangeId, Long macLong) throws CacheException {
+        mappingCache.get(rangeId).put(macLong, rangeId);
     }
 
     @Override
-    public Boolean releaseMac(String rangeId, String macAddress) throws CacheException {
+    public Boolean releaseMac(String rangeId, Long macLong) throws CacheException {
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
         }
-        return mappingCache.get(rangeId).remove(macAddress);
+        return mappingCache.get(rangeId).remove(macLong);
     }
 
     private void createRangeCache(String rangeId){
-        mappingCache.put(rangeId, cacheFactory.getCache(MacAllocate.class, rangeId));
+        mappingCache.put(rangeId, cacheFactory.getCache(String.class, rangeId));
     }
 
     @Override
     public void removeRange(String rangeId) throws CacheException {
         //TODO clear cache
         mappingCache.remove(rangeId);
+    }
+
+    @Override
+    public Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException{
+        Map<Long, String> existMacs = mappingCache.get(rangeId).getAll(macs);
+        Set<Long> newMacs = new HashSet<>();
+        for(Long mac : macs){
+            if(!existMacs.containsKey(mac) || existMacs.get(mac) == null){
+                newMacs.add(mac);
+            }
+        }
+        return newMacs;
     }
 }
