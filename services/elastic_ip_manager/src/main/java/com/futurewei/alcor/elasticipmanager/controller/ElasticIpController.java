@@ -17,12 +17,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.elasticipmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpNoProjectIdException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticip.*;
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpRangeService;
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpService;
 import com.futurewei.alcor.elasticipmanager.utils.ElasticIpControllerUtils;
 import com.futurewei.alcor.web.entity.elasticip.*;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +33,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -42,6 +47,9 @@ public class ElasticIpController {
 
     @Autowired
     ElasticIpRangeService elasticIpRangeService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     /**
      * Create an elastic ip, and communicate with port and node services if the
@@ -147,6 +155,8 @@ public class ElasticIpController {
      * @throws Exception Various exceptions that may occur during the create process
      */
     @GetMapping(value = {"/project/{project_id}/elasticips"})
+    @FieldFilter(type= ElasticIp.class)
+    @DurationStatistics
     public ElasticIpsInfoWrapper getElasticIps(@PathVariable("project_id") String projectId)
             throws Exception {
 
@@ -154,7 +164,11 @@ public class ElasticIpController {
             throw new ElasticIpNoProjectIdException();
         }
 
-        List<ElasticIpInfo> eips = elasticipService.getElasticIps(projectId);
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(this.request.getParameterMap(), ElasticIp.class);
+        queryParams.put("project_id", new String[]{projectId});
+
+        List<ElasticIpInfo> eips = elasticipService.getElasticIps(projectId, queryParams);
 
         return new ElasticIpsInfoWrapper(eips);
     }

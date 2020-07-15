@@ -17,8 +17,7 @@ import com.futurewei.alcor.web.entity.elasticip.ElasticIpRangeInfo;
 import org.springframework.util.StringUtils;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ElasticIpControllerUtils {
 
@@ -104,9 +103,13 @@ public class ElasticIpControllerUtils {
                 throw new ElasticIpNoPortIdException();
             }
         } else {
-            if (elasticIpInfo.getPrivateIpVersion() != null &&
-                    isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
-                throw new ElasticIpPipVersionException();
+            if (elasticIpInfo.getPrivateIpVersion() != null) {
+                if (elasticIpInfo.getPrivateIpVersion().equals(IpVersion.IPV6.getVersion())) {
+                    throw new ElasticIpIPv6PIPNotSupported();
+                }
+                if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
+                    throw new ElasticIpPipVersionException();
+                }
             }
 
             if (elasticIpInfo.getPrivateIp() != null) {
@@ -178,11 +181,14 @@ public class ElasticIpControllerUtils {
                 throw new ElasticIpNoPortIdException();
             }
         } else {
-            if (elasticIpInfo.getPrivateIpVersion() != null &&
-                    isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
-                throw new ElasticIpPipVersionException();
+            if (elasticIpInfo.getPrivateIpVersion() != null) {
+                if (elasticIpInfo.getPrivateIpVersion().equals(IpVersion.IPV6.getVersion())) {
+                    throw new ElasticIpIPv6PIPNotSupported();
+                }
+                if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
+                    throw new ElasticIpPipVersionException();
+                }
             }
-
             if (elasticIpInfo.getPrivateIp() != null) {
                 if (elasticIpInfo.getPrivateIp() == null) {
                     elasticIpInfo.setPrivateIpVersion(IpVersion.IPV4.getVersion());
@@ -253,5 +259,15 @@ public class ElasticIpControllerUtils {
                 throw new ElasticIpRangeBadRangesException();
             }
         }
+    }
+
+    public static int getVersionByIpString (String ipAddress) throws Exception {
+        if (Ipv4AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV4.getVersion();
+        } else if (Ipv6AddrUtil.formatCheck(ipAddress)) {
+            return IpVersion.IPV6.getVersion();
+        }
+
+        throw new Exception("The ip address is invalid");
     }
 }
