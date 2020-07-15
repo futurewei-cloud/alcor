@@ -3,6 +3,7 @@ package com.futurewei.alcor.elasticipmanager.service;
 import com.futurewei.alcor.web.entity.elasticip.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ElasticIpService {
 
@@ -12,7 +13,7 @@ public interface ElasticIpService {
 
     ElasticIpInfo getElasticIp(String projectId, String elasticIpId) throws Exception;
 
-    List<ElasticIpInfo> getElasticIps(String projectId) throws Exception;
+    List<ElasticIpInfo> getElasticIps(String projectId, Map<String, Object[]> queryParams) throws Exception;
 
     ElasticIpInfo updateElasticIp(ElasticIpInfo request) throws Exception;
 

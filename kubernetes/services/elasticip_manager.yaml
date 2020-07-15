@@ -6,6 +6,7 @@ data:
   application.properties: |
     ignite.host=10.99.135.32
     ignite.port=10800
+    microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -55,9 +56,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8008
+    - port: 9011
       targetPort: 8080
-      nodePort: 30010
+      nodePort: 30011
   selector:
     app: elasticipmanager
 

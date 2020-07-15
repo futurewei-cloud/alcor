@@ -74,6 +74,9 @@ public class UnitTestConfig {
     public static String etherType = "IPv4";
     public static String routeDestination = "192.168.1.0/24";
     public static String routeTarget = "Local";
+    public static String elasticIpId1 = "3d53801c-32ce-4e97-9572-bb966f4dc123";
+    public static String elasticIpName1 = "elastic ip1";
+    public static String elasticIpAddress1 = "200.10.1.10";
     public static String portEntityWithFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId1 + "\",\n" +
@@ -404,5 +407,17 @@ public class UnitTestConfig {
             "        \"security_groups\": [\""+ securityGroupId1 +"\"],\n" +
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac2 + "\"}]\n" +
             "    }]\n" +
+            "}";
+    public static String updateElasticIp = "{\n" +
+            "    \"elasticip\": {\n" +
+            "        \"id\":\"" + elasticIpId1 + "\",\n" +
+            "        \"name\":\"" + elasticIpName1 + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"elastic_ip_version\":\"" + 4 + "\",\n" +
+            "        \"elastic_ip_address\":\"" + elasticIpAddress1 + "\",\n" +
+            "        \"port_id\":\"" + "\",\n" +
+            "        \"dns_domain\":\"" + "\",\n" +
+            "        \"dns_name\":\"" + "\"\n" +
+            "    }\n" +
             "}";
 }
