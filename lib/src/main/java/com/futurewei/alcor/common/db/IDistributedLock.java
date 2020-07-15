@@ -21,7 +21,6 @@ public interface IDistributedLock {
 
     void lock(String lockKey) throws DistributedLockException;
 
-
     void unlock(String lockKey) throws DistributedLockException;
 
     /**
