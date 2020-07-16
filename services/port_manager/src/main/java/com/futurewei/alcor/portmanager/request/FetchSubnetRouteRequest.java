@@ -17,16 +17,18 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.SubnetRoute;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
 
 import java.util.List;
 
-public class FetchSubnetRouteRequest implements UpstreamRequest {
+public class FetchSubnetRouteRequest extends AbstractRequest {
     private RouteManagerRestClient routeManagerRestClient;
     private List<SubnetRoute> subnetRoutes;
 
-    public FetchSubnetRouteRequest(List<SubnetRoute> subnetRoutes) {
+    public FetchSubnetRouteRequest(PortContext context, List<SubnetRoute> subnetRoutes) {
+        super(context);
         this.subnetRoutes = subnetRoutes;
         this.routeManagerRestClient = SpringContextUtil.getBean(RouteManagerRestClient.class);
     }

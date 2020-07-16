@@ -15,16 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.request;
 
-abstract class AbstractUpstreamRequest implements UpstreamRequest {
-    private UpstreamRequestStatus status;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 
-    public AbstractUpstreamRequest() {
-        UpstreamRequestManager.registerUpstreamRequest(this);
-    }
-
-    @Override
-    public abstract void send() throws Exception;
-
-    @Override
-    public abstract void rollback();
+public interface IRestRequest {
+    void send() throws Exception;
+    void rollback() throws Exception;
+    PortContext getContext();
 }

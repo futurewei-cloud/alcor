@@ -22,27 +22,28 @@ import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
 import java.util.List;
 
-public class BindSecurityGroupRequest extends AbstractRequest {
+public class UnbindSecurityGroupRequest extends AbstractRequest {
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private List<PortSecurityGroupsJson> portSecurityGroups;
 
-    public BindSecurityGroupRequest(PortContext context, List<PortSecurityGroupsJson> portSecurityGroups) {
+    public UnbindSecurityGroupRequest(PortContext context, List<PortSecurityGroupsJson> portSecurityGroups) {
         super(context);
         this.portSecurityGroups = portSecurityGroups;
         this.securityGroupManagerRestClient = SpringContextUtil.getBean(SecurityGroupManagerRestClient.class);
+
     }
 
     @Override
     public void send() throws Exception {
         for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.bindSecurityGroups(context.getProjectId(), portSecurityGroups);
+            securityGroupManagerRestClient.unbindSecurityGroups(context.getProjectId(), portSecurityGroups);
         }
     }
 
     @Override
     public void rollback() throws Exception {
         for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.unbindSecurityGroups(context.getProjectId(), portSecurityGroups);
+            securityGroupManagerRestClient.bindSecurityGroups(context.getProjectId(), portSecurityGroups);
         }
     }
 }

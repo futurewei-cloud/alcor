@@ -78,12 +78,12 @@ public class ResourceBuilder {
         return new PortWebJson(buildPortEntity(portId));
     }
 
-    public static IpAddrRequest buildIpv4AddrRequest() {
+    public static IpAddrRequest buildIpv4AddrRequest(String ipAddress) {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
         ipAddrRequest.setSubnetId(UnitTestConfig.subnetId);
         ipAddrRequest.setIpVersion(UnitTestConfig.ipv4Version);
-        ipAddrRequest.setIp(UnitTestConfig.ip1);
+        ipAddrRequest.setIp(ipAddress);
         ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
 
         return ipAddrRequest;

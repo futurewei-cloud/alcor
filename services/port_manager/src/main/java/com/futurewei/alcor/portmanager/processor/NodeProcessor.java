@@ -16,44 +16,58 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.request.FetchNodeRequest;
-import com.futurewei.alcor.portmanager.request.UpstreamRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NodeProcessor extends AbstractProcessor {
-    private void fetchNodeCallback(UpstreamRequest request) {
+    private void fetchNodeCallback(IRestRequest request) {
         List<NodeInfo> nodeInfoList = ((FetchNodeRequest) request).getNodeInfoList();
-        List<NetworkConfig.ExtendPortEntity> internalPortEntities = networkConfig.getPortEntities();
+        List<InternalPortEntity> internalPortEntities =
+                request.getContext().getNetworkConfig().getPortEntities();
 
-        for (NetworkConfig.ExtendPortEntity extendPortEntity : internalPortEntities) {
+        for (InternalPortEntity internalPortEntity : internalPortEntities) {
             for (NodeInfo node: nodeInfoList) {
-                if (extendPortEntity.getBindingHostId().equals(node.getId())) {
-                    extendPortEntity.getInternalPortEntity().setBindingHostIp(node.getLocalIp());
-                    extendPortEntity.setBindingHostId(node.getId());
+                if (node.getId() == null) {
+                    continue;
+                }
+
+                if (node.getId().equals(internalPortEntity.getBindingHostId())) {
+                    internalPortEntity.setBindingHostIp(node.getLocalIp());
+                    internalPortEntity.setBindingHostId(node.getId());
                 }
             }
         }
     }
 
-    @Override
-    void createProcess(List<PortEntity> portEntities) {
-        Set<String> nodeIds = new HashSet<>();
-
-        portEntities.stream().forEach((p) -> {
-            String nodeId = p.getBindingHostId();
-            nodeIds.add(nodeId);
-        });
+    private void getNodeInfo(PortContext context) {
+        Set<String> nodeIds = context.getPortEntities()
+                .stream()
+                .map(PortEntity::getBindingHostId)
+                .collect(Collectors.toSet());
 
         if (nodeIds.size() > 0) {
-            UpstreamRequest fetchNodeRequest = new FetchNodeRequest(new ArrayList<>(nodeIds));
-            sendRequest(fetchNodeRequest, this::fetchNodeCallback);
+            IRestRequest fetchNodeRequest = new FetchNodeRequest(context, new ArrayList<>(nodeIds));
+            context.getRequestManager().sendRequestAsync(fetchNodeRequest, this::fetchNodeCallback);
         }
     }
 
     @Override
-    void updateProcess(String portId, PortEntity portEntity) {
+    void createProcess(PortContext context) {
+        getNodeInfo(context);
+    }
+
+    @Override
+    void updateProcess(PortContext context) {
+        getNodeInfo(context);
+    }
+
+    @Override
+    void deleteProcess(PortContext context) throws Exception {
 
     }
 }

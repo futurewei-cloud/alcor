@@ -16,14 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 
-public class CreateNetworkConfigRequest implements UpstreamRequest {
+public class CreateNetworkConfigRequest extends AbstractRequest {
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
     private NetworkConfiguration networkConfiguration;
 
-    public CreateNetworkConfigRequest(NetworkConfiguration networkConfiguration) {
+    public CreateNetworkConfigRequest(PortContext context, NetworkConfiguration networkConfiguration) {
+        super(context);
         this.networkConfiguration = networkConfiguration;
         this.dataPlaneManagerRestClient = SpringContextUtil.getBean(DataPlaneManagerRestClient.class);
     }

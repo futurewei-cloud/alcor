@@ -16,32 +16,50 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
-import com.futurewei.alcor.portmanager.request.UpstreamRequest;
-import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
+import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
-import com.futurewei.alcor.web.entity.port.PortEntity;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class DataPlaneProcessor extends AbstractProcessor {
-    @Override
-    void createProcess(List<PortEntity> portEntities) {
-        List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities()
-                .stream().map(NetworkConfig.ExtendPortEntity::getInternalPortEntity)
-                .collect(Collectors.toList());
+    private NetworkConfiguration buildNetworkConfig(PortContext context) {
+        /**
+         DataPlaneProcessor needs to wait for all previous Processor runs to
+         finish before continuing. Since DataPlaneProcessor is the last Processor
+         in the process chain, so it can call waitAllRequestsFinish,when calling
+         waitAllRequestsFinish we must make sure that all asynchronous methods have been called
+         */
+        context.getRequestManager().waitAllRequestsFinish();
+
+        NetworkConfig networkConfig = context.getNetworkConfig();
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setVpcEntities(networkConfig.getVpcEntities());
         networkConfiguration.setSubnetEntities(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
-        networkConfiguration.setPortEntities(internalPortEntities);
+        networkConfiguration.setPortEntities(networkConfig.getPortEntities());
 
-        UpstreamRequest createNetworkConfigRequest = new CreateNetworkConfigRequest(networkConfiguration);
-        sendRequest(createNetworkConfigRequest, null);
+        return networkConfiguration;
     }
 
     @Override
-    void updateProcess(String portId, PortEntity portEntity) {
+    void createProcess(PortContext context) {
+        NetworkConfiguration networkConfig = buildNetworkConfig(context);
 
+        IRestRequest createNetworkConfigRequest =
+                new CreateNetworkConfigRequest(context, networkConfig);
+        context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, null);
+    }
+
+    @Override
+    void updateProcess(PortContext context) {
+
+    }
+
+    @Override
+    void deleteProcess(PortContext context) throws Exception {
+        NetworkConfiguration networkConfig = buildNetworkConfig(context);
+
+        IRestRequest deleteNetworkConfigRequest =
+                new DeleteNetworkConfigRequest(context, networkConfig);
+        context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);
     }
 }

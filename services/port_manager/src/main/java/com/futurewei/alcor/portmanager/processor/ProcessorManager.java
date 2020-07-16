@@ -30,6 +30,8 @@ public class ProcessorManager {
     private static List<IProcessor> statelessProcessors = new ArrayList<>();
     private static Map<Class, IProcessor> allProcessors = new HashMap<>();
     private static IProcessor headProcessor;
+    private static IProcessor dataPlaneProcessor;
+    private static IProcessor databaseProcessor;
 
     private void buildProcessChain() {
         IProcessor prev = headProcessor;
@@ -37,6 +39,9 @@ public class ProcessorManager {
             prev.setNextProcessor(processor);
             prev = processor;
         }
+
+        prev.setNextProcessor(dataPlaneProcessor);
+        dataPlaneProcessor.setNextProcessor(databaseProcessor);
     }
 
     @PostConstruct
@@ -48,8 +53,11 @@ public class ProcessorManager {
             IProcessor processor = subType.getDeclaredConstructor().newInstance();
             if (processor instanceof PortProcessor) {
                 headProcessor = processor;
-            } else if (!(processor instanceof DatabaseProcessor) &&
-                    !(processor instanceof DataPlaneProcessor)) {
+            } else if (processor instanceof DataPlaneProcessor) {
+                dataPlaneProcessor = processor;
+            } else if (processor instanceof DatabaseProcessor) {
+                databaseProcessor = processor;
+            } else {
                 statelessProcessors.add(processor);
             }
 

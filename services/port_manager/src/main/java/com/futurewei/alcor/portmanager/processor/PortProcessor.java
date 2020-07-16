@@ -17,28 +17,39 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PortProcessor extends AbstractProcessor {
-    @Override
-    void createProcess(List<PortEntity> portEntities) {
-        List<NetworkConfig.ExtendPortEntity> extendPortEntities = new ArrayList<>();
+    private void buildInternalPortEntities(PortContext context) {
+        List<InternalPortEntity> internalPortEntities = new ArrayList<>();
 
-        portEntities.stream().forEach((p) -> {
+        for (PortEntity portEntity: context.getPortEntities()){
             InternalPortEntity internalPortEntity =
-                    new InternalPortEntity(p, null, null, null);
+                    new InternalPortEntity(portEntity, null, null, null);
             NetworkConfig.ExtendPortEntity extendPortEntity =
-                    new NetworkConfig.ExtendPortEntity(internalPortEntity, null);
-            extendPortEntities.add(extendPortEntity);
-        });
+                    new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
+            internalPortEntities.add(extendPortEntity);
+        }
 
-        networkConfig.setPortEntities(extendPortEntities);
+        context.getNetworkConfig().setPortEntities(internalPortEntities);
     }
 
     @Override
-    void updateProcess(String portId, PortEntity portEntity) {
+    void createProcess(PortContext context) {
+        buildInternalPortEntities(context);
+    }
 
+    @Override
+    void updateProcess(PortContext context) {
+
+    }
+
+    @Override
+    void deleteProcess(PortContext context) {
+        buildInternalPortEntities(context);
     }
 }

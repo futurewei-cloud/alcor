@@ -17,45 +17,56 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.request.FetchPortNeighborRequest;
-import com.futurewei.alcor.portmanager.request.UpstreamRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
+import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class NeighborProcessor extends AbstractProcessor {
-    private void fetchPortNeighborCallback(UpstreamRequest request) {
+    private void fetchPortNeighborCallback(IRestRequest request) {
         List<PortNeighbors> portNeighborsList = ((FetchPortNeighborRequest) request).getPortNeighborsList();
-        List<NetworkConfig.ExtendPortEntity> internalPortEntities = networkConfig.getPortEntities();
-        for (NetworkConfig.ExtendPortEntity extendPortEntity : internalPortEntities) {
+        List<InternalPortEntity> internalPortEntities =
+                request.getContext().getNetworkConfig().getPortEntities();
+
+        for (InternalPortEntity internalPortEntity : internalPortEntities) {
             for (PortNeighbors portNeighbors: portNeighborsList) {
-                if (extendPortEntity.getVpcId().equals(portNeighbors.getVpcId())) {
+                if (internalPortEntity.getVpcId().equals(portNeighbors.getVpcId())) {
                     List<NeighborInfo> neighborInfos = new ArrayList<>(portNeighbors.getNeighbors().values());
-                    extendPortEntity.getInternalPortEntity().setNeighborInfos(neighborInfos);
+                    internalPortEntity.setNeighborInfos(neighborInfos);
                 }
             }
         }
     }
 
-    @Override
-    void createProcess(List<PortEntity> portEntities) {
-        Set<String> vpcIds = new HashSet<>();
+    private void getNeighbors(PortContext context) {
+        Set<String> vpcIds = context.getPortEntities()
+                .stream()
+                .map(PortEntity::getVpcId)
+                .collect(Collectors.toSet());
 
-        portEntities.stream().forEach((p) -> {
-            String vpcId = p.getVpcId();
-            vpcIds.add(vpcId);
-        });
-
-        UpstreamRequest fetchPortNeighborRequest = new FetchPortNeighborRequest(
-                portRepository, new ArrayList<>(vpcIds));
-        sendRequest(fetchPortNeighborRequest, this::fetchPortNeighborCallback);
+        IRestRequest fetchPortNeighborRequest =
+                new FetchPortNeighborRequest(context, new ArrayList<>(vpcIds));
+        context.getRequestManager().sendRequestAsync(
+                fetchPortNeighborRequest, this::fetchPortNeighborCallback);
     }
 
     @Override
-    void updateProcess(String portId, PortEntity portEntity) throws Exception {
+    void createProcess(PortContext context) {
+        getNeighbors(context);
+    }
 
+    @Override
+    void updateProcess(PortContext context) {
+
+    }
+
+    @Override
+    void deleteProcess(PortContext context) {
+        getNeighbors(context);
     }
 }

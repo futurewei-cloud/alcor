@@ -18,63 +18,89 @@ package com.futurewei.alcor.portmanager.processor;
 import com.futurewei.alcor.portmanager.exception.AllocateMacAddrException;
 import com.futurewei.alcor.portmanager.request.AllocateFixedMacRequest;
 import com.futurewei.alcor.portmanager.request.AllocateRandomMacRequest;
-import com.futurewei.alcor.portmanager.request.UpstreamRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
+import com.futurewei.alcor.portmanager.request.ReleaseMacRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MacProcessor extends AbstractProcessor {
-    private List<PortEntity> targetPorts;
-
-    void allocateRandomMacAddressCallback(UpstreamRequest request) throws AllocateMacAddrException {
+    void allocateRandomMacAddressCallback(IRestRequest request) throws AllocateMacAddrException {
         List<MacState> macStates = ((AllocateRandomMacRequest) request).getMacStates();
-        if (macStates.size() != targetPorts.size()) {
+        List<PortEntity> unassignedMacPorts = request.getContext().getUnassignedMacPorts();
+        if (macStates.size() != unassignedMacPorts.size()) {
             throw new AllocateMacAddrException();
         }
 
         int index = 0;
-        for (PortEntity portEntity: targetPorts) {
+        for (PortEntity portEntity: unassignedMacPorts) {
             portEntity.setMacAddress(macStates.get(index).getMacAddress());
         }
     }
 
     @Override
-    void createProcess(List<PortEntity> portEntities) {
+    void createProcess(PortContext context) {
         List<MacState> fixedMacAddresses = new ArrayList<>();
         List<MacState> randomMacAddresses = new ArrayList<>();
 
-        targetPorts = new ArrayList<>();
+        List<PortEntity> unassignedMacPorts = new ArrayList<>();
 
-        portEntities.stream().forEach((e) -> {
-            String macAddress = e.getMacAddress();
+        for (PortEntity portEntity: context.getPortEntities()){
+            String macAddress = portEntity.getMacAddress();
             if (macAddress != null) {
-                //macAddresses.add(macAddress);
-                MacState macState = new MacState(macAddress, e.getProjectId(),
-                        e.getVpcId(), e.getId(), null);
+                MacState macState = new MacState(macAddress, context.getProjectId(),
+                        portEntity.getVpcId(), portEntity.getId(), null);
                 fixedMacAddresses.add(macState);
             } else {
-                targetPorts.add(e);
-                MacState macState = new MacState(null, e.getProjectId(),
-                        e.getVpcId(), e.getId(), null);
+                unassignedMacPorts.add(portEntity);
+                MacState macState = new MacState(null, context.getProjectId(),
+                        portEntity.getVpcId(), portEntity.getId(), null);
                 randomMacAddresses.add(macState);
             }
-        });
+        }
+
+        context.setUnassignedMacPorts(unassignedMacPorts);
 
         if (randomMacAddresses.size() > 0) {
-            UpstreamRequest allocateRandomMacRequest = new AllocateRandomMacRequest(randomMacAddresses);
-            sendRequest(allocateRandomMacRequest, this::allocateRandomMacAddressCallback);
+            IRestRequest allocateRandomMacRequest = new AllocateRandomMacRequest(
+                    context, randomMacAddresses);
+            context.getRequestManager().sendRequestAsync(
+                    allocateRandomMacRequest, this::allocateRandomMacAddressCallback);
         }
 
         if (fixedMacAddresses.size() > 0) {
-            UpstreamRequest allocateFixedMacRequest = new AllocateFixedMacRequest(fixedMacAddresses);
-            sendRequest(allocateFixedMacRequest, null);
+            IRestRequest allocateFixedMacRequest = new AllocateFixedMacRequest(context, fixedMacAddresses);
+            context.getRequestManager().sendRequestAsync(allocateFixedMacRequest, null);
         }
     }
 
     @Override
-    void updateProcess(String portId, PortEntity portEntity) {
+    void updateProcess(PortContext context) {
 
+    }
+
+    @Override
+    void deleteProcess(PortContext context) {
+        List<MacState> macStates = new ArrayList<>();
+
+        for (PortEntity portEntity: context.getPortEntities()) {
+            if (portEntity.getMacAddress() == null) {
+                continue;
+            }
+
+            MacState macState = new MacState(portEntity.getMacAddress(),
+                    portEntity.getProjectId(),
+                    portEntity.getVpcId(),
+                    portEntity.getId(),
+                    null);
+            macStates.add(macState);
+        }
+
+        IRestRequest releaseMacRequest = new ReleaseMacRequest(context, macStates);
+        context.getRequestManager().sendRequestAsync(releaseMacRequest, null);
     }
 }

@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetVpcEntityException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
@@ -24,14 +25,13 @@ import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchVpcRequest implements UpstreamRequest {
+public class FetchVpcRequest extends AbstractRequest {
     private VpcManagerRestClient vpcManagerRestClient;
-    private String projectId;
     private List<String> vpcIds;
     private List<VpcEntity> vpcEntities;
 
-    public FetchVpcRequest(String projectId, List<String> vpcIds) {
-        this.projectId = projectId;
+    public FetchVpcRequest(PortContext context, List<String> vpcIds) {
+        super(context);
         this.vpcIds = vpcIds;
         this.vpcEntities = new ArrayList<>();
         this.vpcManagerRestClient = SpringContextUtil.getBean(VpcManagerRestClient.class);
@@ -45,7 +45,7 @@ public class FetchVpcRequest implements UpstreamRequest {
     public void send() throws Exception {
         //TODO: Instead by getVpcsByVpcIds interface
         for (String vpcId: vpcIds) {
-            VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(projectId, vpcId);
+            VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(context.getProjectId(), vpcId);
             if (vpcWebJson == null || vpcWebJson.getNetwork() == null) {
                 throw new GetVpcEntityException();
             }

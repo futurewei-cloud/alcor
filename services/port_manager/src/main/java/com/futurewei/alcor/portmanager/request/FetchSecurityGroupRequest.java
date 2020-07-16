@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetSecurityGroupException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
@@ -24,15 +25,14 @@ import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchSecurityGroupRequest implements UpstreamRequest {
+public class FetchSecurityGroupRequest extends AbstractRequest {
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
-    private String projectId;
     private List<String> securityGroupIds;
     private List<String> defaultSecurityGroupIds;
     private List<SecurityGroup> securityGroups;
 
-    public FetchSecurityGroupRequest(String projectId, List<String> securityGroupIds, List<String> defaultSecurityGroupIds) {
-        this.projectId = projectId;
+    public FetchSecurityGroupRequest(PortContext context, List<String> securityGroupIds, List<String> defaultSecurityGroupIds) {
+        super(context);
         this.securityGroupIds = securityGroupIds;
         this.defaultSecurityGroupIds = defaultSecurityGroupIds;
         this.securityGroups = new ArrayList<>();
@@ -47,7 +47,7 @@ public class FetchSecurityGroupRequest implements UpstreamRequest {
     public void send() throws Exception {
         for (String tenantId: securityGroupIds) {
             SecurityGroupJson securityGroup = securityGroupManagerRestClient
-                    .getSecurityGroup(projectId, tenantId);
+                    .getSecurityGroup(context.getProjectId(), tenantId);
             if (securityGroup == null || securityGroup.getSecurityGroup() == null) {
                 throw new GetSecurityGroupException();
             }
@@ -57,7 +57,7 @@ public class FetchSecurityGroupRequest implements UpstreamRequest {
 
         for (String tenantId: defaultSecurityGroupIds) {
             SecurityGroupJson defaultSecurityGroup = securityGroupManagerRestClient
-                    .getDefaultSecurityGroup(projectId, tenantId);
+                    .getDefaultSecurityGroup(context.getProjectId(), tenantId);
             if (defaultSecurityGroup == null || defaultSecurityGroup.getSecurityGroup() == null) {
                 throw new GetSecurityGroupException();
             }

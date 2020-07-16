@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
@@ -24,12 +25,13 @@ import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchNodeRequest implements UpstreamRequest {
+public class FetchNodeRequest extends AbstractRequest {
     private NodeManagerRestClient nodeManagerRestClient;
     private List<String> nodeIds;
     private List<NodeInfo> nodeInfoList;
 
-    public FetchNodeRequest(List<String> nodeIds) {
+    public FetchNodeRequest(PortContext context, List<String> nodeIds) {
+        super(context);
         this.nodeIds = nodeIds;
         this.nodeInfoList = new ArrayList<>();
         this.nodeManagerRestClient = SpringContextUtil.getBean(NodeManagerRestClient.class);

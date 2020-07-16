@@ -15,35 +15,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.request;
 
-import com.futurewei.alcor.portmanager.entity.PortNeighbors;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 
-import java.util.ArrayList;
-import java.util.List;
+public class DeleteNetworkConfigRequest extends AbstractRequest {
+    private DataPlaneManagerRestClient dataPlaneManagerRestClient;
+    private NetworkConfiguration networkConfiguration;
 
-public class FetchPortNeighborRequest extends AbstractRequest {
-    private List<String> vpcIds;
-    private List<PortNeighbors> portNeighborsList;
-
-    public FetchPortNeighborRequest(PortContext context, List<String> vpcIds) {
+    public DeleteNetworkConfigRequest(PortContext context, NetworkConfiguration networkConfiguration) {
         super(context);
-        this.vpcIds = vpcIds;
-        this.portNeighborsList = new ArrayList<>();
-    }
-
-    public List<PortNeighbors> getPortNeighborsList() {
-        return portNeighborsList;
+        this.networkConfiguration = networkConfiguration;
+        this.dataPlaneManagerRestClient = SpringContextUtil.getBean(DataPlaneManagerRestClient.class);
     }
 
     @Override
     public void send() throws Exception {
-        for (String vpcId: vpcIds) {
-            portNeighborsList.add(context.getPortRepository().getPortNeighbors(vpcId));
-        }
+        dataPlaneManagerRestClient.deleteNetworkConfig(networkConfiguration);
     }
 
     @Override
     public void rollback() throws Exception {
-
+        dataPlaneManagerRestClient.createNetworkConfig(networkConfiguration);
     }
 }

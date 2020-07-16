@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.AllocateMacAddrException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
@@ -24,12 +25,13 @@ import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllocateFixedMacRequest implements UpstreamRequest {
+public class AllocateFixedMacRequest extends AbstractRequest {
     private MacManagerRestClient macManagerRestClient;
     private List<MacState> fixedMacAddresses;
     private List<MacState> macStates;
 
-    public AllocateFixedMacRequest(List<MacState> fixedMacAddresses) {
+    public AllocateFixedMacRequest(PortContext context, List<MacState> fixedMacAddresses) {
+        super(context);
         this.fixedMacAddresses = fixedMacAddresses;
         this.macStates = new ArrayList<>();
         this.macManagerRestClient = SpringContextUtil.getBean(MacManagerRestClient.class);

@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
@@ -24,12 +25,13 @@ import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllocateRandomIpRequest implements UpstreamRequest {
+public class AllocateRandomIpRequest extends AbstractRequest {
     private IpManagerRestClient ipManagerRestClient;
     private List<IpAddrRequest> randomIpAddresses;
     private List<IpAddrRequest> ipAddresses;
 
-    public AllocateRandomIpRequest(List<IpAddrRequest> randomIpAddresses) {
+    public AllocateRandomIpRequest(PortContext context, List<IpAddrRequest> randomIpAddresses) {
+        super(context);
         this.randomIpAddresses = randomIpAddresses;
         this.ipAddresses = new ArrayList<>();
         this.ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);

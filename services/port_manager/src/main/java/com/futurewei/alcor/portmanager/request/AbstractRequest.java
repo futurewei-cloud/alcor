@@ -15,17 +15,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.request;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 
-public class UpstreamRequestManager {
-    private static Map<Class, UpstreamRequest> upstreamRequestMap = new HashMap<>();
+public abstract class AbstractRequest implements IRestRequest {
+    protected PortContext context;
 
-    public static void registerUpstreamRequest(UpstreamRequest upstreamRequest) {
-        upstreamRequestMap.put(upstreamRequest.getClass(), upstreamRequest);
+    public AbstractRequest(PortContext context) {
+        this.context = context;
     }
 
-    public static UpstreamRequest getUpstreamRequest(Class tClass) {
-        return upstreamRequestMap.get(tClass);
+    public PortContext getContext() {
+        return context;
     }
 }

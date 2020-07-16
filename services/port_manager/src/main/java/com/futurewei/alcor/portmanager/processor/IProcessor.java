@@ -15,21 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
-import com.futurewei.alcor.portmanager.repo.PortRepository;
-import com.futurewei.alcor.web.entity.port.PortEntity;
-
-import java.util.List;
-
 public interface IProcessor {
-    void createPort(PortEntity portEntity) throws Exception;
-    void createPortBulk(List<PortEntity> portEntities) throws Exception;
-    void updatePort(String portId, PortEntity portEntity) throws Exception;
-    void waitProcessFinish();
-
-    IProcessor getNextProcessor();
+    void createPort(PortContext context) throws Exception;
+    void createPortBulk(PortContext context) throws Exception;
+    void updatePort(PortContext context) throws Exception;
+    void deletePort(PortContext context) throws Exception;
     void setNextProcessor(IProcessor nextProcessor);
-    void setPortConfigCache(PortConfigCache portConfigCache);
-    void setProjectId(String projectId);
-    void setNetworkConfig(NetworkConfig networkConfig);
-    void setPortRepository(PortRepository portRepository);
 }

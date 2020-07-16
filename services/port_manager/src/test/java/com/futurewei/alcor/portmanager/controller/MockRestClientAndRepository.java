@@ -73,10 +73,13 @@ public class MockRestClientAndRepository {
                 .thenReturn(buildSubnetStateJson());
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
-                .thenReturn(buildIpv4AddrRequest());
+                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
+
+        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip2))
+                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip2));
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV4, UnitTestConfig.vpcId, null, null))
-                .thenReturn(buildIpv4AddrRequest());
+                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
 
         Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV6, UnitTestConfig.vpcId, null, null))
                 .thenReturn(buildIpv6AddrRequest());

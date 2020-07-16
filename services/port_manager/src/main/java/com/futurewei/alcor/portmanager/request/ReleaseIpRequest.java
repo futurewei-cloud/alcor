@@ -16,49 +16,33 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class AllocateFixedIpRequest extends AbstractRequest {
+public class ReleaseIpRequest extends AbstractRequest {
     private IpManagerRestClient ipManagerRestClient;
     private List<IpAddrRequest> fixedIpAddresses;
-    private List<IpAddrRequest> ipAddresses;
 
-    public AllocateFixedIpRequest(PortContext context, List<IpAddrRequest> fixedIpAddresses) {
+    public ReleaseIpRequest(PortContext context, List<IpAddrRequest> fixedIpAddresses) {
         super(context);
         this.fixedIpAddresses = fixedIpAddresses;
-        this.ipAddresses = new ArrayList<>();
         this.ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);
     }
 
-
     @Override
     public void send() throws Exception {
-        //TODO: Instead by allocateMacAddresses interface
-        for (IpAddrRequest ipAddrRequest: fixedIpAddresses) {
-            IpAddrRequest response = ipManagerRestClient.allocateIpAddress(
-                    null,
-                    null,
-                    ipAddrRequest.getRangeId(),
-                    ipAddrRequest.getIp());
-            if (response == null) {
-                throw new AllocateIpAddrException();
-            }
-
-            ipAddresses.add(response);
+        for (IpAddrRequest ipAddress: fixedIpAddresses) {
+            ipManagerRestClient.releaseIpAddress(ipAddress.getRangeId(), ipAddress.getIp());
         }
     }
 
     @Override
     public void rollback() throws Exception {
-        //TODO: Instead by releaseMacAddresses interface
-        for (IpAddrRequest ipAddrRequest: ipAddresses) {
-            ipManagerRestClient.releaseIpAddress(ipAddrRequest.getRangeId(), ipAddrRequest.getIp());
+        for (IpAddrRequest ipAddress: fixedIpAddresses) {
+            ipManagerRestClient.allocateIpAddress(null, null, ipAddress.getRangeId(), ipAddress.getIp());
         }
     }
 }

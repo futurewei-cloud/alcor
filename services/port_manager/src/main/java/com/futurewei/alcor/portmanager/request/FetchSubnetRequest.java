@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetSubnetEntityException;
+import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
@@ -24,15 +25,16 @@ import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchSubnetRequest implements UpstreamRequest {
+public class FetchSubnetRequest extends AbstractRequest {
     private SubnetManagerRestClient subnetManagerRestClient;
-    private String projectId;
     private List<String> subnetIds;
     private List<SubnetEntity> subnetEntities;
+    private boolean afterRandomIp;
 
-    public FetchSubnetRequest(String projectId, List<String> subnetIds) {
-        this.projectId = projectId;
+    public FetchSubnetRequest(PortContext context, List<String> subnetIds, boolean afterRandomIp) {
+        super(context);
         this.subnetIds = subnetIds;
+        this.afterRandomIp = afterRandomIp;
         this.subnetEntities = new ArrayList<>();
         subnetManagerRestClient = SpringContextUtil.getBean(SubnetManagerRestClient.class);
     }
@@ -41,11 +43,15 @@ public class FetchSubnetRequest implements UpstreamRequest {
         return subnetEntities;
     }
 
+    public boolean isAfterRandomIp() {
+        return afterRandomIp;
+    }
+
     @Override
     public void send() throws Exception {
         //TODO: Instead by getSubnetsBySubnetIds interface
         for (String subnetId: subnetIds) {
-            SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(projectId, subnetId);
+            SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(context.getProjectId(), subnetId);
             if (subnetWebJson == null || subnetWebJson.getSubnet() == null) {
                 throw new GetSubnetEntityException();
             }

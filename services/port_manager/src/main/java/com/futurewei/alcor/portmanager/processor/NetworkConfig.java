@@ -17,14 +17,13 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
-import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.List;
 
 public class NetworkConfig {
-    private List<ExtendPortEntity> portEntities;
+    private List<InternalPortEntity> portEntities;
 
     private List<VpcEntity> vpcEntities;
 
@@ -32,21 +31,12 @@ public class NetworkConfig {
 
     private List<SecurityGroup> securityGroups;
 
-    public static class ExtendPortEntity extends PortEntity {
-        private InternalPortEntity internalPortEntity;
+    public static class ExtendPortEntity extends InternalPortEntity {
         private String bindingHostId;
 
         public ExtendPortEntity(InternalPortEntity internalPortEntity, String bindingHostId) {
-            this.internalPortEntity = internalPortEntity;
+            super(internalPortEntity, internalPortEntity.getRoutes(), internalPortEntity.getNeighborInfos(), internalPortEntity.getBindingHostIp());
             this.bindingHostId = bindingHostId;
-        }
-
-        public InternalPortEntity getInternalPortEntity() {
-            return internalPortEntity;
-        }
-
-        public void setInternalPortEntity(InternalPortEntity internalPortEntity) {
-            this.internalPortEntity = internalPortEntity;
         }
 
         public String getBindingHostId() {
@@ -61,11 +51,11 @@ public class NetworkConfig {
     public NetworkConfig() {
     }
 
-    public List<ExtendPortEntity> getPortEntities() {
+    public List<InternalPortEntity> getPortEntities() {
         return portEntities;
     }
 
-    public void setPortEntities(List<ExtendPortEntity> portEntities) {
+    public void setPortEntities(List<InternalPortEntity> portEntities) {
         this.portEntities = portEntities;
     }
 

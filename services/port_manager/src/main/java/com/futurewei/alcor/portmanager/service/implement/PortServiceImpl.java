@@ -38,9 +38,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@Service
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+//@Service
+//@ComponentScan(value = "com.futurewei.alcor.common.utils")
+//@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+@Deprecated
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -185,37 +186,6 @@ public class PortServiceImpl implements PortService {
         return portNeighbors;
     }
 
-    private void processorInit(IProcessor processor, PortConfigCache portConfigCache, NetworkConfig networkConfig, String projectId) {
-        processor.setPortConfigCache(portConfigCache);
-        processor.setNetworkConfig(networkConfig);
-        processor.setProjectId(projectId);
-        processor.setPortRepository(portRepository);
-    }
-
-    private void createPortEntities(String projectId, List<PortEntity> portEntities) throws Exception {
-        PortConfigCache portConfigCache = new PortConfigCache();
-        PortEntityParser.parse(portEntities, portConfigCache);
-        NetworkConfig networkConfig = new NetworkConfig();
-
-        IProcessor processChain = ProcessorManager.getProcessChain();
-        processorInit(processChain, portConfigCache, networkConfig, projectId);
-
-        processChain.createPortBulk(portEntities);
-        processChain.waitProcessFinish();
-
-        IProcessor dataPlaneProcessor = ProcessorManager.getProcessor(DataPlaneProcessor.class);
-        processorInit(dataPlaneProcessor, portConfigCache, networkConfig, projectId);
-
-        dataPlaneProcessor.createPortBulk(portEntities);
-        dataPlaneProcessor.waitProcessFinish();
-
-        IProcessor databaseProcessor = ProcessorManager.getProcessor(DatabaseProcessor.class);
-        processorInit(databaseProcessor, portConfigCache, networkConfig, projectId);
-
-        dataPlaneProcessor.createPortBulk(portEntities);
-        dataPlaneProcessor.waitProcessFinish();
-    }
-
     /**
      * Create a port, and call the interfaces of each micro-service according to the
      * configuration of the port to create various required resources for the port.
@@ -232,8 +202,6 @@ public class PortServiceImpl implements PortService {
     public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
-        createPortEntities(projectId, Arrays.asList(portWebJson.getPortEntity()));
-        /*
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
 
@@ -263,7 +231,6 @@ public class PortServiceImpl implements PortService {
         } catch (Exception e) {
             exceptionHandle(executor, rollbacks, e);
         }
-         */
 
         LOG.info("Create port success, projectId: {}, portWebJson: {}", projectId, portWebJson);
 
