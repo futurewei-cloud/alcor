@@ -27,6 +27,8 @@ public class MacStateBulkJson {
     @JsonProperty("mac_states")
     private List<MacState> macStates;
 
+    public MacStateBulkJson(){}
+
     public MacStateBulkJson(List<MacState> macStates) {
         this.macStates = macStates;
     }
