@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.futurewei.alcor</groupId>
     <artifactId>portmanager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>AlcorPortManager</name>
     <description>Alcor Port Manager Module</description>
 

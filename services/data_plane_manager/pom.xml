@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>AlcorDataPlaneManager</artifactId>
+    <artifactId>dataplanemanager</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>AlcorDataPlaneManager</name>
     <description>Alcor Data Plane Manager Module</description>

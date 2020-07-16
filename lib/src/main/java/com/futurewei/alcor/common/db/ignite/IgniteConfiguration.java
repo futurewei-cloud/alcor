@@ -50,6 +50,8 @@ public class IgniteConfiguration {
 
     private static final int JOIN_TIMEOUT = 1000;
 
+    private static final String THICK_CLIENT = "ThickClient";
+
     @Value("${ignite.host}")
     private String host;
 
@@ -81,25 +83,18 @@ public class IgniteConfiguration {
     @Primary
     public ICacheFactory igniteClientFactoryInstance(){
         if(thinClientEnable){
-            return new IgniteClientCacheFactory(this.getThinIgniteClient());
-        }
-        return new IgniteCacheFactory(this.getIgniteClient());
-    }
 
-    @Bean
-    @Primary
-    public IDistributedLockFactory igniteDistributedLockFactoryInstance(){
-        if(thinClientEnable){
-            return new IgniteClientDistributedLockFactory(this.getThinIgniteClient(),
+            return new IgniteClientCacheFactory(this.getThinIgniteClient(),
                     this.tryLockInterval, this.expireTime);
         }
-        return new IgniteDistributedLockFactory(this.getIgniteClient(),
+        return new IgniteCacheFactory(this.getIgniteClient(THICK_CLIENT),
                 this.tryLockInterval, this.expireTime);
     }
 
     private IgniteClient getThinIgniteClient() {
-        ClientConfiguration cfg = new ClientConfiguration()
-                .setAddresses(host + ":" + port);
+        ClientConfiguration cfg = new ClientConfiguration();
+
+        cfg.setAddresses(host + ":" + port);
 
         if (keyStorePath != null && keyStorePassword != null &&
                 trustStorePath != null && trustStorePassword != null) {
@@ -124,9 +119,12 @@ public class IgniteConfiguration {
         return igniteClient;
     }
 
-    private Ignite getIgniteClient() {
+    private Ignite getIgniteClient(String instanceName) {
         org.apache.ignite.configuration.IgniteConfiguration cfg =
                 new org.apache.ignite.configuration.IgniteConfiguration();
+
+        // Set client name to allow multiple clients
+        cfg.setIgniteInstanceName(instanceName);
 
         // The node will be started as a client node.
         cfg.setClientMode(true);
