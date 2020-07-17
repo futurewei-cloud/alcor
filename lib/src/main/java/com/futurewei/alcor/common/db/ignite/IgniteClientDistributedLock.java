@@ -75,13 +75,13 @@ public class IgniteClientDistributedLock implements IDistributedLock {
     }
 
     @Override
-    public Boolean tryLock(String lockKey) throws DistributedLockException {
+    public Boolean tryLock(String lockKey){
         String lockKeyWithPrefix = this.name + " lock:" + lockKey;
         try {
             return cache.putIfAbsent(lockKeyWithPrefix, "lock");
         }catch (Exception e) {
             logger.log(Level.WARNING, "Ignite lock error:" + e.getMessage());
-            throw new DistributedLockException(e.getMessage());
+            return false;
         }
     }
 
