@@ -1,0 +1,124 @@
+= Alcor Performance Test Plan
+Chun-Jen Chung <cchung@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2019-10-27
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+In this document, we outline the performance test plan for Alcor SDN Control Plane and the performance comparison with
+OpenStack Neutron - the de facto networking control plane for OpenStack-based cloud.
+This test plan details test environment, tools, system monitoring and most importantly, test cases against Alcor and Neutron.
+The test cases includes a set of established test cases offered by Rally, which is an open-source performance test framework,
+as well as new test cases customized for public cloud scenarios.
+
+This test plan covers an ongoing effort to cover the most important cloud operations in terms of networking performance,
+starting with network, subnet and ports.
+We will continue to extend the coverage including routers, security groups and other networking objects.
+
+== Test Environment
+
+This section includes preparation and details of our test environment including hardware speficiation of servers,
+network parameters, operation system and perf test tools.
+
+=== System Setup
+
+===  Environment Details
+
+__Hardware__
+
+[width="100%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model|Intel Core E5-2670 2x 2.6GHz
+|Processor Count|
+|Core Count|
+|Frequency HMz| 2600
+
+.2+^.^|RAM
+|Vendor/Model| 16 X ?? 8GB
+|Amount GB| 128
+
+.4+^.^|NETWORK
+|Vendor/Model|
+|Bandwidth|
+|Vendor/Model|
+|Bandwidth|
+
+.6+^.^|STORAGE
+|Vendor/Model|12x 600GB
+|SSD/HDD|
+|Size| 7,200 GB
+|Vendor/Model|2x600GB
+|SSD/HDD|
+|Size| 1,200 GB
+
+|====================
+
+Huawei Tecal RH2288 V2 Server Intel Core E5-2670 2x 2.6GHz/16x8GB/12x 600GB+2x600GB/No DVD/ No Monitor
+
+
+__Network__
+
+
+__Software__
+
+=== Test Tool
+
+== Test Metrics
+
+
+
+== Test Cases
+
+=== Test Case 1: Basic Alcor Test Suite
+
+The following Rally test scenarios need to be executed:
+
+- create-and-list-networks
+- create-and-list-subnets
+- create-and-list-ports
+- create-and-delete-networks
+- create-and-delete-subnets
+- create-and-delete-ports
+- create-and-update-networks
+- create-and-update-subnets
+- create-and-update-ports
+
+Test Cases to be supported in E2E is enabled:
+
+- create-and-list-routers
+- create-and-list-security-groups
+- create-and-list-floating-ips
+- create-and-delete-routers
+- create-and-delete-security-groups
+- create-and-delete-floating-ips
+- create-and-update-routers
+- create-and-update-security-groups
+
+Performance Metrics
+
+=== Test Case 2: Stressful Alcor Test Suite
+
+- create-and-list-networks
+- create-and-list-subnets
+- create-and-list-ports
+//- create-and-list-routers
+//- create-and-list-security-groups
+- boot-and-list-server
+//- boot-and-delete-server-with-secgroups
+- boot-runcommand-delete
+
+=== Test Case 3: Scalability Test with Many Networks
+
+
+=== Test Case 4: Scalability Test with Many Servers
+
+
+=== Test Case 5: Scalability Test with Large Network
+
+== System Monitoring
+
+== Report
