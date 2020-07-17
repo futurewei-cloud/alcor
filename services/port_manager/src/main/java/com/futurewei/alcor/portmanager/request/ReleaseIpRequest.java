@@ -19,10 +19,14 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class ReleaseIpRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(ReleaseIpRequest.class);
+
     private IpManagerRestClient ipManagerRestClient;
     private List<IpAddrRequest> fixedIpAddresses;
 
@@ -41,6 +45,7 @@ public class ReleaseIpRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("ReleaseIpRequest rollback, fixedIpAddresses: {}", fixedIpAddresses);
         for (IpAddrRequest ipAddress: fixedIpAddresses) {
             ipManagerRestClient.allocateIpAddress(null, null, ipAddress.getRangeId(), ipAddress.getIp());
         }

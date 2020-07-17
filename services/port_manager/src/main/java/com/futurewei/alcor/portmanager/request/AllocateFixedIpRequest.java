@@ -17,14 +17,19 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
+import com.futurewei.alcor.portmanager.processor.AbstractProcessor;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AllocateFixedIpRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(AllocateFixedIpRequest.class);
+
     private IpManagerRestClient ipManagerRestClient;
     private List<IpAddrRequest> fixedIpAddresses;
     private List<IpAddrRequest> ipAddresses;
@@ -56,6 +61,7 @@ public class AllocateFixedIpRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("AllocateFixedIpRequest rollback, ipAddresses: {}",ipAddresses);
         //TODO: Instead by releaseMacAddresses interface
         for (IpAddrRequest ipAddrRequest: ipAddresses) {
             ipManagerRestClient.releaseIpAddress(ipAddrRequest.getRangeId(), ipAddrRequest.getIp());

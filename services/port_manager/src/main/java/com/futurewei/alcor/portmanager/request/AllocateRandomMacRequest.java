@@ -21,11 +21,15 @@ import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AllocateRandomMacRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(AllocateRandomMacRequest.class);
+
     private MacManagerRestClient macManagerRestClient;
     private List<MacState> randomMacAddresses;
     private List<MacState> macStates;
@@ -62,6 +66,7 @@ public class AllocateRandomMacRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("AllocateRandomMacRequest rollback, macStates: {}", macStates);
         //TODO: Instead by releaseMacAddresses interface
         for (MacState macState: macStates) {
             macManagerRestClient.releaseMacAddress(macState.getMacAddress());

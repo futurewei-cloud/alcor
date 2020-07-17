@@ -19,8 +19,12 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateNetworkConfigRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(CreateNetworkConfigRequest.class);
+
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
     private NetworkConfiguration networkConfiguration;
 
@@ -37,6 +41,7 @@ public class CreateNetworkConfigRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("CreateNetworkConfigRequest rollback, networkConfiguration: {}", networkConfiguration);
         dataPlaneManagerRestClient.deleteNetworkConfig(networkConfiguration);
     }
 }

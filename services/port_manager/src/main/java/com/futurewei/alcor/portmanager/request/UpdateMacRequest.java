@@ -19,8 +19,12 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateMacRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateMacRequest.class);
+
     private MacManagerRestClient macManagerRestClient;
     private MacState newMacState;
     private MacState oldMacState;
@@ -42,6 +46,7 @@ public class UpdateMacRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("UpdateMacRequest rollback, oldMacState: {}", oldMacState);
         macManagerRestClient.updateMacAddress(context.getProjectId(),
                 oldMacState.getVpcId(),
                 oldMacState.getPortId(),

@@ -19,10 +19,14 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class BindSecurityGroupRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(BindSecurityGroupRequest.class);
+
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private List<PortSecurityGroupsJson> portSecurityGroups;
 
@@ -41,6 +45,7 @@ public class BindSecurityGroupRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("BindSecurityGroupRequest rollback, portSecurityGroups: {}", portSecurityGroups);
         for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
             securityGroupManagerRestClient.unbindSecurityGroups(context.getProjectId(), portSecurityGroups);
         }

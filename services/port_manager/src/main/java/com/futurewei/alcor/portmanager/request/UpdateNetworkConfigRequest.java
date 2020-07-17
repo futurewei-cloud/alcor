@@ -19,8 +19,12 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateNetworkConfigRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateNetworkConfigRequest.class);
+
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
     private NetworkConfiguration networkConfig;
 
@@ -37,6 +41,7 @@ public class UpdateNetworkConfigRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("UpdateNetworkConfigRequest rollback, networkConfig: {}", networkConfig);
         //TODO: how to deal with this rollback ?
     }
 }

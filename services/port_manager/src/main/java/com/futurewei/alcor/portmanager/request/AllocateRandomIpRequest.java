@@ -21,11 +21,15 @@ import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AllocateRandomIpRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(AllocateRandomIpRequest.class);
+
     private IpManagerRestClient ipManagerRestClient;
     private List<IpAddrRequest> randomIpAddresses;
     private List<IpAddrRequest> ipAddresses;
@@ -60,6 +64,7 @@ public class AllocateRandomIpRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("AllocateRandomIpRequest rollback, ipAddresses: {}", ipAddresses);
         //TODO: Instead by releaseMacAddresses interface
         for (IpAddrRequest ipAddrRequest: ipAddresses) {
             ipManagerRestClient.releaseIpAddress(ipAddrRequest.getRangeId(), ipAddrRequest.getIp());

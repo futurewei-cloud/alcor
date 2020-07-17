@@ -19,10 +19,14 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class ReleaseMacRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(ReleaseMacRequest.class);
+
     private MacManagerRestClient macManagerRestClient;
     private List<MacState> macStates;
 
@@ -41,6 +45,7 @@ public class ReleaseMacRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
+        LOG.info("ReleaseMacRequest rollback, macStates: {}", macStates);
         for (MacState macState: macStates) {
             macManagerRestClient.allocateMacAddress(macState.getProjectId(),
                     macState.getVpcId(),
