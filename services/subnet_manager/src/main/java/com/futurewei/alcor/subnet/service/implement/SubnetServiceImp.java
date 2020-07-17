@@ -66,11 +66,11 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
-    public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
-        String ipManagerServiceUrl = ipUrl + ipVersion + "/" + rangeId + "/" + ipAddr;
-        restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
+    public void ipFallback(String rangeId, String ipAddr) {
+        String ipManagerServiceUrl = ipUrl + rangeId + "/" + ipAddr;
+        restTemplate.delete(ipManagerServiceUrl);
         String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId;
-        restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
+        restTemplate.delete(ipRangeDeleteServiceUrl);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class SubnetServiceImp implements SubnetService {
         // IP fallback
         logger.info("IP fallback start");
         if (ipResponse != null) {
-            this.ipFallback(ipResponse.getIpVersion(), ipResponse.getRangeId(), ipResponse.getIp());
+            this.ipFallback(ipResponse.getRangeId(), ipResponse.getIp());
         }
         logger.info("IP fallback end");
     }

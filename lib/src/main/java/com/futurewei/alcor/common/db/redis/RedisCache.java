@@ -26,7 +26,7 @@ import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 public class RedisCache<K, V> implements ICache<K, V> {
@@ -64,6 +64,16 @@ public class RedisCache<K, V> implements ICache<K, V> {
     }
 
     @Override
+    public Boolean putIfAbsent(K var1, V var2) throws CacheException {
+        try {
+            return hashOperations.putIfAbsent(name, var1, var2);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "RedisCache put operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
+    }
+
+    @Override
     public boolean containsKey(K key) throws CacheException {
         try {
             return hashOperations.hasKey(name, key);
@@ -71,6 +81,17 @@ public class RedisCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache containsKey operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public Map<K, V> getAll(Set<K> keys) throws CacheException {
+        Map<K, V> map = new HashMap<>();
+        List<V> values = hashOperations.multiGet(name, keys);
+        Iterator<K> it = keys.iterator();
+        for(V value: values){
+            map.put(it.next(), value);
+        }
+        return map;
     }
 
     @Override
@@ -111,6 +132,11 @@ public class RedisCache<K, V> implements ICache<K, V> {
     @Override
     public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
         return null;
+    }
+
+    @Override
+    public long size() {
+        return hashOperations.size(name);
     }
 
     @Override

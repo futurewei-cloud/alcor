@@ -22,7 +22,7 @@ public interface SubnetService {
     public void macFallback (String macAddress);
 
     // Ip gateway Fallback
-    public void ipFallback (int ipVersion, String rangeId, String ipAddr);
+    public void ipFallback (String rangeId, String ipAddr);
 
     // Fallback operation
     public void fallbackOperation (AtomicReference<RouteWebJson> routeResponseAtomic,
