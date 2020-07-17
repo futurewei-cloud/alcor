@@ -91,13 +91,13 @@ public class SecurityGroup extends CustomerResource {
         this.updateAt = updateAt;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityGroup{" +
-                "tenantId='" + tenantId + '\'' +
-                ", securityGroupRules=" + securityGroupRules +
-                ", createAt='" + createAt + '\'' +
-                ", updateAt='" + updateAt + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "SecurityGroup{" +
+//                "tenantId='" + tenantId + '\'' +
+//                ", securityGroupRules=" + securityGroupRules +
+//                ", createAt='" + createAt + '\'' +
+//                ", updateAt='" + updateAt + '\'' +
+//                '}';
+//    }
 }

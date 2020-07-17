@@ -198,17 +198,17 @@ public class SecurityGroupRule extends CustomerResource {
         this.etherType = etherType;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityGroupRuleJson{" +
-                "securityGroupId='" + securityGroupId + '\'' +
-                ", remoteGroupId='" + remoteGroupId + '\'' +
-                ", direction='" + direction + '\'' +
-                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
-                ", protocol='" + protocol + '\'' +
-                ", portRangeMax=" + portRangeMax +
-                ", portRangeMin=" + portRangeMin +
-                ", etherType='" + etherType + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "SecurityGroupRuleJson{" +
+//                "securityGroupId='" + securityGroupId + '\'' +
+//                ", remoteGroupId='" + remoteGroupId + '\'' +
+//                ", direction='" + direction + '\'' +
+//                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
+//                ", protocol='" + protocol + '\'' +
+//                ", portRangeMax=" + portRangeMax +
+//                ", portRangeMin=" + portRangeMin +
+//                ", etherType='" + etherType + '\'' +
+//                '}';
+//    }
 }

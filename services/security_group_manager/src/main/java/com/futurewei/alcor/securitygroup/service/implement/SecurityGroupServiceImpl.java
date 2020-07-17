@@ -47,7 +47,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
         List<SecurityGroupRule.EtherType> etherTypes = Arrays.asList(SecurityGroupRule.EtherType.IPV4, SecurityGroupRule.EtherType.IPV6);
 
-        for (SecurityGroupRule.EtherType etherType: etherTypes) {
+        for (SecurityGroupRule.EtherType etherType : etherTypes) {
             SecurityGroupRule securityGroupRule = new SecurityGroupRule();
 
             securityGroupRule.setId(UUID.randomUUID().toString());
@@ -131,7 +131,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         String currentTime = TimeUtil.getCurrentTime();
         SecurityGroup defaultSecurityGroup = null;
 
-        for (SecurityGroup securityGroup: securityGroups) {
+        for (SecurityGroup securityGroup : securityGroups) {
             if (isDefaultSecurityGroup(securityGroup)) {
                 if (defaultSecurityGroup != null) {
                     throw new DefaultSecurityGroupNotUnique();
@@ -161,8 +161,8 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
 
             String description = defaultSecurityGroup.getDescription();
             createDefaultSecurityGroup(tenantId, projectId, description);
-        } else if (oldDefaultSecurityGroup == null){
-            createDefaultSecurityGroup(tenantId, projectId,null);
+        } else if (oldDefaultSecurityGroup == null) {
+            createDefaultSecurityGroup(tenantId, projectId, null);
         }
 
         securityGroupRepository.addSecurityGroupBulk(securityGroups);
@@ -264,27 +264,26 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
-    public List<SecurityGroupJson> listSecurityGroup() throws Exception {
-        List<SecurityGroupJson> securityGroups = new ArrayList<>();
+    public SecurityGroupsJson listSecurityGroup() throws Exception {
+        List<SecurityGroup> securityGroups = new ArrayList<>();
 
         Map<String, SecurityGroup> securityGroupMap = securityGroupRepository.getAllSecurityGroups();
         if (securityGroupMap == null) {
-            return securityGroups;
+            return new SecurityGroupsJson();
         }
 
-        for (Map.Entry<String, SecurityGroup> entry: securityGroupMap.entrySet()) {
+        for (Map.Entry<String, SecurityGroup> entry : securityGroupMap.entrySet()) {
             //Skip the internal default security group
             if (entry.getKey().equals(entry.getValue().getTenantId())) {
                 continue;
             }
 
-            SecurityGroupJson securityGroup = new SecurityGroupJson(entry.getValue());
-            securityGroups.add(securityGroup);
+            securityGroups.add(entry.getValue());
         }
 
         LOG.info("List security group success");
 
-        return securityGroups;
+        return new SecurityGroupsJson(securityGroups);
     }
 
     @Override
