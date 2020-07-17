@@ -44,9 +44,10 @@ public class NodeProcessor extends AbstractProcessor {
         }
     }
 
-    private void getNodeInfo(PortContext context) {
-        Set<String> nodeIds = context.getPortEntities()
+    private void getNodeInfo(PortContext context, List<PortEntity> portEntities) {
+        Set<String> nodeIds = portEntities
                 .stream()
+                .filter(p -> p.getBindingHostId() != null)
                 .map(PortEntity::getBindingHostId)
                 .collect(Collectors.toSet());
 
@@ -58,16 +59,17 @@ public class NodeProcessor extends AbstractProcessor {
 
     @Override
     void createProcess(PortContext context) {
-        getNodeInfo(context);
+        getNodeInfo(context, context.getPortEntities());
     }
 
     @Override
     void updateProcess(PortContext context) {
-        getNodeInfo(context);
+        PortEntity newPortEntity = context.getNewPortEntity();
+        getNodeInfo(context, Collections.singletonList(newPortEntity));
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
-
+        getNodeInfo(context, context.getPortEntities());
     }
 }

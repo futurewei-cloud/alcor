@@ -29,12 +29,12 @@ public class FetchSubnetRequest extends AbstractRequest {
     private SubnetManagerRestClient subnetManagerRestClient;
     private List<String> subnetIds;
     private List<SubnetEntity> subnetEntities;
-    private boolean afterRandomIp;
+    private boolean allocateIpAddress;
 
-    public FetchSubnetRequest(PortContext context, List<String> subnetIds, boolean afterRandomIp) {
+    public FetchSubnetRequest(PortContext context, List<String> subnetIds, boolean allocateIpAddress) {
         super(context);
         this.subnetIds = subnetIds;
-        this.afterRandomIp = afterRandomIp;
+        this.allocateIpAddress = allocateIpAddress;
         this.subnetEntities = new ArrayList<>();
         subnetManagerRestClient = SpringContextUtil.getBean(SubnetManagerRestClient.class);
     }
@@ -43,8 +43,8 @@ public class FetchSubnetRequest extends AbstractRequest {
         return subnetEntities;
     }
 
-    public boolean isAfterRandomIp() {
-        return afterRandomIp;
+    public boolean isAllocateIpAddress() {
+        return allocateIpAddress;
     }
 
     @Override

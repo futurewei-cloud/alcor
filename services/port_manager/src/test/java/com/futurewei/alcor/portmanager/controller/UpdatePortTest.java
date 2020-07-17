@@ -248,7 +248,7 @@ public class UpdatePortTest extends MockRestClientAndRepository {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_learning_enabled").value(UnitTestConfig.macLearningEnabled2));
     }
 
-    @Test
+    //@Test
     public void updateMacAddressAndFixedIpsBulkTest() throws Exception {
         mockRestClientsAndRepositoryOperations();
 

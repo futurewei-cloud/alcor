@@ -17,19 +17,23 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.SubnetRoute;
+import com.futurewei.alcor.portmanager.exception.GetSubnetEntityException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FetchSubnetRouteRequest extends AbstractRequest {
     private RouteManagerRestClient routeManagerRestClient;
+    private List<String> subnetIds;
     private List<SubnetRoute> subnetRoutes;
 
-    public FetchSubnetRouteRequest(PortContext context, List<SubnetRoute> subnetRoutes) {
+    public FetchSubnetRouteRequest(PortContext context, List<String> subnetIds) {
         super(context);
-        this.subnetRoutes = subnetRoutes;
+        this.subnetIds = subnetIds;
+        this.subnetRoutes = new ArrayList<>();
         this.routeManagerRestClient = SpringContextUtil.getBean(RouteManagerRestClient.class);
     }
 
@@ -39,11 +43,16 @@ public class FetchSubnetRouteRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        if (subnetRoutes != null) {
-            for (SubnetRoute subnetRoute: subnetRoutes) {
+        if (subnetIds != null) {
+            for (String subnetId: subnetIds) {
                 RoutesWebJson routesWebJson = routeManagerRestClient
-                        .getRouteBySubnetId(subnetRoute.getSubnetId());
-                subnetRoute.setRouteEntities(routesWebJson.getRoutes());
+                        .getRouteBySubnetId(subnetId);
+                if (routesWebJson == null || routesWebJson.getRoutes() == null) {
+                    throw new GetSubnetEntityException();
+                }
+
+                SubnetRoute subnetRoute = new SubnetRoute(subnetId, routesWebJson.getRoutes());
+                subnetRoutes.add(subnetRoute);
             }
         }
     }

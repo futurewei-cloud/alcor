@@ -33,7 +33,7 @@ import java.util.*;
 @ComponentScan(value = "com.futurewei.alcor.common.utils")
 @ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class PortServiceImpl implements PortService {
-    private static final Logger LOG = LoggerFactory.getLogger(com.futurewei.alcor.portmanager.service.implement.PortServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
     @Autowired
     private PortRepository portRepository;
@@ -47,9 +47,8 @@ public class PortServiceImpl implements PortService {
     private void createPortEntities(String projectId, List<PortEntity> portEntities) throws Exception {
         PortConfigCache portConfigCache = new PortConfigCache();
         PortEntityParser.parse(portEntities, portConfigCache);
-        NetworkConfig networkConfig = new NetworkConfig();
 
-        PortContext context = new PortContext(portConfigCache, networkConfig, projectId, portRepository);
+        PortContext context = new PortContext(portConfigCache, projectId, portRepository);
         context.setPortEntities(portEntities);
 
         IProcessor processChain = ProcessorManager.getProcessChain();
@@ -76,7 +75,26 @@ public class PortServiceImpl implements PortService {
 
     @Override
     public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
-        return null;
+        PortEntity portEntity = portRepository.findPortEntity(portId);
+        if (portEntity == null) {
+            throw new PortEntityNotFound();
+        }
+
+        PortContext context = new PortContext(null, projectId, portRepository);
+        context.setOldPortEntity(portEntity);
+        context.setNewPortEntity(portWebJson.getPortEntity());
+
+        IProcessor processChain = ProcessorManager.getProcessChain();
+
+        try {
+            processChain.updatePort(context);
+            context.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            handleException(context, e);
+        }
+
+        portWebJson.setPortEntity(portEntity);
+        return portWebJson;
     }
 
     @Override
@@ -91,9 +109,7 @@ public class PortServiceImpl implements PortService {
             throw new PortEntityNotFound();
         }
 
-        NetworkConfig networkConfig = new NetworkConfig();
-
-        PortContext context = new PortContext(null, networkConfig, projectId, portRepository);
+        PortContext context = new PortContext(null, projectId, portRepository);
         context.setPortEntities(Collections.singletonList(portEntity));
 
         IProcessor processChain = ProcessorManager.getProcessChain();

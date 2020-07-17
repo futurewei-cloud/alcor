@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,9 +44,10 @@ public class NeighborProcessor extends AbstractProcessor {
         }
     }
 
-    private void getNeighbors(PortContext context) {
-        Set<String> vpcIds = context.getPortEntities()
+    private void getNeighbors(PortContext context, List<PortEntity> portEntities) {
+        Set<String> vpcIds = portEntities
                 .stream()
+                .filter(p -> p.getVpcId() != null)
                 .map(PortEntity::getVpcId)
                 .collect(Collectors.toSet());
 
@@ -57,16 +59,17 @@ public class NeighborProcessor extends AbstractProcessor {
 
     @Override
     void createProcess(PortContext context) {
-        getNeighbors(context);
+        getNeighbors(context, context.getPortEntities());
     }
 
     @Override
     void updateProcess(PortContext context) {
-
+        PortEntity newPortEntity = context.getNewPortEntity();
+        getNeighbors(context, Collections.singletonList(newPortEntity));
     }
 
     @Override
     void deleteProcess(PortContext context) {
-        getNeighbors(context);
+        getNeighbors(context, context.getPortEntities());
     }
 }

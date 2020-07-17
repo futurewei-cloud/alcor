@@ -16,17 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.exception.AllocateMacAddrException;
-import com.futurewei.alcor.portmanager.request.AllocateFixedMacRequest;
-import com.futurewei.alcor.portmanager.request.AllocateRandomMacRequest;
-import com.futurewei.alcor.portmanager.request.IRestRequest;
-import com.futurewei.alcor.portmanager.request.ReleaseMacRequest;
+import com.futurewei.alcor.portmanager.request.*;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class MacProcessor extends AbstractProcessor {
     void allocateRandomMacAddressCallback(IRestRequest request) throws AllocateMacAddrException {
@@ -80,7 +75,29 @@ public class MacProcessor extends AbstractProcessor {
 
     @Override
     void updateProcess(PortContext context) {
+        PortEntity newPortEntity = context.getNewPortEntity();
+        PortEntity oldPortEntity = context.getOldPortEntity();
 
+        String newMacAddress = newPortEntity.getMacAddress();
+        String oldMacAddress = oldPortEntity.getMacAddress();
+
+        if (newMacAddress != null && !newMacAddress.equals(oldMacAddress)) {
+            MacState newMacState = new MacState(newMacAddress,
+                    context.getProjectId(),
+                    newPortEntity.getVpcId(),
+                    newPortEntity.getId(),
+                    null);
+            MacState oldMacState = new MacState(oldMacAddress,
+                    context.getProjectId(),
+                    oldPortEntity.getVpcId(),
+                    newPortEntity.getId(),
+                    null);
+
+            IRestRequest updateMacRequest = new UpdateMacRequest(context, newMacState, oldMacState);
+            context.getRequestManager().sendRequestAsync(updateMacRequest, null);
+
+            oldPortEntity.setMacAddress(newMacAddress);
+        }
     }
 
     @Override

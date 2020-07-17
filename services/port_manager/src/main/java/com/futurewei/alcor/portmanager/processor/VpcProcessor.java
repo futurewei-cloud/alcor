@@ -29,9 +29,10 @@ public class VpcProcessor extends AbstractProcessor {
         request.getContext().getNetworkConfig().setVpcEntities(vpcEntities);
     }
 
-    private void getVpcEntities(PortContext context) {
-        Set<String> vpcIds = context.getPortEntities()
+    private void getVpcEntities(PortContext context, List<PortEntity> portEntities) {
+        Set<String> vpcIds = portEntities
                 .stream()
+                .filter(p -> p.getVpcId() != null)
                 .map(PortEntity::getVpcId)
                 .collect(Collectors.toSet());
 
@@ -43,16 +44,17 @@ public class VpcProcessor extends AbstractProcessor {
 
     @Override
     void createProcess(PortContext context) {
-        getVpcEntities(context);
+        getVpcEntities(context, context.getPortEntities());
     }
 
     @Override
     void updateProcess(PortContext context) {
-
+        PortEntity newPortEntity = context.getNewPortEntity();
+        getVpcEntities(context, Collections.singletonList(newPortEntity));
     }
 
     @Override
     void deleteProcess(PortContext context) {
-        getVpcEntities(context);
+        getVpcEntities(context, context.getPortEntities());
     }
 }

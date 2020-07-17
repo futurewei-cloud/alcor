@@ -25,22 +25,23 @@ public class PortContext {
     private NetworkConfig networkConfig;
     private String projectId;
     private PortRepository portRepository;
-    private List<PortEntity> portEntities;
     private RequestManager requestManager;
     private List<PortEntity> assignedIpPorts;
     private List<PortEntity> unassignedIpPorts;
     private List<PortEntity> unassignedMacPorts;
-    private String deletedPortId;
+    private List<PortEntity> portEntities; //For add and delete
+    private PortEntity oldPortEntity; //For update
+    private PortEntity newPortEntity; //For update
 
     public PortContext() {
 
     }
 
-    public PortContext(PortConfigCache portConfigCache, NetworkConfig networkConfig, String projectId, PortRepository portRepository) {
+    public PortContext(PortConfigCache portConfigCache, String projectId, PortRepository portRepository) {
         this.portConfigCache = portConfigCache;
-        this.networkConfig = networkConfig;
         this.projectId = projectId;
         this.portRepository = portRepository;
+        this.networkConfig = new NetworkConfig();
         this.requestManager = new RequestManager();
     }
 
@@ -116,11 +117,19 @@ public class PortContext {
         this.unassignedMacPorts = unassignedMacPorts;
     }
 
-    public String getDeletedPortId() {
-        return deletedPortId;
+    public PortEntity getOldPortEntity() {
+        return oldPortEntity;
     }
 
-    public void setDeletedPortId(String deletedPortId) {
-        this.deletedPortId = deletedPortId;
+    public void setOldPortEntity(PortEntity oldPortEntity) {
+        this.oldPortEntity = oldPortEntity;
+    }
+
+    public PortEntity getNewPortEntity() {
+        return newPortEntity;
+    }
+
+    public void setNewPortEntity(PortEntity newPortEntity) {
+        this.newPortEntity = newPortEntity;
     }
 }

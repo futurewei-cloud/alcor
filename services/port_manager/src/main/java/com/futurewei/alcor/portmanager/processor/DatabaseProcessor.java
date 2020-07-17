@@ -22,6 +22,20 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 
 public class DatabaseProcessor extends AbstractProcessor {
+    private NeighborInfo getNeighborInfo(InternalPortEntity internalPortEntity) {
+        String bindingHostIp = internalPortEntity.getBindingHostIp();
+        if (bindingHostIp == null) {
+            return null;
+        }
+
+        NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
+                internalPortEntity.getBindingHostId(),
+                internalPortEntity.getId(),
+                internalPortEntity.getMacAddress());
+
+        return neighborInfo;
+    }
+
     @Override
     void createProcess(PortContext context) throws Exception {
         Map<String, List<NeighborInfo>> portNeighbors = new HashMap<>();
@@ -29,16 +43,7 @@ public class DatabaseProcessor extends AbstractProcessor {
         NetworkConfig networkConfig = context.getNetworkConfig();
         List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities();
         for (InternalPortEntity internalPortEntity : internalPortEntities) {
-            String bindingHostIp = internalPortEntity.getBindingHostIp();
-            if (bindingHostIp == null) {
-                continue;
-            }
-
-            NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
-                    internalPortEntity.getBindingHostId(),
-                    internalPortEntity.getId(),
-                    internalPortEntity.getMacAddress());
-
+            NeighborInfo neighborInfo = getNeighborInfo(internalPortEntity);
             if (!portNeighbors.containsKey(internalPortEntity.getVpcId())) {
                 List<NeighborInfo> neighborInfos = new ArrayList<>();
                 portNeighbors.put(internalPortEntity.getVpcId(), neighborInfos);
@@ -47,13 +52,21 @@ public class DatabaseProcessor extends AbstractProcessor {
             portNeighbors.get(internalPortEntity.getVpcId()).add(neighborInfo);
         }
 
+        /**
+         * TODO:
+         CreateNetworkConfig may fail, in that case we need to rollback the database
+         operation, or wait for CreateNetworkConfig to succeed before writing to the database
+         */
         List<PortEntity> portEntities = context.getPortEntities();
         context.getPortRepository().createPortAndNeighborBulk(portEntities, portNeighbors);
     }
 
     @Override
-    void updateProcess(PortContext context) {
-
+    void updateProcess(PortContext context) throws Exception {
+        List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
+        NeighborInfo neighborInfo = getNeighborInfo(internalPortEntities.get(0));
+        PortEntity oldPortEntity = context.getOldPortEntity();
+        context.getPortRepository().updatePortAndNeighbor(oldPortEntity, neighborInfo);
     }
 
     @Override

@@ -45,24 +45,28 @@ public class FetchSecurityGroupRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        for (String tenantId: securityGroupIds) {
-            SecurityGroupJson securityGroup = securityGroupManagerRestClient
-                    .getSecurityGroup(context.getProjectId(), tenantId);
-            if (securityGroup == null || securityGroup.getSecurityGroup() == null) {
-                throw new GetSecurityGroupException();
-            }
+        if (securityGroupIds != null) {
+            for (String tenantId : securityGroupIds) {
+                SecurityGroupJson securityGroup = securityGroupManagerRestClient
+                        .getSecurityGroup(context.getProjectId(), tenantId);
+                if (securityGroup == null || securityGroup.getSecurityGroup() == null) {
+                    throw new GetSecurityGroupException();
+                }
 
-            securityGroups.add(securityGroup.getSecurityGroup());
+                securityGroups.add(securityGroup.getSecurityGroup());
+            }
         }
 
-        for (String tenantId: defaultSecurityGroupIds) {
-            SecurityGroupJson defaultSecurityGroup = securityGroupManagerRestClient
-                    .getDefaultSecurityGroup(context.getProjectId(), tenantId);
-            if (defaultSecurityGroup == null || defaultSecurityGroup.getSecurityGroup() == null) {
-                throw new GetSecurityGroupException();
-            }
+        if (defaultSecurityGroupIds != null) {
+            for (String tenantId : defaultSecurityGroupIds) {
+                SecurityGroupJson defaultSecurityGroup = securityGroupManagerRestClient
+                        .getDefaultSecurityGroup(context.getProjectId(), tenantId);
+                if (defaultSecurityGroup == null || defaultSecurityGroup.getSecurityGroup() == null) {
+                    throw new GetSecurityGroupException();
+                }
 
-            securityGroups.add(defaultSecurityGroup.getSecurityGroup());
+                securityGroups.add(defaultSecurityGroup.getSecurityGroup());
+            }
         }
     }
 
