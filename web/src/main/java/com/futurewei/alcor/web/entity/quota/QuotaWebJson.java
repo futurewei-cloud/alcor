@@ -13,25 +13,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.securitygroup;
+package com.futurewei.alcor.web.entity.quota;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
-public class SecurityGroupsJson {
+public class QuotaWebJson {
 
-    @JsonProperty("security_groups")
-    private ArrayList<SecurityGroup> securityGroups;
+    private QuotaEntity quota;
 
-    public SecurityGroupsJson() {
-
+    public QuotaWebJson() {
     }
 
-    public SecurityGroupsJson(List<SecurityGroup> securityGroups) {
-        this.securityGroups = new ArrayList<>(securityGroups);
+    public QuotaWebJson(QuotaEntity quotaEntity) {
+        this.quota = quotaEntity;
     }
+
 }
