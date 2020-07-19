@@ -48,7 +48,7 @@ public class QuotaController {
     }
 
     private QuotaEntity createDefaultQuotaEntity() {
-        return new QuotaEntity(50, 10, 50, -1, 10,
+        return new QuotaEntity(50, 10, 1000, -1, 10,
                 10, 100, 10, -1);
     }
 }
