@@ -26,7 +26,6 @@ import "common.proto";
 enum NeighborType { 
     L2 = 0; // the default type
     L3 = 1;
-    HOST_DVR = 2;  // TODO: remove?
 }
 
 message NeighborConfiguration {
@@ -41,11 +40,6 @@ message NeighborConfiguration {
     string mac_address = 8;
     string host_ip_address = 9;
 
-    message HostDvrMacAddress {
-        string subnet_id = 1;
-        string host_dvr_mac_address = 2;
-    }
-
     message FixedIp {
         string subnet_id = 1;
         string ip_address = 2;
@@ -56,10 +50,9 @@ message NeighborConfiguration {
         string mac_address = 2;
     }
 
-    repeated HostDvrMacAddress host_dvr_mac_addresses = 10;
+    string neighbor_host_dvr_mac = 10;
     repeated FixedIp fixed_ips = 11;
     repeated AllowAddressPair allow_address_pairs = 12;
-    string neighbor_host_dvr_mac = 13; // TODO: new stuff
 }
 
 message NeighborState {
