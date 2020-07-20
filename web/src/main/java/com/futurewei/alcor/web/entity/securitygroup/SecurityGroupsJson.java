@@ -16,30 +16,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-public class SecurityGroupRuleJson {
-    @JsonProperty("security_group_rule")
-    private SecurityGroupRule securityGroupRule;
+import java.util.ArrayList;
+import java.util.List;
 
-    public SecurityGroupRuleJson() {
+@Data
+public class SecurityGroupsJson {
+
+    @JsonProperty("security_groups")
+    private ArrayList<SecurityGroup> securityGroups;
+
+    public SecurityGroupsJson() {
+
     }
 
-    public SecurityGroupRuleJson(SecurityGroupRule securityGroupRule) {
-        this.securityGroupRule = securityGroupRule;
+    public SecurityGroupsJson(List<SecurityGroup> securityGroups) {
+        this.securityGroups = new ArrayList<>(securityGroups);
     }
-
-    public SecurityGroupRule getSecurityGroupRule() {
-        return securityGroupRule;
-    }
-
-    public void setSecurityGroupRule(SecurityGroupRule securityGroupRule) {
-        this.securityGroupRule = securityGroupRule;
-    }
-
-//    @Override
-//    public String toString() {
-//        return "SecurityGroupRuleJson{" +
-//                "securityGroupRule=" + securityGroupRule +
-//                '}';
-//    }
 }
