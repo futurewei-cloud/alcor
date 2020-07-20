@@ -38,7 +38,10 @@ public class FetchPortNeighborRequest extends AbstractRequest {
     @Override
     public void send() throws Exception {
         for (String vpcId: vpcIds) {
-            portNeighborsList.add(context.getPortRepository().getPortNeighbors(vpcId));
+            PortNeighbors portNeighbors = context.getPortRepository().getPortNeighbors(vpcId);
+            if (portNeighbors != null) {
+                portNeighborsList.add(portNeighbors);
+            }
         }
     }
 

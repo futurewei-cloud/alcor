@@ -37,7 +37,7 @@ public class NodeProcessor extends AbstractProcessor {
                 }
 
                 if (node.getId().equals(internalPortEntity.getBindingHostId())) {
-                    internalPortEntity.setBindingHostIp(node.getLocalIp());
+                    internalPortEntity.setBindingHostIP(node.getLocalIp());
                     internalPortEntity.setBindingHostId(node.getId());
                 }
             }

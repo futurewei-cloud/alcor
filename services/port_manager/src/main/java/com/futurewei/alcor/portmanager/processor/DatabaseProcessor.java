@@ -23,7 +23,7 @@ import java.util.*;
 
 public class DatabaseProcessor extends AbstractProcessor {
     private NeighborInfo getNeighborInfo(InternalPortEntity internalPortEntity) {
-        String bindingHostIp = internalPortEntity.getBindingHostIp();
+        String bindingHostIp = internalPortEntity.getBindingHostIP();
         if (bindingHostIp == null) {
             return null;
         }
@@ -44,6 +44,9 @@ public class DatabaseProcessor extends AbstractProcessor {
         List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities();
         for (InternalPortEntity internalPortEntity : internalPortEntities) {
             NeighborInfo neighborInfo = getNeighborInfo(internalPortEntity);
+            if (neighborInfo == null) {
+                continue;
+            }
             if (!portNeighbors.containsKey(internalPortEntity.getVpcId())) {
                 List<NeighborInfo> neighborInfos = new ArrayList<>();
                 portNeighbors.put(internalPortEntity.getVpcId(), neighborInfos);

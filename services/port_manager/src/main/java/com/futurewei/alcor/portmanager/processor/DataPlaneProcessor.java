@@ -32,9 +32,13 @@ public class DataPlaneProcessor extends AbstractProcessor {
         context.getRequestManager().waitAllRequestsFinish();
 
         NetworkConfig networkConfig = context.getNetworkConfig();
+        if (networkConfig.getPortEntities().size() == 0) {
+            return null;
+        }
+
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
-        networkConfiguration.setVpcEntities(networkConfig.getVpcEntities());
-        networkConfiguration.setSubnetEntities(networkConfig.getSubnetEntities());
+        networkConfiguration.setVpcs(networkConfig.getVpcEntities());
+        networkConfiguration.setSubnets(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
         networkConfiguration.setPortEntities(networkConfig.getPortEntities());
 
@@ -42,38 +46,41 @@ public class DataPlaneProcessor extends AbstractProcessor {
     }
 
     private void createNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
-        IRestRequest createNetworkConfigRequest =
-                new CreateNetworkConfigRequest(context, networkConfig);
-        context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, null);
+        if (networkConfig != null) {
+            IRestRequest createNetworkConfigRequest =
+                    new CreateNetworkConfigRequest(context, networkConfig);
+            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, null);
+        }
     }
 
     private void updateNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
-        IRestRequest updateNetworkConfigRequest =
-                new UpdateNetworkConfigRequest(context, networkConfig);
-        context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, null);
+        if (networkConfig != null) {
+            IRestRequest updateNetworkConfigRequest =
+                    new UpdateNetworkConfigRequest(context, networkConfig);
+            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, null);
+        }
     }
 
     private void deleteNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
-        IRestRequest deleteNetworkConfigRequest =
-                new DeleteNetworkConfigRequest(context, networkConfig);
-        context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);
+        if (networkConfig != null) {
+            IRestRequest deleteNetworkConfigRequest =
+                    new DeleteNetworkConfigRequest(context, networkConfig);
+            context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);
+        }
     }
 
     @Override
     void createProcess(PortContext context) {
-        NetworkConfiguration networkConfig = buildNetworkConfig(context);
-        createNetworkConfig(context, networkConfig);
+        createNetworkConfig(context, buildNetworkConfig(context));
     }
 
     @Override
     void updateProcess(PortContext context) {
-        NetworkConfiguration networkConfig = buildNetworkConfig(context);
-        updateNetworkConfig(context, networkConfig);
+        updateNetworkConfig(context, buildNetworkConfig(context));
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
-        NetworkConfiguration networkConfig = buildNetworkConfig(context);
-        deleteNetworkConfig(context, networkConfig);
+        deleteNetworkConfig(context, buildNetworkConfig(context));
     }
 }

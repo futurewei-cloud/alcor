@@ -21,6 +21,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class PortProcessor extends AbstractProcessor {
     private void buildInternalPortEntities(PortContext context, List<PortEntity> portEntities) {
@@ -175,7 +176,24 @@ public class PortProcessor extends AbstractProcessor {
 
     @Override
     void createProcess(PortContext context) {
-        buildInternalPortEntities(context, context.getPortEntities());
+        List<InternalPortEntity> internalPortEntities = new ArrayList<>();
+
+        for (PortEntity portEntity: context.getPortEntities()) {
+            portEntity.setProjectId(context.getProjectId());
+            if (portEntity.getId() == null) {
+                portEntity.setId(UUID.randomUUID().toString());
+            }
+
+            if (portEntity.getBindingHostId() != null) {
+                InternalPortEntity internalPortEntity =
+                        new InternalPortEntity(portEntity, null, null, null);
+                NetworkConfig.ExtendPortEntity extendPortEntity =
+                        new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
+                internalPortEntities.add(extendPortEntity);
+            }
+        }
+
+        context.getNetworkConfig().setPortEntities(internalPortEntities);
     }
 
     @Override

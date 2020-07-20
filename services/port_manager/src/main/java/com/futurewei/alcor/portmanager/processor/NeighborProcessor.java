@@ -36,6 +36,10 @@ public class NeighborProcessor extends AbstractProcessor {
 
         for (InternalPortEntity internalPortEntity : internalPortEntities) {
             for (PortNeighbors portNeighbors: portNeighborsList) {
+                if (portNeighbors.getNeighbors() == null) {
+                    continue;
+                }
+
                 if (internalPortEntity.getVpcId().equals(portNeighbors.getVpcId())) {
                     List<NeighborInfo> neighborInfos = new ArrayList<>(portNeighbors.getNeighbors().values());
                     internalPortEntity.setNeighborInfos(neighborInfos);
