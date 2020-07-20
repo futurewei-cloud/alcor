@@ -18,9 +18,8 @@ package com.futurewei.alcor.securitygroup.service;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public interface SecurityGroupService {
@@ -36,7 +35,7 @@ public interface SecurityGroupService {
 
     SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception;
 
-    List<SecurityGroupJson> listSecurityGroup() throws Exception;
+    SecurityGroupsJson listSecurityGroup() throws Exception;
 
     PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception;
 
