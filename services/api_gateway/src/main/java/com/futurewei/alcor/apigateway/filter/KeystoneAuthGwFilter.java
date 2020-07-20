@@ -45,6 +45,8 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
     private static final String AUTHORIZE_TOKEN = "X-Auth-Token";
     private static final String VPC_NAME = "vpcs";
     private static final String VPC_REPLACE_NAME = "networks";
+    private static final String ELASTICIP_NAME = "elasticips";
+    private static final String ELASTICIP_REPLACE_NAME = "networks";
     private static final int KEYSTONE_FILTER_ORDERED = -100;
 
     @Autowired
@@ -76,8 +78,9 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
         ServerHttpRequest req = exchange.getRequest();
         ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
         String path = req.getURI().getRawPath();
-        path = path.replaceAll(neutronUrlPrefix, "/project/" + projectId);
-        path = path.replaceAll(VPC_REPLACE_NAME, VPC_NAME);
+        path = path.replaceAll(neutronUrlPrefix, "/project/" + projectId)
+                .replaceAll(VPC_REPLACE_NAME, VPC_NAME)
+                .replaceAll(ELASTICIP_REPLACE_NAME, ELASTICIP_NAME);
 
         ServerHttpRequest request = req.mutate().path(path).header(TOKEN_INFO_HEADER, tokenEntity.toJson()).build();
         exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
