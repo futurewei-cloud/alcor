@@ -1041,6 +1041,7 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         fixedIps.add(fixedIp);
         port.setFixedIps(fixedIps);
+        port.setName(UnitTestConfig.elasticIpPortName1);
         Mockito.when(portManagerRestClient.getPort(UnitTestConfig.projectId1, UnitTestConfig.elasticIpPort1))
                 .thenReturn(new PortWebJson(port));
 
@@ -1062,8 +1063,8 @@ public class ElasticIpControllerTests extends MockIgniteServer {
                         .value(UnitTestConfig.elasticIpPort1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
                         .value(UnitTestConfig.elasticIpPrivateIp1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
-                        .value(UnitTestConfig.elasticIpPrivateIpVersion1.toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_details.name")
+                        .value(UnitTestConfig.elasticIpPortName1))
                 .andReturn().getResponse().getContentAsString();
 
         ElasticIpInfoWrapper response = mapper.readValue(responseStr, ElasticIpInfoWrapper.class);
@@ -1092,7 +1093,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         putRequest.setProjectId(UnitTestConfig.projectId1);
         putRequest.setId(elasticIpId);
         putRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        putRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
         putRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp1);
 
         requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
@@ -1107,9 +1107,7 @@ public class ElasticIpControllerTests extends MockIgniteServer {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
                         .value(UnitTestConfig.elasticIpPort1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
-                        .value(UnitTestConfig.elasticIpPrivateIp1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
-                        .value(UnitTestConfig.elasticIpPrivateIpVersion1.toString()));
+                        .value(UnitTestConfig.elasticIpPrivateIp1));
 
         // disassociate elastic ip with the port
         putRequest = new ElasticIp();
@@ -1180,8 +1178,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
                         .value(UnitTestConfig.elasticIpPort1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
                         .isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
-                        .isNotEmpty())
                 .andReturn().getResponse().getContentAsString();
 
         ElasticIpInfoWrapper response = mapper.readValue(responseStr, ElasticIpInfoWrapper.class);
@@ -1210,7 +1206,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         putRequest.setProjectId(UnitTestConfig.projectId1);
         putRequest.setId(elasticIpId);
         putRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        putRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion2);
         putRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp3);
 
         requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
@@ -1246,7 +1241,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         putRequest.setProjectId(UnitTestConfig.projectId1);
         putRequest.setId(elasticIpId);
         putRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        putRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
         putRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp2);
 
         requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
@@ -1261,9 +1255,7 @@ public class ElasticIpControllerTests extends MockIgniteServer {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
                         .value(UnitTestConfig.elasticIpPort1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
-                        .value(UnitTestConfig.elasticIpPrivateIp2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
-                        .value(UnitTestConfig.elasticIpPrivateIpVersion1.toString()));
+                        .value(UnitTestConfig.elasticIpPrivateIp2));
 
         // disassociate elastic ip with the port
         putRequest = new ElasticIp();
@@ -1320,7 +1312,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         ElasticIp postRequest = new ElasticIp();
         postRequest.setProjectId(UnitTestConfig.projectId1);
         postRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
         postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp1);
 
         ElasticIpInfoWrapper requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
@@ -1347,7 +1338,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         postRequest = new ElasticIp();
         postRequest.setProjectId(UnitTestConfig.projectId1);
         postRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
         postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp1);
 
         requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
@@ -1364,7 +1354,6 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         postRequest = new ElasticIp();
         postRequest.setProjectId(UnitTestConfig.projectId1);
         postRequest.setPortId(UnitTestConfig.elasticIpPort1);
-        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
         postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp2);
 
         requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
