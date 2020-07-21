@@ -104,9 +104,6 @@ public class ElasticIpControllerUtils {
             }
         } else {
             if (elasticIpInfo.getPrivateIpVersion() != null) {
-                if (elasticIpInfo.getPrivateIpVersion().equals(IpVersion.IPV6.getVersion())) {
-                    throw new ElasticIpIPv6PIPNotSupported();
-                }
                 if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
                     throw new ElasticIpPipVersionException();
                 }
@@ -182,9 +179,6 @@ public class ElasticIpControllerUtils {
             }
         } else {
             if (elasticIpInfo.getPrivateIpVersion() != null) {
-                if (elasticIpInfo.getPrivateIpVersion().equals(IpVersion.IPV6.getVersion())) {
-                    throw new ElasticIpIPv6PIPNotSupported();
-                }
                 if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
                     throw new ElasticIpPipVersionException();
                 }

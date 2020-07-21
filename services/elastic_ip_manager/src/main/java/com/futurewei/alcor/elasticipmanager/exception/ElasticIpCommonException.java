@@ -14,11 +14,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception.elasticip;
+package com.futurewei.alcor.elasticipmanager.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Elastic ip not support associated with a IPv6 private IP for now")
-public class ElasticIpIPv6PIPNotSupported extends Exception {
+public class ElasticIpCommonException extends Exception {
+
+    private final HttpStatus httpStatus;
+
+    public ElasticIpCommonException(HttpStatus httpStatus, String msg) {
+        super(msg);
+        this.httpStatus = httpStatus;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
 }
