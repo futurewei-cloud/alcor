@@ -30,4 +30,19 @@ public interface IDistributedLock {
      */
     Boolean tryLock(String lockKey);
 
+    /**
+     * a prefix for each lock
+     * @return
+     */
+    String getLockPrefix();
+
+    /**
+     * return a combine real key for distribution lock
+     * @param key
+     * @return
+     */
+    default String getRealKey(String key) {
+        return getLockPrefix() + " lock:" + key;
+    }
+
 }
