@@ -87,7 +87,7 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(routeWebJson);
-        Mockito.when(vpcService.allocateASegmentForNetwork(any(VpcEntity.class)))
+        Mockito.when(vpcService.allocateSegmentForNetwork(any(VpcEntity.class)))
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
