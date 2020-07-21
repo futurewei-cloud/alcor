@@ -55,18 +55,16 @@ Server Type 1: Huawei Tecal RH2288 V2 Server (Count: 7)
 .4+^.^|CPU
 |Vendor/Model|Intel Core E5-2670 2x 2.6GHz
 |Processor Count| 2
-|Core Count|
+|Core Count| 32
 |Frequency HMz| 2600
 
 .2+^.^|RAM
 |Vendor/Model| 16 x 8GB
 |Amount (GB)| 128
 
-//.4+^.^|NETWORK
-//|Vendor/Model|
-//|Bandwidth|
-//|Vendor/Model|
-//|Bandwidth|
+.2+^.^|NETWORK
+|Vendor/Model| Intel / 82599ES 10-Gigabit SFI/SFP+ Network Connection
+|Bandwidth| 10Gbit/s
 
 .6+^.^|STORAGE
 |Vendor/Model|12 x 600 GB
@@ -94,11 +92,9 @@ Server Type 2: Huawei RH2288 V3 Server (Count: 11)
 |Vendor/Model| 24 x 32G
 |Amount GB| 768
 
-//.4+^.^|NETWORK
-//|Vendor/Model|
-//|Bandwidth|
-//|Vendor/Model|
-//|Bandwidth|
+.2+^.^|NETWORK
+|Vendor/Model|
+|Bandwidth|
 
 .6+^.^|STORAGE
 |Vendor/Model| 8 x 4 TB
@@ -125,11 +121,9 @@ Server Type 3: Huawei RH2288 V3 Server (Count: 4)
 |Vendor/Model| 24 x 16GB
 |Amount GB| 384
 
-//.4+^.^|NETWORK
-//|Vendor/Model|
-//|Bandwidth|
-//|Vendor/Model|
-//|Bandwidth|
+.2+^.^|NETWORK
+|Vendor/Model|
+|Bandwidth|
 
 .6+^.^|STORAGE
 |Vendor/Model| 6 x 1600 GB
