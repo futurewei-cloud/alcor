@@ -62,11 +62,11 @@ Server Type 1: Huawei Tecal RH2288 V2 Server (Count: 7)
 |Vendor/Model| 16 x 8GB
 |Amount (GB)| 128
 
-.4+^.^|NETWORK
-|Vendor/Model|
-|Bandwidth|
-|Vendor/Model|
-|Bandwidth|
+//.4+^.^|NETWORK
+//|Vendor/Model|
+//|Bandwidth|
+//|Vendor/Model|
+//|Bandwidth|
 
 .6+^.^|STORAGE
 |Vendor/Model|12 x 600 GB
@@ -94,11 +94,11 @@ Server Type 2: Huawei RH2288 V3 Server (Count: 11)
 |Vendor/Model| 24 x 32G
 |Amount GB| 768
 
-.4+^.^|NETWORK
-|Vendor/Model|
-|Bandwidth|
-|Vendor/Model|
-|Bandwidth|
+//.4+^.^|NETWORK
+//|Vendor/Model|
+//|Bandwidth|
+//|Vendor/Model|
+//|Bandwidth|
 
 .6+^.^|STORAGE
 |Vendor/Model| 8 x 4 TB
@@ -125,11 +125,11 @@ Server Type 3: Huawei RH2288 V3 Server (Count: 4)
 |Vendor/Model| 24 x 16GB
 |Amount GB| 384
 
-.4+^.^|NETWORK
-|Vendor/Model|
-|Bandwidth|
-|Vendor/Model|
-|Bandwidth|
+//.4+^.^|NETWORK
+//|Vendor/Model|
+//|Bandwidth|
+//|Vendor/Model|
+//|Bandwidth|
 
 .6+^.^|STORAGE
 |Vendor/Model| 6 x 1600 GB
@@ -167,7 +167,7 @@ It established a number of mature test suites for various OpenStack components, 
 Also, we will customize a few new test cases that are designed for Public Cloud env.
 
 
-== Test Metrics and Strategy
+== Performance Metrics and Test Strategy
 
 In the test, we adopt three metrics <<openstack_perf>> to measure the performance and scalability for Alcor.
 
@@ -189,9 +189,10 @@ We will show operation latency and throughput number for each scenario, and use 
 [#Test-cases]
 == Test Cases
 
-=== Test Case 1: Basic Alcor Test Suite
+=== Test Suite 1: Basic Test Suite
 
-The following Rally test scenarios need to be executed:
+The first test suite is to validate basic cloud operability.
+The following Rally test cases need to be executed:
 
 - create-and-list-networks
 - create-and-list-subnets
@@ -203,7 +204,7 @@ The following Rally test scenarios need to be executed:
 - create-and-update-subnets
 - create-and-update-ports
 
-Test Cases to be supported in E2E is enabled:
+Test Cases to be supported in the future:
 
 - create-and-list-routers
 - create-and-list-security-groups
@@ -214,31 +215,56 @@ Test Cases to be supported in E2E is enabled:
 - create-and-update-routers
 - create-and-update-security-groups
 
-Performance Metrics
+=== Test Suite 2: Stressful Test Suite
 
-=== Test Case 2: Stressful Alcor Test Suite
+Test Suite 2 focuses on stress test with increasing number of iterations and concurrency that create sufficient load
+on Neutron and Alcor control plane.
+50-100 concurrency can be used with 2000-5000 iterations in total <<openstack_perf>>.
+
+The following Rally test cases will be executed:
 
 - create-and-list-networks
 - create-and-list-subnets
 - create-and-list-ports
-//- create-and-list-routers
-//- create-and-list-security-groups
 - boot-and-list-server
-//- boot-and-delete-server-with-secgroups
 - boot-runcommand-delete
 
-=== Test Case 3: Scalability Test with Many Networks
+Test cases to be supported in the future:
+
+- create-and-list-routers
+- create-and-list-security-groups
+- boot-and-delete-server-with-secgroups
+
+=== Test Suite 3: Scalability Test with Many Networks
+
+The goal of this test suite is to create a large number of networks and subnets per tenant.
+Each network has a single VM with one port attached.
+For example 1000 networks (each with a subnet and a port) can be created per each iteration (up to 200 iterations in total).
 
 
-=== Test Case 4: Scalability Test with Many Servers
+=== Test Suite 4: Scalability Test with Large Network
 
+The focus of Test Suite 4 is slightly different from Test Suite 3.
+The main difference is that this test suite creates a larger number of VMs
+(e.g. a few hundreds, up to 1000) per network, to observe the trend.
 
-=== Test Case 5: Scalability Test with Large Network
+=== Test Suite 5: Scalability Test with Mixed Network Size.
+
+This test suite aims to simulate a real public cloud scenario,
+where small/median/large business may have different requirements hence desire different combination of various resource size.
+One test case in our test would include:
+
+- a limited number of large networks (each with 1,000 ports),
+- a few median-sized networks (each with 100 ports)
+- a larger number of small networks (each with 10 ports).
 
 == System Monitoring
 
+TBD (NetData is an attractive option).
+
 == Reports
 
+//1. Test Suite 1 Report:
 
 [bibliography]
 == References
