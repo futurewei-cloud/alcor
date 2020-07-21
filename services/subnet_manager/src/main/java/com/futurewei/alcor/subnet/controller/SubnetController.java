@@ -239,6 +239,19 @@ public class SubnetController {
                 inSubnetEntity.setTenantId(inSubnetEntity.getProjectId());
             }
 
+            // enable_dhcp
+            Boolean dhcpEnable = inSubnetEntity.getDhcpEnable();
+            if (dhcpEnable == null) {
+                inSubnetEntity.setDhcpEnable(true);
+            }
+
+            // allocation_pools
+            String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
+            List<AllocationPool> allocationPools = new ArrayList<>();
+            AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+            allocationPools.add(allocationPool);
+            inSubnetEntity.setAllocationPools(allocationPools);
+
             // tags
 ////            List<String> tags = inSubnetWebResponseObject.getTags();
 ////            if (tags == null) {
@@ -258,6 +271,9 @@ public class SubnetController {
 //            if (subnet == null) {
 //                throw new ResourcePersistenceException();
 //            }
+
+            // update to vpc with subnet id
+            this.subnetService.updateToVpcWithSubnetId(subnetId, projectId, vpcId);
 
             return new SubnetWebJson(inSubnetEntity);
 

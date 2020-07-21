@@ -49,4 +49,7 @@ public interface SubnetService {
     // Verify cidr block
     public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
 
+    // update to vpc with subnet id
+    public void updateToVpcWithSubnetId (String subnetId, String projectId, String vpcId) throws Exception;
+
 }
