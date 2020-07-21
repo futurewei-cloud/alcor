@@ -9,8 +9,16 @@ v0.1, 2019-10-27
 In this document, we outline the performance test plan for Alcor SDN Control Plane and the performance comparison with
 OpenStack Neutron - the de facto networking control plane for OpenStack-based cloud.
 This test plan details test environment, tools, system monitoring and most importantly, test cases against Alcor and Neutron.
-The test cases includes a set of established test cases offered by Rally, which is an open-source performance test framework,
-as well as new test cases customized for public cloud scenarios.
+The test cases includes a set of established test cases offered by Rally, which is an open-source performance test framework
+and benchmarking tool, as well as new test cases customized for public cloud scenarios.
+
+To ensure fair comparison between Alcor and Neutron, the following setup is proposed:
+
+- Same set of controller nodes will be used for Neutron control plane and Alcor control plane.
+When one control plane is under test, the other will be completely turned off.
+- Same set of compute nodes will be used to host VMs and customer workloads.
+- Same benchmarking tool and test cases will be used to conduct the performance test.
+- Same set of metrics to measure the performance and scalability of a system.
 
 This test plan covers an ongoing effort to cover the most important cloud operations in terms of networking performance,
 starting with network, subnet and ports.
@@ -18,28 +26,41 @@ We will continue to extend the coverage including routers, security groups and o
 
 == Test Environment
 
-This section includes preparation and details of our test environment including hardware speficiation of servers,
+This section includes preparation and details of our test environment including hardware specification of servers,
 network parameters, operation system and perf test tools.
 
-=== System Setup
+=== Overall Setup
 
-===  Environment Details
+Our performance test environment contains 3 types of servers:
 
-__Hardware__
+- controller nodes: hosting both OpenStack control plane and Alcor control plane
+- compute node: Hosting VMs and customer workload
+- rally node: Hosting Perf test tool
 
-[width="100%",options="header"]
+[width="60%",options="header"]
+|====================
+|Category|Server Count| Server Type
+|controller| 3 | 1
+|compute | 19 | 1, 2, 3
+|rally | 1 | 1
+|====================
+
+===  Hardware
+
+Server Type 1: Huawei Tecal RH2288 V2 Server (Count: 7)
+[width="80%",options="header"]
 |====================
 |Server|Parameter|Value
 
 .4+^.^|CPU
 |Vendor/Model|Intel Core E5-2670 2x 2.6GHz
-|Processor Count|
+|Processor Count| 2
 |Core Count|
 |Frequency HMz| 2600
 
 .2+^.^|RAM
-|Vendor/Model| 16 X ?? 8GB
-|Amount GB| 128
+|Vendor/Model| 16 x 8GB
+|Amount (GB)| 128
 
 .4+^.^|NETWORK
 |Vendor/Model|
@@ -48,29 +69,124 @@ __Hardware__
 |Bandwidth|
 
 .6+^.^|STORAGE
-|Vendor/Model|12x 600GB
-|SSD/HDD|
+|Vendor/Model|12 x 600 GB
+|SSD/HDD| HDD
 |Size| 7,200 GB
-|Vendor/Model|2x600GB
-|SSD/HDD|
+|Vendor/Model|2 x 600GB
+|SSD/HDD| HDD
 |Size| 1,200 GB
 
 |====================
 
-Huawei Tecal RH2288 V2 Server Intel Core E5-2670 2x 2.6GHz/16x8GB/12x 600GB+2x600GB/No DVD/ No Monitor
+
+Server Type 2: Huawei RH2288 V3 Server (Count: 11)
+[width="80%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model| 2*2698 v4
+|Processor Count| 2
+|Core Count|
+|Frequency HMz| 2698
+
+.2+^.^|RAM
+|Vendor/Model| 24 x 32G
+|Amount GB| 768
+
+.4+^.^|NETWORK
+|Vendor/Model|
+|Bandwidth|
+|Vendor/Model|
+|Bandwidth|
+
+.6+^.^|STORAGE
+|Vendor/Model| 8 x 4 TB
+|SSD/HDD| HDD
+|Size| 32,000 GB
+|Vendor/Model| 2 x 800G
+|SSD/HDD| HDD
+|Size| 1,200 GB
+
+|====================
+
+Server Type 3: Huawei RH2288 V3 Server (Count: 4)
+[width="80%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model| Xeon E5-2697 v3 2x2.6GHz
+|Processor Count| 2
+|Core Count|
+|Frequency HMz| 2600
+
+.2+^.^|RAM
+|Vendor/Model| 24 x 16GB
+|Amount GB| 384
+
+.4+^.^|NETWORK
+|Vendor/Model|
+|Bandwidth|
+|Vendor/Model|
+|Bandwidth|
+
+.6+^.^|STORAGE
+|Vendor/Model| 6 x 1600 GB
+|SSD/HDD| SSD
+|Size| 9,600 GB
+
+|====================
+
+//=== Network
+
+=== OS/Software Version
+
+This section describes the version of installed OS and software.
+
+[width="60%",options="header"]
+|====================
+|OS/Software|Version|Comments
+|OS |Ubuntu 18.04 |
+|OpenStack | Train | Released in Oct. 2019
+|Alcor | Release v0.6 | To be released in July 2020
+|Rally | 0.5.0 (?) |
+|Hypervisor	| KVM |
+|L2 segmentation | VxLAN |
+//|Neutron plugin	 	e.g. ML2 + OVS
+//|virtual routers	 	e.g. HA / DVR
+|====================
 
 
-__Network__
+=== Benchmarking Tool
+
+As mentioned, Rally is an open-source benchmarking tool that was designed specifically for OpenStack API testing,
+benchmarking and profiling.
+It established a number of mature test suites for various OpenStack components, and we leverage its Neutron test suites
+(refer to Section <<Test-cases>>)
+Also, we will customize a few new test cases that are designed for Public Cloud env.
 
 
-__Software__
+== Test Metrics and Strategy
 
-=== Test Tool
+In the test, we adopt three metrics <<openstack_perf>> to measure the performance and scalability for Alcor.
 
-== Test Metrics
+- Operation Latency - the duration of performing a single operation in a single thread -
+min/max/average/median/90% tail/95% tail/99% tail latency will be collected
+- Operation Throughput - the average number of operations completed in one second -
+- Concurrency - the number of parallel operations when the operation throughput reaches its maximum.
 
+We will measure the scale impact by comparing the above metrics in different test setups, which vary in one or more dimensions.
 
+- Number of network resources including network, subnet, ports, security groups etc. In the current environment,
+we will stree test the system by scaling up to 10,000 ports (~500 ports/node).
+- Combination of various resource size, for example a limited number of large networks (each with 1,000 ports),
+a few median-sized networks (each with 100 ports), and a larger number of small networks (each with 10 ports).
+- Scale up and down of Alcor control palne with various replicas of microservice instances and db instances.
 
+We will show operation latency and throughput number for each scenario, and use curve to see the changing trend.
+
+[#Test-cases]
 == Test Cases
 
 === Test Case 1: Basic Alcor Test Suite
@@ -121,4 +237,9 @@ Performance Metrics
 
 == System Monitoring
 
-== Report
+== Reports
+
+
+[bibliography]
+== References
+- [[[openstack_perf,1]]] OpenStack Performance Test Plan: https://docs.openstack.org/developer/performance-docs/test_plans/openstack_api_metrics/plan.html
