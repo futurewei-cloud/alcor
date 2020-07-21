@@ -87,6 +87,10 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(routeWebJson);
+        Mockito.when(vpcService.allocateASegmentForNetwork(any(VpcEntity.class)))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -107,14 +111,10 @@ public class VpcControllerTests {
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
-        try {
-            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
-                    .andDo(print())
-                    .andExpect(status().is(201))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.network.routes[0].destination").value(UnitTestConfig.cidr));
-        } catch (Exception e) {
-
-        }
+        String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                .andDo(print())
+                .andExpect(status().is(201)).andReturn().getResponse().getContentAsString();
+        assertEquals("{\"network\":null}", response);
     }
 
     @Test
