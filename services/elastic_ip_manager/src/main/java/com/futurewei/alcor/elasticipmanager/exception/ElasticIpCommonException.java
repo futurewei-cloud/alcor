@@ -14,12 +14,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception.elasticip;
+package com.futurewei.alcor.elasticipmanager.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="The associate port or private ip has already associated with " +
-        "another elastic ip")
-public class ElasticIpAssociateConflict extends Exception {
+public class ElasticIpCommonException extends Exception {
+
+    private final HttpStatus httpStatus;
+
+    public ElasticIpCommonException(HttpStatus httpStatus, String msg) {
+        super(msg);
+        this.httpStatus = httpStatus;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
 }

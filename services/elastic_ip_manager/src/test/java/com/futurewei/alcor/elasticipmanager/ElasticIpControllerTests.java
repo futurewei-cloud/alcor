@@ -20,7 +20,6 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
-import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.config.UnitTestConfig;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv4;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv6;
@@ -28,13 +27,11 @@ import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAvailableBucketsSet;
 import com.futurewei.alcor.web.entity.elasticip.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
-import com.futurewei.alcor.web.restclient.ElasticIpManagerRestClient;
 import com.futurewei.alcor.web.restclient.PortManagerRestClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1040,7 +1037,7 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         port.setId(UnitTestConfig.elasticIpPort1);
         PortEntity.FixedIp fixedIp = new PortEntity.FixedIp();
         fixedIp.setIpAddress(UnitTestConfig.elasticIpPrivateIp1);
-        fixedIp.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId);
+        fixedIp.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId1);
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         fixedIps.add(fixedIp);
         port.setFixedIps(fixedIps);
@@ -1134,6 +1131,304 @@ public class ElasticIpControllerTests extends MockIgniteServer {
 
         // delete the elastic ip
         String deleteEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(delete(deleteEipUri))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.cleanRange();
+    }
+
+    @Test
+    public void elasticIp_associateWithMultiplyIpsPort() throws Exception {
+        this.perpareRange();
+
+        // mock the port manager rest client
+        PortEntity port = new PortEntity();
+        port.setProjectId(UnitTestConfig.projectId1);
+
+        port.setId(UnitTestConfig.elasticIpPort1);
+        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp();
+        fixedIp.setIpAddress(UnitTestConfig.elasticIpPrivateIp1);
+        fixedIp.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId1);
+
+        PortEntity.FixedIp fixedIp2 = new PortEntity.FixedIp();
+        fixedIp2.setIpAddress(UnitTestConfig.elasticIpPrivateIp2);
+        fixedIp2.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId2);
+
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        fixedIps.add(fixedIp);
+        fixedIps.add(fixedIp2);
+        port.setFixedIps(fixedIps);
+        Mockito.when(portManagerRestClient.getPort(UnitTestConfig.projectId1, UnitTestConfig.elasticIpPort1))
+                .thenReturn(new PortWebJson(port));
+
+        // create the elastic ip associate with a multiply fixed ips port and not specify a private ip
+        ElasticIp postRequest = new ElasticIp();
+        postRequest.setProjectId(UnitTestConfig.projectId1);
+        postRequest.setPortId(UnitTestConfig.elasticIpPort1);
+
+        ElasticIpInfoWrapper requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
+        ObjectMapper mapper = new ObjectMapper();
+        String requestStr =  mapper.writeValueAsString(requestWraper);
+        String createEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips";
+
+        String responseStr = this.mockMvc.perform(post(createEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
+                        .isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
+                        .isNotEmpty())
+                .andReturn().getResponse().getContentAsString();
+
+        ElasticIpInfoWrapper response = mapper.readValue(responseStr, ElasticIpInfoWrapper.class);
+        String elasticIpId = response.getElasticip().getId();
+
+        // disassociate elastic ip with the port
+        ElasticIp putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId("");
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        String updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(""));
+
+        // associate elastic ip with a port and specify a private ip not in the fixed ips of the port
+        putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId(UnitTestConfig.elasticIpPort1);
+        putRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion2);
+        putRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp3);
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        // disassociate elastic ip with the port
+        putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId("");
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(""));
+
+        // associate elastic ip with a port and specify a private ip within the fixed ips of the port
+        putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId(UnitTestConfig.elasticIpPort1);
+        putRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
+        putRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp2);
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
+                        .value(UnitTestConfig.elasticIpPrivateIp2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip_version")
+                        .value(UnitTestConfig.elasticIpPrivateIpVersion1.toString()));
+
+        // disassociate elastic ip with the port
+        putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId("");
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(""));
+
+        // delete the elastic ip
+        String deleteEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(delete(deleteEipUri))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.cleanRange();
+    }
+
+    @Test
+    public void elasticIp_associatePortPrivateIpConflict() throws Exception {
+        this.perpareRange();
+
+        // mock the port manager rest client
+        PortEntity port = new PortEntity();
+        port.setProjectId(UnitTestConfig.projectId1);
+
+        port.setId(UnitTestConfig.elasticIpPort1);
+        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp();
+        fixedIp.setIpAddress(UnitTestConfig.elasticIpPrivateIp1);
+        fixedIp.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId1);
+
+        PortEntity.FixedIp fixedIp2 = new PortEntity.FixedIp();
+        fixedIp2.setIpAddress(UnitTestConfig.elasticIpPrivateIp2);
+        fixedIp2.setSubnetId(UnitTestConfig.getElasticIpPrivateIpSubnetId2);
+
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        fixedIps.add(fixedIp);
+        fixedIps.add(fixedIp2);
+        port.setFixedIps(fixedIps);
+        Mockito.when(portManagerRestClient.getPort(UnitTestConfig.projectId1, UnitTestConfig.elasticIpPort1))
+                .thenReturn(new PortWebJson(port));
+
+        // create the elastic ip associate with a port
+        ElasticIp postRequest = new ElasticIp();
+        postRequest.setProjectId(UnitTestConfig.projectId1);
+        postRequest.setPortId(UnitTestConfig.elasticIpPort1);
+        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
+        postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp1);
+
+        ElasticIpInfoWrapper requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
+        ObjectMapper mapper = new ObjectMapper();
+        String requestStr =  mapper.writeValueAsString(requestWraper);
+        String createEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips";
+
+        String responseStr = this.mockMvc.perform(post(createEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
+                        .value(UnitTestConfig.elasticIpPrivateIp1))
+                .andReturn().getResponse().getContentAsString();
+
+        ElasticIpInfoWrapper response = mapper.readValue(responseStr, ElasticIpInfoWrapper.class);
+        String elasticIpId = response.getElasticip().getId();
+
+        // create another elastic ip associate with the same port and same fixed ip
+        postRequest = new ElasticIp();
+        postRequest.setProjectId(UnitTestConfig.projectId1);
+        postRequest.setPortId(UnitTestConfig.elasticIpPort1);
+        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
+        postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp1);
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+        createEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips";
+
+        this.mockMvc.perform(post(createEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        // create another elastic ip associate with the same port and different fixed ip
+        postRequest = new ElasticIp();
+        postRequest.setProjectId(UnitTestConfig.projectId1);
+        postRequest.setPortId(UnitTestConfig.elasticIpPort1);
+        postRequest.setPrivateIpVersion(UnitTestConfig.elasticIpPrivateIpVersion1);
+        postRequest.setPrivateIp(UnitTestConfig.elasticIpPrivateIp2);
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(postRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+        createEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips";
+
+        String responseStr2 = this.mockMvc.perform(post(createEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(UnitTestConfig.elasticIpPort1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.private_ip")
+                        .value(UnitTestConfig.elasticIpPrivateIp2))
+                .andReturn().getResponse().getContentAsString();
+
+        response = mapper.readValue(responseStr2, ElasticIpInfoWrapper.class);
+        String elasticIpId2 = response.getElasticip().getId();
+
+        // disassociate the elastic ip with the port
+        ElasticIp putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId);
+        putRequest.setPortId("");
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        String updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(""));
+
+        putRequest = new ElasticIp();
+        putRequest.setProjectId(UnitTestConfig.projectId1);
+        putRequest.setId(elasticIpId2);
+        putRequest.setPortId("");
+
+        requestWraper = new ElasticIpInfoWrapper(new ElasticIpInfo(putRequest));
+        mapper = new ObjectMapper();
+        requestStr =  mapper.writeValueAsString(requestWraper);
+
+        updateEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId2;
+        this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
+                .content(requestStr))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.elasticip.port_id")
+                        .value(""));
+
+        // delete the elastic ip
+        String deleteEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId;
+        this.mockMvc.perform(delete(deleteEipUri))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        deleteEipUri = "/project/" + UnitTestConfig.projectId1 + "/elasticips/" + elasticIpId2;
         this.mockMvc.perform(delete(deleteEipUri))
                 .andDo(print())
                 .andExpect(status().isOk());

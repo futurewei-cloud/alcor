@@ -17,9 +17,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.elasticipmanager.service.implement;
 
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
+import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.elasticipmanager.config.IpVersion;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
+import com.futurewei.alcor.elasticipmanager.exception.ElasticIpCommonException;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpInternalErrorException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticip.*;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
@@ -34,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -92,15 +96,22 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         String ipAddress = elasticIpAllocator.allocateIpAddress(range, request.getElasticIp());
         eip.setElasticIp(ipAddress);
 
-        String portId = eip.getPortId();
-        if (!StringUtils.isEmpty(portId)) {
-            String associatedIp = this.getAssociatedPortIp(request.getProjectId(), portId,
-                    request.getPrivateIpVersion(), request.getPrivateIp());
-            eip.setPrivateIp(associatedIp);
-            eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
-        }
+        try{
+            String portId = eip.getPortId();
+            if (!StringUtils.isEmpty(portId)) {
+                String associatedIp = this.getAssociatedPortIp(request.getProjectId(), portId,
+                        request.getPrivateIpVersion(), request.getPrivateIp());
+                eip.setPrivateIp(associatedIp);
+                eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
+            }
 
-        elasticIpRepo.addItem(eip);
+            elasticIpRepo.addItem(eip);
+        } catch (Exception e) {
+            if (ipAddress != null) {
+                elasticIpAllocator.releaseIpAddress(range.getId(), range.getIpVersion(), ipAddress);
+            }
+            throw e;
+        }
 
         // todo notify nodes
 
@@ -284,35 +295,47 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         PortEntity port = portManagerProxy.getPortById(portId);
 
         List<PortEntity.FixedIp> fixedIps = port.getFixedIps();
-        List<String> fixedIpv4List = new ArrayList<>();
+        List<String> fixedIpList = new ArrayList<>();
         for (PortEntity.FixedIp fixedIp: fixedIps) {
-            if (Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())) {
-                fixedIpv4List.add(fixedIp.getIpAddress());
-            }
+            fixedIpList.add(fixedIp.getIpAddress());
         }
 
-        if (fixedIpv4List.isEmpty()) {
+        if (fixedIpList.isEmpty()) {
             throw new ElasticIpPipNotFound();
         }
 
+        Map<String, ElasticIp> associatedEips = this.getElasticIpsByPortId(projectId, portId);
         String associatedIp;
         if (ipAddress != null) {
-            if (fixedIpv4List.contains(ipAddress)) {
+            if (fixedIpList.contains(ipAddress)) {
                 associatedIp = ipAddress;
             } else {
                 throw new ElasticIpPipNotFound();
             }
-        } else {
-            if (fixedIpv4List.size() > 1) {
-                throw new ElasticIpMultipleFixedIpFound();
+            for (ElasticIp eip: associatedEips.values()) {
+                if (associatedIp.equals(eip.getPrivateIp())) {
+                    String errorMessage = "The associate port or private ip has already associated with " +
+                            "another elastic ip: " + eip.getElasticIp();
+                    throw new ElasticIpCommonException(HttpStatus.BAD_REQUEST, errorMessage);
+                }
             }
-            associatedIp = fixedIpv4List.get(0);
+        } else {
+            // choose a not associated fixed ip if not specified
+            for (ElasticIp eip: associatedEips.values()) {
+                fixedIpList.remove(eip.getPrivateIp());
+            }
+            if (fixedIpList.isEmpty()) {
+                throw new ElasticIpPipNotFound();
+            } else {
+                associatedIp = fixedIpList.get(0);
+            }
         }
 
-        Map<String, ElasticIp> associatedEips = this.getElasticIpsByPortId(projectId, projectId);
         for (ElasticIp eip: associatedEips.values()) {
             if (associatedIp.equals(eip.getPrivateIp())) {
-                throw new ElasticIpAssociateConflict();
+                String errorMessage = "The associate port or private ip has already associated with " +
+                        "another elastic ip: " + eip.getElasticIp();
+                throw new ElasticIpCommonException(HttpStatus.BAD_REQUEST, errorMessage);
             }
         }
 
