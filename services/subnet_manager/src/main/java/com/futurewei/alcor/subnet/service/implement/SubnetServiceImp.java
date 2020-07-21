@@ -5,6 +5,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -242,8 +243,8 @@ public class SubnetServiceImp implements SubnetService {
 
         String[] highIps = highIp.split("\\.");
         String[] lowIps = lowIp.split("\\.");
-        Integer high = Integer.parseInt(highIps[highIps.length - 1]) - 2;
-        Integer low = Integer.parseInt(lowIps[lowIps.length - 1]) + 4;
+        Integer high = Integer.parseInt(highIps[highIps.length - 1]) - ConstantsConfig.HighIpInterval;
+        Integer low = Integer.parseInt(lowIps[lowIps.length - 1]) + ConstantsConfig.LowIpInterval;
         highIps[highIps.length - 1] = String.valueOf(high);
         lowIps[lowIps.length - 1] = String.valueOf(low);
         highIp = String.join(".", highIps);
@@ -294,7 +295,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public void updateToVpcWithSubnetId(String subnetId, String projectId, String vpcId) throws Exception {
+    public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
         }

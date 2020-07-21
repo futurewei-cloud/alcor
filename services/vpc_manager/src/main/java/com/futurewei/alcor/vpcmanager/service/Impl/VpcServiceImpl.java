@@ -50,37 +50,30 @@ public class VpcServiceImpl implements VpcService {
      * @throws Exception
      */
     @Override
-    public VpcEntity allocateASegmentForNetwork(VpcEntity vpcEntity) throws Exception {
+    public VpcEntity allocateSegmentForNetwork(VpcEntity vpcEntity) throws Exception {
         String networkTypeId = UUID.randomUUID().toString();
         if (vpcEntity == null) {
             return vpcEntity;
         }
 
         String networkType = vpcEntity.getNetworkType();
+        Long key = null;
         if (networkType == null) {
             // create a vxlan type segment as default
-            Long key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
+            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
 
             vpcEntity.setNetworkType(NetworkTypeEnum.VXLAN.getNetworkType());
-            if (key != null) {
-                vpcEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
-            }
 
         } else if (networkType.equals(NetworkTypeEnum.VXLAN.getNetworkType())) {
-            Long key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
-            if (key != null) {
-                vpcEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
-            }
+            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
         } else if (networkType.equals(NetworkTypeEnum.VLAN.getNetworkType())) {
-            Long key = this.segmentService.addVlanEntity( networkTypeId, NetworkTypeEnum.VLAN.getNetworkType(), vpcEntity.getId());
-            if (key != null) {
-                vpcEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
-            }
+            key = this.segmentService.addVlanEntity( networkTypeId, NetworkTypeEnum.VLAN.getNetworkType(), vpcEntity.getId());
         } else if (networkType.equals(NetworkTypeEnum.GRE.getNetworkType())) {
-            Long key = this.segmentService.addGreEntity( networkTypeId, NetworkTypeEnum.GRE.getNetworkType(), vpcEntity.getId());
-            if (key != null) {
-                vpcEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
-            }
+            key = this.segmentService.addGreEntity( networkTypeId, NetworkTypeEnum.GRE.getNetworkType(), vpcEntity.getId());
+        }
+
+        if (key != null) {
+            vpcEntity.setSegmentationId(Integer.parseInt(String.valueOf(key)));
         }
 
         return vpcEntity;

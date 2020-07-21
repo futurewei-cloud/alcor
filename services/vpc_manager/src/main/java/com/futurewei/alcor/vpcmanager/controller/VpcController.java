@@ -165,7 +165,7 @@ public class VpcController {
             }
 
             // allocate a segment for network
-            inVpcState = this.vpcService.allocateASegmentForNetwork(inVpcState);
+            inVpcState = this.vpcService.allocateSegmentForNetwork(inVpcState);
 
             this.vpcDatabaseService.addVpc(inVpcState);
 
@@ -329,7 +329,7 @@ public class VpcController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
-    public VpcWebJson updateVpcStateWithSubnetId(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+    public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
 

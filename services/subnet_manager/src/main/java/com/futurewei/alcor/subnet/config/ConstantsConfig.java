@@ -13,10 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.vpcmanager.config;
+package com.futurewei.alcor.subnet.config;
 
-public class DefaultValueConfig {
+public class ConstantsConfig {
 
-    public static Integer mtu = 1450;
+    public static int HighIpInterval = 2;
+    public static int LowIpInterval = 4;
 
 }

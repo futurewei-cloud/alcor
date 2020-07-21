@@ -273,7 +273,7 @@ public class SubnetController {
 //            }
 
             // update to vpc with subnet id
-            this.subnetService.updateToVpcWithSubnetId(subnetId, projectId, vpcId);
+            this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
 
             return new SubnetWebJson(inSubnetEntity);
 

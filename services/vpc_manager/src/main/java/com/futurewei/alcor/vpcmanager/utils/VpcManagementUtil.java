@@ -18,7 +18,7 @@ package com.futurewei.alcor.vpcmanager.utils;
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.vpcmanager.config.DefaultValueConfig;
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebRequestJson;
 import org.slf4j.Logger;
@@ -116,10 +116,10 @@ public class VpcManagementUtil {
             response.setStatus(NetworkStatusEnum.ACTIVE.getNetworkStatus());
         }
 
-        // mtu
+        //TODO: mtu
         Integer mtu = response.getMtu();
         if (mtu == null || mtu <= 0) {
-            response.setMtu(DefaultValueConfig.mtu);
+            response.setMtu(ConstantsConfig.MTU);
         }
 
         return response;
