@@ -63,7 +63,8 @@ Server Type 1: Huawei Tecal RH2288 V2 Server (Count: 7)
 |Amount (GB)| 128
 
 .2+^.^|NETWORK
-|Vendor/Model| Intel / 82599ES 10-Gigabit SFI/SFP+ Network Connection
+|Vendor/Model| Intel / 82599ES 10-Gigabit
+               SFI/SFP+ Network Connection
 |Bandwidth| 10Gbit/s
 
 .6+^.^|STORAGE
@@ -242,7 +243,7 @@ The focus of Test Suite 4 is slightly different from Test Suite 3.
 The main difference is that this test suite creates a larger number of VMs
 (e.g. a few hundreds, up to 1000) per network, to observe the trend.
 
-=== Test Suite 5: Scalability Test with Mixed Network Size.
+=== Test Suite 5: Scalability Test with Mixed Network Size
 
 This test suite aims to simulate a real public cloud scenario,
 where small/median/large business may have different requirements hence desire different combination of various resource size.
