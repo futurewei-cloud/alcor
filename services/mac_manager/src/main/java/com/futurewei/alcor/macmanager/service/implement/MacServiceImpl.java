@@ -155,6 +155,10 @@ public class MacServiceImpl implements MacService {
                 macState.setMacAddress(mac);
                 macState.setRangeId(realRangeId);
                 flag = trySaveMac(realRangeId, macState);
+                if(!flag){
+                    // if allocate failed release this mac
+                    macPoolApi.release(realRangeId, oui, mac);
+                }
             }
         } catch (CacheException e) {
             throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
@@ -217,7 +221,7 @@ public class MacServiceImpl implements MacService {
                 try {
                     String rangeId = macState.getRangeId() == null ? MacManagerConstant.DEFAULT_RANGE : macState.getRangeId();
                     macStateRepository.deleteItem(macAddress);
-                    macPoolApi.reclaim(rangeId, oui, macAddress);
+                    macPoolApi.release(rangeId, oui, macAddress);
                 } catch (CacheException e) {
                     throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
                 }
@@ -417,6 +421,8 @@ public class MacServiceImpl implements MacService {
             macState.setMacAddress(mac);
             if(!trySaveMac(realRangeId, macState)){
                 newIt.remove();
+                // if allocate failed release this mac
+                macPoolApi.release(realRangeId, oui, mac);
             }
         }
         return macStateBulkJson;

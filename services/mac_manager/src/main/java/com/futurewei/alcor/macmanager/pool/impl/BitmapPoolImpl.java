@@ -19,16 +19,13 @@
 package com.futurewei.alcor.macmanager.pool.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.DistributedLockFactory;
 import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.exception.DistributedLockException;
 import com.futurewei.alcor.macmanager.dao.MacRangeMappingRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangePartitionRepository;
-import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import com.futurewei.alcor.macmanager.exception.MacAddressFullException;
 import com.futurewei.alcor.macmanager.exception.MacAddressRetryLimitExceedException;
-import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
 import com.futurewei.alcor.macmanager.pool.MacPoolApi;
 import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
 import com.futurewei.alcor.web.entity.mac.MacRange;
@@ -38,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.util.BitSet;
 import java.util.HashSet;
@@ -73,7 +69,7 @@ public class BitmapPoolImpl implements MacPoolApi {
     public String allocate(String oui, MacRange macRange) throws MacAddressFullException,
             MacAddressRetryLimitExceedException, CacheException {
         String rangeId = macRange.getRangeId();
-        long used = macRangeMappingRepository.size(rangeId);
+        long used = macRangeMappingRepository.getUsedCapacity(rangeId);
         if(used >= macRange.getCapacity()){
             throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
         }
@@ -96,14 +92,14 @@ public class BitmapPoolImpl implements MacPoolApi {
 
                 // if null create a new one
                 if (macRangePartition == null) {
-                    macRangePartition = new MacRangePartition(id, partitionIndex, PARTITION_SIZE * partitionIndex,
+                    macRangePartition = new MacRangePartition(rangeId, partitionIndex, PARTITION_SIZE * partitionIndex,
                             PARTITION_SIZE * (partitionIndex + 1));
                     needUpdate = true;
                 }
 
                 while (macRangePartition.getUsed() < macRangePartition.getTotal()) {
                     long macLong = generate(macRangePartition);
-                    if(check(rangeId, macLong)) {
+                    if(tryAllocateMacAddress(rangeId, macLong)) {
                         macRangePartition.incUsed();
                         macRangePartitionRepository.addItem(macRangePartition);
                         return longToMac(oui, macLong);
@@ -125,6 +121,7 @@ public class BitmapPoolImpl implements MacPoolApi {
                     logger.error("unlock cluster lock {} failed: {}", id, e.getMessage());
                 }
             }
+            retryTime ++;
         }
         throw new MacAddressRetryLimitExceedException(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
     }
@@ -134,7 +131,7 @@ public class BitmapPoolImpl implements MacPoolApi {
             MacAddressRetryLimitExceedException, CacheException{
         Set<String> newAllocatedMacs = new HashSet<>();
         String rangeId = macRange.getRangeId();
-        long used = macRangeMappingRepository.size(rangeId);
+        long used = macRangeMappingRepository.getUsedCapacity(rangeId);
         if(used + size >= macRange.getCapacity()){
             throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
         }
@@ -157,14 +154,14 @@ public class BitmapPoolImpl implements MacPoolApi {
 
                 // if null create a new one
                 if (macRangePartition == null) {
-                    macRangePartition = new MacRangePartition(id, partitionIndex, PARTITION_SIZE * partitionIndex,
+                    macRangePartition = new MacRangePartition(rangeId, partitionIndex, PARTITION_SIZE * partitionIndex,
                             PARTITION_SIZE * (partitionIndex + 1));
                     needUpdate = true;
                 }
 
                 while (macRangePartition.getUsed() < macRangePartition.getTotal()) {
                     long macLong = generate(macRangePartition);
-                    if(check(rangeId, macLong)) {
+                    if(tryAllocateMacAddress(rangeId, macLong)) {
                         macRangePartition.incUsed();
                         needUpdate = true;
                         newAllocatedMacs.add(longToMac(oui, macLong));
@@ -190,12 +187,13 @@ public class BitmapPoolImpl implements MacPoolApi {
                     logger.error("unlock cluster lock {} failed: {}", id, e.getMessage());
                 }
             }
+            retryTime ++;
         }
         throw new MacAddressRetryLimitExceedException(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
     }
 
     @Override
-    public Boolean reclaim(String rangeId, String oui, String mac) {
+    public Boolean release(String rangeId, String oui, String mac) {
         try {
             Long macLong = macToLong(getMacSuffix(oui, mac));
             return macRangeMappingRepository.releaseMac(rangeId, macLong);
@@ -205,13 +203,13 @@ public class BitmapPoolImpl implements MacPoolApi {
     }
 
     @Override
-    public long rangeSize(String rangeId) throws CacheException {
-        return macRangeMappingRepository.size(rangeId);
+    public long getRangeSize(String rangeId) throws CacheException {
+        return macRangeMappingRepository.getUsedCapacity(rangeId);
     }
 
     @Override
-    public long rangeAvailableSize(MacRange macRange) throws CacheException {
-        long size = macRangeMappingRepository.size(macRange.getRangeId());
+    public long getRangeAvailableSize(MacRange macRange) throws CacheException {
+        long size = macRangeMappingRepository.getUsedCapacity(macRange.getRangeId());
         return macRange.getCapacity() - size;
     }
 
@@ -229,7 +227,7 @@ public class BitmapPoolImpl implements MacPoolApi {
         try {
             MacRangePartition macRangePartition = macRangePartitionRepository.findItem(id);
             if (macRangePartition == null) {
-                macRangePartition = new MacRangePartition(id, partitionIndex, PARTITION_SIZE * partitionIndex,
+                macRangePartition = new MacRangePartition(rangeId, partitionIndex, PARTITION_SIZE * partitionIndex,
                         PARTITION_SIZE * (partitionIndex + 1));
             }
             int freeBit = (int)(macLong%PARTITION_SIZE);
@@ -251,7 +249,7 @@ public class BitmapPoolImpl implements MacPoolApi {
         return macRangePartition.getStart() + freeBit;
     }
 
-    private boolean check(String rangeId, Long macLong){
+    private boolean tryAllocateMacAddress(String rangeId, Long macLong){
         try {
             return macRangeMappingRepository.putIfAbsent(rangeId, macLong);
         } catch (CacheException e) {

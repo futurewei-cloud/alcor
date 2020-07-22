@@ -49,7 +49,8 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
 
     @Override
     @DurationStatistics
-    public long size(String rangeId) throws CacheException {
+    public long getUsedCapacity(String rangeId) throws CacheException {
+
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
         }

@@ -89,7 +89,7 @@ public class MacControllerTest extends MockIgniteServer {
         String json = om.writeValueAsString(macStateJson1);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         when(mockMacStateRepository.putIfAbsent(any())).thenReturn(true);
-        when(macRangeMappingRepository.size(strRangeId)).thenReturn(0L);
+        when(macRangeMappingRepository.getUsedCapacity(strRangeId)).thenReturn(0L);
         when(macRangeMappingRepository.putIfAbsent(any(String.class), anyLong())).thenReturn(true);
         MvcResult result = this.mockMvc.perform(post("/macs")
                 .content(json)

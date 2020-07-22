@@ -25,7 +25,7 @@ import java.util.Set;
 
 public interface IRangeMappingRepository {
 
-    long size(String rangeId) throws CacheException;
+    long getUsedCapacity(String rangeId) throws CacheException;
 
     void addItem(String rangeId, Long macLong) throws CacheException;
 
