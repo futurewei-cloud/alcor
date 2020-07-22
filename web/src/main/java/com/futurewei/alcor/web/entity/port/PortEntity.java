@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.port;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
@@ -108,6 +109,7 @@ public class PortEntity extends CustomerResource {
     @JsonProperty("revision_number")
     private int revisionNumber;
 
+    @JsonIgnore
     @JsonProperty("resource_request")
     private int resourceRequest;
 
