@@ -101,7 +101,7 @@ public class SubnetManagementUtil {
 
     }
 
-    public static boolean checkGatewayIpIsValid(String gatewayIp, String cidr) throws ParameterUnexpectedValueException, FallbackException {
+    public static boolean checkGatewayIpInputSupported(String gatewayIp, String cidr) throws ParameterUnexpectedValueException, FallbackException {
         // gatewayIP is null
         if (gatewayIp == null) {
             return true;

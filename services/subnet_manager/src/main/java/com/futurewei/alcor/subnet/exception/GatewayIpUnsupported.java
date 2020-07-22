@@ -18,6 +18,6 @@ package com.futurewei.alcor.subnet.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="GatewayIp is invalid")
-public class GatewayIpIsInvalid extends Exception {
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="GatewayIp is unsupported")
+public class GatewayIpUnsupported extends Exception {
 }

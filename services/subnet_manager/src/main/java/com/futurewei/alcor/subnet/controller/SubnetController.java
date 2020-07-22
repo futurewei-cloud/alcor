@@ -22,7 +22,7 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.subnet.exception.GatewayIpIsInvalid;
+import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
@@ -51,7 +51,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -141,9 +140,9 @@ public class SubnetController {
             String vpcId = inSubnetEntity.getVpcId();
             String cidr = inSubnetEntity.getCidr();
             String gatewayIp = inSubnetEntity.getGatewayIp();
-            boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpIsValid(gatewayIp, cidr);
+            boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(gatewayIp, cidr);
             if (!gatewayIpIsValid) {
-                throw new GatewayIpIsInvalid();
+                throw new GatewayIpUnsupported();
             }
             boolean gatewayIpIsInAllocatedRange = SubnetManagementUtil.checkGatewayIpIsInAllocatedRange(gatewayIp, cidr);
 
