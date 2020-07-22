@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GoalStateManagerTest {
@@ -4903,15 +4902,10 @@ public class GoalStateManagerTest {
             + "        }\n"
             + "      ],\n"
             + "      \"bindingHostIP\": \"10.213.43.187\",\n"
-            + "      \"resource_request\": {\n"
-            + "        \\n\"            + \"\"required\": [\n"
-            + "          \"CUSTOM_PHYSNET_PUBLIC\",\n"
-            + "          \"CUSTOM_VNIC_TYPE_NORMAL\"\n"
-            + "        ],\n"
-            + "        \\n\"            + \"\"resources\": {\n"
-            + "          \"NET_BW_EGR_KILOBIT_PER_SEC\": 1000\n"
-            + "        }\\n\"            + \"\n"
-            + "      },\n"
+            + "      \"resource_request\": { "
+            + "            \"required\": [\"CUSTOM_PHYSNET_PUBLIC\", \"CUSTOM_VNIC_TYPE_NORMAL\"],\n"
+            + "            \"resources\": {\"NET_BW_EGR_KILOBIT_PER_SEC\": 1000}\n"
+            + "        },"
             + "      \"adminStateUp\": true,\n"
             + "      \"macAddress\": \"86:ea:77:ad:52:55\",\n"
             + "      \"vethName\": \"veth0\",\n"
@@ -5256,22 +5250,14 @@ public class GoalStateManagerTest {
 
     assertEquals(goalStateHashMap.keySet().toString(), stringGoalStateMap.keySet().toString());
     assertEquals(goalStateHashMap.values().size(), stringGoalStateMap.values().size());
-    assertTrue(
-        (goalStateHashMap
-                    .get(goalStateHashMap.keySet().iterator().next())
-                    .getPortStatesList()
-                    .size()
-                == stringGoalStateMap
-                    .get(stringGoalStateMap.keySet().iterator().next())
-                    .getPortStatesList()
-                    .size())
-            || (goalStateHashMap1
-                    .get(goalStateHashMap.keySet().iterator().next())
-                    .getPortStatesList()
-                    .size()
-                == stringGoalStateMap
-                    .get(stringGoalStateMap.keySet().iterator().next())
-                    .getPortStatesList()
-                    .size()));
+    assertEquals(
+        goalStateHashMap
+            .get(goalStateHashMap.keySet().iterator().next())
+            .getPortStatesList()
+            .size(),
+        stringGoalStateMap
+            .get(stringGoalStateMap.keySet().iterator().next())
+            .getPortStatesList()
+            .size());
   }
 }
