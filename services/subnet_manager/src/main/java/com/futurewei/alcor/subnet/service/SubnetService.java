@@ -41,12 +41,15 @@ public interface SubnetService {
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
 
     // Verify/Allocate Gateway IP
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws Exception;
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws Exception;
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);
 
     // Verify cidr block
     public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
+
+    // update to vpc with subnet id
+    public void addSubnetIdToVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
 }

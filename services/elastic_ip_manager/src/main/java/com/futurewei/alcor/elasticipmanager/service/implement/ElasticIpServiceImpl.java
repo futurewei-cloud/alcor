@@ -16,19 +16,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.elasticipmanager.service.implement;
 
+import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
+import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.elasticipmanager.config.IpVersion;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
+import com.futurewei.alcor.elasticipmanager.exception.ElasticIpCommonException;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpInternalErrorException;
 import com.futurewei.alcor.elasticipmanager.exception.elasticip.*;
 import com.futurewei.alcor.elasticipmanager.exception.elasticiprange.ElasticIpRangeInUseException;
+import com.futurewei.alcor.elasticipmanager.proxy.PortManagerProxy;
 import com.futurewei.alcor.elasticipmanager.service.ElasticIpService;
+import com.futurewei.alcor.elasticipmanager.utils.ElasticIpControllerUtils;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIp;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +45,8 @@ import java.util.*;
 
 
 @Service
+@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+@ComponentScan(value = "com.futurewei.alcor.common.utils")
 public class ElasticIpServiceImpl implements ElasticIpService {
     private static final Logger LOG = LoggerFactory.getLogger(ElasticIpServiceImpl.class);
 
@@ -85,13 +96,22 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         String ipAddress = elasticIpAllocator.allocateIpAddress(range, request.getElasticIp());
         eip.setElasticIp(ipAddress);
 
-        String portId = eip.getPortId();
-        if (portId != null) {
-            // todo query port for verify
+        try{
+            String portId = eip.getPortId();
+            if (!StringUtils.isEmpty(portId)) {
+                String associatedIp = this.getAssociatedPortIp(request.getProjectId(), portId,
+                        request.getPrivateIpVersion(), request.getPrivateIp());
+                eip.setPrivateIp(associatedIp);
+                eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
+            }
 
+            elasticIpRepo.addItem(eip);
+        } catch (Exception e) {
+            if (ipAddress != null) {
+                elasticIpAllocator.releaseIpAddress(range.getId(), range.getIpVersion(), ipAddress);
+            }
+            throw e;
         }
-
-        elasticIpRepo.addItem(eip);
 
         // todo notify nodes
 
@@ -153,21 +173,25 @@ public class ElasticIpServiceImpl implements ElasticIpService {
     }
 
     /**
-     * Get an list of elastic ips belongs to the project.
-     * @param projectId Uuid of the project
+     * Get fields filtered list of elastic ips belongs to the project.
+     * @param projectId Uuid of the project elastic ips belongs to
+     * @param queryParams Fields filter map
      * @return A list of elastic ips information
-     * @throws ElasticIpNotFoundException The elastic ip is not exits
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
-    public List<ElasticIpInfo> getElasticIps(String projectId) throws Exception {
+    public List<ElasticIpInfo> getElasticIps(String projectId, Map<String, Object[]> queryParams) throws Exception {
         LOG.debug("Get elastic ips");
 
+        if (queryParams == null) {
+            queryParams = new HashMap<>();
+        }
+
+        queryParams.computeIfAbsent("project_id", k -> new String[]{projectId});
+
         List<ElasticIpInfo> results = new ArrayList<>();
-        Map<String, ElasticIp> eips = elasticIpRepo.findAllItems();
+        Map<String, ElasticIp> eips = elasticIpRepo.findAllItems(queryParams);
         for (ElasticIp eipItem: eips.values()) {
-            if (projectId.equals(eipItem.getProjectId())) {
-                results.add(new ElasticIpInfo(eipItem));
-            }
+            results.add(new ElasticIpInfo(eipItem));
         }
 
         LOG.debug("Get an elastic ip success");
@@ -224,12 +248,10 @@ public class ElasticIpServiceImpl implements ElasticIpService {
                 eip.setPrivateIpVersion(null);
                 eip.setPrivateIp(null);
             } else {
-                // todo query port for verify
-
-                if (request.getPrivateIp() != null) {
-                    eip.setPrivateIp(request.getPrivateIp());
-                    eip.setPrivateIpVersion(request.getPrivateIpVersion());
-                }
+                String associatedIp = this.getAssociatedPortIp(request.getProjectId(), newPortId,
+                        request.getPrivateIpVersion(), request.getPrivateIp());
+                eip.setPrivateIp(associatedIp);
+                eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
             }
         }
 
@@ -256,6 +278,68 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         LOG.debug("Update an elastic ip success, request: {}", request);
 
         return new ElasticIpInfo(eip);
+    }
+
+    private Map<String, ElasticIp> getElasticIpsByPortId(String projectId, String portId) {
+
+        Map<String, Object[]> filter = new HashMap<>();
+        filter.put("project_id", new Object[] {projectId});
+        filter.put("port_id", new Object[] {portId});
+
+        return elasticIpRepo.findAllItems(filter);
+    }
+
+    private String getAssociatedPortIp(String projectId, String portId, Integer ipVersion, String ipAddress)
+            throws Exception {
+        PortManagerProxy portManagerProxy = new PortManagerProxy(projectId);
+        PortEntity port = portManagerProxy.getPortById(portId);
+
+        List<PortEntity.FixedIp> fixedIps = port.getFixedIps();
+        List<String> fixedIpList = new ArrayList<>();
+        for (PortEntity.FixedIp fixedIp: fixedIps) {
+            fixedIpList.add(fixedIp.getIpAddress());
+        }
+
+        if (fixedIpList.isEmpty()) {
+            throw new ElasticIpPipNotFound();
+        }
+
+        Map<String, ElasticIp> associatedEips = this.getElasticIpsByPortId(projectId, portId);
+        String associatedIp;
+        if (ipAddress != null) {
+            if (fixedIpList.contains(ipAddress)) {
+                associatedIp = ipAddress;
+            } else {
+                throw new ElasticIpPipNotFound();
+            }
+            for (ElasticIp eip: associatedEips.values()) {
+                if (associatedIp.equals(eip.getPrivateIp())) {
+                    String errorMessage = "The associate port or private ip has already associated with " +
+                            "another elastic ip: " + eip.getElasticIp();
+                    throw new ElasticIpCommonException(HttpStatus.BAD_REQUEST, errorMessage);
+                }
+            }
+        } else {
+            // choose a not associated fixed ip if not specified
+            for (ElasticIp eip: associatedEips.values()) {
+                fixedIpList.remove(eip.getPrivateIp());
+            }
+            if (fixedIpList.isEmpty()) {
+                throw new ElasticIpPipNotFound();
+            } else {
+                associatedIp = fixedIpList.get(0);
+            }
+        }
+
+        for (ElasticIp eip: associatedEips.values()) {
+            if (associatedIp.equals(eip.getPrivateIp())) {
+                String errorMessage = "The associate port or private ip has already associated with " +
+                        "another elastic ip: " + eip.getElasticIp();
+                throw new ElasticIpCommonException(HttpStatus.BAD_REQUEST, errorMessage);
+            }
+        }
+
+        return associatedIp;
     }
 
     public List<ElasticIpInfo> createElasticIps(List<ElasticIpInfo> bulkRequest) throws Exception {
