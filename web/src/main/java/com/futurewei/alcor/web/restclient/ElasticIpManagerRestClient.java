@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpsInfoWrapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+@Configuration
 public class ElasticIpManagerRestClient extends AbstractRestClient {
     @Value("${microservices.elasticip.service.url:#{\"\"}}")
     private String elasticIpManagerUrl;
