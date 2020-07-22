@@ -5,7 +5,9 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
+import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -159,7 +161,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -200,10 +202,18 @@ public class SubnetServiceImp implements SubnetService {
             throw new FallbackException("fallback request");
         }
 
+        if (!isOpenToBeAllocated) {
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+            ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+            ipAddrRequest.setRangeId(ipRangeResponse.getId());
+            return ipAddrRequest;
+        }
+
         // Allocate Ip Address
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(ipRangeResponse.getId());
         ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+        ipAddrRequest.setIp(gatewayIp);
         ipAddrRequest.setVpcId(vpcId);
         ipAddrRequest.setSubnetId(subnetId);
 
@@ -238,6 +248,16 @@ public class SubnetServiceImp implements SubnetService {
         if (highIp == null || lowIp == null) {
             return null;
         }
+
+        String[] highIps = highIp.split("\\.");
+        String[] lowIps = lowIp.split("\\.");
+        Integer high = Integer.parseInt(highIps[highIps.length - 1]) - ConstantsConfig.HighIpInterval;
+        Integer low = Integer.parseInt(lowIps[lowIps.length - 1]) + ConstantsConfig.LowIpInterval;
+        highIps[highIps.length - 1] = String.valueOf(high);
+        lowIps[lowIps.length - 1] = String.valueOf(low);
+        highIp = String.join(".", highIps);
+        lowIp = String.join(".", lowIps);
+
         String[] res = new String[2];
         res[0] = lowIp;
         res[1] = highIp;
@@ -279,6 +299,17 @@ public class SubnetServiceImp implements SubnetService {
             }
         }
         return true;
+
+    }
+
+    @Override
+    public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
+        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
 
     }
 
