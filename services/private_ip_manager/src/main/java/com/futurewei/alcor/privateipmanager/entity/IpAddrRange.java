@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.entity;
 
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.privateipmanager.allocator.IpAddrAllocator;
 import com.futurewei.alcor.privateipmanager.allocator.Ipv4AddrAllocator;
 import com.futurewei.alcor.privateipmanager.allocator.Ipv6AddrAllocator;
@@ -39,9 +41,7 @@ public class IpAddrRange {
     private String lastIp;
     private long usedIps;
     private long totalIps;
-
     private IpAddrAllocator allocator;
-    Map<String, IpAddrAlloc> allocatedIps;
 
     public IpAddrRange(String id, String vpcId, String subnetId, int ipVersion, String firstIp, String lastIp) {
         this.id = id;
@@ -65,45 +65,45 @@ public class IpAddrRange {
             allocator = new Ipv6AddrAllocator(firstIpBigInt, lastIpBigInt);
         }
 
-        allocatedIps = new HashMap<>();
+        //allocatedIps = new HashMap<>();
     }
 
-    private void updateUsedIps() {
-        usedIps = allocatedIps.size();
+    private void updateUsedIps(ICache<String, IpAddrAlloc> ipAddrCache) {
+        usedIps = ipAddrCache.size();
     }
 
-    public IpAddrAlloc allocate(String ip) throws Exception {
-        if (ip != null && allocatedIps.get(ip) != null) {
+    public IpAddrAlloc allocate(ICache<String, IpAddrAlloc> ipAddrCache, String ip) throws Exception {
+        if (ip != null && ipAddrCache.get(ip) != null) {
             throw new IpAddrConflictException();
         }
 
         String ipAddr = allocator.allocate(ip);
         IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
-        allocatedIps.put(ipAddr, ipAddrAlloc);
-        updateUsedIps();
+        ipAddrCache.put(ipAddr, ipAddrAlloc);
+        updateUsedIps(ipAddrCache);
 
         return ipAddrAlloc;
     }
 
-    public List<IpAddrAlloc> allocateBulk(int num) throws Exception {
+    public List<IpAddrAlloc> allocateBulk(ICache<String, IpAddrAlloc> ipAddrCache, int num) throws Exception {
         List<String> ipAddrList = allocator.allocateBulk(num);
         List<IpAddrAlloc> ipAddrAllocs = new ArrayList<>();
 
         for (String ipAddr: ipAddrList) {
             IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
-            allocatedIps.put(ipAddr, ipAddrAlloc);
+            ipAddrCache.put(ipAddr, ipAddrAlloc);
             ipAddrAllocs.add(ipAddrAlloc);
         }
 
-        updateUsedIps();
+        updateUsedIps(ipAddrCache);
 
         return ipAddrAllocs;
     }
 
-    public void modifyIpAddrState(String ipAddr, String state) throws Exception {
-        IpAddrAlloc ipAddrAlloc = allocatedIps.get(ipAddr);
+    public void modifyIpAddrState(ICache<String, IpAddrAlloc> ipAddrCache, String ipAddr, String state) throws Exception {
+        IpAddrAlloc ipAddrAlloc = ipAddrCache.get(ipAddr);
         if (ipAddrAlloc == null) {
             throw new IpAddrAllocNotFoundException();
         }
@@ -113,32 +113,32 @@ public class IpAddrRange {
         }
     }
 
-    public void release(String ipAddr) throws Exception {
-        if (allocatedIps.get(ipAddr) == null) {
+    public void release(ICache<String, IpAddrAlloc> ipAddrCache, String ipAddr) throws Exception {
+        if (ipAddrCache.get(ipAddr) == null) {
             throw new IpAddrAllocNotFoundException();
         }
 
         allocator.release(ipAddr);
-        allocatedIps.remove(ipAddr);
+        ipAddrCache.remove(ipAddr);
 
-        updateUsedIps();
+        updateUsedIps(ipAddrCache);
     }
 
-    public void releaseBulk(List<String> ipAddrList) throws Exception {
+    public void releaseBulk(ICache<String, IpAddrAlloc> ipAddrCache, List<String> ipAddrList) throws Exception {
         allocator.releaseBulk(ipAddrList);
         for (String ipAddr: ipAddrList) {
-            if (allocatedIps.get(ipAddr) == null) {
+            if (ipAddrCache.get(ipAddr) == null) {
                 throw new IpAddrAllocNotFoundException();
             }
 
-            allocatedIps.remove(ipAddr);
+            ipAddrCache.remove(ipAddr);
         }
 
-        updateUsedIps();
+        updateUsedIps(ipAddrCache);
     }
 
-    public IpAddrAlloc getIpAddr(String ipAddr) throws Exception {
-        IpAddrAlloc ipAddrAlloc = allocatedIps.get(ipAddr);
+    public IpAddrAlloc getIpAddr(ICache<String, IpAddrAlloc> ipAddrCache, String ipAddr) throws Exception {
+        IpAddrAlloc ipAddrAlloc = ipAddrCache.get(ipAddr);
         if (ipAddrAlloc != null) {
             return ipAddrAlloc;
         }
@@ -150,8 +150,8 @@ public class IpAddrRange {
         throw new IpAddrInvalidException();
     }
 
-    public Collection<IpAddrAlloc> getIpAddrBulk() {
-        return allocatedIps.values();
+    public Collection<IpAddrAlloc> getIpAddrBulk(ICache<String, IpAddrAlloc> ipAddrCache) throws CacheException {
+        return ipAddrCache.getAll().values();
     }
 
     public int getIpVersion() {
@@ -237,7 +237,6 @@ public class IpAddrRange {
                 ", usedIps=" + usedIps +
                 ", totalIps=" + totalIps +
                 ", allocator=" + allocator +
-                ", allocated=" + allocatedIps +
                 '}';
     }
 }

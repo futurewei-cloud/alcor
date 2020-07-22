@@ -39,13 +39,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.futurewei.alcor.privateipmanager.util.IpAddressBuilder.buildIpAddrAlloc;
-import static com.futurewei.alcor.privateipmanager.util.IpAddressBuilder.buildIpAddrRange;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -53,9 +50,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class IpAddrControllerTest extends MockIgniteServer {
     @Autowired
     private MockMvc mockMvc;
-
-    //@MockBean
-    //private IpAddrRangeRepo ipAddrRangeRepo;
 
     @Test
     public void Test01_createIpAddrRangeTest() throws Exception {

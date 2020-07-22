@@ -20,6 +20,7 @@ import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.ClientConnectorConfiguration;
 import org.apache.ignite.internal.IgniteKernal;
 import org.apache.ignite.internal.processors.cache.IgniteCacheProxyImpl;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
@@ -36,6 +37,7 @@ public class MockIgniteServer {
 
     private static final String LOCAL_ADDRESS = "127.0.0.1";
     private static final int LISTEN_PORT = 11801;
+    private static final int CLIENT_CONNECT_PORT = 10800;
     private static final int LISTEN_PORT_RANGE = 10;
 
     private static Ignite igniteServer = null;
@@ -56,6 +58,11 @@ public class MockIgniteServer {
                 tcpDiscoverySpi.setLocalPortRange(LISTEN_PORT_RANGE);
                 cfg.setDiscoverySpi(tcpDiscoverySpi);
 //                cfg.setPeerClassLoadingEnabled(true);
+
+                ClientConnectorConfiguration clientConfig = new ClientConnectorConfiguration();
+                clientConfig.setPort(CLIENT_CONNECT_PORT);
+                cfg.setClientConnectorConfiguration(clientConfig);
+
                 igniteServer = Ignition.start(cfg);
 
                 //Properties properties = System.getProperties();
