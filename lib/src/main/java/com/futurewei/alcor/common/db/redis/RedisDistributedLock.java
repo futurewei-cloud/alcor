@@ -44,7 +44,7 @@ public class RedisDistributedLock implements IDistributedLock {
     @Override
     public void lock(String lockKey) throws DistributedLockException {
         Boolean locked = false;
-        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        String lockKeyWithPrefix = getRealKey(lockKey);
 
         try {
             while (!locked) {
@@ -63,7 +63,7 @@ public class RedisDistributedLock implements IDistributedLock {
 
     @Override
     public void unlock(String lockKey) throws DistributedLockException {
-        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        String lockKeyWithPrefix = getRealKey(lockKey);
 
         try {
             redisTemplate.delete(lockKeyWithPrefix);
@@ -75,7 +75,7 @@ public class RedisDistributedLock implements IDistributedLock {
 
     @Override
     public Boolean tryLock(String lockKey){
-        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        String lockKeyWithPrefix = getRealKey(lockKey);
         try {
             return redisTemplate.opsForValue().setIfAbsent(lockKeyWithPrefix, "lock",
                     this.expireTime, TimeUnit.SECONDS);
@@ -83,5 +83,10 @@ public class RedisDistributedLock implements IDistributedLock {
             logger.log(Level.WARNING, "Redis lock error:" + e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public String getLockPrefix() {
+        return this.name;
     }
 }
