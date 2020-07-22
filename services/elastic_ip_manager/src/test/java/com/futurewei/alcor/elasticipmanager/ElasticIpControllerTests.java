@@ -1221,7 +1221,7 @@ public class ElasticIpControllerTests extends MockIgniteServer {
         this.mockMvc.perform(put(updateEipUri).contentType(MediaType.APPLICATION_JSON)
                 .content(requestStr))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
 
         // disassociate elastic ip with the port
         putRequest = new ElasticIp();
