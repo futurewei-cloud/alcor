@@ -161,7 +161,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -202,10 +202,18 @@ public class SubnetServiceImp implements SubnetService {
             throw new FallbackException("fallback request");
         }
 
+        if (!isOpenToBeAllocated) {
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+            ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+            ipAddrRequest.setRangeId(ipRangeResponse.getId());
+            return ipAddrRequest;
+        }
+
         // Allocate Ip Address
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(ipRangeResponse.getId());
         ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+        ipAddrRequest.setIp(gatewayIp);
         ipAddrRequest.setVpcId(vpcId);
         ipAddrRequest.setSubnetId(subnetId);
 
