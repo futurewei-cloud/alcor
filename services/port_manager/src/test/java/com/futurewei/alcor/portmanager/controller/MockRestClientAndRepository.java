@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.futurewei.alcor.portmanager.util.ResourceBuilder.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 
 public class MockRestClientAndRepository {
@@ -53,6 +54,9 @@ public class MockRestClientAndRepository {
 
     @MockBean
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
+
+    @MockBean
+    private ElasticIpManagerRestClient elasticIpManagerRestClient;
 
     @MockBean
     private PortRepository portRepository;
@@ -115,5 +119,8 @@ public class MockRestClientAndRepository {
 
         Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
                 .thenReturn(buildPortNeighbors(UnitTestConfig.portId1));
+
+        Mockito.when(elasticIpManagerRestClient.updateElasticIp(any()))
+                .thenReturn(buildElasticIp());
     }
 }

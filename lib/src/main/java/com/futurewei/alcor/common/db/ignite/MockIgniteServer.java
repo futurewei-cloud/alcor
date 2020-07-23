@@ -19,6 +19,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.internal.IgniteKernal;
 import org.apache.ignite.internal.processors.cache.IgniteCacheProxyImpl;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
@@ -92,6 +93,11 @@ public class MockIgniteServer {
 
         @Override
         public <K, V> IgniteCache<K, V> getOrCreateCache(String cacheName) {
+            return new IgniteCacheProxyImpl();
+        }
+
+        @Override
+        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> var1) {
             return new IgniteCacheProxyImpl();
         }
     }

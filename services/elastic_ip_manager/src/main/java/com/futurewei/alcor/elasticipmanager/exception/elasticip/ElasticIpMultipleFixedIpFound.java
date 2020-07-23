@@ -14,11 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception;
+package com.futurewei.alcor.elasticipmanager.exception.elasticip;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Path variable project_id is empty")
-public class ElasticIpNoProjectIdException extends Exception {
+@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="The port has multiple fixed IPv4 address. Must provide a specific" +
+        " ip address.")
+public class ElasticIpMultipleFixedIpFound extends Exception {
 }

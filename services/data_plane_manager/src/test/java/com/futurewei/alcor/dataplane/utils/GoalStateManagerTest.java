@@ -233,7 +233,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -955,7 +954,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -1618,7 +1616,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -2058,7 +2055,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -2213,7 +2209,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -2368,7 +2363,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -2523,7 +2517,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -3886,7 +3879,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -4044,7 +4036,6 @@ public class GoalStateManagerTest {
             + "         ],\n"
             + "         \"portSecurityEnabled\":false,\n"
             + "         \"revisionNumber\":0,\n"
-            + "         \"resourceRequest\":0,\n"
             + "         \"uplinkStatusPropagation\":false,\n"
             + "         \"macLearningEnabled\":false,\n"
             + "         \"projectId\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\n"
@@ -4557,6 +4548,9 @@ public class GoalStateManagerTest {
 
     NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
     Map<String, Goalstate.GoalState> goalStateHashMap =
+        new Gson().fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {}.getType());
+
+    Map<String, Goalstate.GoalState> goalStateHashMap1 =
         gson.fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {}.getType());
 
     final Map<String, Goalstate.GoalState> stringGoalStateMap =

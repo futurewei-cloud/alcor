@@ -22,6 +22,8 @@ import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
+import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrState;
 import com.futurewei.alcor.web.entity.mac.MacState;
@@ -211,5 +213,16 @@ public class ResourceBuilder {
         neighborInfoMap.put(portId, neighborInfo);
 
         return new PortNeighbors(UnitTestConfig.vpcId, neighborInfoMap);
+    }
+
+    public static ElasticIpInfoWrapper buildElasticIp() {
+        ElasticIpInfo elasticIpInfo = new ElasticIpInfo();
+        elasticIpInfo.setId(UnitTestConfig.elasticIpId1);
+        elasticIpInfo.setTenantId(UnitTestConfig.tenantId);
+        elasticIpInfo.setElasticIpVersion(4);
+        elasticIpInfo.setElasticIp(UnitTestConfig.elasticIpAddress1);
+        elasticIpInfo.setPortId("");
+
+        return new ElasticIpInfoWrapper(elasticIpInfo);
     }
 }

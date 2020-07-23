@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Alcor Authors.
+Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         limitations under the License.
 */
 
-package com.futurewei.alcor.elasticipmanager.exception;
+package com.futurewei.alcor.elasticipmanager.exception.elasticip;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.BAD_REQUEST, reason="Path variable project_id is empty")
-public class ElasticIpNoProjectIdException extends Exception {
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="The associated port or the specified private ip is not found ")
+public class ElasticIpPipNotFound extends Exception {
+
 }

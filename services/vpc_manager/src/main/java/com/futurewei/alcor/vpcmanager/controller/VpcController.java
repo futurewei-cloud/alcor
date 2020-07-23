@@ -57,12 +57,13 @@ public class VpcController {
 
     /**
      * hows details for a network
+     *
      * @param projectid
      * @param vpcid
      * @return vpc state
      * @throws Exception
      */
-    @FieldFilter(type=VpcEntity.class)
+    @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -99,6 +100,7 @@ public class VpcController {
 
     /**
      * Creates a network
+     *
      * @param projectid
      * @param resource
      * @return vpc state
@@ -111,7 +113,7 @@ public class VpcController {
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         VpcEntity inVpcState = new VpcEntity();
 
-        if(StringUtils.isEmpty(resource.getNetwork().getId())){
+        if (StringUtils.isEmpty(resource.getNetwork().getId())) {
             UUID vpcId = UUID.randomUUID();
             resource.getNetwork().setId(vpcId.toString());
         }
@@ -141,7 +143,7 @@ public class VpcController {
             if (segments != null) {
                 List<SegmentInfoInVpc> newSegments = new ArrayList<>();
                 for (SegmentInfoInVpc segmentInfo : segments) {
-                    SegmentInfoInVpc newSegmentInfo = new SegmentInfoInVpc (segmentInfo.getNetworkType(),
+                    SegmentInfoInVpc newSegmentInfo = new SegmentInfoInVpc(segmentInfo.getNetworkType(),
                             segmentInfo.getPhysicalNetwork(),
                             segmentInfo.getSegmentationId());
                     newSegments.add(newSegmentInfo);
@@ -161,6 +163,10 @@ public class VpcController {
                 routeEntityList.add(response.getRoute());
                 inVpcState.setRouteEntities(routeEntityList);
             }
+
+            // allocate a segment for network
+            inVpcState = this.vpcService.allocateSegmentForNetwork(inVpcState);
+
             this.vpcDatabaseService.addVpc(inVpcState);
 
         } catch (ParameterNullOrEmptyException e) {
@@ -174,6 +180,7 @@ public class VpcController {
 
     /**
      * Updates a network
+     *
      * @param projectid
      * @param vpcid
      * @param resource
@@ -230,6 +237,7 @@ public class VpcController {
 
     /**
      * Deletes a network and its associated resources
+     *
      * @param projectid
      * @param vpcid
      * @return network id
@@ -261,11 +269,12 @@ public class VpcController {
 
     /**
      * Lists networks to which the project has access
+     *
      * @param projectId
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
-    @FieldFilter(type=VpcEntity.class)
+    @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
             value = "/project/{projectId}/vpcs")
@@ -293,6 +302,7 @@ public class VpcController {
 
     /**
      * List and count all networks
+     *
      * @return
      * @throws CacheException
      */
@@ -306,5 +316,51 @@ public class VpcController {
         result.put("Vpcs", dataItems);
 
         return result;
+    }
+
+    /**
+     * Updates a network with subnet id
+     * @param projectid
+     * @param vpcid
+     * @param subnetid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        VpcEntity inVpcState = new VpcEntity();
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (inVpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            }
+
+            List<String> subnets = inVpcState.getSubnets();
+            if (subnets == null) {
+                subnets = new ArrayList<>();
+            }
+            if (!subnets.contains(subnetid)) {
+                subnets.add(subnetid);
+            }
+            inVpcState.setSubnets(subnets);
+
+            this.vpcDatabaseService.addVpc(inVpcState);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new VpcWebJson(inVpcState);
+
     }
 }
