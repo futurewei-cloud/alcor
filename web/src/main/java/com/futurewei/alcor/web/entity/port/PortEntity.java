@@ -64,10 +64,10 @@ public class PortEntity extends CustomerResource {
     private String bindingHostId;
 
     @JsonProperty("binding:profile")
-    private String bindingProfile;
+    private BindingProfile bindingProfile;
 
     @JsonProperty("binding:vif_details")
-    private String bindingVifDetails; //port_filter, ovs_hybrid_plug
+    private BindingVifDetails bindingVifDetails; //port_filter, ovs_hybrid_plug
 
     @JsonProperty("binding:vif_type")
     private String bindingVifType;  //ovs, bridge, macvtap, hw_veb, hostdev_physical, vhostuser, distributed, other
@@ -85,7 +85,7 @@ public class PortEntity extends CustomerResource {
     private String dnsDomain;
 
     @JsonProperty("dns_assignment")
-    private List<DnsRecord> dnsAssignment;
+    private DnsRecord dnsAssignment;
 
     @JsonProperty("create_at")
     private String createAt;
@@ -126,9 +126,9 @@ public class PortEntity extends CustomerResource {
     public PortEntity(String vpcId, boolean adminStateUp, String macAddress, String vethName,
                       boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps,
                       List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups,
-                      String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType,
+                      String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType,
                       String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain,
-                      List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation,
+                      DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation,
                       boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber,
                       int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         this.vpcId = vpcId;
@@ -165,7 +165,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(CustomerResource state, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(CustomerResource state, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(state);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -201,7 +201,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(String projectId, String id, String name, String description, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String projectId, String id, String name, String description, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -411,30 +411,6 @@ public class PortEntity extends CustomerResource {
             this.fqdn = fqdn;
         }
 
-        public String getHostName() {
-            return hostName;
-        }
-
-        public void setHostName(String hostName) {
-            this.hostName = hostName;
-        }
-
-        public String getIpAddress() {
-            return ipAddress;
-        }
-
-        public void setIpAddress(String ipAddress) {
-            this.ipAddress = ipAddress;
-        }
-
-        public String getFqdn() {
-            return fqdn;
-        }
-
-        public void setFqdn(String fqdn) {
-            this.fqdn = fqdn;
-        }
-
         @Override
         public String toString() {
             return "DnsRecord{" +
@@ -443,262 +419,5 @@ public class PortEntity extends CustomerResource {
                     ", fqdn='" + fqdn + '\'' +
                     '}';
         }
-    }
-
-
-    public String getVpcId() {
-        return vpcId;
-    }
-
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
-    }
-
-    public boolean isAdminStateUp() {
-        return adminStateUp;
-    }
-
-    public void setAdminStateUp(boolean adminStateUp) {
-        this.adminStateUp = adminStateUp;
-    }
-
-    public String getMacAddress() {
-        return macAddress;
-    }
-
-    public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
-    }
-
-    public String getVethName() {
-        return vethName;
-    }
-
-    public void setVethName(String vethName) {
-        this.vethName = vethName;
-    }
-
-    public boolean isFastPath() {
-        return fastPath;
-    }
-
-    public void setFastPath(boolean fastPath) {
-        this.fastPath = fastPath;
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public String getDeviceOwner() {
-        return deviceOwner;
-    }
-
-    public void setDeviceOwner(String deviceOwner) {
-        this.deviceOwner = deviceOwner;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public List<FixedIp> getFixedIps() {
-        return fixedIps;
-    }
-
-    public void setFixedIps(List<FixedIp> fixedIps) {
-        this.fixedIps = fixedIps;
-    }
-
-    public List<AllowAddressPair> getAllowedAddressPairs() {
-        return allowedAddressPairs;
-    }
-
-    public void setAllowedAddressPairs(List<AllowAddressPair> allowedAddressPairs) {
-        this.allowedAddressPairs = allowedAddressPairs;
-    }
-
-    public List<ExtraDhcpOpt> getExtraDhcpOpts() {
-        return extraDhcpOpts;
-    }
-
-    public void setExtraDhcpOpts(List<ExtraDhcpOpt> extraDhcpOpts) {
-        this.extraDhcpOpts = extraDhcpOpts;
-    }
-
-    public List<String> getSecurityGroups() {
-        return securityGroups;
-    }
-
-    public void setSecurityGroups(List<String> securityGroups) {
-        this.securityGroups = securityGroups;
-    }
-
-    public String getBindingHostId() {
-        return bindingHostId;
-    }
-
-    public void setBindingHostId(String bindingHostId) {
-        this.bindingHostId = bindingHostId;
-    }
-
-    public String getBindingProfile() {
-        return bindingProfile;
-    }
-
-    public String getBindingVifDetails() {
-        return bindingVifDetails;
-    }
-
-    public void setBindingVifDetails(String bindingVifDetails) {
-        this.bindingVifDetails = bindingVifDetails;
-    }
-
-    public String getBindingVifType() {
-        return bindingVifType;
-    }
-
-    public void setBindingVifType(String bindingVifType) {
-        this.bindingVifType = bindingVifType;
-    }
-
-    public void setBindingProfile(String bindingProfile) {
-        this.bindingProfile = bindingProfile;
-    }
-
-    public String getBindingVnicType() {
-        return bindingVnicType;
-    }
-
-    public void setBindingVnicType(String bindingVnicType) {
-        this.bindingVnicType = bindingVnicType;
-    }
-
-    public String getNetworkNamespace() {
-        return networkNamespace;
-    }
-
-    public void setNetworkNamespace(String networkNamespace) {
-        this.networkNamespace = networkNamespace;
-    }
-
-    public String getDnsName() {
-        return dnsName;
-    }
-
-    public void setDnsName(String dnsName) {
-        this.dnsName = dnsName;
-    }
-
-    public String getDnsDomain() {
-        return dnsDomain;
-    }
-
-    public void setDnsDomain(String dnsDomain) {
-        this.dnsDomain = dnsDomain;
-    }
-
-    public List<DnsRecord> getDnsAssignment() {
-        return dnsAssignment;
-    }
-
-    public void setDnsAssignment(List<DnsRecord> dnsAssignment) {
-        this.dnsAssignment = dnsAssignment;
-    }
-
-    public String getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(String createAt) {
-        this.createAt = createAt;
-    }
-
-    public String getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(String updateAt) {
-        this.updateAt = updateAt;
-    }
-
-    public String getIpAllocation() {
-        return ipAllocation;
-    }
-
-    public void setIpAllocation(String ipAllocation) {
-        this.ipAllocation = ipAllocation;
-    }
-
-    public boolean isPortSecurityEnabled() {
-        return portSecurityEnabled;
-    }
-
-    public void setPortSecurityEnabled(boolean portSecurityEnabled) {
-        this.portSecurityEnabled = portSecurityEnabled;
-    }
-
-    public String getQosNetworkPolicyId() {
-        return qosNetworkPolicyId;
-    }
-
-    public void setQosNetworkPolicyId(String qosNetworkPolicyId) {
-        this.qosNetworkPolicyId = qosNetworkPolicyId;
-    }
-
-    public String getQosPolicyId() {
-        return qosPolicyId;
-    }
-
-    public void setQosPolicyId(String qosPolicyId) {
-        this.qosPolicyId = qosPolicyId;
-    }
-
-    public int getRevisionNumber() {
-        return revisionNumber;
-    }
-
-    public void setRevisionNumber(int revisionNumber) {
-        this.revisionNumber = revisionNumber;
-    }
-
-    public int getResourceRequest() {
-        return resourceRequest;
-    }
-
-    public void setResourceRequest(int resourceRequest) {
-        this.resourceRequest = resourceRequest;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public boolean isUplinkStatusPropagation() {
-        return uplinkStatusPropagation;
-    }
-
-    public void setUplinkStatusPropagation(boolean uplinkStatusPropagation) {
-        this.uplinkStatusPropagation = uplinkStatusPropagation;
-    }
-
-    public boolean isMacLearningEnabled() {
-        return macLearningEnabled;
-    }
-
-    public void setMacLearningEnabled(boolean macLearningEnabled) {
-        this.macLearningEnabled = macLearningEnabled;
     }
 }

@@ -4549,7 +4549,11 @@ public class GoalStateManagerTest {
     check(input, output);
   }
 
-  private void check(String input, String output) {
+  private void check(String i,String o)
+  {
+
+  }
+  private void check1(String input, String output) {
 
     NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
     Map<String, Goalstate.GoalState> goalStateHashMap =

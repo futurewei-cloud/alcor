@@ -352,8 +352,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update binding:profile
-        String newBindingProfile = newPortEntity.getBindingProfile();
-        String oldBindingProfile = oldPortEntity.getBindingProfile();
+        BindingProfile newBindingProfile = newPortEntity.getBindingProfile();
+        BindingProfile oldBindingProfile = oldPortEntity.getBindingProfile();
         if (newBindingProfile != null && !newBindingProfile.equals(oldBindingProfile)) {
             oldPortEntity.setBindingProfile(newBindingProfile);
             needNotifyDpm = true;
