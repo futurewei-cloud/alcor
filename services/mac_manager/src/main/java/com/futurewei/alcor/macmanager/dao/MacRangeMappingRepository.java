@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class MacRangeMappingRepository implements IRangeMappingRepository {
@@ -44,45 +45,31 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     @Autowired
     public MacRangeMappingRepository(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
-        mappingCache = new HashMap<>();
+        mappingCache = new ConcurrentHashMap<>();
     }
 
     @Override
     @DurationStatistics
     public long getUsedCapacity(String rangeId) throws CacheException {
-
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).size();
+        return getRangeCache(rangeId).size();
     }
 
     @Override
     @DurationStatistics
     public Boolean putIfAbsent(String rangeId, Long macLong) throws CacheException {
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).putIfAbsent(macLong, rangeId);
+        return getRangeCache(rangeId).putIfAbsent(macLong, rangeId);
     }
 
     @Override
     @DurationStatistics
     public void addItem(String rangeId, Long macLong) throws CacheException {
-        mappingCache.get(rangeId).put(macLong, rangeId);
+        getRangeCache(rangeId).put(macLong, rangeId);
     }
 
     @Override
     @DurationStatistics
     public Boolean releaseMac(String rangeId, Long macLong) throws CacheException {
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).remove(macLong);
-    }
-
-    private void createRangeCache(String rangeId){
-        mappingCache.put(rangeId, cacheFactory.getCache(String.class, rangeId));
+        return getRangeCache(rangeId).remove(macLong);
     }
 
     @Override
@@ -95,7 +82,7 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     @Override
     @DurationStatistics
     public Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException{
-        Map<Long, String> existMacs = mappingCache.get(rangeId).getAll(macs);
+        Map<Long, String> existMacs =getRangeCache(rangeId).getAll(macs);
         Set<Long> newMacs = new HashSet<>();
         for(Long mac : macs){
             if(!existMacs.containsKey(mac) || existMacs.get(mac) == null){
@@ -103,5 +90,13 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
             }
         }
         return newMacs;
+    }
+
+    private ICache<Long, String> getRangeCache(String rangeId){
+        ICache<Long, String> cache = mappingCache.get(rangeId);
+        if (cache == null) {
+            cache = mappingCache.putIfAbsent(rangeId, cacheFactory.getCache(String.class, rangeId));
+        }
+        return cache;
     }
 }

@@ -43,8 +43,7 @@ import java.util.*;
 @Service
 public class MacServiceImpl implements MacService {
     private static final Logger logger = LoggerFactory.getLogger(MacServiceImpl.class);
-
-    private static final int MUTIL_QUERY_THRESHOLD = 50;
+    private static final int BULK_MULTIPLE_MARGINS = 5;
 
     @Autowired
     private MacRangeRepository macRangeRepository;
@@ -61,7 +60,6 @@ public class MacServiceImpl implements MacService {
     @Value("${macmanager.oui}")
     private String oui;
 
-
     /**
      * get MacState
      *
@@ -75,6 +73,7 @@ public class MacServiceImpl implements MacService {
         MacState macState;
         if (macAddress == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
+
         try {
             macState = macStateRepository.findItem(macAddress);
         } catch (CacheException e) {
@@ -153,7 +152,6 @@ public class MacServiceImpl implements MacService {
             while(!flag) {
                 String mac = macPoolApi.allocate(oui, range);
                 macState.setMacAddress(mac);
-                macState.setRangeId(realRangeId);
                 flag = trySaveMac(realRangeId, macState);
                 if(!flag){
                     // if allocate failed release this mac
@@ -184,6 +182,7 @@ public class MacServiceImpl implements MacService {
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (!macAddress.equals(macState.getMacAddress()))
             throw (new ParameterUnexpectedValueException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_INVALID));
+
         try {
             if (macStateRepository.findItem(macAddress) != null) {
                 macStateRepository.addItem(macState);
@@ -213,19 +212,16 @@ public class MacServiceImpl implements MacService {
         String strMacAddress;
         if (macAddress == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
+
         try {
             MacState macState = macStateRepository.findItem(macAddress);
             if (macState == null) {
                 throw (new ResourceNotFoundException(MacManagerConstant.MAC_EXCEPTION_MAC_NOT_EXISTING));
-            } else {
-                try {
-                    String rangeId = macState.getRangeId() == null ? MacManagerConstant.DEFAULT_RANGE : macState.getRangeId();
-                    macStateRepository.deleteItem(macAddress);
-                    macPoolApi.release(rangeId, oui, macAddress);
-                } catch (CacheException e) {
-                    throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
-                }
             }
+
+            String rangeId = getMacRangeId(macState);
+            macStateRepository.deleteItem(macAddress);
+            macPoolApi.release(rangeId, oui, macAddress);
             strMacAddress = macState.getMacAddress();
         } catch (CacheException e) {
             throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
@@ -389,41 +385,41 @@ public class MacServiceImpl implements MacService {
     @DurationStatistics
     public MacStateBulkJson createMacStateBulkInRange(String rangeId, MacStateBulkJson macStateBulkJson) throws Exception {
         // handle exist macs
-        List<MacState> createNewMacList = new ArrayList<>();
-        Iterator<MacState> macStateIterator = macStateBulkJson.getMacStates().iterator();
-        while(macStateIterator.hasNext()){
-            MacState macState = macStateIterator.next();
-            if(StringUtils.isEmpty(macState.getMacAddress())){
-                createNewMacList.add(macState);
-            }else{
-                if(!trySaveMac(rangeId, macState)){
-                    macStateIterator.remove();
-                } else {
-                    macPoolApi.markMac(rangeId, oui, macState.getMacAddress());
-                }
-            }
-        }
-        if(createNewMacList.isEmpty()){
-            return macStateBulkJson;
-        }
+        List<MacState> macStateList = macStateBulkJson.getMacStates();
+        Iterator<MacState> macStateIterator = macStateList.iterator();
 
         // ensure range is created
         MacRange range = ensureRange(rangeId);
 
-        Iterator<MacState> newIt = createNewMacList.iterator();
+        int needSize = macStateList.size() + BULK_MULTIPLE_MARGINS;
         final String realRangeId = range.getRangeId();
-        Set<String> macs = macPoolApi.allocateBulk(oui, range, createNewMacList.size());
-        Iterator<String> macsIt = macs.iterator();
-        while(newIt.hasNext()){
-            MacState macState = newIt.next();
-            macState.setRangeId(realRangeId);
-            String mac = macsIt.next();
-            macState.setMacAddress(mac);
-            if(!trySaveMac(realRangeId, macState)){
-                newIt.remove();
-                // if allocate failed release this mac
-                macPoolApi.release(realRangeId, oui, mac);
+
+        while(macStateIterator.hasNext()){
+            Set<String> macs = macPoolApi.allocateBulk(oui, range, needSize);
+            Iterator<String> macsIt = macs.iterator();
+
+            MacState macState = macStateIterator.next();
+            while(macsIt.hasNext() && macState != null){
+                if(!StringUtils.isEmpty(macState.getMacAddress())){
+                    if(!trySaveMac(rangeId, macState)){
+                        macStateIterator.remove();
+                    } else {
+                        macPoolApi.markMac(rangeId, oui, macState.getMacAddress());
+                        macState = macStateIterator.hasNext() ? macStateIterator.next():null;
+                    }
+                    continue;
+                }
+
+                String mac = macsIt.next();
+                macState.setMacAddress(mac);
+                if(!trySaveMac(realRangeId, macState)){
+                    // if allocate failed release this mac
+                    macPoolApi.release(realRangeId, oui, mac);
+                }else{
+                    macState = macStateIterator.hasNext() ? macStateIterator.next():null;
+                }
             }
+
         }
         return macStateBulkJson;
     }
@@ -487,7 +483,7 @@ public class MacServiceImpl implements MacService {
         String state = MacManagerConstant.MAC_RANGE_STATE_ACTIVE;
         MacRange defaultRange = new MacRange(rangeId, from, to, state);
         try {
-            macRangeRepository.addItem(defaultRange);
+            macRangeRepository.putIfAbsent(defaultRange);
         } catch (CacheException e) {
             logger.error("MacService createDefaultRange() exception:", e);
             throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -503,6 +499,14 @@ public class MacServiceImpl implements MacService {
             logger.error(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
             return false;
         }
+    }
+
+    private String getMacRangeId(MacState macState){
+        String rangeId = macState.getRangeId();
+        if(StringUtils.isEmpty(rangeId)){
+            return MacManagerConstant.DEFAULT_RANGE;
+        }
+        return rangeId;
     }
 }
 

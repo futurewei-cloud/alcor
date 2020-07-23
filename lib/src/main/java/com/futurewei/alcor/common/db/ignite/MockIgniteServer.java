@@ -104,7 +104,7 @@ public class MockIgniteServer {
         }
 
         @Override
-        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> var1) {
+        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> cacheCfg) {
             return new IgniteCacheProxyImpl();
         }
     }

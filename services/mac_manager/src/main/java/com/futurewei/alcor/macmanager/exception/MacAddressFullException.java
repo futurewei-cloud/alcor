@@ -14,8 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.FORBIDDEN, reason = MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL)
 public class MacAddressFullException extends Exception{
     public MacAddressFullException() {
+        super(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
     }
 
     public MacAddressFullException(String message) {
