@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.exception.GetSubnetEntityException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.restclient.SubnetManagerRestClient;
 
 import java.util.ArrayList;
@@ -49,14 +50,21 @@ public class FetchSubnetRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        //TODO: Instead by getSubnetsBySubnetIds interface
-        for (String subnetId: subnetIds) {
-            SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(context.getProjectId(), subnetId);
+        String projectId = context.getProjectId();
+        if (subnetIds.size() == 1) {
+            SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(projectId, subnetIds.get(0));
             if (subnetWebJson == null || subnetWebJson.getSubnet() == null) {
                 throw new GetSubnetEntityException();
             }
 
             subnetEntities.add(subnetWebJson.getSubnet());
+        } else {
+            SubnetsWebJson subnetsWebJson = subnetManagerRestClient.getSubnetBulk(projectId, subnetIds);
+            if (subnetsWebJson == null || subnetsWebJson.getSubnets() == null) {
+                throw new GetSubnetEntityException();
+            }
+
+            subnetEntities.addAll(subnetsWebJson.getSubnets());
         }
     }
 

@@ -17,15 +17,22 @@ package com.futurewei.alcor.web.restclient;
 
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 abstract class AbstractRestClient {
     RestTemplate restTemplate = new RestTemplate();
 
-    <T> T getRequest(String url, Class<T> tClass) throws Exception {
+    <T> T getForObject(String url, Class<T> tClass) throws Exception {
         T response = restTemplate.getForObject(url, tClass);
         if (response == null) {
             throw new Exception("Get request failed, url:" + url);
         }
 
         return response;
+    }
+
+    protected String buildQueryParameter(String key, List<String> values) {
+        values.forEach(v -> v = key + "=" + v);
+        return String.join("&", values);
     }
 }

@@ -46,7 +46,7 @@ public class FetchSubnetRouteRequest extends AbstractRequest {
         if (subnetIds != null) {
             for (String subnetId: subnetIds) {
                 RoutesWebJson routesWebJson = routeManagerRestClient
-                        .getRouteBySubnetId(subnetId);
+                        .getSubnetRoute(subnetId);
                 if (routesWebJson == null || routesWebJson.getRoutes() == null) {
                     throw new GetSubnetEntityException();
                 }

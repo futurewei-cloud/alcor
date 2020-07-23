@@ -24,30 +24,35 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class ReleaseIpRequest extends AbstractRequest {
-    private static final Logger LOG = LoggerFactory.getLogger(ReleaseIpRequest.class);
+public class ReleaseIpAddressRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(ReleaseIpAddressRequest.class);
 
     private IpManagerRestClient ipManagerRestClient;
-    private List<IpAddrRequest> fixedIpAddresses;
+    private List<IpAddrRequest> ipAddrRequests;
 
-    public ReleaseIpRequest(PortContext context, List<IpAddrRequest> fixedIpAddresses) {
+    public ReleaseIpAddressRequest(PortContext context, List<IpAddrRequest> ipAddrRequests) {
         super(context);
-        this.fixedIpAddresses = fixedIpAddresses;
+        this.ipAddrRequests = ipAddrRequests;
         this.ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);
     }
 
     @Override
     public void send() throws Exception {
-        for (IpAddrRequest ipAddress: fixedIpAddresses) {
-            ipManagerRestClient.releaseIpAddress(ipAddress.getRangeId(), ipAddress.getIp());
+        if (ipAddrRequests.size() == 1) {
+            ipManagerRestClient.releaseIpAddress(ipAddrRequests.get(0).getRangeId(), ipAddrRequests.get(0).getIp());
+        } else {
+            ipManagerRestClient.releaseIpAddressBulk(ipAddrRequests);
         }
     }
 
     @Override
     public void rollback() throws Exception {
-        LOG.info("ReleaseIpRequest rollback, fixedIpAddresses: {}", fixedIpAddresses);
-        for (IpAddrRequest ipAddress: fixedIpAddresses) {
-            ipManagerRestClient.allocateIpAddress(null, null, ipAddress.getRangeId(), ipAddress.getIp());
+        LOG.info("ReleaseIpRequest rollback, fixedIpAddresses: {}", ipAddrRequests);
+        if (ipAddrRequests.size() == 1) {
+            ipManagerRestClient.allocateIpAddress(null, null,
+                    ipAddrRequests.get(0).getRangeId(), ipAddrRequests.get(0).getIp());
+        } else {
+            ipManagerRestClient.allocateIpAddressBulk(ipAddrRequests);
         }
     }
 }

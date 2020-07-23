@@ -25,7 +25,7 @@ import java.util.List;
 
 public class MacProcessor extends AbstractProcessor {
     void allocateRandomMacAddressCallback(IRestRequest request) throws AllocateMacAddrException {
-        List<MacState> macStates = ((AllocateRandomMacRequest) request).getMacStates();
+        List<MacState> macStates = ((AllocateMacAddressRequest) request).getResult();
         List<PortEntity> unassignedMacPorts = request.getContext().getUnassignedMacPorts();
         if (macStates.size() != unassignedMacPorts.size()) {
             throw new AllocateMacAddrException();
@@ -61,15 +61,15 @@ public class MacProcessor extends AbstractProcessor {
         context.setUnassignedMacPorts(unassignedMacPorts);
 
         if (randomMacAddresses.size() > 0) {
-            IRestRequest allocateRandomMacRequest = new AllocateRandomMacRequest(
+            IRestRequest allocateMacAddressRequest = new AllocateMacAddressRequest(
                     context, randomMacAddresses);
             context.getRequestManager().sendRequestAsync(
-                    allocateRandomMacRequest, this::allocateRandomMacAddressCallback);
+                    allocateMacAddressRequest, this::allocateRandomMacAddressCallback);
         }
 
         if (fixedMacAddresses.size() > 0) {
-            IRestRequest allocateFixedMacRequest = new AllocateFixedMacRequest(context, fixedMacAddresses);
-            context.getRequestManager().sendRequestAsync(allocateFixedMacRequest, null);
+            IRestRequest allocateMacAddressRequest = new AllocateMacAddressRequest(context, fixedMacAddresses);
+            context.getRequestManager().sendRequestAsync(allocateMacAddressRequest, null);
         }
     }
 
@@ -93,7 +93,7 @@ public class MacProcessor extends AbstractProcessor {
                     newPortEntity.getId(),
                     null);
 
-            IRestRequest updateMacRequest = new UpdateMacRequest(context, newMacState, oldMacState);
+            IRestRequest updateMacRequest = new UpdateMacAddressRequest(context, newMacState, oldMacState);
             context.getRequestManager().sendRequestAsync(updateMacRequest, null);
 
             oldPortEntity.setMacAddress(newMacAddress);
@@ -117,7 +117,7 @@ public class MacProcessor extends AbstractProcessor {
             macStates.add(macState);
         }
 
-        IRestRequest releaseMacRequest = new ReleaseMacRequest(context, macStates);
+        IRestRequest releaseMacRequest = new ReleaseMacAddressRequest(context, macStates);
         context.getRequestManager().sendRequestAsync(releaseMacRequest, null);
     }
 }

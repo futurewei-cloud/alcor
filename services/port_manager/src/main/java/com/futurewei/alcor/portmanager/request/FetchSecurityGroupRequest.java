@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.exception.GetSecurityGroupException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
 import java.util.ArrayList;
@@ -43,30 +44,48 @@ public class FetchSecurityGroupRequest extends AbstractRequest {
         return securityGroups;
     }
 
+    private void getSecurityGroup() throws Exception {
+        if (securityGroupIds.size() == 1) {
+            SecurityGroupJson securityGroupJson = securityGroupManagerRestClient
+                    .getSecurityGroup(context.getProjectId(), securityGroupIds.get(0));
+            if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
+                throw new GetSecurityGroupException();
+            }
+
+            securityGroups.add(securityGroupJson.getSecurityGroup());
+        } else {
+            SecurityGroupsJson securityGroupsJson = securityGroupManagerRestClient
+                    .getSecurityGroupBulk(context.getProjectId(), securityGroupIds);
+            if (securityGroupsJson == null || securityGroupsJson.getSecurityGroups() == null) {
+                throw new GetSecurityGroupException();
+            }
+
+            securityGroups.addAll(securityGroupsJson.getSecurityGroups());
+        }
+    }
+
+    private void getDefaultSecurityGroup() throws Exception {
+        for (String securityGroupId : defaultSecurityGroupIds) {
+            SecurityGroupJson defaultSecurityGroup = securityGroupManagerRestClient
+                    .getDefaultSecurityGroup(context.getProjectId(), securityGroupId);
+            if (defaultSecurityGroup == null || defaultSecurityGroup.getSecurityGroup() == null) {
+                throw new GetSecurityGroupException();
+            }
+
+            securityGroups.add(defaultSecurityGroup.getSecurityGroup());
+        }
+    }
+
     @Override
     public void send() throws Exception {
-        if (securityGroupIds != null) {
-            for (String tenantId : securityGroupIds) {
-                SecurityGroupJson securityGroup = securityGroupManagerRestClient
-                        .getSecurityGroup(context.getProjectId(), tenantId);
-                if (securityGroup == null || securityGroup.getSecurityGroup() == null) {
-                    throw new GetSecurityGroupException();
-                }
-
-                securityGroups.add(securityGroup.getSecurityGroup());
-            }
+        if (securityGroupIds != null &&
+                securityGroupIds.size() > 0) {
+            getSecurityGroup();
         }
 
-        if (defaultSecurityGroupIds != null) {
-            for (String tenantId : defaultSecurityGroupIds) {
-                SecurityGroupJson defaultSecurityGroup = securityGroupManagerRestClient
-                        .getDefaultSecurityGroup(context.getProjectId(), tenantId);
-                if (defaultSecurityGroup == null || defaultSecurityGroup.getSecurityGroup() == null) {
-                    throw new GetSecurityGroupException();
-                }
-
-                securityGroups.add(defaultSecurityGroup.getSecurityGroup());
-            }
+        if (defaultSecurityGroupIds != null &&
+                defaultSecurityGroupIds.size() > 0) {
+            getDefaultSecurityGroup();
         }
     }
 

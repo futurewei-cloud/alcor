@@ -17,9 +17,10 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
-import com.futurewei.alcor.portmanager.processor.AbstractProcessor;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
+import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.restclient.IpManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,44 +28,50 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllocateFixedIpRequest extends AbstractRequest {
-    private static final Logger LOG = LoggerFactory.getLogger(AllocateFixedIpRequest.class);
+public class AllocateIpAddressRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(AllocateIpAddressRequest.class);
 
     private IpManagerRestClient ipManagerRestClient;
-    private List<IpAddrRequest> fixedIpAddresses;
-    private List<IpAddrRequest> ipAddresses;
+    private List<IpAddrRequest> ipRequests;
+    private List<IpAddrRequest> result;
 
-    public AllocateFixedIpRequest(PortContext context, List<IpAddrRequest> fixedIpAddresses) {
+    public AllocateIpAddressRequest(PortContext context, List<IpAddrRequest> ipRequests) {
         super(context);
-        this.fixedIpAddresses = fixedIpAddresses;
-        this.ipAddresses = new ArrayList<>();
+        this.ipRequests = ipRequests;
+        this.result = new ArrayList<>();
         this.ipManagerRestClient = SpringContextUtil.getBean(IpManagerRestClient.class);
     }
 
+    public List<IpAddrRequest> getResult() {
+        return result;
+    }
 
     @Override
     public void send() throws Exception {
-        //TODO: Instead by allocateMacAddresses interface
-        for (IpAddrRequest ipAddrRequest: fixedIpAddresses) {
-            IpAddrRequest response = ipManagerRestClient.allocateIpAddress(
-                    null,
-                    null,
-                    ipAddrRequest.getRangeId(),
-                    ipAddrRequest.getIp());
+        if (ipRequests.size() == 1) {
+            IpAddrRequest response = ipManagerRestClient.allocateIpAddress(ipRequests.get(0));
             if (response == null) {
                 throw new AllocateIpAddrException();
             }
 
-            ipAddresses.add(response);
+            result.add(response);
+        } else {
+            IpAddrRequestBulk response = ipManagerRestClient.allocateIpAddressBulk(ipRequests);
+            if (response == null || response.getIpRequests() == null) {
+                throw new AllocateIpAddrException();
+            }
+
+            result.addAll(response.getIpRequests());
         }
     }
 
     @Override
     public void rollback() throws Exception {
-        LOG.info("AllocateFixedIpRequest rollback, ipAddresses: {}",ipAddresses);
-        //TODO: Instead by releaseMacAddresses interface
-        for (IpAddrRequest ipAddrRequest: ipAddresses) {
-            ipManagerRestClient.releaseIpAddress(ipAddrRequest.getRangeId(), ipAddrRequest.getIp());
+        LOG.info("AllocateRandomIpRequest rollback, ipAddresses: {}", result);
+        if (result.size() == 1) {
+            ipManagerRestClient.releaseIpAddress(result.get(0).getRangeId(), result.get(0).getIp());
+        } else {
+            ipManagerRestClient.releaseIpAddressBulk(result);
         }
     }
 }

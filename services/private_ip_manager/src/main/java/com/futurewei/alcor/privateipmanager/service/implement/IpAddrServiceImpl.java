@@ -59,33 +59,49 @@ public class IpAddrServiceImpl implements IpAddrService {
     public IpAddrRequestBulk allocateIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Allocate ip address bulk, requestBulk: {}", requestBulk);
 
-        Map<String, Integer> rangeToNum = new HashMap<>();
-        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        Map<String, List<IpAddrRequest>> rangeRequests = new HashMap<>();
+        Map<String, List<IpAddrRequest>> vpcIpv4Requests = new HashMap<>();
+        Map<String, List<IpAddrRequest>> vpcIpv6Requests = new HashMap<>();
 
-        for (IpAddrRequest request: requestBulk.getIpRequests()) {
-            Integer num = 1;
+        for (IpAddrRequest ipAddrRequest: requestBulk.getIpRequests()) {
+            if (ipAddrRequest.getRangeId() != null) {
+                if (!rangeRequests.containsKey(ipAddrRequest.getRangeId())) {
+                    rangeRequests.put(ipAddrRequest.getRangeId(), new ArrayList<>());
+                }
 
-            if (rangeToNum.containsKey(request.getRangeId())) {
-                num = rangeToNum.get(request.getRangeId()) + 1;
+                rangeRequests.get(ipAddrRequest.getRangeId()).add(ipAddrRequest);
+            } else if (ipAddrRequest.getVpcId() != null) {
+                if (IpVersion.IPV4.getVersion() == ipAddrRequest.getIpVersion()) {
+                    if (!vpcIpv4Requests.containsKey(ipAddrRequest.getVpcId())) {
+                        vpcIpv4Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                    }
+
+                    vpcIpv4Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                } else {
+                    if (!vpcIpv6Requests.containsKey(ipAddrRequest.getVpcId())) {
+                        vpcIpv6Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                    }
+
+                    vpcIpv6Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                }
             }
-
-            rangeToNum.put(request.getRangeId(), num);
         }
 
-        Map<String, List<IpAddrAlloc>> result = ipAddrRangeRepo.allocateIpAddrBulk(rangeToNum);
+        List<IpAddrAlloc> ipAddrAllocList = ipAddrRangeRepo
+                .allocateIpAddrBulk(rangeRequests, vpcIpv4Requests, vpcIpv6Requests);
 
-        for (Map.Entry<String, List<IpAddrAlloc>> entry: result.entrySet()) {
-            for (IpAddrAlloc ipAddrAlloc: entry.getValue()) {
-                IpAddrRequest ipAddrRequest = new IpAddrRequest();
-                ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
-                ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
-                ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
-                ipAddrRequest.setState(ipAddrAlloc.getState());
-                ipAddrRequests.add(ipAddrRequest);
-            }
+        List<IpAddrRequest> result = new ArrayList<>();
+        for (IpAddrAlloc ipAddrAlloc: ipAddrAllocList) {
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+            ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
+            ipAddrRequest.setSubnetId(ipAddrAlloc.getSubnetId());
+            ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
+            ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
+            ipAddrRequest.setState(ipAddrAlloc.getState());
+            result.add(ipAddrRequest);
         }
 
-        requestBulk.setIpRequests(ipAddrRequests);
+        requestBulk.setIpRequests(result);
 
         LOG.info("Allocate ip address bulk success, requestBulk: {}", requestBulk);
 

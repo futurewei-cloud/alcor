@@ -40,7 +40,7 @@ public class UnbindSecurityGroupRequest extends AbstractRequest {
     @Override
     public void send() throws Exception {
         for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.unbindSecurityGroups(context.getProjectId(), portSecurityGroups);
+            securityGroupManagerRestClient.unbindSecurityGroup(context.getProjectId(), portSecurityGroups);
         }
     }
 
@@ -48,7 +48,7 @@ public class UnbindSecurityGroupRequest extends AbstractRequest {
     public void rollback() throws Exception {
         LOG.info("UnbindSecurityGroupRequest rollback, portSecurityGroups: {}", portSecurityGroups);
         for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.bindSecurityGroups(context.getProjectId(), portSecurityGroups);
+            securityGroupManagerRestClient.bindSecurityGroup(context.getProjectId(), portSecurityGroups);
         }
     }
 }

@@ -82,11 +82,7 @@ public class IpAddrController {
         }
     }
 
-    @PostMapping("/ips")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
-    @DurationStatistics
-    public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
+    private void checkIpRequest(IpAddrRequest request) throws Exception {
         if (request.getVpcId() == null && request.getRangeId() == null) {
             throw new IpRangeIdInvalidException();
         }
@@ -103,7 +99,14 @@ public class IpAddrController {
                 checkIpAddr(request.getIp());
             }
         }
+    }
 
+    @PostMapping("/ips")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
+    public IpAddrRequest allocateIpAddr(@RequestBody IpAddrRequest request) throws Exception {
+        checkIpRequest(request);
         return ipAddrService.allocateIpAddr(request);
     }
 
@@ -113,7 +116,7 @@ public class IpAddrController {
     @DurationStatistics
     public IpAddrRequestBulk allocateIpAddrBulk(@RequestBody IpAddrRequestBulk requestBulk) throws Exception {
         for (IpAddrRequest request : requestBulk.getIpRequests()) {
-            checkRangeId(request.getRangeId());
+            checkIpRequest(request);
         }
 
         return ipAddrService.allocateIpAddrBulk(requestBulk);

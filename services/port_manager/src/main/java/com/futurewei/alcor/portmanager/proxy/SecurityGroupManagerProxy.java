@@ -59,7 +59,7 @@ public class SecurityGroupManagerProxy {
         portSecurityGroupsJson.setPortId(portEntity.getId());
         portSecurityGroupsJson.setSecurityGroups(portEntity.getSecurityGroups());
 
-        return securityGroupManagerRestClient.bindSecurityGroups(projectId, portSecurityGroupsJson);
+        return securityGroupManagerRestClient.bindSecurityGroup(projectId, portSecurityGroupsJson);
     }
 
     public PortSecurityGroupsJson unbindSecurityGroup(Object args) throws Exception {
@@ -69,6 +69,6 @@ public class SecurityGroupManagerProxy {
         portSecurityGroupsJson.setPortId(portEntity.getId());
         portSecurityGroupsJson.setSecurityGroups(portEntity.getSecurityGroups());
 
-        return securityGroupManagerRestClient.bindSecurityGroups(projectId, portSecurityGroupsJson);
+        return securityGroupManagerRestClient.bindSecurityGroup(projectId, portSecurityGroupsJson);
     }
 }

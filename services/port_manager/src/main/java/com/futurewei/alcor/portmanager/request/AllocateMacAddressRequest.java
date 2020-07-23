@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.AllocateMacAddrException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.restclient.MacManagerRestClient;
 import org.slf4j.Logger;
@@ -27,38 +28,40 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllocateRandomMacRequest extends AbstractRequest {
-    private static final Logger LOG = LoggerFactory.getLogger(AllocateRandomMacRequest.class);
+public class AllocateMacAddressRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(AllocateMacAddressRequest.class);
 
     private MacManagerRestClient macManagerRestClient;
-    private List<MacState> randomMacAddresses;
     private List<MacState> macStates;
+    private List<MacState> result;
 
-    public AllocateRandomMacRequest(PortContext context, List<MacState> randomMacAddresses) {
+    public AllocateMacAddressRequest(PortContext context, List<MacState> macStates) {
         super(context);
-        this.randomMacAddresses = randomMacAddresses;
-        this.macStates = new ArrayList<>();
+        this.macStates = macStates;
+        this.result = new ArrayList<>();
         this.macManagerRestClient = SpringContextUtil.getBean(MacManagerRestClient.class);
     }
 
-    public List<MacState> getMacStates() {
-        return macStates;
+    public List<MacState> getResult() {
+        return result;
     }
 
     @Override
     public void send() throws Exception {
-        //TODO: Instead by allocateMacAddresses interface
-        for (MacState macState: randomMacAddresses) {
-            MacStateJson macStateJson = macManagerRestClient.allocateMacAddress(
-                    macState.getProjectId(),
-                    macState.getVpcId(),
-                    macState.getPortId(),
-                    macState.getMacAddress());
+        if (macStates.size() == 1) {
+            MacStateJson macStateJson = macManagerRestClient.allocateMacAddress(macStates.get(0));
             if (macStateJson == null || macStateJson.getMacState() == null) {
                 throw new AllocateMacAddrException();
             }
 
-            macStates.add(macStateJson.getMacState());
+            result.add(macStateJson.getMacState());
+        } else {
+            MacStateBulkJson macStateBulkJson = macManagerRestClient.allocateMacAddressBulk(macStates);
+            if (macStateBulkJson == null || macStateBulkJson.getMacStates() == null) {
+                throw new AllocateMacAddrException();
+            }
+
+            result.addAll(macStateBulkJson.getMacStates());
         }
     }
 
@@ -66,9 +69,9 @@ public class AllocateRandomMacRequest extends AbstractRequest {
 
     @Override
     public void rollback() throws Exception {
-        LOG.info("AllocateRandomMacRequest rollback, macStates: {}", macStates);
+        LOG.info("AllocateRandomMacRequest rollback, macStates: {}", result);
         //TODO: Instead by releaseMacAddresses interface
-        for (MacState macState: macStates) {
+        for (MacState macState: result) {
             macManagerRestClient.releaseMacAddress(macState.getMacAddress());
         }
     }

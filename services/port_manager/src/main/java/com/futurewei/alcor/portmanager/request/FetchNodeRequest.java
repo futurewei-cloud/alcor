@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 
 import java.util.ArrayList;
@@ -43,13 +44,20 @@ public class FetchNodeRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        for (String nodeId: nodeIds) {
-            NodeInfoJson nodeInfoJson = nodeManagerRestClient.getNodeInfo(nodeId);
+        if (nodeIds.size() == 1) {
+            NodeInfoJson nodeInfoJson = nodeManagerRestClient.getNodeInfo(nodeIds.get(0));
             if (nodeInfoJson == null || nodeInfoJson.getNodeInfo() == null) {
                 throw new GetNodeInfoException();
             }
 
             nodeInfoList.add(nodeInfoJson.getNodeInfo());
+        } else {
+            NodesWebJson nodesWebJson = nodeManagerRestClient.getNodeInfoBulk(nodeIds);
+            if (nodesWebJson == null || nodesWebJson.getNodeInfos() == null) {
+                throw new GetNodeInfoException();
+            }
+
+            nodeInfoList.addAll(nodesWebJson.getNodeInfos());
         }
     }
 

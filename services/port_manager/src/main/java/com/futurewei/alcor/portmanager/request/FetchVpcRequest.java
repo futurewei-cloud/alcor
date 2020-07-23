@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.exception.GetVpcEntityException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 import com.futurewei.alcor.web.restclient.VpcManagerRestClient;
 
 import java.util.ArrayList;
@@ -43,14 +44,21 @@ public class FetchVpcRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        //TODO: Instead by getVpcsByVpcIds interface
-        for (String vpcId: vpcIds) {
-            VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(context.getProjectId(), vpcId);
+        //The performance of getVpc() is better than getVpcs().
+        if (vpcIds.size() == 1) {
+            VpcWebJson vpcWebJson = vpcManagerRestClient.getVpc(context.getProjectId(), vpcIds.get(0));
             if (vpcWebJson == null || vpcWebJson.getNetwork() == null) {
                 throw new GetVpcEntityException();
             }
 
             vpcEntities.add(vpcWebJson.getNetwork());
+        } else {
+            VpcsWebJson vpcsWebJson = vpcManagerRestClient.getVpcBulk(context.getProjectId(), vpcIds);
+            if (vpcsWebJson == null || vpcsWebJson.getVpcs() == null) {
+                throw new GetVpcEntityException();
+            }
+
+            vpcEntities.addAll(vpcsWebJson.getVpcs());
         }
     }
 

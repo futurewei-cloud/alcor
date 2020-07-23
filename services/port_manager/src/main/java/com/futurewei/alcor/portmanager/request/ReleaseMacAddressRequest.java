@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class ReleaseMacRequest extends AbstractRequest {
-    private static final Logger LOG = LoggerFactory.getLogger(ReleaseMacRequest.class);
+public class ReleaseMacAddressRequest extends AbstractRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(ReleaseMacAddressRequest.class);
 
     private MacManagerRestClient macManagerRestClient;
     private List<MacState> macStates;
 
-    public ReleaseMacRequest(PortContext context, List<MacState> macStates) {
+    public ReleaseMacAddressRequest(PortContext context, List<MacState> macStates) {
         super(context);
         this.macStates = macStates;
         this.macManagerRestClient = SpringContextUtil.getBean(MacManagerRestClient.class);
@@ -47,10 +47,7 @@ public class ReleaseMacRequest extends AbstractRequest {
     public void rollback() throws Exception {
         LOG.info("ReleaseMacRequest rollback, macStates: {}", macStates);
         for (MacState macState: macStates) {
-            macManagerRestClient.allocateMacAddress(macState.getProjectId(),
-                    macState.getVpcId(),
-                    macState.getPortId(),
-                    macState.getMacAddress());
+            macManagerRestClient.allocateMacAddress(macState);
         }
     }
 }

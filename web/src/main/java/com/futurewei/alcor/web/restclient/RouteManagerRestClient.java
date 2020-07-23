@@ -16,10 +16,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class RouteManagerRestClient extends AbstractRestClient {
@@ -27,13 +28,19 @@ public class RouteManagerRestClient extends AbstractRestClient {
     private String routeManagerUrl;
 
     @DurationStatistics
-    public RoutesWebJson getRouteBySubnetId(String subnetId) throws Exception {
+    public RoutesWebJson getSubnetRoute(String subnetId) throws Exception {
         String url = routeManagerUrl + "/subnets/" + subnetId + "/get";
         RoutesWebJson routesWebJson = restTemplate.getForObject(url, RoutesWebJson.class);
         if (routesWebJson == null) {
-            throw new Exception("Get route by subnet id failed");
+            throw new Exception("Get subnet route by subnet id failed");
         }
 
         return routesWebJson;
+    }
+
+    @DurationStatistics
+    public RoutesWebJson getSubnetRouteBulk(List<String> subnetIds) throws Exception {
+        //TODO: not support yet!
+        return null;
     }
 }

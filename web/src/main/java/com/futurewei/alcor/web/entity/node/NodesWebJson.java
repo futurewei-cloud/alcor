@@ -13,33 +13,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.securitygroup;
+package com.futurewei.alcor.web.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.futurewei.alcor.web.entity.NodeInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class SecurityGroupsJson {
+public class NodesWebJson {
+    private List<NodeInfo> nodeInfos;
 
-    @JsonProperty("security_groups")
-    private ArrayList<SecurityGroup> securityGroups;
-
-    public SecurityGroupsJson() {
+    public NodesWebJson() {
 
     }
 
-    public SecurityGroupsJson(List<SecurityGroup> securityGroups) {
-        this.securityGroups = new ArrayList<>(securityGroups);
+    public NodesWebJson(List<NodeInfo> nodeInfos) {
+        this.nodeInfos = nodeInfos;
     }
 
-    public ArrayList<SecurityGroup> getSecurityGroups() {
-        return securityGroups;
+    public List<NodeInfo> getNodeInfos() {
+        return nodeInfos;
     }
 
-    public void setSecurityGroups(ArrayList<SecurityGroup> securityGroups) {
-        this.securityGroups = securityGroups;
+    public void setNodeInfos(List<NodeInfo> nodeInfos) {
+        this.nodeInfos = nodeInfos;
     }
 }

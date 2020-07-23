@@ -172,20 +172,20 @@ public class IpAddrControllerTest extends MockIgniteServer {
     @Test
     public void Test09_allocateIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4,
-                UnitTestConfig.subnetId,
                 UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
         IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4,
-                UnitTestConfig.subnetId,
                 UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
         IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4,
-                UnitTestConfig.subnetId,
                 UnitTestConfig.vpcId,
+                UnitTestConfig.subnetId,
                 UnitTestConfig.rangeId,
                 null,
                 null);
@@ -209,14 +209,53 @@ public class IpAddrControllerTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test10_listIpAddrTest() throws Exception {
+    public void Test10_allocateIpAddrBulkByVpcIdTest() throws Exception {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest(4,
+                UnitTestConfig.vpcId,
+                null,
+                null,
+                null,
+                null);
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest(4,
+                UnitTestConfig.vpcId,
+                null,
+                null,
+                null,
+                null);
+        IpAddrRequest ipAddrRequest3 = new IpAddrRequest(4,
+                UnitTestConfig.vpcId,
+                null,
+                null,
+                null,
+                null);
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        ipAddrRequests.add(ipAddrRequest1);
+        ipAddrRequests.add(ipAddrRequest2);
+        ipAddrRequests.add(ipAddrRequest3);
+
+        IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
+        ipAddrRequestBulk.setIpRequests(ipAddrRequests);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ipAddrRequestBulkJson = objectMapper.writeValueAsString(ipAddrRequestBulk);
+
+        this.mockMvc.perform(post(UnitTestConfig.ipAddrBulkUrl)
+                .content(ipAddrRequestBulkJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @Test
+    public void Test11_listIpAddrTest() throws Exception {
         this.mockMvc.perform(get(UnitTestConfig.ipAddrUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void Test11_deactivateIpAddrStateBulkTest() throws Exception {
+    public void Test12_deactivateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
@@ -250,7 +289,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test12_activateIpAddrStateBulkTest() throws Exception {
+    public void Test13_activateIpAddrStateBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
@@ -284,7 +323,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test13_releaseIpAddrBulkTest() throws Exception {
+    public void Test14_releaseIpAddrBulkTest() throws Exception {
         IpAddrRequest ipAddrRequest1 = new IpAddrRequest(
                 UnitTestConfig.ipv4,
                 UnitTestConfig.vpcId,
@@ -318,7 +357,7 @@ public class IpAddrControllerTest extends MockIgniteServer {
     }
 
     @Test
-    public void Test14_deleteIpAddrRangeTest() throws Exception {
+    public void Test15_deleteIpAddrRangeTest() throws Exception {
         this.mockMvc.perform(delete(UnitTestConfig.ipRangeUrl + "/" + UnitTestConfig.rangeId))
                 .andDo(print())
                 .andExpect(status().isOk());

@@ -59,12 +59,12 @@ public class FixedIpsProcessor extends AbstractProcessor {
     }
 
     private void allocateFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
-        IRestRequest allocateFixedIpRequest = new AllocateFixedIpRequest(context, ipAddresses);
-        allocateFixedIpRequest.send();
+        IRestRequest allocateIpAddressRequest = new AllocateIpAddressRequest(context, ipAddresses);
+        allocateIpAddressRequest.send();
     }
 
     private void releaseFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
-        IRestRequest releaseIpRequest = new ReleaseIpRequest(context, ipAddresses);
+        IRestRequest releaseIpRequest = new ReleaseIpAddressRequest(context, ipAddresses);
         releaseIpRequest.send();
     }
 
@@ -165,14 +165,14 @@ public class FixedIpsProcessor extends AbstractProcessor {
     private void allocateRandomIpAddresses(PortContext context, List<IpAddrRequest> randomIpAddresses) {
         if (randomIpAddresses.size() > 0) {
             IRestRequest allocateRandomIpRequest =
-                    new AllocateRandomIpRequest(context, randomIpAddresses);
+                    new AllocateIpAddressRequest(context, randomIpAddresses);
             context.getRequestManager().sendRequestAsync(
                     allocateRandomIpRequest, this::allocateRandomIpCallback);
         }
     }
 
     private void allocateRandomIpCallback(IRestRequest request) throws Exception {
-        List<IpAddrRequest> ipAddresses = ((AllocateRandomIpRequest) (request)).getIpAddresses();
+        List<IpAddrRequest> ipAddresses = ((AllocateIpAddressRequest) (request)).getResult();
         PortContext context = request.getContext();
 
         if (context.getUnassignedIpPorts() == null ||

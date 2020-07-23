@@ -86,20 +86,43 @@ public class IpAddrRange {
         return ipAddrAlloc;
     }
 
+    @Deprecated
     public List<IpAddrAlloc> allocateBulk(ICache<String, IpAddrAlloc> ipAddrCache, int num) throws Exception {
         List<String> ipAddrList = allocator.allocateBulk(num);
         List<IpAddrAlloc> ipAddrAllocs = new ArrayList<>();
+        Map<String, IpAddrAlloc> ipAddrAllocMap = new HashMap<>();
 
         for (String ipAddr: ipAddrList) {
             IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
-            ipAddrCache.put(ipAddr, ipAddrAlloc);
             ipAddrAllocs.add(ipAddrAlloc);
+            ipAddrAllocMap.put(ipAddr, ipAddrAlloc);
         }
 
+        ipAddrCache.putAll(ipAddrAllocMap);
         updateUsedIps(ipAddrCache);
 
         return ipAddrAllocs;
+    }
+
+    public List<IpAddrAlloc> allocateBulk(ICache<String, IpAddrAlloc> ipAddrCache, List<String> ips) throws Exception {
+        List<IpAddrAlloc> ipAddrAllocList = new ArrayList<>();
+        Map<String, IpAddrAlloc> ipAddrAllocMap = new HashMap<>();
+
+        for (String ip: ips) {
+            String ipAddr = allocator.allocate(ip);
+            IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id,
+                    ipAddr, IpAddrState.ACTIVATED.getState());
+
+            ipAddrAllocList.add(ipAddrAlloc);
+            ipAddrAllocMap.put(ipAddr, ipAddrAlloc);
+        }
+
+        ipAddrCache.putAll(ipAddrAllocMap);
+
+        updateUsedIps(ipAddrCache);
+
+        return ipAddrAllocList;
     }
 
     public void modifyIpAddrState(ICache<String, IpAddrAlloc> ipAddrCache, String ipAddr, String state) throws Exception {
@@ -131,6 +154,7 @@ public class IpAddrRange {
                 throw new IpAddrAllocNotFoundException();
             }
 
+            //TODO:support remove all
             ipAddrCache.remove(ipAddr);
         }
 

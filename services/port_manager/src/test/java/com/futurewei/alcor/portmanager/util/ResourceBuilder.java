@@ -25,8 +25,10 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
 import com.futurewei.alcor.web.entity.ip.IpAddrState;
 import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
@@ -37,15 +39,15 @@ import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ResourceBuilder {
     public static PortEntity buildPortEntity(String portId) {
@@ -89,6 +91,28 @@ public class ResourceBuilder {
         return ipAddrRequest;
     }
 
+    public static IpAddrRequestBulk buildIpAddrRequestBulk() {
+        IpAddrRequest ipAddrRequest1 = new IpAddrRequest();
+        ipAddrRequest1.setRangeId(UnitTestConfig.rangeId);
+        ipAddrRequest1.setSubnetId(UnitTestConfig.subnetId);
+        ipAddrRequest1.setIpVersion(UnitTestConfig.ipv4Version);
+        ipAddrRequest1.setIp(UnitTestConfig.ip1);
+        ipAddrRequest1.setState(IpAddrState.ACTIVATED.getState());
+
+        IpAddrRequest ipAddrRequest2 = new IpAddrRequest();
+        ipAddrRequest2.setRangeId(UnitTestConfig.rangeId);
+        ipAddrRequest2.setSubnetId(UnitTestConfig.subnetId);
+        ipAddrRequest2.setIpVersion(UnitTestConfig.ipv4Version);
+        ipAddrRequest2.setIp(UnitTestConfig.ip2);
+        ipAddrRequest2.setState(IpAddrState.ACTIVATED.getState());
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        ipAddrRequests.add(ipAddrRequest1);
+        ipAddrRequests.add(ipAddrRequest2);
+
+        return new IpAddrRequestBulk(ipAddrRequests);
+    }
+
     public static IpAddrRequest buildIpv6AddrRequest() {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
@@ -104,27 +128,50 @@ public class ResourceBuilder {
         return objectMapper.writeValueAsString(buildPortWebJson(UnitTestConfig.portId1));
     }
 
-    public static VpcWebJson buildVpcStateJson() {
-        VpcEntity vpcState = new VpcEntity();
-        vpcState.setId(UnitTestConfig.vpcId);
-        vpcState.setProjectId(UnitTestConfig.projectId);
-        vpcState.setCidr(UnitTestConfig.vpcCidr);
+    public static VpcWebJson buildVpcWebJson() {
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcEntity.setProjectId(UnitTestConfig.projectId);
+        vpcEntity.setCidr(UnitTestConfig.vpcCidr);
 
-        return new VpcWebJson(vpcState);
+        return new VpcWebJson(vpcEntity);
     }
 
-    public static SubnetWebJson buildSubnetStateJson() {
-        SubnetEntity subnetState = new SubnetEntity();
-        subnetState.setProjectId(UnitTestConfig.projectId);
-        subnetState.setId(UnitTestConfig.subnetId);
-        subnetState.setName("subnet1");
-        subnetState.setCidr(UnitTestConfig.vpcCidr);
-        subnetState.setVpcId(UnitTestConfig.vpcId);
-        subnetState.setIpV4RangeId(UnitTestConfig.rangeId);
-        subnetState.setGatewayIp(UnitTestConfig.ip1);
-        subnetState.setGatewayMacAddress(UnitTestConfig.mac1);
+    public static VpcsWebJson buildVpcsWebJson() {
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcEntity.setProjectId(UnitTestConfig.projectId);
+        vpcEntity.setCidr(UnitTestConfig.vpcCidr);
 
-        return new SubnetWebJson(subnetState);
+        return new VpcsWebJson(Collections.singletonList(vpcEntity));
+    }
+
+    public static SubnetWebJson buildSubnetWebJson() {
+        SubnetEntity subnetEntity = new SubnetEntity();
+        subnetEntity.setProjectId(UnitTestConfig.projectId);
+        subnetEntity.setId(UnitTestConfig.subnetId);
+        subnetEntity.setName("subnet1");
+        subnetEntity.setCidr(UnitTestConfig.vpcCidr);
+        subnetEntity.setVpcId(UnitTestConfig.vpcId);
+        subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
+        subnetEntity.setGatewayIp(UnitTestConfig.ip1);
+        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+
+        return new SubnetWebJson(subnetEntity);
+    }
+
+    public static SubnetsWebJson buildSubnetsWebJson() {
+        SubnetEntity subnetEntity = new SubnetEntity();
+        subnetEntity.setProjectId(UnitTestConfig.projectId);
+        subnetEntity.setId(UnitTestConfig.subnetId);
+        subnetEntity.setName("subnet1");
+        subnetEntity.setCidr(UnitTestConfig.vpcCidr);
+        subnetEntity.setVpcId(UnitTestConfig.vpcId);
+        subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
+        subnetEntity.setGatewayIp(UnitTestConfig.ip1);
+        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+
+        return new SubnetsWebJson(Collections.singletonList(subnetEntity));
     }
 
     public static MacStateJson buildMacStateJson(String portId, String macAddress) {
@@ -135,6 +182,26 @@ public class ResourceBuilder {
         macState.setMacAddress(macAddress);
 
         return new MacStateJson(macState);
+    }
+
+    public static MacStateBulkJson buildMacStateBulkJson(String portId) {
+        MacState macState1 = new MacState();
+        macState1.setProjectId(UnitTestConfig.projectId);
+        macState1.setVpcId(UnitTestConfig.vpcId);
+        macState1.setPortId(portId);
+        macState1.setMacAddress(UnitTestConfig.mac1);
+
+        MacState macState2 = new MacState();
+        macState2.setProjectId(UnitTestConfig.projectId);
+        macState2.setVpcId(UnitTestConfig.vpcId);
+        macState2.setPortId(portId);
+        macState2.setMacAddress(UnitTestConfig.mac2);
+
+        List<MacState> macStates = new ArrayList<>();
+        macStates.add(macState1);
+        macStates.add(macState2);
+
+        return new MacStateBulkJson(macStates);
     }
 
     public static NodeInfoJson buildNodeInfoJson(String nodeId, String ipAddress) {
@@ -190,6 +257,31 @@ public class ResourceBuilder {
         securityGroup.setSecurityGroupRules(securityGroupRuleEntities);
 
         return new SecurityGroupJson(securityGroup);
+    }
+
+    public static SecurityGroupsJson buildSecurityGroupsJson(String securityGroupId) {
+        SecurityGroup securityGroup = new SecurityGroup();
+        securityGroup.setId(securityGroupId);
+        securityGroup.setName(UnitTestConfig.securityGroupName);
+        securityGroup.setTenantId(UnitTestConfig.tenantId);
+        securityGroup.setProjectId(UnitTestConfig.projectId);
+
+        SecurityGroupRule securityGroupRule = new SecurityGroupRule();
+        securityGroupRule.setId(UnitTestConfig.securityGroupRuleId);
+        securityGroupRule.setProjectId(UnitTestConfig.projectId);
+        securityGroupRule.setTenantId(UnitTestConfig.tenantId);
+        securityGroupRule.setSecurityGroupId(UnitTestConfig.securityGroupId1);
+        securityGroupRule.setDirection(UnitTestConfig.direction1);
+        securityGroupRule.setProtocol(UnitTestConfig.protocolTcp);
+        securityGroupRule.setPortRangeMin(UnitTestConfig.portRangeMin);
+        securityGroupRule.setPortRangeMax(UnitTestConfig.portRangeMax);
+        securityGroupRule.setEtherType(UnitTestConfig.etherType);
+
+        List<SecurityGroupRule> securityGroupRuleEntities = new ArrayList<>();
+        securityGroupRuleEntities.add(securityGroupRule);
+        securityGroup.setSecurityGroupRules(securityGroupRuleEntities);
+
+        return new SecurityGroupsJson(Collections.singletonList(securityGroup));
     }
 
     public static SecurityGroupJson buildDefaultSecurityGroupWebJson() {

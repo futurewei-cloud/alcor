@@ -19,6 +19,8 @@ import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,33 +69,52 @@ public class MockRestClientAndRepository {
     @BeforeEach
     protected void mockRestClientsAndRepositoryOperations() throws Exception {
         Mockito.when(vpcManagerRestClient.getVpc(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(buildVpcStateJson());
+                .thenReturn(buildVpcWebJson());
+
+        Mockito.when(vpcManagerRestClient.getVpcBulk(anyString(), anyList()))
+                .thenReturn(buildVpcsWebJson());
 
         Mockito.when(subnetManagerRestClient.getSubnet(UnitTestConfig.projectId, UnitTestConfig.subnetId))
-                .thenReturn(buildSubnetStateJson());
+                .thenReturn(buildSubnetWebJson());
 
-        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip1))
+        Mockito.when(subnetManagerRestClient.getSubnetBulk(anyString(), anyList()))
+                .thenReturn(buildSubnetsWebJson());
+
+        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
                 .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
 
-        Mockito.when(ipManagerRestClient.allocateIpAddress(null, null, UnitTestConfig.rangeId, UnitTestConfig.ip2))
+        Mockito.when(ipManagerRestClient.allocateIpAddressBulk(anyList()))
+                .thenReturn(buildIpAddrRequestBulk());
+
+        /*
+        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
                 .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip2));
 
-        Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV4, UnitTestConfig.vpcId, null, null))
+        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
                 .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
 
-        Mockito.when(ipManagerRestClient.allocateIpAddress(IpVersion.IPV6, UnitTestConfig.vpcId, null, null))
+        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
                 .thenReturn(buildIpv6AddrRequest());
 
-        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId1, null))
+         */
+
+        Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
 
-        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId2, null))
+        Mockito.when(macManagerRestClient.allocateMacAddressBulk(anyList()))
+                .thenReturn(buildMacStateBulkJson(UnitTestConfig.portId1));
+
+        Mockito.when(macManagerRestClient.allocateMacAddressBulk(anyList()))
+                .thenReturn(buildMacStateBulkJson(UnitTestConfig.portId1));
+        /*
+        Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId2, UnitTestConfig.mac2));
 
-        Mockito.when(macManagerRestClient.allocateMacAddress(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.portId1, UnitTestConfig.mac1))
+        Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
+         */
 
-        Mockito.when(routeManagerRestClient.getRouteBySubnetId(UnitTestConfig.subnetId))
+        Mockito.when(routeManagerRestClient.getSubnetRoute(UnitTestConfig.subnetId))
                 .thenReturn(buildRoutesWebJson());
       
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId1))
@@ -101,6 +122,9 @@ public class MockRestClientAndRepository {
 
         Mockito.when(securityGroupManagerRestClient.getSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.securityGroupId2))
                 .thenReturn(buildSecurityGroupWebJson(UnitTestConfig.securityGroupId2));
+
+        Mockito.when(securityGroupManagerRestClient.getSecurityGroupBulk(anyString(), anyList()))
+                .thenReturn(buildSecurityGroupsJson(UnitTestConfig.securityGroupId1));
 
         Mockito.when(securityGroupManagerRestClient.getDefaultSecurityGroup(UnitTestConfig.projectId, UnitTestConfig.tenantId))
                 .thenReturn(buildDefaultSecurityGroupWebJson());

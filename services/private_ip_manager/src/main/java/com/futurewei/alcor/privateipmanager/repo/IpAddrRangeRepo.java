@@ -34,6 +34,7 @@ import org.springframework.stereotype.Repository;
 import com.futurewei.alcor.common.db.CacheException;
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
@@ -150,7 +151,8 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 ICache<String, IpAddrAlloc> ipAddrCache =
                         cacheFactory.getCache(IpAddrAlloc.class, getIpAddrCacheName(rangeId));
                 ipAddrAlloc = ipAddrRange.allocate(ipAddrCache, null);
-            } catch (IpAddrNotEnoughException e) {
+            } catch (Exception e) {
+                LOG.warn("Allocate ip address from {} failed", ipAddrRange.getId());
                 continue;
             }
 
@@ -204,6 +206,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
      * @throws Exception Db operation or ip address assignment exception
      */
     @DurationStatistics
+    @Deprecated
     public synchronized Map<String, List<IpAddrAlloc>> allocateIpAddrBulk(Map<String, Integer> requests) throws Exception {
         Map<String, List<IpAddrAlloc>> result = new HashMap<>();
 
@@ -221,6 +224,94 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
 
                 result.put(entry.getKey(), ipAddrAllocs);
+            }
+
+            tx.commit();
+        }
+
+        return result;
+    }
+
+    private List<IpAddrAlloc> allocateIpAddrByRangeId(String rangeId, List<IpAddrRequest> ipRequests) throws Exception {
+        IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
+        if (ipAddrRange == null) {
+            throw new IpRangeNotFoundException();
+        }
+
+        ICache<String, IpAddrAlloc> ipAddrCache =
+                cacheFactory.getCache(IpAddrAlloc.class, getIpAddrCacheName(rangeId));
+
+        List<String> ips = ipRequests.stream()
+                .map(IpAddrRequest::getIp)
+                .collect(Collectors.toList());
+
+        List<IpAddrAlloc> result = ipAddrRange.allocateBulk(ipAddrCache, ips);
+        ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+
+        return result;
+    }
+
+    private List<IpAddrAlloc> allocateIpAddrByVpcId(String vpcId, int ipVersion, List<IpAddrRequest> ipRequests) throws Exception {
+        List<IpAddrAlloc> result = new ArrayList<>();
+
+        VpcIpRange vpcIpRange = vpcIpRangeCache.get(vpcId);
+        if (vpcIpRange == null) {
+            throw new NotFoundIpRangeFromVpc();
+        }
+
+        for (String rangeId: vpcIpRange.getRanges()) {
+            IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
+            if (ipAddrRange == null) {
+                throw new IpRangeNotFoundException();
+            }
+
+            if (ipAddrRange.getIpVersion() != ipVersion) {
+                continue;
+            }
+
+            try {
+                ICache<String, IpAddrAlloc> ipAddrCache =
+                        cacheFactory.getCache(IpAddrAlloc.class, getIpAddrCacheName(rangeId));
+
+                List<String> ips = ipRequests.stream()
+                        .map(IpAddrRequest::getIp)
+                        .collect(Collectors.toList());
+
+                result.addAll(ipAddrRange.allocateBulk(ipAddrCache, ips));
+            } catch (Exception e) {
+                LOG.warn("Allocate ip address from {} failed", ipAddrRange.getId());
+                continue;
+            }
+
+            ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+            break;
+        }
+
+        if (result.size() == 0) {
+            throw new IpAddrNotEnoughException();
+        }
+
+        return result;
+    }
+
+    @DurationStatistics
+    public synchronized List<IpAddrAlloc> allocateIpAddrBulk(Map<String, List<IpAddrRequest>> rangeRequests,
+                                                             Map<String, List<IpAddrRequest>> vpcIpv4Requests,
+                                                             Map<String, List<IpAddrRequest>> vpcIpv6Requests) throws Exception {
+        List<IpAddrAlloc> result = new ArrayList<>();
+        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+            for (Map.Entry<String, List<IpAddrRequest>> entry: rangeRequests.entrySet()) {
+                result.addAll(allocateIpAddrByRangeId(entry.getKey(), entry.getValue()));
+            }
+
+            for (Map.Entry<String, List<IpAddrRequest>> entry: vpcIpv4Requests.entrySet()) {
+                result.addAll(allocateIpAddrByVpcId(entry.getKey(),
+                        IpVersion.IPV4.getVersion(), entry.getValue()));
+            }
+
+            for (Map.Entry<String, List<IpAddrRequest>> entry: vpcIpv6Requests.entrySet()) {
+                result.addAll(allocateIpAddrByVpcId(entry.getKey(),
+                        IpVersion.IPV6.getVersion(), entry.getValue()));
             }
 
             tx.commit();
