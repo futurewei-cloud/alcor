@@ -95,7 +95,8 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     private ICache<Long, String> getRangeCache(String rangeId){
         ICache<Long, String> cache = mappingCache.get(rangeId);
         if (cache == null) {
-            cache = mappingCache.putIfAbsent(rangeId, cacheFactory.getCache(String.class, rangeId));
+            mappingCache.putIfAbsent(rangeId, cacheFactory.getCache(String.class, rangeId));
+            cache = mappingCache.get(rangeId);
         }
         return cache;
     }
