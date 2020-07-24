@@ -18,7 +18,6 @@ package com.futurewei.alcor.securitygroup.service.implement;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.RemoteSecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
-import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupRuleNotFound;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;

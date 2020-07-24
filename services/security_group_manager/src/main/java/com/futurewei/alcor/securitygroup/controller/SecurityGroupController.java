@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
-import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
@@ -135,7 +134,7 @@ public class SecurityGroupController {
         checkProjectId(projectId);
 
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SecurityGroup.class);
         ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         return securityGroupService.listSecurityGroup(queryParams);

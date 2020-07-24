@@ -37,7 +37,7 @@ public interface SecurityGroupService {
 
     SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception;
 
-    SecurityGroupsJson listSecurityGroup() throws Exception;
+    SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception;
 
     SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception;
 

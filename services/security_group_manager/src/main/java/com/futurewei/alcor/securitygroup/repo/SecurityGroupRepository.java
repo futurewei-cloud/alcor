@@ -21,7 +21,6 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
-import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 @Repository
@@ -123,6 +121,7 @@ public class SecurityGroupRepository {
         return securityGroupCache.getAll();
     }
 
+    @DurationStatistics
     public Map<String, SecurityGroup> getAllSecurityGroups(Map<String, Object[]> queryParams) throws CacheException {
         return securityGroupCache.getAll(queryParams);
     }

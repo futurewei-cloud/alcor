@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.restclient;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 abstract class AbstractRestClient {
     RestTemplate restTemplate = new RestTemplate();
@@ -32,7 +33,7 @@ abstract class AbstractRestClient {
     }
 
     protected String buildQueryParameter(String key, List<String> values) {
-        values.forEach(v -> v = key + "=" + v);
-        return String.join("&", values);
+        List<String> params = values.stream().map(v -> key + "=" + v).collect(Collectors.toList());
+        return String.join("&", params);
     }
 }
