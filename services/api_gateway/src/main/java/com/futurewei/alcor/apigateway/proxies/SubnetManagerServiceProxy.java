@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@Deprecated
 //@Service
 public class SubnetManagerServiceProxy {
 

@@ -63,7 +63,7 @@ public class ElasticIpManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public ElasticIpsInfoWrapper getElasticIps(String projectId, Map<String, Object[]> filters) throws Exception {
-        String url = elasticIpManagerUrl + "/project/" + projectId + "/ports" +
+        String url = elasticIpManagerUrl + "/project/" + projectId + "/elasticips" +
                 ControllerUtil.transformParamsToUrl(filters);
         ElasticIpsInfoWrapper elasticIpsInfoWrapper = null;
 

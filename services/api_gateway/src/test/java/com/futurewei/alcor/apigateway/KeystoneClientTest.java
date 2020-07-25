@@ -74,7 +74,7 @@ public class KeystoneClientTest {
     private static final String TEST_INVALID_TOKEN = "eaaaaaBex0xWssdfsadfDSSDFSDF";
 
 
-    private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_PROJECT_ID = "aaaaaaaabbbbccccddddeeeeeeeeeeee";
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String BASE_URL = "http://localhost/identity";

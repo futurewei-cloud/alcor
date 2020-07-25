@@ -48,7 +48,7 @@ public class KeystoneAuthGwFilterTest {
 
     private static final String AUTHORIZE_TOKEN = "X-Auth-Token";
     private static final String TEST_TOKEN = "gaaaaaBex0xWssdfsadfDSSDFSDF";
-    private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_PROJECT_ID = "aaaaaaaabbbbccccddddeeeeeeeeeeee";
     private static final String TEST_ERROR_TOKEN = "testerrortoken";
 
     private KeystoneAuthGwFilter filter;
