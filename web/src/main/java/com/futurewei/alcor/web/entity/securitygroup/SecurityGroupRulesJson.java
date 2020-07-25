@@ -16,20 +16,23 @@
  * /
  */
 
-package com.futurewei.alcor.apigateway.vpc;
+package com.futurewei.alcor.web.entity.securitygroup;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
-@Deprecated
-@Data
-//@ConfigurationProperties(prefix = "vpc.destinations")
-public class VpcWebDestinations {
+public class SecurityGroupRulesJson {
 
-    @Value("${microservices.vpc.service.url}")
-    @NotNull
-    private String vpcManagerServiceUrl;
+    @JsonProperty("security_group_rules")
+    private ArrayList<SecurityGroupRule> securityGroupRules;
+
+    public SecurityGroupRulesJson() {
+
+    }
+
+    public SecurityGroupRulesJson(List<SecurityGroupRule> securityGroupRules) {
+        this.securityGroupRules = new ArrayList<>(securityGroupRules);
+    }
 }

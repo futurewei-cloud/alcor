@@ -283,7 +283,7 @@ public class VpcController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
-        queryParams.put("project_id", new String[]{projectId});
+        queryParams.put("projectId", new String[]{projectId});
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
