@@ -34,7 +34,7 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
     private static final String VPC_NAME = "vpcs";
     private static final String VPC_REPLACE_NAME = "networks";
     private static final String ELASTICIP_NAME = "elasticips";
-    private static final String ELASTICIP_REPLACE_NAME = "networks";
+    private static final String ELASTICIP_REPLACE_NAME = "floatingips";
     private static final int KEYSTONE_FILTER_ORDERED = -100;
 
     @Autowired
