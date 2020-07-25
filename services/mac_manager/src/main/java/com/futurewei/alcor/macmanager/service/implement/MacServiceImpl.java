@@ -128,7 +128,11 @@ public class MacServiceImpl implements MacService {
                 if(dbMacState != null){
                     throw new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION);
                 }
-                macStateRepository.addItem(macState);
+                // if put mac failed return mac address in use
+                macState.setRangeId(rangeId);
+                if(!macStateRepository.putIfAbsent(macState)){
+                    throw new MacAddressUniquenessViolationException(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION);
+                }
                 macPoolApi.markMac(rangeId, oui, macState.getMacAddress());
                 return macState;
             } catch (CacheException | DistributedLockException e) {
@@ -205,8 +209,9 @@ public class MacServiceImpl implements MacService {
                 throw (new ResourceNotFoundException(MacManagerConstant.MAC_EXCEPTION_MAC_NOT_EXISTING));
             } else {
                 try {
+                    String rangeId = macState.getRangeId() == null ? MacManagerConstant.DEFAULT_RANGE : macState.getRangeId();
                     macStateRepository.deleteItem(macAddress);
-                    macPoolApi.reclaim(macState.getRangeId(), oui, macAddress);
+                    macPoolApi.reclaim(rangeId, oui, macAddress);
                 } catch (CacheException e) {
                     throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
                 }

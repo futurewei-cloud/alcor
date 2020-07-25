@@ -176,7 +176,7 @@ public class PortController {
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        queryParams.put("project_id", new String[]{projectId});
+        queryParams.put("projectId", new String[]{projectId});
         List<PortWebJson> portWebJsonList = portService.listPort(projectId, queryParams);
         List<PortEntity> portsList = portWebJsonList.stream()
                 .map(PortWebJson::getPortEntity)

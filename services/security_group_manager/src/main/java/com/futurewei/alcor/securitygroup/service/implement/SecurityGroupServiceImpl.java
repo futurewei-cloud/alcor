@@ -287,6 +287,28 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    public SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception {
+        List<SecurityGroup> securityGroups = new ArrayList<>();
+        Map<String, SecurityGroup> securityGroupMap = securityGroupRepository.getAllSecurityGroups(queryParams);
+
+        if (securityGroupMap == null) {
+            return new SecurityGroupsJson();
+        }
+
+        for (Map.Entry<String, SecurityGroup> entry : securityGroupMap.entrySet()) {
+            //Skip the internal default security group
+            if (entry.getKey().equals(entry.getValue().getTenantId())) {
+                continue;
+            }
+
+            securityGroups.add(entry.getValue());
+        }
+
+        LOG.info("List security group success");
+        return new SecurityGroupsJson(securityGroups);
+    }
+
+    @Override
     public PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
         securityGroupBindingsRepository.addSecurityGroupBinding(portSecurityGroupsJson);
 
