@@ -57,7 +57,9 @@ public class AllocateIpAddressRequest extends AbstractRequest {
             result.add(response);
         } else {
             IpAddrRequestBulk response = ipManagerRestClient.allocateIpAddressBulk(ipRequests);
-            if (response == null || response.getIpRequests() == null) {
+            if (response == null ||
+                    response.getIpRequests() == null ||
+                    response.getIpRequests().size() != ipRequests.size()) {
                 throw new AllocateIpAddrException();
             }
 

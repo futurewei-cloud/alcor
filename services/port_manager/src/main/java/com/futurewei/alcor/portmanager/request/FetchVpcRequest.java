@@ -54,7 +54,9 @@ public class FetchVpcRequest extends AbstractRequest {
             vpcEntities.add(vpcWebJson.getNetwork());
         } else {
             VpcsWebJson vpcsWebJson = vpcManagerRestClient.getVpcBulk(context.getProjectId(), vpcIds);
-            if (vpcsWebJson == null || vpcsWebJson.getVpcs() == null) {
+            if (vpcsWebJson == null ||
+                    vpcsWebJson.getVpcs() == null ||
+                    vpcsWebJson.getVpcs().size() != vpcIds.size()) {
                 throw new GetVpcEntityException();
             }
 

@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,10 +65,10 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
     }
 
     @DurationStatistics
-    public PortSecurityGroupsJson bindSecurityGroup(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+    public PortBindingSecurityGroupsJson bindSecurityGroup(String projectId, PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/bind-security-groups";
-        HttpEntity<PortSecurityGroupsJson> request = new HttpEntity<>(portSecurityGroupsJson);
-        PortSecurityGroupsJson result = restTemplate.postForObject(url, request, PortSecurityGroupsJson.class);
+        HttpEntity<PortBindingSecurityGroupsJson> request = new HttpEntity<>(portBindingSecurityGroupsJson);
+        PortBindingSecurityGroupsJson result = restTemplate.postForObject(url, request, PortBindingSecurityGroupsJson.class);
         if (result == null) {
             throw new Exception("Bind security groups failed");
         }
@@ -77,10 +77,10 @@ public class SecurityGroupManagerRestClient extends  AbstractRestClient {
     }
 
     @DurationStatistics
-    public PortSecurityGroupsJson unbindSecurityGroup(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
+    public PortBindingSecurityGroupsJson unbindSecurityGroup(String projectId, PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
         String url = securityGroupManagerUrl + "/project/" + projectId + "/unbind-security-groups";
-        HttpEntity<PortSecurityGroupsJson> request = new HttpEntity<>(portSecurityGroupsJson);
-        PortSecurityGroupsJson result = restTemplate.postForObject(url, request, PortSecurityGroupsJson.class);
+        HttpEntity<PortBindingSecurityGroupsJson> request = new HttpEntity<>(portBindingSecurityGroupsJson);
+        PortBindingSecurityGroupsJson result = restTemplate.postForObject(url, request, PortBindingSecurityGroupsJson.class);
         if (result == null) {
             throw new Exception("Unbind security groups failed");
         }

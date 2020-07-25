@@ -25,6 +25,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
@@ -140,34 +141,27 @@ public class SecurityGroupController {
         return securityGroupService.listSecurityGroup(queryParams);
     }
 
-    private void checkPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        checkProjectId(projectId);
-        checkPortId(portSecurityGroupsJson.getPortId());
-
-        for (String securityGroupId : portSecurityGroupsJson.getSecurityGroups()) {
-            checkSecurityGroupId(securityGroupId);
-        }
-    }
-
     @PostMapping({"/project/{project_id}/bind-security-groups", "v4/{project_id}/bind-security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public PortSecurityGroupsJson bindSecurityGroups(@PathVariable("project_id") String projectId,
-                                                     @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        checkPortSecurityGroups(projectId, portSecurityGroupsJson);
+    public PortBindingSecurityGroupsJson bindSecurityGroups(@PathVariable("project_id") String projectId,
+                                                            @RequestBody PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        checkProjectId(projectId);
+        checkPortSecurityGroups(portBindingSecurityGroupsJson);
 
-        return securityGroupService.bindSecurityGroups(portSecurityGroupsJson);
+        return securityGroupService.bindSecurityGroups(portBindingSecurityGroupsJson);
     }
 
     @PostMapping({"/project/{project_id}/unbind-security-groups", "v4/{project_id}/unbind-security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public PortSecurityGroupsJson unbindSecurityGroups(@PathVariable("project_id") String projectId,
-                                                       @RequestBody PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        checkPortSecurityGroups(projectId, portSecurityGroupsJson);
+    public PortBindingSecurityGroupsJson unbindSecurityGroups(@PathVariable("project_id") String projectId,
+                                                              @RequestBody PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        checkProjectId(projectId);
+        checkPortSecurityGroups(portBindingSecurityGroupsJson);
 
-        return securityGroupService.unbindSecurityGroups(portSecurityGroupsJson);
+        return securityGroupService.unbindSecurityGroups(portBindingSecurityGroupsJson);
     }
 }

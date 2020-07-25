@@ -57,7 +57,9 @@ public class AllocateMacAddressRequest extends AbstractRequest {
             result.add(macStateJson.getMacState());
         } else {
             MacStateBulkJson macStateBulkJson = macManagerRestClient.allocateMacAddressBulk(macStates);
-            if (macStateBulkJson == null || macStateBulkJson.getMacStates() == null) {
+            if (macStateBulkJson == null ||
+                    macStateBulkJson.getMacStates() == null ||
+                    macStateBulkJson.getMacStates().size() != macStates.size()) {
                 throw new AllocateMacAddrException();
             }
 

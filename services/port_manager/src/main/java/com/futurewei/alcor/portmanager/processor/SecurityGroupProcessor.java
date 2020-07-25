@@ -20,7 +20,7 @@ import com.futurewei.alcor.portmanager.request.FetchSecurityGroupRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UnbindSecurityGroupRequest;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 
 import java.util.*;
@@ -41,39 +41,45 @@ public class SecurityGroupProcessor extends AbstractProcessor {
                 fetchSecurityGroupRequest, this::fetchSecurityGroupCallback);
     }
 
+    @FunctionalInterface
+    private interface BindOrUnbindSecurityGroup {
+        void apply(PortContext context, List<PortBindingSecurityGroup> bindSecurityGroups) throws Exception;
+    }
+
     private void bindSecurityGroups(PortContext context,
-                                    List<PortSecurityGroupsJson> bindSecurityGroups) {
+                                    List<PortBindingSecurityGroup> bindSecurityGroups) {
         IRestRequest bindSecurityGroupRequest =
                 new BindSecurityGroupRequest(context, bindSecurityGroups);
         context.getRequestManager().sendRequestAsync(bindSecurityGroupRequest, null);
     }
 
     private void unbindSecurityGroups(PortContext context,
-                                      List<PortSecurityGroupsJson> unbindSecurityGroups) {
+                                      List<PortBindingSecurityGroup> unbindSecurityGroups) {
         IRestRequest unbindSecurityGroupRequest =
                 new UnbindSecurityGroupRequest(context, unbindSecurityGroups);
         context.getRequestManager().sendRequestAsync(unbindSecurityGroupRequest, null);
     }
 
-    @Override
-    void createProcess(PortContext context) {
-        List<PortSecurityGroupsJson> portSecurityGroups = new ArrayList<>();
+    private void securityGroupProcess(PortContext context, BindOrUnbindSecurityGroup function) throws Exception {
+        List<PortBindingSecurityGroup> bindSecurityGroups = new ArrayList<>();
         Set<String> securityGroupIdSet = new HashSet<>();
         Set<String> defaultSecurityGroupIdSet = new HashSet<>();
 
         for (PortEntity portEntity: context.getPortEntities()){
             List<String> securityGroupIds = portEntity.getSecurityGroups();
             if (securityGroupIds != null) {
-                securityGroupIdSet.addAll(securityGroupIds);
-                portSecurityGroups.add(new PortSecurityGroupsJson(portEntity.getId(), securityGroupIds));
+                for (String securityGroupId: securityGroupIds) {
+                    securityGroupIdSet.addAll(securityGroupIds);
+                    bindSecurityGroups.add(new PortBindingSecurityGroup(portEntity.getId(), securityGroupId));
+                }
             } else {
                 defaultSecurityGroupIdSet.add(portEntity.getTenantId());
             }
         }
 
         //Bind security groups
-        if (portSecurityGroups.size() > 0) {
-            bindSecurityGroups(context, portSecurityGroups);
+        if (bindSecurityGroups.size() > 0) {
+            function.apply(context, bindSecurityGroups);
         }
 
         //Get security groups (include default security group)
@@ -81,6 +87,11 @@ public class SecurityGroupProcessor extends AbstractProcessor {
             getSecurityGroups(context, new ArrayList<>(securityGroupIdSet),
                     new ArrayList<>(defaultSecurityGroupIdSet));
         }
+    }
+
+    @Override
+    void createProcess(PortContext context) throws Exception {
+        securityGroupProcess(context, this::bindSecurityGroups);
     }
 
     @Override
@@ -92,10 +103,12 @@ public class SecurityGroupProcessor extends AbstractProcessor {
         List<String> oldSecurityGroups = oldPortEntity.getSecurityGroups();
 
         if (newSecurityGroups != null && !newSecurityGroups.equals(oldSecurityGroups)) {
-            List<PortSecurityGroupsJson> bindSecurityGroups = new ArrayList<>();
-            bindSecurityGroups.add(new PortSecurityGroupsJson(newPortEntity.getId(), newSecurityGroups));
+            List<PortBindingSecurityGroup> bindSecurityGroups = new ArrayList<>();
+            for (String securityGroupId: newSecurityGroups) {
+                bindSecurityGroups.add(new PortBindingSecurityGroup(newPortEntity.getId(), securityGroupId));
+            }
 
-            if (newSecurityGroups.size() > 0) {
+            if (bindSecurityGroups.size() > 0) {
                 //Bind new security group
                 bindSecurityGroups(context, bindSecurityGroups);
 
@@ -108,9 +121,11 @@ public class SecurityGroupProcessor extends AbstractProcessor {
 
             //Unbind old security group
             if (oldSecurityGroups != null && oldSecurityGroups.size() > 0) {
-                List<PortSecurityGroupsJson> unbindSecurityGroups = new ArrayList<>();
-                unbindSecurityGroups.add(new PortSecurityGroupsJson(
-                        oldPortEntity.getId(), oldSecurityGroups));
+                List<PortBindingSecurityGroup> unbindSecurityGroups = new ArrayList<>();
+                for (String securityGroupId: oldSecurityGroups) {
+                    unbindSecurityGroups.add(new PortBindingSecurityGroup(
+                            newPortEntity.getId(), securityGroupId));
+                }
 
                 unbindSecurityGroups(context, unbindSecurityGroups);
             }
@@ -120,34 +135,7 @@ public class SecurityGroupProcessor extends AbstractProcessor {
     }
 
     @Override
-    void deleteProcess(PortContext context) {
-        List<PortSecurityGroupsJson> portSecurityGroupsJsons = new ArrayList<>();
-        Set<String> securityGroupIdSet = new HashSet<>();
-        Set<String> defaultSecurityGroupIdSet = new HashSet<>();
-
-        for (PortEntity portEntity: context.getPortEntities()) {
-            List<String> securityGroupIds = portEntity.getSecurityGroups();
-            if (securityGroupIds != null) {
-                securityGroupIdSet.addAll(securityGroupIds);
-
-                PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-                portSecurityGroupsJson.setPortId(portEntity.getId());
-                portSecurityGroupsJson.setSecurityGroups(portEntity.getSecurityGroups());
-                portSecurityGroupsJsons.add(portSecurityGroupsJson);
-            } else {
-                defaultSecurityGroupIdSet.add(portEntity.getTenantId());
-            }
-        }
-
-        //Unbind security group
-        if (portSecurityGroupsJsons.size() > 0) {
-            unbindSecurityGroups(context, portSecurityGroupsJsons);
-        }
-
-        //Get security groups (include default security group)
-        if (securityGroupIdSet.size() > 0 || defaultSecurityGroupIdSet.size() > 0) {
-            getSecurityGroups(context, new ArrayList<>(securityGroupIdSet),
-                    new ArrayList<>(defaultSecurityGroupIdSet));
-        }
+    void deleteProcess(PortContext context) throws Exception {
+        securityGroupProcess(context, this::unbindSecurityGroups);
     }
 }

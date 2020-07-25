@@ -17,7 +17,8 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,27 +29,27 @@ public class UnbindSecurityGroupRequest extends AbstractRequest {
     private static final Logger LOG = LoggerFactory.getLogger(UnbindSecurityGroupRequest.class);
 
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
-    private List<PortSecurityGroupsJson> portSecurityGroups;
+    private List<PortBindingSecurityGroup> unbindSecurityGroups;
 
-    public UnbindSecurityGroupRequest(PortContext context, List<PortSecurityGroupsJson> portSecurityGroups) {
+    public UnbindSecurityGroupRequest(PortContext context, List<PortBindingSecurityGroup> unbindSecurityGroups) {
         super(context);
-        this.portSecurityGroups = portSecurityGroups;
+        this.unbindSecurityGroups = unbindSecurityGroups;
         this.securityGroupManagerRestClient = SpringContextUtil.getBean(SecurityGroupManagerRestClient.class);
 
     }
 
     @Override
     public void send() throws Exception {
-        for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.unbindSecurityGroup(context.getProjectId(), portSecurityGroups);
-        }
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(unbindSecurityGroups);
+        securityGroupManagerRestClient.unbindSecurityGroup(context.getProjectId(), portBindingSecurityGroupsJson);
     }
 
     @Override
     public void rollback() throws Exception {
-        LOG.info("UnbindSecurityGroupRequest rollback, portSecurityGroups: {}", portSecurityGroups);
-        for (PortSecurityGroupsJson portSecurityGroups: portSecurityGroups) {
-            securityGroupManagerRestClient.bindSecurityGroup(context.getProjectId(), portSecurityGroups);
-        }
+        LOG.info("UnbindSecurityGroupRequest rollback, unbindSecurityGroups: {}", unbindSecurityGroups);
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(unbindSecurityGroups);
+        securityGroupManagerRestClient.bindSecurityGroup(context.getProjectId(), portBindingSecurityGroupsJson);
     }
 }

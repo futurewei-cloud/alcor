@@ -53,7 +53,9 @@ public class FetchNodeRequest extends AbstractRequest {
             nodeInfoList.add(nodeInfoJson.getNodeInfo());
         } else {
             NodesWebJson nodesWebJson = nodeManagerRestClient.getNodeInfoBulk(nodeIds);
-            if (nodesWebJson == null || nodesWebJson.getNodeInfos() == null) {
+            if (nodesWebJson == null ||
+                    nodesWebJson.getNodeInfos() == null ||
+                    nodesWebJson.getNodeInfos().size() != nodeIds.size()) {
                 throw new GetNodeInfoException();
             }
 

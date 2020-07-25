@@ -48,7 +48,8 @@ public class FetchSecurityGroupRequest extends AbstractRequest {
         if (securityGroupIds.size() == 1) {
             SecurityGroupJson securityGroupJson = securityGroupManagerRestClient
                     .getSecurityGroup(context.getProjectId(), securityGroupIds.get(0));
-            if (securityGroupJson == null || securityGroupJson.getSecurityGroup() == null) {
+            if (securityGroupJson == null ||
+                    securityGroupJson.getSecurityGroup() == null) {
                 throw new GetSecurityGroupException();
             }
 
@@ -56,7 +57,9 @@ public class FetchSecurityGroupRequest extends AbstractRequest {
         } else {
             SecurityGroupsJson securityGroupsJson = securityGroupManagerRestClient
                     .getSecurityGroupBulk(context.getProjectId(), securityGroupIds);
-            if (securityGroupsJson == null || securityGroupsJson.getSecurityGroups() == null) {
+            if (securityGroupsJson == null ||
+                    securityGroupsJson.getSecurityGroups() == null ||
+                    securityGroupsJson.getSecurityGroups().size() != securityGroupIds.size()) {
                 throw new GetSecurityGroupException();
             }
 
