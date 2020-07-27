@@ -30,7 +30,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
@@ -75,20 +74,6 @@ public class SecurityGroupRuleController {
 
         return securityGroupRuleService.createSecurityGroupRuleBulk(securityGroupRuleBulkJson);
     }
-
-    /*
-    @PutMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
-    public SecurityGroupRuleJson updateSecurityGroupRule(@PathVariable("project_id") String projectId,
-                                                 @PathVariable("security_group_rule_id") String securityGroupRuleId,
-                                                 @RequestBody SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRuleJson);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRuleId);
-        SecurityGroupRule securityGroupRule = securityGroupRuleJson.getSecurityGroupRule();
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRule);
-
-        return securityGroupRuleService.updateSecurityGroupRule(projectId, securityGroupRuleId, securityGroupRuleJson);
-    }*/
 
     @DeleteMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics

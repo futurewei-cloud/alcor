@@ -39,13 +39,7 @@ public interface SecurityGroupService {
 
     SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception;
 
-<<<<<<< HEAD
-    SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception;
-
-    PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception;
-=======
     PortBindingSecurityGroupsJson bindSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception;
->>>>>>> Batch port binding security groups are supported
 
     PortBindingSecurityGroupsJson unbindSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception;
 }
