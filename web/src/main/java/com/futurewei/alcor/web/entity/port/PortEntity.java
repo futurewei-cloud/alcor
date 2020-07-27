@@ -96,7 +96,7 @@ public class PortEntity extends CustomerResource {
     private String ipAllocation;
 
     @JsonProperty("port_security_enabled")
-    private boolean portSecurityEnabled;
+    private boolean portSecurityEnabled = true;
 
     @JsonProperty("qos_network_policy_id")
     private String qosNetworkPolicyId;
