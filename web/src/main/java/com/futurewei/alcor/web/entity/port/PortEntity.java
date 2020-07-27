@@ -419,4 +419,260 @@ public class PortEntity extends CustomerResource {
                     '}';
         }
     }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
+    }
+
+    public boolean isAdminStateUp() {
+        return adminStateUp;
+    }
+
+    public void setAdminStateUp(boolean adminStateUp) {
+        this.adminStateUp = adminStateUp;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getVethName() {
+        return vethName;
+    }
+
+    public void setVethName(String vethName) {
+        this.vethName = vethName;
+    }
+
+    public boolean isFastPath() {
+        return fastPath;
+    }
+
+    public void setFastPath(boolean fastPath) {
+        this.fastPath = fastPath;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceOwner() {
+        return deviceOwner;
+    }
+
+    public void setDeviceOwner(String deviceOwner) {
+        this.deviceOwner = deviceOwner;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<FixedIp> getFixedIps() {
+        return fixedIps;
+    }
+
+    public void setFixedIps(List<FixedIp> fixedIps) {
+        this.fixedIps = fixedIps;
+    }
+
+    public List<AllowAddressPair> getAllowedAddressPairs() {
+        return allowedAddressPairs;
+    }
+
+    public void setAllowedAddressPairs(List<AllowAddressPair> allowedAddressPairs) {
+        this.allowedAddressPairs = allowedAddressPairs;
+    }
+
+    public List<ExtraDhcpOpt> getExtraDhcpOpts() {
+        return extraDhcpOpts;
+    }
+
+    public void setExtraDhcpOpts(List<ExtraDhcpOpt> extraDhcpOpts) {
+        this.extraDhcpOpts = extraDhcpOpts;
+    }
+
+    public List<String> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(List<String> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
+
+    public String getBindingHostId() {
+        return bindingHostId;
+    }
+
+    public void setBindingHostId(String bindingHostId) {
+        this.bindingHostId = bindingHostId;
+    }
+
+    public BindingProfile getBindingProfile() {
+        return bindingProfile;
+    }
+
+    public void setBindingProfile(BindingProfile bindingProfile) {
+        this.bindingProfile = bindingProfile;
+    }
+
+    public BindingVifDetails getBindingVifDetails() {
+        return bindingVifDetails;
+    }
+
+    public void setBindingVifDetails(BindingVifDetails bindingVifDetails) {
+        this.bindingVifDetails = bindingVifDetails;
+    }
+
+    public String getBindingVifType() {
+        return bindingVifType;
+    }
+
+    public void setBindingVifType(String bindingVifType) {
+        this.bindingVifType = bindingVifType;
+    }
+
+    public String getBindingVnicType() {
+        return bindingVnicType;
+    }
+
+    public void setBindingVnicType(String bindingVnicType) {
+        this.bindingVnicType = bindingVnicType;
+    }
+
+    public String getNetworkNamespace() {
+        return networkNamespace;
+    }
+
+    public void setNetworkNamespace(String networkNamespace) {
+        this.networkNamespace = networkNamespace;
+    }
+
+    public String getDnsName() {
+        return dnsName;
+    }
+
+    public void setDnsName(String dnsName) {
+        this.dnsName = dnsName;
+    }
+
+    public String getDnsDomain() {
+        return dnsDomain;
+    }
+
+    public void setDnsDomain(String dnsDomain) {
+        this.dnsDomain = dnsDomain;
+    }
+
+    public DnsRecord getDnsAssignment() {
+        return dnsAssignment;
+    }
+
+    public void setDnsAssignment(DnsRecord dnsAssignment) {
+        this.dnsAssignment = dnsAssignment;
+    }
+
+    public String getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(String updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public String getIpAllocation() {
+        return ipAllocation;
+    }
+
+    public void setIpAllocation(String ipAllocation) {
+        this.ipAllocation = ipAllocation;
+    }
+
+    public boolean isPortSecurityEnabled() {
+        return portSecurityEnabled;
+    }
+
+    public void setPortSecurityEnabled(boolean portSecurityEnabled) {
+        this.portSecurityEnabled = portSecurityEnabled;
+    }
+
+    public String getQosNetworkPolicyId() {
+        return qosNetworkPolicyId;
+    }
+
+    public void setQosNetworkPolicyId(String qosNetworkPolicyId) {
+        this.qosNetworkPolicyId = qosNetworkPolicyId;
+    }
+
+    public String getQosPolicyId() {
+        return qosPolicyId;
+    }
+
+    public void setQosPolicyId(String qosPolicyId) {
+        this.qosPolicyId = qosPolicyId;
+    }
+
+    public int getRevisionNumber() {
+        return revisionNumber;
+    }
+
+    public void setRevisionNumber(int revisionNumber) {
+        this.revisionNumber = revisionNumber;
+    }
+
+    public ResourceRequest getResourceRequest() {
+        return resourceRequest;
+    }
+
+    public void setResourceRequest(ResourceRequest resourceRequest) {
+        this.resourceRequest = resourceRequest;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public boolean isUplinkStatusPropagation() {
+        return uplinkStatusPropagation;
+    }
+
+    public void setUplinkStatusPropagation(boolean uplinkStatusPropagation) {
+        this.uplinkStatusPropagation = uplinkStatusPropagation;
+    }
+
+    public boolean isMacLearningEnabled() {
+        return macLearningEnabled;
+    }
+
+    public void setMacLearningEnabled(boolean macLearningEnabled) {
+        this.macLearningEnabled = macLearningEnabled;
+    }
 }

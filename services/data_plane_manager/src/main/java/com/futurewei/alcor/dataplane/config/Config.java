@@ -53,4 +53,20 @@ public class Config {
   }
 
   public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";
+
+  public String getOvs() {
+    return ovs;
+  }
+
+  public void setOvs(String ovs) {
+    this.ovs = ovs;
+  }
+
+  public String getPort() {
+    return port;
+  }
+
+  public void setPort(String port) {
+    this.port = port;
+  }
 }
