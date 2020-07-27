@@ -27,6 +27,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+@Deprecated
 public class KeystoneAuthWebFilter implements WebFilter {
 
     private static final String AUTHORIZE_TOKEN = "X-Auth-Token";

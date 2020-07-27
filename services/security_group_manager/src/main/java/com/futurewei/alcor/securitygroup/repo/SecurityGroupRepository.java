@@ -118,6 +118,10 @@ public class SecurityGroupRepository {
         return securityGroupCache.getAll();
     }
 
+    public Map<String, SecurityGroup> getAllSecurityGroups(Map<String, Object[]> queryParams) throws CacheException {
+        return securityGroupCache.getAll(queryParams);
+    }
+
     /**
      * In order to find the default security group quickly bt tenant id,
      * when creating a default security group for each tenant, create an
@@ -222,5 +226,9 @@ public class SecurityGroupRepository {
 
     public Map<String, SecurityGroupRule> getAllSecurityGroupRules() throws CacheException {
         return securityGroupRuleCache.getAll();
+    }
+
+    public Map<String, SecurityGroupRule> getAllSecurityGroupRules(Map<String, Object[]> queryParams) throws CacheException {
+        return securityGroupRuleCache.getAll(queryParams);
     }
 }

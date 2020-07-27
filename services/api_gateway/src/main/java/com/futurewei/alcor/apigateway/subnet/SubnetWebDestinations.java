@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotNull;
 
+@Deprecated
 @Data
 //@ConfigurationProperties(prefix = "subnet.destinations")
 public class SubnetWebDestinations {

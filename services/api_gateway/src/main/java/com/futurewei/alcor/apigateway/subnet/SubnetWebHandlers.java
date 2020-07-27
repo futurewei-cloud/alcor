@@ -31,6 +31,7 @@ import java.util.UUID;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
+@Deprecated
 public class SubnetWebHandlers {
 
     private SubnetManagerServiceProxy serviceProxy;

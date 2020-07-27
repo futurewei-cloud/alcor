@@ -119,7 +119,7 @@ public class ControllerUtil {
         }
 
         // remove "&" in the tail
-        return filterStrBuilder.substring(0, -1);
+        return filterStrBuilder.substring(0, filterStrBuilder.length() - 1);
     }
 
     private static <T> Field[] getAllDeclaredFields(Class<T> tClass){

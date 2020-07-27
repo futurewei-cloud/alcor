@@ -15,16 +15,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+import java.util.Map;
 
 import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
 
@@ -33,6 +40,9 @@ public class SecurityGroupController {
 
     @Autowired
     private SecurityGroupService securityGroupService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
@@ -90,6 +100,7 @@ public class SecurityGroupController {
         securityGroupService.deleteSecurityGroup(securityGroupId);
     }
 
+    @FieldFilter(type=SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     public SecurityGroupJson getSecurityGroup(@PathVariable("project_id") String projectId,
                                               @PathVariable("security_group_id") String securityGroupId) throws Exception {
@@ -108,11 +119,16 @@ public class SecurityGroupController {
         return securityGroupService.getDefaultSecurityGroup(projectId, tenantId);
     }
 
+    @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     public SecurityGroupsJson listSecurityGroup(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
 
-        return securityGroupService.listSecurityGroup();
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
+        queryParams.put("projectId", new String[]{projectId});
+
+        return securityGroupService.listSecurityGroup(queryParams);
     }
 
     private void checkPortSecurityGroups(String projectId, PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
