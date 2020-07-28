@@ -14,4 +14,5 @@ docker run --rm --net=host --name nm -p 9007:9007 -v /tmp:/tmp -itd nm
 docker run --rm --net=host --name sgm -p 9008:9008 -v /tmp:/tmp -itd sgm
 docker run --rm --net=host --name ag -p 9009:9009  -v /tmp:/tmp -itd ag
 docker run --rm --net=host --name dpm -p 9010:9010 -v /tmp:/tmp -itd dpm
+docker run --rm --net=host --name eim -p 9011:9011 -v /tmp:/tmp -itd eim
 echo 'good now all service is up'
