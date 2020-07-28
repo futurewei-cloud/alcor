@@ -13,21 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.subnet.exception;
 
-package com.futurewei.alcor.apigateway.subnet;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import javax.validation.constraints.NotNull;
-
-@Deprecated
-@Data
-//@ConfigurationProperties(prefix = "subnet.destinations")
-public class SubnetWebDestinations {
-
-    @Value("${microservices.subnet.service.url}")
-    @NotNull
-    private String subnetManagerServiceUrl;
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="Subnet id is null")
+public class SubnetIdIsNull extends Exception {
 }

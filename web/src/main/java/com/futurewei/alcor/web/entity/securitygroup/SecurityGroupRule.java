@@ -41,7 +41,7 @@ public class SecurityGroupRule extends CustomerResource {
     @JsonProperty("port_range_min")
     private Integer portRangeMin;
 
-    @JsonProperty("ether_type")
+    @JsonProperty("ethertype")
     private String etherType;
 
     public static enum EtherType {

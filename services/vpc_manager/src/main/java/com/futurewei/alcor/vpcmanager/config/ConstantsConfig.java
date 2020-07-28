@@ -13,21 +13,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.vpcmanager.config;
 
-package com.futurewei.alcor.apigateway.subnet;
+public class ConstantsConfig {
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+    public static Integer MTU = 1450;
 
-import javax.validation.constraints.NotNull;
-
-@Deprecated
-@Data
-//@ConfigurationProperties(prefix = "subnet.destinations")
-public class SubnetWebDestinations {
-
-    @Value("${microservices.subnet.service.url}")
-    @NotNull
-    private String subnetManagerServiceUrl;
 }

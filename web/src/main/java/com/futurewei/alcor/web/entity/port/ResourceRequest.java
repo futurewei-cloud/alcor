@@ -13,21 +13,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.port;
 
-package com.futurewei.alcor.apigateway.subnet;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
-@Deprecated
 @Data
-//@ConfigurationProperties(prefix = "subnet.destinations")
-public class SubnetWebDestinations {
+public class ResourceRequest {
+    @JsonProperty("required")
+    private List<String> required;
 
-    @Value("${microservices.subnet.service.url}")
-    @NotNull
-    private String subnetManagerServiceUrl;
+    @JsonProperty("resources")
+    private Resources resources;
+
+    public ResourceRequest() {
+    }
+
+    public ResourceRequest(List<String> required, Resources resources) {
+        this.required = required;
+        this.resources = resources;
+    }
 }

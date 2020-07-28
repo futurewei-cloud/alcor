@@ -247,7 +247,7 @@ public class KeystoneClient {
                         te.setDomainName(domain.path(JSON_NAME_KEY).asText(""));
                     }
 
-                    projectId = transformProjectIdToUuid(projectId);
+                    //projectId = transformProjectIdToUuid(projectId);
                     te.setProjectId(projectId);
                     te.setProjectName(project.path(JSON_NAME_KEY).asText(""));
                     cache.put(token, te);

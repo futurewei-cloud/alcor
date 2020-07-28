@@ -94,6 +94,34 @@ public class ControllerUtil {
         return queryParams;
     }
 
+    /**
+     * transform auery params to url</>
+     *
+     * @param params the request params,
+     * @return String
+     */
+    public static String transformParamsToUrl(Map<String, Object[]> params) {
+
+        if (params.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder filterStrBuilder = new StringBuilder();
+        filterStrBuilder.append("?");
+        for (String filterKey: params.keySet()) {
+            Object[] filterValueSet = params.get(filterKey);
+            for (Object filterValue: filterValueSet) {
+                filterStrBuilder.append(filterKey);
+                filterStrBuilder.append("=");
+                filterStrBuilder.append(filterValue.toString());
+                filterStrBuilder.append("&");
+            }
+        }
+
+        // remove "&" in the tail
+        return filterStrBuilder.substring(0, filterStrBuilder.length() - 1);
+    }
+
     private static <T> Field[] getAllDeclaredFields(Class<T> tClass){
         Field[] selfFields = tClass.getDeclaredFields();
         Class<? super T> superClass = tClass.getSuperclass();
