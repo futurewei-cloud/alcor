@@ -109,7 +109,12 @@ public class MockRestClientAndRepository {
                 .thenReturn(buildNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
 
         List<NodeInfo> nodeInfos = new ArrayList<>();
-        NodeInfo nodeInfo = new NodeInfo();
+        NodeInfo nodeInfo = new NodeInfo(UnitTestConfig.nodeId,
+                UnitTestConfig.nodeName,
+                UnitTestConfig.nodeLocalIp,
+                UnitTestConfig.nodeMacAddress,
+                UnitTestConfig.nodeVeth,
+                UnitTestConfig.nodeGRPCServerPort);
         nodeInfos.add(nodeInfo);
         Mockito.when(nodeManagerRestClient.getNodeInfoByNodeName(anyString())).thenReturn(nodeInfos);
 
