@@ -17,18 +17,21 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.futurewei.alcor.portmanager.util.ResourceBuilder.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 
 public class MockRestClientAndRepository {
     @MockBean
@@ -104,6 +107,11 @@ public class MockRestClientAndRepository {
 
         Mockito.when(nodeManagerRestClient.getNodeInfo(UnitTestConfig.nodeId2))
                 .thenReturn(buildNodeInfoJson(UnitTestConfig.nodeId2, UnitTestConfig.ip2));
+
+        List<NodeInfo> nodeInfos = new ArrayList<>();
+        NodeInfo nodeInfo = new NodeInfo();
+        nodeInfos.add(nodeInfo);
+        Mockito.when(nodeManagerRestClient.getNodeInfoByNodeName(anyString())).thenReturn(nodeInfos);
 
         Mockito.when(portRepository.findPortEntity(UnitTestConfig.portId1))
                 .thenReturn(buildPortWebJson(UnitTestConfig.portId1).getPortEntity());
