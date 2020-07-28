@@ -86,7 +86,8 @@ public class NodeController {
             value = {"/nodes", "/v4/nodes"})
     public List<NodeInfo> getAllNodes(@ApiParam(value = "node_name") @RequestParam(required = false) String name,
                                       @ApiParam(value = "node_id") @RequestParam(required = false) String id,
-                                      @ApiParam(value = "mac_address") @RequestParam(required = false) String macAddress) throws ParameterNullOrEmptyException, Exception {
+                                      @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
+                                      @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
         List<NodeInfo> nodes = null;
         try {
             Map<String, Object[]> queryParams =
@@ -97,8 +98,11 @@ public class NodeController {
             if (id != null) {
                 queryParams.put("id", new String[]{id});
             }
-            if (macAddress != null) {
-                queryParams.put("macAddress", new String[]{macAddress});
+            if (mac_address != null) {
+                queryParams.put("macAddress", new String[]{mac_address});
+            }
+            if (local_ip != null) {
+                queryParams.put("localIp", new String[]{local_ip});
             }
 
             nodes = service.getAllNodes(queryParams);
