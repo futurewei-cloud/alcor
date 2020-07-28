@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NodeServiceImpl implements NodeService {
@@ -117,6 +118,29 @@ public class NodeServiceImpl implements NodeService {
             throw e;
         }
         return nodes;
+    }
+
+    /**
+     *  get all nodes info filtered by params
+     * @param queryParams
+     * @return List<NodeInfo>
+     * @throws Exception
+     */
+    @Override
+    public List<NodeInfo> getAllNodes(Map<String, Object[]> queryParams) throws Exception {
+        List<NodeInfo> result = new ArrayList<>();
+
+        Map<String, NodeInfo> nodeInfoMap = nodeRepository.findAllItems(queryParams);
+        if (nodeInfoMap == null) {
+            return result;
+        }
+
+        for (Map.Entry<String, NodeInfo> entry: nodeInfoMap.entrySet()) {
+            NodeInfo nodeInfo = new NodeInfo(entry.getValue());
+            result.add(nodeInfo);
+        }
+
+        return result;
     }
 
     /**
