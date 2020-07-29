@@ -48,7 +48,7 @@ public class GoalStateManager {
 
   private void printNetworkConfiguration(NetworkConfiguration networkConfiguration)
   {
-    LOG.log(Level.FINE,
+    LOG.log(Level.INFO,
             "### networkConf str: "+networkConfiguration.toString());
     ExclusionStrategy myExclusionStrategy =
             new ExclusionStrategy() {
