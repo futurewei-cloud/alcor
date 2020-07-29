@@ -26,6 +26,10 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.futurewei.alcor.common.logging.Logger;
@@ -42,6 +46,26 @@ public class GoalStateManager {
   @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
 
+  private void printNetworkConfiguration(NetworkConfiguration networkConfiguration)
+  {
+    LOG.log(Level.FINE,
+            "### networkConf str: "+networkConfiguration.toString());
+    ExclusionStrategy myExclusionStrategy =
+            new ExclusionStrategy() {
+              @Override
+              public boolean shouldSkipField(FieldAttributes fa) {
+                return fa.getName().equals("tenantId");
+              }
+
+              @Override
+              public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+              }
+            };
+    Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+    LOG.log(Level.INFO,"###############");
+    LOG.log(Level.INFO,gson.toJson(networkConfiguration));
+  }
   /**
    * transform client of dpm msg to aca protobuf format
    *
@@ -51,6 +75,9 @@ public class GoalStateManager {
    */
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
+    // print entry input
+    printNetworkConfiguration(networkConfiguration);
+
     Map<String, Set<String>> portsInSameSubnetMap = new HashMap<>();
 
     Map<String, Set<NeighborInfo>> neighborInfoInSameSubenetMap = new HashMap<>();
