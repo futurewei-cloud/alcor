@@ -17,6 +17,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.apigateway.filter;
 
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -25,10 +27,13 @@ import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KeystoneAuthGwFilter.class);
 
     private static final String AUTHORIZE_TOKEN = "X-Auth-Token";
     private static final String VPC_NAME = "vpcs";
@@ -43,6 +48,7 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        LOG.debug("incoming request headers: {}", exchange.getRequest().getHeaders().toString());
         String token = exchange.getRequest().getHeaders().getFirst(AUTHORIZE_TOKEN);
         if(token == null){
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -50,9 +56,11 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
         }
         String projectId = keystoneClient.verifyToken(token);
         if("".equals(projectId)){
+            LOG.warn("parsed token {} project id failed", token);
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
+        LOG.debug("parsed token {} project id success, project id:[{}]", token, projectId);
         // rewrite uri path include project id
         ServerHttpRequest req = exchange.getRequest();
         ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
@@ -61,6 +69,15 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
         path = path.replaceAll(VPC_REPLACE_NAME, VPC_NAME);
         ServerHttpRequest request = req.mutate().path(path).build();
         exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
+        // if log trace enable print the response info
+        if(LOG.isTraceEnabled()){
+            return chain.filter(exchange.mutate().request(request).build()).then(
+                    Mono.fromRunnable(() -> {
+                        ServerHttpResponse response = exchange.getResponse();
+                        LOG.trace("response code {}, headers {}", response.getStatusCode(), response.getHeaders());
+                    })
+            );
+        }
         return chain.filter(exchange.mutate().request(request).build());
     }
 

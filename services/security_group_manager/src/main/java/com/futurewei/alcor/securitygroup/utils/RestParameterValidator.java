@@ -173,7 +173,7 @@ public class RestParameterValidator {
     }
 
     public static void checkSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
-        checkTenantId(securityGroupRule.getTenantId());
+        //checkTenantId(securityGroupRule.getTenantId());
         checkSecurityGroupId(securityGroupRule.getSecurityGroupId());
         checkDirection(securityGroupRule.getDirection());
 

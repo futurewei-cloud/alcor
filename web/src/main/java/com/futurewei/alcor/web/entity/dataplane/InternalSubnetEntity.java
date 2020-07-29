@@ -28,4 +28,12 @@ public class InternalSubnetEntity extends SubnetEntity {
         super(subnetEntity);
         this.tunnelId = tunnelId;
     }
+
+    public Long getTunnelId() {
+        return tunnelId;
+    }
+
+    public void setTunnelId(Long tunnelId) {
+        this.tunnelId = tunnelId;
+    }
 }

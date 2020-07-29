@@ -109,7 +109,7 @@ public class PortServiceImpl implements PortService {
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get PortNeighbors
@@ -352,8 +352,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update binding:profile
-        String newBindingProfile = newPortEntity.getBindingProfile();
-        String oldBindingProfile = oldPortEntity.getBindingProfile();
+        BindingProfile newBindingProfile = newPortEntity.getBindingProfile();
+        BindingProfile oldBindingProfile = oldPortEntity.getBindingProfile();
         if (newBindingProfile != null && !newBindingProfile.equals(oldBindingProfile)) {
             oldPortEntity.setBindingProfile(newBindingProfile);
             needNotifyDpm = true;
@@ -524,7 +524,7 @@ public class PortServiceImpl implements PortService {
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get portNeighbors

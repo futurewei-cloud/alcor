@@ -118,7 +118,7 @@ public class UpdatePortTest extends MockRestClientAndRepository {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.binding:host_id").value(UnitTestConfig.nodeId2));
     }
 
-    @Test
+//    @Test
     public void updateBindingProfileTest() throws Exception {
         mockRestClientsAndRepositoryOperations();
 
