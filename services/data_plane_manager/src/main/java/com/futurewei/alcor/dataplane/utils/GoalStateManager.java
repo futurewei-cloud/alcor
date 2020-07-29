@@ -198,10 +198,13 @@ public class GoalStateManager {
                                   .build();
                           fixedIps.add(fixedIp1);
                         }
+                        String name= portStateWithEverythingFilledNB.getName()==null
+                                ?"":portStateWithEverythingFilledNB.getName();
 
-                        Port.PortConfiguration portConfiguration =
+
+                              Port.PortConfiguration portConfiguration =
                             Port.PortConfiguration.newBuilder()
-                                .setName(portStateWithEverythingFilledNB.getName())
+                                .setName(name)
                                 .setProjectId(portStateWithEverythingFilledNB.getProjectId())
                                 .setVpcId(
                                     portStateWithEverythingFilledNB
