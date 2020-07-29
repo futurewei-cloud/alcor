@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.futurewei.alcor.apigateway.exception.KeystoneVersionNotSupportException;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
@@ -128,7 +129,6 @@ public class KeystoneClient {
         }
 
         String response = restTemplate.getForObject(authUrl, String.class);
-
         JsonNode versions = json2Map(response);
 
         //in v3 apis resp have versions key
@@ -144,6 +144,8 @@ public class KeystoneClient {
             if("".equals(baseUrl)){
                 findEndPoint(endpointsIt);
             }
+        } else {
+            LOG.error("the version of keystone is not support by Alcor, response info:[{}]", response);
         }
     }
 
@@ -173,8 +175,9 @@ public class KeystoneClient {
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
                 try {
                     localTokenExpireDate = dateFormat.parse(expireDateStr);
+                    LOG.info("generate an alcor token success: {}", localToken);
                 } catch (ParseException e) {
-                    LOG.error("Get Alcor Token failed, {}", e.getMessage());
+                    LOG.error("generate an alcor Token failed, {}", e.getMessage());
                     localToken = "";
                 }
             }
@@ -195,6 +198,7 @@ public class KeystoneClient {
 
             TokenEntity tokenEntity = cache.get(token);
             if(tokenEntity != null){
+                LOG.debug("fetch the token from cache {}", tokenEntity);
                 return tokenEntity.isExpired() ? "" : tokenEntity.getProjectId();
             }
 
@@ -213,7 +217,6 @@ public class KeystoneClient {
 
             // check headers
             if(response.getStatusCode().equals(HttpStatus.OK)){
-
 
                 String resultStr = response.getBody();
                 JsonNode result = json2Map(resultStr);
@@ -251,9 +254,11 @@ public class KeystoneClient {
                     te.setProjectId(projectId);
                     te.setProjectName(project.path(JSON_NAME_KEY).asText(""));
                     cache.put(token, te);
+                    LOG.debug("verify token {} success, token info: [{}]", token, te);
                     return projectId;
                 }
             }else{
+                LOG.warn("verify token failed {}, keystone return http status {}", token, response.getStatusCode());
                 cache.put(token, new TokenEntity(token,true));
             }
         } catch (IOException | CacheException | ParseException | HttpClientErrorException e) {
@@ -375,6 +380,7 @@ public class KeystoneClient {
                 JsonNode href = link.path(JSON_HREF_KEY);
 
                 baseUrl = href.asText();
+                LOG.info("get a identity endpoint {} success", baseUrl);
                 return;
             }
         }
