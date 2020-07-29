@@ -37,9 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.futurewei.alcor.macmanager.utils.MacUtils.*;
 
@@ -98,15 +96,13 @@ public class BitmapPoolImpl implements MacPoolApi {
                     needUpdate = true;
                 }
 
-                while (macRangePartition.getUsed() < macRangePartition.getTotal()) {
+                while (macRangePartition.getBitSet().cardinality() < macRangePartition.getTotal()) {
                     long macLong = generate(macRangePartition);
                     if(tryAllocateMacAddress(rangeId, macLong)) {
-                        macRangePartition.incUsed();
                         macRangePartitionRepository.addItem(macRangePartition);
                         return longToMac(oui, macLong);
                     }else{
                         // if not put success, it already allocated
-                        macRangePartition.incUsed();
                         needUpdate = true;
                     }
                 }
@@ -160,21 +156,17 @@ public class BitmapPoolImpl implements MacPoolApi {
                     needUpdate = true;
                 }
 
-                while (macRangePartition.getUsed() < macRangePartition.getTotal()) {
+                Map<Long, String> macLongs = new HashMap<>();
+                while (macRangePartition.getBitSet().cardinality() < macRangePartition.getTotal()) {
                     long macLong = generate(macRangePartition);
-                    if(tryAllocateMacAddress(rangeId, macLong)) {
-                        macRangePartition.incUsed();
-                        needUpdate = true;
-                        newAllocatedMacs.add(longToMac(oui, macLong));
-                        if(newAllocatedMacs.size() >= size){
-                            macRangePartitionRepository.addItem(macRangePartition);
-                            return newAllocatedMacs;
-                        }
-                    }else{
-                        // if not put success, it already allocated
-                        macRangePartition.incUsed();
-                        needUpdate = true;
+                    macLongs.put(macLong, rangeId);
+                    newAllocatedMacs.add(longToMac(oui, macLong));
+                    if(newAllocatedMacs.size() >= size){
+                        macRangeMappingRepository.putAll(rangeId, macLongs);
+                        macRangePartitionRepository.addItem(macRangePartition);
+                        return newAllocatedMacs;
                     }
+                    needUpdate = true;
                 }
 
                 if (needUpdate) {

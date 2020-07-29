@@ -24,6 +24,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.macmanager.dao.api.IRangeMappingRepository;
 import com.futurewei.alcor.web.entity.mac.MacAllocate;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -90,6 +91,11 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
             }
         }
         return newMacs;
+    }
+
+    @Override
+    public void putAll(String rangeId, Map<Long, String> entries) throws CacheException {
+        getRangeCache(rangeId).putAll(entries);
     }
 
     private ICache<Long, String> getRangeCache(String rangeId){

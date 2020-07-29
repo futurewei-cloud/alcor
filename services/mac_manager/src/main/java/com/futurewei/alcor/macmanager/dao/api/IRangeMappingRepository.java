@@ -21,6 +21,7 @@ package com.futurewei.alcor.macmanager.dao.api;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.web.entity.mac.MacAllocate;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface IRangeMappingRepository {
@@ -34,6 +35,8 @@ public interface IRangeMappingRepository {
     Boolean releaseMac(String rangeId, Long macLong) throws CacheException;
 
     void removeRange(String rangeId) throws CacheException;
+
+    void putAll(String rangeId, Map<Long, String> entries) throws CacheException;
 
     Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException;
 }

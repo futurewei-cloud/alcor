@@ -27,7 +27,6 @@ public class MacRangePartition {
     private final int partition;
     private long start;
     private long end;
-    private int used;
     private int total;
     private BitSet bitSet;
 
@@ -37,7 +36,6 @@ public class MacRangePartition {
         this.partition = partition;
         this.start = start;
         this.end = end;
-        this.used = 0;
         this.total = (int) (end - start);
         this.bitSet = new BitSet();
     }
@@ -78,31 +76,11 @@ public class MacRangePartition {
         this.end = end;
     }
 
-    public int getUsed() {
-        return used;
-    }
-
-    public void setUsed(int used) {
-        this.used = used;
-    }
-
-    public void incUsed(){
-        this.used += 1;
-    }
-
     public int getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
-        this.total = total;
-    }
-
     public BitSet getBitSet() {
         return bitSet;
-    }
-
-    public void setBitSet(BitSet bitSet) {
-        this.bitSet = bitSet;
     }
 }

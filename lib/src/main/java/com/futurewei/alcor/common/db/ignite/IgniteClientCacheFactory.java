@@ -21,6 +21,7 @@ package com.futurewei.alcor.common.db.ignite;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.db.IDistributedLock;
+import com.futurewei.alcor.common.db.Transaction;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.ClientConfiguration;
 
@@ -62,7 +63,12 @@ public class IgniteClientCacheFactory implements ICacheFactory {
     }
 
     @Override
-    public <T> IDistributedLock getDistributedLock(Class<T> t) {
+    public <V> IDistributedLock getDistributedLock(Class<V> t) {
         return new IgniteClientDistributedLock(this.igniteClient, LOCK_PREFIX + t.getName(), this.tryLockInterval, this.expireTime);
+    }
+
+    @Override
+    public Transaction getTransaction() {
+        return new IgniteClientTransaction(igniteClient);
     }
 }

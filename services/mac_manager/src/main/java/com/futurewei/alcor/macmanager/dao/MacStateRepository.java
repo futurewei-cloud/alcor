@@ -28,6 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -127,5 +128,10 @@ public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     @DurationStatistics
     public Boolean contains(String key) throws CacheException {
         return cache.containsKey(key);
+    }
+
+    @Override
+    public void addAllItem(Map<String, MacState> newItems) throws CacheException {
+        cache.putAll(newItems);
     }
 }

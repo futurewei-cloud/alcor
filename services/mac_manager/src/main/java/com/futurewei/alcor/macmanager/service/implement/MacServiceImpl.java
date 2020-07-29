@@ -144,7 +144,6 @@ public class MacServiceImpl implements MacService {
         }
 
         try {
-
             MacRange range = ensureRange(rangeId);
             final String realRangeId = range.getRangeId();
 
@@ -153,10 +152,7 @@ public class MacServiceImpl implements MacService {
                 String mac = macPoolApi.allocate(oui, range);
                 macState.setMacAddress(mac);
                 flag = trySaveMac(realRangeId, macState);
-                if(!flag){
-                    // if allocate failed release this mac
-                    macPoolApi.release(realRangeId, oui, mac);
-                }
+
             }
         } catch (CacheException e) {
             throw new MacRepositoryTransactionErrorException(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION);
@@ -492,6 +488,22 @@ public class MacServiceImpl implements MacService {
     }
 
     private boolean trySaveMac(String rangeId, MacState macState){
+        try {
+            macState.setRangeId(rangeId);
+            boolean saveSuccess = macStateRepository.putIfAbsent(macState);
+            if(!saveSuccess) {
+                // if allocate failed release this mac
+                macPoolApi.release(rangeId, oui, macState.getMacAddress());
+            }
+            return saveSuccess;
+        } catch (CacheException e) {
+            logger.error(MacManagerConstant.MAC_EXCEPTION_REPOSITORY_EXCEPTION, e);
+            macPoolApi.release(rangeId, oui, macState.getMacAddress());
+            return false;
+        }
+    }
+
+    private boolean trySaveAllMac(String rangeId, MacState macState){
         try {
             macState.setRangeId(rangeId);
             return macStateRepository.putIfAbsent(macState);
