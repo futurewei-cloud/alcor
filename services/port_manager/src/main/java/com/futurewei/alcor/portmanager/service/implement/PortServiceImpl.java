@@ -109,7 +109,7 @@ public class PortServiceImpl implements PortService {
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get PortNeighbors
@@ -524,7 +524,7 @@ public class PortServiceImpl implements PortService {
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get portNeighbors

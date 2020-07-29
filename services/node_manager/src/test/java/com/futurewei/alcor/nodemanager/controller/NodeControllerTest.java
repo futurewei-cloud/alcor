@@ -17,6 +17,7 @@ package com.futurewei.alcor.nodemanager.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
+import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,6 +59,9 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @MockBean
     NodeRepository mockNodeRepository;
+
+    @MockBean
+    private NodeService nodeService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -113,7 +118,7 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        doNothing().when(mockNodeRepository).addItem(nodeInfo);
+        when(nodeService.createNodeInfo(any())).thenReturn(nodeInfo);
         mockMvc.perform(post("/nodes")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -165,7 +170,7 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        when(mockNodeRepository.findItem(nodeInfo.getId())).thenReturn(nodeInfo);
+        when(nodeService.updateNodeInfo(anyString(), any())).thenReturn(nodeInfo);
         doNothing().when(mockNodeRepository).addItem(nodeInfo);
         this.mockMvc.perform(put("/nodes/h02")
                 .content(json)
@@ -197,7 +202,7 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", "10, 0, 0, 3", "AA-BB-CC-03-03-03");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         String strNodeId = "h03";
-        when(mockNodeRepository.findItem(nodeInfo.getId())).thenReturn(nodeInfo);
+        when(nodeService.getNodeInfoById(anyString())).thenReturn(nodeInfo);
         MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -229,7 +234,11 @@ public class NodeControllerTest extends MockIgniteServer {
         hashMap.put(nodeInfo1.getId(), nodeInfo1);
         hashMap.put(nodeInfo2.getId(), nodeInfo2);
         hashMap.put(nodeInfo3.getId(), nodeInfo3);
-        when(mockNodeRepository.findAllItems()).thenReturn(hashMap);
+        List<NodeInfo> nodes = new ArrayList<>();
+        nodes.add(nodeInfo1);
+        nodes.add(nodeInfo2);
+        nodes.add(nodeInfo3);
+        when(nodeService.getAllNodes(anyMap())).thenReturn(nodes);
         MvcResult result = this.mockMvc.perform(get("/nodes/"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -261,7 +270,7 @@ public class NodeControllerTest extends MockIgniteServer {
             MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                     .andDo(print())
                     .andReturn();
-            assertEquals(0, result.getResponse().getContentAsString().length());
+            assertEquals(19, result.getResponse().getContentAsString().length());
         } catch (Exception e) {
             assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterNullOrEmptyException"));
         }

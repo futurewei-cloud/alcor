@@ -18,10 +18,14 @@ package com.futurewei.alcor.portmanager.proxy;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
+import com.futurewei.alcor.portmanager.exception.MultipleNodeInfosHaveSameNodeName;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
+
+import java.util.List;
 import java.util.Stack;
 
 public class NodeManagerProxy {
@@ -47,5 +51,32 @@ public class NodeManagerProxy {
         }
 
         return new PortBindingHost(portEntity.getId(), nodeInfoJson.getNodeInfo());
+    }
+
+    /**
+     * Verify and get host info from Node manager by node name
+     * @param args name of host/node
+     * @return The information of host/node
+     * @throws Exception Rest request exception
+     */
+    public PortBindingHost getNodeInfoByNodeName(Object args) throws Exception {
+        PortEntity portEntity = (PortEntity)args;
+        // Binding Host Id is Node Name
+        List<NodeInfo> nodeInfos = nodeManagerRestClient.getNodeInfoByNodeName(portEntity.getBindingHostId());
+        if (nodeInfos == null || nodeInfos.size() == 0) {
+            throw new GetNodeInfoException();
+        }
+
+        if (nodeInfos.size() >= 2) {
+            throw new MultipleNodeInfosHaveSameNodeName();
+        }
+        NodeInfo node = new NodeInfo(nodeInfos.get(0).getId(),
+                nodeInfos.get(0).getName(),
+                nodeInfos.get(0).getLocalIp(),
+                nodeInfos.get(0).getMacAddress(),
+                nodeInfos.get(0).getVeth(),
+                nodeInfos.get(0).getGRPCServerPort());
+
+        return new PortBindingHost(portEntity.getId(), node);
     }
 }
