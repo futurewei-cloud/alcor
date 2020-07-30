@@ -161,7 +161,7 @@ public class TokenEntity implements Serializable {
         String expireAtStr = expireAt == null ? "":DateUtil.KEYSTONE_DATE_FORMAT.format(expireAt);
         return "{" +
                 "\"token\":\"" + token + "\"" +
-                ", \"expireAt\":" + expireAtStr + "\"" +
+                ", \"expireAt\":\"" + expireAtStr + "\"" +
                 ", \"user\":\"" + user + "\"" +
                 ", \"userId\":\"" + userId + "\"" +
                 ", \"domainId\":\"" + domainId + "\"" +
@@ -169,7 +169,7 @@ public class TokenEntity implements Serializable {
                 ", \"projectName\":\"" + projectName + "\"" +
                 ", \"projectId\":\"" + projectId + "\"" +
                 ", \"projectDomain\":\"" + projectDomain + "\"" +
-                ", \"roles:" + listJsonStr(roles) +
+                ", \"roles\":" + listJsonStr(roles) +
                 "}";
     }
 
