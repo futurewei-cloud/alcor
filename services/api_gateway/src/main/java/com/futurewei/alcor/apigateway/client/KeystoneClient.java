@@ -25,6 +25,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
+import static com.futurewei.alcor.common.utils.DateUtil.KEYSTONE_DATE_FORMAT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +43,6 @@ import java.util.concurrent.TimeUnit;
 public class KeystoneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String AUTH_URL_V3 = "v3";
@@ -173,7 +171,7 @@ public class KeystoneClient {
             if (!"null".equals(expireDateStr)) {
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
                 try {
-                    localTokenExpireDate = dateFormat.parse(expireDateStr);
+                    localTokenExpireDate = KEYSTONE_DATE_FORMAT.parse(expireDateStr);
                     LOG.info("generate an alcor token success: {}", localToken);
                 } catch (ParseException e) {
                     LOG.error("generate an alcor Token failed, {}", e.getMessage());
@@ -192,13 +190,13 @@ public class KeystoneClient {
      *
      * @see <a href="https://docs.openstack.org/api-ref/identity/v3/index.html?expanded=password-authentication-with-scoped-authorization-detail#identity-api-operations">Keystone api operations</a>
      */
-    public String verifyToken(String token){
+    public Optional<TokenEntity> verifyToken(String token){
         try {
 
             TokenEntity tokenEntity = cache.get(token);
             if(tokenEntity != null){
                 LOG.debug("fetch the token from cache {}", tokenEntity);
-                return tokenEntity.isExpired() ? "" : tokenEntity.getProjectId();
+                return tokenEntity.isExpired() ? Optional.empty() : Optional.of(tokenEntity);
             }
 
             checkEndPoints();
@@ -228,7 +226,7 @@ public class KeystoneClient {
 
                 String expireDateStr = tokenNode.path(JSON_EXPIRES_AT_KEY).asText();
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
-                Date expireDate = dateFormat.parse(expireDateStr);
+                Date expireDate = KEYSTONE_DATE_FORMAT.parse(expireDateStr);
                 te.setExpireAt(expireDate);
 
                 if(tokenNode.has(JSON_ROLES_KEY)){
@@ -254,7 +252,7 @@ public class KeystoneClient {
                     te.setProjectName(project.path(JSON_NAME_KEY).asText(""));
                     cache.put(token, te);
                     LOG.debug("verify token {} success, token info: [{}]", token, te);
-                    return projectId;
+                    return Optional.of(te);
                 }
             }else{
                 LOG.warn("verify token failed {}, keystone return http status {}", token, response.getStatusCode());
@@ -263,7 +261,7 @@ public class KeystoneClient {
         } catch (IOException | CacheException | ParseException | HttpClientErrorException e) {
             LOG.error("verify token failed, {}", e.getMessage());
         }
-        return "";
+        return Optional.empty();
     }
 
     private String transformProjectIdToUuid(String projectId){

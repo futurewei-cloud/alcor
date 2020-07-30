@@ -16,12 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway;
 
-import com.futurewei.alcor.apigateway.filter.KeystoneAuthWebFilter;
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,11 +27,8 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.mockito.Mockito.when;
 
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
@@ -46,19 +41,10 @@ public class AlcorApiGatewayApplicationTest {
     private WebTestClient webClient;
 
     @MockBean
-    private KeystoneAuthWebFilter keystoneAuthWebFilter;
-
-    @MockBean
     private KeystoneClient keystoneClient;
 
     @Before
     public void setUp(){
-        when(keystoneAuthWebFilter.filter(ArgumentMatchers.any(ServerWebExchange.class),
-                ArgumentMatchers.any(WebFilterChain.class))).then(invocationOnMock -> {
-                ServerWebExchange exchange = invocationOnMock.getArgument(0);
-                WebFilterChain chain = invocationOnMock.getArgument(1);
-                return chain.filter(exchange);
-        });
     }
 
     @Test

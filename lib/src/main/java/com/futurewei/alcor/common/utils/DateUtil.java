@@ -22,6 +22,9 @@ import java.util.Date;
 
 public class DateUtil {
 
+    public static final String KEYSTONE_TOKEN_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final SimpleDateFormat KEYSTONE_DATE_FORMAT = new SimpleDateFormat(KEYSTONE_TOKEN_DATE_PATTERN);
+
     public static String localToUTC(String localTime, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         Date localDate= null;

@@ -166,7 +166,7 @@ public class ElasticIpController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(this.request.getParameterMap(), ElasticIp.class);
-        queryParams.put("project_id", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         List<ElasticIpInfo> eips = elasticipService.getElasticIps(projectId, queryParams);
 

@@ -34,14 +34,6 @@ public class KeystoneConfiguration {
     @Autowired
     private CacheFactory cacheFactory;
 
-    //@Bean
-    public KeystoneAuthWebFilter keystoneAuthWebFilter(){
-        if(!keystoneEnable){
-            return null;
-        }
-        return new KeystoneAuthWebFilter();
-    }
-
     @Bean
     public KeystoneAuthGwFilter keystoneAuthGwFilter(){
         if(!keystoneEnable){

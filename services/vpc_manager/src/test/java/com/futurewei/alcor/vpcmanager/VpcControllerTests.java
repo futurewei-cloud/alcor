@@ -183,7 +183,7 @@ public class VpcControllerTests {
     @Test
     public void getVpcStatesByProjectId_getEmptyMap_pass () throws Exception {
         Map<String, VpcEntity> vpcStates = new HashMap<>();
-        Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
+        Mockito.when(vpcDatabaseService.getAllVpcs(any())).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }
