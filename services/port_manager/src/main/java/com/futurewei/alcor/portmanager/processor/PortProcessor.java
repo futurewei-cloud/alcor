@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
+import com.futurewei.alcor.web.entity.port.BindingProfile;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.ArrayList;
@@ -66,8 +67,8 @@ public class PortProcessor extends AbstractProcessor {
     }
 
     private void updateBindingProfile(PortEntity newPortEntity, PortEntity oldPortEntity) {
-        String newBindingProfile = newPortEntity.getBindingProfile();
-        String oldBindingProfile = oldPortEntity.getBindingProfile();
+        BindingProfile newBindingProfile = newPortEntity.getBindingProfile();
+        BindingProfile oldBindingProfile = oldPortEntity.getBindingProfile();
 
         if (newBindingProfile != null && !newBindingProfile.equals(oldBindingProfile)) {
             oldPortEntity.setBindingProfile(newBindingProfile);
