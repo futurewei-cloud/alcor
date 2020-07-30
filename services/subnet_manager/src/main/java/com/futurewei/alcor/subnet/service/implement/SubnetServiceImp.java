@@ -4,12 +4,16 @@ package com.futurewei.alcor.subnet.service.implement;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
+import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
 import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -27,6 +31,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -311,6 +316,33 @@ public class SubnetServiceImp implements SubnetService {
         String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
         restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
 
+    }
+
+    @Override
+    public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr {
+
+        // get vpc and check with vpc cidr
+        VpcWebJson vpcWebJson = verifyVpcId(projectId, vpcId);
+        String vpcCidr = vpcWebJson.getNetwork().getCidr();
+
+        if (!SubnetManagementUtil.IsCidrWithin(cidr, vpcCidr)) {
+            throw new CidrNotWithinNetworkCidr();
+        }
+
+        // get subnet list and check with subnets cidr
+        List<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
+        for (String subnetId : subnetIds) {
+            SubnetEntity subnet = this.subnetDatabaseService.getBySubnetId(subnetId);
+            if (subnet == null) {
+                continue;
+            }
+            String subnetCidr = subnet.getCidr();
+            if (SubnetManagementUtil.IsCidrOverlap(cidr, subnetCidr)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
