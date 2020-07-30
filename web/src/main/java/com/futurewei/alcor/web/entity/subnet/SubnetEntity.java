@@ -135,12 +135,16 @@ public class SubnetEntity extends CustomerResource {
     private String updated_at;
 
     public SubnetEntity() {
+        this.cidr = "";
     }
 
     public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr) {
         super(projectId, id, name, null);
         this.vpcId = vpcId;
         this.cidr = cidr;
+        if (this.cidr == null) {
+            this.cidr = "";
+        }
     }
 
     public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr, List<RouteEntity> routeEntities) {
@@ -148,6 +152,9 @@ public class SubnetEntity extends CustomerResource {
         this.vpcId = vpcId;
         this.cidr = cidr;
         this.routeEntities = routeEntities;
+        if (this.cidr == null) {
+            this.cidr = "";
+        }
     }
 
     public SubnetEntity(String projectId, String id, String name, String description, String vpcId,
@@ -195,6 +202,9 @@ public class SubnetEntity extends CustomerResource {
         this.serviceTypes = serviceTypes;
         this.created_at = created_at;
         this.updated_at = updated_at;
+        if (this.cidr == null) {
+            this.cidr = "";
+        }
     }
 
     public SubnetEntity(SubnetEntity subnetEntity) {
@@ -207,6 +217,9 @@ public class SubnetEntity extends CustomerResource {
                 subnetEntity.getNotTags(), subnetEntity.getNotTagsAny(), subnetEntity.getFields(), subnetEntity.getDnsNameservers(), subnetEntity.getAllocationPools(),
                 subnetEntity.getHostRoutes(), subnetEntity.getPrefixlen(), subnetEntity.useDefaultSubnetpool, subnetEntity.getServiceTypes(), subnetEntity.getCreated_at(),
                 subnetEntity.getUpdated_at());
+        if (this.cidr == null) {
+            this.cidr = "";
+        }
     }
 
     public String getVpcId() {
