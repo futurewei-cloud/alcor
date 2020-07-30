@@ -126,7 +126,7 @@ public class SecurityGroupController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        queryParams.put("projectId", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         return securityGroupService.listSecurityGroup(queryParams);
     }

@@ -41,6 +41,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -397,21 +398,23 @@ public class KeystoneClientTest {
 
     @Test
     public void verifyTokenTest(){
-        String projectId = keystoneClient.verifyToken(TEST_TOKEN);
-        assertEquals(TEST_PROJECT_ID, projectId);
+        Optional<TokenEntity> tokenEntityOptional = keystoneClient.verifyToken(TEST_TOKEN);
+        assertTrue(tokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, tokenEntityOptional.get().getProjectId());
 
-        String emptyProjectId = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
-        assertEquals("", emptyProjectId);
+        Optional<TokenEntity> emptyTokenEntityOptional = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
+        assertTrue(emptyTokenEntityOptional.isEmpty());
 
-        String empty2ProjectId = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
-        assertEquals("", empty2ProjectId);
+        Optional<TokenEntity> empty2TokenEntityOptional = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
+        assertTrue(empty2TokenEntityOptional.isEmpty());
 
-        String noCacheProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals(TEST_PROJECT_ID, noCacheProjectId);
+        Optional<TokenEntity> noCacheTokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(noCacheTokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, noCacheTokenEntityOptional.get().getProjectId());
 
         ReflectionTestUtils.setField(keystoneClient, "localToken", TEST_INVALID_LOCAL_TOKEN);
-        String empty3ProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals("", empty3ProjectId);
+        Optional<TokenEntity> empty3TokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(empty3TokenEntityOptional.isEmpty());
     }
 
 }
