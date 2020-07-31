@@ -111,7 +111,7 @@ public class SecurityGroupRuleController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        queryParams.put("projectId", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         return securityGroupRuleService.listSecurityGroupRule(queryParams);
     }

@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
 import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -148,6 +149,9 @@ public class SubnetController {
 
             RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetEntity, projectId);
+
+            // check if cidr overlap
+            this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
@@ -397,7 +401,7 @@ public class SubnetController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
-        queryParams.put("projectId", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         Map<String, SubnetEntity> subnetStates = null;
 

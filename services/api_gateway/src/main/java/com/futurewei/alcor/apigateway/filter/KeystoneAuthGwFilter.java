@@ -16,7 +16,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
+import com.futurewei.alcor.common.entity.TokenEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,10 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
+
+import static com.futurewei.alcor.common.utils.ControllerUtil.TOKEN_INFO_HEADER;
 
 public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
 
@@ -54,21 +61,27 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
-        String projectId = keystoneClient.verifyToken(token);
-        if("".equals(projectId)){
+        Optional<TokenEntity> tokenEntityOptional = keystoneClient.verifyToken(token);
+        if(tokenEntityOptional.isEmpty()){
             LOG.warn("parsed token {} project id failed", token);
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
+
+        TokenEntity tokenEntity = tokenEntityOptional.get();
+        String projectId = tokenEntity.getProjectId();
         LOG.debug("parsed token {} project id success, project id:[{}]", token, projectId);
+
         // rewrite uri path include project id
         ServerHttpRequest req = exchange.getRequest();
         ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
         String path = req.getURI().getRawPath();
         path = path.replaceAll(neutronUrlPrefix, "/project/" + projectId);
         path = path.replaceAll(VPC_REPLACE_NAME, VPC_NAME);
-        ServerHttpRequest request = req.mutate().path(path).build();
+
+        ServerHttpRequest request = req.mutate().path(path).header(TOKEN_INFO_HEADER, tokenEntity.toJson()).build();
         exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
+
         // if log trace enable print the response info
         if(LOG.isTraceEnabled()){
             return chain.filter(exchange.mutate().request(request).build()).then(

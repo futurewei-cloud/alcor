@@ -16,20 +16,23 @@
  * /
  */
 
-package com.futurewei.alcor.apigateway.vpc;
+package com.futurewei.alcor.common.utils;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
-@Deprecated
-@Data
-//@ConfigurationProperties(prefix = "vpc.destinations")
-public class VpcWebDestinations {
+public class JsonUtil {
 
-    @Value("${microservices.vpc.service.url}")
-    @NotNull
-    private String vpcManagerServiceUrl;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static <T> T readValue(String jsonStr, Class<T> tClass) throws IOException {
+        return OBJECT_MAPPER.readValue(jsonStr, tClass);
+    }
+
+    public static String writeValueAsString(Object obj) throws JsonProcessingException {
+        return OBJECT_MAPPER.writeValueAsString(obj);
+    }
+
 }
