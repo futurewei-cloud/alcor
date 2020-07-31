@@ -37,7 +37,7 @@ public class SubnetEntity extends CustomerResource {
     private String availabilityZone;
 
     @JsonProperty("gateway_ip")
-    private String gatewayIp;
+    private String gatewayIp = "";
 
     @JsonProperty("enable_dhcp")
     private Boolean dhcpEnable;
