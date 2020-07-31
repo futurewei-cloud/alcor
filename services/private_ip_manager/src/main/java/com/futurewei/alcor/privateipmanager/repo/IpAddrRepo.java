@@ -30,7 +30,6 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
-@ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
 public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrRepo.class);

@@ -21,6 +21,7 @@ package com.futurewei.alcor.web.json;
 import com.futurewei.alcor.web.json.handler.JsonReturnFieldFilterHandler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -36,6 +37,7 @@ import java.util.List;
  *
  */
 @Configuration
+@ComponentScan(value="com.futurewei.alcor.web.json")
 public class JsonHandlerConfiguration implements InitializingBean {
 
     @Autowired

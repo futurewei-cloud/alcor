@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     private static final Logger logger = LoggerFactory.getLogger(MacStateRepository.class);
     private ICache<String, MacState> cache;

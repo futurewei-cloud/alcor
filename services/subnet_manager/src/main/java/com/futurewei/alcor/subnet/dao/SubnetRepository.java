@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class SubnetRepository implements ICacheRepository<SubnetEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger();

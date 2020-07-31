@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());

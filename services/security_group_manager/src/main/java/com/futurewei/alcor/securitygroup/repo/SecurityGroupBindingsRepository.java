@@ -32,7 +32,6 @@ import javax.annotation.PostConstruct;
 import java.util.HashSet;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class SecurityGroupBindingsRepository {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupBindingsRepository.class);
 
