@@ -110,7 +110,13 @@ public class IpAddrRange {
         Map<String, IpAddrAlloc> ipAddrAllocMap = new HashMap<>();
 
         for (String ip: ips) {
-            String ipAddr = allocator.allocate(ip);
+            String ipAddr;
+            try {
+                ipAddr = allocator.allocate(ip);
+            } catch (Exception e) {
+                break;
+            }
+
             IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id,
                     ipAddr, IpAddrState.ACTIVATED.getState());
 
@@ -118,9 +124,10 @@ public class IpAddrRange {
             ipAddrAllocMap.put(ipAddr, ipAddrAlloc);
         }
 
-        ipAddrCache.putAll(ipAddrAllocMap);
-
-        updateUsedIps(ipAddrCache);
+        if (ipAddrAllocMap.size() > 0) {
+            ipAddrCache.putAll(ipAddrAllocMap);
+            updateUsedIps(ipAddrCache);
+        }
 
         return ipAddrAllocList;
     }

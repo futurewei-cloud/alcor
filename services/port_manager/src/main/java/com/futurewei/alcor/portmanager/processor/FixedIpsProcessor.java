@@ -59,32 +59,60 @@ public class FixedIpsProcessor extends AbstractProcessor {
     }
 
     private void allocateFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
-        IRestRequest allocateIpAddressRequest = new AllocateIpAddressRequest(context, ipAddresses);
+        AllocateIpAddressRequest allocateIpAddressRequest = new AllocateIpAddressRequest(context, ipAddresses);
         allocateIpAddressRequest.send();
+
+        List<IpAddrRequest> result = allocateIpAddressRequest.getResult();
+        Iterator<IpAddrRequest> iterator = result.iterator();
+
+        List<String> filterIps = context.getHasSubnetFixedIps().stream()
+                .filter(f -> f.getIpAddress() != null)
+                .map(PortEntity.FixedIp::getIpAddress)
+                .collect(Collectors.toList());
+
+        while (iterator.hasNext()) {
+            IpAddrRequest ipAddr = iterator.next();
+            if (filterIps.contains(ipAddr.getIp())) {
+                iterator.remove();
+                continue;
+            }
+
+            for (PortEntity.FixedIp fixedIp: context.getHasSubnetFixedIps()) {
+                if (fixedIp.getSubnetId().equals(ipAddr.getSubnetId())) {
+                    fixedIp.setIpAddress(ipAddr.getIp());
+                }
+            }
+        }
+
+        //Check if all fixedIps have been assigned ip address
+        for (PortEntity.FixedIp fixedIp: context.getHasSubnetFixedIps()) {
+            if (fixedIp.getIpAddress() == null) {
+                throw new AllocateIpAddrException();
+            }
+        }
     }
 
     private void releaseFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
-        IRestRequest releaseIpRequest = new ReleaseIpAddressRequest(context, ipAddresses);
-        releaseIpRequest.send();
+        ipAddresses.removeIf(s -> s.getIp() == null);
+
+        if (ipAddresses.size() > 0) {
+            IRestRequest releaseIpRequest = new ReleaseIpAddressRequest(context, ipAddresses);
+            releaseIpRequest.send();
+        }
     }
 
-    private void allocateOrReleaseIpAddresses(PortContext context, List<SubnetEntity> subnetEntities,
-                                              List<PortEntity> portEntities, IpAddrRequestFunction function) throws Exception {
-        if (function == null) {
-            return;
-        }
-
+    private void postFetchSubnet(PortContext context, List<SubnetEntity> subnetEntities,
+                                 List<PortEntity.FixedIp> fixedIps, IpAddrRequestFunction function) throws Exception {
         List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
-        for (SubnetEntity subnetEntity: subnetEntities){
-            for (PortEntity portEntity: portEntities) {
-                for (PortEntity.FixedIp fixedIp: portEntity.getFixedIps()) {
-                    if (subnetEntity.getId().equals(fixedIp.getSubnetId())) {
-                        IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                                IpVersion.IPV4.getVersion(), portEntity.getVpcId(),
-                                fixedIp.getSubnetId(), subnetEntity.getIpV4RangeId(),
-                                fixedIp.getIpAddress(), null);
-                        ipAddrRequests.add(ipAddrRequest);
-                    }
+        for (SubnetEntity subnetEntity: subnetEntities) {
+            for (PortEntity.FixedIp fixedIp: fixedIps) {
+                if (fixedIp.getSubnetId().equals(subnetEntity.getId())) {
+                    ipAddrRequests.add(new IpAddrRequest(IpVersion.IPV4.getVersion(),
+                            subnetEntity.getVpcId(),
+                            fixedIp.getSubnetId(),
+                            subnetEntity.getIpV4RangeId(),
+                            fixedIp.getIpAddress(),
+                            null));
                 }
             }
         }
@@ -96,11 +124,13 @@ public class FixedIpsProcessor extends AbstractProcessor {
         PortContext context = request.getContext();
         List<SubnetEntity> subnetEntities = ((FetchSubnetRequest) (request)).getSubnetEntities();
         boolean allocateIpAddress = ((FetchSubnetRequest) (request)).isAllocateIpAddress();
-        List<PortEntity> assignedIpPorts = request.getContext().getAssignedIpPorts();
-        IpAddrRequestFunction function = allocateIpAddress ? this::allocateFixedIpAddress: null;
+        List<PortEntity.FixedIp> fixedIps = request.getContext().getHasSubnetFixedIps();
 
         setSubnetEntities(context, subnetEntities);
-        allocateOrReleaseIpAddresses(context, subnetEntities, assignedIpPorts, function);
+
+        if (allocateIpAddress) {
+            postFetchSubnet(context, subnetEntities, fixedIps, this::allocateFixedIpAddress);
+        }
     }
 
     private void fetchSubnetForUpdateCallBack(IRestRequest request) throws Exception {
@@ -119,7 +149,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
             portEntity = request.getContext().getOldPortEntity();
         }
 
-        allocateOrReleaseIpAddresses(context, subnetEntities, Collections.singletonList(portEntity), function);
+        postFetchSubnet(context, subnetEntities, portEntity.getFixedIps(), function);
     }
 
     private void fetchSubnetForDeleteCallBack(IRestRequest request) throws Exception {
@@ -128,7 +158,12 @@ public class FixedIpsProcessor extends AbstractProcessor {
         PortContext context = request.getContext();
 
         setSubnetEntities(context, subnetEntities);
-        allocateOrReleaseIpAddresses(context, subnetEntities, portEntities, this::releaseFixedIpAddress);
+
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        portEntities.forEach(p -> {
+            fixedIps.addAll(p.getFixedIps());
+        });
+        postFetchSubnet(context, subnetEntities, fixedIps, this::releaseFixedIpAddress);
     }
 
     private void fetchSubnetRouteCallback(IRestRequest request) {
@@ -140,7 +175,11 @@ public class FixedIpsProcessor extends AbstractProcessor {
             for (SubnetRoute subnetRoute: subnetRoutes) {
                 List<PortEntity.FixedIp> fixedIps = internalPortEntity.getFixedIps();
                 if (fixedIpsContainSubnet(fixedIps, subnetRoute.getSubnetId())) {
-                    internalPortEntity.setRoutes(subnetRoute.getRouteEntities());
+                    if (internalPortEntity.getRoutes() == null) {
+                        internalPortEntity.setRoutes(new ArrayList<>());
+                    }
+
+                    internalPortEntity.getRoutes().addAll(subnetRoute.getRouteEntities());
                 }
             }
         }
@@ -162,12 +201,54 @@ public class FixedIpsProcessor extends AbstractProcessor {
         }
     }
 
-    private void allocateRandomIpAddresses(PortContext context, List<IpAddrRequest> randomIpAddresses) {
-        if (randomIpAddresses.size() > 0) {
+    private void getSubnetAndRoute(PortContext context, List<String> subnetIds) throws Exception {
+        //Get subnet route
+        IRestRequest fetchSubnetRouteRequest =
+                new FetchSubnetRouteRequest(context, new ArrayList<>(subnetIds));
+        fetchSubnetRouteRequest.send();
+        fetchSubnetRouteCallback(fetchSubnetRouteRequest);
+
+        //Get subnet
+        IRestRequest fetchSubnetRequest =
+                new FetchSubnetRequest(context, new ArrayList<>(subnetIds), false);
+        fetchSubnetRequest.send();
+        fetchSubnetForAddCallBack(fetchSubnetRequest);
+    }
+
+    private void allocateFixedIpCallback(IRestRequest request) throws Exception {
+        List<IpAddrRequest> ipAddresses = ((AllocateIpAddressRequest) (request)).getResult();
+        PortContext context = request.getContext();
+
+        Map<String, PortEntity.FixedIp> hasIpFixedIps = context.getHasIpFixedIps();
+        Iterator<IpAddrRequest> iterator = ipAddresses.iterator();
+
+        while (iterator.hasNext()) {
+            IpAddrRequest ipAddr = iterator.next();
+            PortEntity.FixedIp fixedIp = hasIpFixedIps.get(ipAddr.getIp());
+            if (fixedIp != null) {
+                fixedIp.setSubnetId(ipAddr.getSubnetId());
+            }
+        }
+
+        //Check if all ipFixedIps have get subnet id
+        for (PortEntity.FixedIp fixedIp: hasIpFixedIps.values()) {
+            if (fixedIp.getSubnetId() == null) {
+                throw new AllocateIpAddrException();
+            }
+        }
+
+        Set<String> subnetIds = hasIpFixedIps.values().stream()
+                .map(PortEntity.FixedIp::getSubnetId)
+                .collect(Collectors.toSet());
+
+        getSubnetAndRoute(context, new ArrayList<>(subnetIds));
+    }
+
+    private void allocateIpAddresses(PortContext context, List<IpAddrRequest> ipAddresses, CallbackFunction callback) {
+        if (ipAddresses.size() > 0) {
             IRestRequest allocateRandomIpRequest =
-                    new AllocateIpAddressRequest(context, randomIpAddresses);
-            context.getRequestManager().sendRequestAsync(
-                    allocateRandomIpRequest, this::allocateRandomIpCallback);
+                    new AllocateIpAddressRequest(context, ipAddresses);
+            context.getRequestManager().sendRequestAsync(allocateRandomIpRequest, callback);
         }
     }
 
@@ -191,43 +272,47 @@ public class FixedIpsProcessor extends AbstractProcessor {
             subnetIds.add(fixedIp.getSubnetId());
         }
 
-        //Get subnet route
-        IRestRequest fetchSubnetRouteRequest =
-                new FetchSubnetRouteRequest(context, new ArrayList<>(subnetIds));
-        fetchSubnetRouteRequest.send();
-        fetchSubnetRouteCallback(fetchSubnetRouteRequest);
-
-        //Get subnet
-        IRestRequest fetchSubnetRequest =
-                new FetchSubnetRequest(context, new ArrayList<>(subnetIds), false);
-        fetchSubnetRequest.send();
-        fetchSubnetForAddCallBack(fetchSubnetRequest);
+        getSubnetAndRoute(context, new ArrayList<>(subnetIds));
     }
 
-    @Override
-    void createProcess(PortContext context) {
+    private void createFixedIps(PortContext context, List<PortEntity> portEntities, CallbackFunction fetchSubnetCallback) {
         Set<String> subnetIds = new HashSet<>();
-        List<PortEntity> assignedIpPorts = new ArrayList<>();
         List<PortEntity> noAssignedIpPorts = new ArrayList<>();
+        List<IpAddrRequest> fixedIpAddresses = new ArrayList<>();
         List<IpAddrRequest> randomIpAddresses = new ArrayList<>();
+        Map<String, PortEntity.FixedIp> hasIpFixedIps = new HashMap<>();
+        List<PortEntity.FixedIp> hasSubnetFixedIps = new ArrayList<>();
 
-        for (PortEntity portEntity: context.getPortEntities()){
+        for (PortEntity portEntity: portEntities){
             List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
             if (fixedIps != null) {
                 for (PortEntity.FixedIp fixedIp: fixedIps) {
-                    subnetIds.add(fixedIp.getSubnetId());
+                    if (fixedIp.getSubnetId() != null) {
+                        subnetIds.add(fixedIp.getSubnetId());
+                        hasSubnetFixedIps.add(fixedIp);
+                    } else {
+                        fixedIpAddresses.add(new IpAddrRequest(IpVersion.IPV4.getVersion(),
+                                portEntity.getVpcId(),
+                                null,
+                                null,
+                                fixedIp.getIpAddress()
+                        ,null));
+                        hasIpFixedIps.put(fixedIp.getIpAddress(), fixedIp);
+                    }
                 }
-                assignedIpPorts.add(portEntity);
             } else {
+                randomIpAddresses.add(new IpAddrRequest(IpVersion.IPV4.getVersion(),
+                        portEntity.getVpcId(),
+                        null,
+                        null,
+                        null,
+                        null));
                 noAssignedIpPorts.add(portEntity);
-                IpAddrRequest ipAddrRequest = new IpAddrRequest(
-                        IpVersion.IPV4.getVersion(), portEntity.getVpcId(),
-                        null, null, null, null);
-                randomIpAddresses.add(ipAddrRequest);
             }
         }
 
-        context.setAssignedIpPorts(assignedIpPorts);
+        context.setHasIpFixedIps(hasIpFixedIps);
+        context.setHasSubnetFixedIps(hasSubnetFixedIps);
         context.setUnassignedIpPorts(noAssignedIpPorts);
 
         //Get subnet
@@ -236,8 +321,16 @@ public class FixedIpsProcessor extends AbstractProcessor {
         //Get subnet route
         getSubnetRoutes(context, new ArrayList<>(subnetIds));
 
+        //Allocate fixed ip addresses
+        allocateIpAddresses(context, fixedIpAddresses, this::allocateFixedIpCallback);
+
         //Allocate random ip addresses
-        allocateRandomIpAddresses(context, randomIpAddresses);
+        allocateIpAddresses(context, randomIpAddresses, this::allocateRandomIpCallback);
+    }
+
+    @Override
+    void createProcess(PortContext context) {
+        createFixedIps(context, context.getPortEntities(), this::fetchSubnetForAddCallBack);
     }
 
     @Override
@@ -250,18 +343,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
         if (newFixedIps != null && !newFixedIps.equals(oldFixedIps)) {
             if (newFixedIps.size() > 0) {
-                Set<String> subnetIds = new HashSet<>();
-                Map<String, SubnetRoute> subnetRoutes = new HashMap<>();
-
-                for (PortEntity.FixedIp fixedIp: newFixedIps) {
-                    subnetIds.add(fixedIp.getSubnetId());
-                }
-
-                //Get subnet
-                getSubnetEntities(context, new ArrayList<>(subnetIds), true, this::fetchSubnetForUpdateCallBack);
-
-                //Get subnet route
-                getSubnetRoutes(context, new ArrayList<>(subnetIds));
+                createFixedIps(context, context.getPortEntities(), this::fetchSubnetForUpdateCallBack);
             }
 
             if (oldFixedIps.size() > 0) {

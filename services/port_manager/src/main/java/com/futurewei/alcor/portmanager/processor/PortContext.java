@@ -19,6 +19,7 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.List;
+import java.util.Map;
 
 public class PortContext {
     private PortConfigCache portConfigCache;
@@ -26,8 +27,9 @@ public class PortContext {
     private String projectId;
     private PortRepository portRepository;
     private RequestManager requestManager;
-    private List<PortEntity> assignedIpPorts;
     private List<PortEntity> unassignedIpPorts;
+    private Map<String, PortEntity.FixedIp> hasIpFixedIps;
+    private List<PortEntity.FixedIp> hasSubnetFixedIps;
     private List<PortEntity> unassignedMacPorts;
     private List<PortEntity> portEntities; //For add and delete
     private PortEntity oldPortEntity; //For update
@@ -93,20 +95,28 @@ public class PortContext {
         this.requestManager = requestManager;
     }
 
-    public List<PortEntity> getAssignedIpPorts() {
-        return assignedIpPorts;
-    }
-
-    public void setAssignedIpPorts(List<PortEntity> assignedIpPorts) {
-        this.assignedIpPorts = assignedIpPorts;
-    }
-
     public List<PortEntity> getUnassignedIpPorts() {
         return unassignedIpPorts;
     }
 
     public void setUnassignedIpPorts(List<PortEntity> unassignedIpPorts) {
         this.unassignedIpPorts = unassignedIpPorts;
+    }
+
+    public Map<String, PortEntity.FixedIp> getHasIpFixedIps() {
+        return hasIpFixedIps;
+    }
+
+    public void setHasIpFixedIps(Map<String, PortEntity.FixedIp> hasIpFixedIps) {
+        this.hasIpFixedIps = hasIpFixedIps;
+    }
+
+    public List<PortEntity.FixedIp> getHasSubnetFixedIps() {
+        return hasSubnetFixedIps;
+    }
+
+    public void setHasSubnetFixedIps(List<PortEntity.FixedIp> hasSubnetFixedIps) {
+        this.hasSubnetFixedIps = hasSubnetFixedIps;
     }
 
     public List<PortEntity> getUnassignedMacPorts() {
