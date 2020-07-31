@@ -2,7 +2,9 @@ package com.futurewei.alcor.web.entity.port;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LocalLinkInformation {
+import java.io.Serializable;
+
+public class LocalLinkInformation implements Serializable {
     @JsonProperty("port_id")
     private  String port_id;
     @JsonProperty("switch_id")

@@ -18,10 +18,11 @@ package com.futurewei.alcor.web.entity.port;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class ResourceRequest {
+public class ResourceRequest implements Serializable {
     @JsonProperty("required")
     private List<String> required;
 
