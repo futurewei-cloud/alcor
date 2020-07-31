@@ -53,20 +53,17 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
+
     @DurationStatistics
-    public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacAddressInvalidException {
+    public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
 
         MacState macState = null;
         MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
         MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
 
-        try {
-            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
-            macState = service.getMacStateByMacAddress(macaddress);
-        } catch (ParameterNullOrEmptyException | MacRepositoryTransactionErrorException | MacAddressInvalidException e) {
-            throw e;
-        }
+        MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+        MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
+        macState = service.getMacStateByMacAddress(macaddress);
 
         return new MacStateJson(macState);
     }

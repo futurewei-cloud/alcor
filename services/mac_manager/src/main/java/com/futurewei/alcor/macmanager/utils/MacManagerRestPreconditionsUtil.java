@@ -25,6 +25,8 @@ import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import org.thymeleaf.util.StringUtils;
 
+import javax.crypto.Mac;
+
 public class MacManagerRestPreconditionsUtil {
     public static void verifyParameterNotNullorEmpty(String resourceId) throws ParameterNullOrEmptyException {
         if (StringUtils.isEmpty(resourceId)) {
@@ -34,7 +36,7 @@ public class MacManagerRestPreconditionsUtil {
 
     public static void verifyParameterNotNullorEmpty(MacState resource) throws ParameterNullOrEmptyException {
         if (resource == null) {
-            throw new ParameterNullOrEmptyException("null parameter");
+            throw new ParameterNullOrEmptyException("mac params is null");
         }
     }
 
@@ -58,21 +60,20 @@ public class MacManagerRestPreconditionsUtil {
         String state = macState.getState();
 
         if (projectId == null || vpcId == null || portId == null)
-            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_NULL);
+            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_REQUIRE_PARAMS_NULL);
 
         projectId = projectId.trim();
         vpcId = vpcId.trim();
         portId = portId.trim();
 
         if (projectId.length() == 0 || vpcId.length() == 0 || portId.length() == 0)
-            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_EMPTY);
+            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_REQUIRE_PARAMS_EMPTY);
 
         if (!StringUtils.isEmpty(state)) {
             state = state.trim();
             if (!state.equals(MacManagerConstant.MAC_STATE_ACTIVE) && !state.equals(MacManagerConstant.MAC_STATE_INACTIVE))
-                throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_DATA);
+                throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_STATE_INVALID);
         }
-
     }
 
     public static void verifyMacRangeData(MacRange macRange) throws MacRangeInvalidException {
