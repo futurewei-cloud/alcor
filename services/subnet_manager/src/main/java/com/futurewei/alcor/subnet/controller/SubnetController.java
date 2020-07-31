@@ -133,6 +133,12 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
+            // hard code : set gateway_ip = "" if its value is null
+            String gateway_Ip = resource.getSubnet().getGatewayIp();
+            if (gateway_Ip == null) {
+                resource.getSubnet().setGatewayIp("");
+            }
+
             // TODO: Create a verification framework for all resources
             SubnetWebRequestObject subnetWebRequestObject = resource.getSubnet();
             BeanUtils.copyProperties(subnetWebRequestObject, inSubnetEntity);
