@@ -208,9 +208,14 @@ public class SubnetManagementUtil {
     }
 
     public static boolean IsCidrWithin (String cidr1, String cidr2) {
-        if (cidr1 == null || cidr2 == null || cidr1.length() == 0 || cidr2.length() == 0) {
+        if (cidr2 == null || cidr2.length() == 0) {
+            return false;
+        }
+
+        if (cidr1 == null || cidr1.length() == 0) {
             return true;
         }
+
         String[] ips1 = subnetService.cidrToFirstIpAndLastIp(cidr1);
         long firstIp1Num = getIpNum(ips1[0]);
         long lastIp1Num = getIpNum(ips1[1]);

@@ -7,6 +7,7 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
+import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
@@ -56,5 +57,5 @@ public interface SubnetService {
     public void addSubnetIdToVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
     // check if cidr overlap
-    public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr;
+    public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
 }

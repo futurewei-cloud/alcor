@@ -10,6 +10,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
+import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
 import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -319,15 +320,18 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr {
+    public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
 
         // get vpc and check with vpc cidr
         VpcWebJson vpcWebJson = verifyVpcId(projectId, vpcId);
         String vpcCidr = vpcWebJson.getNetwork().getCidr();
 
-        if (!SubnetManagementUtil.IsCidrWithin(cidr, vpcCidr)) {
-            throw new CidrNotWithinNetworkCidr();
+        if (!(vpcCidr == null || vpcCidr.length() == 0)) {
+            if (!SubnetManagementUtil.IsCidrWithin(cidr, vpcCidr)) {
+                throw new CidrNotWithinNetworkCidr();
+            }
         }
+
 
         // get subnet list and check with subnets cidr
         List<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
@@ -338,7 +342,7 @@ public class SubnetServiceImp implements SubnetService {
             }
             String subnetCidr = subnet.getCidr();
             if (SubnetManagementUtil.IsCidrOverlap(cidr, subnetCidr)) {
-                return true;
+                throw new CidrOverlapWithOtherSubnets();
             }
         }
 
