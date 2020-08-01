@@ -27,9 +27,10 @@ message RouterConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string id = 3;
-    string host_dvr_mac_address = 4;
-    repeated string subnet_ids = 5;
+    string request_id = 3;
+    string id = 4;
+    string host_dvr_mac_address = 5;
+    repeated string subnet_ids = 6;
 }
 
 message RouterState {

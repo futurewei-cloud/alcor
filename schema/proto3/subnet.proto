@@ -27,26 +27,27 @@ message SubnetConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string id = 3;
-    NetworkType network_type = 4;
-    string project_id = 5;
-    string vpc_id = 6;
-    string name = 7;
-    string cidr = 8;
+    string request_id = 3;
+    string id = 4;
+    NetworkType network_type = 5;
+    string project_id = 6;
+    string vpc_id = 7;
+    string name = 8;
+    string cidr = 9;
 
     // TODO: change to uint32 but that would require change in DPM
-    uint64 tunnel_id = 9;
+    uint64 tunnel_id = 10;
 
     message Gateway {
         string ip_address = 3;
         string mac_address = 4;
     }
 
-    Gateway gateway = 10;
-    bool dhcp_enable = 11;
-    string availability_zone = 12;
-    string primary_dns = 13;
-    string secondary_dns = 14;
+    Gateway gateway = 11;
+    bool dhcp_enable = 12;
+    string availability_zone = 13;
+    string primary_dns = 14;
+    string secondary_dns = 15;
 }
 
 message SubnetState {
