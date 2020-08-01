@@ -171,4 +171,22 @@ public class GSController {
     resultAll.setOverrallTime(done - start);
     return resultAll;
   }
+
+  public Config getConfig() {
+    return config;
+  }
+
+  public void setConfig(Config config) {
+    this.config = config;
+  }
+
+  public GoalStateManager getGoalStateManager() {
+    return goalStateManager;
+  }
+
+  public void setGoalStateManager(GoalStateManager goalStateManager) {
+    this.goalStateManager = goalStateManager;
+  }
+
+
 }

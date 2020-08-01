@@ -59,7 +59,7 @@ public class IgniteClientDistributedLock implements IDistributedLock {
     @Override
     public void lock(String lockKey) throws DistributedLockException {
         boolean locked = false;
-        String lockKeyWithPrefix = this.name + " lock:" + lockKey;
+        String lockKeyWithPrefix = getRealKey(lockKey);
 
         try {
             while (!locked) {
@@ -75,8 +75,19 @@ public class IgniteClientDistributedLock implements IDistributedLock {
     }
 
     @Override
+    public Boolean tryLock(String lockKey){
+        String lockKeyWithPrefix = getRealKey(lockKey);
+        try {
+            return cache.putIfAbsent(lockKeyWithPrefix, "lock");
+        }catch (Exception e) {
+            logger.log(Level.WARNING, "Ignite lock error:" + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public void unlock(String lockKey) throws DistributedLockException {
-        String lockKeyWithPrefix = this.name + "lock:" + lockKey;
+        String lockKeyWithPrefix = getRealKey(lockKey);
 
         try {
             cache.remove(lockKeyWithPrefix);
@@ -86,4 +97,8 @@ public class IgniteClientDistributedLock implements IDistributedLock {
         }
     }
 
+    @Override
+    public String getLockPrefix() {
+        return this.name;
+    }
 }

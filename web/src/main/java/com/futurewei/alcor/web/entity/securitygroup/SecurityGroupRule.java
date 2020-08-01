@@ -41,7 +41,7 @@ public class SecurityGroupRule extends CustomerResource {
     @JsonProperty("port_range_min")
     private Integer portRangeMin;
 
-    @JsonProperty("ether_type")
+    @JsonProperty("ethertype")
     private String etherType;
 
     public static enum EtherType {
@@ -198,17 +198,17 @@ public class SecurityGroupRule extends CustomerResource {
         this.etherType = etherType;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityGroupRuleJson{" +
-                "securityGroupId='" + securityGroupId + '\'' +
-                ", remoteGroupId='" + remoteGroupId + '\'' +
-                ", direction='" + direction + '\'' +
-                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
-                ", protocol='" + protocol + '\'' +
-                ", portRangeMax=" + portRangeMax +
-                ", portRangeMin=" + portRangeMin +
-                ", etherType='" + etherType + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "SecurityGroupRuleJson{" +
+//                "securityGroupId='" + securityGroupId + '\'' +
+//                ", remoteGroupId='" + remoteGroupId + '\'' +
+//                ", direction='" + direction + '\'' +
+//                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
+//                ", protocol='" + protocol + '\'' +
+//                ", portRangeMax=" + portRangeMax +
+//                ", portRangeMin=" + portRangeMin +
+//                ", etherType='" + etherType + '\'' +
+//                '}';
+//    }
 }

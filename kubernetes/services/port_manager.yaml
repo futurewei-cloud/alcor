@@ -14,6 +14,7 @@ data:
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
     microservices.dataplane.service.url=http://dpmmanager-service.default.svc.cluster.local:9010/v4/port/
+    microservices.elasticip.service.url=http://elasticip-service.default.svc.cluster.local:9011
 ---
 apiVersion: apps/v1
 kind: Deployment

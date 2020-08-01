@@ -37,7 +37,7 @@ public class SubnetEntity extends CustomerResource {
     private String availabilityZone;
 
     @JsonProperty("gateway_ip")
-    private String gatewayIp;
+    private String gatewayIp = "";
 
     @JsonProperty("enable_dhcp")
     private Boolean dhcpEnable;
@@ -207,5 +207,285 @@ public class SubnetEntity extends CustomerResource {
                 subnetEntity.getNotTags(), subnetEntity.getNotTagsAny(), subnetEntity.getFields(), subnetEntity.getDnsNameservers(), subnetEntity.getAllocationPools(),
                 subnetEntity.getHostRoutes(), subnetEntity.getPrefixlen(), subnetEntity.useDefaultSubnetpool, subnetEntity.getServiceTypes(), subnetEntity.getCreated_at(),
                 subnetEntity.getUpdated_at());
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
+    }
+
+    public String getCidr() {
+        return cidr;
+    }
+
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
+    }
+
+    public String getAvailabilityZone() {
+        return availabilityZone;
+    }
+
+    public void setAvailabilityZone(String availabilityZone) {
+        this.availabilityZone = availabilityZone;
+    }
+
+    public String getGatewayIp() {
+        return gatewayIp;
+    }
+
+    public void setGatewayIp(String gatewayIp) {
+        this.gatewayIp = gatewayIp;
+    }
+
+    public Boolean getDhcpEnable() {
+        return dhcpEnable;
+    }
+
+    public void setDhcpEnable(Boolean dhcpEnable) {
+        this.dhcpEnable = dhcpEnable;
+    }
+
+    public String getPrimaryDns() {
+        return primaryDns;
+    }
+
+    public void setPrimaryDns(String primaryDns) {
+        this.primaryDns = primaryDns;
+    }
+
+    public String getSecondaryDns() {
+        return secondaryDns;
+    }
+
+    public void setSecondaryDns(String secondaryDns) {
+        this.secondaryDns = secondaryDns;
+    }
+
+    public List<RouteEntity> getRouteEntities() {
+        return routeEntities;
+    }
+
+    public void setRouteEntities(List<RouteEntity> routeEntities) {
+        this.routeEntities = routeEntities;
+    }
+
+    public String getGatewayMacAddress() {
+        return gatewayMacAddress;
+    }
+
+    public void setGatewayMacAddress(String gatewayMacAddress) {
+        this.gatewayMacAddress = gatewayMacAddress;
+    }
+
+    public List<String> getDnsList() {
+        return dnsList;
+    }
+
+    public void setDnsList(List<String> dnsList) {
+        this.dnsList = dnsList;
+    }
+
+    public Integer getIpVersion() {
+        return ipVersion;
+    }
+
+    public void setIpVersion(Integer ipVersion) {
+        this.ipVersion = ipVersion;
+    }
+
+    public String getIpV4RangeId() {
+        return ipV4RangeId;
+    }
+
+    public void setIpV4RangeId(String ipV4RangeId) {
+        this.ipV4RangeId = ipV4RangeId;
+    }
+
+    public String getIpV6RangeId() {
+        return ipV6RangeId;
+    }
+
+    public void setIpV6RangeId(String ipV6RangeId) {
+        this.ipV6RangeId = ipV6RangeId;
+    }
+
+    public String getIpv6AddressMode() {
+        return ipv6AddressMode;
+    }
+
+    public void setIpv6AddressMode(String ipv6AddressMode) {
+        this.ipv6AddressMode = ipv6AddressMode;
+    }
+
+    public String getIpv6RaMode() {
+        return ipv6RaMode;
+    }
+
+    public void setIpv6RaMode(String ipv6RaMode) {
+        this.ipv6RaMode = ipv6RaMode;
+    }
+
+    public Integer getRevisionNumber() {
+        return revisionNumber;
+    }
+
+    public void setRevisionNumber(Integer revisionNumber) {
+        this.revisionNumber = revisionNumber;
+    }
+
+    public String getSegmentId() {
+        return segmentId;
+    }
+
+    public void setSegmentId(String segmentId) {
+        this.segmentId = segmentId;
+    }
+
+    public Boolean getShared() {
+        return shared;
+    }
+
+    public void setShared(Boolean shared) {
+        this.shared = shared;
+    }
+
+    public String getSortDir() {
+        return sortDir;
+    }
+
+    public void setSortDir(String sortDir) {
+        this.sortDir = sortDir;
+    }
+
+    public String getSortKey() {
+        return sortKey;
+    }
+
+    public void setSortKey(String sortKey) {
+        this.sortKey = sortKey;
+    }
+
+    public String getSubnetpoolId() {
+        return subnetpoolId;
+    }
+
+    public void setSubnetpoolId(String subnetpoolId) {
+        this.subnetpoolId = subnetpoolId;
+    }
+
+    public boolean isDnsPublishFixedIp() {
+        return dnsPublishFixedIp;
+    }
+
+    public void setDnsPublishFixedIp(boolean dnsPublishFixedIp) {
+        this.dnsPublishFixedIp = dnsPublishFixedIp;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getTagsAny() {
+        return tagsAny;
+    }
+
+    public void setTagsAny(String tagsAny) {
+        this.tagsAny = tagsAny;
+    }
+
+    public String getNotTags() {
+        return notTags;
+    }
+
+    public void setNotTags(String notTags) {
+        this.notTags = notTags;
+    }
+
+    public String getNotTagsAny() {
+        return notTagsAny;
+    }
+
+    public void setNotTagsAny(String notTagsAny) {
+        this.notTagsAny = notTagsAny;
+    }
+
+    public String getFields() {
+        return fields;
+    }
+
+    public void setFields(String fields) {
+        this.fields = fields;
+    }
+
+    public List<String> getDnsNameservers() {
+        return dnsNameservers;
+    }
+
+    public void setDnsNameservers(List<String> dnsNameservers) {
+        this.dnsNameservers = dnsNameservers;
+    }
+
+    public List<AllocationPool> getAllocationPools() {
+        return allocationPools;
+    }
+
+    public void setAllocationPools(List<AllocationPool> allocationPools) {
+        this.allocationPools = allocationPools;
+    }
+
+    public List<HostRoute> getHostRoutes() {
+        return hostRoutes;
+    }
+
+    public void setHostRoutes(List<HostRoute> hostRoutes) {
+        this.hostRoutes = hostRoutes;
+    }
+
+    public Integer getPrefixlen() {
+        return prefixlen;
+    }
+
+    public void setPrefixlen(Integer prefixlen) {
+        this.prefixlen = prefixlen;
+    }
+
+    public boolean isUseDefaultSubnetpool() {
+        return useDefaultSubnetpool;
+    }
+
+    public void setUseDefaultSubnetpool(boolean useDefaultSubnetpool) {
+        this.useDefaultSubnetpool = useDefaultSubnetpool;
+    }
+
+    public List<String> getServiceTypes() {
+        return serviceTypes;
+    }
+
+    public void setServiceTypes(List<String> serviceTypes) {
+        this.serviceTypes = serviceTypes;
+    }
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
     }
 }

@@ -16,6 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.config;
 
 public class UnitTestConfig {
+    public static String nodeId = "9192a4d4-ffff-4ece-b3f0-8d36e3d85002";
+    public static String nodeName = "node2";
+    public static String nodeLocalIp = "10.213.43.161";
+    public static String nodeMacAddress = "90:17:ac:c1:34:64";
+    public static String nodeVeth = "eth0";
+    public static int nodeGRPCServerPort = 0;
+
     public static String portId1 = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String portId2 = "3d53801c-32ce-4e97-9572-bb966f4625ba";
     public static String portName1 = "portName1";
@@ -74,6 +81,9 @@ public class UnitTestConfig {
     public static String etherType = "IPv4";
     public static String routeDestination = "192.168.1.0/24";
     public static String routeTarget = "Local";
+    public static String elasticIpId1 = "3d53801c-32ce-4e97-9572-bb966f4dc123";
+    public static String elasticIpName1 = "elastic ip1";
+    public static String elasticIpAddress1 = "200.10.1.10";
     public static String portEntityWithFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId1 + "\",\n" +
@@ -404,5 +414,17 @@ public class UnitTestConfig {
             "        \"security_groups\": [\""+ securityGroupId1 +"\"],\n" +
             "        \"allowed_address_pairs\":[{\"ip_address\":\"" + ip2 + "\", \"mac_address\":\"" + mac2 + "\"}]\n" +
             "    }]\n" +
+            "}";
+    public static String updateElasticIp = "{\n" +
+            "    \"elasticip\": {\n" +
+            "        \"id\":\"" + elasticIpId1 + "\",\n" +
+            "        \"name\":\"" + elasticIpName1 + "\",\n" +
+            "        \"tenant_id\":\"" + tenantId + "\",\n" +
+            "        \"elastic_ip_version\":\"" + 4 + "\",\n" +
+            "        \"elastic_ip_address\":\"" + elasticIpAddress1 + "\",\n" +
+            "        \"port_id\":\"" + "\",\n" +
+            "        \"dns_domain\":\"" + "\",\n" +
+            "        \"dns_name\":\"" + "\"\n" +
+            "    }\n" +
             "}";
 }

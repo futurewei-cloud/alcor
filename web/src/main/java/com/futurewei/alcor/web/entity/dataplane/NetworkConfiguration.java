@@ -71,4 +71,52 @@ public class NetworkConfiguration {
 
     this.securityGroups.add(securityGroup);
   }
+
+  public ResourceType getRsType() {
+    return rsType;
+  }
+
+  public void setRsType(ResourceType rsType) {
+    this.rsType = rsType;
+  }
+
+  public OperationType getOpType() {
+    return opType;
+  }
+
+  public void setOpType(OperationType opType) {
+    this.opType = opType;
+  }
+
+  public List<InternalPortEntity> getPortEntities() {
+    return portEntities;
+  }
+
+  public void setPortEntities(List<InternalPortEntity> portEntities) {
+    this.portEntities = portEntities;
+  }
+
+  public List<VpcEntity> getVpcs() {
+    return vpcs;
+  }
+
+  public void setVpcs(List<VpcEntity> vpcs) {
+    this.vpcs = vpcs;
+  }
+
+  public List<InternalSubnetEntity> getSubnets() {
+    return subnets;
+  }
+
+  public void setSubnets(List<InternalSubnetEntity> subnets) {
+    this.subnets = subnets;
+  }
+
+  public List<SecurityGroup> getSecurityGroups() {
+    return securityGroups;
+  }
+
+  public void setSecurityGroups(List<SecurityGroup> securityGroups) {
+    this.securityGroups = securityGroups;
+  }
 }

@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,10 @@ public class PortController {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Value("${alcor.vif_type}")
+    private String vifType;
+
     /**
      * Create a port, and call the interfaces of each micro-service according to the
      * configuration of the port to create various required resources for the port.
@@ -65,6 +70,10 @@ public class PortController {
         }
 
         checkPort(portEntity);
+
+        if(portEntity.getBindingVifType() == null){
+            portEntity.setBindingVifType(vifType);
+        }
 
         return portService.createPort(projectId, portWebJson);
     }
@@ -176,7 +185,7 @@ public class PortController {
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        queryParams.put("project_id", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         List<PortWebJson> portWebJsonList = portService.listPort(projectId, queryParams);
         List<PortEntity> portsList = portWebJsonList.stream()
                 .map(PortWebJson::getPortEntity)

@@ -17,19 +17,24 @@ package com.futurewei.alcor.nodemanager.controller;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -38,6 +43,9 @@ public class NodeController {
 
     @Autowired
     private NodeService service;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @RequestMapping(
             method = POST,
@@ -72,13 +80,32 @@ public class NodeController {
         return new NodeInfoJson(hostInfo);
     }
 
+    @FieldFilter(type = NodeInfo.class)
     @RequestMapping(
             method = GET,
             value = {"/nodes", "/v4/nodes"})
-    public List<NodeInfo> getAllNodes() throws ParameterNullOrEmptyException, Exception {
+    public List<NodeInfo> getAllNodes(@ApiParam(value = "node_name") @RequestParam(required = false) String name,
+                                      @ApiParam(value = "node_id") @RequestParam(required = false) String id,
+                                      @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
+                                      @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
         List<NodeInfo> nodes = null;
         try {
-            nodes = service.getAllNodes();
+            Map<String, Object[]> queryParams =
+                    ControllerUtil.transformUrlPathParams(request.getParameterMap(), NodeInfo.class);
+            if (name != null) {
+                queryParams.put("name", new String[]{name});
+            }
+            if (id != null) {
+                queryParams.put("id", new String[]{id});
+            }
+            if (mac_address != null) {
+                queryParams.put("macAddress", new String[]{mac_address});
+            }
+            if (local_ip != null) {
+                queryParams.put("localIp", new String[]{local_ip});
+            }
+
+            nodes = service.getAllNodes(queryParams);
         } catch (ParameterNullOrEmptyException e) {
             throw e;
         }

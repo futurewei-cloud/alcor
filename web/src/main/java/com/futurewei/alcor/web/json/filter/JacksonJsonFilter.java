@@ -71,7 +71,9 @@ public class JacksonJsonFilter extends FilterProvider {
                 }else{
                     JavaType type = writer.getType();
                     if(isBaseClass(type.getRawClass())){
-                        writer.serializeAsField(pojo, jgen, provider);
+                        //writer.serializeAsField(pojo, jgen, provider);
+                        jgen.writeFieldName(writer.getName());
+                        jgen.writeString("");
                     }else if(type.isCollectionLikeType()){
                         jgen.writeFieldName(writer.getName());
                         jgen.writeStartArray();

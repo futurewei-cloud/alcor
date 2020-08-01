@@ -109,7 +109,7 @@ public class PortServiceImpl implements PortService {
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get PortNeighbors
@@ -352,8 +352,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update binding:profile
-        String newBindingProfile = newPortEntity.getBindingProfile();
-        String oldBindingProfile = oldPortEntity.getBindingProfile();
+        BindingProfile newBindingProfile = newPortEntity.getBindingProfile();
+        BindingProfile oldBindingProfile = oldPortEntity.getBindingProfile();
         if (newBindingProfile != null && !newBindingProfile.equals(oldBindingProfile)) {
             oldPortEntity.setBindingProfile(newBindingProfile);
             needNotifyDpm = true;
@@ -424,6 +424,13 @@ public class PortServiceImpl implements PortService {
             if (delFixedIps.size() > 0) {
                 needNotifyDpm = true;
                 executor.runAsync(ipManagerProxy::releaseIpAddressBulk, delFixedIps);
+
+                //disassociate with elastic ip if exist
+                ElasticIpManagerProxy elasticIpManagerProxy = new ElasticIpManagerProxy(newPortEntity.getProjectId());
+                for (PortEntity.FixedIp delIp: delFixedIps) {
+                    executor.runAsync(elasticIpManagerProxy::portIpDeleteEventProcess,
+                            newPortEntity.getId(), delIp.getIpAddress());
+                }
             }
 
             if (addFixedIps.size() > 0) {
@@ -517,7 +524,7 @@ public class PortServiceImpl implements PortService {
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get portNeighbors
@@ -688,6 +695,10 @@ public class PortServiceImpl implements PortService {
                 SecurityGroupManagerProxy securityGroupManagerProxy = new SecurityGroupManagerProxy(portEntity.getProjectId());
                 executor.runAsync(securityGroupManagerProxy::unbindSecurityGroup, portEntity);
             }
+
+            //Disassociate with elastic ip if exists
+            ElasticIpManagerProxy elasticIpManagerProxy = new ElasticIpManagerProxy(portEntity.getProjectId());
+            executor.runAsync(elasticIpManagerProxy::portIpDeleteEventProcess, portEntity.getId(), null);
 
             //Get port dependent resources
             this.getPortDependentResources(portEntity, executor, true);

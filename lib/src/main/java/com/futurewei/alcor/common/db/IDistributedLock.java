@@ -22,4 +22,27 @@ public interface IDistributedLock {
     void lock(String lockKey) throws DistributedLockException;
 
     void unlock(String lockKey) throws DistributedLockException;
+
+    /**
+     * try lock once, return immediately
+     * @param lockKey
+     * @return true if locked success else return false
+     */
+    Boolean tryLock(String lockKey);
+
+    /**
+     * a prefix for each lock
+     * @return
+     */
+    String getLockPrefix();
+
+    /**
+     * return a combine real key for distribution lock
+     * @param key
+     * @return
+     */
+    default String getRealKey(String key) {
+        return getLockPrefix() + " lock:" + key;
+    }
+
 }

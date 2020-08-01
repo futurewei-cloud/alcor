@@ -18,10 +18,12 @@ package com.futurewei.alcor.common.db.redis;
 
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
+import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -30,9 +32,13 @@ import java.util.concurrent.TimeUnit;
 public class RedisCacheFactory implements ICacheFactory {
 
     private final LettuceConnectionFactory lettuceConnectionFactory;
+    private final int tryLockInterval;
+    private final int expireTime;
 
-    public RedisCacheFactory(LettuceConnectionFactory lettuceConnectionFactory) {
+    public RedisCacheFactory(LettuceConnectionFactory lettuceConnectionFactory, int interval, int expire) {
         this.lettuceConnectionFactory = lettuceConnectionFactory;
+        this.tryLockInterval = interval;
+        this.expireTime = expire;
     }
 
     @Override
@@ -64,5 +70,13 @@ public class RedisCacheFactory implements ICacheFactory {
         template.afterPropertiesSet();
 
         return template;
+    }
+
+    @Override
+    public <T> IDistributedLock getDistributedLock(Class<T> t) {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(lettuceConnectionFactory);
+
+        return new RedisDistributedLock(template, LOCK_PREFIX + t.getName(), tryLockInterval, expireTime);
     }
 }

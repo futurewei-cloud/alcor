@@ -7,4 +7,6 @@ public interface VpcService {
 
     public RouteWebJson getRoute (String vpcId, VpcEntity vpcState);
 
+    public VpcEntity allocateSegmentForNetwork (VpcEntity vpcEntity) throws Exception;
+
 }

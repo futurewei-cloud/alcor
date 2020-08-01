@@ -19,13 +19,13 @@
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.db.ignite.query.MapPredicate;
+import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
@@ -40,6 +40,7 @@ import javax.cache.expiry.ExpiryPolicy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -93,6 +94,11 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     }
 
     @Override
+    public Boolean putIfAbsent(K var1, V var2) throws CacheException {
+        return cache.putIfAbsent(var1, var2);
+    }
+
+    @Override
     public boolean containsKey(K key) throws CacheException {
         try {
             return cache.containsKey(key);
@@ -100,6 +106,11 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public Map<K, V> getAll(Set<K> keys) throws CacheException {
+        return cache.getAll(keys);
     }
 
     @Override
@@ -183,6 +194,11 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             }
         }
         return values;
+    }
+
+    @Override
+    public long size() {
+        return cache.size(CachePeekMode.ALL);
     }
 
     @Override

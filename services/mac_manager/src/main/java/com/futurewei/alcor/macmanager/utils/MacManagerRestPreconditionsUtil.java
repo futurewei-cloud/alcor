@@ -46,7 +46,7 @@ public class MacManagerRestPreconditionsUtil {
 
     public static void verifyMacAddressFormat(String strMacAddress) throws MacAddressInvalidException {
         MacAddress macAddress = new MacAddress();
-        if (macAddress.validateMac(strMacAddress) == false) {
+        if (!macAddress.validateMac(strMacAddress)) {
             throw new MacAddressInvalidException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_INVALID_FORMAT);
         }
     }
@@ -57,33 +57,22 @@ public class MacManagerRestPreconditionsUtil {
         String portId = macState.getPortId();
         String state = macState.getState();
 
-        if (projectId != null) {
-            projectId = projectId.trim();
-        }
-
-        if (vpcId != null) {
-            vpcId = vpcId.trim();
-        }
-
-        if (portId != null) {
-            portId = portId.trim();
-        }
-
-        if (state != null) {
-            state = state.trim();
-        }
-
         if (projectId == null || vpcId == null || portId == null)
             throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_NULL);
 
+        projectId = projectId.trim();
+        vpcId = vpcId.trim();
+        portId = portId.trim();
+
         if (projectId.length() == 0 || vpcId.length() == 0 || portId.length() == 0)
             throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_EMPTY);
-        if (state != null) {
-            if (state.length() > 0) {
-                if (state.equals(MacManagerConstant.MAC_STATE_ACTIVE) == false && state.equals(MacManagerConstant.MAC_STATE_INACTIVE) == false)
-                    throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_DATA);
-            }
+
+        if (!StringUtils.isEmpty(state)) {
+            state = state.trim();
+            if (!state.equals(MacManagerConstant.MAC_STATE_ACTIVE) && !state.equals(MacManagerConstant.MAC_STATE_INACTIVE))
+                throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_DATA);
         }
+
     }
 
     public static void verifyMacRangeData(MacRange macRange) throws MacRangeInvalidException {
@@ -92,21 +81,20 @@ public class MacManagerRestPreconditionsUtil {
         String to = macRange.getTo();
         String state = macRange.getState();
 
+        if (StringUtils.isEmpty(rangeId) || StringUtils.isEmpty(from) || StringUtils.isEmpty(to))
+            throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_VALUE_NULL);
+
         rangeId = rangeId.trim();
         from = from.trim();
         to = to.trim();
         state = state.trim();
-        if (rangeId == null || from == null || to == null)
-            throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_VALUE_NULL);
 
         if (rangeId.length() == 0 || from.length() == 0 || to.length() == 0)
             throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_INVALID_EMPTY);
 
-        if (state != null) {
-            if (state.length() > 0) {
-                if (state.equals(MacManagerConstant.MAC_STATE_ACTIVE) == false && state.equals(MacManagerConstant.MAC_STATE_INACTIVE) == false)
-                    throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_INVALID_DATA);
-            }
+        if (!StringUtils.isEmpty(state)) {
+            if (!state.equals(MacManagerConstant.MAC_STATE_ACTIVE) && !state.equals(MacManagerConstant.MAC_STATE_INACTIVE))
+                throw new MacRangeInvalidException(MacManagerConstant.MAC_EXCEPTION_RANGE_INVALID_DATA);
         }
     }
 }

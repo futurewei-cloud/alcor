@@ -22,6 +22,8 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
+import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
@@ -50,7 +52,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -139,8 +140,18 @@ public class SubnetController {
             String subnetId = inSubnetEntity.getId();
             String vpcId = inSubnetEntity.getVpcId();
             String cidr = inSubnetEntity.getCidr();
+            String gatewayIp = inSubnetEntity.getGatewayIp();
+            boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(gatewayIp, cidr);
+            if (!gatewayIpIsValid) {
+                throw new GatewayIpUnsupported();
+            }
+            boolean gatewayIpIsInAllocatedRange = SubnetManagementUtil.checkGatewayIpIsInAllocatedRange(gatewayIp, cidr);
+
             RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetEntity, projectId);
+
+            // check if cidr overlap
+            this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
@@ -183,11 +194,10 @@ public class SubnetController {
                 return s;
             });
 
-
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId);
+                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId, gatewayIp, gatewayIpIsInAllocatedRange);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
@@ -218,10 +228,17 @@ public class SubnetController {
             if (macState != null) {
                 inSubnetEntity.setGatewayMacAddress(macState.getMacAddress());
             }
-            inSubnetEntity.setGatewayIp(ipResponse.getIp());
-            if (ipResponse.getIpVersion() == 4) {
+            if (gatewayIpIsInAllocatedRange) {
+                inSubnetEntity.setGatewayIp(ipResponse.getIp());
+            } else {
+                String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
+                if (gatewayIp != null) {
+                    inSubnetEntity.setGatewayIp(gatewayIP);
+                }
+            }
+            if (ipResponse != null && ipResponse.getIpVersion() == 4) {
                 inSubnetEntity.setIpV4RangeId(ipResponse.getRangeId());
-            }else if (ipResponse.getIpVersion() == 6) {
+            }else if (ipResponse != null &&  ipResponse.getIpVersion() == 6) {
                 inSubnetEntity.setIpV6RangeId(ipResponse.getRangeId());
             }
 
@@ -237,6 +254,22 @@ public class SubnetController {
             String tenantId = inSubnetEntity.getTenantId();
             if (tenantId == null) {
                 inSubnetEntity.setTenantId(inSubnetEntity.getProjectId());
+            }
+
+            // enable_dhcp
+            Boolean dhcpEnable = inSubnetEntity.getDhcpEnable();
+            if (dhcpEnable == null) {
+                inSubnetEntity.setDhcpEnable(true);
+            }
+
+            // allocation_pools
+            List<AllocationPool> allocationPoolList = inSubnetEntity.getAllocationPools();
+            if (allocationPoolList == null || allocationPoolList.size() == 0) {
+                String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
+                List<AllocationPool> allocationPools = new ArrayList<>();
+                AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+                allocationPools.add(allocationPool);
+                inSubnetEntity.setAllocationPools(allocationPools);
             }
 
             // tags
@@ -258,6 +291,9 @@ public class SubnetController {
 //            if (subnet == null) {
 //                throw new ResourcePersistenceException();
 //            }
+
+            // update to vpc with subnet id
+            this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
 
             return new SubnetWebJson(inSubnetEntity);
 
@@ -365,7 +401,7 @@ public class SubnetController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
-        queryParams.put("project_id", new String[]{projectId});
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         Map<String, SubnetEntity> subnetStates = null;
 

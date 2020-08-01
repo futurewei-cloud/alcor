@@ -16,9 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class NodeManagerRestClient extends AbstractRestClient {
@@ -29,5 +36,14 @@ public class NodeManagerRestClient extends AbstractRestClient {
     public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
         String url = nodeManagerUrl + "/" + nodeId;
         return getRequest(url, NodeInfoJson.class);
+    }
+
+    @DurationStatistics
+    public List<NodeInfo> getNodeInfoByNodeName(String nodeName) throws Exception {
+        String url = nodeManagerUrl + "?name=" + nodeName;
+        ParameterizedTypeReference<List<NodeInfo>> responseType = new ParameterizedTypeReference<List<NodeInfo>>() {};
+        ResponseEntity<List<NodeInfo>> resp = restTemplate.exchange(url, HttpMethod.GET, null,responseType);
+        List<NodeInfo> list = resp.getBody();
+        return list;
     }
 }

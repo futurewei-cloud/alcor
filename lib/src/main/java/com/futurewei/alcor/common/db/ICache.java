@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.db;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface ICache<K, V> {
     V get(K var1) throws CacheException;
@@ -32,7 +33,26 @@ public interface ICache<K, V> {
 
     void put(K var1, V var2) throws CacheException;
 
+    /**
+     * Atmoic put entry
+     *
+     * @param var1 key
+     * @param var2 value
+     * @return true if no exist false if existed
+     * @throws CacheException
+     */
+    Boolean putIfAbsent(K var1, V var2) throws CacheException;
+
     boolean containsKey(K var1) throws CacheException;
+
+    /**
+     * Get Cache multi keys
+     *
+     * @param keys
+     * @return
+     * @throws CacheException
+     */
+    Map<K, V> getAll(Set<K> keys) throws CacheException;
 
     Map<K, V> getAll() throws CacheException;
 
@@ -48,6 +68,12 @@ public interface ICache<K, V> {
     void putAll(Map<? extends K, ? extends V> var1) throws CacheException;
 
     boolean remove(K var1) throws CacheException;
+
+    /**
+     * db cache size
+     * @return
+     */
+    long size();
 
     Transaction getTransaction();
 }

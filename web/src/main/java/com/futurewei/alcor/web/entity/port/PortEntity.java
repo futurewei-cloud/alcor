@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -64,10 +63,10 @@ public class PortEntity extends CustomerResource {
     private String bindingHostId;
 
     @JsonProperty("binding:profile")
-    private String bindingProfile;
+    private BindingProfile bindingProfile;
 
     @JsonProperty("binding:vif_details")
-    private String bindingVifDetails; //port_filter, ovs_hybrid_plug
+    private BindingVifDetails bindingVifDetails; //port_filter, ovs_hybrid_plug
 
     @JsonProperty("binding:vif_type")
     private String bindingVifType;  //ovs, bridge, macvtap, hw_veb, hostdev_physical, vhostuser, distributed, other
@@ -85,7 +84,7 @@ public class PortEntity extends CustomerResource {
     private String dnsDomain;
 
     @JsonProperty("dns_assignment")
-    private List<DnsRecord> dnsAssignment;
+    private DnsRecord dnsAssignment;
 
     @JsonProperty("create_at")
     private String createAt;
@@ -97,7 +96,7 @@ public class PortEntity extends CustomerResource {
     private String ipAllocation;
 
     @JsonProperty("port_security_enabled")
-    private boolean portSecurityEnabled;
+    private boolean portSecurityEnabled = true;
 
     @JsonProperty("qos_network_policy_id")
     private String qosNetworkPolicyId;
@@ -109,7 +108,7 @@ public class PortEntity extends CustomerResource {
     private int revisionNumber;
 
     @JsonProperty("resource_request")
-    private int resourceRequest;
+    private ResourceRequest resourceRequest;
 
     @JsonProperty("tags")
     private List<String> tags;
@@ -126,11 +125,11 @@ public class PortEntity extends CustomerResource {
     public PortEntity(String vpcId, boolean adminStateUp, String macAddress, String vethName,
                       boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps,
                       List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups,
-                      String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType,
+                      String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType,
                       String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain,
-                      List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation,
+                      DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation,
                       boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber,
-                      int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+                      ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
         this.macAddress = macAddress;
@@ -165,7 +164,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(CustomerResource state, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(CustomerResource state, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(state);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -201,7 +200,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(String projectId, String id, String name, String description, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, String bindingProfile, String bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, List<DnsRecord> dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, int resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String projectId, String id, String name, String description, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -411,30 +410,6 @@ public class PortEntity extends CustomerResource {
             this.fqdn = fqdn;
         }
 
-        public String getHostName() {
-            return hostName;
-        }
-
-        public void setHostName(String hostName) {
-            this.hostName = hostName;
-        }
-
-        public String getIpAddress() {
-            return ipAddress;
-        }
-
-        public void setIpAddress(String ipAddress) {
-            this.ipAddress = ipAddress;
-        }
-
-        public String getFqdn() {
-            return fqdn;
-        }
-
-        public void setFqdn(String fqdn) {
-            this.fqdn = fqdn;
-        }
-
         @Override
         public String toString() {
             return "DnsRecord{" +
@@ -444,7 +419,6 @@ public class PortEntity extends CustomerResource {
                     '}';
         }
     }
-
 
     public String getVpcId() {
         return vpcId;
@@ -550,15 +524,19 @@ public class PortEntity extends CustomerResource {
         this.bindingHostId = bindingHostId;
     }
 
-    public String getBindingProfile() {
+    public BindingProfile getBindingProfile() {
         return bindingProfile;
     }
 
-    public String getBindingVifDetails() {
+    public void setBindingProfile(BindingProfile bindingProfile) {
+        this.bindingProfile = bindingProfile;
+    }
+
+    public BindingVifDetails getBindingVifDetails() {
         return bindingVifDetails;
     }
 
-    public void setBindingVifDetails(String bindingVifDetails) {
+    public void setBindingVifDetails(BindingVifDetails bindingVifDetails) {
         this.bindingVifDetails = bindingVifDetails;
     }
 
@@ -568,10 +546,6 @@ public class PortEntity extends CustomerResource {
 
     public void setBindingVifType(String bindingVifType) {
         this.bindingVifType = bindingVifType;
-    }
-
-    public void setBindingProfile(String bindingProfile) {
-        this.bindingProfile = bindingProfile;
     }
 
     public String getBindingVnicType() {
@@ -606,11 +580,11 @@ public class PortEntity extends CustomerResource {
         this.dnsDomain = dnsDomain;
     }
 
-    public List<DnsRecord> getDnsAssignment() {
+    public DnsRecord getDnsAssignment() {
         return dnsAssignment;
     }
 
-    public void setDnsAssignment(List<DnsRecord> dnsAssignment) {
+    public void setDnsAssignment(DnsRecord dnsAssignment) {
         this.dnsAssignment = dnsAssignment;
     }
 
@@ -670,11 +644,11 @@ public class PortEntity extends CustomerResource {
         this.revisionNumber = revisionNumber;
     }
 
-    public int getResourceRequest() {
+    public ResourceRequest getResourceRequest() {
         return resourceRequest;
     }
 
-    public void setResourceRequest(int resourceRequest) {
+    public void setResourceRequest(ResourceRequest resourceRequest) {
         this.resourceRequest = resourceRequest;
     }
 
