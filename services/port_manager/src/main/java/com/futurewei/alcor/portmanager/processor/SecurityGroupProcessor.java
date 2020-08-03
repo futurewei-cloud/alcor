@@ -19,6 +19,7 @@ import com.futurewei.alcor.portmanager.request.BindSecurityGroupRequest;
 import com.futurewei.alcor.portmanager.request.FetchSecurityGroupRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UnbindSecurityGroupRequest;
+import com.futurewei.alcor.portmanager.util.ArrayUtil;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
@@ -103,23 +104,25 @@ public class SecurityGroupProcessor extends AbstractProcessor {
         List<String> oldSecurityGroups = oldPortEntity.getSecurityGroups();
 
         if (newSecurityGroups != null && !newSecurityGroups.equals(oldSecurityGroups)) {
-            List<PortBindingSecurityGroup> bindSecurityGroups = new ArrayList<>();
-            for (String securityGroupId: newSecurityGroups) {
-                bindSecurityGroups.add(new PortBindingSecurityGroup(newPortEntity.getId(), securityGroupId));
-            }
+            oldPortEntity.setSecurityGroups(newSecurityGroups);
 
-            if (bindSecurityGroups.size() > 0) {
-                //Bind new security group
-                bindSecurityGroups(context, bindSecurityGroups);
+            List<String> commonSecurityGroups = ArrayUtil.findCommonItems(
+                    newSecurityGroups, oldSecurityGroups);
 
-                //Get new security group
+            if (newSecurityGroups.size() > 0) {
+                List<PortBindingSecurityGroup> bindSecurityGroups = new ArrayList<>();
+                for (String securityGroupId: newSecurityGroups) {
+                    bindSecurityGroups.add(new PortBindingSecurityGroup(
+                            newPortEntity.getId(), securityGroupId));
+                }
+
                 getSecurityGroups(context, newSecurityGroups, null);
-            } else { //Get default security group
+                bindSecurityGroups(context, bindSecurityGroups);
+            } else {
                 getSecurityGroups(context, null,
                         Collections.singletonList(newPortEntity.getTenantId()));
             }
 
-            //Unbind old security group
             if (oldSecurityGroups != null && oldSecurityGroups.size() > 0) {
                 List<PortBindingSecurityGroup> unbindSecurityGroups = new ArrayList<>();
                 for (String securityGroupId: oldSecurityGroups) {
@@ -130,7 +133,14 @@ public class SecurityGroupProcessor extends AbstractProcessor {
                 unbindSecurityGroups(context, unbindSecurityGroups);
             }
 
-            oldPortEntity.setSecurityGroups(newSecurityGroups);
+            if (commonSecurityGroups.size() > 0) {
+                getSecurityGroups(context, commonSecurityGroups, null);
+            }
+        } else if (oldSecurityGroups != null && oldSecurityGroups.size() > 0){
+            getSecurityGroups(context, oldSecurityGroups, null);
+        } else {
+            getSecurityGroups(context, null,
+                    Collections.singletonList(newPortEntity.getTenantId()));
         }
     }
 

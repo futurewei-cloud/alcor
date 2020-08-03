@@ -17,9 +17,11 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.processor.PortContext;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FetchPortNeighborRequest extends AbstractRequest {
     private List<String> vpcIds;
@@ -38,8 +40,9 @@ public class FetchPortNeighborRequest extends AbstractRequest {
     @Override
     public void send() throws Exception {
         for (String vpcId: vpcIds) {
-            PortNeighbors portNeighbors = context.getPortRepository().getPortNeighbors(vpcId);
-            if (portNeighbors != null) {
+            Map<String, NeighborInfo> neighbors = context.getPortRepository().getNeighbors(vpcId);
+            if (neighbors != null && neighbors.size() > 0) {
+                PortNeighbors portNeighbors = new PortNeighbors(vpcId, neighbors);
                 portNeighborsList.add(portNeighbors);
             }
         }

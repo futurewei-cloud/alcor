@@ -20,8 +20,12 @@ import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataPlaneProcessor extends AbstractProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
+
     private NetworkConfiguration buildNetworkConfig(PortContext context) {
         /**
          DataPlaneProcessor needs to wait for all previous Processor runs to
@@ -41,6 +45,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
         networkConfiguration.setSubnets(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
         networkConfiguration.setPortEntities(networkConfig.getPortEntities());
+
+        LOG.info("Network configuration: {}", networkConfiguration);
 
         return networkConfiguration;
     }

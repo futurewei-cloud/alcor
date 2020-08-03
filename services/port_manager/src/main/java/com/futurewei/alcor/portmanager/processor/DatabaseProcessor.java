@@ -22,7 +22,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 
 public class DatabaseProcessor extends AbstractProcessor {
-    private NeighborInfo getNeighborInfo(InternalPortEntity internalPortEntity) {
+    private NeighborInfo buildNeighborInfo(InternalPortEntity internalPortEntity) {
         String bindingHostIp = internalPortEntity.getBindingHostIP();
         if (bindingHostIp == null) {
             return null;
@@ -43,7 +43,7 @@ public class DatabaseProcessor extends AbstractProcessor {
         NetworkConfig networkConfig = context.getNetworkConfig();
         List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities();
         for (InternalPortEntity internalPortEntity : internalPortEntities) {
-            NeighborInfo neighborInfo = getNeighborInfo(internalPortEntity);
+            NeighborInfo neighborInfo = buildNeighborInfo(internalPortEntity);
             if (neighborInfo == null) {
                 continue;
             }
@@ -61,22 +61,22 @@ public class DatabaseProcessor extends AbstractProcessor {
          operation, or wait for CreateNetworkConfig to succeed before writing to the database
          */
         List<PortEntity> portEntities = context.getPortEntities();
-        context.getPortRepository().createPortAndNeighborBulk(portEntities, portNeighbors);
+        context.getPortRepository().createPortBulk(portEntities, portNeighbors);
     }
 
     @Override
     void updateProcess(PortContext context) throws Exception {
         List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
-        NeighborInfo neighborInfo = getNeighborInfo(internalPortEntities.get(0));
+        NeighborInfo neighborInfo = buildNeighborInfo(internalPortEntities.get(0));
         PortEntity oldPortEntity = context.getOldPortEntity();
-        context.getPortRepository().updatePortAndNeighbor(oldPortEntity, neighborInfo);
+        context.getPortRepository().updatePort(oldPortEntity, neighborInfo);
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
         //TODO: support batch deletion
         for (PortEntity portEntity: context.getPortEntities()) {
-            context.getPortRepository().deletePortAndNeighbor(portEntity);
+            context.getPortRepository().deletePort(portEntity);
         }
     }
 }

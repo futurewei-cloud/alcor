@@ -18,6 +18,7 @@ package com.futurewei.alcor.portmanager.processor;
 import com.futurewei.alcor.portmanager.entity.SubnetRoute;
 import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
 import com.futurewei.alcor.portmanager.request.*;
+import com.futurewei.alcor.portmanager.util.ArrayUtil;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
@@ -118,6 +119,12 @@ public class FixedIpsProcessor extends AbstractProcessor {
         }
 
         function.apply(context, ipAddrRequests);
+    }
+
+    private void fetchSubnetCallBack(IRestRequest request) throws Exception {
+        List<SubnetEntity> subnetEntities = ((FetchSubnetRequest) (request)).getSubnetEntities();
+        PortContext context = request.getContext();
+        setSubnetEntities(context, subnetEntities);
     }
 
     private void fetchSubnetForAddCallBack(IRestRequest request) throws Exception {
@@ -334,18 +341,25 @@ public class FixedIpsProcessor extends AbstractProcessor {
     }
 
     @Override
-    void updateProcess(PortContext context) throws Exception {
+    void updateProcess(PortContext context) {
         PortEntity newPortEntity = context.getNewPortEntity();
         PortEntity oldPortEntity = context.getOldPortEntity();
 
         List<PortEntity.FixedIp> newFixedIps = newPortEntity.getFixedIps();
         List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
 
-        if (newFixedIps != null && !newFixedIps.equals(oldFixedIps)) {
+        if (newFixedIps != null && newFixedIps.size() > 0) {
+            oldPortEntity.setFixedIps(newFixedIps);
+
+            List<PortEntity.FixedIp> commonFixedIps = ArrayUtil.findCommonItems(newFixedIps, oldFixedIps);
+
+            //Allocate new ip addresses
             if (newFixedIps.size() > 0) {
-                allocateFixedIpsProcess(context, Collections.singletonList(newPortEntity), this::fetchSubnetForUpdateCallBack);
+                allocateFixedIpsProcess(context, Collections.singletonList(newPortEntity),
+                        this::fetchSubnetForUpdateCallBack);
             }
 
+            //Delete old ip addresses
             if (oldFixedIps.size() > 0) {
                 List<String> subnetIds = oldFixedIps.stream()
                         .map(PortEntity.FixedIp::getSubnetId)
@@ -354,7 +368,20 @@ public class FixedIpsProcessor extends AbstractProcessor {
                 getSubnetEntities(context, subnetIds, false, this::fetchSubnetForUpdateCallBack);
             }
 
-            oldPortEntity.setFixedIps(newFixedIps);
+            //Get subnet and subnet route
+            if (commonFixedIps.size() > 0) {
+                List<String> subnetIds = commonFixedIps.stream()
+                        .map(PortEntity.FixedIp::getSubnetId)
+                        .collect(Collectors.toList());
+                getSubnetEntities(context, subnetIds, false, this::fetchSubnetCallBack);
+                getSubnetRoutes(context, new ArrayList<>(subnetIds));
+            }
+        } else if (oldFixedIps != null && oldFixedIps.size() > 0) {
+            List<String> subnetIds = oldFixedIps.stream()
+                    .map(PortEntity.FixedIp::getSubnetId)
+                    .collect(Collectors.toList());
+            getSubnetEntities(context, subnetIds, false, this::fetchSubnetCallBack);
+            getSubnetRoutes(context, new ArrayList<>(subnetIds));
         }
     }
 

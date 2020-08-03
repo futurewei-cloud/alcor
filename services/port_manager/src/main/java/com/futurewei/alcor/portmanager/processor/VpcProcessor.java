@@ -49,7 +49,7 @@ public class VpcProcessor extends AbstractProcessor {
 
     @Override
     void updateProcess(PortContext context) {
-        PortEntity newPortEntity = context.getNewPortEntity();
+        PortEntity newPortEntity = context.getOldPortEntity();
         getVpcEntities(context, Collections.singletonList(newPortEntity));
     }
 

@@ -63,18 +63,31 @@ public class PortServiceImpl implements PortService {
 
     @Override
     public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
+        LOG.debug("Create port enter, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+
         createPortEntities(projectId, Collections.singletonList(portWebJson.getPortEntity()));
+
+        LOG.info("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+
         return portWebJson;
     }
 
     @Override
     public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
+        LOG.debug("Create port bulk enter, projectId: {}, PortWebBulkJson: {}", projectId, portWebBulkJson);
+
         createPortEntities(projectId, portWebBulkJson.getPortEntities());
+
+        LOG.info("Create port bulk success, projectId: {}, PortWebBulkJson: {}", projectId, portWebBulkJson);
+
         return portWebBulkJson;
     }
 
     @Override
     public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
+        LOG.debug("Update port enter, projectId: {}, portId: {}, PortWebJson: {}",
+                projectId, portId, portWebJson);
+
         PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
             throw new PortEntityNotFound();
@@ -94,6 +107,10 @@ public class PortServiceImpl implements PortService {
         }
 
         portWebJson.setPortEntity(portEntity);
+
+        LOG.info("Update port success, projectId: {}, portId: {}, PortWebJson: {}",
+                projectId, portId, portWebJson);
+
         return portWebJson;
     }
 
@@ -104,6 +121,8 @@ public class PortServiceImpl implements PortService {
 
     @Override
     public void deletePort(String projectId, String portId) throws Exception {
+        LOG.debug("Delete port enter, projectId: {}, portId: {}", projectId, portId);
+
         PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
             throw new PortEntityNotFound();
@@ -120,6 +139,8 @@ public class PortServiceImpl implements PortService {
         } catch (Exception e) {
             handleException(context, e);
         }
+
+        LOG.info("Delete port success, projectId: {}, portId: {}", projectId, portId);
     }
 
     @Override
@@ -128,6 +149,8 @@ public class PortServiceImpl implements PortService {
         if (portEntity == null) {
             throw new PortEntityNotFound();
         }
+
+        LOG.info("Get port success, projectId: {}, portId: {}", projectId, portId);
 
         return new PortWebJson(portEntity);
     }
@@ -146,6 +169,8 @@ public class PortServiceImpl implements PortService {
             result.add(portWebJson);
         }
 
+        LOG.info("List port success, projectId: {}", projectId);
+
         return result;
     }
 
@@ -162,6 +187,8 @@ public class PortServiceImpl implements PortService {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }
+
+        LOG.info("List port success, projectId: {}", projectId);
 
         return result;
     }
