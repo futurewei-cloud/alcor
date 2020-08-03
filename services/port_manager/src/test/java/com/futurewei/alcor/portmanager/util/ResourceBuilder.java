@@ -85,6 +85,7 @@ public class ResourceBuilder {
         ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
         ipAddrRequest.setSubnetId(UnitTestConfig.subnetId);
         ipAddrRequest.setIpVersion(UnitTestConfig.ipv4Version);
+        ipAddrRequest.setVpcId(UnitTestConfig.vpcId);
         ipAddrRequest.setIp(ipAddress);
         ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
 

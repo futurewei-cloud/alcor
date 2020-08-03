@@ -275,7 +275,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
         getSubnetAndRoute(context, new ArrayList<>(subnetIds));
     }
 
-    private void createFixedIps(PortContext context, List<PortEntity> portEntities, CallbackFunction fetchSubnetCallback) {
+    private void allocateFixedIpsProcess(PortContext context, List<PortEntity> portEntities, CallbackFunction fetchSubnetCallback) {
         Set<String> subnetIds = new HashSet<>();
         List<PortEntity> noAssignedIpPorts = new ArrayList<>();
         List<IpAddrRequest> fixedIpAddresses = new ArrayList<>();
@@ -295,8 +295,8 @@ public class FixedIpsProcessor extends AbstractProcessor {
                                 portEntity.getVpcId(),
                                 null,
                                 null,
-                                fixedIp.getIpAddress()
-                        ,null));
+                                fixedIp.getIpAddress(),
+                                null));
                         hasIpFixedIps.put(fixedIp.getIpAddress(), fixedIp);
                     }
                 }
@@ -330,7 +330,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
     @Override
     void createProcess(PortContext context) {
-        createFixedIps(context, context.getPortEntities(), this::fetchSubnetForAddCallBack);
+        allocateFixedIpsProcess(context, context.getPortEntities(), this::fetchSubnetForAddCallBack);
     }
 
     @Override
@@ -343,7 +343,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
         if (newFixedIps != null && !newFixedIps.equals(oldFixedIps)) {
             if (newFixedIps.size() > 0) {
-                createFixedIps(context, context.getPortEntities(), this::fetchSubnetForUpdateCallBack);
+                allocateFixedIpsProcess(context, Collections.singletonList(newPortEntity), this::fetchSubnetForUpdateCallBack);
             }
 
             if (oldFixedIps.size() > 0) {

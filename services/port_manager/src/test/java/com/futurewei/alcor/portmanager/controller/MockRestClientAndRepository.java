@@ -43,7 +43,7 @@ public class MockRestClientAndRepository {
     private SubnetManagerRestClient subnetManagerRestClient;
 
     @MockBean
-    private IpManagerRestClient ipManagerRestClient;
+    protected IpManagerRestClient ipManagerRestClient;
 
     @MockBean
     private MacManagerRestClient macManagerRestClient;
@@ -86,18 +86,6 @@ public class MockRestClientAndRepository {
         Mockito.when(ipManagerRestClient.allocateIpAddressBulk(anyList()))
                 .thenReturn(buildIpAddrRequestBulk());
 
-        /*
-        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
-                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip2));
-
-        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
-                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
-
-        Mockito.when(ipManagerRestClient.allocateIpAddress(any(IpAddrRequest.class)))
-                .thenReturn(buildIpv6AddrRequest());
-
-         */
-
         Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
 
@@ -106,13 +94,6 @@ public class MockRestClientAndRepository {
 
         Mockito.when(macManagerRestClient.allocateMacAddressBulk(anyList()))
                 .thenReturn(buildMacStateBulkJson(UnitTestConfig.portId1));
-        /*
-        Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
-                .thenReturn(buildMacStateJson(UnitTestConfig.portId2, UnitTestConfig.mac2));
-
-        Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
-                .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));
-         */
 
         Mockito.when(routeManagerRestClient.getSubnetRoute(UnitTestConfig.subnetId))
                 .thenReturn(buildRoutesWebJson());
