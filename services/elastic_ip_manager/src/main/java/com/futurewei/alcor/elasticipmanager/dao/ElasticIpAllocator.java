@@ -40,8 +40,6 @@ import org.springframework.stereotype.Repository;
 import java.math.BigInteger;
 import java.util.*;
 
-
-@ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
 public class ElasticIpAllocator {
 

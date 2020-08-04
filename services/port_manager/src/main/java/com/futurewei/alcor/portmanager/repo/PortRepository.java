@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 @Repository
 public class PortRepository {
     private static final Logger LOG = LoggerFactory.getLogger(PortRepository.class);
