@@ -24,22 +24,27 @@ import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class NodeController {
+    private static final Logger LOG = LoggerFactory.getLogger();
 
     @Autowired
     private NodeService service;
@@ -49,7 +54,22 @@ public class NodeController {
 
     @RequestMapping(
             method = POST,
-            value = {"/nodes/upload", "/v4/nodes/upload"})
+            value = {"/bulk/nodes", "/v4/bulk/nodes"})
+    public List<NodeInfo> registerNodesInfoBulk(@RequestBody BulkNodeInfoJson resource) throws Exception {
+        if (resource == null) {
+            throw new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_FILE_EMPTY);
+        }
+        try {
+            return service.createNodeInfoBulk(resource.getNodeInfos());
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,e.getMessage());
+            throw e;
+        }
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/bulk/nodes", "/v4/bulk/nodes"})
     public String uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
         int nNode = 0;
         if (file == null) {

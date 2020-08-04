@@ -172,6 +172,32 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
+     * create new nodes information in bulk
+     *
+     * @param nodeInfos new node's information in bulk
+     * @return List of new node's information
+     */
+    @Override
+    public List<NodeInfo> createNodeInfoBulk(List<NodeInfo> nodeInfo) throws Exception {
+        String strMethodName = "createNodeInfoBulk";
+        if (nodeInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        if (nodeInfo != null) {
+            try {
+                nodeRepository.addItemBulkTransaction(nodeInfo);
+            } catch (CacheException e) {
+                logger.error(strMethodName+e.getMessage());
+                throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
+            }catch (Exception e)
+            {
+                logger.error(strMethodName+e.getMessage());
+                throw e;
+            }
+        }
+        return nodeInfo;
+    }
+
+    /**
      * update an existing node's information
      *
      * @param nodeId node's id nodeInfo node's information, nodeId should be equal to nodeInfo's id
