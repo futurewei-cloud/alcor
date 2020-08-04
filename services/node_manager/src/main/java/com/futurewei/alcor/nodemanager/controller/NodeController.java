@@ -69,7 +69,7 @@ public class NodeController {
 
     @RequestMapping(
             method = POST,
-            value = {"/bulk/nodes", "/v4/bulk/nodes"})
+            value = {"/nodes/upload", "/v4/nodes/upload"})
     public String uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
         int nNode = 0;
         if (file == null) {
