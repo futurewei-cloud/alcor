@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
     private static final Logger logger = LoggerFactory.getLogger(MacRangeRepository.class);
     private ICache<String, MacRange> cache;

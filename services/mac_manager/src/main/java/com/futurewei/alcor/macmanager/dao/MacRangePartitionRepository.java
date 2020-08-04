@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacRangePartitionRepository implements ICacheRepository<MacRangePartition> {
 
     private final ICache<String, MacRangePartition> cache;
