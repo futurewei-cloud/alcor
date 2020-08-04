@@ -30,7 +30,14 @@ public class SecurityGroupProcessor extends AbstractProcessor {
     public void fetchSecurityGroupCallback(IRestRequest request) {
         List<SecurityGroup> securityGroups = ((FetchSecurityGroupRequest) request)
                 .getSecurityGroups();
-        request.getContext().getNetworkConfig().setSecurityGroups(securityGroups);
+
+        List<SecurityGroup> existSecurityGroups = request.getContext()
+                .getNetworkConfig().getSecurityGroups();
+        if (existSecurityGroups == null) {
+            request.getContext().getNetworkConfig().setSecurityGroups(securityGroups);
+        } else {
+            existSecurityGroups.addAll(securityGroups);
+        }
     }
 
     private void getSecurityGroups(PortContext context, List<String> securityGroupIds,

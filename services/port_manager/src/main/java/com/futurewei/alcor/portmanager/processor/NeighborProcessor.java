@@ -68,8 +68,8 @@ public class NeighborProcessor extends AbstractProcessor {
 
     @Override
     void updateProcess(PortContext context) {
-        PortEntity newPortEntity = context.getNewPortEntity();
-        getNeighbors(context, Collections.singletonList(newPortEntity));
+        PortEntity oldPortEntity = context.getOldPortEntity();
+        getNeighbors(context, Collections.singletonList(oldPortEntity));
     }
 
     @Override

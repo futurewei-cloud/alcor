@@ -90,7 +90,7 @@ public class RequestManager {
     public void rollbackAllRequests() throws Exception {
         waitAllFuturesFinish();
 
-        LOG.error("Begin to rollback all requests...");
+        LOG.info("Begin to rollback all requests...");
 
         for (IRestRequest request: requests) {
             request.rollback();

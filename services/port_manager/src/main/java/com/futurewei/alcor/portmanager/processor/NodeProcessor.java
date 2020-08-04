@@ -64,8 +64,8 @@ public class NodeProcessor extends AbstractProcessor {
 
     @Override
     void updateProcess(PortContext context) {
-        PortEntity newPortEntity = context.getNewPortEntity();
-        getNodeInfo(context, Collections.singletonList(newPortEntity));
+        PortEntity oldPortEntity = context.getOldPortEntity();
+        getNodeInfo(context, Collections.singletonList(oldPortEntity));
     }
 
     @Override

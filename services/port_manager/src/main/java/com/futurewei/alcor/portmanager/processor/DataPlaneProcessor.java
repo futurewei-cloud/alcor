@@ -15,13 +15,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
+import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
 
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
@@ -75,18 +81,50 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
     }
 
+    private PortEntity getPortEntity(List<PortEntity> portEntities, String portId) {
+        for (PortEntity portEntity: portEntities) {
+            if (portEntity.getId().equals(portId)) {
+                return portEntity;
+            }
+        }
+
+        return null;
+    }
+
+    private void setMacAndIpAddress(PortContext context, List<PortEntity> portEntities) throws Exception {
+        List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
+        for (InternalPortEntity internalPortEntity: internalPortEntities) {
+            PortEntity portEntity = getPortEntity(portEntities, internalPortEntity.getId());
+            if (portEntity == null) {
+                LOG.error("Can not find port by id: {}", internalPortEntity.getId());
+                throw new PortEntityNotFound();
+            }
+
+            if (internalPortEntity.getFixedIps() == null) {
+                internalPortEntity.setFixedIps(portEntity.getFixedIps());
+            }
+
+            if (internalPortEntity.getMacAddress() == null) {
+                internalPortEntity.setMacAddress(portEntity.getMacAddress());
+            }
+        }
+    }
+
     @Override
-    void createProcess(PortContext context) {
+    void createProcess(PortContext context) throws Exception {
+        setMacAndIpAddress(context, context.getPortEntities());
         createNetworkConfig(context, buildNetworkConfig(context));
     }
 
     @Override
-    void updateProcess(PortContext context) {
+    void updateProcess(PortContext context) throws Exception {
+        setMacAndIpAddress(context, Collections.singletonList(context.getOldPortEntity()));
         updateNetworkConfig(context, buildNetworkConfig(context));
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
+        setMacAndIpAddress(context, context.getPortEntities());
         deleteNetworkConfig(context, buildNetworkConfig(context));
     }
 }

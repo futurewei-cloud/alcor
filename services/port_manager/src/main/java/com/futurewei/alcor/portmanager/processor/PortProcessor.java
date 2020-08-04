@@ -25,20 +25,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class PortProcessor extends AbstractProcessor {
-    private void buildInternalPortEntities(PortContext context, List<PortEntity> portEntities) {
-        List<InternalPortEntity> internalPortEntities = new ArrayList<>();
-
-        for (PortEntity portEntity: portEntities){
-            InternalPortEntity internalPortEntity =
-                    new InternalPortEntity(portEntity, null, null, null);
-            NetworkConfig.ExtendPortEntity extendPortEntity =
-                    new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
-            internalPortEntities.add(extendPortEntity);
-        }
-
-        context.getNetworkConfig().setPortEntities(internalPortEntities);
-    }
-
     private void updateName(PortEntity newPortEntity, PortEntity oldPortEntity) {
         String newName = newPortEntity.getName();
         String oldName = oldPortEntity.getName();
@@ -175,26 +161,37 @@ public class PortProcessor extends AbstractProcessor {
         }
     }
 
-    @Override
-    void createProcess(PortContext context) {
+    private InternalPortEntity buildInternalPortEntity(PortEntity portEntity) {
+        InternalPortEntity internalPortEntity =
+                new InternalPortEntity(portEntity, null, null, null);
+        NetworkConfig.ExtendPortEntity extendPortEntity =
+                new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
+
+        return extendPortEntity;
+    }
+
+    private void buildInternalPortEntities(PortContext context, List<PortEntity> portEntities) {
         List<InternalPortEntity> internalPortEntities = new ArrayList<>();
 
+        for (PortEntity portEntity: portEntities) {
+            if (portEntity.getBindingHostId() != null) {
+                internalPortEntities.add(buildInternalPortEntity(portEntity));
+            }
+        }
+
+        context.getNetworkConfig().setPortEntities(internalPortEntities);
+    }
+
+    @Override
+    void createProcess(PortContext context) {
         for (PortEntity portEntity: context.getPortEntities()) {
             portEntity.setProjectId(context.getProjectId());
             if (portEntity.getId() == null) {
                 portEntity.setId(UUID.randomUUID().toString());
             }
-
-            if (portEntity.getBindingHostId() != null) {
-                InternalPortEntity internalPortEntity =
-                        new InternalPortEntity(portEntity, null, null, null);
-                NetworkConfig.ExtendPortEntity extendPortEntity =
-                        new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
-                internalPortEntities.add(extendPortEntity);
-            }
         }
 
-        context.getNetworkConfig().setPortEntities(internalPortEntities);
+        buildInternalPortEntities(context, context.getPortEntities());
     }
 
     @Override
@@ -232,7 +229,7 @@ public class PortProcessor extends AbstractProcessor {
 
         updateMacLearningEnabled(newPortEntity, oldPortEntity);
 
-        buildInternalPortEntities(context, Collections.singletonList(newPortEntity));
+        buildInternalPortEntities(context, Collections.singletonList(oldPortEntity));
     }
 
     @Override
