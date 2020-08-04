@@ -32,7 +32,36 @@ import java.util.List;
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
 
-    private NetworkConfiguration buildNetworkConfig(PortContext context) {
+    private PortEntity getPortEntity(List<PortEntity> portEntities, String portId) {
+        for (PortEntity portEntity: portEntities) {
+            if (portEntity.getId().equals(portId)) {
+                return portEntity;
+            }
+        }
+
+        return null;
+    }
+
+    private void setMacAndIpAddress(PortContext context, List<PortEntity> portEntities) throws Exception {
+        List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
+        for (InternalPortEntity internalPortEntity: internalPortEntities) {
+            PortEntity portEntity = getPortEntity(portEntities, internalPortEntity.getId());
+            if (portEntity == null) {
+                LOG.error("Can not find port by id: {}", internalPortEntity.getId());
+                throw new PortEntityNotFound();
+            }
+
+            if (internalPortEntity.getFixedIps() == null) {
+                internalPortEntity.setFixedIps(portEntity.getFixedIps());
+            }
+
+            if (internalPortEntity.getMacAddress() == null) {
+                internalPortEntity.setMacAddress(portEntity.getMacAddress());
+            }
+        }
+    }
+
+    private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {
         /**
          DataPlaneProcessor needs to wait for all previous Processor runs to
          finish before continuing. Since DataPlaneProcessor is the last Processor
@@ -45,6 +74,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
         if (networkConfig.getPortEntities().size() == 0) {
             return null;
         }
+
+        setMacAndIpAddress(context, portEntities);
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setVpcs(networkConfig.getVpcEntities());
@@ -81,50 +112,19 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
     }
 
-    private PortEntity getPortEntity(List<PortEntity> portEntities, String portId) {
-        for (PortEntity portEntity: portEntities) {
-            if (portEntity.getId().equals(portId)) {
-                return portEntity;
-            }
-        }
-
-        return null;
-    }
-
-    private void setMacAndIpAddress(PortContext context, List<PortEntity> portEntities) throws Exception {
-        List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
-        for (InternalPortEntity internalPortEntity: internalPortEntities) {
-            PortEntity portEntity = getPortEntity(portEntities, internalPortEntity.getId());
-            if (portEntity == null) {
-                LOG.error("Can not find port by id: {}", internalPortEntity.getId());
-                throw new PortEntityNotFound();
-            }
-
-            if (internalPortEntity.getFixedIps() == null) {
-                internalPortEntity.setFixedIps(portEntity.getFixedIps());
-            }
-
-            if (internalPortEntity.getMacAddress() == null) {
-                internalPortEntity.setMacAddress(portEntity.getMacAddress());
-            }
-        }
-    }
-
     @Override
     void createProcess(PortContext context) throws Exception {
-        setMacAndIpAddress(context, context.getPortEntities());
-        createNetworkConfig(context, buildNetworkConfig(context));
+        createNetworkConfig(context, buildNetworkConfig(context, context.getPortEntities()));
     }
 
     @Override
     void updateProcess(PortContext context) throws Exception {
-        setMacAndIpAddress(context, Collections.singletonList(context.getOldPortEntity()));
-        updateNetworkConfig(context, buildNetworkConfig(context));
+        updateNetworkConfig(context, buildNetworkConfig(context,
+                Collections.singletonList(context.getOldPortEntity())));
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
-        setMacAndIpAddress(context, context.getPortEntities());
-        deleteNetworkConfig(context, buildNetworkConfig(context));
+        deleteNetworkConfig(context, buildNetworkConfig(context, context.getPortEntities()));
     }
 }

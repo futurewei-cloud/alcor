@@ -31,7 +31,8 @@ public class DatabaseProcessor extends AbstractProcessor {
         NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
                 internalPortEntity.getBindingHostId(),
                 internalPortEntity.getId(),
-                internalPortEntity.getMacAddress());
+                internalPortEntity.getMacAddress(),
+                internalPortEntity.getFixedIps().get(0).getIpAddress());
 
         return neighborInfo;
     }

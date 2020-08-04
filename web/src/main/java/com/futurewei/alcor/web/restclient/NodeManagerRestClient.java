@@ -26,6 +26,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import java.util.List;
@@ -37,13 +38,21 @@ public class NodeManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
-        String url = nodeManagerUrl + "/" + nodeId;
-        return getForObject(url, NodeInfoJson.class);
+        String queryParameter = buildQueryParameter("node_name", Collections.singletonList(nodeId));
+        String url = nodeManagerUrl + "?" + queryParameter;
+        NodesWebJson nodesWebJson = getForObject(url, NodesWebJson.class);
+        if (nodesWebJson == null ||
+                nodesWebJson.getNodeInfos() == null ||
+                nodesWebJson.getNodeInfos().size() != 1) {
+            return new NodeInfoJson();
+        }
+
+        return new NodeInfoJson(nodesWebJson.getNodeInfos().get(0));
     }
 
     @DurationStatistics
     public NodesWebJson getNodeInfoBulk(List<String> nodeIds) throws Exception {
-        String queryParameter = buildQueryParameter("id", nodeIds);
+        String queryParameter = buildQueryParameter("node_name", nodeIds);
         String url = nodeManagerUrl + "?" + queryParameter;
         return getForObject(url, NodesWebJson.class);
     }
