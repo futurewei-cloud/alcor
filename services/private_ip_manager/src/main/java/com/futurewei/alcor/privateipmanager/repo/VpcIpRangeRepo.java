@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
 public class VpcIpRangeRepo implements ICacheRepository<VpcIpRange> {
     private static final Logger LOG = LoggerFactory.getLogger(VpcIpRangeRepo.class);

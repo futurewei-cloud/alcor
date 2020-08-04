@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());

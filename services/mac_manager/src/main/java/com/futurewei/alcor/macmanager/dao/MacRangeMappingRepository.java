@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacRangeMappingRepository implements IRangeMappingRepository {
 
     private final Map<String, ICache<Long, String>> mappingCache;

@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class RouteRepository implements ICacheRepository<RouteEntity> {
     private static final Logger logger = LoggerFactory.getLogger();
 

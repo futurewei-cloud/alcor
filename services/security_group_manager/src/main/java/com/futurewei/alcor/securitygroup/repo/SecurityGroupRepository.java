@@ -37,7 +37,6 @@ import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class SecurityGroupRepository {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupRepository.class);
 
