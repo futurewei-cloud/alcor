@@ -133,7 +133,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
-            // hard code : set gateway_ip = "" if its value is null
+            // Short-term fix: set gateway_ip = "" if its value is null
             String gateway_Ip = resource.getSubnet().getGatewayIp();
             if (gateway_Ip == null) {
                 resource.getSubnet().setGatewayIp("");
@@ -338,6 +338,12 @@ public class SubnetController {
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
             if (subnetEntity == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetId);
+            }
+
+            // Short-term fix: set gateway_ip = "" if its value is null
+            String gateway_Ip = resource.getSubnet().getGatewayIp();
+            if (gateway_Ip == null) {
+                resource.getSubnet().setGatewayIp("");
             }
 
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
