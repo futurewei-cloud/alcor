@@ -221,9 +221,13 @@ Body:
             }
          ],
          "dhcpIds":"aaa,bbb",
-         "gatewayIds":"g1,g2",
-         "routerIds":"r1,r2"
+         "gatewayMacs":"g1,g2"
       }
+   ],
+   "routers_internal":[
+   {
+   "subnetIds":{"a87e0f87-a2d9-44ef-9194-9a62f178594f"}
+   }
    ],
    "ports_internal":[
       {
