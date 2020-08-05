@@ -1,6 +1,7 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
+import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -77,5 +79,23 @@ public class VpcServiceImpl implements VpcService {
         }
 
         return vpcEntity;
+    }
+
+    /**
+     * check subnets in network are empty or not
+     * @param vpcEntity
+     * @return
+     * @throws SubnetsNotEmptyException
+     */
+    @Override
+    public boolean checkSubnetsAreEmpty(VpcEntity vpcEntity) throws SubnetsNotEmptyException {
+        if (vpcEntity == null) {
+            return true;
+        }
+        List<String> subnets = vpcEntity.getSubnets();
+        if (!(subnets == null || subnets.size() == 0)) {
+            throw new SubnetsNotEmptyException();
+        }
+        return true;
     }
 }

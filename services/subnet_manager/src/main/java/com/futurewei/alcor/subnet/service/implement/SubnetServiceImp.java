@@ -320,6 +320,16 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    public void deleteSubnetIdInVpc(String subnetId, String projectId, String vpcId) throws Exception {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnetid/" + subnetId;
+        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
+    }
+
+    @Override
     public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
 
         // get vpc and check with vpc cidr
