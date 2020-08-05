@@ -44,7 +44,6 @@ import org.thymeleaf.util.StringUtils;
 import java.util.*;
 
 @Service
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacServiceImpl implements MacService {
     private static final Logger logger = LoggerFactory.getLogger(MacServiceImpl.class);
     private static final int BULK_MULTIPLE_MARGINS = 5;
@@ -64,7 +63,7 @@ public class MacServiceImpl implements MacService {
     @Value("${macmanager.oui}")
     private String oui;
 
-    private ICacheFactory iCacheFactory;
+    private final ICacheFactory iCacheFactory;
 
     @Autowired
     public MacServiceImpl(ICacheFactory iCacheFactory) {

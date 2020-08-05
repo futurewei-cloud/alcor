@@ -76,7 +76,7 @@ public class BitmapPoolImpl implements MacPoolApi {
         int partitionNubs = (int) (macRange.getCapacity()/PARTITION_SIZE + 1);
         int partitionIndex = 0;
         int retryTime = 0;
-        while (retryTime < nRetryLimit) {
+        while (retryTime < nRetryLimit || nRetryLimit < 0) {
 
             boolean locked = false;
             while (!locked) {
@@ -136,7 +136,7 @@ public class BitmapPoolImpl implements MacPoolApi {
         int partitionNums = (int) (macRange.getCapacity()/PARTITION_SIZE + 1);
         int partitionIndex = 0;
         int retryTime = 0;
-        while (retryTime < nRetryLimit) {
+        while (retryTime < nRetryLimit || nRetryLimit < 0) {
 
             boolean locked = false;
             while (!locked) {
