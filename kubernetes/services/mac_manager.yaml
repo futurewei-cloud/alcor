@@ -13,8 +13,7 @@ data:
     ignite.trust-store-path=truststore.jks
     ignite.trust-store-password=123456
     macmanager.oui = AA-BB-CC
-    macmanager.pool.size = 100
-    macmanager.retrylimit = 10
+    macmanager.retrylimit = 1000
 ---
 apiVersion: apps/v1
 kind: Deployment
