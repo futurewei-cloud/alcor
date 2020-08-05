@@ -27,6 +27,7 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_NODE_NOT_EXISTING = "The node to update or delete is not existing.";
     public static final String NODE_EXCEPTION_NODE_ALREADY_EXISTING = "The node to create is already existing.";
     public static final String NODE_EXCEPTION_FILE_EMPTY = "The file is empty";
+    public static final String NODE_EXCEPTION_JSON_EMPTY = "The json is empty";
     public static final String NODE_EXCEPTION_IP_FORMAT_INVALID = "Invalid IP address format";
     public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
     public static final String NODE_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for service to call repository";

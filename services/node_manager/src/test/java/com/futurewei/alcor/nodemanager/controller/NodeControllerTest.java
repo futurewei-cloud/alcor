@@ -20,9 +20,14 @@ import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
+import com.google.gson.Gson;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,6 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @AutoConfigureMockMvc
+//@RunWith(MockitoJUnitRunner.class)
 public class NodeControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
 
@@ -275,4 +281,16 @@ public class NodeControllerTest extends MockIgniteServer {
             assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterNullOrEmptyException"));
         }
     }
+
+    @Test
+    public void testNodeBulkRegistration() throws Exception {
+        Gson gson=new Gson();
+        String input =
+        "{\"nodeInfos\":[{\"id\":\"c2b79aca-316e-4ce8-a8ac-815e2de1f129\",\"name\":\"compute9\",\"localIp\":\"10.213.43.150\",\"macAddress\":\"90:17:ac:c1:34:5d\",\"veth\":\"eth1\",\"gRPCServerPort\":8080},{\"id\":\"c2b79aca-316e-4ce8-a8ac-815e2de1f120\",\"name\":\"compute10\",\"localIp\":\"10.213.43.151\",\"macAddress\":\"90:17:ac:c1:34:5e\",\"veth\":\"eth1\",\"gRPCServerPort\":8080}]}";
+        BulkNodeInfoJson bulkNodeInfoJson = gson.fromJson(input, BulkNodeInfoJson.class);
+
+        assertEquals(
+                nodeService.createNodeInfoBulk(bulkNodeInfoJson.getNodeInfos()).size(),
+        nodeService.getAllNodes().size());
+           }
 }

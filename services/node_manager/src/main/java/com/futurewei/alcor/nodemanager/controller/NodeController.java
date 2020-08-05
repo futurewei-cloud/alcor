@@ -54,10 +54,10 @@ public class NodeController {
 
     @RequestMapping(
             method = POST,
-            value = {"/bulk/nodes", "/v4/bulk/nodes"})
+            value = {"/nodes/bulk", "/v4/nodes/bulk"})
     public List<NodeInfo> registerNodesInfoBulk(@RequestBody BulkNodeInfoJson resource) throws Exception {
         if (resource == null) {
-            throw new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_FILE_EMPTY);
+            throw new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_JSON_EMPTY);
         }
         try {
             return service.createNodeInfoBulk(resource.getNodeInfos());
