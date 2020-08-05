@@ -27,11 +27,12 @@ message VpcConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string id = 3;
-    string project_id = 4;
-    string name = 5;
-    string cidr = 6;
-    int64 tunnel_id = 7;
+    string request_id = 3;
+    string id = 4;
+    string project_id = 5;
+    string name = 6;
+    string cidr = 7;
+    int64 tunnel_id = 8;
 
     message SubnetId {
         string id = 1;
@@ -42,18 +43,8 @@ message VpcConfiguration {
         string next_hop = 2;
     }
 
-    repeated SubnetId subnet_ids = 8;
-    repeated Route routes = 9;
-
-    // start Mizar specific session
-    // note that repeated field are inherently optional
-    message TransitRouter {
-        string vpc_id = 1;
-        string ip_address = 2;
-        string mac_address = 3;
-    }
-    repeated TransitRouter transit_routers = 10;
-    // end Mizar specific session
+    repeated SubnetId subnet_ids = 9;
+    repeated Route routes = 10;
 }
 
 message VpcState {

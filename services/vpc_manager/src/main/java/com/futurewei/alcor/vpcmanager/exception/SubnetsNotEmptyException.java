@@ -13,29 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.vpcmanager.exception;
 
-syntax = "proto3";
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-package alcor.schema;
-
-option java_package = "com.futurewei.alcor.schema";
-
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "neighbor.proto";
-import "securitygroup.proto";
-import "dhcp.proto";
-import "router.proto";
-
-message GoalState {
-    uint32 format_version = 1;
-
-    repeated VpcState vpc_states = 2;
-    repeated SubnetState subnet_states = 3;
-    repeated PortState port_states = 4;
-    repeated NeighborState neighbor_states = 5;
-    repeated SecurityGroupState security_group_states = 6;
-    repeated DHCPState dhcp_states = 7;
-    repeated RouterState router_states = 8;
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="subnets are not empty exception")
+public class SubnetsNotEmptyException extends Exception{
 }

@@ -133,6 +133,12 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
+            // Short-term fix: set gateway_ip = "" if its value is null
+            String gateway_Ip = resource.getSubnet().getGatewayIp();
+            if (gateway_Ip == null) {
+                resource.getSubnet().setGatewayIp("");
+            }
+
             // TODO: Create a verification framework for all resources
             SubnetWebRequestObject subnetWebRequestObject = resource.getSubnet();
             BeanUtils.copyProperties(subnetWebRequestObject, inSubnetEntity);
@@ -337,6 +343,10 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
             BeanUtils.copyProperties(inSubnetWebResponseObject, subnetEntity,
                     CommonUtil.getBeanNullPropertyNames(inSubnetWebResponseObject));
+            String gatewayIp = inSubnetWebResponseObject.getGatewayIp();
+            if (gatewayIp == null) {
+                subnetEntity.setGatewayIp(gatewayIp);
+            }
             Integer revisionNumber = subnetEntity.getRevisionNumber();
             if (revisionNumber == null || revisionNumber < 1) {
                 subnetEntity.setRevisionNumber(1);
@@ -379,6 +389,9 @@ public class SubnetController {
             }
 
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
+
+            // delete subnet id in vpc
+            this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 

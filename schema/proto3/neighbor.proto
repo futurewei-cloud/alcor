@@ -19,41 +19,44 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "SecurityGroup";
+option java_outer_classname = "Neighbor";
 
 import "common.proto";
 
-message SecurityGroupConfiguration {
+enum NeighborType { 
+    L2 = 0; // the default type
+    L3 = 1;
+}
+
+message NeighborConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
     string request_id = 3;
     string id = 4;
-    string project_id = 5;
-    string vpc_id = 6;
-    string name = 7;
+    NeighborType neighbor_type = 5; // L2 (default) or L3
+    string project_id = 6;
+    string vpc_id = 7;
+    string name = 8;
+    string mac_address = 9;
+    string host_ip_address = 10;
+    string neighbor_host_dvr_mac = 11;
 
-    enum Direction {
-        EGRESS = 0;
-        INGRESS = 1;
+    message FixedIp {
+        string subnet_id = 1;
+        string ip_address = 2;
     }
 
-    message SecurityGroupRule {
-        string security_group_id = 1;
-        string id = 2;
-        Direction direction = 3;
-        EtherType ethertype = 4;
-        Protocol protocol = 5;
-        uint32 port_range_min = 6;
-        uint32 port_range_max = 7;
-        string remote_ip_prefix = 8;
-        string remote_group_id = 9;
+    message AllowAddressPair {
+        string ip_address = 1;
+        string mac_address = 2;
     }
 
-    repeated SecurityGroupRule security_group_rules = 8;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
 }
 
-message SecurityGroupState {
+message NeighborState {
     OperationType operation_type = 1;
-    SecurityGroupConfiguration configuration = 2;
+    NeighborConfiguration configuration = 2;
 }

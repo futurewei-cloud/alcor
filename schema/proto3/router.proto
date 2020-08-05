@@ -19,41 +19,21 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "SecurityGroup";
+option java_outer_classname = "Router";
 
 import "common.proto";
 
-message SecurityGroupConfiguration {
+message RouterConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
     string request_id = 3;
     string id = 4;
-    string project_id = 5;
-    string vpc_id = 6;
-    string name = 7;
-
-    enum Direction {
-        EGRESS = 0;
-        INGRESS = 1;
-    }
-
-    message SecurityGroupRule {
-        string security_group_id = 1;
-        string id = 2;
-        Direction direction = 3;
-        EtherType ethertype = 4;
-        Protocol protocol = 5;
-        uint32 port_range_min = 6;
-        uint32 port_range_max = 7;
-        string remote_ip_prefix = 8;
-        string remote_group_id = 9;
-    }
-
-    repeated SecurityGroupRule security_group_rules = 8;
+    string host_dvr_mac_address = 5;
+    repeated string subnet_ids = 6;
 }
 
-message SecurityGroupState {
+message RouterState {
     OperationType operation_type = 1;
-    SecurityGroupConfiguration configuration = 2;
+    RouterConfiguration configuration = 2;
 }

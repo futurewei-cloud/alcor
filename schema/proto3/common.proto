@@ -25,8 +25,10 @@ enum ResourceType {
     VPC = 0;
     SUBNET = 1;
     PORT = 2;
-    SECURITYGROUP = 3;
-    DHCP = 4;
+    NEIGHBOR = 3;
+    SECURITYGROUP = 4;
+    DHCP = 5;
+    ROUTER = 6;
 }
 
 enum OperationType {
@@ -35,14 +37,9 @@ enum OperationType {
     GET = 2;
     DELETE = 3;
     INFO = 4;
-    NEIGHBOR_CREATE_UPDATE = 5;
-    NEIGHBOR_GET = 6;
-    NEIGHBOR_DELETE = 7;
-    CREATE_UPDATE_GATEWAY = 8;
-
-    FINALIZE = 9;              // For Mizar only
-    CREATE_UPDATE_SWITCH = 10; // For Mizar only
-    CREATE_UPDATE_ROUTER = 11; // For Mizar only
+    NEIGHBOR_CREATE_UPDATE = 5; // To be removed after using NeighborState
+    NEIGHBOR_GET = 6;           // To be removed after using NeighborState
+    NEIGHBOR_DELETE = 7;        // To be removed after using NeighborState
 }
 
 enum OperationStatus {
