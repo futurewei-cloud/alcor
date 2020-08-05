@@ -26,7 +26,6 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -40,6 +39,7 @@ import java.util.stream.Collectors;
 @Repository
 public class PortRepository {
     private static final Logger LOG = LoggerFactory.getLogger(PortRepository.class);
+    private static final String NEIGHBOR_CACHE_NAME_PREFIX = "neighborCache-";
 
     private ICache<String, PortEntity> portCache;
     private ICache<String, PortNeighbors> neighborCache;
@@ -258,6 +258,10 @@ public class PortRepository {
         return portNeighbors;
     }
 
+    private String getNeighborCacheName(String suffix) {
+        return NEIGHBOR_CACHE_NAME_PREFIX + suffix;
+    }
+
     @DurationStatistics
     public synchronized void createPortBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
@@ -272,7 +276,7 @@ public class PortRepository {
                         .collect(Collectors.toMap(NeighborInfo::getPortId, Function.identity()));
 
                 ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                        NeighborInfo.class, entry.getKey());
+                        NeighborInfo.class, getNeighborCacheName(entry.getKey()));
                 neighborCache.putAll(neighborMap);
             }
 
@@ -286,7 +290,7 @@ public class PortRepository {
             portCache.put(portEntity.getId(), portEntity);
 
             ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                    NeighborInfo.class, portEntity.getVpcId());
+                    NeighborInfo.class, getNeighborCacheName(portEntity.getVpcId()));
             if (neighborInfo != null) {
                 neighborCache.put(portEntity.getId(), neighborInfo);
             } else {
@@ -303,7 +307,7 @@ public class PortRepository {
             portCache.remove(portEntity.getId());
 
             ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                    NeighborInfo.class, portEntity.getVpcId());
+                    NeighborInfo.class, getNeighborCacheName(portEntity.getVpcId()));
             neighborCache.remove(portEntity.getId());
 
             tx.commit();
@@ -313,7 +317,7 @@ public class PortRepository {
     @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                NeighborInfo.class, vpcId);
+                NeighborInfo.class, getNeighborCacheName(vpcId));
         return neighborCache.getAll();
     }
 }

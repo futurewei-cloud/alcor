@@ -49,14 +49,18 @@ public class FixedIpsProcessor extends AbstractProcessor {
         void apply(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception;
     }
 
-    private void setSubnetEntities(PortContext context, List<SubnetEntity> subnetEntities) {
+    private void addSubnetEntities(PortContext context, List<SubnetEntity> subnetEntities) {
         List<InternalSubnetEntity> internalSubnetEntities = new ArrayList<>();
         for (SubnetEntity subnetEntity: subnetEntities) {
             InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, null);
             internalSubnetEntities.add(internalSubnetEntity);
         }
 
-        context.getNetworkConfig().setSubnetEntities(internalSubnetEntities);
+        if (context.getNetworkConfig().getSubnetEntities() == null) {
+            context.getNetworkConfig().setSubnetEntities(internalSubnetEntities);
+        } else {
+            context.getNetworkConfig().getSubnetEntities().addAll(internalSubnetEntities);
+        }
     }
 
     private void allocateFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
@@ -124,7 +128,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
     private void fetchSubnetCallBack(IRestRequest request) throws Exception {
         List<SubnetEntity> subnetEntities = ((FetchSubnetRequest) (request)).getSubnetEntities();
         PortContext context = request.getContext();
-        setSubnetEntities(context, subnetEntities);
+        addSubnetEntities(context, subnetEntities);
     }
 
     private void fetchSubnetForAddCallBack(IRestRequest request) throws Exception {
@@ -133,7 +137,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
         boolean allocateIpAddress = ((FetchSubnetRequest) (request)).isAllocateIpAddress();
         List<PortEntity.FixedIp> fixedIps = request.getContext().getHasSubnetFixedIps();
 
-        setSubnetEntities(context, subnetEntities);
+        addSubnetEntities(context, subnetEntities);
 
         if (allocateIpAddress) {
             postFetchSubnet(context, subnetEntities, fixedIps, this::allocateFixedIpAddress);
@@ -148,7 +152,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
         PortEntity portEntity;
 
         if (allocateIpAddress) {
-            setSubnetEntities(context, subnetEntities);
+            addSubnetEntities(context, subnetEntities);
             function = this::allocateFixedIpAddress;
             portEntity = request.getContext().getNewPortEntity();
         } else {
@@ -164,7 +168,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
         List<PortEntity> portEntities = request.getContext().getPortEntities();
         PortContext context = request.getContext();
 
-        setSubnetEntities(context, subnetEntities);
+        addSubnetEntities(context, subnetEntities);
 
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         portEntities.forEach(p -> {

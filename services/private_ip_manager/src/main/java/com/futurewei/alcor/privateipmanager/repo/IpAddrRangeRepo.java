@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 @Repository
 public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrRangeRepo.class);
+    private static final String IP_ADDR_CACHE_NAME_PREFIX = "IpAddrCache-";
+
     private ICache<String, IpAddrRange> ipAddrRangeCache;
     private ICache<String, VpcIpRange> vpcIpRangeCache;
     private CacheFactory cacheFactory;
@@ -56,8 +58,8 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         this.vpcIpRangeCache = vpcIpRangeCache;
     }
 
-    private String getIpAddrCacheName(String rangeId) {
-        return rangeId + "-IpAddrCache";
+    private String getIpAddrCacheName(String suffix) {
+        return IP_ADDR_CACHE_NAME_PREFIX + suffix;
     }
 
     @PostConstruct
