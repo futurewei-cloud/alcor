@@ -56,6 +56,9 @@ public interface SubnetService {
     // update to vpc with subnet id
     public void addSubnetIdToVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
+    // delete subnet id in vpc
+    public void deleteSubnetIdInVpc (String subnetId, String projectId, String vpcId) throws Exception;
+
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
 }

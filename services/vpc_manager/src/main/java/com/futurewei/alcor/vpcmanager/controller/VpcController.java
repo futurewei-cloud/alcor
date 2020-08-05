@@ -259,6 +259,8 @@ public class VpcController {
                 return new ResponseId();
             }
 
+            this.vpcService.checkSubnetsAreEmpty(vpcState);
+
             vpcDatabaseService.deleteVpc(vpcid);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -350,6 +352,51 @@ public class VpcController {
             if (!subnets.contains(subnetid)) {
                 subnets.add(subnetid);
             }
+            inVpcState.setSubnets(subnets);
+
+            this.vpcDatabaseService.addVpc(inVpcState);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new VpcWebJson(inVpcState);
+
+    }
+
+    /**
+     * delete subnet id in a network
+     * @param projectid
+     * @param vpcid
+     * @param subnetid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnetid/{subnetid}"})
+    public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        VpcEntity inVpcState = new VpcEntity();
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (inVpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            }
+
+            List<String> subnets = inVpcState.getSubnets();
+            if (subnets == null || !subnets.contains(subnetid)) {
+                return new VpcWebJson(inVpcState);
+            }
+            subnets.remove(subnetid);
+
             inVpcState.setSubnets(subnets);
 
             this.vpcDatabaseService.addVpc(inVpcState);

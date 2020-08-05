@@ -13,12 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.subnet.config;
+package com.futurewei.alcor.vpcmanager.exception;
 
-public class ConstantsConfig {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public static int HighIpInterval = 0;
-    public static int LowIpInterval = 3;
-    public static int BaseInterval = 0;
-
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="subnets are not empty exception")
+public class SubnetsNotEmptyException extends Exception{
 }
