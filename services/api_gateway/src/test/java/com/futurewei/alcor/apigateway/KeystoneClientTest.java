@@ -41,6 +41,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -74,7 +76,6 @@ public class KeystoneClientTest {
     private static final String TEST_NULL_TOKEN = "caaaaaBex0xWssdfsadfDSSDFSDF";
     private static final String TEST_INVALID_TOKEN = "eaaaaaBex0xWssdfsadfDSSDFSDF";
 
-
     private static final String TEST_PROJECT_ID = "aaaaaaaabbbbccccddddeeeeeeeeeeee";
 
     private static final String TOKEN_URL = "/auth/tokens";
@@ -105,7 +106,8 @@ public class KeystoneClientTest {
 
         // build normal token
         TokenEntity tokenEntity = new TokenEntity(TEST_TOKEN, false);
-        tokenEntity.setExpireAt(dateFormat.parse("2020-08-05T09:00:00.000+0000"));
+        Date normalDate = getNoExpireDate();
+        tokenEntity.setExpireAt(normalDate);
         tokenEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_TOKEN)).thenReturn(tokenEntity);
 
@@ -114,7 +116,8 @@ public class KeystoneClientTest {
 
         // build expired token
         TokenEntity tokenExpiredEntity = new TokenEntity(TEST_EXPIRED_TOKEN, false);
-        tokenExpiredEntity.setExpireAt(dateFormat.parse("2020-04-05T09:00:00.000+0000"));
+        Date expiredDate = getExpireDate();
+        tokenExpiredEntity.setExpireAt(expiredDate);
         tokenExpiredEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_EXPIRED_TOKEN)).thenReturn(tokenExpiredEntity);
 
@@ -417,4 +420,15 @@ public class KeystoneClientTest {
         assertTrue(empty3TokenEntityOptional.isEmpty());
     }
 
+    private Date getExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        return c.getTime();
+    }
+
+    private Date getNoExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
+    }
 }
