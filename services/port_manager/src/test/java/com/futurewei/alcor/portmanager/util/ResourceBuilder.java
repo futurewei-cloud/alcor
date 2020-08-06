@@ -208,6 +208,7 @@ public class ResourceBuilder {
     public static NodeInfoJson buildNodeInfoJson(String nodeId, String ipAddress) {
         NodeInfo nodeInfo = new NodeInfo();
         nodeInfo.setId(nodeId);
+        nodeInfo.setName(nodeId);
         nodeInfo.setLocalIp(ipAddress);
         nodeInfo.setMacAddress(UnitTestConfig.mac1);
 
