@@ -16,9 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.quota;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
 public class QuotaEntity {
 
     @JsonProperty("floatingip")
@@ -61,6 +59,78 @@ public class QuotaEntity {
         this.securityGroup = securityGroup;
         this.securityGroupRule = securityGroupRule;
         this.subnet = subnet;
+        this.subnetPool = subnetPool;
+    }
+
+    public int getFloatingIp() {
+        return floatingIp;
+    }
+
+    public void setFloatingIp(int floatingIp) {
+        this.floatingIp = floatingIp;
+    }
+
+    public int getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(int network) {
+        this.network = network;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getRbacPolicy() {
+        return rbacPolicy;
+    }
+
+    public void setRbacPolicy(int rbacPolicy) {
+        this.rbacPolicy = rbacPolicy;
+    }
+
+    public int getRouter() {
+        return router;
+    }
+
+    public void setRouter(int router) {
+        this.router = router;
+    }
+
+    public int getSecurityGroup() {
+        return securityGroup;
+    }
+
+    public void setSecurityGroup(int securityGroup) {
+        this.securityGroup = securityGroup;
+    }
+
+    public int getSecurityGroupRule() {
+        return securityGroupRule;
+    }
+
+    public void setSecurityGroupRule(int securityGroupRule) {
+        this.securityGroupRule = securityGroupRule;
+    }
+
+    public long getSubnet() {
+        return subnet;
+    }
+
+    public void setSubnet(long subnet) {
+        this.subnet = subnet;
+    }
+
+    public long getSubnetPool() {
+        return subnetPool;
+    }
+
+    public void setSubnetPool(long subnetPool) {
         this.subnetPool = subnetPool;
     }
 }

@@ -15,9 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.quota;
 
-import lombok.Data;
-
-@Data
 public class QuotaWebJson {
 
     private QuotaEntity quota;
@@ -29,4 +26,11 @@ public class QuotaWebJson {
         this.quota = quotaEntity;
     }
 
+    public QuotaEntity getQuota() {
+        return quota;
+    }
+
+    public void setQuota(QuotaEntity quota) {
+        this.quota = quota;
+    }
 }
