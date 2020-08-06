@@ -23,20 +23,20 @@ import java.util.List;
 
 public class NetworksWebJson {
 
-    private ArrayList<VpcEntity> networks;
+    private List<VpcEntity> networks;
 
     public NetworksWebJson() {
     }
 
     public NetworksWebJson(List<VpcEntity> networks) {
-        this.networks = new ArrayList<>(networks);
+        this.networks = networks == null ? new ArrayList<>() : networks;
     }
 
-    public ArrayList<VpcEntity> getNetworks() {
+    public List<VpcEntity> getNetworks() {
         return networks;
     }
 
-    public void setNetworks(ArrayList<VpcEntity> networks) {
+    public void setNetworks(List<VpcEntity> networks) {
         this.networks = networks;
     }
 }
