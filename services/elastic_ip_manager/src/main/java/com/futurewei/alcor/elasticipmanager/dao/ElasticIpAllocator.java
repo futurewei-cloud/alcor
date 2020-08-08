@@ -95,7 +95,7 @@ public class ElasticIpAllocator {
             if (glance == null) {
                 // initial the available buckets set
                 BitSet initialBitset = new BitSet(IPv4_BUCKETS_COUNT);
-                initialBitset.set(0, IPv4_BUCKETS_COUNT, true);
+                initialBitset.set(0, IPv4_BUCKETS_COUNT, false);
                 glance = new ElasticIpAvailableBucketsSet(rangeId, initialBitset);
 
                 availableBucketsCache.put(availableBucketsKey, glance);

@@ -126,6 +126,10 @@ public class ElasticIPRouteConfiguration {
                         .and().method(HttpMethod.PUT)
                         .filters(new FloatingIpUpdateFilter())
                         .uri(elasticipUrl))
+                .route(r -> r
+                        .path("/*/floatingips/*")
+                        .and().method(HttpMethod.DELETE)
+                        .uri(elasticipUrl))
                 .build();
     }
 }
