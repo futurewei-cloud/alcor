@@ -119,4 +119,9 @@ public class NetworkConfiguration {
   public void setSecurityGroups(List<SecurityGroup> securityGroups) {
     this.securityGroups = securityGroups;
   }
+
+  @Override
+  public String toString() {
+    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + '}';
+  }
 }
