@@ -63,4 +63,6 @@ public class UnitTestConfig {
     public static String elasticIpRangeEnd4 = "2002:200::FFFF:FFFF:FFFF:FFFE";
     public static String getElasticIpPrivateIpSubnetId1 = "11223344-1122-1122-1122-112233440009";
     public static String getElasticIpPrivateIpSubnetId2 = "11223344-1122-1122-1122-112233440010";
+    public static String elasticIpPortName1 = "port1";
+    public static String elasticIpPortName2 = "port2";
 }
