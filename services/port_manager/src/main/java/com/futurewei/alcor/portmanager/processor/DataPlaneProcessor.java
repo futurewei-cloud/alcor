@@ -21,8 +21,10 @@ import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
+import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         return null;
     }
 
-    private void setMacAndIpAddress(PortContext context, List<PortEntity> portEntities) throws Exception {
+    private void setTheMissingFields(PortContext context, List<PortEntity> portEntities) throws Exception {
         List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
         for (InternalPortEntity internalPortEntity: internalPortEntities) {
             PortEntity portEntity = getPortEntity(portEntities, internalPortEntity.getId());
@@ -57,6 +59,20 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
             if (internalPortEntity.getMacAddress() == null) {
                 internalPortEntity.setMacAddress(portEntity.getMacAddress());
+            }
+        }
+
+        List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();
+        List<InternalSubnetEntity> internalSubnetEntities =
+                context.getNetworkConfig().getSubnetEntities();
+
+        for (InternalSubnetEntity internalSubnetEntity: internalSubnetEntities) {
+            for (VpcEntity vpcEntity: vpcEntities) {
+                if (vpcEntity.getId().equals(internalSubnetEntity.getVpcId())) {
+                    Integer segmentationId = vpcEntity.getSegmentationId();
+                    Long tunnelId = segmentationId != null ? Long.valueOf(segmentationId) : null;
+                    internalSubnetEntity.setTunnelId(tunnelId);
+                }
             }
         }
     }
@@ -75,7 +91,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
             return null;
         }
 
-        setMacAndIpAddress(context, portEntities);
+        setTheMissingFields(context, portEntities);
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setVpcs(networkConfig.getVpcEntities());
