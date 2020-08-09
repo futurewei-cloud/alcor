@@ -284,7 +284,7 @@ public class VpcController {
         Map<String, VpcEntity> vpcStates = null;
 
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), VpcEntity.class);
 
         ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
