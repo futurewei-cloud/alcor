@@ -16,7 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.exception.ACAFailureException;
+import com.futurewei.alcor.dataplane.exception.ClientOfDPMFailureException;
+import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResult;
@@ -28,10 +33,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @RestController
 public class GSController {
+  private static final Logger LOG = LoggerFactory.getLogger();
+
   @Autowired private Config config;
   @Autowired private GoalStateManager goalStateManager;
 
@@ -162,13 +170,30 @@ public class GSController {
               .collect(Collectors.toList());
       resultAll.setResultMessage("Successfully Handle request !!");
 
-    } catch (RuntimeException e) {
+    } catch (ClientOfDPMFailureException e) {
       e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("Client of DPM sending invalid payload: " + e.getMessage());
+    }
+    catch (ACAFailureException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("Alcor Agent Handle request failure reason: " + e.getMessage());
+    }
+    catch (DPMFailureException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("DataPlaneManager Handle request failure reason: " + e.getMessage());
+    }
+    catch (RuntimeException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
       resultAll.setResultMessage("Failure Handle request reason: " + e.getMessage());
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);
     resultAll.setOverrallTime(done - start);
+    LOG.log(Level.INFO,"DPM+ACA time cost: goalState= "+gs+" time: "+(done - start)+" ms");
     return resultAll;
   }
 
