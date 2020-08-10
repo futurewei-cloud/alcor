@@ -16,10 +16,15 @@ package com.futurewei.alcor.nodemanager.utils;
 
 public class NodeManagerConstant {
     public static final String JSON_HOST = "Hosts";
+    public static final String JSON_HOSTS = "host_infos";
     public static final String JSON_ID = "id";
+    public static final String JSON_ID1 = "node_name";
     public static final String JSON_IP = "ip";
+    public static final String JSON_IP1 = "local_ip";
     public static final String JSON_MAC = "mac";
+    public static final String JSON_MAC1 = "mac_address";
     public static final String JSON_VETH = "veth";
+    public static final String JSON_VETH1 = "veth";
     public static final int GRPC_SERVER_PORT = 50001;
 
     //Exception Messages

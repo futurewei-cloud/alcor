@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
+import com.futurewei.alcor.nodemanager.service.implement.NodeServiceImpl;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
@@ -27,6 +28,7 @@ import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.swagger.annotations.ApiParam;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,14 +45,23 @@ import java.util.logging.Level;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@Data
 public class NodeController {
     private static final Logger LOG = LoggerFactory.getLogger();
 
     @Autowired
-    private NodeService service;
+    private NodeService service ;
 
     @Autowired
     private HttpServletRequest request;
+
+    public NodeService getService() {
+        return service;
+    }
+
+    public void setService(NodeService service) {
+        this.service = service;
+    }
 
     @RequestMapping(
             method = POST,
@@ -61,6 +72,9 @@ public class NodeController {
         }
         try {
             return service.createNodeInfoBulk(resource.getNodeInfos());
+//            List<NodeInfo> l= new ArrayList<>();
+//            l.add(new NodeInfo());
+//            return l;
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
             throw e;

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.service.NodeService;
+import com.futurewei.alcor.nodemanager.service.implement.NodeServiceImpl;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
@@ -26,6 +27,7 @@ import com.google.gson.Gson;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -53,21 +57,22 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
-@SpringBootTest()
+@SpringBootTest
 @AutoConfigureMockMvc
 //@RunWith(MockitoJUnitRunner.class)
 public class NodeControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
 
     @MockBean
-    NodeRepository mockNodeRepository;
+    NodeRepository nodeRepository;
 
-    @MockBean
-    private NodeService nodeService;
+    @Mock
+    private NodeService nodeService ;
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,6 +80,31 @@ public class NodeControllerTest extends MockIgniteServer {
     @Test
     public void contextLoads() {
     }
+
+
+    @Test
+    public void testRegisterNodesInfoBulk() throws Exception {
+        //do the cleanup
+        nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f129");
+        nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f120");
+    final ResultActions resultActions =
+        this.mockMvc
+            .perform(
+                post("/nodes" + "/bulk")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        "{\n"
+                            + "  \"host_infos\":\n"
+                            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                            + "}\n"
+                            + ",\n"
+                            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                            + "}]\n"
+                            + "}"))
+            .andDo(print());
+        resultActions.andExpect(status().isOk()).andExpect( jsonPath("$.length()").value(2));
+            }
+
 
     @Test
     public void test_index() throws Exception {
@@ -92,9 +122,19 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getNodeInfoFromUpload() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "./machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}".getBytes());
+    String fileContent =
+        "{\n"
+            + "  \"host_infos\":\n"
+            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+            + "}\n"
+            + ",\n"
+            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+            + "}]\n"
+            + "}";
+        MockMultipartFile file = new MockMultipartFile("file", "./machine.json", "application/json",
+                fileContent.getBytes());
         List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
-        doNothing().when(mockNodeRepository).addItemBulkTransaction(nodeList);
+        doNothing().when(nodeRepository).addItemBulkTransaction(nodeList);
         this.mockMvc.perform(MockMvcRequestBuilders.multipart("/nodes/upload")
                 .file(file))
                 .andDo(print())
@@ -131,10 +171,10 @@ public class NodeControllerTest extends MockIgniteServer {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.node_id").value(strId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.node_name").value(strName))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.local_ip").value(strIp))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.mac_address").value(strMac))
+                .andExpect(jsonPath("$.host_info.node_id").value(strId))
+                .andExpect(jsonPath("$.host_info.node_name").value(strName))
+                .andExpect(jsonPath("$.host_info.local_ip").value(strIp))
+                .andExpect(jsonPath("$.host_info.mac_address").value(strMac))
                 .andReturn();
     }
 
@@ -177,7 +217,7 @@ public class NodeControllerTest extends MockIgniteServer {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
         when(nodeService.updateNodeInfo(anyString(), any())).thenReturn(nodeInfo);
-        doNothing().when(mockNodeRepository).addItem(nodeInfo);
+        doNothing().when(nodeRepository).addItem(nodeInfo);
         this.mockMvc.perform(put("/nodes/h02")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -212,7 +252,7 @@ public class NodeControllerTest extends MockIgniteServer {
         MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.node_id").value(strNodeId))
+                .andExpect(jsonPath("$.host_info.node_id").value(strNodeId))
                 .andReturn();
     }
 
@@ -259,8 +299,8 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", "10.0.0.3", "AA-BB-CC-03-03-03");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         String strNodeId = "h03";
-        when(mockNodeRepository.findItem(nodeInfo.getId())).thenReturn(nodeInfo);
-        doNothing().when(mockNodeRepository).deleteItem(strNodeId);
+        when(nodeRepository.findItem(nodeInfo.getId())).thenReturn(nodeInfo);
+        doNothing().when(nodeRepository).deleteItem(strNodeId);
         MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -271,7 +311,7 @@ public class NodeControllerTest extends MockIgniteServer {
     @Test
     public void deleteNodeInfo_invalidId() throws Exception {
         String strNodeId = "  ";
-        doNothing().when(mockNodeRepository).deleteItem(strNodeId);
+        doNothing().when(nodeRepository).deleteItem(strNodeId);
         try {
             MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                     .andDo(print())
