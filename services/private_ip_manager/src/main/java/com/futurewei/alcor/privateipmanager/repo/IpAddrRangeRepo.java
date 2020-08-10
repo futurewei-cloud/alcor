@@ -426,15 +426,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
             ipAddrRangeCache.put(request.getId(), ipAddrRange);
 
-            cacheFactory.getCache(IpAddrAlloc.class, getIpAddrCacheName(request.getId()));
-
-            /*
-            ipAddrRange = ipAddrRangeCache.get(request.getId());
-            if (ipAddrRange == null) {
-                LOG.warn("Create ip address range failed: Internal db operation error");
-                throw new InternalDbOperationException();
-            }
-             */
+            //cacheFactory.getCache(IpAddrAlloc.class, getIpAddrCacheName(request.getId()));
 
             VpcIpRange vpcIpRange = vpcIpRangeCache.get(request.getVpcId());
             if (vpcIpRange == null) {
@@ -449,12 +441,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             }
 
             vpcIpRangeCache.put(vpcIpRange.getVpcId(), vpcIpRange);
-            /*
-            vpcIpRange = vpcIpRangeCache.get(vpcIpRange.getVpcId());
-            if (vpcIpRange == null) {
-                LOG.warn("Create ip address range failed: Internal db operation error");
-                throw new InternalDbOperationException();
-            }*/
 
             request.setUsedIps(ipAddrRange.getUsedIps());
             request.setTotalIps(ipAddrRange.getTotalIps());
