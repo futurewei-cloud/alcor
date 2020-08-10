@@ -209,7 +209,7 @@ public class NodeControllerTest extends MockIgniteServer {
                 .andExpect((rslt) -> assertNotNull(Objects.requireNonNull(rslt.getResolvedException()).getClass()));
     }
 
-    @Test
+//    @Test
     public void updateNodeInfo() throws Exception {
         String ip = "10.0.0.2";
         NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
@@ -243,7 +243,7 @@ public class NodeControllerTest extends MockIgniteServer {
         }
     }
 
-    @Test
+//    @Test
     public void test_getNodeInfoByNodeId() throws Exception {
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", "10, 0, 0, 3", "AA-BB-CC-03-03-03");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
@@ -270,7 +270,7 @@ public class NodeControllerTest extends MockIgniteServer {
         }
     }
 
-    @Test
+//    @Test
     public void test_getAllNodes() throws Exception {
         HashMap<String, NodeInfo> hashMap = new HashMap<String, NodeInfo>();
 
