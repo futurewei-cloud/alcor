@@ -37,5 +37,13 @@ public class VpcWebJson {
         this.network = vpcObject;
         this.network.setId(String.valueOf(genId));
     }
+
+    public VpcEntity getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(VpcEntity network) {
+        this.network = network;
+    }
 }
 

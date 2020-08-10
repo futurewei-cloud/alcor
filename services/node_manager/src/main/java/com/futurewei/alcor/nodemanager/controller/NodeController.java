@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,10 +85,10 @@ public class NodeController {
     @RequestMapping(
             method = GET,
             value = {"/nodes", "/v4/nodes"})
-    public List<NodeInfo> getAllNodes(@ApiParam(value = "node_name") @RequestParam(required = false) String name,
-                                      @ApiParam(value = "node_id") @RequestParam(required = false) String id,
-                                      @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
-                                      @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
+    public NodesWebJson getAllNodes(@ApiParam(value = "node_name") @RequestParam(required = false) String name,
+                                    @ApiParam(value = "node_id") @RequestParam(required = false) String id,
+                                    @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
+                                    @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
         List<NodeInfo> nodes = null;
         try {
             Map<String, Object[]> queryParams =
@@ -110,9 +111,9 @@ public class NodeController {
             throw e;
         }
         if (nodes == null) {
-            return new ArrayList();
+            return new NodesWebJson();
         }
-        return nodes;
+        return new NodesWebJson(nodes);
     }
 
     @RequestMapping(

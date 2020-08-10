@@ -288,6 +288,21 @@ public class PortEntity extends CustomerResource {
                     ", ipAddress='" + ipAddress + '\'' +
                     '}';
         }
+
+        @Override
+        public boolean equals(Object object) {
+            if (object == this) {
+                return true;
+            }
+
+            if (!(object instanceof FixedIp)) {
+                return false;
+            }
+
+            FixedIp fixedIp = (FixedIp)object;
+
+            return this.subnetId == fixedIp.getSubnetId() && this.ipAddress == fixedIp.getIpAddress();
+        }
     }
 
     public static class AllowAddressPair {

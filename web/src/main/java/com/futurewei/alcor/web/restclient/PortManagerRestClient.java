@@ -17,7 +17,6 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClientException;

@@ -15,12 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
-import com.futurewei.alcor.securitygroup.repo.SecurityGroupBindingsRepository;
+import com.futurewei.alcor.securitygroup.repo.PortBindingSecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
 import com.futurewei.alcor.securitygroup.utils.TimeUtil;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     private SecurityGroupRepository securityGroupRepository;
 
     @Autowired
-    private SecurityGroupBindingsRepository securityGroupBindingsRepository;
+    private PortBindingSecurityGroupRepository portBindingSecurityGroupRepository;
 
     private boolean isDefaultSecurityGroup(SecurityGroup securityGroup) {
         return "default".equals(securityGroup.getName());
@@ -83,6 +84,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson createSecurityGroup(SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         String tenantId = securityGroup.getTenantId();
@@ -126,6 +128,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupBulkJson createSecurityGroupBulk(String tenantId, String projectId, SecurityGroupBulkJson securityGroupBulkJson) throws Exception {
         List<SecurityGroup> securityGroups = securityGroupBulkJson.getSecurityGroups();
         String currentTime = TimeUtil.getCurrentTime();
@@ -173,6 +176,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(String securityGroupId, SecurityGroupJson securityGroupJson) throws Exception {
         SecurityGroup securityGroup = securityGroupJson.getSecurityGroup();
         SecurityGroup oldSecurityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
@@ -205,23 +209,17 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         return securityGroupJson;
     }
 
-    private Set<String> getSecurityGroupBindings(String SecurityGroupId) throws Exception {
-        SecurityGroupBindings securityGroupBindings = securityGroupBindingsRepository.getSecurityGroupBindings(SecurityGroupId);
-        if (securityGroupBindings == null || securityGroupBindings.getBindings().size() == 0) {
-            return null;
-        }
-
-        return securityGroupBindings.getBindings();
-    }
-
     @Override
+    @DurationStatistics
     public void deleteSecurityGroup(String securityGroupId) throws Exception {
         SecurityGroup securityGroup = securityGroupRepository.getSecurityGroup(securityGroupId);
         if (securityGroup == null) {
             throw new SecurityGroupRequired();
         }
 
-        if (getSecurityGroupBindings(securityGroupId) != null) {
+        Collection<PortBindingSecurityGroup> portBindingSecurityGroups =
+                portBindingSecurityGroupRepository.getPortBindingSecurityGroupBySecurityGroupId(securityGroupId);
+        if (portBindingSecurityGroups != null && portBindingSecurityGroups.size() > 0) {
             throw new SecurityGroupHasBindings();
         }
 
@@ -235,6 +233,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson getSecurityGroup(String SecurityGroupId) throws Exception {
         SecurityGroup securityGroup = securityGroupRepository.getSecurityGroup(SecurityGroupId);
         if (securityGroup == null) {
@@ -247,6 +246,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupJson getDefaultSecurityGroup(String projectId, String tenantId) throws Exception {
         SecurityGroup defaultSecurityGroup = securityGroupRepository.getSecurityGroup(tenantId);
         if (defaultSecurityGroup == null) {
@@ -261,29 +261,6 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         LOG.info("Get default security group success, defaultSecurityGroup: {}", defaultSecurityGroup);
 
         return new SecurityGroupJson(defaultSecurityGroup);
-    }
-
-    @Override
-    public SecurityGroupsJson listSecurityGroup() throws Exception {
-        List<SecurityGroup> securityGroups = new ArrayList<>();
-
-        Map<String, SecurityGroup> securityGroupMap = securityGroupRepository.getAllSecurityGroups();
-        if (securityGroupMap == null) {
-            return new SecurityGroupsJson();
-        }
-
-        for (Map.Entry<String, SecurityGroup> entry : securityGroupMap.entrySet()) {
-            //Skip the internal default security group
-            if (entry.getKey().equals(entry.getValue().getTenantId())) {
-                continue;
-            }
-
-            securityGroups.add(entry.getValue());
-        }
-
-        LOG.info("List security group success");
-
-        return new SecurityGroupsJson(securityGroups);
     }
 
     @Override
@@ -308,21 +285,43 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         return new SecurityGroupsJson(securityGroups);
     }
 
-    @Override
-    public PortSecurityGroupsJson bindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        securityGroupBindingsRepository.addSecurityGroupBinding(portSecurityGroupsJson);
-
-        LOG.info("Bind security groups success, portSecurityGroupsJson: {}", portSecurityGroupsJson);
-
-        return portSecurityGroupsJson;
+    private void setPortBindingSecurityGroupId(List<PortBindingSecurityGroup> portBindingSecurityGroups) {
+        for (PortBindingSecurityGroup portBindingSecurityGroup: portBindingSecurityGroups) {
+            if (portBindingSecurityGroup.getId() == null) {
+                String portId = portBindingSecurityGroup.getPortId();
+                String securityGroupId = portBindingSecurityGroup.getSecurityGroupId();
+                portBindingSecurityGroup.setId(portId + securityGroupId);
+            }
+        }
     }
 
     @Override
-    public PortSecurityGroupsJson unbindSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws Exception {
-        securityGroupBindingsRepository.deleteSecurityGroupBinding(portSecurityGroupsJson);
+    @DurationStatistics
+    public PortBindingSecurityGroupsJson bindSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        List<PortBindingSecurityGroup> portBindingSecurityGroups =
+                portBindingSecurityGroupsJson.getPortBindingSecurityGroups();
 
-        LOG.info("Unbind security groups success, portSecurityGroupsJson: {}", portSecurityGroupsJson);
+        setPortBindingSecurityGroupId(portBindingSecurityGroups);
 
-        return portSecurityGroupsJson;
+        portBindingSecurityGroupRepository.addPortBindingSecurityGroup(portBindingSecurityGroups);
+
+        LOG.info("Bind security groups success, portSecurityGroupsJson: {}", portBindingSecurityGroupsJson);
+
+        return portBindingSecurityGroupsJson;
+    }
+
+    @Override
+    @DurationStatistics
+    public PortBindingSecurityGroupsJson unbindSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        List<PortBindingSecurityGroup> portBindingSecurityGroups =
+                portBindingSecurityGroupsJson.getPortBindingSecurityGroups();
+
+        setPortBindingSecurityGroupId(portBindingSecurityGroups);
+
+        portBindingSecurityGroupRepository.deleteSecurityGroupBinding(portBindingSecurityGroups);
+
+        LOG.info("Unbind security groups success, portSecurityGroupsJson: {}", portBindingSecurityGroupsJson);
+
+        return portBindingSecurityGroupsJson;
     }
 }

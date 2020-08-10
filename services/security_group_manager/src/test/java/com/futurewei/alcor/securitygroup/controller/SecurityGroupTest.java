@@ -18,7 +18,7 @@ package com.futurewei.alcor.securitygroup.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.securitygroup.config.UnitTestConfig;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -291,14 +291,17 @@ public class SecurityGroupTest extends MockIgniteServer {
 
     @Test
     public void Test14_bindSecurityGroupTest() throws Exception {
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
-        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
 
         this.mockMvc.perform(post(UnitTestConfig.bindSecurityGroupUrl)
                 .content(body)
@@ -309,14 +312,17 @@ public class SecurityGroupTest extends MockIgniteServer {
 
     @Test
     public void Test15_unbindSecurityGroupTest() throws Exception {
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
-        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
 
         this.mockMvc.perform(post(UnitTestConfig.unbindSecurityGroupUrl)
                 .content(body)
@@ -343,14 +349,17 @@ public class SecurityGroupTest extends MockIgniteServer {
 
     @Test
     public void Test18_concurrentBindSecurityGroupTest() throws Throwable {
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
-        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
 
         Test02_createSecurityGroupTest();
 

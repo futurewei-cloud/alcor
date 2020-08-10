@@ -2,6 +2,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.entity.*;
 import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
@@ -51,6 +52,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws Exception
      */
     @Override
+    @DurationStatistics
     public Long addVlanEntity(String vlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
@@ -101,6 +103,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws Exception
      */
     @Override
+    @DurationStatistics
     public Long addVxlanEntity(String vxlanId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
@@ -162,6 +165,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws Exception
      */
     @Override
+    @DurationStatistics
     public Long addGreEntity(String greId, String networkType, String vpcId) throws Exception {
 
         Long key = null;
@@ -221,6 +225,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws DatabasePersistenceException
      */
     @Override
+    @DurationStatistics
     public void releaseVlanEntity(String vlanId, Long key) throws DatabasePersistenceException {
         try {
             Map<String, NetworkVlanRange> map = this.vlanRangeRepository.findAllItems();
@@ -248,6 +253,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws DatabasePersistenceException
      */
     @Override
+    @DurationStatistics
     public void releaseVxlanEntity(String vxlanId, Long key) throws DatabasePersistenceException {
         try {
             Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
@@ -279,6 +285,7 @@ public class SegmentServiceImpl implements SegmentService {
      * @throws DatabasePersistenceException
      */
     @Override
+    @DurationStatistics
     public void releaseGreEntity(String greId, Long key) throws DatabasePersistenceException {
         try {
             Map<String, NetworkGRERange> map = this.greRangeRepository.findAllItems();
@@ -304,6 +311,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public VlanKeyRequest allocateVlan(VlanKeyRequest request) throws Exception {
         logger.debug("Allocate vlan key, request: {}", request);
 
@@ -317,6 +325,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public VlanKeyRequest releaseVlan(String networkType, String rangeId, Long key) throws Exception {
         logger.debug("Release vlan key, ipAddr: {}", key);
 
@@ -333,6 +342,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public VlanKeyRequest getVlan(String networkType, String rangeId, Long key) throws Exception {
         logger.debug("Get vlan key, rangeId: {}, ipAddr: {}", rangeId, key);
 
@@ -353,6 +363,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public NetworkRangeRequest createRange(NetworkRangeRequest request) throws Exception {
         logger.debug("Create vlan range, request: {}", request);
 
@@ -364,6 +375,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public NetworkRangeRequest deleteRange(String rangeId) throws Exception {
         logger.debug("Delete vlan range, rangeId: {}", rangeId);
 
@@ -383,6 +395,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public NetworkRangeRequest getRange(String rangeId) throws Exception {
         logger.debug("Delete vlan range, rangeId: {}", rangeId);
 
@@ -404,6 +417,7 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     @Override
+    @DurationStatistics
     public List<NetworkRangeRequest> listRanges() {
         logger.debug("List vlan range");
 

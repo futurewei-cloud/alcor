@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.restclient;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,6 +26,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import java.util.List;
 
 @Configuration
@@ -34,8 +38,23 @@ public class NodeManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public NodeInfoJson getNodeInfo(String nodeId) throws Exception {
-        String url = nodeManagerUrl + "/" + nodeId;
-        return getRequest(url, NodeInfoJson.class);
+        String queryParameter = buildQueryParameter("node_name", Collections.singletonList(nodeId));
+        String url = nodeManagerUrl + "?" + queryParameter;
+        NodesWebJson nodesWebJson = getForObject(url, NodesWebJson.class);
+        if (nodesWebJson == null ||
+                nodesWebJson.getNodeInfos() == null ||
+                nodesWebJson.getNodeInfos().size() != 1) {
+            return new NodeInfoJson();
+        }
+
+        return new NodeInfoJson(nodesWebJson.getNodeInfos().get(0));
+    }
+
+    @DurationStatistics
+    public NodesWebJson getNodeInfoBulk(List<String> nodeIds) throws Exception {
+        String queryParameter = buildQueryParameter("node_name", nodeIds);
+        String url = nodeManagerUrl + "?" + queryParameter;
+        return getForObject(url, NodesWebJson.class);
     }
 
     @DurationStatistics

@@ -43,7 +43,16 @@ public class RestParameterValidator {
         List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
         if (fixedIps != null) {
             for (PortEntity.FixedIp fixedIp: fixedIps) {
-                if (!Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
+                if (fixedIp.getSubnetId() == null && fixedIp.getIpAddress() == null) {
+                    throw new FixedIpsInvalid();
+                }
+
+                if (fixedIp.getSubnetId() != null && "".equals(fixedIp.getSubnetId())) {
+                    throw new FixedIpsInvalid();
+                }
+
+                if (fixedIp.getIpAddress() != null &&
+                        !Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
                         && !Ipv6AddrUtil.formatCheck(fixedIp.getIpAddress()) ) {
                     throw new FixedIpsInvalid();
                 }

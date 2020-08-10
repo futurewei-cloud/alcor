@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -38,6 +39,7 @@ public class VpcServiceImpl implements VpcService {
      * @return route state
      */
     @Override
+    @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
         HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));

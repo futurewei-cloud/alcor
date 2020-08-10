@@ -31,4 +31,11 @@ public class RoutesWebJson {
         this.routes = routes;
     }
 
+    public List<RouteEntity> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(List<RouteEntity> routes) {
+        this.routes = routes;
+    }
 }
