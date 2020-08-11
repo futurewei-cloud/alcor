@@ -4,7 +4,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +47,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
 
 
     @Override
+    @DurationStatistics
     public NetworkVxlanRange findItem(String id) {
         try {
             return cache.get(id);
@@ -58,6 +59,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
     }
 
     @Override
+    @DurationStatistics
     public Map<String, NetworkVxlanRange> findAllItems() {
         try {
             return cache.getAll();
@@ -70,6 +72,13 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
     }
 
     @Override
+    @DurationStatistics
+    public Map<String, NetworkVxlanRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
+    @DurationStatistics
     public void addItem(NetworkVxlanRange networkVxlanRange) {
         logger.error("Add networkVxlanRange:{}", networkVxlanRange);
 
@@ -82,6 +91,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) {
         logger.error("Delete rangeId:{}", id);
 
@@ -99,6 +109,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
      * @return range key in db
      * @throws Exception Db operation or key assignment exception
      */
+    @DurationStatistics
     public synchronized Long allocateVxlanKey (String rangeId) throws Exception {
         Long key;
 
@@ -123,6 +134,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
      * @param key
      * @throws Exception Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized void releaseVxlanKey(String rangId, Long key) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkVxlanRange networkVxlanRange = cache.get(rangId);
@@ -137,6 +149,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
         }
     }
 
+    @DurationStatistics
     public synchronized KeyAlloc getVxlanKeyAlloc(String rangeId, Long key) throws Exception {
         NetworkVxlanRange networkVxlanRange = cache.get(rangeId);
         if (networkVxlanRange == null) {
@@ -152,6 +165,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
      * @throws Exception Network Range Already Exist Exception
      * @throws Exception Internal Db Operation Exception
      */
+    @DurationStatistics
     public synchronized void createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
@@ -184,6 +198,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
      * @return vxlan range
      * @throws Exception Network Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized NetworkVxlanRange deleteRange(String rangeId) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkVxlanRange networkVxlanRange = cache.get(rangeId);
@@ -206,6 +221,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
      * @return vxlan range
      * @throws Exception
      */
+    @DurationStatistics
     public synchronized NetworkVxlanRange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
     }

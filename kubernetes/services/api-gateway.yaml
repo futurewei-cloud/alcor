@@ -12,8 +12,8 @@ data:
     management.endpoints.web.exposure.include=health,prometheus
     spring.sleuth.sampler.probability=1.0
     spring.sleuth.web.skipPattern=(^health.*)
-    microservices.vpc.service.url=http://192.168.1.25:30001/
-    microservices.subnet.service.url=http://192.168.1.25:30006/
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001/
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +25,7 @@ spec:
   selector:
     matchLabels:
       app: apimanager
-  replicas: 1
+  replicas: 3
   #replicas: 3
   template:
     metadata:
@@ -41,7 +41,7 @@ spec:
                 path: application.properties
       containers:
         #- image: fwnetworking/controller:api_gateway-v0.3.0
-        - image: zhonghaolyu/repo:apiKube10
+        - image: zhonghaolyu/repo:apiKube1
           name: apimanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorApiGateway-0.1.0.jar", "--spring.config.location=/etc/api/application.properties"]
@@ -63,7 +63,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8004
+    - port: 9009
       targetPort: 8080
       nodePort: 30004
   selector:

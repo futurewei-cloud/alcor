@@ -36,7 +36,7 @@ public class SubnetWebRequest extends CustomerResource {
     @JsonProperty("gateway_ip")
     private String gatewayIp;
 
-    @JsonProperty("dhcp_enable")
+    @JsonProperty("enable_dhcp")
     private Boolean dhcpEnable;
 
     @JsonProperty("routes")

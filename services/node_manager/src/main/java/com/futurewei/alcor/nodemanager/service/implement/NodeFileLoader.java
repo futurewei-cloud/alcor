@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.nodemanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -45,6 +46,7 @@ public class NodeFileLoader {
      * @return total nodes number
      * @throws FileNotFoundException invalid file name, IOException file read exception, Parseexception json parsing exception
      */
+    @DurationStatistics
     public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws FileNotFoundException, IOException, ParseException{
         String strMethodName = "getHostNodeListFromUpload";
         JSONParser jsonParser = new JSONParser();
@@ -53,15 +55,17 @@ public class NodeFileLoader {
         try {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOST);
-            nodeList.forEach(node -> {
-                NodeInfo hostNode = null;
-                try {
-                    hostNode = this.parseNodeObject((JSONObject) node);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                if (hostNode != null) nodeInfos.add(hostNode);
-            });
+            if(nodeList != null){
+                nodeList.forEach(node -> {
+                    NodeInfo hostNode = null;
+                    try {
+                        hostNode = this.parseNodeObject((JSONObject) node);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (hostNode != null) nodeInfos.add(hostNode);
+                });
+            }
         } catch (FileNotFoundException e) {
             logger.error(strMethodName+e.getMessage());
             throw e;

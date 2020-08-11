@@ -16,7 +16,7 @@ package com.futurewei.alcor.nodemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
-import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
+import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -36,25 +37,38 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @AutoConfigureMockMvc
 public class NodeControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
+
     @MockBean
-    NodeService service;
+    NodeRepository mockNodeRepository;
+
+    @MockBean
+    private NodeService nodeService;
+
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private NodeController mockController;
+    @Test
+    public void contextLoads() {
+    }
 
     @Test
     public void test_index() throws Exception {
@@ -72,7 +86,9 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getNodeInfoFromUpload() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "@./machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "./machine.json", "application/json", "{\"host_info\":{\"node_id\":\"ephost_0\",\"node_name\":\"ephost_0\",\"local_ip\":\"172.17.0.6\",\"mac_address\":\"02:42:ac:11:00:06\",\"veth\":\"\",\"server_port\":50001}}".getBytes());
+        List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
+        doNothing().when(mockNodeRepository).addItemBulkTransaction(nodeList);
         this.mockMvc.perform(MockMvcRequestBuilders.multipart("/nodes/upload")
                 .file(file))
                 .andDo(print())
@@ -92,30 +108,46 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void test_createNodeInfo() throws Exception {
+        String strId = "h01";
+        String strName = "host1";
+        String strIp = "10.0.0.1";
+        String strMac = "AA-BB-CC-01-01-01";
+        String strVeth = "eth0";
+        int nServerPort = 50001;
+        NodeInfo nodeInfo = new NodeInfo(strId, strName, strIp, strMac, strVeth, nServerPort);
+        NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(nodeInfoJson);
+        when(nodeService.createNodeInfo(any())).thenReturn(nodeInfo);
+        mockMvc.perform(post("/nodes")
+                .content(json)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.node_id").value(strId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.node_name").value(strName))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.local_ip").value(strIp))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.host_info.mac_address").value(strMac))
+                .andReturn();
+    }
+
+    @Test
+    public void test_createNodeInfo_invalidInput_ip() throws Exception {
         String ip = "10, 0, 0, 1";
         NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        this.mockMvc.perform(post("/nodes")
-                .content(json)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    public void test_createNodeInfo_invalidInput_null() throws Exception {
-        String ip = "10, 0, 0, 1";
-        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
-        NodeInfoJson nodeInfoJson = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(nodeInfoJson);
-        this.mockMvc.perform(post("/nodes")
-                .content(json)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+        try {
+            this.mockMvc.perform(post("/nodes")
+                    .content(json)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        } catch (Exception e) {
+            assertTrue(e.getCause().getClass().getSimpleName().contains("InvalidDataException"));
+        }
     }
 
     @Test
@@ -133,12 +165,14 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void updateNodeInfo() throws Exception {
-        String ip = "10, 0, 0, 2";
+        String ip = "10.0.0.2";
         NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        this.mockMvc.perform(put("/nodes/h01")
+        when(nodeService.updateNodeInfo(anyString(), any())).thenReturn(nodeInfo);
+        doNothing().when(mockNodeRepository).addItem(nodeInfo);
+        this.mockMvc.perform(put("/nodes/h02")
                 .content(json)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -147,12 +181,11 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void updateNodeInfo_invalidInput() throws Exception {
-        String ip = "10, 0, 0, 2";
+        String ip = "10.0.0.2";
         NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
-        Mockito.when(mockController.updateNodeInfo("h01", nodeInfoJson)).thenThrow(new ParameterUnexpectedValueException());
         try {
             this.mockMvc.perform(put("/nodes/h01")
                     .content(json)
@@ -169,7 +202,7 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", "10, 0, 0, 3", "AA-BB-CC-03-03-03");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         String strNodeId = "h03";
-        Mockito.when(mockController.getNodeInfoById(strNodeId)).thenReturn(nodeInfoJson);
+        when(nodeService.getNodeInfoById(anyString())).thenReturn(nodeInfo);
         MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -179,32 +212,67 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getNodeInfoByNodeId_invalidId() throws Exception {
-        String ip = "10, 0, 0, 3";
+        String ip = "10.0.0.3";
         NodeInfo nodeInfo = new NodeInfo("h03", "host3", ip, "AA-BB-CC-03-03-03");
         String strNodeId = "       ";
-        MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
+        try {
+            MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
+                    .andDo(print())
+                    .andReturn();
+        } catch (Exception e) {
+            assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterUnexpectedValueException"));
+        }
+    }
+
+    @Test
+    public void test_getAllNodes() throws Exception {
+        HashMap<String, NodeInfo> hashMap = new HashMap<String, NodeInfo>();
+
+        NodeInfo nodeInfo1 = new NodeInfo("h01", "host1", "10.0.0.1", "AA-BB-CC-03-03-01");
+        NodeInfo nodeInfo2 = new NodeInfo("h02", "host2", "10.0.0.2", "AA-BB-CC-03-03-02");
+        NodeInfo nodeInfo3 = new NodeInfo("h03", "host3", "10.0.0.3", "AA-BB-CC-03-03-03");
+        hashMap.put(nodeInfo1.getId(), nodeInfo1);
+        hashMap.put(nodeInfo2.getId(), nodeInfo2);
+        hashMap.put(nodeInfo3.getId(), nodeInfo3);
+        List<NodeInfo> nodes = new ArrayList<>();
+        nodes.add(nodeInfo1);
+        nodes.add(nodeInfo2);
+        nodes.add(nodeInfo3);
+        when(nodeService.getAllNodes(anyMap())).thenReturn(nodes);
+        MvcResult result = this.mockMvc.perform(get("/nodes/"))
                 .andDo(print())
+                .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(0, result.getResponse().getContentAsString().length());
+        System.out.println(result.getResponse().getContentAsString());
+        String strResult = result.getResponse().getContentAsString();
+        assertTrue(strResult.indexOf(nodeInfo1.getId()) >= 0 && strResult.indexOf(nodeInfo2.getId()) >= 0 && strResult.indexOf(nodeInfo3.getId()) >= 0);
     }
 
     @Test
     public void deleteNodeInfo() throws Exception {
-        String strNodeId = "h00";
-        Mockito.when(mockController.deleteNodeInfo(strNodeId)).thenReturn(strNodeId);
+        NodeInfo nodeInfo = new NodeInfo("h03", "host3", "10.0.0.3", "AA-BB-CC-03-03-03");
+        NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
+        String strNodeId = "h03";
+        when(mockNodeRepository.findItem(nodeInfo.getId())).thenReturn(nodeInfo);
+        doNothing().when(mockNodeRepository).deleteItem(strNodeId);
         MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(result.getResponse().getContentAsString(), strNodeId);
+        assertTrue(result.getResponse().getContentAsString().contains(strNodeId));
     }
 
     @Test
     public void deleteNodeInfo_invalidId() throws Exception {
         String strNodeId = "  ";
-        MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
-                .andDo(print())
-                .andReturn();
-        assertEquals(0, result.getResponse().getContentAsString().length());
+        doNothing().when(mockNodeRepository).deleteItem(strNodeId);
+        try {
+            MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
+                    .andDo(print())
+                    .andReturn();
+            assertEquals(19, result.getResponse().getContentAsString().length());
+        } catch (Exception e) {
+            assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterNullOrEmptyException"));
+        }
     }
 }

@@ -4,7 +4,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,6 +46,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     }
 
     @Override
+    @DurationStatistics
     public synchronized NetworkVlanRange findItem(String id) {
         try {
             return cache.get(id);
@@ -57,6 +58,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     }
 
     @Override
+    @DurationStatistics
     public synchronized Map<String, NetworkVlanRange> findAllItems() {
         try {
             return cache.getAll();
@@ -69,6 +71,13 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     }
 
     @Override
+    @DurationStatistics
+    public Map<String, NetworkVlanRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
+    }
+
+    @Override
+    @DurationStatistics
     public synchronized void addItem(NetworkVlanRange networkVlanRange){
         logger.error("Add networkVlanRange:{}", networkVlanRange);
 
@@ -81,6 +90,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     }
 
     @Override
+    @DurationStatistics
     public synchronized void deleteItem(String id) {
         logger.error("Delete rangeId:{}", id);
 
@@ -98,6 +108,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @return range key in db
      * @throws Exception Db operation or key assignment exception
      */
+    @DurationStatistics
     public synchronized Long allocateVlanKey (String rangeId) throws Exception {
         Long key;
 
@@ -122,6 +133,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @param key
      * @throws Exception Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized void releaseVlanKey(String rangId, Long key) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkVlanRange networkVlanRange = cache.get(rangId);
@@ -136,6 +148,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
         }
     }
 
+    @DurationStatistics
     public synchronized KeyAlloc getVlanKeyAlloc(String rangeId, Long key) throws Exception {
         NetworkVlanRange networkVlanRange = cache.get(rangeId);
         if (networkVlanRange == null) {
@@ -151,6 +164,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @throws Exception Network Range Already Exist Exception
      * @throws Exception Internal Db Operation Exception
      */
+    @DurationStatistics
     public synchronized void createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
@@ -183,6 +197,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @return vlan range
      * @throws Exception Network Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized NetworkVlanRange deleteRange(String rangeId) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkVlanRange networkVlanRange = cache.get(rangeId);
@@ -205,6 +220,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @return vlan range
      * @throws Exception
      */
+    @DurationStatistics
     public synchronized NetworkVlanRange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
     }

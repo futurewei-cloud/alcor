@@ -16,13 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.apigateway;
 
+import com.futurewei.alcor.common.db.DbBaseConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
+@Import(DbBaseConfiguration.class)
 public class AlcorApiGatewayApplication {
 
     public static void main(String[] args) {

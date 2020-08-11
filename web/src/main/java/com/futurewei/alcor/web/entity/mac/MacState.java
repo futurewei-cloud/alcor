@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.web.entity.mac;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -38,6 +39,9 @@ public class MacState implements Serializable {
     @JsonProperty("state")
     private String state;
 
+    @JsonIgnore
+    private String rangeId;
+
     public MacState() {
 
     }
@@ -52,6 +56,63 @@ public class MacState implements Serializable {
         this.vpcId = vpcId;
         this.portId = portId;
         this.state = state;
+    }
+
+    public MacState(String macAddress, String projectId, String vpcId, String portId, String state, String rangeId) {
+        this.macAddress = macAddress;
+        this.projectId = projectId;
+        this.vpcId = vpcId;
+        this.portId = portId;
+        this.state = state;
+        this.rangeId = rangeId;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
+    }
+
+    public String getPortId() {
+        return portId;
+    }
+
+    public void setPortId(String portId) {
+        this.portId = portId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getRangeId() {
+        return rangeId;
+    }
+
+    public void setRangeId(String rangeId) {
+        this.rangeId = rangeId;
     }
 }
 

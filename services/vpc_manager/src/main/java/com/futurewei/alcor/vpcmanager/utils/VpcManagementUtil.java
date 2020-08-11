@@ -18,6 +18,7 @@ package com.futurewei.alcor.vpcmanager.utils;
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebRequestJson;
 import org.slf4j.Logger;
@@ -46,10 +47,12 @@ public class VpcManagementUtil {
 
         // network_type
         String networkType = network.getNetworkType();
-        if (!(networkType == null || NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)
+        Integer segmentationId = network.getSegmentationId();
+        if (!(NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)
         || NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)
         || NetworkTypeEnum.GRE.getNetworkType().equals(networkType)
-        || network.equals("flat")) ) {
+        || NetworkTypeEnum.FLAT.getNetworkType().equals(networkType)
+        || (networkType == null && segmentationId == null)) ) {
             return false;
         }
 
@@ -103,7 +106,7 @@ public class VpcManagementUtil {
         // tags
         List<String> tags = response.getTags();
         if (tags == null) {
-            tags = new ArrayList<String>(){{add("tag1,tag2");}};
+            tags = new ArrayList<String>();
             response.setTags(tags);
         }
 
@@ -111,6 +114,12 @@ public class VpcManagementUtil {
         String status = response.getStatus();
         if (status == null) {
             response.setStatus(NetworkStatusEnum.ACTIVE.getNetworkStatus());
+        }
+
+        //TODO: mtu
+        Integer mtu = response.getMtu();
+        if (mtu == null || mtu <= 0) {
+            response.setMtu(ConstantsConfig.MTU);
         }
 
         return response;

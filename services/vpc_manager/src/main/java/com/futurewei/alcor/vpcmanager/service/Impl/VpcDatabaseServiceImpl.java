@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -22,6 +23,7 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     VpcRepository vpcRepository;
 
     @Override
+    @DurationStatistics
     public VpcEntity getByVpcId(String vpcId) {
         try {
             return this.vpcRepository.findItem(vpcId);
@@ -31,11 +33,19 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map getAllVpcs() throws CacheException {
         return this.vpcRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
+    public Map getAllVpcs(Map<String, Object[]> queryParams) throws CacheException {
+        return this.vpcRepository.findAllItems(queryParams);
+    }
+
+    @Override
+    @DurationStatistics
     public void addVpc(VpcEntity vpcState) throws DatabasePersistenceException {
         try {
             this.vpcRepository.addItem(vpcState);
@@ -45,11 +55,13 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteVpc(String id) throws CacheException {
         this.vpcRepository.deleteItem(id);
     }
 
     @Override
+    @DurationStatistics
     public ICache<String, VpcEntity> getCache() {
         return this.vpcRepository.getCache();
     }

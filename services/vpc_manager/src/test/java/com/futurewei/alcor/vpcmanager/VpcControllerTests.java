@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
@@ -85,6 +87,10 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(routeWebJson);
+        Mockito.when(vpcService.allocateSegmentForNetwork(any(VpcEntity.class)))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -105,14 +111,10 @@ public class VpcControllerTests {
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
-        try {
-            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
-                    .andDo(print())
-                    .andExpect(status().is(201))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.network.routes[0].destination").value(UnitTestConfig.cidr));
-        } catch (Exception e) {
-
-        }
+        String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                .andDo(print())
+                .andExpect(status().is(201)).andReturn().getResponse().getContentAsString();
+        assertEquals("{\"network\":null}", response);
     }
 
     @Test
@@ -181,7 +183,7 @@ public class VpcControllerTests {
     @Test
     public void getVpcStatesByProjectId_getEmptyMap_pass () throws Exception {
         Map<String, VpcEntity> vpcStates = new HashMap<>();
-        Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
+        Mockito.when(vpcDatabaseService.getAllVpcs(any())).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }

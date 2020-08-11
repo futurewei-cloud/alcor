@@ -21,10 +21,11 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -73,6 +74,16 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
     }
 
     @Override
+    public Boolean putIfAbsent(K var1, V var2) throws CacheException {
+        try {
+            return valueOperations.setIfAbsent(var1, var2);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "RedisCache put operation error:" + e.getMessage());
+            throw new CacheException(e.getMessage());
+        }
+    }
+
+    @Override
     public V get(K key) throws CacheException {
         try {
             return valueOperations.get(key);
@@ -80,6 +91,17 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache get operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public Map<K, V> getAll(Set<K> keys) throws CacheException {
+        Map<K, V> map = new HashMap<>();
+        List<V> values = valueOperations.multiGet(keys);
+        Iterator<K> it = keys.iterator();
+        for(V value: values){
+            map.put(it.next(), value);
+        }
+        return map;
     }
 
     @Override
@@ -111,6 +133,21 @@ public class RedisExpireCache<K, V> implements ICache<K, V> {
             logger.log(Level.WARNING, "RedisCache remove operation error:" + e.getMessage());
             throw new CacheException(e.getMessage());
         }
+    }
+
+    @Override
+    public V get(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
+        return null;
+    }
+
+    @Override
+    public long size() {
+        return 0;
     }
 
     @Override

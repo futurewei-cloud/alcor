@@ -15,24 +15,38 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
+import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRulesJson;
+import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
 import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SecurityGroupRuleController {
     @Autowired
     private SecurityGroupRuleService securityGroupRuleService;
 
+    @Autowired
+    private HttpServletRequest request;
+
     @PostMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SecurityGroupRuleJson createSecurityGroupRule(@PathVariable("project_id") String projectId,
                                                      @RequestBody SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
         checkProjectId(projectId);
@@ -47,6 +61,7 @@ public class SecurityGroupRuleController {
     @PostMapping({"/project/{project_id}/security-group-rules/bulk", "v4/{project_id}/security-group-rules/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SecurityGroupRuleBulkJson createSecurityGroupRuleBulk(@PathVariable("project_id") String projectId,
                                                          @RequestBody SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
         checkProjectId(projectId);
@@ -60,21 +75,8 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.createSecurityGroupRuleBulk(securityGroupRuleBulkJson);
     }
 
-    /*
-    @PutMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
-    public SecurityGroupRuleJson updateSecurityGroupRule(@PathVariable("project_id") String projectId,
-                                                 @PathVariable("security_group_rule_id") String securityGroupRuleId,
-                                                 @RequestBody SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRuleJson);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRuleId);
-        SecurityGroupRule securityGroupRule = securityGroupRuleJson.getSecurityGroupRule();
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(securityGroupRule);
-
-        return securityGroupRuleService.updateSecurityGroupRule(projectId, securityGroupRuleId, securityGroupRuleJson);
-    }*/
-
     @DeleteMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
+    @DurationStatistics
     public void deleteSecurityGroupRule(@PathVariable("project_id") String projectId,
                                     @PathVariable("security_group_rule_id") String securityGroupRuleId) throws Exception {
         checkProjectId(projectId);
@@ -83,7 +85,9 @@ public class SecurityGroupRuleController {
         securityGroupRuleService.deleteSecurityGroupRule(securityGroupRuleId);
     }
 
+    @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
+    @DurationStatistics
     public SecurityGroupRuleJson getSecurityGroupRule(@PathVariable("project_id") String projectId,
                                               @PathVariable("security_group_rule_id") String securityGroupRuleId) throws Exception {
         checkProjectId(projectId);
@@ -92,10 +96,16 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.getSecurityGroupRule(securityGroupRuleId);
     }
 
+    @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
-    public List<SecurityGroupRuleJson> listSecurityGroupRule(@PathVariable("project_id") String projectId) throws Exception {
+    @DurationStatistics
+    public SecurityGroupRulesJson listSecurityGroupRule(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
 
-        return securityGroupRuleService.listSecurityGroupRule();
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
+
+        return securityGroupRuleService.listSecurityGroupRule(queryParams);
     }
 }

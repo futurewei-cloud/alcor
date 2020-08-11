@@ -23,19 +23,16 @@ import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.ClientConfiguration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 
 import java.util.logging.Level;
 
-@Configuration
-@ComponentScan("com.futurewei.common.service")
-@EntityScan("com.futurewei.common.entity")
-@ConditionalOnProperty(prefix = "ignite", name = "host")
+//@Configuration
+//@ComponentScan("com.futurewei.common.service")
+//@EntityScan("com.futurewei.common.entity")
+//@ConditionalOnProperty(prefix = "ignite", name = "host")
+@Deprecated
 public class IgniteConfiguration {
     private static final Logger logger = LoggerFactory.getLogger();
 

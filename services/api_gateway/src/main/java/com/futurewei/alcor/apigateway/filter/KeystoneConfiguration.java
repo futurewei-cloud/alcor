@@ -25,7 +25,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class KeystoneConfiguration {
 
     @Value("${keystone.enable}")
@@ -35,11 +34,11 @@ public class KeystoneConfiguration {
     private CacheFactory cacheFactory;
 
     @Bean
-    public KeystoneAuthWebFilter keystoneAuthWebFilter(){
+    public KeystoneAuthGwFilter keystoneAuthGwFilter(){
         if(!keystoneEnable){
             return null;
         }
-        return new KeystoneAuthWebFilter();
+        return new KeystoneAuthGwFilter();
     }
 
     @Bean

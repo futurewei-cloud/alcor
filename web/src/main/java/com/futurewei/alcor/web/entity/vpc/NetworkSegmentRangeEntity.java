@@ -30,9 +30,6 @@ public class NetworkSegmentRangeEntity extends CustomerResource {
     @JsonProperty("physical_network")
     private String physicalNetwork;
 
-    @JsonProperty("tenant_id")
-    private String tenantId;
-
     @JsonProperty("shared")
     private Boolean shared;
 
@@ -60,7 +57,7 @@ public class NetworkSegmentRangeEntity extends CustomerResource {
         this.networkType = networkType;
     }
 
-    public NetworkSegmentRangeEntity(String projectId, String id, String name, String description, boolean isDefault, Integer minimum, Integer maximum, String tags, String networkType, String physicalNetwork, String tenantId, Boolean shared, Integer revisionNumber, List<Integer> available, Map<Integer, String> used, String created_at, String updated_at) {
+    public NetworkSegmentRangeEntity(String projectId, String id, String name, String description, boolean isDefault, Integer minimum, Integer maximum, String tags, String networkType, String physicalNetwork, Boolean shared, Integer revisionNumber, List<Integer> available, Map<Integer, String> used, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.isDefault = isDefault;
         this.minimum = minimum;
@@ -68,7 +65,6 @@ public class NetworkSegmentRangeEntity extends CustomerResource {
         this.tags = tags;
         this.networkType = networkType;
         this.physicalNetwork = physicalNetwork;
-        this.tenantId = tenantId;
         this.shared = shared;
         this.revisionNumber = revisionNumber;
         this.available = available;

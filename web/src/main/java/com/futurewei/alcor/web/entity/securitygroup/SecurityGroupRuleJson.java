@@ -36,10 +36,10 @@ public class SecurityGroupRuleJson {
         this.securityGroupRule = securityGroupRule;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityGroupRuleJson{" +
-                "securityGroupRule=" + securityGroupRule +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "SecurityGroupRuleJson{" +
+//                "securityGroupRule=" + securityGroupRule +
+//                '}';
+//    }
 }

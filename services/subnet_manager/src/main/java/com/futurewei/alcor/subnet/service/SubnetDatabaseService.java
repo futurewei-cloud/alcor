@@ -11,8 +11,13 @@ import java.util.Map;
 public interface SubnetDatabaseService {
 
     public SubnetEntity getBySubnetId (String subnetId) throws ResourceNotFoundException, ResourcePersistenceException;
-    public Map getAllSubnets () throws CacheException;
+
+    public Map<String, SubnetEntity> getAllSubnets () throws CacheException;
+
+    public Map<String, SubnetEntity> getAllSubnets (Map<String, Object[]> queryParams) throws CacheException;
+
     public void addSubnet (SubnetEntity subnetEntity) throws DatabasePersistenceException;
+
     public void deleteSubnet (String id) throws CacheException;
 
 }

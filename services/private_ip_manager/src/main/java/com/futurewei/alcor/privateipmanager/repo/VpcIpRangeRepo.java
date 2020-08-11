@@ -18,8 +18,8 @@ package com.futurewei.alcor.privateipmanager.repo;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.repo.ICacheRepository;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.entity.VpcIpRange;
 import org.slf4j.Logger;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@ComponentScan(value="com.futurewei.alcor.common.db")
 @Repository
 public class VpcIpRangeRepo implements ICacheRepository<VpcIpRange> {
     private static final Logger LOG = LoggerFactory.getLogger(VpcIpRangeRepo.class);
@@ -44,13 +43,18 @@ public class VpcIpRangeRepo implements ICacheRepository<VpcIpRange> {
 
 
     @Override
-    public VpcIpRange findItem(String id) throws CacheException, ResourceNotFoundException {
+    public VpcIpRange findItem(String id) throws CacheException {
         return null;
     }
 
     @Override
     public Map<String, VpcIpRange> findAllItems() throws CacheException {
         return null;
+    }
+
+    @Override
+    public Map<String, VpcIpRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return vpcIpRangeCache.getAll(queryParams);
     }
 
     @Override

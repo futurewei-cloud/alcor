@@ -22,6 +22,7 @@ import java.util.Map;
 public class PortNeighbors {
     private String vpcId;
     private Map<String, NeighborInfo> neighbors;
+
     public PortNeighbors() {
 
     }
