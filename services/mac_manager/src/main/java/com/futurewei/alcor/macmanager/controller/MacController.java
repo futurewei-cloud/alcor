@@ -19,6 +19,7 @@ package com.futurewei.alcor.macmanager.controller;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.macmanager.service.MacService;
@@ -28,6 +29,7 @@ import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +41,7 @@ import java.util.Map;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class MacController {
 
     @Autowired
@@ -50,6 +53,7 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
+    @DurationStatistics
     public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacAddressInvalidException {
 
         MacState macState = null;
@@ -74,6 +78,7 @@ public class MacController {
             method = POST,
             value = {"/macs", "/v4/macs"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public MacStateJson createMacState(@RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
         try {
@@ -96,6 +101,7 @@ public class MacController {
             method = POST,
             value = {"/macs/bulk", "/v4/macs/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public MacStateBulkJson createMacStateBulk(@RequestBody MacStateBulkJson resource) throws Exception {
         for(MacState macState: resource.getMacStates()){
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
@@ -109,6 +115,7 @@ public class MacController {
             method = POST,
             value = {"/macs/range/{rangeId}/bulk", "/v4/macs/range/{rangeId}/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public MacStateBulkJson createMacStateBulkInRange(@PathVariable String rangeId, @RequestBody MacStateBulkJson resource) throws Exception {
         for(MacState macState: resource.getMacStates()){
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
@@ -122,6 +129,7 @@ public class MacController {
             method = POST,
             value = {"/macs/range/{rangeId}", "/v4/macs/range/{rangeId}"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public MacStateJson createMacStateInRange(@PathVariable String rangeId, @RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
         try {
@@ -143,6 +151,7 @@ public class MacController {
     @RequestMapping(
             method = PUT,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
+    @DurationStatistics
     public MacStateJson updateMacState(@PathVariable String macaddress, @RequestBody MacStateJson resource) throws Exception {
         MacState macState = null;
         try {
@@ -165,6 +174,7 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
+    @DurationStatistics
     public String deleteMacAllocation(@PathVariable String macaddress) throws Exception {
         String macAddress = null;
         try {
@@ -180,6 +190,7 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/ranges/{rangeid}", "/v4/macs/ranges/{rangeid}"})
+    @DurationStatistics
     public MacRangeJson getMacRangeByMacRangeId(@PathVariable String rangeid) throws Exception {
 
         MacRange macRange = null;
@@ -202,6 +213,7 @@ public class MacController {
     @RequestMapping(
             method = GET,
             value = {"/macs/ranges", "/v4/macs/ranges"})
+    @DurationStatistics
     public Map<String, Collection<MacRange>> getAllMacRanges() throws Exception {
 
         Map<String, Object[]> queryParams =
@@ -227,6 +239,7 @@ public class MacController {
             method = POST,
             value = {"/macs/ranges", "/v4/macs/ranges"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public MacRangeJson createMacRange(@RequestBody MacRangeJson resource) throws Exception {
         MacRange macRange = null;
         try {
@@ -250,6 +263,7 @@ public class MacController {
     @RequestMapping(
             method = PUT,
             value = {"/macs/ranges/{rangeid}", "/v4/macs/ranges/{rangeid}"})
+    @DurationStatistics
     public MacRangeJson updateMacRange(@PathVariable String rangeid, @RequestBody MacRangeJson resource) throws Exception {
         MacRange macRange = null;
         try {
@@ -276,6 +290,7 @@ public class MacController {
     @RequestMapping(
             method = DELETE,
             value = {"/macs/ranges/{rangeid}", "/v4/macs/ranges/{rangeid}"})
+    @DurationStatistics
     public ResponseId deleteMacRange(@PathVariable String rangeid) throws Exception {
         String rangeId = null;
         try {

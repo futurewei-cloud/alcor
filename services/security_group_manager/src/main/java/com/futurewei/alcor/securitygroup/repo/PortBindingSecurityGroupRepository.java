@@ -54,6 +54,7 @@ public class PortBindingSecurityGroupRepository {
         LOG.info("PortBindingSecurityGroupRepository init done");
     }
 
+    @DurationStatistics
     public Collection<PortBindingSecurityGroup> getPortBindingSecurityGroupBySecurityGroupId(String securityGroupId) throws CacheException {
         Map<String, String[]> filterParams = new HashMap<>();
         filterParams.put("security_group_id", new String[] {securityGroupId});

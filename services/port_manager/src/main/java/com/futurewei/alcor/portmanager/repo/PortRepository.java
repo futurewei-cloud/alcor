@@ -62,6 +62,7 @@ public class PortRepository {
         LOG.info("PortRepository init done");
     }
 
+    @DurationStatistics
     public void addPortEntities(List<PortEntity> portEntities) throws CacheException {
         Map<String, PortEntity> portEntityMap = portEntities
                 .stream()

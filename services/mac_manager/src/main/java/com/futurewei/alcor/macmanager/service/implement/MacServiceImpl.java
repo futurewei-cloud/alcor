@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.exception.DistributedLockException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.macmanager.dao.MacRangeMappingRepository;
 import com.futurewei.alcor.macmanager.dao.MacRangeRepository;
 import com.futurewei.alcor.macmanager.dao.MacStateRepository;
@@ -69,6 +70,7 @@ public class MacServiceImpl implements MacService {
      * @throws ParameterNullOrEmptyException          parameter macAddress is null or empty
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
+    @DurationStatistics
     public MacState getMacStateByMacAddress(String macAddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacAddressInvalidException {
         MacState macState;
         if (macAddress == null)
@@ -94,6 +96,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressFullException                All MAC addresses are created.
      * @throws MacAddressRetryLimitExceedException    MAC addresss creation is tried more than limit
      */
+    @DurationStatistics
     public MacState createMacState(MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressFullException, MacAddressRetryLimitExceedException {
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
         macState = createMacStateInRange(rangeId, macState);
@@ -114,6 +117,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressRetryLimitExceedException    MAC addresss creation is tried more than limit
      */
     @Override
+    @DurationStatistics
     public MacState createMacStateInRange(String rangeId, MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressRetryLimitExceedException, MacAddressFullException {
         if (macState == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -170,6 +174,7 @@ public class MacServiceImpl implements MacService {
      * @throws ResourceNotFoundException              there is not mac state with macAddress
      */
     @Override
+    @DurationStatistics
     public MacState updateMacState(String macAddress, MacState macState) throws ParameterNullOrEmptyException, ParameterUnexpectedValueException, MacRepositoryTransactionErrorException, ResourceNotFoundException {
         if (macAddress == null || macState == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -199,6 +204,7 @@ public class MacServiceImpl implements MacService {
      * @throws ResourceNotFoundException              there is not mac state to release macAddress
      */
     @Override
+    @DurationStatistics
     public String releaseMacState(String macAddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, ResourceNotFoundException {
         String strMacAddress;
         if (macAddress == null)
@@ -232,6 +238,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
     @Override
+    @DurationStatistics
     public MacRange getMacRangeByMacRangeId(String macRangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException {
         if (macRangeId == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -253,6 +260,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
     @Override
+    @DurationStatistics
     public Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws MacRepositoryTransactionErrorException {
         Map<String, MacRange> macRanges = null;
         String rangeIdName = "rangeId";
@@ -286,6 +294,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeInvalidException               macRange's from should be less than macRange's to
      */
     @Override
+    @DurationStatistics
     public MacRange createMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException {
         if (macRange == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -310,6 +319,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeInvalidException               macRange's from should be less than macRange's to
      */
     @Override
+    @DurationStatistics
     public MacRange updateMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException {
         if (macRange == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -334,6 +344,7 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeDeleteNotAllowedException      default mac range is prohibited to delete
      */
     @Override
+    @DurationStatistics
     public String deleteMacRange(String rangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeDeleteNotAllowedException {
         if (rangeId == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -357,6 +368,7 @@ public class MacServiceImpl implements MacService {
      * @throws Exception create Exceptions
      */
     @Override
+    @DurationStatistics
     public MacStateBulkJson createMacStateBulk(MacStateBulkJson macStateBulkJson) throws Exception {
         return createMacStateBulkInRange(MacManagerConstant.DEFAULT_RANGE, macStateBulkJson);
     }
@@ -370,6 +382,7 @@ public class MacServiceImpl implements MacService {
      * @throws Exception create Exceptions
      */
     @Override
+    @DurationStatistics
     public MacStateBulkJson createMacStateBulkInRange(String rangeId, MacStateBulkJson macStateBulkJson) throws Exception {
         // handle exist macs
         List<MacState> createNewMacList = new ArrayList<>();

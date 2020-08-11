@@ -1,5 +1,6 @@
 package com.futurewei.alcor.elasticipmanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpAllocator;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRangeRepo;
 import com.futurewei.alcor.elasticipmanager.dao.ElasticIpRepo;
@@ -40,6 +41,7 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
      * @throws ElasticIpRangeExistsException The elastic ip range already exists
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpRangeInfo createElasticIpRange(ElasticIpRangeInfo request) throws Exception {
         LOG.debug("Create an elastic ip range, request: {}", request);
 
@@ -71,6 +73,7 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
      *                                      to this elastic ip range
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void deleteElasticIpRange(String elasticIpRangeId) throws Exception {
         LOG.debug("Delete an elastic ip range, requestId: {}", elasticIpRangeId);
 
@@ -96,6 +99,7 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
      *                                      to the range which will be removed after the update
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpRangeInfo updateElasticIpRange(ElasticIpRangeInfo request) throws Exception {
         LOG.debug("Update an elastic ip range, request: {}", request);
 
@@ -138,6 +142,7 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
      * @throws ElasticIpRangeNotFoundException The elastic ip range does not exist
      * @throws ElasticIpInternalErrorException Internal process (database etc.) error
      */
+    @DurationStatistics
     public ElasticIpRangeInfo getElasticIpRange(String elasticIpRangeId) throws Exception {
         LOG.debug("get an elastic ip range, requestId: {}", elasticIpRangeId);
 
@@ -165,6 +170,7 @@ public class ElasticIpRangeServiceImpl implements ElasticIpRangeService {
      * @return A list of elastic ip ranges information
      * @throws ElasticIpInternalErrorException Internal process (database etc.) error
      */
+    @DurationStatistics
     public List<ElasticIpRangeInfo> getElasticIpRanges() throws Exception {
         LOG.debug("get all elastic ip ranges");
 

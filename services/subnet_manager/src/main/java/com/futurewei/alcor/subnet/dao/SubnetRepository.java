@@ -23,6 +23,7 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -56,27 +57,32 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     }
 
     @Override
+    @DurationStatistics
     public SubnetEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
         cache.put(subnet.getId(), subnet);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete subnet, subnet Id:" + id);
         cache.remove(id);

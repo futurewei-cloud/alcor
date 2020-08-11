@@ -264,6 +264,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupsJson listSecurityGroup(Map<String, Object[]> queryParams) throws Exception {
         List<SecurityGroup> securityGroups = new ArrayList<>();
         Map<String, SecurityGroup> securityGroupMap = securityGroupRepository.getAllSecurityGroups(queryParams);

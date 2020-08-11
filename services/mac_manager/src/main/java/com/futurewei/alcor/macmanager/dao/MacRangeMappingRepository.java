@@ -21,6 +21,7 @@ package com.futurewei.alcor.macmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.macmanager.dao.api.IRangeMappingRepository;
 import com.futurewei.alcor.web.entity.mac.MacAllocate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     }
 
     @Override
+    @DurationStatistics
     public long size(String rangeId) throws CacheException {
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
@@ -55,6 +57,7 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     }
 
     @Override
+    @DurationStatistics
     public Boolean putIfAbsent(String rangeId, Long macLong) throws CacheException {
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
@@ -63,11 +66,13 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     }
 
     @Override
+    @DurationStatistics
     public void addItem(String rangeId, Long macLong) throws CacheException {
         mappingCache.get(rangeId).put(macLong, rangeId);
     }
 
     @Override
+    @DurationStatistics
     public Boolean releaseMac(String rangeId, Long macLong) throws CacheException {
         if(!mappingCache.containsKey(rangeId)){
             createRangeCache(rangeId);
@@ -80,12 +85,14 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     }
 
     @Override
+    @DurationStatistics
     public void removeRange(String rangeId) throws CacheException {
         //TODO clear cache
         mappingCache.remove(rangeId);
     }
 
     @Override
+    @DurationStatistics
     public Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException{
         Map<Long, String> existMacs = mappingCache.get(rangeId).getAll(macs);
         Set<Long> newMacs = new HashSet<>();
