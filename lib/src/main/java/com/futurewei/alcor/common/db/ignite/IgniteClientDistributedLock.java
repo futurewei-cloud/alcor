@@ -102,4 +102,3 @@ public class IgniteClientDistributedLock implements IDistributedLock {
         return this.name;
     }
 }
-

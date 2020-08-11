@@ -72,7 +72,6 @@ public class SubnetController {
     @Autowired
     private SubnetService subnetService;
 
-    @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
             value = {"/subnets/{rangeId}"})
@@ -94,6 +93,7 @@ public class SubnetController {
         return usedIps;
     }
 
+    @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
             value = {"/subnets/{subnetId}"})
@@ -370,6 +370,7 @@ public class SubnetController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectId}/subnets/{subnetId}"})
+    @DurationStatistics
     public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebRequestJson resource) throws Exception {
 
         SubnetEntity subnetEntity = null;

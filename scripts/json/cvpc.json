@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "network": {
     "admin_state_up": true,
@@ -15,21 +14,3 @@
     "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50"
   }
 }
-=======
-{
-  "network": {
-    "admin_state_up": true,
-    "revision_number": 0,
-    "cidr": "10.0.0.0/16",
-    "default": true,
-    "description": "vpc",
-    "dns_domain": "domain",
-    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-    "is_default": true,
-    "mtu": 1400,
-    "name": "sample_vpc",
-    "port_security_enabled": true,
-    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50"
-  }
-}
->>>>>>> new_master
