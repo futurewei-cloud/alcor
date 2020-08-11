@@ -18,7 +18,6 @@ package com.futurewei.alcor.common.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.TokenEntity;
-import static com.futurewei.alcor.common.utils.DateUtil.KEYSTONE_DATE_FORMAT;
 import com.futurewei.alcor.common.exception.QueryParamTypeNotSupportException;
 import com.google.common.collect.ObjectArrays;
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

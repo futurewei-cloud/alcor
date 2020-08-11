@@ -22,8 +22,18 @@ import java.util.Date;
 
 public class DateUtil {
 
+    private static final ThreadLocal<SimpleDateFormat> keystoneFormatLocal = new ThreadLocal<SimpleDateFormat>(){
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat(KEYSTONE_TOKEN_DATE_PATTERN);
+        }
+    };
+
     public static final String KEYSTONE_TOKEN_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    public static final SimpleDateFormat KEYSTONE_DATE_FORMAT = new SimpleDateFormat(KEYSTONE_TOKEN_DATE_PATTERN);
+
+    public static SimpleDateFormat getKeystoneDateFormat() {
+        return keystoneFormatLocal.get();
+    }
 
     public static String localToUTC(String localTime, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
