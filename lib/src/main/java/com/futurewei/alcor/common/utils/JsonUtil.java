@@ -21,7 +21,9 @@ package com.futurewei.alcor.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class JsonUtil {
 
@@ -31,8 +33,20 @@ public class JsonUtil {
         return OBJECT_MAPPER.readValue(jsonStr, tClass);
     }
 
+    public static <T> T readValue(File jsonFile, Class<T> tClass) throws IOException {
+        return OBJECT_MAPPER.readValue(jsonFile, tClass);
+    }
+
+    public static <T> T readValue(InputStream is, Class<T> tClass) throws IOException {
+        return OBJECT_MAPPER.readValue(is, tClass);
+    }
+
     public static String writeValueAsString(Object obj) throws JsonProcessingException {
         return OBJECT_MAPPER.writeValueAsString(obj);
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return OBJECT_MAPPER;
     }
 
 }

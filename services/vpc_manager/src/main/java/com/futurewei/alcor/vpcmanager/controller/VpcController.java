@@ -31,6 +31,7 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -64,6 +65,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(name="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -109,6 +111,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(name="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -185,6 +188,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(name="vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -242,6 +246,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
+    @Rbac(name="vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -276,6 +281,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
+    @Rbac(name="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,

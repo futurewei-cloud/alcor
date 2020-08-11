@@ -1,0 +1,16 @@
+{
+  "serviceRules": [
+    {
+      "name": "create_network",
+      "method_type": "POST",
+      "description": "create a network",
+      "rule_type": "rule_any",
+      "roles": [],
+      "field_rbac_rules": [{
+        "name": "haha",
+        "description": "1",
+        "rule_type": "2",
+        "roles": []
+      }]
+    }]
+}

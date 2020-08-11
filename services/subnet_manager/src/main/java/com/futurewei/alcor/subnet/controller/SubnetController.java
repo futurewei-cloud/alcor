@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.controller;
 
+import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
@@ -37,6 +38,7 @@ import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,8 @@ public class SubnetController {
         return usedIps;
     }
 
+
+    @Rbac(name="vpc")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
@@ -143,6 +147,7 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
+    @Rbac(name="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets/bulk"})
@@ -152,6 +157,7 @@ public class SubnetController {
         return new SubnetsWebJson();
     }
 
+    @Rbac(name="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets"})
@@ -363,6 +369,7 @@ public class SubnetController {
         }
     }
 
+    @Rbac(name="vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectId}/subnets/{subnetId}"})
@@ -422,6 +429,7 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
+    @Rbac(name="vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectId}/subnets/{subnetId}"})
@@ -434,17 +442,19 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
+            Optional<TokenEntity> tokenEntityOptional = ControllerUtil.getUserTokenInfo(
+                    request.getHeader(ControllerUtil.TOKEN_INFO_HEADER));
+
+            if (tokenEntityOptional.isPresent())
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
             if (subnetEntity == null) {
                 return new ResponseId();
             }
 
-            RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
+            //RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
 
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
-
-            this.subnetDatabaseService.deleteSubnet(subnetId);
 
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
@@ -457,6 +467,7 @@ public class SubnetController {
         return new ResponseId(subnetId);
     }
 
+    @Rbac(name="vpc")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,

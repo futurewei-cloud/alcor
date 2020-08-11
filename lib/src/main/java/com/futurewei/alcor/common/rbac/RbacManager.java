@@ -1,0 +1,243 @@
+/*
+ *
+ * Copyright 2019 The Alcor Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *         you may not use this file except in compliance with the License.
+ *         You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *         See the License for the specific language governing permissions and
+ *         limitations under the License.
+ * /
+ */
+
+package com.futurewei.alcor.common.rbac;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.entity.*;
+import com.futurewei.alcor.common.exception.ParseObjectException;
+import com.futurewei.alcor.common.exception.PolicyResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.common.utils.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.*;
+
+@Component
+@ConditionalOnProperty(name="token.bind", havingValue="strict")
+public class RbacManager implements RbacMangerInterface{
+    private static final Logger LOG = LoggerFactory.getLogger(RbacManager.class);
+
+    private static final String DEFAULT_RBAC_FILE_PATH = "config/rbac_policy.json";
+    private static final String SERVICE_RBAC_FILE_PATH = "rbac_policy.json";
+
+    private static final String ADMIN_ROLE_NAME = "admin";
+    private static final String ADVSVC_ROLE_NAME = "advsvc";
+    private static final String OWNER_ROLE_NAME = "owner";
+
+    private ServiceRbacRule serviceRbacRule;
+
+    public RbacManager() throws IOException {
+        initServiceRbacRule();
+    }
+
+    private void initServiceRbacRule() throws IOException {
+        InputStream is = ClassLoader.getSystemResourceAsStream(SERVICE_RBAC_FILE_PATH);
+        //File file = new File(SERVICE_RBAC_FILE_PATH);
+        //if (!file.exists()) {
+            //file = new File(DEFAULT_RBAC_FILE_PATH);
+        //}
+        if (is == null) {
+            is = ClassLoader.getSystemResourceAsStream(DEFAULT_RBAC_FILE_PATH);
+        }
+        serviceRbacRule = JsonUtil.readValue(is, ServiceRbacRule.class);
+    }
+
+    @Override
+    public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        String actionName = "update_" + resourceName;
+        checkAction(actionName, tokenEntity, bodyFields, ownerChecker);
+    }
+
+    @Override
+    public void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker,
+                                        Object obj) throws ParseObjectException {
+        String actionName = "get_" + resourceName;
+        List<String> excludeFields = excludeFields(actionName, tokenEntity, ownerChecker);
+        processExcludeFields(excludeFields, obj);
+    }
+
+    @Override
+    public void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker,
+                                         List<Object> objList) throws ParseObjectException {
+        String actionName = "get_" + resourceName;
+        List<String> excludeFields = excludeFields(actionName, tokenEntity, ownerChecker);
+        for (Object obj: objList) {
+            processExcludeFields(excludeFields, obj);
+        }
+    }
+
+    @Override
+    public boolean isAdmin(String resourceName, TokenEntity tokenEntity) {
+        String actionName = "get_" + resourceName;
+
+        List<String> adminRoles = new ArrayList<>();
+        Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
+        if (rbacRuleOptional.isEmpty()) {
+            // if not rbac rule, user admin_or_owner
+            adminRoles.add(ADMIN_ROLE_NAME);
+            adminRoles.add(ADVSVC_ROLE_NAME);
+        } else {
+            adminRoles = rbacRuleOptional.get().getRoles();
+        }
+
+        List<String> tokenRoles = tokenEntity.getRoles();
+        if(tokenRoles == null || tokenRoles.isEmpty()) {
+            return false;
+        }
+
+        return adminRoles.stream().anyMatch(tokenRoles::contains);
+    }
+
+    @Override
+    public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        String actionName = "get_" + resourceName;
+        List<String> fields = Arrays.asList(getFields);
+        checkAction(actionName, tokenEntity, fields, ownerChecker);
+    }
+
+    @Override
+    public void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        String actionName = "delete_" + resourceName;
+        checkAction(actionName, tokenEntity, null, ownerChecker);
+    }
+
+    @Override
+    public void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields,
+                               OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        String actionName = "create_" + resourceName;
+        checkAction(actionName, tokenEntity, bodyFields, ownerChecker);
+    }
+
+    private List<String> excludeFields(String actionName, TokenEntity tokenEntity, OwnerChecker ownerChecker) {
+        List<String> excludeFields = new ArrayList<>();
+        Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
+        if (rbacRuleOptional.isEmpty()) {
+            // if not rbac rule return true
+            return excludeFields;
+        }
+
+        List<String> tokenRoles = tokenEntity.getRoles();
+        List<FieldRbacRule> fieldRbacRules = rbacRuleOptional.get().getFieldRbacRules();
+        for (FieldRbacRule fieldRbacRule: fieldRbacRules) {
+            boolean valid = checkRule(fieldRbacRule.getRuleType(), tokenRoles,
+                    fieldRbacRule.getRoles(), ownerChecker);
+            if(!valid) {
+                excludeFields.add(fieldRbacRule.getName());
+            }
+        }
+        return excludeFields;
+    }
+
+    private void processExcludeFields(List<String> excludeFields, Object obj) throws ParseObjectException {
+        if (excludeFields == null || excludeFields.isEmpty()) {
+            return;
+        }
+
+        Field[] fields = ControllerUtil.getAllDeclaredFields(obj.getClass());
+        for (Field field: fields) {
+            JsonProperty jsonAnnotate = field.getAnnotation(JsonProperty.class);
+            String fieldName = jsonAnnotate == null ? field.getName(): jsonAnnotate.value();
+            if (excludeFields.contains(fieldName)) {
+                // this field should not visible for this user
+                field.setAccessible(true);
+                try {
+                    field.set(obj, null);
+                } catch (IllegalAccessException e) {
+                    LOG.error("parse data error {}", e.getMessage());
+                    throw new ParseObjectException();
+                }
+            }
+        }
+    }
+
+    private void checkAction(String actionName, TokenEntity tokenEntity, List<String> bodyFields,
+                             OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
+        if (rbacRuleOptional.isEmpty()) {
+            // if not rbac rule return true
+            return;
+        }
+
+        String ruleType = rbacRuleOptional.get().getRuleType();
+        List<String> tokenRoles = tokenEntity.getRoles();
+
+        boolean actionValid = checkRule(ruleType, tokenRoles, rbacRuleOptional.get().getRoles(), ownerChecker);
+        if (!actionValid) {
+            throw new PolicyResourceNotFoundException();
+        }
+
+        checkFields(rbacRuleOptional.get().getFieldRbacRules(), tokenEntity, bodyFields, ownerChecker);
+    }
+
+    private void checkFields(List<FieldRbacRule> fieldRbacRules, TokenEntity tokenEntity,
+                                List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+        if (fieldRbacRules == null || fieldRbacRules.isEmpty() || bodyFields == null) {
+            return;
+        }
+
+        for (FieldRbacRule fieldRbacRule: fieldRbacRules) {
+            // only need check bodyFields fields
+            if (!bodyFields.contains(fieldRbacRule.getName())) {
+                continue;
+            }
+
+            boolean valid = checkRule(fieldRbacRule.getRuleType(), tokenEntity.getRoles(),
+                    fieldRbacRule.getRoles(), ownerChecker);
+            if (!valid) {
+                throw new PolicyResourceNotFoundException();
+            }
+        }
+    }
+
+    private boolean checkRule(String ruleType, List<String> tokenRoles, List<String> ruleRoles,
+                              OwnerChecker ownerChecker) {
+        // rule roles is empty, so every role can be ok
+        if (ruleRoles == null || ruleRoles.isEmpty()) {
+            return true;
+        }
+
+        // token roles is empty, but rule need some role, return false directly
+        if (tokenRoles == null || tokenRoles.isEmpty()) {
+            return false;
+        }
+
+        if (RuleType.RULE_ANY.equals(ruleType)) {
+            return true;
+        } else if (RuleType.ADMIN_ONLY.equals(ruleType)){
+            return tokenRoles.contains(ADMIN_ROLE_NAME);
+        } else if (RuleType.ADMIN_OR_OWNER.equals(ruleType)) {
+            return tokenRoles.contains(ADMIN_ROLE_NAME) || ownerChecker.apply();
+        } else if (RuleType.MUlTI_ROLES.equals(ruleType)) {
+            return ruleRoles.stream().anyMatch(tokenRoles::contains);
+        } else {
+            // maybe rule defined error, this can't block, return true
+            LOG.warn("unknown defined rbac rule type {}", ruleType);
+            return true;
+        }
+    }
+}
