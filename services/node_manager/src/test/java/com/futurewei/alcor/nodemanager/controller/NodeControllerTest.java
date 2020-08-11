@@ -70,28 +70,28 @@ public class NodeControllerTest extends MockIgniteServer {
     public void contextLoads() {
     }
 
-    @Test
-    public void testRegisterNodesInfoBulk() throws Exception {
-        //do the cleanup to make sure the insertion happens
-        nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f129");
-        nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f120");
-        this.mockMvc
-            .perform(
-                post("/nodes" + "/bulk")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        "{\n"
-                            + "  \"host_infos\":\n"
-                            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
-                            + "}\n"
-                            + ",\n"
-                            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
-                            + "}]\n"
-                            + "}"))
-            .andDo(print())
-        .andExpect(status().isOk()).andExpect( jsonPath("$.length()").value(2));
-            }
-
+  @Test
+  public void testRegisterNodesInfoBulk() throws Exception {
+    // do the cleanup to make sure the insertion happens
+    nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f129");
+    nodeService.deleteNodeInfo("c2b79aca-316e-4ce8-a8ac-815e2de1f120");
+    this.mockMvc
+        .perform(
+            post("/nodes" + "/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\n"
+                        + "  \"host_infos\":\n"
+                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                        + "}\n"
+                        + ",\n"
+                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                        + "}]\n"
+                        + "}"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2));
+  }
 
     @Test
     public void test_index() throws Exception {
@@ -120,7 +120,6 @@ public class NodeControllerTest extends MockIgniteServer {
             + "}";
         MockMultipartFile file = new MockMultipartFile("file", "./machine.json", "application/json",
                 fileContent.getBytes());
-        List<NodeInfo> nodeList = new ArrayList<NodeInfo>();
         this.mockMvc.perform(MockMvcRequestBuilders.multipart("/nodes/upload")
                 .file(file))
                 .andDo(print())
@@ -280,7 +279,6 @@ public class NodeControllerTest extends MockIgniteServer {
 
     @Test
     public void deleteNodeInfo() throws Exception {
-        final ResultActions resultActions =
                 this.mockMvc
                         .perform(
                                 post("/nodes" + "/bulk")
@@ -294,8 +292,8 @@ public class NodeControllerTest extends MockIgniteServer {
                                                         + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                                                         + "}]\n"
                                                         + "}"))
-                        .andDo(print());
-        resultActions.andExpect(status().isOk()).andExpect( jsonPath("$.length()").value(2));
+                        .andDo(print()).
+        andExpect(status().isOk()).andExpect( jsonPath("$.length()").value(2));
         String strNodeId="c2b79aca-316e-4ce8-a8ac-815e2de1f129";
         MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                 .andDo(print())
@@ -317,9 +315,9 @@ public class NodeControllerTest extends MockIgniteServer {
         }
     }
 
-    @Test
-    public void testNodeBulkRegistration() throws Exception {
-        Gson gson=new Gson();
+  @Test
+  public void testNodeBulkRegistration() throws Exception {
+    Gson gson = new Gson();
     String input =
         "{\n"
             + "\t\"nodeInfos\": [{\n"
@@ -338,10 +336,10 @@ public class NodeControllerTest extends MockIgniteServer {
             + "\t\t\"gRPCServerPort\": 8080\n"
             + "\t}]\n"
             + "}";
-        BulkNodeInfoJson bulkNodeInfoJson = gson.fromJson(input, BulkNodeInfoJson.class);
+    BulkNodeInfoJson bulkNodeInfoJson = gson.fromJson(input, BulkNodeInfoJson.class);
 
-        assertEquals(
-                nodeService.createNodeInfoBulk(bulkNodeInfoJson.getNodeInfos()).size(),
+    assertEquals(
+        nodeService.createNodeInfoBulk(bulkNodeInfoJson.getNodeInfos()).size(),
         nodeService.getAllNodes().size());
-           }
+  }
 }
