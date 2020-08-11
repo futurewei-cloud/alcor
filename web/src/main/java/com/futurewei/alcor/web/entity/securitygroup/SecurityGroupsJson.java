@@ -34,4 +34,12 @@ public class SecurityGroupsJson {
     public SecurityGroupsJson(List<SecurityGroup> securityGroups) {
         this.securityGroups = new ArrayList<>(securityGroups);
     }
+
+    public ArrayList<SecurityGroup> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(ArrayList<SecurityGroup> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
 }

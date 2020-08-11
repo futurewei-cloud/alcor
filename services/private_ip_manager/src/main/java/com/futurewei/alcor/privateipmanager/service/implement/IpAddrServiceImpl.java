@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import com.futurewei.alcor.privateipmanager.entity.IpAddrRange;
 import com.futurewei.alcor.web.entity.ip.*;
@@ -28,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
-
-
 @Service
 public class IpAddrServiceImpl implements IpAddrService {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddrServiceImpl.class);
@@ -37,6 +36,8 @@ public class IpAddrServiceImpl implements IpAddrService {
     @Autowired
     IpAddrRangeRepo ipAddrRangeRepo;
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest allocateIpAddr(IpAddrRequest request) throws Exception {
         LOG.debug("Allocate ip address, request: {}", request);
 
@@ -53,42 +54,62 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Allocate ip address bulk, requestBulk: {}", requestBulk);
 
-        Map<String, Integer> rangeToNum = new HashMap<>();
-        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        Map<String, List<IpAddrRequest>> rangeRequests = new HashMap<>();
+        Map<String, List<IpAddrRequest>> vpcIpv4Requests = new HashMap<>();
+        Map<String, List<IpAddrRequest>> vpcIpv6Requests = new HashMap<>();
 
-        for (IpAddrRequest request: requestBulk.getIpRequests()) {
-            Integer num = 1;
+        for (IpAddrRequest ipAddrRequest: requestBulk.getIpRequests()) {
+            if (ipAddrRequest.getRangeId() != null) {
+                if (!rangeRequests.containsKey(ipAddrRequest.getRangeId())) {
+                    rangeRequests.put(ipAddrRequest.getRangeId(), new ArrayList<>());
+                }
 
-            if (rangeToNum.containsKey(request.getRangeId())) {
-                num = rangeToNum.get(request.getRangeId()) + 1;
+                rangeRequests.get(ipAddrRequest.getRangeId()).add(ipAddrRequest);
+            } else if (ipAddrRequest.getVpcId() != null) {
+                if (IpVersion.IPV4.getVersion() == ipAddrRequest.getIpVersion()) {
+                    if (!vpcIpv4Requests.containsKey(ipAddrRequest.getVpcId())) {
+                        vpcIpv4Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                    }
+
+                    vpcIpv4Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                } else {
+                    if (!vpcIpv6Requests.containsKey(ipAddrRequest.getVpcId())) {
+                        vpcIpv6Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                    }
+
+                    vpcIpv6Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                }
             }
-
-            rangeToNum.put(request.getRangeId(), num);
         }
 
-        Map<String, List<IpAddrAlloc>> result = ipAddrRangeRepo.allocateIpAddrBulk(rangeToNum);
+        List<IpAddrAlloc> ipAddrAllocList = ipAddrRangeRepo
+                .allocateIpAddrBulk(rangeRequests, vpcIpv4Requests, vpcIpv6Requests);
 
-        for (Map.Entry<String, List<IpAddrAlloc>> entry: result.entrySet()) {
-            for (IpAddrAlloc ipAddrAlloc: entry.getValue()) {
-                IpAddrRequest ipAddrRequest = new IpAddrRequest();
-                ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
-                ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
-                ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
-                ipAddrRequest.setState(ipAddrAlloc.getState());
-                ipAddrRequests.add(ipAddrRequest);
-            }
+        List<IpAddrRequest> result = new ArrayList<>();
+        for (IpAddrAlloc ipAddrAlloc: ipAddrAllocList) {
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+            ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
+            ipAddrRequest.setSubnetId(ipAddrAlloc.getSubnetId());
+            ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
+            ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
+            ipAddrRequest.setState(ipAddrAlloc.getState());
+            result.add(ipAddrRequest);
         }
 
-        requestBulk.setIpRequests(ipAddrRequests);
+        requestBulk.setIpRequests(result);
 
         LOG.info("Allocate ip address bulk success, requestBulk: {}", requestBulk);
 
         return requestBulk;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest modifyIpAddrState(IpAddrRequest request) throws Exception {
         LOG.debug("Modify ip address state, request: {}", request);
 
@@ -99,6 +120,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequestBulk modifyIpAddrStateBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Modify ip address state bulk, requestBulk: {}", requestBulk);
 
@@ -114,6 +137,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return requestBulk;
     }
 
+    @Override
+    @DurationStatistics
     public void releaseIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Release ip address, ipAddr: {}", ipAddr);
 
@@ -122,6 +147,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Release ip address success, result: {}", ipAddr);
     }
 
+    @Override
+    @DurationStatistics
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
 
@@ -144,6 +171,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Release ip address bulk done, requestBulk: {}", requestBulk);
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRequest getIpAddr(String rangeId, String ipAddr) throws Exception {
         LOG.debug("Get ip address, rangeId: {}, ipAddr: {}", rangeId, ipAddr);
 
@@ -161,6 +190,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public List<IpAddrRequest> getIpAddrBulk(String rangeId) throws Exception {
         LOG.debug("List ip address, rangeId: {}", rangeId);
 
@@ -182,6 +213,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRangeRequest createIpAddrRange(IpAddrRangeRequest request) throws Exception {
         LOG.debug("Create ip address range, request: {}", request);
 
@@ -196,6 +229,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return request;
     }
 
+    @Override
+    @DurationStatistics
     public void deleteIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
@@ -204,6 +239,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
 
+    @Override
+    @DurationStatistics
     public IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception {
         LOG.debug("Get ip address range, rangeId: {}", rangeId);
 
@@ -227,6 +264,8 @@ public class IpAddrServiceImpl implements IpAddrService {
         return result;
     }
 
+    @Override
+    @DurationStatistics
     public List<IpAddrRangeRequest> listIpAddrRange() {
         LOG.debug("List ip address range");
 

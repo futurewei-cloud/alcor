@@ -37,4 +37,8 @@ public class NodesWebJson {
     public void setNodeInfos(List<NodeInfo> nodeInfos) {
         this.nodeInfos = nodeInfos;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

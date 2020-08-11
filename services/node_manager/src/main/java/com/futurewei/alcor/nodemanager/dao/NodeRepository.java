@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeRepository implements ICacheRepository<NodeInfo> {
     private static final Logger logger = LoggerFactory.getLogger(NodeRepository.class);
     private ICache<String, NodeInfo> cache;

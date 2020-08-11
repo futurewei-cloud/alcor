@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.utils;
 
+import com.futurewei.alcor.dataplane.exception.ClientOfDPMFailureException;
 import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.*;
@@ -257,6 +258,10 @@ public class GoalStateManager {
                         // lookup subnet entity
                         for (InternalSubnetEntity subnetEntity1 :
                             portStateWithEverythingFilledNB.getSubnetEntities()) {
+                            if(subnetEntity1.getTunnelId()==null)
+                            {
+                                throw new ClientOfDPMFailureException("empty tunnelId in the subnet payload!");
+                            }
                           Subnet.SubnetConfiguration subnetConfiguration =
                               Subnet.SubnetConfiguration.newBuilder()
                                   .setId(subnetEntity1.getId())

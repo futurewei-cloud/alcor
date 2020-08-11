@@ -158,7 +158,7 @@ public class TokenEntity implements Serializable {
     }
 
     public String toJson() {
-        String expireAtStr = expireAt == null ? "":DateUtil.KEYSTONE_DATE_FORMAT.format(expireAt);
+        String expireAtStr = expireAt == null ? "":DateUtil.getKeystoneDateFormat().format(expireAt);
         return "{" +
                 "\"token\":\"" + token + "\"" +
                 ", \"expireAt\":\"" + expireAtStr + "\"" +

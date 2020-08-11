@@ -18,6 +18,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.message.MessageClient;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.exception.DPMFailureException;
@@ -60,6 +61,7 @@ public class OVSGoalStateServiceImpl implements GoalStateService {
    * @throws RuntimeException Various exceptions that may occur during the send process
    */
   @Override
+  @DurationStatistics
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       SendGoalStateToHosts(
           Map<String, Goalstate.GoalState> gss, boolean isFast, int grpcPort, boolean isOvs) {

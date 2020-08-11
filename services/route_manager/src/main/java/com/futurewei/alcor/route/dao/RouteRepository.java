@@ -7,6 +7,7 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,7 +18,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class RouteRepository implements ICacheRepository<RouteEntity> {
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -38,21 +38,25 @@ public class RouteRepository implements ICacheRepository<RouteEntity> {
     }
 
     @Override
+    @DurationStatistics
     public RouteEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, RouteEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, RouteEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(RouteEntity routeEntity) throws CacheException {
         logger.log(Level.INFO, "Add route, route Id:" + routeEntity.getId());
         cache.put(routeEntity.getId(), routeEntity);
@@ -60,6 +64,7 @@ public class RouteRepository implements ICacheRepository<RouteEntity> {
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete route, route Id:" + id);
         cache.remove(id);

@@ -17,17 +17,24 @@ package com.futurewei.alcor.nodemanager.controller;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+<<<<<<< HEAD
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+=======
+>>>>>>> master
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
+<<<<<<< HEAD
 import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.NodeInfoJson;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
+=======
+import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+>>>>>>> master
 import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.swagger.annotations.ApiParam;
@@ -46,7 +53,10 @@ import java.util.logging.Level;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+<<<<<<< HEAD
 @Data
+=======
+>>>>>>> master
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class NodeController {
     private static final Logger LOG = LoggerFactory.getLogger();

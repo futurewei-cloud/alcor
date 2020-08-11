@@ -16,22 +16,33 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.exception.ACAFailureException;
+import com.futurewei.alcor.dataplane.exception.ClientOfDPMFailureException;
+import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResult;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class GSController {
+  private static final Logger LOG = LoggerFactory.getLogger();
+
   @Autowired private Config config;
   @Autowired private GoalStateManager goalStateManager;
 
@@ -46,6 +57,7 @@ public class GSController {
    */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
+  @DurationStatistics
   public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -62,6 +74,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/port/", "v4/port/"})
+  @DurationStatistics
   public InternalDPMResultList updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
@@ -78,6 +91,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/port/", "v4/port/"})
+  @DurationStatistics
   public InternalDPMResultList deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
@@ -95,6 +109,7 @@ public class GSController {
    */
   @PostMapping({"/subnet/", "v4/subnet/"})
   @ResponseStatus(HttpStatus.CREATED)
+  @DurationStatistics
   public InternalDPMResultList createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -111,6 +126,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @PutMapping({"/subnet/", "v4/subnet/"})
+  @DurationStatistics
   public InternalDPMResultList updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -127,6 +143,7 @@ public class GSController {
    *     /pages/infra_services/data_plane_manager.adoc
    */
   @DeleteMapping({"/subnet/", "v4/subnet/"})
+  @DurationStatistics
   public InternalDPMResultList deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
@@ -162,13 +179,30 @@ public class GSController {
               .collect(Collectors.toList());
       resultAll.setResultMessage("Successfully Handle request !!");
 
-    } catch (RuntimeException e) {
+    } catch (ClientOfDPMFailureException e) {
       e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("Client of DPM sending invalid payload: " + e.getMessage());
+    }
+    catch (ACAFailureException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("Alcor Agent Handle request failure reason: " + e.getMessage());
+    }
+    catch (DPMFailureException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
+      resultAll.setResultMessage("DataPlaneManager Handle request failure reason: " + e.getMessage());
+    }
+    catch (RuntimeException e) {
+      e.printStackTrace();
+      LOG.log(Level.SEVERE,e.getMessage());
       resultAll.setResultMessage("Failure Handle request reason: " + e.getMessage());
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);
     resultAll.setOverrallTime(done - start);
+    LOG.log(Level.INFO,"DPM+ACA time cost: goalState= "+gs+" time: "+(done - start)+" ms");
     return resultAll;
   }
 

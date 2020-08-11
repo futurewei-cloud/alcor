@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.PortBindingRoute;
 import com.futurewei.alcor.portmanager.exception.GetRouteEntityException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
@@ -46,7 +45,7 @@ public class RouteManagerProxy {
     public PortBindingRoute getRouteBySubnetId(Object arg1, Object arg2) throws Exception {
         String portId = (String)arg1;
         String subnetId = (String)arg2;
-        RoutesWebJson routesWebJson = routeManagerRestClient.getRouteBySubnetId(subnetId);
+        RoutesWebJson routesWebJson = routeManagerRestClient.getSubnetRoute(subnetId);
         if (routesWebJson == null || routesWebJson.getRoutes() == null) {
             throw new GetRouteEntityException();
         }
@@ -59,7 +58,7 @@ public class RouteManagerProxy {
         String portId = (String)arg1;
         CompletableFuture subnetFuture = (CompletableFuture)arg2;
         SubnetEntity subnetEntity = (SubnetEntity)subnetFuture.join();
-        RoutesWebJson routesWebJson = routeManagerRestClient.getRouteBySubnetId(subnetEntity.getId());
+        RoutesWebJson routesWebJson = routeManagerRestClient.getSubnetRoute(subnetEntity.getId());
         if (routesWebJson == null || routesWebJson.getRoutes() == null) {
             throw new GetRouteEntityException();
         }

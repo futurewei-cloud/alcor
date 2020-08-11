@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.elasticipmanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.config.IpVersion;
@@ -69,6 +70,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      * @throws ElasticIpAllocationException Allocation failed
      */
+    @DurationStatistics
     public ElasticIpInfo createElasticIp(ElasticIpInfo request) throws Exception {
         LOG.debug("Create an elastic ip, request: {}", request);
 
@@ -128,6 +130,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpInUseException The elastic ip is associated with a port
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void deleteElasticIp(String projectId, String elasticIpId) throws Exception {
         LOG.debug("Release an elastic ip, request: {}", elasticIpId);
 
@@ -158,6 +161,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpNotFoundException The elastic ip is not exits
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpInfo getElasticIp(String projectId, String elasticIpId) throws Exception {
         LOG.debug("Get an elastic ip, request: {}", elasticIpId);
 
@@ -179,6 +183,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @return A list of elastic ips information
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public List<ElasticIpInfo> getElasticIps(String projectId, Map<String, Object[]> queryParams) throws Exception {
         LOG.debug("Get elastic ips");
 
@@ -209,6 +214,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpModifyParameterException Not allowed to modify the parameter (elastic_ip etc.)
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpInfo updateElasticIp(ElasticIpInfo request) throws Exception {
         LOG.debug("Update an elastic ip, request: {}", request);
 

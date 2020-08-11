@@ -16,4 +16,12 @@ public class VpcsWebJson {
     public VpcsWebJson(List<VpcEntity> networks) {
         this.vpcs = new ArrayList<>(networks);
     }
+
+    public ArrayList<VpcEntity> getVpcs() {
+        return vpcs;
+    }
+
+    public void setVpcs(ArrayList<VpcEntity> vpcs) {
+        this.vpcs = vpcs;
+    }
 }

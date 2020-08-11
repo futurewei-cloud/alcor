@@ -19,6 +19,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
@@ -33,6 +34,7 @@ import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
@@ -44,6 +46,7 @@ import java.util.stream.Collectors;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class VpcController {
 
     @Autowired
@@ -67,6 +70,7 @@ public class VpcController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
+    @DurationStatistics
     public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcEntity vpcState = null;
@@ -94,6 +98,7 @@ public class VpcController {
             method = POST,
             value = {"/project/{projectid}/vpcs/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public VpcsWebJson createVpcStateBulk(@PathVariable String projectid, @RequestBody VpcsWebJson resource) throws Exception {
         return new VpcsWebJson();
     }
@@ -110,6 +115,7 @@ public class VpcController {
             method = POST,
             value = {"/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         VpcEntity inVpcState = new VpcEntity();
 
@@ -190,6 +196,7 @@ public class VpcController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
+    @DurationStatistics
     public VpcWebJson updateVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
@@ -246,6 +253,7 @@ public class VpcController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
+    @DurationStatistics
     public ResponseId deleteVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
         VpcEntity vpcState = null;
 
@@ -258,6 +266,8 @@ public class VpcController {
             if (vpcState == null) {
                 return new ResponseId();
             }
+
+            this.vpcService.checkSubnetsAreEmpty(vpcState);
 
             vpcDatabaseService.deleteVpc(vpcid);
         } catch (ParameterNullOrEmptyException e) {
@@ -278,11 +288,12 @@ public class VpcController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectId}/vpcs")
+    @DurationStatistics
     public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
 
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), VpcEntity.class);
 
         ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
@@ -309,6 +320,7 @@ public class VpcController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/vpcs/count")
+    @DurationStatistics
     public Map getVpcCountAndAllVpcStates() throws CacheException {
         Map result = new HashMap<String, Object>();
         Map dataItems = vpcDatabaseService.getAllVpcs();
@@ -329,6 +341,7 @@ public class VpcController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    @DurationStatistics
     public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
@@ -350,6 +363,52 @@ public class VpcController {
             if (!subnets.contains(subnetid)) {
                 subnets.add(subnetid);
             }
+            inVpcState.setSubnets(subnets);
+
+            this.vpcDatabaseService.addVpc(inVpcState);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+
+        return new VpcWebJson(inVpcState);
+
+    }
+
+    /**
+     * delete subnet id in a network
+     * @param projectid
+     * @param vpcid
+     * @param subnetid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnetid/{subnetid}"})
+    @DurationStatistics
+    public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        VpcEntity inVpcState = new VpcEntity();
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (inVpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            }
+
+            List<String> subnets = inVpcState.getSubnets();
+            if (subnets == null || !subnets.contains(subnetid)) {
+                return new VpcWebJson(inVpcState);
+            }
+            subnets.remove(subnetid);
+
             inVpcState.setSubnets(subnets);
 
             this.vpcDatabaseService.addVpc(inVpcState);

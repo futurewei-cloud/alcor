@@ -77,6 +77,16 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
+    public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
+        HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
+        IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
+
+        verifyAllocatedIpAddr(result);
+
+        return result;
+    }
+
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddressBulk(List<IpAddrRequest> ipAddrRequests) throws Exception {
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
         ipAddrRequestBulk.setIpRequests(ipAddrRequests);
@@ -93,7 +103,7 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
-    public void releaseIpAddress(String rangeId,String ip) throws Exception {
+    public void releaseIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
         restTemplate.delete(url);

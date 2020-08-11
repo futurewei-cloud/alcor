@@ -1,0 +1,39 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+option java_outer_classname = "Router";
+
+import "common.proto";
+
+message RouterConfiguration {
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
+
+    string request_id = 3;
+    string id = 4;
+    string host_dvr_mac_address = 5;
+    repeated string subnet_ids = 6;
+}
+
+message RouterState {
+    OperationType operation_type = 1;
+    RouterConfiguration configuration = 2;
+}

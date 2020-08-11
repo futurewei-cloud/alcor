@@ -13,23 +13,34 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.port;
+package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
+public class PortBindingSecurityGroup {
+    @JsonProperty("id")
+    private String id;
 
-public class PortSecurityGroupsJson {
     @JsonProperty("port_id")
     private String portId;
-    private List<String> securityGroups;
 
-    public PortSecurityGroupsJson() {
+    @JsonProperty("security_group_id")
+    private String securityGroupId;
+
+    public PortBindingSecurityGroup() {
     }
 
-    public PortSecurityGroupsJson(String portId, List<String> securityGroups) {
+    public PortBindingSecurityGroup(String portId, String securityGroupId) {
         this.portId = portId;
-        this.securityGroups = securityGroups;
+        this.securityGroupId = securityGroupId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getPortId() {
@@ -40,11 +51,11 @@ public class PortSecurityGroupsJson {
         this.portId = portId;
     }
 
-    public List<String> getSecurityGroups() {
-        return securityGroups;
+    public String getSecurityGroupId() {
+        return securityGroupId;
     }
 
-    public void setSecurityGroups(List<String> securityGroups) {
-        this.securityGroups = securityGroups;
+    public void setSecurityGroupId(String securityGroupId) {
+        this.securityGroupId = securityGroupId;
     }
 }

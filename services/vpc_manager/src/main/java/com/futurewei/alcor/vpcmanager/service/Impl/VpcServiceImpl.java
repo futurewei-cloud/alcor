@@ -1,7 +1,9 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
+import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +39,7 @@ public class VpcServiceImpl implements VpcService {
      * @return route state
      */
     @Override
+    @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
         String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
         HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
@@ -50,6 +54,7 @@ public class VpcServiceImpl implements VpcService {
      * @throws Exception
      */
     @Override
+    @DurationStatistics
     public VpcEntity allocateSegmentForNetwork(VpcEntity vpcEntity) throws Exception {
         String networkTypeId = UUID.randomUUID().toString();
         if (vpcEntity == null) {
@@ -77,5 +82,24 @@ public class VpcServiceImpl implements VpcService {
         }
 
         return vpcEntity;
+    }
+
+    /**
+     * check subnets in network are empty or not
+     * @param vpcEntity
+     * @return
+     * @throws SubnetsNotEmptyException
+     */
+    @Override
+    @DurationStatistics
+    public boolean checkSubnetsAreEmpty(VpcEntity vpcEntity) throws SubnetsNotEmptyException {
+        if (vpcEntity == null) {
+            return true;
+        }
+        List<String> subnets = vpcEntity.getSubnets();
+        if (!(subnets == null || subnets.size() == 0)) {
+            throw new SubnetsNotEmptyException();
+        }
+        return true;
     }
 }

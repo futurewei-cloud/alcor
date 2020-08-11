@@ -25,7 +25,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
-import static com.futurewei.alcor.common.utils.DateUtil.KEYSTONE_DATE_FORMAT;
+import static com.futurewei.alcor.common.utils.DateUtil.getKeystoneDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -171,7 +172,7 @@ public class KeystoneClient {
             if (!"null".equals(expireDateStr)) {
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
                 try {
-                    localTokenExpireDate = KEYSTONE_DATE_FORMAT.parse(expireDateStr);
+                    localTokenExpireDate = getKeystoneDateFormat().parse(expireDateStr);
                     LOG.info("generate an alcor token success: {}", localToken);
                 } catch (ParseException e) {
                     LOG.error("generate an alcor Token failed, {}", e.getMessage());
@@ -226,7 +227,9 @@ public class KeystoneClient {
 
                 String expireDateStr = tokenNode.path(JSON_EXPIRES_AT_KEY).asText();
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
-                Date expireDate = KEYSTONE_DATE_FORMAT.parse(expireDateStr);
+
+                Date expireDate = getKeystoneDateFormat().parse(expireDateStr);
+
                 te.setExpireAt(expireDate);
 
                 if(tokenNode.has(JSON_ROLES_KEY)){

@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 public class MizarGoalStateServiceImpl implements GoalStateService {
   @Override
+  @DurationStatistics
   public List<List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
       SendGoalStateToHosts(
           Map<String, Goalstate.GoalState> gss, boolean isFast, int grpcPort, boolean isOvs) {

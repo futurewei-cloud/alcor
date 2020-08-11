@@ -17,7 +17,7 @@ package com.futurewei.alcor.subnet.config;
 
 public class ConstantsConfig {
 
-    public static int HighIpInterval = 1;
+    public static int HighIpInterval = 0;
     public static int LowIpInterval = 3;
     public static int BaseInterval = 0;
 
