@@ -27,7 +27,9 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,8 +37,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 
-@Component
-@ConditionalOnProperty(name="token.bind", havingValue="strict")
 public class StrictRbacManager implements RbacManger {
     private static final Logger LOG = LoggerFactory.getLogger(StrictRbacManager.class);
 
@@ -228,6 +228,8 @@ public class StrictRbacManager implements RbacManger {
             return tokenRoles.contains(ADMIN_ROLE_NAME) || ownerChecker.apply();
         } else if (RuleType.MUlTI_ROLES.equals(ruleType)) {
             return ruleRoles.stream().anyMatch(tokenRoles::contains);
+        } else if (RuleType.MUlTI_ROLES_OR_OWNER.equals(ruleType)) {
+            return ruleRoles.stream().anyMatch(tokenRoles::contains) || ownerChecker.apply();
         } else {
             // maybe rule defined error, this can't block, return true
             LOG.warn("unknown defined rbac rule type {}", ruleType);

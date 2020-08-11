@@ -447,10 +447,6 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
-            Optional<TokenEntity> tokenEntityOptional = ControllerUtil.getUserTokenInfo(
-                    request.getHeader(ControllerUtil.TOKEN_INFO_HEADER));
-
-            if (tokenEntityOptional.isPresent())
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
             if (subnetEntity == null) {
                 return new ResponseId();

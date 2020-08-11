@@ -26,9 +26,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-@ConditionalOnProperty(name="token.bind", havingValue="ignore")
 public class IgnoreRbacManager implements RbacManger {
+
+    private static final String ADMIN_ROLE_NAME = "admin";
+
     @Override
     public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
 
@@ -51,7 +52,11 @@ public class IgnoreRbacManager implements RbacManger {
 
     @Override
     public boolean isAdmin(String resourceName, TokenEntity tokenEntity) {
-        return false;
+        List<String> roles = tokenEntity.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            return false;
+        }
+        return roles.contains(ADMIN_ROLE_NAME);
     }
 
     @Override
