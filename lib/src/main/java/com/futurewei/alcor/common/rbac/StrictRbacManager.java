@@ -30,17 +30,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.*;
 
 @Component
 @ConditionalOnProperty(name="token.bind", havingValue="strict")
-public class RbacManager implements RbacMangerInterface{
-    private static final Logger LOG = LoggerFactory.getLogger(RbacManager.class);
+public class StrictRbacManager implements RbacManger {
+    private static final Logger LOG = LoggerFactory.getLogger(StrictRbacManager.class);
 
     private static final String DEFAULT_RBAC_FILE_PATH = "config/rbac_policy.json";
     private static final String SERVICE_RBAC_FILE_PATH = "rbac_policy.json";
@@ -51,16 +49,12 @@ public class RbacManager implements RbacMangerInterface{
 
     private ServiceRbacRule serviceRbacRule;
 
-    public RbacManager() throws IOException {
+    public StrictRbacManager() throws IOException {
         initServiceRbacRule();
     }
 
     private void initServiceRbacRule() throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(SERVICE_RBAC_FILE_PATH);
-        //File file = new File(SERVICE_RBAC_FILE_PATH);
-        //if (!file.exists()) {
-            //file = new File(DEFAULT_RBAC_FILE_PATH);
-        //}
         if (is == null) {
             is = ClassLoader.getSystemResourceAsStream(DEFAULT_RBAC_FILE_PATH);
         }

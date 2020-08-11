@@ -25,6 +25,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface Rbac {
 
-    String name() default "";
+    String resourceName() default "";
 
 }

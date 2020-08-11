@@ -1,0 +1,40 @@
+{
+  "serviceRules": [
+    {
+      "name": "create_eip",
+      "method_type": "POST",
+      "description": "Create a security group",
+      "rule_type": "rule_any",
+      "roles": [],
+      "field_rbac_rules": [
+        {
+          "name": "elastic_ip",
+          "description": "Specify ''elastic_ip'' attribute when creating a eip",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "get_eip",
+      "method_type": "GET",
+      "description": "Get or list eip",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"]
+    },
+    {
+      "name": "update_eip",
+      "method_type": "PUT",
+      "description": "Update a eip",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"],
+    },
+    {
+      "name": "delete_eip",
+      "method_type": "DELETE",
+      "description": "Delete a eip",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"]
+    }
+  ]
+}

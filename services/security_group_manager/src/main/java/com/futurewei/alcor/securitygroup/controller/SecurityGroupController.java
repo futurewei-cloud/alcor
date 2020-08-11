@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
+import com.futurewei.alcor.common.rbac.aspect.Rbac;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
@@ -46,6 +47,7 @@ public class SecurityGroupController {
     @Autowired
     private HttpServletRequest request;
 
+    @Rbac(name="security_group")
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -60,6 +62,7 @@ public class SecurityGroupController {
         return securityGroupService.createSecurityGroup(securityGroupJson);
     }
 
+    @Rbac(name="security_group")
     @PostMapping({"/project/{project_id}/security-groups/bulk", "v4/{project_id}/security-groups/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -84,6 +87,7 @@ public class SecurityGroupController {
         return securityGroupService.createSecurityGroupBulk(tenantId, projectId, securityGroupBulkJson);
     }
 
+    @Rbac(name="security_group")
     @PutMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(@PathVariable("project_id") String projectId,
@@ -96,6 +100,7 @@ public class SecurityGroupController {
         return securityGroupService.updateSecurityGroup(securityGroupId, securityGroupJson);
     }
 
+    @Rbac(name="security_group")
     @DeleteMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public void deleteSecurityGroup(@PathVariable("project_id") String projectId,
@@ -106,6 +111,7 @@ public class SecurityGroupController {
         securityGroupService.deleteSecurityGroup(securityGroupId);
     }
 
+    @Rbac(name="security_group")
     @FieldFilter(type=SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
@@ -127,6 +133,7 @@ public class SecurityGroupController {
         return securityGroupService.getDefaultSecurityGroup(projectId, tenantId);
     }
 
+    @Rbac(name="security_group")
     @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @DurationStatistics
@@ -135,7 +142,6 @@ public class SecurityGroupController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), SecurityGroup.class);
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         return securityGroupService.listSecurityGroup(queryParams);
     }

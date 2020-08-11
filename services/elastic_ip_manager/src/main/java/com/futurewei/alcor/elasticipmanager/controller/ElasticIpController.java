@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.elasticipmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.rbac.aspect.Rbac;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.elasticipmanager.exception.ElasticIpNoProjectIdException;
@@ -61,6 +62,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(name="eip")
     @PostMapping("/project/{project_id}/elasticips")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -86,6 +88,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(name="eip")
     @PutMapping("/project/{project_id}/elasticips/{elasticip_id}")
     @ResponseBody
     @DurationStatistics
@@ -110,6 +113,7 @@ public class ElasticIpController {
      * @return ResponseId
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(name="eip")
     @DeleteMapping("/project/{project_id}/elasticips/{elasticip_id}")
     @DurationStatistics
     public ResponseId deleteElasticIp(@PathVariable("project_id") String projectId,
@@ -135,6 +139,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(name="eip")
     @GetMapping(value = {"/project/{project_id}/elasticips/{elasticip_id}"})
     @DurationStatistics
     public ElasticIpInfoWrapper getElasticIp(@PathVariable("project_id") String projectId,
@@ -160,6 +165,7 @@ public class ElasticIpController {
      * @return ElasticIpsInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(name="eip")
     @GetMapping(value = {"/project/{project_id}/elasticips"})
     @FieldFilter(type= ElasticIp.class)
     @DurationStatistics
@@ -172,7 +178,6 @@ public class ElasticIpController {
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(this.request.getParameterMap(), ElasticIp.class);
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
 
         List<ElasticIpInfo> eips = elasticipService.getElasticIps(projectId, queryParams);
 

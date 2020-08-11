@@ -167,7 +167,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         LOG.debug("Get an elastic ip, request: {}", elasticIpId);
 
         ElasticIp eip = elasticIpRepo.findItem(elasticIpId);
-        if (eip == null || !projectId.equals(eip.getProjectId())) {
+        if (eip == null) {
             throw new ElasticIpNotFoundException();
         }
 

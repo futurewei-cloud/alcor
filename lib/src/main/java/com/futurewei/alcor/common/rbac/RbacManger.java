@@ -25,7 +25,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Map;
 
-public interface RbacMangerInterface {
+public interface RbacManger {
 
     void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException;
 

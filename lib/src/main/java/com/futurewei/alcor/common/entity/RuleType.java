@@ -24,5 +24,6 @@ public class RuleType {
     public static final String RULE_ANY = "rule_any";
     public static final String ADMIN_OR_OWNER = "admin_or_owner";
     public static final String MUlTI_ROLES = "multi_roles";
+    public static final String MUlTI_ROLES_OR_OWNER = "multi_roles_or_owner";
 
 }

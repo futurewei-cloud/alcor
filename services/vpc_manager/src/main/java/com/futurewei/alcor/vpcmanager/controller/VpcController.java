@@ -17,18 +17,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
-import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
+import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
@@ -65,7 +65,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(name="vpc")
+    @Rbac(resourceName ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -111,7 +111,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(name="vpc")
+    @Rbac(resourceName ="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -188,7 +188,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(name="vpc")
+    @Rbac(resourceName ="vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -246,7 +246,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
-    @Rbac(name="vpc")
+    @Rbac(resourceName ="vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -281,7 +281,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
-    @Rbac(name="vpc")
+    @Rbac(resourceName ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -292,7 +292,6 @@ public class VpcController {
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), VpcEntity.class);
 
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceFound(projectId);

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.ParseObjectException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.rbac.RbacMangerInterface;
+import com.futurewei.alcor.common.rbac.RbacManger;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -66,7 +66,7 @@ public class RbacAspect {
     private HttpServletRequest request;
 
     @Autowired
-    private RbacMangerInterface rbacManger;
+    private RbacManger rbacManger;
 
     @Pointcut("@annotation(com.futurewei.alcor.web.rbac.aspect.Rbac)")
     public void annotationPointCut(){}
@@ -78,7 +78,7 @@ public class RbacAspect {
         String tokenInfo = request.getHeader(TOKEN_INFO_HEADER);
         MethodSignature ms = (MethodSignature)pjp.getSignature();
         Rbac rbac = ms.getMethod().getAnnotation(Rbac.class);
-        String resourceName = rbac.name();
+        String resourceName = rbac.resourceName();
 
         Optional<TokenEntity> tokenEntityOptional = ControllerUtil.getUserTokenInfo(tokenInfo);
         if (tokenEntityOptional.isPresent()) {

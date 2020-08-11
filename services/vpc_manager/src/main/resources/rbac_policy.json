@@ -1,16 +1,164 @@
 {
   "serviceRules": [
     {
-      "name": "create_network",
+      "name": "create_vpc",
       "method_type": "POST",
-      "description": "create a network",
+      "description": "create a vpc",
       "rule_type": "rule_any",
       "roles": [],
-      "field_rbac_rules": [{
-        "name": "haha",
-        "description": "1",
-        "rule_type": "2",
-        "roles": []
-      }]
-    }]
+      "field_rbac_rules": [
+        {
+          "name": "shared",
+          "description": "create a shared vpc",
+          "rule_type": "rule_admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "router:external",
+          "description": "create an external vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "is_default",
+          "description": "Specify ''is_default'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "port_security_enabled",
+          "description": "Specify ''port_security_enabled'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "segments",
+          "description": "Specify ''segments'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:network_type",
+          "description": "Specify ''provider:network_type'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:physical_network",
+          "description": "Specify ''provider:physical_network'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:segmentation_id",
+          "description": "Specify ''provider:segmentation_id'' attribute when creating a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "get_vpc",
+      "method_type": "GET",
+      "description": "Get or list vpc",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"],
+      "field_rbac_rules": [
+        {
+          "name": "router:external",
+          "description": "Get ''router:external'' attribute of a vpc",
+          "rule_type": "rule_any",
+          "roles": []
+        },
+        {
+          "name": "segments",
+          "description": "Get ''segments'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:network_type",
+          "description": "Get ''provider:network_type'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:physical_network",
+          "description": "Get ''provider:physical_network'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:segmentation_id",
+          "description": "Get ''provider:segmentation_id'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "update_vpc",
+      "method_type": "PUT",
+      "description": "Update a vpc",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"],
+      "field_rbac_rules": [
+        {
+          "name": "shared",
+          "description": "Update ''shared'' attribute of a vpc",
+          "rule_type": "rule_admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "is_default",
+          "description": "Update ''is_default'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "router:external",
+          "description": "Update ''router:external'' attribute of a vpc",
+          "rule_type": "rule_any",
+          "roles": []
+        },
+        {
+          "name": "segments",
+          "description": "Update ''segments'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:network_type",
+          "description": "Update ''provider:network_type'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:physical_network",
+          "description": "Update ''provider:physical_network'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "provider:segmentation_id",
+          "description": "Update ''provider:segmentation_id'' attribute of a vpc",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "port_security_enabled",
+          "description": "Update ''port_security_enabled'' attribute of a vpc",
+          "rule_type": "admin_or_owner",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "delete_vpc",
+      "method_type": "DELETE",
+      "description": "Delete a vpc",
+      "rule_type": "admin_or_owner",
+      "roles": ["admin"]
+    }
+  ]
 }

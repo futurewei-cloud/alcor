@@ -16,12 +16,12 @@
  * /
  */
 
-package com.futurewei.alcor.common.rbac;
+package com.futurewei.alcor.web.rbac.aspect;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(value = "com.futurewei.alcor.common.rbac")
+@ComponentScan(value = {"com.futurewei.alcor.common.rbac", "com.futurewei.alcor.web.rbac.aspect"})
 public class RbacConfiguration {
 }

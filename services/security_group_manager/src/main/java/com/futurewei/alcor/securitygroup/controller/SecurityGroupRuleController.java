@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
+import com.futurewei.alcor.common.rbac.aspect.Rbac;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
@@ -43,6 +44,7 @@ public class SecurityGroupRuleController {
     @Autowired
     private HttpServletRequest request;
 
+    @Rbac(name="security_group_rule")
     @PostMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -75,6 +77,7 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.createSecurityGroupRuleBulk(securityGroupRuleBulkJson);
     }
 
+    @Rbac(name="security_group_rule")
     @DeleteMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
     public void deleteSecurityGroupRule(@PathVariable("project_id") String projectId,
@@ -85,6 +88,7 @@ public class SecurityGroupRuleController {
         securityGroupRuleService.deleteSecurityGroupRule(securityGroupRuleId);
     }
 
+    @Rbac(name="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
@@ -96,6 +100,7 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.getSecurityGroupRule(securityGroupRuleId);
     }
 
+    @Rbac(name="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @DurationStatistics

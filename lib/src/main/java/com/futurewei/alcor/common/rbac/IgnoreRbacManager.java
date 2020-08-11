@@ -25,11 +25,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
 @ConditionalOnProperty(name="token.bind", havingValue="ignore")
-public class IgnoreRbacManager implements RbacMangerInterface {
+public class IgnoreRbacManager implements RbacManger {
     @Override
     public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
 
