@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.SubnetToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -52,27 +53,32 @@ public class RouteWithSubnetMapperRepository implements ICacheRepository<SubnetT
     }
 
     @Override
+    @DurationStatistics
     public SubnetToRouteMapper findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetToRouteMapper> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetToRouteMapper> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(SubnetToRouteMapper subnetToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add routeWithSubnetMapper, mapper Id:" + subnetToRouteMapper.getSubnetId());
         cache.put(subnetToRouteMapper.getSubnetId(), subnetToRouteMapper);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete routeWithSubnetMapper, mapper Id:" + id);
         cache.remove(id);

@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
+import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
@@ -37,9 +38,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@Service
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+//@Service
+//@ComponentScan(value = "com.futurewei.alcor.common.utils")
+//@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+@Deprecated
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -125,6 +127,7 @@ public class PortServiceImpl implements PortService {
          they may not be completed until the rollback operation is completed.
          as a result, they cannot be rolled back.
          */
+        LOG.error("", e);
         executor.waitAll();
         rollBackAllOperations(rollbacks);
         throw e;

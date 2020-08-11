@@ -17,8 +17,11 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class VpcManagerRestClient extends AbstractRestClient {
@@ -34,5 +37,18 @@ public class VpcManagerRestClient extends AbstractRestClient {
         }
 
         return vpcWebJson;
+    }
+
+    @DurationStatistics
+    public VpcsWebJson getVpcBulk(String projectId, List<String> vpcIds) throws Exception {
+        String queryParameter = buildQueryParameter("id", vpcIds);
+        String url = vpcManagerUrl + "/project/" + projectId + "/vpcs?" + queryParameter;
+
+        VpcsWebJson vpcsWebJson = restTemplate.getForObject(url, VpcsWebJson.class);
+        if (vpcsWebJson == null) {
+            throw new Exception("Get vpcs failed");
+        }
+
+        return vpcsWebJson;
     }
 }

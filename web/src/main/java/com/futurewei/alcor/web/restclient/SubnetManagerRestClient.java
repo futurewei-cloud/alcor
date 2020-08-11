@@ -17,8 +17,11 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class SubnetManagerRestClient extends AbstractRestClient {
@@ -35,5 +38,18 @@ public class SubnetManagerRestClient extends AbstractRestClient {
         }
 
         return subnetWebJson;
+    }
+
+    @DurationStatistics
+    public SubnetsWebJson getSubnetBulk(String projectId, List<String> subnetIds) throws Exception {
+        String queryParameter = buildQueryParameter("id", subnetIds);
+        String url = subnetManagerUrl + "/project/" + projectId + "/subnets?" + queryParameter;
+
+        SubnetsWebJson subnetsWebJson = restTemplate.getForObject(url, SubnetsWebJson.class);
+        if (subnetsWebJson == null) {
+            throw new Exception("Get subnets failed");
+        }
+
+        return subnetsWebJson;
     }
 }

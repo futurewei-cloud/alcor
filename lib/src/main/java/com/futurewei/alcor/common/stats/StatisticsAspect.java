@@ -39,7 +39,7 @@ public class StatisticsAspect {
         long endTime = 0;
         long duration = 0;
 
-        LOG.info("Calculating duration of {}.{}()...",
+        LOG.debug("Calculating duration of {}.{}()...",
                 pjp.getSignature().getDeclaringTypeName(), pjp.getSignature().getName());
 
         startTime = System.nanoTime();

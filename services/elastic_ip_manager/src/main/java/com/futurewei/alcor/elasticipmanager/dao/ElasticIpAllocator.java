@@ -17,6 +17,7 @@ package com.futurewei.alcor.elasticipmanager.dao;
 
 import com.futurewei.alcor.common.db.*;
 import com.futurewei.alcor.common.exception.DistributedLockException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.entity.ElasticIpAllocatedIpv4;
@@ -420,6 +421,7 @@ public class ElasticIpAllocator {
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      * @throws ElasticIpAllocationException Allocation failed
      */
+    @DurationStatistics
     public String allocateIpAddress(ElasticIpRange range, String specifiedIp) throws Exception {
         String ipAddress = null;
         if (range.getIpVersion() == IpVersion.IPV4.getVersion()) {
@@ -512,6 +514,7 @@ public class ElasticIpAllocator {
      * @param ipAddress The allocated elastic ip address
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void releaseIpAddress(String rangeId, Integer ipVersion, String ipAddress) throws Exception {
         if (ipVersion == IpVersion.IPV4.getVersion()) {
             this.releaseIpv4Address(rangeId, ipAddress);
@@ -667,6 +670,7 @@ public class ElasticIpAllocator {
      *                                      to the range which will be removed after the update
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void elasticIpRangedUpdate(String rangeId, Integer ipVersion,
                                       List<ElasticIpRange.AllocationRange> allocationRanges) throws Exception {
 
@@ -734,6 +738,7 @@ public class ElasticIpAllocator {
      *                                      to this elastic ip range
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void elasticIpRangedDelete(String rangeId, Integer ipVersion) throws Exception {
         if (ipVersion == IpVersion.IPV4.getVersion()) {
             this.elasticIpv4RangeDelete(rangeId);

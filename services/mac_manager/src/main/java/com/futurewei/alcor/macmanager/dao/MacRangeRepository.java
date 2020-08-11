@@ -18,6 +18,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public MacRange findItem(String rangeId) throws CacheException {
         MacRange macRange = null;
         try {
@@ -75,6 +77,7 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public Map<String, MacRange> findAllItems() throws CacheException {
         Map<String, MacRange> map = null;
         try {
@@ -94,6 +97,7 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public Map<String, MacRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         Map<String, MacRange> map = null;
         try {
@@ -113,6 +117,7 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void addItem(MacRange macRange) throws CacheException {
         cache.put(macRange.getRangeId(), macRange);
     }
@@ -125,26 +130,31 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void deleteItem(String rangeId) throws CacheException {
         cache.remove(rangeId);
     }
 
     @Override
+    @DurationStatistics
     public long size() {
         return cache.size();
     }
 
     @Override
+    @DurationStatistics
     public Boolean putIfAbsent(MacRange macRange) throws CacheException {
         return cache.putIfAbsent(macRange.getRangeId(), macRange);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, MacRange> findAllItems(Set<String> keys) throws CacheException {
         return cache.getAll(keys);
     }
 
     @Override
+    @DurationStatistics
     public Boolean contains(String key) throws CacheException {
         return cache.containsKey(key);
     }

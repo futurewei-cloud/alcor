@@ -17,6 +17,7 @@ package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithSubnetMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
@@ -43,6 +44,7 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     RouteRepository routeRepository;
 
     @Override
+    @DurationStatistics
     public SubnetToRouteMapper getBySubnetId(String subnetId) {
         try {
             return this.routeWithSubnetMapperRepository.findItem(subnetId);
@@ -52,6 +54,7 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
+    @DurationStatistics
     public List<RouteEntity> getRuleBySubnetId(String subnetId) {
         List<RouteEntity> routes = new ArrayList<>();
 
@@ -77,11 +80,13 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
+    @DurationStatistics
     public Map getAllMappers() throws CacheException {
         return this.routeWithSubnetMapperRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addMapper(SubnetToRouteMapper subnetToRouteMapper) throws DatabasePersistenceException {
         try {
             this.routeWithSubnetMapperRepository.addItem(subnetToRouteMapper);
@@ -91,6 +96,7 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
+    @DurationStatistics
     public void addMapperByRouteEntity(String subnetId, RouteEntity routeEntity) throws DatabasePersistenceException {
         try {
             if (routeEntity == null) {
@@ -117,11 +123,13 @@ public class RouteWithSubnetMapperServiceImpl implements RouteWithSubnetMapperSe
     }
 
     @Override
+    @DurationStatistics
     public void deleteMapper(String id) throws Exception {
         this.routeWithSubnetMapperRepository.deleteItem(id);
     }
 
     @Override
+    @DurationStatistics
     public void deleteMapperByRouteId(String subnetId, String routeId) throws Exception {
         if (subnetId == null || routeId == null) {
             return;

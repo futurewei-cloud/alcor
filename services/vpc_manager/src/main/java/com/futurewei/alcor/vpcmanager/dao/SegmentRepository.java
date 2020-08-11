@@ -6,6 +6,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.SegmentEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,27 +38,32 @@ public class SegmentRepository implements ICacheRepository<SegmentEntity> {
     }
 
     @Override
+    @DurationStatistics
     public SegmentEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SegmentEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SegmentEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(SegmentEntity newItem) throws CacheException {
         logger.log(Level.INFO, "Add segment, Segment Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete segment, Segment Id:" + id);
         cache.remove(id);

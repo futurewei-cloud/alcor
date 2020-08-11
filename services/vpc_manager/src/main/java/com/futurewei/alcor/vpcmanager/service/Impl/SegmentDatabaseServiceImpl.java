@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.SegmentRepository;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.web.entity.SegmentEntity;
@@ -22,6 +23,7 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     SegmentRepository segmentRepository;
 
     @Override
+    @DurationStatistics
     public SegmentEntity getBySegmentId(String segmentId) {
         try {
             return this.segmentRepository.findItem(segmentId);
@@ -31,11 +33,13 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map getAllSegments() throws CacheException {
         return this.segmentRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addSegment(SegmentEntity segment) throws DatabasePersistenceException {
         try {
             this.segmentRepository.addItem(segment);
@@ -45,11 +49,13 @@ public class SegmentDatabaseServiceImpl implements SegmentDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteSegment(String id) throws CacheException {
         this.segmentRepository.deleteItem(id);
     }
 
     @Override
+    @DurationStatistics
     public ICache<String, SegmentEntity> getCache() {
         return this.segmentRepository.getCache();
     }

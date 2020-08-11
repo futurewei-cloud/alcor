@@ -2,6 +2,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentRangeManagementUtil;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SegmentRangeController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,6 +39,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson getSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
@@ -69,6 +73,7 @@ public class SegmentRangeController {
             method = POST,
             value = {"/project/{projectid}/network_segment_ranges"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson createSegmentRange(@PathVariable String projectid, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
@@ -114,6 +119,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson updateSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
@@ -154,6 +160,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public ResponseId deleteSegmentRangeBySegmentId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
@@ -186,6 +193,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/network_segment_ranges")
+    @DurationStatistics
     public Map getSegmentRangesByProjectId(@PathVariable String projectid) throws Exception {
 
         Map<String, NetworkSegmentRangeEntity> segmentRanges = null;

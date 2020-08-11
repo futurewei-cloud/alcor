@@ -39,7 +39,7 @@ public class GetPortTest extends MockRestClientAndRepository {
     private String getPortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId1;
 
     @Test
-    public void getPortState() throws Exception {
+    public void getPortTest() throws Exception {
         this.mockMvc.perform(get(getPortUrl))
                 .andDo(print())
                 .andExpect(status().isOk())
