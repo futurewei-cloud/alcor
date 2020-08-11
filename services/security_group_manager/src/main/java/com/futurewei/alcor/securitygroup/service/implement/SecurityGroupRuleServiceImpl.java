@@ -145,6 +145,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRulesJson listSecurityGroupRule(Map<String, Object[]> queryParams) throws Exception {
         List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
 

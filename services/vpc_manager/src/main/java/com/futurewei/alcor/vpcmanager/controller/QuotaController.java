@@ -15,8 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.vpcmanager.controller;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.quota.QuotaEntity;
 import com.futurewei.alcor.web.entity.quota.QuotaWebJson;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 //      before Quote Mgr is deployed
 ////////////////////////////////////////////////////////////////////
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class QuotaController {
 
     /**
@@ -40,6 +43,7 @@ public class QuotaController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectId}/quotas/{projectId}")
+    @DurationStatistics
     public QuotaWebJson getQuotaByProjectId(@PathVariable String projectId) throws Exception {
 
         QuotaEntity defaultQuota = this.createDefaultQuotaEntity();

@@ -54,6 +54,7 @@ public class VpcServiceImpl implements VpcService {
      * @throws Exception
      */
     @Override
+    @DurationStatistics
     public VpcEntity allocateSegmentForNetwork(VpcEntity vpcEntity) throws Exception {
         String networkTypeId = UUID.randomUUID().toString();
         if (vpcEntity == null) {
@@ -90,6 +91,7 @@ public class VpcServiceImpl implements VpcService {
      * @throws SubnetsNotEmptyException
      */
     @Override
+    @DurationStatistics
     public boolean checkSubnetsAreEmpty(VpcEntity vpcEntity) throws SubnetsNotEmptyException {
         if (vpcEntity == null) {
             return true;

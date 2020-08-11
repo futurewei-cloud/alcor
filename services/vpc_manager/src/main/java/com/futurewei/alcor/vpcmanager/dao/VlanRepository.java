@@ -6,6 +6,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.entity.NetworkVlanType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -38,27 +39,32 @@ public class VlanRepository implements ICacheRepository<NetworkVlanType> {
     }
 
     @Override
+    @DurationStatistics
     public NetworkVlanType findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, NetworkVlanType> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, NetworkVlanType> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(NetworkVlanType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Vlan, Vlan Id:" + newItem.getVlanId());
         cache.put(newItem.getVlanId(), newItem);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete Vlan, Vlan Id:" + id);
         cache.remove(id);

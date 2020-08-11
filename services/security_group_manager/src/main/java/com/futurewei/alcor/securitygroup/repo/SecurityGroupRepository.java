@@ -239,6 +239,7 @@ public class SecurityGroupRepository {
         return securityGroupRuleCache.getAll();
     }
 
+    @DurationStatistics
     public Map<String, SecurityGroupRule> getAllSecurityGroupRules(Map<String, Object[]> queryParams) throws CacheException {
         return securityGroupRuleCache.getAll(queryParams);
     }

@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
@@ -62,6 +63,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Create port enter, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
@@ -73,6 +75,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception {
         LOG.debug("Create port bulk enter, projectId: {}, PortWebBulkJson: {}", projectId, portWebBulkJson);
 
@@ -84,6 +87,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public PortWebJson updatePort(String projectId, String portId, PortWebJson portWebJson) throws Exception {
         LOG.debug("Update port enter, projectId: {}, portId: {}, PortWebJson: {}",
                 projectId, portId, portWebJson);
@@ -120,6 +124,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public void deletePort(String projectId, String portId) throws Exception {
         LOG.debug("Delete port enter, projectId: {}, portId: {}", projectId, portId);
 
@@ -144,6 +149,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public PortWebJson getPort(String projectId, String portId) throws Exception {
         PortEntity portEntity = portRepository.findPortEntity(portId);
         if (portEntity == null) {
@@ -156,6 +162,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public List<PortWebJson> listPort(String projectId) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 
@@ -175,6 +182,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
+    @DurationStatistics
     public List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception {
         List<PortWebJson> result = new ArrayList<>();
 

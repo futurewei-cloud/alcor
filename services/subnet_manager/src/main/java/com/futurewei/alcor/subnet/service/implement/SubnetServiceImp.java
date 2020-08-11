@@ -320,6 +320,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
@@ -331,6 +332,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteSubnetIdInVpc(String subnetId, String projectId, String vpcId) throws Exception {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
@@ -341,6 +343,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
 
         // get vpc and check with vpc cidr

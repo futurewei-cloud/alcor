@@ -341,6 +341,7 @@ public class VpcController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}"})
+    @DurationStatistics
     public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
@@ -387,6 +388,7 @@ public class VpcController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}/subnetid/{subnetid}"})
+    @DurationStatistics
     public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
