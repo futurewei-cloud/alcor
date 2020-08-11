@@ -82,10 +82,10 @@ public class NodeControllerTest extends MockIgniteServer {
                     .content(
                         "{\n"
                             + "  \"host_infos\":\n"
-                            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                             + "}\n"
                             + ",\n"
-                            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                             + "}]\n"
                             + "}"))
             .andDo(print())
@@ -112,10 +112,10 @@ public class NodeControllerTest extends MockIgniteServer {
     String fileContent =
         "{\n"
             + "  \"host_infos\":\n"
-            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+            + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
             + "}\n"
             + ",\n"
-            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+            + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
             + "}]\n"
             + "}";
         MockMultipartFile file = new MockMultipartFile("file", "./machine.json", "application/json",
@@ -224,10 +224,10 @@ public class NodeControllerTest extends MockIgniteServer {
                                         .content(
                                                 "{\n"
                                                         + "  \"host_infos\":\n"
-                                                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                                                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                                                         + "}\n"
                                                         + ",\n"
-                                                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                                                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                                                         + "}]\n"
                                                         + "}"))
                         .andDo(print());
@@ -261,10 +261,10 @@ public class NodeControllerTest extends MockIgniteServer {
                 .content(
                     "{\n"
                         + "  \"host_infos\":\n"
-                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                         + "}\n"
                         + ",\n"
-                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                         + "}]\n"
                         + "}"))
         .andDo(print())
@@ -275,7 +275,7 @@ public class NodeControllerTest extends MockIgniteServer {
         .perform(get("/nodes" + "").contentType(MediaType.APPLICATION_JSON))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2));
+        .andExpect(jsonPath("$.length()").value(1));
   }
 
     @Test
@@ -288,10 +288,10 @@ public class NodeControllerTest extends MockIgniteServer {
                                         .content(
                                                 "{\n"
                                                         + "  \"host_infos\":\n"
-                                                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"90:17:ac:c1:34:5d\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                                                        + "[{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\", \"node_name\": \"compute9\", \"local_ip\": \"10.213.43.150\", \"mac_address\": \"00:00:00:00:AB:CC\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                                                         + "}\n"
                                                         + ",\n"
-                                                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"90:17:ac:c1:34:5e\", \"veth\": \"eth1\", \"server_port\": 8080\n"
+                                                        + "{ \"node_id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\", \"node_name\": \"compute10\", \"local_ip\": \"10.213.43.151\", \"mac_address\": \"00:00:00:00:AB:c0\", \"veth\": \"eth1\", \"server_port\": 8080\n"
                                                         + "}]\n"
                                                         + "}"))
                         .andDo(print());
@@ -326,14 +326,14 @@ public class NodeControllerTest extends MockIgniteServer {
             + "\t\t\"id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f129\",\n"
             + "\t\t\"name\": \"compute9\",\n"
             + "\t\t\"localIp\": \"10.213.43.150\",\n"
-            + "\t\t\"macAddress\": \"90:17:ac:c1:34:5d\",\n"
+            + "\t\t\"macAddress\": \"00:00:00:00:AB:CC\",\n"
             + "\t\t\"veth\": \"eth1\",\n"
             + "\t\t\"gRPCServerPort\": 8080\n"
             + "\t}, {\n"
             + "\t\t\"id\": \"c2b79aca-316e-4ce8-a8ac-815e2de1f120\",\n"
             + "\t\t\"name\": \"compute10\",\n"
             + "\t\t\"localIp\": \"10.213.43.151\",\n"
-            + "\t\t\"macAddress\": \"90:17:ac:c1:34:5e\",\n"
+            + "\t\t\"macAddress\": \"00:00:00:00:AB:c0\",\n"
             + "\t\t\"veth\": \"eth1\",\n"
             + "\t\t\"gRPCServerPort\": 8080\n"
             + "\t}]\n"

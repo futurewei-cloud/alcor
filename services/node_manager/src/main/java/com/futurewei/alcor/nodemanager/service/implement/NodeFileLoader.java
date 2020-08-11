@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.nodemanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -45,6 +46,7 @@ public class NodeFileLoader {
      * @return total nodes number
      * @throws FileNotFoundException invalid file name, IOException file read exception, Parseexception json parsing exception
      */
+    @DurationStatistics
     public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws FileNotFoundException, IOException, ParseException{
         String strMethodName = "getHostNodeListFromUpload";
         JSONParser jsonParser = new JSONParser();
@@ -97,12 +99,12 @@ public class NodeFileLoader {
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
-//            if (node.validateMac(mac) == false) ;
-//            {
-//                if (message != null)
-//                    message.concat(" & ");
-//                message.concat(NodeManagerConstant.NODE_EXCEPTION_MAC_FORMAT_INVALID);
-//            }
+            if (node.validateMac(mac) == false) ;
+            {
+                if (message != null)
+                    message.concat(" & ");
+                message.concat(NodeManagerConstant.NODE_EXCEPTION_MAC_FORMAT_INVALID);
+            }
             if (message != null && !message.isEmpty()){
                 logger.error(strMethodName+NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
                 throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
