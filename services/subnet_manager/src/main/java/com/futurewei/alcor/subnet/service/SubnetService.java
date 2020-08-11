@@ -19,9 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public interface SubnetService {
 
-    // VPC Fallback
-    public void vpcFallback (String projectId, String vpcId, String subnetId);
-
     // Subnet Route info Fallback
     public void routeFallback (String routeId, String vpcId);
 

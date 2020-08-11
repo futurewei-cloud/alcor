@@ -76,6 +76,7 @@ public class SubnetController {
     @RequestMapping(
             method = GET,
             value = {"/subnets/{rangeId}"})
+    @DurationStatistics
     public Integer getUsedIPByRangeId(@PathVariable String rangeId) throws Exception {
 
         Integer usedIps = null;
@@ -96,6 +97,7 @@ public class SubnetController {
     @RequestMapping(
             method = GET,
             value = {"/subnets/{subnetId}"})
+    @DurationStatistics
     public SubnetWebJson getSubnetStateById(@PathVariable String subnetId) throws Exception {
         SubnetEntity subnetEntity = null;
 
@@ -117,9 +119,10 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
-        @RequestMapping(
+    @RequestMapping(
             method = GET,
             value = {"/project/{projectId}/subnets/{subnetId}"})
+    @DurationStatistics
     public SubnetWebJson getSubnetStateByProjectIdAndId(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
 
         SubnetEntity subnetEntity = null;
@@ -157,6 +160,7 @@ public class SubnetController {
             method = POST,
             value = {"/project/{projectId}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebRequestJson resource) throws Exception {
         long start = System.currentTimeMillis();
         SubnetEntity inSubnetEntity = new SubnetEntity();
@@ -368,7 +372,6 @@ public class SubnetController {
             value = {"/project/{projectId}/subnets/{subnetId}"})
     public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebRequestJson resource) throws Exception {
 
-
         SubnetEntity subnetEntity = null;
 
         try {
@@ -379,10 +382,10 @@ public class SubnetController {
             Preconditions.checkNotNull(resource, "resource can not be null");
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
             SubnetWebRequest inSubnetWebResponseObject = resource.getSubnet();
             Preconditions.checkNotNull(inSubnetWebResponseObject, "Empty resource");
 //            RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
-
             RestPreconditionsUtil.populateResourceProjectId(inSubnetWebResponseObject, projectId);
 
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);

@@ -62,14 +62,6 @@ public class SubnetServiceImp implements SubnetService {
     @Async
     @Override
     @DurationStatistics
-    public void vpcFallback(String projectId, String vpcId, String subnetId) {
-        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
-        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
-    }
-
-    @Async
-    @Override
-    @DurationStatistics
     public void routeFallback(String routeId, String vpcId) {
         String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
@@ -104,11 +96,6 @@ public class SubnetServiceImp implements SubnetService {
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
         IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
         logger.error(message);
-
-        // Vpc fallback
-        logger.info("vpc fallback start");
-        this.vpcFallback(resource.getSubnet().getProjectId(), resource.getSubnet().getVpcId(), resource.getSubnet().getId());
-        logger.info("vpc fallback end");
         
         // Subnet fallback
         logger.info("subnet fallback start");
