@@ -27,7 +27,7 @@
       "method_type": "PUT",
       "description": "Update a eip",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": ["admin"]
     },
     {
       "name": "delete_eip",
