@@ -15,11 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.nodemanager.utils;
 
 public class NodeManagerConstant {
-    public static final String JSON_HOST = "Hosts";
-    public static final String JSON_ID = "id";
-    public static final String JSON_IP = "ip";
-    public static final String JSON_MAC = "mac";
-    public static final String JSON_VETH = "veth";
+    public static final String JSON_HOSTS = "host_infos";
+    public static final String JSON_ID1 = "node_name";
+    public static final String JSON_IP1 = "local_ip";
+    public static final String JSON_MAC1 = "mac_address";
+    public static final String JSON_VETH1 = "veth";
     public static final int GRPC_SERVER_PORT = 50001;
 
     //Exception Messages
@@ -27,6 +27,7 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_NODE_NOT_EXISTING = "The node to update or delete is not existing.";
     public static final String NODE_EXCEPTION_NODE_ALREADY_EXISTING = "The node to create is already existing.";
     public static final String NODE_EXCEPTION_FILE_EMPTY = "The file is empty";
+    public static final String NODE_EXCEPTION_JSON_EMPTY = "The json is empty";
     public static final String NODE_EXCEPTION_IP_FORMAT_INVALID = "Invalid IP address format";
     public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
     public static final String NODE_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for service to call repository";
