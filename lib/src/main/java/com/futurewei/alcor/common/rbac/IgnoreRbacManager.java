@@ -21,6 +21,7 @@ package com.futurewei.alcor.common.rbac;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.ParseObjectException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -31,22 +32,22 @@ public class IgnoreRbacManager implements RbacManger {
     private static final String ADMIN_ROLE_NAME = "admin";
 
     @Override
-    public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception {
 
     }
 
     @Override
-    public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception {
 
     }
 
     @Override
-    public void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws ParseObjectException {
+    public void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws Exception {
 
     }
 
     @Override
-    public void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws ParseObjectException {
+    public void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws Exception {
 
     }
 
@@ -60,12 +61,12 @@ public class IgnoreRbacManager implements RbacManger {
     }
 
     @Override
-    public void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws Exception {
 
     }
 
     @Override
-    public void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception {
 
     }
 }

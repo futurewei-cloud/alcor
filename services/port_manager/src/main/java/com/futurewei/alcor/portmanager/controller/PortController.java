@@ -20,6 +20,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import io.netty.util.internal.StringUtil;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 
 @RestController
@@ -189,8 +191,11 @@ public class PortController {
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @DurationStatistics
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
+
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
+                ControllerUtil.transformUrlPathParams(requestParams, PortEntity.class);
+
         List<PortWebJson> portWebJsonList = portService.listPort(projectId, queryParams);
         List<PortEntity> portsList = portWebJsonList.stream()
                 .map(PortWebJson::getPortEntity)

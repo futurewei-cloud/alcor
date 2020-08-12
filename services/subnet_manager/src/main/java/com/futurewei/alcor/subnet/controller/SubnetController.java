@@ -38,6 +38,7 @@ import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -60,6 +61,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
@@ -473,9 +475,9 @@ public class SubnetController {
     @DurationStatistics
     public SubnetsWebJson getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectId) throws Exception {
 
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
+                ControllerUtil.transformUrlPathParams(requestParams, SubnetEntity.class);
 
         Map<String, SubnetEntity> subnetStates = null;
 

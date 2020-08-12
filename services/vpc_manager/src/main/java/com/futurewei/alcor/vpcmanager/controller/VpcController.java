@@ -42,6 +42,7 @@ import org.thymeleaf.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
@@ -289,8 +290,9 @@ public class VpcController {
     @DurationStatistics
     public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), VpcEntity.class);
+                ControllerUtil.transformUrlPathParams(requestParams, VpcEntity.class);
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);

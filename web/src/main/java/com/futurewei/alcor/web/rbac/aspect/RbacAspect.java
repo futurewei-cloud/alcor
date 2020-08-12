@@ -20,10 +20,10 @@ package com.futurewei.alcor.web.rbac.aspect;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.TokenEntity;
-import com.futurewei.alcor.common.exception.ParseObjectException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.PolicyNotAuthorizedException;
 import com.futurewei.alcor.common.rbac.RbacManger;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.web.exception.NotAuthorizedException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,27 +32,24 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static com.futurewei.alcor.common.constants.CommonConstants.*;
 
 @Aspect
 @Component
 public class RbacAspect {
     private static final Logger LOG = LoggerFactory.getLogger(RbacAspect.class);
-
-    private static final String QUERY_PROJECT_NAME = "project_id";
-    private static final String FIELD_PARAM_NAME = "fields";
-    private static final String TOKEN_INFO_HEADER = "X-Token-info";
 
     private static final String POST_METHOD_NAME = "POST";
     private static final String PUT_METHDO_NAME = "PUT";
@@ -64,6 +61,9 @@ public class RbacAspect {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private HttpServletResponse response;
 
     @Autowired
     private RbacManger rbacManger;
@@ -85,29 +85,33 @@ public class RbacAspect {
             // process token roles
             TokenEntity tokenEntity = tokenEntityOptional.get();
 
-            switch (methodType) {
-                case POST_METHOD_NAME: {
-                    List<String> fields = getObjectFields(ms, pjp.getArgs());
-                    processCreate(resourceName, tokenEntity, fields);
-                    break;
+            try {
+                switch (methodType) {
+                    case POST_METHOD_NAME: {
+                        List<String> fields = getObjectFields(ms, pjp.getArgs());
+                        processCreate(resourceName, tokenEntity, fields);
+                        break;
+                    }
+                    case PUT_METHDO_NAME: {
+                        List<String> fields = getObjectFields(ms, pjp.getArgs());
+                        processUpdate(resourceName, tokenEntity, fields);
+                        break;
+                    }
+                    case DELETE_METHDO_NAME:
+                        processDelete(resourceName, tokenEntity);
+                        break;
+                    case GET_METHDO_NAME: {
+                        String[] fields = getQueryFields();
+                        processGet(resourceName, tokenEntity, fields);
+                        processAdminQuery(resourceName, tokenEntity);
+                        break;
+                    }
+                    default:
+                        LOG.warn("rbac get unknown http method type {}", methodType);
+                        break;
                 }
-                case PUT_METHDO_NAME: {
-                    List<String> fields = getObjectFields(ms, pjp.getArgs());
-                    processUpdate(resourceName, tokenEntity, fields);
-                    break;
-                }
-                case DELETE_METHDO_NAME:
-                    processDelete(resourceName, tokenEntity);
-                    break;
-                case GET_METHDO_NAME: {
-                    String[] fields = getQueryFields();
-                    processGet(resourceName, tokenEntity, fields);
-                    processAdminQuery(resourceName, tokenEntity);
-                    break;
-                }
-                default:
-                    LOG.warn("rbac get unknown http method type {}", methodType);
-                    break;
+            } catch (PolicyNotAuthorizedException e) {
+                throw new NotAuthorizedException(e.getMessage());
             }
         }
 
@@ -141,16 +145,17 @@ public class RbacAspect {
                 rbacManger.processGetExcludeFields(resourceName, tokenEntity, ownerCheckerSupplier.getOwnerChecker(),
                         realObj);
             }
-        } catch (IllegalAccessException | ParseObjectException e) {
+        } catch (Exception e) {
             LOG.warn("process http get method return object failed, {}", e.getMessage());
         }
     }
 
     private void processAdminQuery(String resourceName, TokenEntity tokenEntity) {
-        Map<String, String[]> queryParams = request.getParameterMap();
-        if (rbacManger.isAdmin(resourceName, tokenEntity)) {
+        Map<String, String[]> queryParams = new HashMap<>(request.getParameterMap());
+        if (!rbacManger.isAdmin(resourceName, tokenEntity)) {
             queryParams.put(QUERY_PROJECT_NAME, new String[]{tokenEntity.getProjectId()});
         }
+        request.setAttribute(QUERY_ATTR_HEADER, queryParams);
     }
 
     private String[] getQueryFields() {
@@ -211,21 +216,21 @@ public class RbacAspect {
     }
 
     private void processGet(String resourceName, TokenEntity tokenEntity,
-                            String[] getFields) throws ResourceNotFoundException {
+                            String[] getFields) throws Exception {
         rbacManger.checkGet(resourceName, tokenEntity, getFields, ownerCheckerSupplier.getOwnerChecker());
     }
 
-    private void processDelete(String resourceName, TokenEntity tokenEntity) throws ResourceNotFoundException {
+    private void processDelete(String resourceName, TokenEntity tokenEntity) throws Exception {
         rbacManger.checkDelete(resourceName, tokenEntity, ownerCheckerSupplier.getOwnerChecker());
     }
 
     private void processUpdate(String resourceName, TokenEntity tokenEntity,
-                               List<String> bodyFields) throws ResourceNotFoundException {
+                               List<String> bodyFields) throws Exception {
         rbacManger.checkUpdate(resourceName, tokenEntity, bodyFields, ownerCheckerSupplier.getOwnerChecker());
     }
 
     private void processCreate(String resourceName, TokenEntity tokenEntity,
-                               List<String> bodyFields) throws ResourceNotFoundException {
+                               List<String> bodyFields) throws Exception {
         rbacManger.checkCreate(resourceName, tokenEntity, bodyFields, ownerCheckerSupplier.getOwnerChecker());
     }
 

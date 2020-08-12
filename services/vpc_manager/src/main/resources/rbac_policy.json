@@ -28,8 +28,8 @@
         {
           "name": "port_security_enabled",
           "description": "Specify ''port_security_enabled'' attribute when creating a vpc",
-          "rule_type": "admin_only",
-          "roles": ["admin"]
+          "rule_type": "rule_any",
+          "roles": []
         },
         {
           "name": "segments",

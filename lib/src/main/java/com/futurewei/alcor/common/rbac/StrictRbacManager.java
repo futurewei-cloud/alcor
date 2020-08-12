@@ -20,9 +20,7 @@ package com.futurewei.alcor.common.rbac;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.*;
-import com.futurewei.alcor.common.exception.ParseObjectException;
-import com.futurewei.alcor.common.exception.PolicyResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.JsonUtil;
 import org.slf4j.Logger;
@@ -45,7 +43,6 @@ public class StrictRbacManager implements RbacManger {
 
     private static final String ADMIN_ROLE_NAME = "admin";
     private static final String ADVSVC_ROLE_NAME = "advsvc";
-    private static final String OWNER_ROLE_NAME = "owner";
 
     private ServiceRbacRule serviceRbacRule;
 
@@ -62,7 +59,7 @@ public class StrictRbacManager implements RbacManger {
     }
 
     @Override
-    public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception {
         String actionName = "update_" + resourceName;
         checkAction(actionName, tokenEntity, bodyFields, ownerChecker);
     }
@@ -108,23 +105,27 @@ public class StrictRbacManager implements RbacManger {
     }
 
     @Override
-    public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception {
         String actionName = "get_" + resourceName;
         List<String> fields = Arrays.asList(getFields);
         checkAction(actionName, tokenEntity, fields, ownerChecker);
     }
 
     @Override
-    public void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    public void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws Exception {
         String actionName = "delete_" + resourceName;
         checkAction(actionName, tokenEntity, null, ownerChecker);
     }
 
     @Override
     public void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields,
-                               OwnerChecker ownerChecker) throws ResourceNotFoundException {
+                               OwnerChecker ownerChecker) throws Exception {
         String actionName = "create_" + resourceName;
-        checkAction(actionName, tokenEntity, bodyFields, ownerChecker);
+        try {
+            checkAction(actionName, tokenEntity, bodyFields, ownerChecker);
+        } catch (ResourceNotFoundException e) {
+            throw new PolicyNotAuthorizedException(actionName);
+        }
     }
 
     private List<String> excludeFields(String actionName, TokenEntity tokenEntity, OwnerChecker ownerChecker) {
@@ -141,6 +142,7 @@ public class StrictRbacManager implements RbacManger {
             boolean valid = checkRule(fieldRbacRule.getRuleType(), tokenRoles,
                     fieldRbacRule.getRoles(), ownerChecker);
             if(!valid) {
+                LOG.warn("{}:{} check policy rule failed", actionName, fieldRbacRule.getName());
                 excludeFields.add(fieldRbacRule.getName());
             }
         }
@@ -170,7 +172,7 @@ public class StrictRbacManager implements RbacManger {
     }
 
     private void checkAction(String actionName, TokenEntity tokenEntity, List<String> bodyFields,
-                             OwnerChecker ownerChecker) throws ResourceNotFoundException {
+                             OwnerChecker ownerChecker) throws Exception {
         Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
         if (rbacRuleOptional.isEmpty()) {
             // if not rbac rule return true
@@ -182,14 +184,16 @@ public class StrictRbacManager implements RbacManger {
 
         boolean actionValid = checkRule(ruleType, tokenRoles, rbacRuleOptional.get().getRoles(), ownerChecker);
         if (!actionValid) {
+            LOG.warn("{} check policy failed", actionName);
             throw new PolicyResourceNotFoundException();
         }
 
-        checkFields(rbacRuleOptional.get().getFieldRbacRules(), tokenEntity, bodyFields, ownerChecker);
+        checkFields(rbacRuleOptional.get(), tokenEntity, bodyFields, ownerChecker);
     }
 
-    private void checkFields(List<FieldRbacRule> fieldRbacRules, TokenEntity tokenEntity,
-                                List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException {
+    private void checkFields(ActionRbacRule actionRbacRule, TokenEntity tokenEntity,
+                                List<String> bodyFields, OwnerChecker ownerChecker) throws FieldPolicyNotAuthorizedException {
+        List<FieldRbacRule> fieldRbacRules = actionRbacRule.getFieldRbacRules();
         if (fieldRbacRules == null || fieldRbacRules.isEmpty() || bodyFields == null) {
             return;
         }
@@ -203,7 +207,8 @@ public class StrictRbacManager implements RbacManger {
             boolean valid = checkRule(fieldRbacRule.getRuleType(), tokenEntity.getRoles(),
                     fieldRbacRule.getRoles(), ownerChecker);
             if (!valid) {
-                throw new PolicyResourceNotFoundException();
+                LOG.warn("{}:{} check policy rule failed", actionRbacRule.getName(), fieldRbacRule.getName());
+                throw new FieldPolicyNotAuthorizedException(actionRbacRule.getName(), fieldRbacRule.getName());
             }
         }
     }

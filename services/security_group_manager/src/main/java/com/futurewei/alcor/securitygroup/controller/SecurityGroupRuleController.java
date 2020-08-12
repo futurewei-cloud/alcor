@@ -15,16 +15,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.securitygroup.controller;
 
-import com.futurewei.alcor.common.rbac.aspect.Rbac;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
-import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRulesJson;
+import com.futurewei.alcor.web.entity.securitygroup.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
@@ -33,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static com.futurewei.alcor.securitygroup.utils.RestParameterValidator.*;
 
 @RestController
@@ -44,7 +41,7 @@ public class SecurityGroupRuleController {
     @Autowired
     private HttpServletRequest request;
 
-    @Rbac(name="security_group_rule")
+    @Rbac(resourceName="security_group_rule")
     @PostMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -77,7 +74,7 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.createSecurityGroupRuleBulk(securityGroupRuleBulkJson);
     }
 
-    @Rbac(name="security_group_rule")
+    @Rbac(resourceName="security_group_rule")
     @DeleteMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
     public void deleteSecurityGroupRule(@PathVariable("project_id") String projectId,
@@ -88,7 +85,7 @@ public class SecurityGroupRuleController {
         securityGroupRuleService.deleteSecurityGroupRule(securityGroupRuleId);
     }
 
-    @Rbac(name="security_group_rule")
+    @Rbac(resourceName="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
@@ -100,16 +97,16 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.getSecurityGroupRule(securityGroupRuleId);
     }
 
-    @Rbac(name="security_group_rule")
+    @Rbac(resourceName="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @DurationStatistics
     public SecurityGroupRulesJson listSecurityGroupRule(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
 
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
+                ControllerUtil.transformUrlPathParams(requestParams, SecurityGroupRule.class);
 
         return securityGroupRuleService.listSecurityGroupRule(queryParams);
     }

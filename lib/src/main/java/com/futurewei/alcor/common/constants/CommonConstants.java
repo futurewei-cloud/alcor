@@ -16,16 +16,12 @@
  * /
  */
 
-package com.futurewei.alcor.common.rbac.aspect;
+package com.futurewei.alcor.common.constants;
 
-import java.lang.annotation.*;
+public class CommonConstants {
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Rbac {
-
-    String name() default "";
-
-    Class[] bodyClass() default {};
+    public static final String QUERY_PROJECT_NAME = "project_id";
+    public static final String FIELD_PARAM_NAME = "fields";
+    public static final String TOKEN_INFO_HEADER = "X-Token-info";
+    public static final String QUERY_ATTR_HEADER = "query_params";
 }

@@ -21,24 +21,25 @@ package com.futurewei.alcor.common.rbac;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.ParseObjectException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourceNotValidException;
 
 import java.util.List;
 import java.util.Map;
 
 public interface RbacManger {
 
-    void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException;
+    void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
 
-    void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws ResourceNotFoundException;
+    void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception;
 
-    void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws ParseObjectException;
+    void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws Exception;
 
-    void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws ParseObjectException;
+    void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws Exception;
 
     boolean isAdmin(String resourceName, TokenEntity tokenEntity);
 
-    void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws ResourceNotFoundException;
+    void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws Exception;
 
-    void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws ResourceNotFoundException;
+    void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
 
 }
