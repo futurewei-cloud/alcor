@@ -193,6 +193,7 @@ public class PortController {
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
 
         Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap():requestParams;
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(requestParams, PortEntity.class);
 
