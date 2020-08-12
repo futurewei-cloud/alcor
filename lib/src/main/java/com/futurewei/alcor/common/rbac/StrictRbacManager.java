@@ -84,30 +84,18 @@ public class StrictRbacManager implements RbacManger {
 
     @Override
     public boolean isAdmin(String resourceName, TokenEntity tokenEntity) {
-        String actionName = "get_" + resourceName;
-
-        List<String> adminRoles = new ArrayList<>();
-        Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
-        if (rbacRuleOptional.isEmpty()) {
-            // if not rbac rule, user admin_or_owner
-            adminRoles.add(ADMIN_ROLE_NAME);
-            adminRoles.add(ADVSVC_ROLE_NAME);
-        } else {
-            adminRoles = rbacRuleOptional.get().getRoles();
-        }
-
         List<String> tokenRoles = tokenEntity.getRoles();
         if(tokenRoles == null || tokenRoles.isEmpty()) {
             return false;
         }
 
-        return adminRoles.stream().anyMatch(tokenRoles::contains);
+        return tokenRoles.contains(ADMIN_ROLE_NAME) || tokenRoles.contains(ADVSVC_ROLE_NAME);
     }
 
     @Override
     public void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception {
         String actionName = "get_" + resourceName;
-        List<String> fields = Arrays.asList(getFields);
+        List<String> fields = getFields == null ? Collections.emptyList():Arrays.asList(getFields);
         checkAction(actionName, tokenEntity, fields, ownerChecker);
     }
 

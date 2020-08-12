@@ -21,9 +21,11 @@ package com.futurewei.alcor.web.rbac.aspect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.PolicyNotAuthorizedException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.rbac.RbacManger;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.web.exception.NotAuthorizedException;
+import com.futurewei.alcor.web.exception.NotFoundException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -61,9 +63,6 @@ public class RbacAspect {
 
     @Autowired
     private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
 
     @Autowired
     private RbacManger rbacManger;
@@ -112,6 +111,8 @@ public class RbacAspect {
                 }
             } catch (PolicyNotAuthorizedException e) {
                 throw new NotAuthorizedException(e.getMessage());
+            } catch (ResourceNotFoundException e) {
+                throw new NotFoundException(e.getMessage());
             }
         }
 

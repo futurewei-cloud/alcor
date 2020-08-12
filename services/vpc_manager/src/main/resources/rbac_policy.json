@@ -10,7 +10,7 @@
         {
           "name": "shared",
           "description": "create a shared vpc",
-          "rule_type": "rule_admin_only",
+          "rule_type": "admin_only",
           "roles": ["admin"]
         },
         {
@@ -106,7 +106,7 @@
         {
           "name": "shared",
           "description": "Update ''shared'' attribute of a vpc",
-          "rule_type": "rule_admin_only",
+          "rule_type": "admin_only",
           "roles": ["admin"]
         },
         {
