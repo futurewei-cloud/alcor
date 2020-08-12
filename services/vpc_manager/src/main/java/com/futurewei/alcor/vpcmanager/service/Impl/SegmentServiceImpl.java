@@ -53,7 +53,7 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addVlanEntity(String vlanId, String networkType, String vpcId) throws Exception {
+    public Long addVlanEntity(String vlanId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -74,11 +74,7 @@ public class SegmentServiceImpl implements SegmentService {
 
             key = this.vlanRangeRepository.allocateVlanKey(rangeId);
 
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                vlan.setMtu(mtu);
-            }
+            vlan.setMtu(mtu);
             vlan.setVlanId(vlanId);
             vlan.setKey(key);
 
@@ -104,7 +100,7 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addVxlanEntity(String vxlanId, String networkType, String vpcId) throws Exception {
+    public Long addVxlanEntity(String vxlanId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -113,6 +109,7 @@ public class SegmentServiceImpl implements SegmentService {
 
         try {
             NetworkVxlanType vxlan = new NetworkVxlanType();
+            long start = System.currentTimeMillis();
 
             // Find all partitions exist in db
             Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
@@ -121,6 +118,9 @@ public class SegmentServiceImpl implements SegmentService {
                 String temp_rangeId = entry.getValue().getId();
                 partitionsAndRangeIds.put(temp_partition, temp_rangeId);
             }
+
+            logger.info("Find all partitions exist in db:" + (System.currentTimeMillis() - start) + "ms");
+            long start2 = System.currentTimeMillis();
 
             // Randomly allocate a partition and check if the partition exist in db
             int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
@@ -134,13 +134,11 @@ public class SegmentServiceImpl implements SegmentService {
                 rangeId = partitionsAndRangeIds.get(partition);
             }
 
+            logger.info("Randomly allocate a partition and check if the partition exist in db:" + (System.currentTimeMillis() - start2) + "ms");
+
             key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
 
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                vxlan.setMtu(mtu);
-            }
+            vxlan.setMtu(mtu);
             vxlan.setVxlanId(vxlanId);
             vxlan.setKey(key);
 
@@ -166,7 +164,7 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addGreEntity(String greId, String networkType, String vpcId) throws Exception {
+    public Long addGreEntity(String greId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -198,11 +196,7 @@ public class SegmentServiceImpl implements SegmentService {
 
             key = this.greRangeRepository.allocateGreKey(rangeId);
 
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                gre.setMtu(mtu);
-            }
+            gre.setMtu(mtu);
             gre.setGreId(greId);
             gre.setKey(key);
 

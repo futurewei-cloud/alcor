@@ -6,9 +6,11 @@ import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentManagementUtil;
 import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +30,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class SegmentController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private VpcDatabaseService vpcDatabaseService;
 
     @Autowired
     private SegmentDatabaseService segmentDatabaseService;
@@ -97,15 +102,18 @@ public class SegmentController {
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
 
+            String vpcId = segmentWebRequestObject.getVpcId();
+            VpcEntity vpcState = this.vpcDatabaseService.getByVpcId(vpcId);
+
             // verify network type
             String networkType = segmentWebRequestObject.getNetworkType();
             Long key = null;
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVxlanEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVlanEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addGreEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
             }
 
             if (key != null) {
