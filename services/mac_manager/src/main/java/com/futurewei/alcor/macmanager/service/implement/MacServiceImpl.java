@@ -106,12 +106,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressFullException                All MAC addresses are created.
      * @throws MacAddressRetryLimitExceedException    MAC addresss creation is tried more than limit
      */
-<<<<<<< HEAD
     @DurationStatistics
-    public MacState createMacState(MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressFullException, MacAddressRetryLimitExceedException {
-=======
     public MacState createMacState(MacState macState) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         String rangeId = MacManagerConstant.DEFAULT_RANGE;
         macState = createMacStateInRange(rangeId, macState);
         return macState;
@@ -131,12 +127,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacAddressRetryLimitExceedException    MAC addresss creation is tried more than limit
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public MacState createMacStateInRange(String rangeId, MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressRetryLimitExceedException, MacAddressFullException {
-=======
     public MacState createMacStateInRange(String rangeId, MacState macState) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (macState == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (StringUtils.isEmpty(macState.getState()))
@@ -195,12 +187,8 @@ public class MacServiceImpl implements MacService {
      * @throws ResourceNotFoundException              there is not mac state with macAddress
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public MacState updateMacState(String macAddress, MacState macState) throws ParameterNullOrEmptyException, ParameterUnexpectedValueException, MacRepositoryTransactionErrorException, ResourceNotFoundException {
-=======
     public MacState updateMacState(String macAddress, MacState macState) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (macAddress == null || macState == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (!macAddress.equals(macState.getMacAddress()))
@@ -230,12 +218,8 @@ public class MacServiceImpl implements MacService {
      * @throws ResourceNotFoundException              there is not mac state to release macAddress
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public String releaseMacState(String macAddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, ResourceNotFoundException {
-=======
     public String releaseMacState(String macAddress) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         String strMacAddress;
         if (macAddress == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
@@ -265,12 +249,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public MacRange getMacRangeByMacRangeId(String macRangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException {
-=======
     public MacRange getMacRangeByMacRangeId(String macRangeId) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (macRangeId == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         MacRange macRange = null;
@@ -291,12 +271,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacRepositoryTransactionErrorException error during repository transaction
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws MacRepositoryTransactionErrorException {
-=======
     public Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         Map<String, MacRange> macRanges = null;
         String rangeIdName = "rangeId";
         try {
@@ -329,12 +305,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeInvalidException               macRange's from should be less than macRange's to
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public MacRange createMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException {
-=======
     public MacRange createMacRange(MacRange macRange) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (macRange == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (!isValidRange(macRange))
@@ -358,12 +330,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeInvalidException               macRange's from should be less than macRange's to
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public MacRange updateMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException {
-=======
     public MacRange updateMacRange(MacRange macRange) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (macRange == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (!isValidRange(macRange))
@@ -387,12 +355,8 @@ public class MacServiceImpl implements MacService {
      * @throws MacRangeDeleteNotAllowedException      default mac range is prohibited to delete
      */
     @Override
-<<<<<<< HEAD
     @DurationStatistics
-    public String deleteMacRange(String rangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeDeleteNotAllowedException {
-=======
     public String deleteMacRange(String rangeId) throws Exception {
->>>>>>> 027b2df... add default Exception handler and transaction in icachefactory
         if (rangeId == null)
             throw (new ParameterNullOrEmptyException(MacManagerConstant.MAC_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (rangeId.equals(MacManagerConstant.DEFAULT_RANGE))
