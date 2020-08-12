@@ -1,11 +1,11 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
 @Data
-public class SegmentWebRequestObject extends CustomerResource {
+public class SegmentWebRequest extends CustomerResource {
 
     @JsonProperty("network_id")
     private String vpcId;
@@ -31,9 +31,9 @@ public class SegmentWebRequestObject extends CustomerResource {
     @JsonProperty("sort_key")
     private String sortKey;
 
-    public SegmentWebRequestObject () {}
+    public SegmentWebRequest() {}
 
-    public SegmentWebRequestObject(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String fields, String sortDir, String sortKey) {
+    public SegmentWebRequest(String projectId, String id, String name, String description, String vpcId, String physicalNetwork, String networkType, Integer segmentationId, Integer revisionNumber, String fields, String sortDir, String sortKey) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.physicalNetwork = physicalNetwork;

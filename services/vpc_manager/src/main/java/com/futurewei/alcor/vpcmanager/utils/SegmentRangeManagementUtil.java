@@ -18,7 +18,10 @@ package com.futurewei.alcor.vpcmanager.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequestJson;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequest;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,7 +32,7 @@ public class SegmentRangeManagementUtil {
         if (resource == null) {
             return false;
         }
-        NetworkSegmentRangeWebRequestObject segmentRange = resource.getNetwork_segment_range();
+        NetworkSegmentRangeWebRequest segmentRange = resource.getNetwork_segment_range();
 
         // network_type
         String networkType = segmentRange.getNetworkType();

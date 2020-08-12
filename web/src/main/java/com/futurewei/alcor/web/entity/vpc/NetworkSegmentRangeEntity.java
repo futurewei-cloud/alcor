@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;

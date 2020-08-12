@@ -90,7 +90,7 @@ public class SubnetServiceImp implements SubnetService {
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetRequestWebJson resource,
+                                  SubnetWebRequestJson resource,
                                   String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
@@ -135,7 +135,6 @@ public class SubnetServiceImp implements SubnetService {
         }
         return vpcResponse;
     }
-
 
     @Override
     @DurationStatistics
@@ -321,6 +320,21 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
+    public Integer getUsedIpByRangeId(String rangeId) {
+        String ipManagerServiceUrl = ipUrl + "range" + "/" + rangeId;
+        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
+        if (ipAddrRangeRequest == null) {
+            logger.info("can not find ipAddrRangeRequest by range id");
+            return null;
+        }
+
+        Integer usedIps = Integer.parseInt(String.valueOf(ipAddrRangeRequest.getUsedIps()));
+
+        return usedIps;
+    }
+
+    @Override
+    @DurationStatistics
     public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
@@ -372,5 +386,4 @@ public class SubnetServiceImp implements SubnetService {
 
         return false;
     }
-
 }
