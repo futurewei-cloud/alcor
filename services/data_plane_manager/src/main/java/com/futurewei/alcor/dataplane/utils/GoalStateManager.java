@@ -171,7 +171,9 @@ public class GoalStateManager {
               Set<PortState> portStateHashSet = new HashSet<>();
               Set<Subnet.SubnetState> subnetStateSet = new HashSet();
               Set<Vpc.VpcState> vpcStateSet = new HashSet();
-              final List<InternalPortEntity> internalPortEntitySet = eachGSOnSingleIP.getValue();
+                List<DHCP.DHCPState> dhcpStateList = new ArrayList();
+
+                final List<InternalPortEntity> internalPortEntitySet = eachGSOnSingleIP.getValue();
               boolean m = false;
               internalPortEntitySet.stream()
                   .forEach(
@@ -190,6 +192,7 @@ public class GoalStateManager {
                           }
                         }
                         List<FixedIp> fixedIps = new ArrayList();
+
                         for (PortEntity.FixedIp fixedIp :
                             portStateWithEverythingFilledNB.getFixedIps()) {
                           FixedIp fixedIp1 =
@@ -198,6 +201,17 @@ public class GoalStateManager {
                                   .setSubnetId(fixedIp.getSubnetId())
                                   .build();
                           fixedIps.add(fixedIp1);
+                            DHCP.DHCPConfiguration dhcpConfiguration=DHCP.DHCPConfiguration.newBuilder()
+                                    .setRevisionNumber(1)
+                                    .setFormatVersion(1)
+                                    .setSubnetId(fixedIp.getSubnetId())
+                                    .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
+                                    .setIpv4Address(fixedIp.getIpAddress())
+                                    .build();
+                            DHCP.DHCPState dhcpState= DHCP.DHCPState.newBuilder()
+                                    .setConfiguration(dhcpConfiguration)
+                                    .build();
+                            dhcpStateList.add(dhcpState);
                         }
                         String name= portStateWithEverythingFilledNB.getName()==null
                                 ?"":portStateWithEverythingFilledNB.getName();
@@ -310,6 +324,7 @@ public class GoalStateManager {
                                     .build();
                             vpcStateSet.add(vpcState);
                           }
+
                         }
                       });
               // leave a dummy security group value since for now there is no impl for sg
@@ -324,6 +339,7 @@ public class GoalStateManager {
                       .addAllPortStates(portStateHashSet)
                       .addAllSubnetStates(subnetStateSet)
                       .addSecurityGroupStates(0, securityGroupState)
+                          .addAllDhcpStates(dhcpStateList)
                       //                          .addAllVpcStates(vpcStateSet)
                       .build();
               goalStateHashMap.put(eachGSOnSingleIP.getKey(), goalState);
