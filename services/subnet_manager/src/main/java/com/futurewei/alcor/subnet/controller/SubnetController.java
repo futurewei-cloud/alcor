@@ -467,7 +467,7 @@ public class SubnetController {
         return new ResponseId(subnetId);
     }
 
-    @Rbac(resourceName ="vpc")
+    @Rbac(resourceName ="subnet")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
