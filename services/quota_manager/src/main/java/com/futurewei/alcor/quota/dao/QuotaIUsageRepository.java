@@ -16,13 +16,10 @@
  * /
  */
 
-package com.futurewei.alcor.quota.exception;
+package com.futurewei.alcor.quota.dao;
 
-public class QuotaException extends Exception {
+import org.springframework.stereotype.Repository;
 
-    public QuotaException() {}
-
-    public QuotaException(String message) {
-        super(message);
-    }
+@Repository
+public class QuotaIUsageRepository {
 }

@@ -18,11 +18,13 @@
 
 package com.futurewei.alcor.quota.exception;
 
-public class QuotaException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public QuotaException() {}
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class QuotaMissingTenantException extends QuotaException {
 
-    public QuotaException(String message) {
-        super(message);
+    public QuotaMissingTenantException() {
+        super("Tenant-id was missing form quota request.");
     }
 }

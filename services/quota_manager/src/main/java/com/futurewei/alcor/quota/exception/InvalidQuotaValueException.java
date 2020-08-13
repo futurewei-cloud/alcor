@@ -18,11 +18,13 @@
 
 package com.futurewei.alcor.quota.exception;
 
-public class QuotaException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public QuotaException() {}
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class InvalidQuotaValueException extends QuotaException {
 
-    public QuotaException(String message) {
-        super(message);
+    public InvalidQuotaValueException(String resources) {
+        super("Change would make usage less than 0 for the following resource: " + resources);
     }
 }

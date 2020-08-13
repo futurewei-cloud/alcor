@@ -18,5 +18,19 @@
 
 package com.futurewei.alcor.quota.service;
 
-public class QuotaInnerService {
+import com.futurewei.alcor.quota.exception.QuotaException;
+import com.futurewei.alcor.web.entity.quota.ApplyInfo;
+import com.futurewei.alcor.web.entity.quota.ReservationInfo;
+
+public interface QuotaUsageService {
+
+    ReservationInfo makeReservation(String projectId, String resourceName, int amount) throws QuotaException;
+
+    String commitReservation(String reservationId) throws QuotaException;
+
+    String cancelReservation(String reservationId) throws QuotaException;
+
+    ApplyInfo allocateQuota(String projectId, String resourceName, int amount) throws QuotaException;
+
+    String cancelQuota(String applyId) throws QuotaException;
 }

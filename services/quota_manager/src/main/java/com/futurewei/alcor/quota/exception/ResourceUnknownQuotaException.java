@@ -18,11 +18,14 @@
 
 package com.futurewei.alcor.quota.exception;
 
-public class QuotaException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public QuotaException() {}
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class ResourceUnknownQuotaException extends QuotaException{
 
-    public QuotaException(String message) {
-        super(message);
+    public ResourceUnknownQuotaException(String unknown) {
+        super("Unknown quota resources " + unknown);
     }
+
 }

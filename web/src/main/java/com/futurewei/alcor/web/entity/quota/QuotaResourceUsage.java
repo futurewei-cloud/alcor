@@ -18,7 +18,7 @@
 
 package com.futurewei.alcor.web.entity.quota;
 
-public class QuotaResourceStatic {
+public class QuotaResourceUsage {
 
     private int used;
 
@@ -26,9 +26,9 @@ public class QuotaResourceStatic {
 
     private int reserved;
 
-    public QuotaResourceStatic(){}
+    public QuotaResourceUsage(){}
 
-    public QuotaResourceStatic(int used, int limit, int reserved){
+    public QuotaResourceUsage(int used, int limit, int reserved){
         this.used = used;
         this.limit = limit;
         this.reserved = reserved;

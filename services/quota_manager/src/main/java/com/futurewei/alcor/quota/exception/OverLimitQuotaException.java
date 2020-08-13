@@ -16,7 +16,17 @@
  * /
  */
 
-package com.futurewei.alcor.quota.contant;
+package com.futurewei.alcor.quota.exception;
 
-public class QuotaContant {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class OverLimitQuotaException extends QuotaException {
+
+    public OverLimitQuotaException(String resources) {
+        super("Quota exceeded for resources " + resources);
+    }
+
+
 }

@@ -19,25 +19,26 @@
 package com.futurewei.alcor.web.entity.quota;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.entity.CustomerResource;
 
-public class QuotaDetailEntity {
+public class QuotaDetailEntity extends CustomerResource {
 
     @JsonProperty("rbac_policy")
-    private QuotaResourceStatic rbacPolicy;
+    private QuotaResourceUsage rbacPolicy;
 
     @JsonProperty("subnetpool")
-    private QuotaResourceStatic subnetPool;
+    private QuotaResourceUsage subnetPool;
 
     @JsonProperty("security_group_rule")
-    private QuotaResourceStatic securityGroupRule;
+    private QuotaResourceUsage securityGroupRule;
 
     @JsonProperty("security_group")
-    private QuotaResourceStatic securityGroup;
+    private QuotaResourceUsage securityGroup;
 
-    private QuotaResourceStatic subnet;
+    private QuotaResourceUsage subnet;
 
-    private QuotaResourceStatic port;
+    private QuotaResourceUsage port;
 
-    private QuotaResourceStatic network;
+    private QuotaResourceUsage network;
 
 }

@@ -19,63 +19,68 @@
 package com.futurewei.alcor.quota.dao;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
+import com.futurewei.alcor.web.entity.quota.QuotaEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Map;
 import java.util.Set;
 
 @Repository
-public class QuotaRepository implements ICacheRepositoryEx {
+public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
+
+    private final ICache<String, QuotaEntity> cache;
+
+    @Autowired
+    public QuotaRepository(CacheFactory cacheFactory) {
+        cache = cacheFactory.getCache(QuotaEntity.class);
+    }
 
     @Override
     public long size() {
-        return 0;
+        return cache.size();
     }
 
     @Override
-    public Boolean putIfAbsent(Object newItem) throws CacheException {
-        return null;
+    public Boolean putIfAbsent(QuotaEntity newItem) throws CacheException {
+        return cache.putIfAbsent(newItem.getProjectId(), newItem);
     }
 
     @Override
-    public Map findAllItems(Set keys) throws CacheException {
-        return null;
+    public Map<String, QuotaEntity> findAllItems(Set<String> keys) throws CacheException {
+        return cache.getAll(keys);
     }
 
     @Override
     public Boolean contains(String key) throws CacheException {
-        return null;
+        return cache.containsKey(key);
     }
 
     @Override
-    public void addAllItem(Map newItems) throws CacheException {
-
+    public QuotaEntity findItem(String projectId) throws CacheException {
+        return cache.get(projectId);
     }
 
     @Override
-    public Object findItem(String id) throws CacheException {
-        return null;
+    public Map<String, QuotaEntity> findAllItems() throws CacheException {
+        return cache.getAll();
     }
 
     @Override
-    public Map findAllItems() throws CacheException {
-        return null;
+    public void addItem(QuotaEntity newItem) throws CacheException {
+        cache.put(newItem.getProjectId(), newItem);
     }
 
     @Override
-    public Map findAllItems(Map queryParams) throws CacheException {
-        return null;
+    public Map<String, QuotaEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return cache.getAll(queryParams);
     }
 
     @Override
-    public void addItem(Object newItem) throws CacheException {
-
-    }
-
-    @Override
-    public void deleteItem(String id) throws CacheException {
-
+    public void deleteItem(String projectId) throws CacheException {
+        cache.remove(projectId);
     }
 }

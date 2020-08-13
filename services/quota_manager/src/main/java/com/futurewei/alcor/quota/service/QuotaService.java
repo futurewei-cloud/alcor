@@ -26,13 +26,13 @@ import java.util.List;
 
 public interface QuotaService {
 
-    QuotaEntity addQuota() throws QuotaException;
+    QuotaEntity addQuota(QuotaEntity quotaEntity) throws QuotaException;
 
     QuotaEntity findQuotaByProjectId(String projectId) throws QuotaException;
 
     QuotaDetailEntity findQuotaDetailByProjectId(String projectId) throws QuotaException;
 
-    QuotaEntity findQuotaDefaultByProjectId(String projectId) throws QuotaException;
+    QuotaEntity getDefault();
 
     List<QuotaEntity> findAllQuotas() throws QuotaException;
 

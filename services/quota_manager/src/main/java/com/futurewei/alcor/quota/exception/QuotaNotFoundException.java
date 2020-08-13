@@ -18,11 +18,17 @@
 
 package com.futurewei.alcor.quota.exception;
 
-public class QuotaException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public QuotaException() {}
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class QuotaNotFoundException extends QuotaException {
 
-    public QuotaException(String message) {
+    public QuotaNotFoundException() {
+        super("Quota could not be found");
+    }
+
+    public QuotaNotFoundException(String message) {
         super(message);
     }
 }

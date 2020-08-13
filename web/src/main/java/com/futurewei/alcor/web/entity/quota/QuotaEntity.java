@@ -16,8 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.quota;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.entity.CustomerResource;
 
-public class QuotaEntity {
+public class QuotaEntity extends CustomerResource {
 
     @JsonProperty("floatingip")
     private int floatingIp;

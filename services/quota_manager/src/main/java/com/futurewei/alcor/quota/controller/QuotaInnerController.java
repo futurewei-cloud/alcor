@@ -18,9 +18,14 @@
 
 package com.futurewei.alcor.quota.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.web.entity.quota.ApplyInfo;
 import com.futurewei.alcor.web.entity.quota.QuotaDetailWebJson;
+import com.futurewei.alcor.web.entity.quota.ReservationInfo;
 import io.lettuce.core.dynamic.annotation.CommandNaming;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * this rest apis for alcor inner micro services
@@ -28,19 +33,36 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class QuotaInnerController {
 
-    public QuotaDetailWebJson createResource() {
+
+    @GetMapping("/project/{projectId}/resource/{resourceName}/reservation/{amount}")
+    public ReservationInfo makeReservation(@PathVariable String projectId,
+                                           @PathVariable String resourceName,
+                                           @PathVariable int amount) {
         return null;
     }
 
-    public void deleteResource() {
-
+    @GetMapping("/reservation/{reservationId}/commit")
+    public ResponseId commitReservation(@PathVariable String reservationId) {
+        return null;
     }
 
-    public void createResourceBulk() {
-
+    @GetMapping("/reservation/{reservationId/cancel}")
+    public ResponseId cancelReservation(@PathVariable String reservationId) {
+        return null;
     }
 
-    public void deleteResourceBulk() {
-
+    @GetMapping("/project/{projectId}/resource/{resourceName}/apply/{amount}")
+    public ApplyInfo allocateQuotaDirectly(@PathVariable String projectId,
+                                           @PathVariable String resourceName,
+                                           @PathVariable int amount) {
+        return null;
     }
+
+    @GetMapping("/project/{projectId}/resource/{resourceName}/cancel/{amount}")
+    public ResponseId cancelQuotaDirectly(@PathVariable String projectId,
+                                                 @PathVariable String resourceName,
+                                                 @PathVariable int amount) {
+        return null;
+    }
+
 }

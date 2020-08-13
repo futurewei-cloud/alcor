@@ -16,13 +16,7 @@
  * /
  */
 
-package com.futurewei.alcor.quota.exception;
+package com.futurewei.alcor.quota.contant;
 
-public class QuotaException extends Exception {
-
-    public QuotaException() {}
-
-    public QuotaException(String message) {
-        super(message);
-    }
+public class QuotaConstant {
 }

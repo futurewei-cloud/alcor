@@ -83,13 +83,12 @@ public class QuotaController {
 
     /**
      * lists default quotas for a project.
-     * @param projectId the project id
      * @return the default quota
      */
     @GetMapping({"/project/{req_project_id}/quotas/{project_id}/default",
             "/v4/{req_project_id}/quotas/{project_id}/default"})
-    public QuotaWebJson getDefaultQuotaForProject(@PathVariable("project_id") String projectId) throws Exception {
-        QuotaEntity quotaEntity = quotaService.findQuotaDefaultByProjectId(projectId);
+    public QuotaWebJson getDefaultQuotaForProject() throws Exception {
+        QuotaEntity quotaEntity = quotaService.getDefault();
         return new QuotaWebJson(quotaEntity);
     }
 

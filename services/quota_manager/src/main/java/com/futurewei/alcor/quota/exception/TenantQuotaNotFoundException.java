@@ -16,7 +16,15 @@
  * /
  */
 
-package com.futurewei.alcor.quota.service.impl;
+package com.futurewei.alcor.quota.exception;
 
-public class QuotaInnerServiceImpl {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class TenantQuotaNotFoundException extends QuotaException {
+
+    public TenantQuotaNotFoundException(String tenantId) {
+        super(String.format("Quota for tenant %s could not be found", tenantId));
+    }
 }
