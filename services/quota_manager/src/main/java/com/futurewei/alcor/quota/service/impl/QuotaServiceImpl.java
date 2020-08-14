@@ -19,80 +19,60 @@
 package com.futurewei.alcor.quota.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.ICacheFactory;
+import com.futurewei.alcor.common.db.IDistributedLock;
+import com.futurewei.alcor.common.exception.DistributedLockException;
+import com.futurewei.alcor.quota.config.DefaultQuota;
+import com.futurewei.alcor.quota.dao.ApplyRepository;
 import com.futurewei.alcor.quota.dao.QuotaRepository;
-import com.futurewei.alcor.quota.exception.QuotaException;
-import com.futurewei.alcor.quota.exception.QuotaNotFoundException;
+import com.futurewei.alcor.quota.dao.QuotaUsageRepository;
+import com.futurewei.alcor.quota.exception.*;
 import com.futurewei.alcor.quota.service.QuotaService;
-import com.futurewei.alcor.web.entity.quota.QuotaDetailEntity;
-import com.futurewei.alcor.web.entity.quota.QuotaEntity;
-import com.google.common.collect.Lists;
-import org.apache.kafka.common.metrics.stats.SampledStat;
+import com.futurewei.alcor.quota.utils.QuotaUtils;
+import com.futurewei.alcor.web.entity.quota.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class QuotaServiceImpl implements QuotaService {
     private static final Logger LOG = LoggerFactory.getLogger(QuotaService.class);
 
-    @Value("${quota.default.floating_ip:50}")
-    private int defaultFloatingIp;
-
-    @Value("${quota.default.network:10}")
-    private int defaultNetwork;
-
-    @Value("${quota.default.port:50}")
-    private int defaultPort;
-
-    @Value("${quota.default.rbac_policy:-1}")
-    private int defaultRbacPolicy;
-
-    @Value("${quota.default.router:10}")
-    private int defaultRouter;
-
-    @Value("${quota.default.security_group:10}")
-    private int defaultSG;
-
-    @Value("${quota.default.security_group_rule:100}")
-    private int defaultSGR;
-
-    @Value("${quota.default.subnet:10}")
-    private int defaultSubnet;
-
-    @Value("${quota.default.subnetpool:-1}")
-    private int defaultSubnetPool;
+    @Autowired
+    private DefaultQuota defaultQuota;
 
     @Autowired
     private QuotaRepository quotaRepository;
 
-    @Override
-    public QuotaEntity addQuota(QuotaEntity quotaEntity) throws QuotaException {
-        try {
-            quotaRepository.addItem(quotaEntity);
-        } catch (CacheException e) {
-            LOG.error("add quota entity error, {}", e.getMessage());
-            throw new QuotaException(String.format("add quota for project %s failed, reason:%s",
-                    quotaEntity.getProjectId(), e.getMessage()));
-        }
-        return quotaEntity;
+    @Autowired
+    private QuotaUsageRepository quotaUsageRepository;
+
+    @Autowired
+    private ApplyRepository applyRepository;
+
+    private final IDistributedLock lock;
+
+    @Autowired
+    public QuotaServiceImpl(ICacheFactory cacheFactory) {
+        lock = cacheFactory.getDistributedLock(QuotaUsageEntity.class);
     }
 
     @Override
-    public QuotaEntity findQuotaByProjectId(String projectId) throws QuotaException {
+    public Map<String, Integer> findQuotaByProjectId(String projectId) throws QuotaException {
+        Map<String, Integer> defaultQuotaMap = defaultQuota.getDefaultsCopy();
         try {
-            QuotaEntity quotaEntity = quotaRepository.findItem(projectId);
-            if (quotaEntity == null) {
-                throw new QuotaNotFoundException();
+            Map<String, QuotaEntity> quotaUsages = quotaRepository.findProjectQuotas(projectId);
+            if (quotaUsages == null) {
+                return defaultQuotaMap;
             }
-            return quotaEntity;
+
+            for (QuotaEntity quotaUsage: quotaUsages.values()) {
+                defaultQuotaMap.put(quotaUsage.getResource(), quotaUsage.getLimit());
+            }
+            return defaultQuotaMap;
         } catch (CacheException e) {
             LOG.error("get quota entity error, {}", e.getMessage());
             throw new QuotaException(String.format("get quota for project %s failed, reason:%s",
@@ -101,21 +81,36 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
     @Override
-    public QuotaDetailEntity findQuotaDetailByProjectId(String projectId) throws QuotaException {
-        return null;
+    public Map<String, QuotaUsageEntity> findQuotaDetailByProjectId(String projectId) throws QuotaException {
+        try {
+            return quotaUsageRepository.findProjectQuotas(projectId);
+        } catch (CacheException e) {
+            LOG.error("get quota entity error, {}", e.getMessage());
+            throw new QuotaException(String.format("get quota for project %s failed, reason:%s",
+                    projectId, e.getMessage()));
+        }
     }
 
     @Override
-    public QuotaEntity getDefault(){
-        return new QuotaEntity(defaultFloatingIp, defaultNetwork, defaultPort, defaultRbacPolicy,
-                defaultRouter, defaultSG, defaultSGR, defaultSubnet, defaultSubnetPool);
+    public Map<String, Integer> getDefault(){
+        return defaultQuota.getDefaults();
     }
 
     @Override
-    public List<QuotaEntity> findAllQuotas() throws QuotaException {
+    public List<Map<String, Integer>> findAllQuotas() throws QuotaException {
+        Map<String, Map<String, Integer>> allQuotas = new HashMap<>();
         try {
             Map<String, QuotaEntity> quotaMap = quotaRepository.findAllItems();
-            return quotaMap == null ? Collections.emptyList(): new ArrayList<>(quotaMap.values());
+            for (QuotaEntity quotaUsage: quotaMap.values()) {
+                String projectId = quotaUsage.getProjectId();
+                Map<String, Integer> projectQuota = allQuotas.get(projectId);
+                if (projectQuota == null) {
+                    projectQuota = defaultQuota.getDefaultsCopy();
+                    allQuotas.put(projectId, projectQuota);
+                }
+                projectQuota.put(quotaUsage.getResource(), quotaUsage.getLimit());
+            }
+            return new ArrayList<>(allQuotas.values());
         } catch (CacheException e) {
             LOG.error("get all quotas entity error, {}", e.getMessage());
             throw new QuotaException(String.format("get all quotas failed, reason:%s",
@@ -124,25 +119,148 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
     @Override
-    public QuotaEntity updateQuota(QuotaEntity quotaEntity) throws QuotaException {
+    public Map<String, Integer> updateQuota(String projectId, Map<String, Integer> quota) throws QuotaException {
         try {
-            quotaRepository.addItem(quotaEntity);
-        } catch (CacheException e) {
+            for (Map.Entry<String, Integer> quotaEntry: quota.entrySet()) {
+                String resource = quotaEntry.getKey();
+                Integer limit = quotaEntry.getValue();
+                String id = QuotaUtils.getCombineId(projectId, resource);
+                QuotaEntity quotaEntity = quotaRepository.findItem(id);
+                if (quotaEntity == null) {
+                    quotaEntity = new QuotaEntity(id, projectId, resource, limit);
+                }
+                quotaRepository.addItem(quotaEntity);
+                try {
+                    lock.lock(id);
+                    QuotaUsageEntity quotaUsageEntity = quotaUsageRepository.findItem(id);
+                    if (quotaUsageEntity == null) {
+                        quotaUsageEntity = new QuotaUsageEntity(id, projectId, resource, 0, limit, 0);
+                    }
+                    quotaEntity.setLimit(limit);
+
+                    quotaUsageRepository.addItem(quotaUsageEntity);
+                } finally {
+                    lock.unlock(id);
+                }
+            }
+        } catch (CacheException | DistributedLockException e) {
             LOG.error("update quota entity error, {}", e.getMessage());
             throw new QuotaException(String.format("update quota for project %s failed, reason:%s",
-                    quotaEntity.getProjectId(), e.getMessage()));
+                    projectId, e.getMessage()));
         }
-        return quotaEntity;
+        return quota;
     }
 
     @Override
     public void deleteQuotaByProjectId(String projectId) throws QuotaException {
         try {
-            quotaRepository.deleteItem(projectId);
-        } catch (CacheException e) {
+            Map<String, QuotaEntity> quotaMap = quotaRepository.findProjectQuotas(projectId);
+            if (quotaMap == null || quotaMap.isEmpty()) {
+                throw new TenantQuotaNotFoundException(projectId);
+            }
+
+            for (QuotaEntity quota: quotaMap.values()) {
+                String id = quota.getId();
+                quotaRepository.deleteItem(id);
+
+                try {
+                    lock.lock(id);
+                    QuotaUsageEntity quotaUsage = quotaUsageRepository.findItem(id);
+                    if (quotaUsage != null) {
+                        quotaUsage.setLimit(defaultQuota.getDefaults().get(quota.getResource()));
+                    }
+                    quotaUsageRepository.addItem(quotaUsage);
+                } finally {
+                    lock.unlock(id);
+                }
+            }
+
+        } catch (CacheException | DistributedLockException e) {
             LOG.error("delete quota entity error, {}", e.getMessage());
             throw new QuotaException(String.format("update quota for project %s failed, reason:%s",
                     projectId, e.getMessage()));
         }
     }
+
+    @Override
+    public ApplyInfo allocateQuota(String projectId, ApplyInfo applyInfo) throws QuotaException {
+        List<ResourceDelta> deltas = applyInfo.getResourceDeltas();
+        if (deltas == null || deltas.isEmpty()) {
+            throw new NoApplyDeltasException();
+        }
+
+        try {
+            for (ResourceDelta delta: deltas) {
+                String resource = delta.getResource();
+                String usageId = QuotaUtils.getCombineId(projectId, resource);
+
+                try {
+                    lock.lock(usageId);
+                    QuotaUsageEntity quotaUsage = quotaUsageRepository.findItem(usageId);
+                    if (quotaUsage == null) {
+                        // if no quotaUsage create a new one use default quota
+                        quotaUsage = new QuotaUsageEntity(projectId, resource,
+                                0, defaultQuota.getDefaults().get(resource),0);
+                    }
+
+                    int limit = quotaUsage.getLimit();
+                    int totalUsed = quotaUsage.getUsed() + delta.getAmount();
+                    if (limit > 0 && totalUsed > limit) {
+                        throw new OverLimitQuotaException(resource);
+                    }
+                    quotaUsage.setUsed(totalUsed);
+                    quotaUsageRepository.addItem(quotaUsage);
+                } finally {
+                    lock.unlock(usageId);
+                }
+            }
+            applyRepository.addItem(applyInfo);
+        } catch (CacheException | DistributedLockException e) {
+            LOG.error("allocate quota failed: {}", e.getMessage());
+            throw new QuotaException("allocate quota failed: " + e.getMessage());
+        }
+        return applyInfo;
+    }
+
+    @Override
+    public String cancelQuota(String applyId) throws QuotaException {
+        try {
+            ApplyInfo applyInfo = applyRepository.findItem(applyId);
+            if (applyInfo == null) {
+                throw new ApplyInfoNotFoundException();
+            }
+
+            List<ResourceDelta> deltas = applyInfo.getResourceDeltas();
+            if (deltas == null || deltas.isEmpty()) {
+                throw new NoApplyDeltasException();
+            }
+
+            String projectId = applyInfo.getProjectId();
+            for (ResourceDelta delta: deltas) {
+                String resource = delta.getResource();
+                String usageId = QuotaUtils.getCombineId(projectId, resource);
+
+                try {
+                    lock.lock(usageId);
+                    QuotaUsageEntity quotaUsage = quotaUsageRepository.findItem(usageId);
+                    if (quotaUsage == null) {
+                        // if no quotaUsage create a new one use default quota
+                        throw new QuotaNotFoundException();
+                    }
+
+                    int totalUsed = quotaUsage.getUsed() - delta.getAmount();
+                    quotaUsage.setUsed(totalUsed);
+                    quotaUsageRepository.addItem(quotaUsage);
+                } finally {
+                    lock.unlock(usageId);
+                }
+            }
+            applyRepository.deleteItem(applyId);
+        } catch (CacheException | DistributedLockException e) {
+            LOG.error("allocate quota failed: {}", e.getMessage());
+            throw new QuotaException("allocate quota failed: " + e.getMessage());
+        }
+        return applyId;
+    }
+
 }

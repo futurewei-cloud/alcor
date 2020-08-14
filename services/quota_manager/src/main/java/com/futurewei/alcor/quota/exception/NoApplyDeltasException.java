@@ -16,10 +16,16 @@
  * /
  */
 
-package com.futurewei.alcor.quota.dao;
+package com.futurewei.alcor.quota.exception;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Repository
-public class QuotaIUsageRepository {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class NoApplyDeltasException extends QuotaException {
+
+    public NoApplyDeltasException() {
+        super("reservation deltas can not be empty");
+    }
+
 }

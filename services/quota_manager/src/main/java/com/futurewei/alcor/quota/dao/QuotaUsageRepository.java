@@ -23,22 +23,22 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
 import com.futurewei.alcor.web.entity.quota.QuotaEntity;
+import com.futurewei.alcor.web.entity.quota.QuotaUsageEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Repository
-public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
+public class QuotaUsageRepository implements ICacheRepositoryEx<QuotaUsageEntity> {
 
-    private final ICache<String, QuotaEntity> cache;
+    private final ICache<String, QuotaUsageEntity> cache;
 
     @Autowired
-    public QuotaRepository(ICacheFactory cacheFactory) {
-        this.cache = cacheFactory.getCache(QuotaEntity.class);
+    public QuotaUsageRepository(ICacheFactory cacheFactory) {
+        this.cache = cacheFactory.getCache(QuotaUsageEntity.class);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
     }
 
     @Override
-    public Boolean putIfAbsent(QuotaEntity newItem) throws CacheException {
+    public Boolean putIfAbsent(QuotaUsageEntity newItem) throws CacheException {
         return cache.putIfAbsent(newItem.getId(), newItem);
     }
 
     @Override
-    public Map<String, QuotaEntity> findAllItems(Set<String> ids) throws CacheException {
+    public Map<String, QuotaUsageEntity> findAllItems(Set<String> ids) throws CacheException {
         return cache.getAll(ids);
     }
 
@@ -62,22 +62,22 @@ public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
     }
 
     @Override
-    public QuotaEntity findItem(String id) throws CacheException {
+    public QuotaUsageEntity findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
-    public Map<String, QuotaEntity> findAllItems() throws CacheException {
+    public Map<String, QuotaUsageEntity> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
-    public Map<String, QuotaEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+    public Map<String, QuotaUsageEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
-    public void addItem(QuotaEntity newItem) throws CacheException {
+    public void addItem(QuotaUsageEntity newItem) throws CacheException {
         cache.put(newItem.getId(), newItem);
     }
 
@@ -86,17 +86,17 @@ public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
         cache.remove(id);
     }
 
-    public void addAll(Map<String, QuotaEntity> newItems) throws CacheException {
-        cache.putAll(newItems);
+    public void addAll(Map<String, QuotaUsageEntity> quotaUsages) throws CacheException {
+        cache.putAll(quotaUsages);
     }
 
-    public Map<String, QuotaEntity> findProjectQuotas(String projectId) throws CacheException {
+    public Map<String, QuotaUsageEntity> findProjectQuotas(String projectId) throws CacheException {
         Map<String, Object[]> map = new HashMap<>();
         map.put("projectId", new String[] {projectId});
         return findAllItems(map);
     }
 
-    public Map<String, QuotaEntity> findProjectQuotas(String projectId, String[] resources) throws CacheException {
+    public Map<String, QuotaUsageEntity> findProjectQuotas(String projectId, String[] resources) throws CacheException {
         Map<String, Object[]> map = new HashMap<>();
         map.put("projectId", new String[] {projectId});
         map.put("resource", resources);

@@ -18,13 +18,18 @@
 
 package com.futurewei.alcor.quota.exception;
 
+import com.futurewei.alcor.web.entity.quota.QuotaUsageEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class TenantQuotaNotFoundException extends QuotaException {
+public class ApplyInfoNotFoundException extends QuotaException {
 
-    public TenantQuotaNotFoundException(String projectId) {
-        super(String.format("Quota for tenant %s could not be found", projectId));
+    public ApplyInfoNotFoundException() {
+        super("Apply info could not be found");
+    }
+
+    public ApplyInfoNotFoundException(String message) {
+        super(message);
     }
 }

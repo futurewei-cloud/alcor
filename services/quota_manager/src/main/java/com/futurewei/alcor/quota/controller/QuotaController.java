@@ -18,6 +18,8 @@
 
 package com.futurewei.alcor.quota.controller;
 
+import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.quota.exception.QuotaException;
 import com.futurewei.alcor.quota.service.QuotaService;
 import com.futurewei.alcor.web.entity.quota.*;
 import org.slf4j.Logger;
@@ -27,6 +29,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class QuotaController {
@@ -42,7 +46,7 @@ public class QuotaController {
      */
     @GetMapping({"/project/{project_id}/quotas", "/v4/{project_id}/quotas"})
     public QuotaWebsJson getAllQuotas() throws Exception {
-        List<QuotaEntity> quotaEntities = quotaService.findAllQuotas();
+        List<Map<String, Integer>> quotaEntities = quotaService.findAllQuotas();
         return new QuotaWebsJson(quotaEntities);
     }
 
@@ -53,7 +57,7 @@ public class QuotaController {
      */
     @GetMapping({"/project/{req_project_id}/quotas/{project_id}", "/v4/{req_project_id}/quotas/{project_id}"})
     public QuotaWebJson getQuota(@PathVariable("project_id") String projectId) throws Exception {
-        QuotaEntity quotaEntity = quotaService.findQuotaByProjectId(projectId);
+        Map<String, Integer> quotaEntity = quotaService.findQuotaByProjectId(projectId);
         return new QuotaWebJson(quotaEntity);
     }
 
@@ -65,11 +69,11 @@ public class QuotaController {
      */
     @PutMapping({"/project/{req_project_id}/quotas/{project_id}", "/v4/{req_project_id}/quotas/{project_id}"})
     public QuotaWebJson updateQuota(@PathVariable("project_id") String projectId,
-                                    @RequestBody QuotaWebJson  quotaWebJsonRequest) throws Exception {
+                                    @RequestBody QuotaWebJson quotaWebJsonRequest) throws Exception {
         LOG.info("update quotas for project {}", projectId);
-        QuotaEntity quotaEntity = quotaService.updateQuota(quotaWebJsonRequest.getQuota());
+        Map<String, Integer> quota = quotaService.updateQuota(projectId, quotaWebJsonRequest.getQuota());
         LOG.info("update quotas for project {} success", projectId);
-        return new QuotaWebJson(quotaEntity);
+        return new QuotaWebJson(quota);
     }
 
     /**
@@ -88,8 +92,8 @@ public class QuotaController {
     @GetMapping({"/project/{req_project_id}/quotas/{project_id}/default",
             "/v4/{req_project_id}/quotas/{project_id}/default"})
     public QuotaWebJson getDefaultQuotaForProject() throws Exception {
-        QuotaEntity quotaEntity = quotaService.getDefault();
-        return new QuotaWebJson(quotaEntity);
+        Map<String, Integer> quota = quotaService.getDefault();
+        return new QuotaWebJson(quota);
     }
 
     /**
@@ -99,9 +103,25 @@ public class QuotaController {
      */
     @GetMapping({"/project/{req_project_id}/quotas/{project_id}/details.json",
             "/v4/{req_project_id}/quotas/{project_id}/details.json"})
-    public QuotaDetailWebJson showProjectQuotaDetail(@PathVariable("project_id") String projectId) throws Exception {
-        QuotaDetailEntity quotaDetailEntity = quotaService.findQuotaDetailByProjectId(projectId);
-        return new QuotaDetailWebJson(quotaDetailEntity);
+    public QuotaDetailWebJson getProjectQuotaDetail(@PathVariable("project_id") String projectId) throws Exception {
+        Map<String, QuotaUsageEntity> quotaDetailMap = quotaService.findQuotaDetailByProjectId(projectId);
+        return new QuotaDetailWebJson(quotaDetailMap);
+    }
+
+    @PostMapping("/project/{projectId}/quota/apply")
+    public ApplyInfo allocateQuota(@PathVariable String projectId,
+                                           @RequestBody ApplyInfo applyInfo) throws QuotaException {
+        applyInfo.setApplyId(UUID.randomUUID().toString());
+        if(applyInfo.getProjectId() == null || applyInfo.getTenantId() == null) {
+            applyInfo.setProjectId(projectId);
+            applyInfo.setTenantId(projectId);
+        }
+        return quotaService.allocateQuota(projectId, applyInfo);
+    }
+
+    @DeleteMapping("/quota/apply/{applyId}")
+    public ResponseId cancelQuota(@PathVariable String applyId) throws QuotaException {
+        return new ResponseId(quotaService.cancelQuota(applyId));
     }
 
 }

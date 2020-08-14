@@ -20,4 +20,7 @@ package com.futurewei.alcor.quota.utils;
 
 public class QuotaUtils {
 
+    public static String getCombineId(String projectId, String resource) {
+        return String.format("%s_%s", projectId, resource);
+    }
 }

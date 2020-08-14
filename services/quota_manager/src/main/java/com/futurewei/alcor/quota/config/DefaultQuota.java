@@ -16,21 +16,25 @@
  * /
  */
 
-package com.futurewei.alcor.quota.service;
+package com.futurewei.alcor.quota.config;
 
-import com.futurewei.alcor.quota.exception.QuotaException;
-import com.futurewei.alcor.web.entity.quota.ApplyInfo;
-import com.futurewei.alcor.web.entity.quota.ReservationInfo;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-public interface QuotaUsageService {
+import java.util.HashMap;
+import java.util.Map;
 
-    ReservationInfo makeReservation(String projectId, String resourceName, int amount) throws QuotaException;
+@Component
+@ConfigurationProperties(prefix = "quota")
+public class DefaultQuota {
 
-    String commitReservation(String reservationId) throws QuotaException;
+    private final Map<String, Integer> defaults = new HashMap<>();
 
-    String cancelReservation(String reservationId) throws QuotaException;
+    public Map<String, Integer> getDefaults() {
+        return defaults;
+    }
 
-    ApplyInfo allocateQuota(String projectId, String resourceName, int amount) throws QuotaException;
-
-    String cancelQuota(String applyId) throws QuotaException;
+    public Map<String, Integer> getDefaultsCopy() {
+        return new HashMap<>(defaults);
+    }
 }

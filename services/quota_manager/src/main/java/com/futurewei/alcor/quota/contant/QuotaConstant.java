@@ -19,4 +19,18 @@
 package com.futurewei.alcor.quota.contant;
 
 public class QuotaConstant {
+
+    public static final String FLOATING_IP = "floating_ip";
+    public static final String NETWORK = "network";
+    public static final String PORT = "port";
+    public static final String RBAC_POLICY = "rbac_policy";
+    public static final String ROUTER = "router";
+    public static final String SECURITY_GROUP = "security_group";
+    public static final String SECURITY_GROUP_RULE = "security_group_rule";
+    public static final String SUBNET = "subnet";
+    public static final String SUBNETPOOL = "subnetpool";
+
+
+    public static final String[] RESOURCES = new String[] {FLOATING_IP, NETWORK, PORT, RBAC_POLICY,
+            ROUTER, SECURITY_GROUP, SECURITY_GROUP_RULE, SUBNET, SUBNETPOOL};
 }

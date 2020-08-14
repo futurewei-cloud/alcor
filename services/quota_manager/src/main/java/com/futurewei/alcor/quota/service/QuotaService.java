@@ -19,24 +19,26 @@
 package com.futurewei.alcor.quota.service;
 
 import com.futurewei.alcor.quota.exception.QuotaException;
-import com.futurewei.alcor.web.entity.quota.QuotaDetailEntity;
-import com.futurewei.alcor.web.entity.quota.QuotaEntity;
+import com.futurewei.alcor.web.entity.quota.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QuotaService {
 
-    QuotaEntity addQuota(QuotaEntity quotaEntity) throws QuotaException;
+    Map<String, Integer> findQuotaByProjectId(String projectId) throws QuotaException;
 
-    QuotaEntity findQuotaByProjectId(String projectId) throws QuotaException;
+    Map<String, QuotaUsageEntity> findQuotaDetailByProjectId(String projectId) throws QuotaException;
 
-    QuotaDetailEntity findQuotaDetailByProjectId(String projectId) throws QuotaException;
+    Map<String, Integer> getDefault();
 
-    QuotaEntity getDefault();
+    List<Map<String, Integer>> findAllQuotas() throws QuotaException;
 
-    List<QuotaEntity> findAllQuotas() throws QuotaException;
-
-    QuotaEntity updateQuota(QuotaEntity quotaEntity) throws QuotaException;
+    Map<String, Integer> updateQuota(String projectId, Map<String, Integer> quota) throws QuotaException;
 
     void deleteQuotaByProjectId(String projectId) throws QuotaException;
+
+    ApplyInfo allocateQuota(String projectId, ApplyInfo applyInfo) throws QuotaException;
+
+    String cancelQuota(String applyId) throws QuotaException;
 }

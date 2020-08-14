@@ -21,7 +21,9 @@ package com.futurewei.alcor.quota;
 import com.futurewei.alcor.common.db.DbBaseConfiguration;
 import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
