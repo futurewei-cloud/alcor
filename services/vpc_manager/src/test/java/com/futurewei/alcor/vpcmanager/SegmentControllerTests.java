@@ -2,9 +2,11 @@ package com.futurewei.alcor.vpcmanager;
 
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.SegmentEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +48,9 @@ public class SegmentControllerTests {
     @MockBean
     private SegmentDatabaseService segmentDatabaseService;
 
+    @MockBean
+    private VpcDatabaseService vpcDatabaseService;
+
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/segments/" + UnitTestConfig.segmentId;
     private String createUri = "/project/" + UnitTestConfig.projectId + "/segments";
     private String updateUri = "/project/" + UnitTestConfig.projectId + "/segments/" + UnitTestConfig.segmentId;
@@ -82,6 +87,10 @@ public class SegmentControllerTests {
                 .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, UnitTestConfig.vpcId));
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.segmentId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
                 .andDo(print())
                 .andExpect(status().is(201))

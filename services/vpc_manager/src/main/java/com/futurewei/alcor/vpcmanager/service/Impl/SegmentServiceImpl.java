@@ -103,40 +103,43 @@ public class SegmentServiceImpl implements SegmentService {
     public Long addVxlanEntity(String vxlanId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
-        String rangeId = null;
+        String p = null;
         Random ran = new Random();
-        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
+//        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
 
         try {
             NetworkVxlanType vxlan = new NetworkVxlanType();
             long start = System.currentTimeMillis();
 
             // Find all partitions exist in db
-            Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
-            for (Map.Entry<String, NetworkVxlanRange> entry : map.entrySet()) {
-                int temp_partition = entry.getValue().getPartition();
-                String temp_rangeId = entry.getValue().getId();
-                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
-            }
+//            Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
+
+//            for (Map.Entry<String, NetworkVxlanRange> entry : map.entrySet()) {
+//                int temp_partition = entry.getValue().getPartition();
+//                String temp_rangeId = entry.getValue().getId();
+//                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
+//            }
 
             logger.info("Find all partitions exist in db:" + (System.currentTimeMillis() - start) + "ms");
             long start2 = System.currentTimeMillis();
 
             // Randomly allocate a partition and check if the partition exist in db
             int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
-            if (!partitionsAndRangeIds.containsKey(partition)) {
-                rangeId = UUID.randomUUID().toString();
+            p = partition + "";
+            NetworkVxlanRange networkVxlanRange = this.vxlanRangeRepository.findItem(p);
+            if (networkVxlanRange == null) {
+//                rangeId = UUID.randomUUID().toString();
                 int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                 int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, partition, firstKey, lastKey);
+                NetworkRangeRequest request = new NetworkRangeRequest(p, networkType, partition, firstKey, lastKey);
                 this.vxlanRangeRepository.createRange(request);
             }else {
-                rangeId = partitionsAndRangeIds.get(partition);
+                p = networkVxlanRange.getId();
             }
 
             logger.info("Randomly allocate a partition and check if the partition exist in db:" + (System.currentTimeMillis() - start2) + "ms");
 
-            key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
+            key = this.vxlanRangeRepository.allocateVxlanKey(p);
 
             vxlan.setMtu(mtu);
             vxlan.setVxlanId(vxlanId);
@@ -148,7 +151,7 @@ public class SegmentServiceImpl implements SegmentService {
 
         } catch (Exception e) {
             this.vxlanRepository.deleteItem(vxlanId);
-            this.vxlanRangeRepository.releaseVxlanKey(rangeId,key);
+            this.vxlanRangeRepository.releaseVxlanKey(p,key);
             logger.info("Allocate vxlan key or db operation failed");
             throw new DatabasePersistenceException(e.getMessage());
         }
