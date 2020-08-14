@@ -45,6 +45,7 @@ public class CustomerResource extends Resource {
     public CustomerResource(String projectId, String id, String name, String description) {
         super(id);
         this.projectId = projectId;
+        this.tenantId = projectId;
         this.name = name;
         this.description = description;
     }
@@ -55,6 +56,9 @@ public class CustomerResource extends Resource {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
+        if (this.tenantId == null) {
+            this.tenantId = projectId;
+        }
     }
 
     public String getName() {
@@ -74,7 +78,7 @@ public class CustomerResource extends Resource {
     }
 
     public String getTenantId() {
-        return this.tenantId == null ? this.projectId : this.tenantId;
+        return this.tenantId;
     }
 
     public void setTenantId(String tenantId) {
