@@ -1,0 +1,33 @@
+= Alcor Rbac Design
+v0.1, 2020-08-14
+:toc: right
+:imagesdir: ../../images
+
+== Introduction
+Alcor Rbac (Role based access control) is similar to neutron Rbac. It's base on Openstack Keystone roles.
+Service will load rbac rules from rbac_policy.json file in project resources dirctory.
+
+== Access Type
+Alcor rbac supports a few of access type
+
+. admin_only -- Only admin role can access
+. rule_any -- Every one can access
+. admin_or_owner -- Admin role or resource owner can access
+. multi_roles -- Only specified roles can access
+. multi_roles_or_owner -- Only specified roles or admin can access
+
+== Permission Granularity
+Alcor can support method and resource field check granularity.
+
+. Method -- The method granularity determines whether the user role can access the method.
+. Resource field -- The field granularity determines whether a user role can be accessed, modified, deleted, or added
+
+== WorkFlow
+Rbac check around a http request.
+
+. a request come
+. rbac check method access, failed throw exception
+. rbac check field access, failed throw exception
+. handle request
+. rbac check field access, failed hide the field
+. response the request
