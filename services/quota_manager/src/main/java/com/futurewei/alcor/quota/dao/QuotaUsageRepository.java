@@ -22,7 +22,6 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
-import com.futurewei.alcor.web.entity.quota.QuotaEntity;
 import com.futurewei.alcor.web.entity.quota.QuotaUsageEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

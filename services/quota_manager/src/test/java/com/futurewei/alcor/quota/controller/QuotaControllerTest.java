@@ -16,23 +16,34 @@
  * /
  */
 
-package com.futurewei.alcor.quota.swagger.controller;
+package com.futurewei.alcor.quota.controller;
 
-import com.futurewei.alcor.quota.swagger.config.TestEnvConfiguration;
+import com.futurewei.alcor.quota.config.DefaultQuota;
+import com.futurewei.alcor.quota.config.TestEnvConfiguration;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @AutoConfigureMockMvc
 public class QuotaControllerTest extends TestEnvConfiguration {
+    private static final String projectId = "3d53801c-32ce-4e97-9572-bb966f4de79c";
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private DefaultQuota defaultQuota;
 
     @Test
     public void getAllQuotasTest() {
@@ -75,8 +86,12 @@ public class QuotaControllerTest extends TestEnvConfiguration {
     }
 
     @Test
-    public void getDefaultQuotaForProject_Test() {
-
+    public void getDefaultQuotaForProjectTest() throws Exception {
+        String getDefaultUrl = "/project/" + projectId + "/quotas/" + projectId + "/default";
+        mockMvc.perform(get(getDefaultUrl))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quota.network").value(defaultQuota.getDefaults().get("network")));
     }
 
     @Test

@@ -16,9 +16,8 @@
  * /
  */
 
-package com.futurewei.alcor.quota.swagger.config;
+package com.futurewei.alcor.quota.config;
 
-import com.futurewei.alcor.quota.config.DefaultQuota;
 import org.junit.BeforeClass;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -30,10 +29,10 @@ import static org.mockito.Mockito.when;
 public class TestEnvConfiguration {
 
     @MockBean
-    private DefaultQuota defaultQuota;
+    private static DefaultQuota defaultQuota;
 
     @BeforeClass
-    public void initEnv() {
+    public static void initEnv() {
         Map<String, Integer> defaultQuotaMap = new HashMap<>();
         defaultQuotaMap.put("floating_ip", 50);
         defaultQuotaMap.put("network", 10);

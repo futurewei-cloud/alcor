@@ -16,7 +16,7 @@
  * /
  */
 
-package com.futurewei.alcor.quota.swagger.config;
+package com.futurewei.alcor.quota.config;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
