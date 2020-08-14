@@ -15,22 +15,24 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.quota;
 
+import java.util.Map;
+
 public class QuotaWebJson {
 
-    private QuotaEntity quota;
+    private Map<String, Integer> quota;
 
     public QuotaWebJson() {
     }
 
-    public QuotaWebJson(QuotaEntity quotaEntity) {
+    public QuotaWebJson(Map<String, Integer> quotaEntity) {
         this.quota = quotaEntity;
     }
 
-    public QuotaEntity getQuota() {
+    public Map<String, Integer> getQuota() {
         return quota;
     }
 
-    public void setQuota(QuotaEntity quota) {
+    public void setQuota(Map<String, Integer> quota) {
         this.quota = quota;
     }
 }

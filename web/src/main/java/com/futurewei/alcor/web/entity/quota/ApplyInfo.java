@@ -20,6 +20,8 @@ package com.futurewei.alcor.web.entity.quota;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class ApplyInfo {
 
     @JsonProperty("apply_id")
@@ -31,19 +33,16 @@ public class ApplyInfo {
     @JsonProperty("project_id")
     private String projectId;
 
-    @JsonProperty("resource_name")
-    private String resourceName;
-
-    private int amount;
+    @JsonProperty("resource_deltas")
+    private List<ResourceDelta> resourceDeltas;
 
     public ApplyInfo() {}
 
-    public ApplyInfo(String applyId, String tenantId, String projectId, String resourceName, int amount) {
+    public ApplyInfo(String applyId, String tenantId, String projectId, List<ResourceDelta> resourceDeltas) {
         this.applyId = applyId;
         this.tenantId = tenantId;
         this.projectId = projectId;
-        this.resourceName = resourceName;
-        this.amount = amount;
+        this.resourceDeltas = resourceDeltas;
     }
 
     public String getApplyId() {
@@ -70,19 +69,11 @@ public class ApplyInfo {
         this.projectId = projectId;
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public List<ResourceDelta> getResourceDeltas() {
+        return resourceDeltas;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setResourceDeltas(List<ResourceDelta> resourceDeltas) {
+        this.resourceDeltas = resourceDeltas;
     }
 }

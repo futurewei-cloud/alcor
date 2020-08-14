@@ -23,22 +23,100 @@ import com.futurewei.alcor.common.entity.CustomerResource;
 
 public class QuotaDetailEntity extends CustomerResource {
 
-    @JsonProperty("rbac_policy")
-    private QuotaResourceUsage rbacPolicy;
+    @JsonProperty("floating_ip")
+    private QuotaUsageEntity floatingIp;
 
-    @JsonProperty("subnetpool")
-    private QuotaResourceUsage subnetPool;
+    private QuotaUsageEntity router;
+
+    @JsonProperty("rbac_policy")
+    private QuotaUsageEntity rbacPolicy;
+
+    private QuotaUsageEntity subnetPool;
 
     @JsonProperty("security_group_rule")
-    private QuotaResourceUsage securityGroupRule;
+    private QuotaUsageEntity securityGroupRule;
 
     @JsonProperty("security_group")
-    private QuotaResourceUsage securityGroup;
+    private QuotaUsageEntity securityGroup;
 
-    private QuotaResourceUsage subnet;
+    private QuotaUsageEntity subnet;
 
-    private QuotaResourceUsage port;
+    private QuotaUsageEntity port;
 
-    private QuotaResourceUsage network;
+    private QuotaUsageEntity network;
 
+    public QuotaDetailEntity() {
+    }
+
+    public QuotaUsageEntity getFloatingIp() {
+        return floatingIp;
+    }
+
+    public void setFloatingIp(QuotaUsageEntity floatingIp) {
+        this.floatingIp = floatingIp;
+    }
+
+    public QuotaUsageEntity getRouter() {
+        return router;
+    }
+
+    public void setRouter(QuotaUsageEntity router) {
+        this.router = router;
+    }
+
+    public QuotaUsageEntity getRbacPolicy() {
+        return rbacPolicy;
+    }
+
+    public void setRbacPolicy(QuotaUsageEntity rbacPolicy) {
+        this.rbacPolicy = rbacPolicy;
+    }
+
+    public QuotaUsageEntity getSubnetPool() {
+        return subnetPool;
+    }
+
+    public void setSubnetPool(QuotaUsageEntity subnetPool) {
+        this.subnetPool = subnetPool;
+    }
+
+    public QuotaUsageEntity getSecurityGroupRule() {
+        return securityGroupRule;
+    }
+
+    public void setSecurityGroupRule(QuotaUsageEntity securityGroupRule) {
+        this.securityGroupRule = securityGroupRule;
+    }
+
+    public QuotaUsageEntity getSecurityGroup() {
+        return securityGroup;
+    }
+
+    public void setSecurityGroup(QuotaUsageEntity securityGroup) {
+        this.securityGroup = securityGroup;
+    }
+
+    public QuotaUsageEntity getSubnet() {
+        return subnet;
+    }
+
+    public void setSubnet(QuotaUsageEntity subnet) {
+        this.subnet = subnet;
+    }
+
+    public QuotaUsageEntity getPort() {
+        return port;
+    }
+
+    public void setPort(QuotaUsageEntity port) {
+        this.port = port;
+    }
+
+    public QuotaUsageEntity getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(QuotaUsageEntity network) {
+        this.network = network;
+    }
 }

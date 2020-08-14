@@ -19,23 +19,24 @@
 package com.futurewei.alcor.web.entity.quota;
 
 import java.util.List;
+import java.util.Map;
 
 public class QuotaWebsJson {
 
-    private List<QuotaEntity> quotas;
+    private List<Map<String, Integer>> quotas;
 
     public QuotaWebsJson() {
     }
 
-    public QuotaWebsJson(List<QuotaEntity> quotas) {
+    public QuotaWebsJson(List<Map<String, Integer>> quotas) {
         this.quotas = quotas;
     }
 
-    public List<QuotaEntity> getQuotas() {
+    public List<Map<String, Integer>> getQuotas() {
         return quotas;
     }
 
-    public void setQuotas(List<QuotaEntity> quotas) {
+    public void setQuotas(List<Map<String, Integer>> quotas) {
         this.quotas = quotas;
     }
 }

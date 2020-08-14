@@ -20,9 +20,7 @@ package com.futurewei.alcor.common.db.repo;
 
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.repo.ICacheRepository;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

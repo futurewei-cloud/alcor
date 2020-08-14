@@ -18,43 +18,33 @@
 
 package com.futurewei.alcor.web.entity.quota;
 
-public class QuotaResourceUsage {
+public class ResourceDelta {
 
-    private int used;
+    private String resource;
 
-    private int limit;
+    private int amount;
 
-    private int reserved;
-
-    public QuotaResourceUsage(){}
-
-    public QuotaResourceUsage(int used, int limit, int reserved){
-        this.used = used;
-        this.limit = limit;
-        this.reserved = reserved;
+    public ResourceDelta() {
     }
 
-    public int getUsed() {
-        return used;
+    public ResourceDelta(String resource, int amount) {
+        this.resource = resource;
+        this.amount = amount;
     }
 
-    public void setUsed(int used) {
-        this.used = used;
+    public String getResource() {
+        return resource;
     }
 
-    public int getLimit() {
-        return limit;
+    public void setResource(String resource) {
+        this.resource = resource;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public int getAmount() {
+        return amount;
     }
 
-    public int getReserved() {
-        return reserved;
-    }
-
-    public void setReserved(int reserved) {
-        this.reserved = reserved;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

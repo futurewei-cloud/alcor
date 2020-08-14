@@ -18,21 +18,23 @@
 
 package com.futurewei.alcor.web.entity.quota;
 
+import java.util.Map;
+
 public class QuotaDetailWebJson {
 
-    private QuotaDetailEntity quota;
+    private Map<String, QuotaUsageEntity> quota;
 
     public QuotaDetailWebJson() {}
 
-    public QuotaDetailWebJson(QuotaDetailEntity quota) {
+    public QuotaDetailWebJson(Map<String, QuotaUsageEntity> quota) {
         this.quota = quota;
     }
 
-    public QuotaDetailEntity getQuota() {
+    public Map<String, QuotaUsageEntity> getQuota() {
         return quota;
     }
 
-    public void setQuota(QuotaDetailEntity quota) {
+    public void setQuota(Map<String, QuotaUsageEntity> quota) {
         this.quota = quota;
     }
 }
