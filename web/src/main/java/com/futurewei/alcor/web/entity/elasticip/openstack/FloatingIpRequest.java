@@ -17,18 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.elasticip.openstack;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
+import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
-import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
-import com.futurewei.alcor.web.entity.ip.IpVersion;
 
-public class FloatingIpRequest {
 
-    @JsonProperty("project_id")
-    private String projectId;
-
-    @JsonProperty("tenant_id")
-    private String tenantId;
+public class FloatingIpRequest extends CustomerResource {
 
     @JsonProperty("floating_network_id")
     private String floatingNetworkId;
@@ -45,9 +38,6 @@ public class FloatingIpRequest {
     @JsonProperty("subnet_id")
     private String subnetId;
 
-    @JsonProperty("description")
-    private String description;
-
     @JsonProperty("dns_name")
     private String dnsName;
 
@@ -55,22 +45,6 @@ public class FloatingIpRequest {
     private String dnsDomain;
 
     public FloatingIpRequest() {
-    }
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
     }
 
     public String getFloatingNetworkId() {
@@ -111,14 +85,6 @@ public class FloatingIpRequest {
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getDnsName() {
