@@ -4,8 +4,8 @@ v0.1, 2020-06-24
 :toc: right
 :imagesdir: ../../images
 
-== Workflow v1 - Fast Path Only
+== Workflow v1 - gRPC Fast Path Only
 image::southbound_prog_workflow_v1.png["Network Programming Southbound Workflow - v1", width=1024, link="southbound_prog_workflow_v1.png"]
 
-== Workflow v2 - Fast Path + Normal Path (Message Queue)
+== Workflow v2 - gRPC Fast Path + MQ Scale Path
 image::southbound_prog_workflow_v2.png["Network Programming Southbound Workflow - v1", width=1024, link="southbound_prog_workflow_v2.png"]
