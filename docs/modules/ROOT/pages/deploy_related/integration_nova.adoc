@@ -1,4 +1,5 @@
 = Integration with OpenStack Nova
+Jianwei Zuo <740684863@qq.com>
 v0.1, 2020-05-17
 :toc: right
 :imagesdir: ../../images
