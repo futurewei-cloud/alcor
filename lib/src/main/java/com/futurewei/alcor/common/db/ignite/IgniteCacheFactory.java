@@ -18,33 +18,45 @@ package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.ICacheFactory;
-import org.apache.ignite.client.IgniteClient;
+import com.futurewei.alcor.common.db.IDistributedLock;
+import org.apache.ignite.Ignite;
+
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 public class IgniteCacheFactory implements ICacheFactory {
 
-    private IgniteClient igniteClient;
+    private final Ignite ignite;
+    private final int tryLockInterval;
+    private final int expireTime;
 
-    public IgniteCacheFactory(IgniteClient igniteClient) {
-        this.igniteClient = igniteClient;
+    public IgniteCacheFactory(Ignite ignite, int interval, int expire) {
+        this.ignite = ignite;
+        this.tryLockInterval = interval;
+        this.expireTime = expire;
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(Class<V> v) {
-        return new IgniteCache<>(igniteClient, v.getName());
+        return new IgniteDbCache<>(ignite, v.getName());
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
-        return new IgniteCache<>(igniteClient, cacheName);
+        return new IgniteDbCache<>(ignite, cacheName);
     }
 
     @Override
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit) {
         ExpiryPolicy ep = CreatedExpiryPolicy.factoryOf(new Duration(timeUnit, timeout)).create();
-        return new IgniteCache<>(igniteClient, v.getName(), ep);
+        return new IgniteDbCache<K, V>(ignite, v.getName(), ep);
+    }
+
+    @Override
+    public <T> IDistributedLock getDistributedLock(Class<T> t) {
+        return new IgniteDistributedLock(this.ignite, LOCK_PREFIX + t.getName(), this.tryLockInterval, this.expireTime);
     }
 }

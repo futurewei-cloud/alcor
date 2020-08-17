@@ -16,6 +16,7 @@ package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
 import com.futurewei.alcor.web.entity.*;
@@ -33,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NodeServiceImpl implements NodeService {
@@ -48,6 +50,7 @@ public class NodeServiceImpl implements NodeService {
      * @return total nodes number
      * @throws IOException file read exception, NodeRepositoryException exception caused by Repository
      */
+    @DurationStatistics
     public int getNodeInfoFromUpload(MultipartFile file) throws IOException, NodeRepositoryException, Exception {
         String strMethodName = "getNodeInfoFromUpload";
         int nReturn = 0;
@@ -79,6 +82,7 @@ public class NodeServiceImpl implements NodeService {
      * @throws IOException NodeRepositoryException exception caused by Repository
      */
     @Override
+    @DurationStatistics
     public NodeInfo getNodeInfoById(String nodeId) throws NodeRepositoryException, Exception {
         String strMethodName = "getNodeInfoById";
         if (nodeId == null)
@@ -104,6 +108,7 @@ public class NodeServiceImpl implements NodeService {
      * @throws IOException NodeRepositoryException exception caused by Repository
      */
     @Override
+    @DurationStatistics
     public List<NodeInfo> getAllNodes() throws Exception {
         String strMethodName = "getAllNodes";
         List<NodeInfo> nodes = new ArrayList<NodeInfo>();
@@ -120,6 +125,30 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
+     *  get all nodes info filtered by params
+     * @param queryParams
+     * @return List<NodeInfo>
+     * @throws Exception
+     */
+    @Override
+    @DurationStatistics
+    public List<NodeInfo> getAllNodes(Map<String, Object[]> queryParams) throws Exception {
+        List<NodeInfo> result = new ArrayList<>();
+
+        Map<String, NodeInfo> nodeInfoMap = nodeRepository.findAllItems(queryParams);
+        if (nodeInfoMap == null) {
+            return result;
+        }
+
+        for (Map.Entry<String, NodeInfo> entry: nodeInfoMap.entrySet()) {
+            NodeInfo nodeInfo = new NodeInfo(entry.getValue());
+            result.add(nodeInfo);
+        }
+
+        return result;
+    }
+
+    /**
      * create a new node information
      *
      * @param nodeInfo new node's information
@@ -127,6 +156,7 @@ public class NodeServiceImpl implements NodeService {
      * @throws ParameterNullOrEmptyException node information input is not valid, NodeRepositoryException exception caused by Repository
      */
     @Override
+    @DurationStatistics
     public NodeInfo createNodeInfo(NodeInfo nodeInfo) throws ParameterNullOrEmptyException, NodeRepositoryException,Exception {
         String strMethodName = "createNodeInfo";
         if (nodeInfo == null)
@@ -148,6 +178,32 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
+     * create new nodes information in bulk
+     *
+     * @param nodeInfos new node's information in bulk
+     * @return List of new node's information
+     */
+    @Override
+    public List<NodeInfo> createNodeInfoBulk(List<NodeInfo> nodeInfo) throws Exception {
+        String strMethodName = "createNodeInfoBulk";
+        if (nodeInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        if (nodeInfo != null) {
+            try {
+                nodeRepository.addItemBulkTransaction(nodeInfo);
+            } catch (CacheException e) {
+                logger.error(strMethodName+e.getMessage());
+                throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
+            }catch (Exception e)
+            {
+                logger.error(strMethodName+e.getMessage());
+                throw e;
+            }
+        }
+        return nodeInfo;
+    }
+
+    /**
      * update an existing node's information
      *
      * @param nodeId node's id nodeInfo node's information, nodeId should be equal to nodeInfo's id
@@ -155,6 +211,7 @@ public class NodeServiceImpl implements NodeService {
      * @throws ParameterNullOrEmptyException node inormation is input not valid, NodeRepositoryException exception caused by Repository
      */
     @Override
+    @DurationStatistics
     public NodeInfo updateNodeInfo(String nodeId, NodeInfo nodeInfo) throws ParameterNullOrEmptyException, NodeRepositoryException, Exception {
         String strMethodName = "updateNodeInfo";
         if (nodeId == null || nodeInfo == null)
@@ -188,6 +245,7 @@ public class NodeServiceImpl implements NodeService {
      * @throws ParameterNullOrEmptyException node inormation is input not valid, NodeRepositoryException exception caused by Repository
      */
     @Override
+    @DurationStatistics
     public String deleteNodeInfo(String nodeId) throws ParameterNullOrEmptyException, NodeRepositoryException, Exception {
         String strMethodName = "deleteNodeInfo";
         if (nodeId == null)

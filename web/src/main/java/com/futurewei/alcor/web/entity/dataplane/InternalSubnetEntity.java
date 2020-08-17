@@ -21,8 +21,19 @@ public class InternalSubnetEntity extends SubnetEntity {
     @JsonProperty("tunnel_id")
     private Long tunnelId;
 
+    public InternalSubnetEntity()
+    {
+    }
     public InternalSubnetEntity(SubnetEntity subnetEntity, Long tunnelId) {
         super(subnetEntity);
+        this.tunnelId = tunnelId;
+    }
+
+    public Long getTunnelId() {
+        return tunnelId;
+    }
+
+    public void setTunnelId(Long tunnelId) {
         this.tunnelId = tunnelId;
     }
 }

@@ -1,0 +1,62 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+option java_outer_classname = "Neighbor";
+
+import "common.proto";
+
+enum NeighborType { 
+    L2 = 0; // the default type
+    L3 = 1;
+}
+
+message NeighborConfiguration {
+    uint32 format_version = 1;
+    uint32 revision_number = 2;
+
+    string request_id = 3;
+    string id = 4;
+    NeighborType neighbor_type = 5; // L2 (default) or L3
+    string project_id = 6;
+    string vpc_id = 7;
+    string name = 8;
+    string mac_address = 9;
+    string host_ip_address = 10;
+    string neighbor_host_dvr_mac = 11;
+
+    message FixedIp {
+        string subnet_id = 1;
+        string ip_address = 2;
+    }
+
+    message AllowAddressPair {
+        string ip_address = 1;
+        string mac_address = 2;
+    }
+
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+}
+
+message NeighborState {
+    OperationType operation_type = 1;
+    NeighborConfiguration configuration = 2;
+}

@@ -18,7 +18,7 @@ package com.futurewei.alcor.securitygroup.utils;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.securitygroup.exception.*;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -53,12 +53,6 @@ public class RestParameterValidator {
     public static void checkPortId(String portId) throws PortIdRequired {
         if (StringUtils.isEmpty(portId)) {
             throw new PortIdRequired();
-        }
-    }
-
-    public static void checkPortSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws PortSecurityGroupsRequired {
-        if (portSecurityGroupsJson == null || portSecurityGroupsJson.getSecurityGroups() == null) {
-            throw new PortSecurityGroupsRequired();
         }
     }
 
@@ -173,7 +167,7 @@ public class RestParameterValidator {
     }
 
     public static void checkSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
-        checkTenantId(securityGroupRule.getTenantId());
+        //checkTenantId(securityGroupRule.getTenantId());
         checkSecurityGroupId(securityGroupRule.getSecurityGroupId());
         checkDirection(securityGroupRule.getDirection());
 
@@ -194,6 +188,15 @@ public class RestParameterValidator {
 
         if (securityGroupRule.getRemoteGroupId() != null && securityGroupRule.getRemoteIpPrefix() != null) {
             throw new RemoteIpPrefixRemoteGroupIdConflict();
+        }
+    }
+
+    public static void checkPortSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        List<PortBindingSecurityGroup> portBindingSecurityGroups = portBindingSecurityGroupsJson.getPortBindingSecurityGroups();
+        for (PortBindingSecurityGroup portBindingSecurityGroup: portBindingSecurityGroups) {
+
+            checkPortId(portBindingSecurityGroup.getPortId());
+            checkSecurityGroupId(portBindingSecurityGroup.getSecurityGroupId());
         }
     }
 }

@@ -4,7 +4,7 @@ metadata:
   name: route-configmap
 data:
   application.properties: |
-    ignite.host=10.99.135.32
+    ignite.host=ignite-alcor-service.default.svc.cluster.local
     ignite.port=10800
     logging.level.root=info
     logging.level.org.springframework.web=info
@@ -21,8 +21,7 @@ spec:
   selector:
     matchLabels:
       app: routemanager
-  replicas: 1
-  #replicas: 3
+  replicas: 3
   template:
     metadata:
       labels:
@@ -59,7 +58,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8080
+    - port: 9003
+      targetPort: 8080
       nodePort: 30003
   selector:
     app: routemanager

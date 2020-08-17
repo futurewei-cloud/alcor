@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
 import com.futurewei.alcor.web.entity.ip.IpAddrState;
@@ -38,6 +39,7 @@ public class IpManagerRestClient extends AbstractRestClient {
         }
     }
 
+    @DurationStatistics
     public void getIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
@@ -47,6 +49,7 @@ public class IpManagerRestClient extends AbstractRestClient {
         }
     }
 
+    @DurationStatistics
     public IpAddrRequest allocateIpAddress(IpVersion ipVersion, String vpcId, String rangeId, String ipAddr) throws Exception {
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         if (ipVersion != null) {
@@ -73,6 +76,17 @@ public class IpManagerRestClient extends AbstractRestClient {
         return result;
     }
 
+    @DurationStatistics
+    public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
+        HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
+        IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
+
+        verifyAllocatedIpAddr(result);
+
+        return result;
+    }
+
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddressBulk(List<IpAddrRequest> ipAddrRequests) throws Exception {
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
         ipAddrRequestBulk.setIpRequests(ipAddrRequests);
@@ -88,13 +102,14 @@ public class IpManagerRestClient extends AbstractRestClient {
         return result;
     }
 
-
-    public void releaseIpAddress(String rangeId,String ip) throws Exception {
+    @DurationStatistics
+    public void releaseIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
         restTemplate.delete(url);
     }
 
+    @DurationStatistics
     public void releaseIpAddressBulk(List<IpAddrRequest> ipAddrRequests) throws Exception {
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
         ipAddrRequestBulk.setIpRequests(ipAddrRequests);

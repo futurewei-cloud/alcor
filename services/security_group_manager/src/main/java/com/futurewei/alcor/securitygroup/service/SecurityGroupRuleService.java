@@ -17,9 +17,10 @@ package com.futurewei.alcor.securitygroup.service;
 
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRulesJson;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 public interface SecurityGroupRuleService {
@@ -33,5 +34,7 @@ public interface SecurityGroupRuleService {
 
     SecurityGroupRuleJson getSecurityGroupRule(String securityGroupRuleId) throws Exception;
 
-    List<SecurityGroupRuleJson> listSecurityGroupRule() throws Exception;
+    SecurityGroupRulesJson listSecurityGroupRule() throws Exception;
+
+    SecurityGroupRulesJson listSecurityGroupRule(Map<String, Object[]> queryParams) throws Exception;
 }

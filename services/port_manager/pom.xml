@@ -10,12 +10,12 @@
     </parent>
     <groupId>com.futurewei.alcor</groupId>
     <artifactId>portmanager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>AlcorPortManager</name>
     <description>Alcor Port Manager Module</description>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
         <swagger2markup.version>1.2.0</swagger2markup.version>
     </properties>
@@ -75,6 +75,16 @@
             <artifactId>swagger2markup-spring-restdocs-ext</artifactId>
             <version>${swagger2markup.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.1-jre</version>
         </dependency>
 
         <!--Internal dependencies-->

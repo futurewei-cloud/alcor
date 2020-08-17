@@ -1,0 +1,119 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ignite-alcor
+roleRef:
+  kind: ClusterRole
+  name: ignite-alcor
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: ignite-alcor
+    namespace: ignite-alcor
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ignite-alcor
+  namespace: ignite-alcor
+rules:
+  - apiGroups:
+      - ""
+    resources: # Here are resources you can access
+      - pods
+      - endpoints
+    verbs: # That is what you can do with them
+      - get
+      - list
+      - watch
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ignite-alcor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ignite-alcor
+  namespace: ignite-alcor
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
+  name: ignite-alcor-service
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
+  namespace: ignite-alcor
+  labels:
+    app: ignite-alcor
+spec:
+  type: LoadBalancer
+  ports:
+    - name: rest
+      port: 8080
+      targetPort: 8080
+    - name: sql
+      port: 10800
+      targetPort: 10800
+    - name: thinclients
+      port: 10900
+      targetPort: 10900
+  selector:
+    app: ignite-alcor
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: ignite-alcor
+  name: ignite-alcor
+  namespace: ignite-alcor
+spec:
+  selector:
+    matchLabels:
+      app: ignite-alcor
+  serviceName: ignite-alcor-service
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ignite-alcor
+    spec:
+      serviceAccountName: ignite-alcor
+      containers:
+        - name: ignite-alcor-node
+          image: ignite_alcor:lib8
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "16"
+          env:
+            - name: OPTION_LIBS
+              value: ignite-kubernetes,ignite-rest-http
+            - name: CONFIG_URI
+              value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_config.xml
+            - name: IGNITE_QUIET
+              value: "false"
+            - name: JVM_OPTS
+              value: "-Djava.net.preferIPv4Stack=true"
+          ports:
+            - name: port8080
+              containerPort: 8080
+            - name: port11211
+              containerPort: 11211 # REST port number.
+            - name: port47100
+              containerPort: 47100 # communication SPI port number.
+            - name: port47500
+              containerPort: 47500 # discovery SPI port number.
+            - name: port49112
+              containerPort: 49112 # JMX port number.
+            - name: port10800
+              containerPort: 10800 # SQL port number.
+            - name: port10900
+              containerPort: 10900 # Thin clients port number.
+          volumeMounts:
+            - name: ignite-alcor-config-volume
+              mountPath: /opt/ignite/config
+      volumes:
+        - name: ignite-alcor-config-volume

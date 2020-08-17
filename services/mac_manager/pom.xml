@@ -15,7 +15,7 @@
     <description>Virtual MAC Address Manager Module</description>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
         <swagger2markup.version>1.2.0</swagger2markup.version>
     </properties>
@@ -89,6 +89,10 @@
             <artifactId>schema</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 

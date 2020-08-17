@@ -18,7 +18,7 @@ package com.futurewei.alcor.securitygroup.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.securitygroup.config.UnitTestConfig;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -27,6 +27,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -289,14 +291,17 @@ public class SecurityGroupTest extends MockIgniteServer {
 
     @Test
     public void Test14_bindSecurityGroupTest() throws Exception {
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
-        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
 
         this.mockMvc.perform(post(UnitTestConfig.bindSecurityGroupUrl)
                 .content(body)
@@ -307,14 +312,17 @@ public class SecurityGroupTest extends MockIgniteServer {
 
     @Test
     public void Test15_unbindSecurityGroupTest() throws Exception {
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(UnitTestConfig.portId);
-        List<String> securityGroups = new ArrayList<>();
-        securityGroups.add(UnitTestConfig.securityGroupId);
-        portSecurityGroupsJson.setSecurityGroups(securityGroups);
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(portSecurityGroupsJson);
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
 
         this.mockMvc.perform(post(UnitTestConfig.unbindSecurityGroupUrl)
                 .content(body)
@@ -337,5 +345,45 @@ public class SecurityGroupTest extends MockIgniteServer {
                 UnitTestConfig.securityGroupId))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Test18_concurrentBindSecurityGroupTest() throws Throwable {
+        PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup();
+        portBindingSecurityGroup.setPortId(UnitTestConfig.portId);
+        portBindingSecurityGroup.setSecurityGroupId(UnitTestConfig.securityGroupId);
+        List<PortBindingSecurityGroup>  portBindingSecurityGroups = new ArrayList<>();
+        portBindingSecurityGroups.add(portBindingSecurityGroup);
+
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(portBindingSecurityGroupsJson);
+
+        Test02_createSecurityGroupTest();
+
+        Thread[] threads = new Thread[4];
+        for (int i = 0; i < 4; i++) {
+            threads[i] = new Thread(()-> {
+                try {
+                    this.mockMvc.perform(post(UnitTestConfig.bindSecurityGroupUrl)
+                            .content(body)
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                            .andExpect(status().isCreated())
+                            .andDo(print());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].start();
+        }
+
+        for (int i = 0; i < 4; i++) {
+            threads[i].join();
+        }
     }
 }

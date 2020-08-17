@@ -16,18 +16,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
+import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @SpringBootTest
 @AutoConfigureMockMvc
 public class CreatePortTest extends MockRestClientAndRepository {
@@ -39,8 +49,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithFixedIpsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithFixedIps))
                 .andDo(print())
@@ -51,8 +59,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutFixedIpsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutFixedIps))
                 .andDo(print())
@@ -63,8 +69,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithMacAddressTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithMacAddress))
                 .andDo(print())
@@ -75,8 +79,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutMacAddressTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutMacAddress))
                 .andDo(print())
@@ -87,8 +89,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithSecurityGroupTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithSecurityGroup))
                 .andDo(print())
@@ -99,8 +99,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortWithoutSecurityGroupTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.portEntityWithoutSecurityGroup))
                 .andDo(print())
@@ -111,8 +109,6 @@ public class CreatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void createPortBulkTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(post(createPortBulkUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.createPortBulk))
                 .andDo(print())

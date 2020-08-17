@@ -35,4 +35,12 @@ public class SubnetWebJson {
         this.subnet = subnetObject;
         this.subnet.setId(String.valueOf(genId));
     }
+
+    public SubnetEntity getSubnet() {
+        return subnet;
+    }
+
+    public void setSubnet(SubnetEntity subnet) {
+        this.subnet = subnet;
+    }
 }

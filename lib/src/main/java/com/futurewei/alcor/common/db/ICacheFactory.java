@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 public interface ICacheFactory {
 
+    String LOCK_PREFIX = "lock-";
+
     /**
      * get a persistence cache
      * @return
@@ -37,4 +39,11 @@ public interface ICacheFactory {
      * @return
      */
     <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit);
+
+    /**
+     * get a spin lock
+     * @param t class type
+     * @return IDistributedLock
+     */
+    <T> IDistributedLock getDistributedLock(Class<T> t);
 }

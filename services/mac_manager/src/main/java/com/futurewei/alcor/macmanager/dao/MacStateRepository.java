@@ -18,8 +18,8 @@ package com.futurewei.alcor.macmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
-import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
-public class MacStateRepository implements ICacheRepository<MacState> {
+public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     private static final Logger logger = LoggerFactory.getLogger(MacStateRepository.class);
     private ICache<String, MacState> cache;
 
@@ -59,6 +58,7 @@ public class MacStateRepository implements ICacheRepository<MacState> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public MacState findItem(String macAddress) throws CacheException {
         MacState macState = null;
         try {
@@ -78,15 +78,29 @@ public class MacStateRepository implements ICacheRepository<MacState> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
-    public Map findAllItems() throws CacheException {
-        HashMap hashMap = new HashMap();
+    @DurationStatistics
+    public Map<String, MacState> findAllItems() throws CacheException {
+        Map<String, MacState> map = null;
         try {
-            hashMap = new HashMap(cache.getAll());
+            map = cache.getAll();
         } catch (CacheException e) {
             logger.error("MacStateRepository findAllItems() exception:", e);
             throw e;
         }
-        return hashMap;
+        return map;
+    }
+
+    @Override
+    @DurationStatistics
+    public Map<String, MacState> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        Map<String, MacState> map = null;
+        try {
+            map = cache.getAll(queryParams);
+        } catch (CacheException e) {
+            logger.error("MacStateRepository findAllItems() exception:", e);
+            throw e;
+        }
+        return map;
     }
 
     /**
@@ -97,17 +111,9 @@ public class MacStateRepository implements ICacheRepository<MacState> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void addItem(MacState macState) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            cache.put(macState.getMacAddress(), macState);
-            tx.commit();
-            logger.info("MacStateRepository addItem() {}: ", macState.getMacAddress());
-        } catch (CacheException e) {
-            logger.error("MacStateRepository addItem() exception:", e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("MacStateRepository addItem() exception:", e);
-        }
+        cache.put(macState.getMacAddress(), macState);
     }
 
     /**
@@ -118,16 +124,32 @@ public class MacStateRepository implements ICacheRepository<MacState> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void deleteItem(String macAddress) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            cache.remove(macAddress);
-            tx.commit();
-            logger.info("MacStateRepository deleteItem() {}: ", macAddress);
-        } catch (CacheException e) {
-            logger.error("MacStateRepository deleteItem() exception:", e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("MacStateRepository addItem() exception:", e);
-        }
+        cache.remove(macAddress);
+    }
+
+    @Override
+    @DurationStatistics
+    public long size() {
+        return cache.size();
+    }
+
+    @Override
+    @DurationStatistics
+    public Boolean putIfAbsent(MacState macState) throws CacheException {
+        return cache.putIfAbsent(macState.getMacAddress(), macState);
+    }
+
+    @Override
+    @DurationStatistics
+    public Map<String, MacState> findAllItems(Set<String> keys) throws CacheException {
+        return cache.getAll(keys);
+    }
+
+    @Override
+    @DurationStatistics
+    public Boolean contains(String key) throws CacheException {
+        return cache.containsKey(key);
     }
 }

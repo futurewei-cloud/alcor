@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.PortBindingRoute;
 import com.futurewei.alcor.portmanager.exception.GetRouteEntityException;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.restclient.RouteManagerRestClient;
 
@@ -45,23 +45,25 @@ public class RouteManagerProxy {
     public PortBindingRoute getRouteBySubnetId(Object arg1, Object arg2) throws Exception {
         String portId = (String)arg1;
         String subnetId = (String)arg2;
-        RouteWebJson routeWebJson = routeManagerRestClient.getRouteBySubnetId(subnetId);
-        if (routeWebJson == null || routeWebJson.getRoute() == null) {
+        RoutesWebJson routesWebJson = routeManagerRestClient.getSubnetRoute(subnetId);
+        if (routesWebJson == null || routesWebJson.getRoutes() == null) {
             throw new GetRouteEntityException();
         }
 
-        return new PortBindingRoute(portId, routeWebJson.getRoute());
+        // FIXME : we should bind a port with several route rules
+        return new PortBindingRoute(portId, routesWebJson.getRoutes().get(0));
     }
 
     public PortBindingRoute getRouteBySubnetFuture(Object arg1, Object arg2) throws Exception {
         String portId = (String)arg1;
         CompletableFuture subnetFuture = (CompletableFuture)arg2;
         SubnetEntity subnetEntity = (SubnetEntity)subnetFuture.join();
-        RouteWebJson routeWebJson = routeManagerRestClient.getRouteBySubnetId(subnetEntity.getId());
-        if (routeWebJson == null || routeWebJson.getRoute() == null) {
+        RoutesWebJson routesWebJson = routeManagerRestClient.getSubnetRoute(subnetEntity.getId());
+        if (routesWebJson == null || routesWebJson.getRoutes() == null) {
             throw new GetRouteEntityException();
         }
 
-        return new PortBindingRoute(portId, routeWebJson.getRoute());
+        // FIXME : we should bind a port with several route rules
+        return new PortBindingRoute(portId, routesWebJson.getRoutes().get(0));
     }
 }

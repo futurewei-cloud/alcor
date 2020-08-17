@@ -94,4 +94,56 @@ public class NodeInfo implements Serializable {
         Matcher m = p.matcher(ip);
         return m.find();
     }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocalIp() {
+        return localIp;
+    }
+
+    public void setLocalIp(String localIp) {
+        this.localIp = localIp;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getVeth() {
+        return veth;
+    }
+
+    public void setVeth(String veth) {
+        this.veth = veth;
+    }
+
+    public int getgRPCServerPort() {
+        return gRPCServerPort;
+    }
+
+    public void setgRPCServerPort(int gRPCServerPort) {
+        this.gRPCServerPort = gRPCServerPort;
+    }
 }

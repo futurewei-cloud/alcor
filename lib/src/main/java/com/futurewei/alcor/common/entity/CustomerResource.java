@@ -17,18 +17,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-import java.io.Serializable;
+import java.util.Objects;
 
-@Data
-public class CustomerResource implements Serializable {
+public class CustomerResource extends Resource {
 
     @JsonProperty("project_id")
     private String projectId;
 
-    @JsonProperty("id")
-    private String id;
+    @JsonProperty("tenant_id")
+    private String tenantId;
 
     @JsonProperty("name")
     private String name;
@@ -41,12 +39,13 @@ public class CustomerResource implements Serializable {
     }
 
     public CustomerResource(CustomerResource state) {
-        this(state.projectId, state.id, state.name, state.description);
+        this(state.projectId, state.getId(), state.name, state.description);
     }
 
     public CustomerResource(String projectId, String id, String name, String description) {
+        super(id);
         this.projectId = projectId;
-        this.id = id;
+        this.tenantId = projectId;
         this.name = name;
         this.description = description;
     }
@@ -57,14 +56,9 @@ public class CustomerResource implements Serializable {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        if (this.tenantId == null) {
+            this.tenantId = projectId;
+        }
     }
 
     public String getName() {
@@ -81,5 +75,39 @@ public class CustomerResource implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTenantId() {
+        return this.tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerResource that = (CustomerResource) o;
+        return Objects.equals(projectId, that.projectId) &&
+                Objects.equals(this.getId(), that.getId()) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId, this.getId(), name, description);
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerResource{" +
+                "projectId='" + projectId + '\'' +
+                ", id='" + this.getId() + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

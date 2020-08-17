@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface PortService {
@@ -39,4 +40,6 @@ public interface PortService {
     PortWebJson getPort(String projectId, String portId) throws Exception;
 
     List<PortWebJson> listPort(String projectId) throws Exception;
+
+    List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception;
 }

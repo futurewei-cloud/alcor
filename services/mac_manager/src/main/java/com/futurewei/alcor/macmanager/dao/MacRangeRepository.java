@@ -17,8 +17,8 @@ package com.futurewei.alcor.macmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
-import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.repo.ICacheRepository;
+import com.futurewei.alcor.common.db.repo.ICacheRepositoryEx;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +27,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
-public class MacRangeRepository implements ICacheRepository<MacRange> {
+public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
     private static final Logger logger = LoggerFactory.getLogger(MacRangeRepository.class);
     private ICache<String, MacRange> cache;
 
@@ -58,6 +57,7 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public MacRange findItem(String rangeId) throws CacheException {
         MacRange macRange = null;
         try {
@@ -77,15 +77,36 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      * @throws CacheException Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public Map<String, MacRange> findAllItems() throws CacheException {
-        HashMap<String, MacRange> hashMap = new HashMap<String, MacRange>();
+        Map<String, MacRange> map = null;
         try {
-            hashMap = new HashMap(cache.getAll());
+            map = cache.getAll();
         } catch (CacheException e) {
             logger.error("MacRangeRepository findAllItems() exception:", e);
             throw e;
         }
-        return hashMap;
+        return map;
+    }
+
+    /**
+     * get all MAC ranges by params filters
+     *
+     * @param queryParams url request params
+     * @return map of MAC ranges
+     * @throws CacheException Db or cache operation exception
+     */
+    @Override
+    @DurationStatistics
+    public Map<String, MacRange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        Map<String, MacRange> map = null;
+        try {
+            map = cache.getAll(queryParams);
+        } catch (CacheException e) {
+            logger.error("MacRangeRepository findAllItems() exception:", e);
+            throw e;
+        }
+        return map;
     }
 
     /**
@@ -96,17 +117,9 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void addItem(MacRange macRange) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            cache.put(macRange.getRangeId(), macRange);
-            logger.info("MacRangeRepository addItem() {}: ", macRange.getRangeId());
-            tx.commit();
-        } catch (CacheException e) {
-            logger.error("MacRangeRepository addItem() exception:", e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("MacRangeRepository addItem() exception:", e);
-        }
+        cache.put(macRange.getRangeId(), macRange);
     }
 
     /**
@@ -117,16 +130,32 @@ public class MacRangeRepository implements ICacheRepository<MacRange> {
      * @throws Exception Db or cache operation exception
      */
     @Override
+    @DurationStatistics
     public void deleteItem(String rangeId) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            cache.remove(rangeId);
-            logger.info("MacRangeRepository deleteItem() {}: ", rangeId);
-            tx.commit();
-        } catch (CacheException e) {
-            logger.error("MacRangeRepository deleteItem() exception:", e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("MacRangeRepository deleteItem() exception:", e);
-        }
+        cache.remove(rangeId);
+    }
+
+    @Override
+    @DurationStatistics
+    public long size() {
+        return cache.size();
+    }
+
+    @Override
+    @DurationStatistics
+    public Boolean putIfAbsent(MacRange macRange) throws CacheException {
+        return cache.putIfAbsent(macRange.getRangeId(), macRange);
+    }
+
+    @Override
+    @DurationStatistics
+    public Map<String, MacRange> findAllItems(Set<String> keys) throws CacheException {
+        return cache.getAll(keys);
+    }
+
+    @Override
+    @DurationStatistics
+    public Boolean contains(String key) throws CacheException {
+        return cache.containsKey(key);
     }
 }

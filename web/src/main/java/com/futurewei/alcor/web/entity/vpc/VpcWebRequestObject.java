@@ -43,7 +43,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private Integer mtu;
 
     @JsonProperty("port_security_enabled")
-    private boolean portSecurityEnabled;
+    private boolean portSecurityEnabled = true;
 
     @JsonProperty("provider:network_type")
     private String networkType;
@@ -117,6 +117,208 @@ public class VpcWebRequestObject extends CustomerResource {
 
         super(projectId, id, name, description);
         this.routeEntities = routeEntityList;
+    }
+
+    public String getCidr() {
+        return cidr;
+    }
+
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
+    }
+
+    public List<RouteEntity> getRouteEntities() {
+        return routeEntities;
+    }
+
+    public void setRouteEntities(List<RouteEntity> routeEntities) {
+        this.routeEntities = routeEntities;
+    }
+
+    public boolean isAdminStateUp() {
+        return adminStateUp;
+    }
+
+    public void setAdminStateUp(boolean adminStateUp) {
+        this.adminStateUp = adminStateUp;
+    }
+
+    public String getDnsDomain() {
+        return dnsDomain;
+    }
+
+    public void setDnsDomain(String dnsDomain) {
+        this.dnsDomain = dnsDomain;
+    }
+
+    public Integer getMtu() {
+        return mtu;
+    }
+
+    public void setMtu(Integer mtu) {
+        this.mtu = mtu;
+    }
+
+    public boolean isPortSecurityEnabled() {
+        return portSecurityEnabled;
+    }
+
+    public void setPortSecurityEnabled(boolean portSecurityEnabled) {
+        this.portSecurityEnabled = portSecurityEnabled;
+    }
+
+    public String getNetworkType() {
+        return networkType;
+    }
+
+    public void setNetworkType(String networkType) {
+        this.networkType = networkType;
+    }
+
+    public String getPhysicalNetwork() {
+        return physicalNetwork;
+    }
+
+    public void setPhysicalNetwork(String physicalNetwork) {
+        this.physicalNetwork = physicalNetwork;
+    }
+
+    public Integer getSegmentationId() {
+        return segmentationId;
+    }
+
+    public void setSegmentationId(Integer segmentationId) {
+        this.segmentationId = segmentationId;
+    }
+
+    public boolean isRouterExternal() {
+        return routerExternal;
+    }
+
+    public void setRouterExternal(boolean routerExternal) {
+        this.routerExternal = routerExternal;
+    }
+
+    public List<SegmentInfoInVpc> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(List<SegmentInfoInVpc> segments) {
+        this.segments = segments;
+    }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
+
+    @Override
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    @Override
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public boolean isVlanTransparent() {
+        return vlanTransparent;
+    }
+
+    public void setVlanTransparent(boolean vlanTransparent) {
+        this.vlanTransparent = vlanTransparent;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    public List getAvailabilityZoneHints() {
+        return availabilityZoneHints;
+    }
+
+    public void setAvailabilityZoneHints(List availabilityZoneHints) {
+        this.availabilityZoneHints = availabilityZoneHints;
+    }
+
+    public Integer getRevisionNumber() {
+        return revisionNumber;
+    }
+
+    public void setRevisionNumber(Integer revisionNumber) {
+        this.revisionNumber = revisionNumber;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getTagsAny() {
+        return tagsAny;
+    }
+
+    public void setTagsAny(String tagsAny) {
+        this.tagsAny = tagsAny;
+    }
+
+    public String getNotTags() {
+        return notTags;
+    }
+
+    public void setNotTags(String notTags) {
+        this.notTags = notTags;
+    }
+
+    public String getNotTagsAny() {
+        return notTagsAny;
+    }
+
+    public void setNotTagsAny(String notTagsAny) {
+        this.notTagsAny = notTagsAny;
+    }
+
+    public String getFields() {
+        return fields;
+    }
+
+    public void setFields(String fields) {
+        this.fields = fields;
+    }
+
+    public String getSortDir() {
+        return sortDir;
+    }
+
+    public void setSortDir(String sortDir) {
+        this.sortDir = sortDir;
+    }
+
+    public String getSortKey() {
+        return sortKey;
+    }
+
+    public void setSortKey(String sortKey) {
+        this.sortKey = sortKey;
     }
 }
 

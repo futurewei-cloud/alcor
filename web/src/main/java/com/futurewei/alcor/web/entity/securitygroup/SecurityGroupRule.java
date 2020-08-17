@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 
 public class SecurityGroupRule extends CustomerResource {
-    @JsonProperty("tenant_id")
-    private String tenantId;
 
     @JsonProperty("security_group_id")
     private String securityGroupId;
@@ -43,7 +41,7 @@ public class SecurityGroupRule extends CustomerResource {
     @JsonProperty("port_range_min")
     private Integer portRangeMin;
 
-    @JsonProperty("ether_type")
+    @JsonProperty("ethertype")
     private String etherType;
 
     public static enum EtherType {
@@ -112,21 +110,8 @@ public class SecurityGroupRule extends CustomerResource {
         this.etherType = etherType;
     }
 
-    public SecurityGroupRule(String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
-        this.tenantId = tenantId;
-        this.securityGroupId = securityGroupId;
-        this.remoteGroupId = remoteGroupId;
-        this.direction = direction;
-        this.remoteIpPrefix = remoteIpPrefix;
-        this.protocol = protocol;
-        this.portRangeMax = portRangeMax;
-        this.portRangeMin = portRangeMin;
-        this.etherType = etherType;
-    }
-
-    public SecurityGroupRule(CustomerResource state, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(CustomerResource state, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         super(state);
-        this.tenantId = tenantId;
         this.securityGroupId = securityGroupId;
         this.remoteGroupId = remoteGroupId;
         this.direction = direction;
@@ -137,9 +122,8 @@ public class SecurityGroupRule extends CustomerResource {
         this.etherType = etherType;
     }
 
-    public SecurityGroupRule(String projectId, String id, String name, String description, String tenantId, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
+    public SecurityGroupRule(String projectId, String id, String name, String description, String securityGroupId, String remoteGroupId, String direction, String remoteIpPrefix, String protocol, Integer portRangeMax, Integer portRangeMin, String etherType) {
         super(projectId, id, name, description);
-        this.tenantId = tenantId;
         this.securityGroupId = securityGroupId;
         this.remoteGroupId = remoteGroupId;
         this.direction = direction;
@@ -148,14 +132,6 @@ public class SecurityGroupRule extends CustomerResource {
         this.portRangeMax = portRangeMax;
         this.portRangeMin = portRangeMin;
         this.etherType = etherType;
-    }
-
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
     }
 
     public String getSecurityGroupId() {
@@ -222,17 +198,17 @@ public class SecurityGroupRule extends CustomerResource {
         this.etherType = etherType;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityGroupRuleJson{" +
-                "securityGroupId='" + securityGroupId + '\'' +
-                ", remoteGroupId='" + remoteGroupId + '\'' +
-                ", direction='" + direction + '\'' +
-                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
-                ", protocol='" + protocol + '\'' +
-                ", portRangeMax=" + portRangeMax +
-                ", portRangeMin=" + portRangeMin +
-                ", etherType='" + etherType + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "SecurityGroupRuleJson{" +
+//                "securityGroupId='" + securityGroupId + '\'' +
+//                ", remoteGroupId='" + remoteGroupId + '\'' +
+//                ", direction='" + direction + '\'' +
+//                ", remoteIpPrefix='" + remoteIpPrefix + '\'' +
+//                ", protocol='" + protocol + '\'' +
+//                ", portRangeMax=" + portRangeMax +
+//                ", portRangeMin=" + portRangeMin +
+//                ", etherType='" + etherType + '\'' +
+//                '}';
+//    }
 }

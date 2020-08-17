@@ -5,6 +5,7 @@ public class UnitTestConfig {
     public static String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
     public static String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
     public static String subnetId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88000";
+    public static String gatewayIp = "10.0.0.10";
     public static String name = "test_subnet";
     public static String updateName = "update_subnet";
     public static String cidr = "10.0.0.0/16";

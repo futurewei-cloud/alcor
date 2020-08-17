@@ -4,10 +4,18 @@ package com.futurewei.alcor.subnet.service.implement;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.FallbackException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
+import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
+import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
+import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -25,6 +33,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,6 +61,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
+    @DurationStatistics
     public void routeFallback(String routeId, String vpcId) {
         String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes/" + routeId; // for kubernetes test
         restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
@@ -59,6 +69,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
+    @DurationStatistics
     public void macFallback(String macAddress) {
         String macManagerServiceUrl = macUrl + "/" + macAddress;
         restTemplate.delete(macManagerServiceUrl, ResponseId.class);
@@ -66,14 +77,16 @@ public class SubnetServiceImp implements SubnetService {
 
     @Async
     @Override
-    public void ipFallback(int ipVersion, String rangeId, String ipAddr) {
-        String ipManagerServiceUrl = ipUrl + ipVersion + "/" + rangeId + "/" + ipAddr;
-        restTemplate.delete(ipManagerServiceUrl, IpAddrRequest.class);
+    @DurationStatistics
+    public void ipFallback(String rangeId, String ipAddr) {
+        String ipManagerServiceUrl = ipUrl + rangeId + "/" + ipAddr;
+        restTemplate.delete(ipManagerServiceUrl);
         String ipRangeDeleteServiceUrl = ipUrl + "range/" + rangeId;
-        restTemplate.delete(ipRangeDeleteServiceUrl, IpAddrRangeRequest.class);
+        restTemplate.delete(ipRangeDeleteServiceUrl);
     }
 
     @Override
+    @DurationStatistics
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
@@ -107,12 +120,13 @@ public class SubnetServiceImp implements SubnetService {
         // IP fallback
         logger.info("IP fallback start");
         if (ipResponse != null) {
-            this.ipFallback(ipResponse.getIpVersion(), ipResponse.getRangeId(), ipResponse.getIp());
+            this.ipFallback(ipResponse.getRangeId(), ipResponse.getIp());
         }
         logger.info("IP fallback end");
     }
 
     @Override
+    @DurationStatistics
     public VpcWebJson verifyVpcId(String projectId, String vpcId) throws FallbackException {
         String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId;
         VpcWebJson vpcResponse = restTemplate.getForObject(vpcManagerServiceUrl, VpcWebJson.class);
@@ -124,6 +138,7 @@ public class SubnetServiceImp implements SubnetService {
 
 
     @Override
+    @DurationStatistics
     public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
         String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
         HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
@@ -139,6 +154,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws FallbackException {
         String macManagerServiceUrl = macUrl;
         MacState macState = new MacState();
@@ -159,7 +175,8 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId) throws FallbackException {
+    @DurationStatistics
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -200,10 +217,18 @@ public class SubnetServiceImp implements SubnetService {
             throw new FallbackException("fallback request");
         }
 
+        if (!isOpenToBeAllocated) {
+            IpAddrRequest ipAddrRequest = new IpAddrRequest();
+            ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+            ipAddrRequest.setRangeId(ipRangeResponse.getId());
+            return ipAddrRequest;
+        }
+
         // Allocate Ip Address
         IpAddrRequest ipAddrRequest = new IpAddrRequest();
         ipAddrRequest.setRangeId(ipRangeResponse.getId());
         ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+        ipAddrRequest.setIp(gatewayIp);
         ipAddrRequest.setVpcId(vpcId);
         ipAddrRequest.setSubnetId(subnetId);
 
@@ -228,6 +253,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public String[] cidrToFirstIpAndLastIp(String cidr) {
         if (cidr == null) {
             return null;
@@ -238,6 +264,16 @@ public class SubnetServiceImp implements SubnetService {
         if (highIp == null || lowIp == null) {
             return null;
         }
+
+        String[] highIps = highIp.split("\\.");
+        String[] lowIps = lowIp.split("\\.");
+        Integer high = Integer.parseInt(highIps[highIps.length - 1]) - ConstantsConfig.HighIpInterval;
+        Integer low = Integer.parseInt(lowIps[lowIps.length - 1]) + ConstantsConfig.LowIpInterval;
+        highIps[highIps.length - 1] = String.valueOf(high);
+        lowIps[lowIps.length - 1] = String.valueOf(low);
+        highIp = String.join(".", highIps);
+        lowIp = String.join(".", lowIps);
+
         String[] res = new String[2];
         res[0] = lowIp;
         res[1] = highIp;
@@ -245,6 +281,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
+    @DurationStatistics
     public boolean verifyCidrBlock(String cidr) throws FallbackException {
         if (cidr == null) {
             return false;
@@ -280,6 +317,60 @@ public class SubnetServiceImp implements SubnetService {
         }
         return true;
 
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnets/" + subnetId;
+        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
+
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetIdInVpc(String subnetId, String projectId, String vpcId) throws Exception {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnetid/" + subnetId;
+        restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
+    }
+
+    @Override
+    @DurationStatistics
+    public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
+
+        // get vpc and check with vpc cidr
+        VpcWebJson vpcWebJson = verifyVpcId(projectId, vpcId);
+        String vpcCidr = vpcWebJson.getNetwork().getCidr();
+
+        if (!(vpcCidr == null || vpcCidr.length() == 0)) {
+            if (!SubnetManagementUtil.IsCidrWithin(cidr, vpcCidr)) {
+                throw new CidrNotWithinNetworkCidr();
+            }
+        }
+
+
+        // get subnet list and check with subnets cidr
+        List<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
+        for (String subnetId : subnetIds) {
+            SubnetEntity subnet = this.subnetDatabaseService.getBySubnetId(subnetId);
+            if (subnet == null) {
+                continue;
+            }
+            String subnetCidr = subnet.getCidr();
+            if (SubnetManagementUtil.IsCidrOverlap(cidr, subnetCidr)) {
+                throw new CidrOverlapWithOtherSubnets();
+            }
+        }
+
+        return false;
     }
 
 }

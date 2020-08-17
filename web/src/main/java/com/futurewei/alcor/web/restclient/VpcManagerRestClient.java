@@ -15,15 +15,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class VpcManagerRestClient extends AbstractRestClient {
     @Value("${microservices.vpc.service.url:#{\"\"}}")
     private String vpcManagerUrl;
 
+    @DurationStatistics
     public VpcWebJson getVpc(String projectId, String vpcId) throws Exception {
         String url = vpcManagerUrl + "/project/" + projectId + "/vpcs/" + vpcId;
         VpcWebJson vpcWebJson = restTemplate.getForObject(url, VpcWebJson.class);
@@ -32,5 +37,18 @@ public class VpcManagerRestClient extends AbstractRestClient {
         }
 
         return vpcWebJson;
+    }
+
+    @DurationStatistics
+    public VpcsWebJson getVpcBulk(String projectId, List<String> vpcIds) throws Exception {
+        String queryParameter = buildQueryParameter("id", vpcIds);
+        String url = vpcManagerUrl + "/project/" + projectId + "/vpcs?" + queryParameter;
+
+        VpcsWebJson vpcsWebJson = restTemplate.getForObject(url, VpcsWebJson.class);
+        if (vpcsWebJson == null) {
+            throw new Exception("Get vpcs failed");
+        }
+
+        return vpcsWebJson;
     }
 }

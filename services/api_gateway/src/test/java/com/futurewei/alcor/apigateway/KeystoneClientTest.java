@@ -22,36 +22,36 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebFlux;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.*;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties= {
         "keystone.enable=true",
@@ -63,6 +63,7 @@ import static org.mockito.Mockito.when;
         "keystone.auth_type=password",
         "keystone.auth_url=http://localhost/identity"
 })
+@AutoConfigureWebFlux
 public class KeystoneClientTest {
 
     private static final String TEST_LOCAL_TOKEN = "11aaaaaBex0xWssdfsadfDSSDFSDF";
@@ -75,8 +76,7 @@ public class KeystoneClientTest {
     private static final String TEST_NULL_TOKEN = "caaaaaBex0xWssdfsadfDSSDFSDF";
     private static final String TEST_INVALID_TOKEN = "eaaaaaBex0xWssdfsadfDSSDFSDF";
 
-
-    private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_PROJECT_ID = "aaaaaaaabbbbccccddddeeeeeeeeeeee";
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String BASE_URL = "http://localhost/identity";
@@ -106,7 +106,8 @@ public class KeystoneClientTest {
 
         // build normal token
         TokenEntity tokenEntity = new TokenEntity(TEST_TOKEN, false);
-        tokenEntity.setExpireAt(dateFormat.parse("2020-08-05T09:00:00.000+0000"));
+        Date normalDate = getNoExpireDate();
+        tokenEntity.setExpireAt(normalDate);
         tokenEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_TOKEN)).thenReturn(tokenEntity);
 
@@ -115,7 +116,8 @@ public class KeystoneClientTest {
 
         // build expired token
         TokenEntity tokenExpiredEntity = new TokenEntity(TEST_EXPIRED_TOKEN, false);
-        tokenExpiredEntity.setExpireAt(dateFormat.parse("2020-04-05T09:00:00.000+0000"));
+        Date expiredDate = getExpireDate();
+        tokenExpiredEntity.setExpireAt(expiredDate);
         tokenExpiredEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_EXPIRED_TOKEN)).thenReturn(tokenExpiredEntity);
 
@@ -399,21 +401,34 @@ public class KeystoneClientTest {
 
     @Test
     public void verifyTokenTest(){
-        String projectId = keystoneClient.verifyToken(TEST_TOKEN);
-        assertEquals(TEST_PROJECT_ID, projectId);
+        Optional<TokenEntity> tokenEntityOptional = keystoneClient.verifyToken(TEST_TOKEN);
+        assertTrue(tokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, tokenEntityOptional.get().getProjectId());
 
-        String emptyProjectId = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
-        assertEquals("", emptyProjectId);
+        Optional<TokenEntity> emptyTokenEntityOptional = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
+        assertTrue(emptyTokenEntityOptional.isEmpty());
 
-        String empty2ProjectId = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
-        assertEquals("", empty2ProjectId);
+        Optional<TokenEntity> empty2TokenEntityOptional = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
+        assertTrue(empty2TokenEntityOptional.isEmpty());
 
-        String noCacheProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals(TEST_PROJECT_ID, noCacheProjectId);
+        Optional<TokenEntity> noCacheTokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(noCacheTokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, noCacheTokenEntityOptional.get().getProjectId());
 
         ReflectionTestUtils.setField(keystoneClient, "localToken", TEST_INVALID_LOCAL_TOKEN);
-        String empty3ProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals("", empty3ProjectId);
+        Optional<TokenEntity> empty3TokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(empty3TokenEntityOptional.isEmpty());
     }
 
+    private Date getExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        return c.getTime();
+    }
+
+    private Date getNoExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
+    }
 }
