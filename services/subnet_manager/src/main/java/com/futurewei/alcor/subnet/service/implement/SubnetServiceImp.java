@@ -13,6 +13,7 @@ import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
 import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
 import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
+import com.futurewei.alcor.subnet.exception.UsedIpsIsNotCorrect;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
@@ -320,15 +321,20 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public Integer getUsedIpByRangeId(String rangeId) {
+    public Integer getUsedIpByRangeId(String rangeId) throws UsedIpsIsNotCorrect {
         String ipManagerServiceUrl = ipUrl + "range" + "/" + rangeId;
-        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
-        if (ipAddrRangeRequest == null) {
-            logger.info("can not find ipAddrRangeRequest by range id");
+        IpAddrRangeRequest ipAddrRange = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
+        if (ipAddrRange == null) {
+            logger.info("can not find ipAddrRange by range id");
             return null;
         }
 
-        Integer usedIps = Integer.parseInt(String.valueOf(ipAddrRangeRequest.getUsedIps()));
+        Long usedIPs = ipAddrRange.getUsedIps();
+        if (usedIPs == null || usedIPs > Integer.MAX_VALUE || usedIPs < 0) {
+            throw new UsedIpsIsNotCorrect();
+        }
+
+        Integer usedIps = Integer.parseInt(String.valueOf(usedIPs));
 
         return usedIps;
     }

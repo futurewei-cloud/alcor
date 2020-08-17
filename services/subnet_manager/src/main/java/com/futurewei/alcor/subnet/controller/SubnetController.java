@@ -23,8 +23,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
-import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
+import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
@@ -86,8 +85,9 @@ public class SubnetController {
             usedIps = this.subnetService.getUsedIpByRangeId(rangeId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
-            logger.error(e.getMessage());
-            throw new Exception(e);
+            throw new RangeIdIsNullOrEmpty();
+        } catch (UsedIpsIsNotCorrect e) {
+            throw new UsedIpsIsNotCorrect();
         }
 
         return usedIps;
@@ -107,8 +107,7 @@ public class SubnetController {
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
-            logger.error(e.getMessage());
-            throw new Exception(e);
+            throw new SubnetIdIsNullOrEmpty();
         }
 
         if (subnetEntity == null) {
@@ -135,8 +134,7 @@ public class SubnetController {
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
-            logger.error(e.getMessage());
-            throw new Exception(e);
+            throw new ParameterNullOrEmptyException(e.getMessage());
         }
 
         if (subnetEntity == null) {

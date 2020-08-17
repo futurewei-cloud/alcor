@@ -23,12 +23,13 @@ import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilityEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NetworkIPAvailabilityService {
 
     public NetworkIPAvailabilityEntity getNetworkIPAvailability (String vpcid) throws ResourceNotFoundException, ResourcePersistenceException;
 
-    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities (String vpcId, String vpcName, String tenantId, String projectId) throws CacheException, ResourceNotFoundException;
+    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities (Map<String, Object[]> queryParams) throws CacheException, ResourceNotFoundException;
 
     public NetworkIPAvailabilityEntity setNetworkIPAvailability (VpcEntity vpcEntity) throws ResourceNotFoundException;
 

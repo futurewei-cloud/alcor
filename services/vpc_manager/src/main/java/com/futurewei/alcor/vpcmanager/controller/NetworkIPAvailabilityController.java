@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.NetworkIPAvailabilityService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.vpc.NetworkIPAvailabilitiesWebJson;
@@ -27,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -36,6 +39,9 @@ public class NetworkIPAvailabilityController {
 
     @Autowired
     NetworkIPAvailabilityService networkIPAvailabilityService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     /**
      * Shows network IP availability details for a network.
@@ -79,9 +85,12 @@ public class NetworkIPAvailabilityController {
                                                                      @RequestParam(value = "project_id", required = false) String projectId) throws Exception {
         List<NetworkIPAvailabilityEntity> networkIPAvailabilities = null;
 
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(request.getParameterMap(), NetworkIPAvailabilityEntity.class);
+        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
 
-            networkIPAvailabilities = this.networkIPAvailabilityService.getNetworkIPAvailabilities(vpcId, vpcName, tenantId, projectId);
+            networkIPAvailabilities = this.networkIPAvailabilityService.getNetworkIPAvailabilities(queryParams);
 
         } catch (Exception e) {
             throw new Exception(e);

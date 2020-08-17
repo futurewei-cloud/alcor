@@ -8,6 +8,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
 import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
+import com.futurewei.alcor.subnet.exception.UsedIpsIsNotCorrect;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
@@ -54,7 +55,7 @@ public interface SubnetService {
     public boolean verifyCidrBlock (String cidr) throws ParameterUnexpectedValueException, FallbackException;
 
     // Get used_ips for ip range
-    public  Integer getUsedIpByRangeId (String rangeId);
+    public Integer getUsedIpByRangeId (String rangeId) throws UsedIpsIsNotCorrect;
 
     // update to vpc with subnet id
     public void addSubnetIdToVpc (String subnetId, String projectId, String vpcId) throws Exception;

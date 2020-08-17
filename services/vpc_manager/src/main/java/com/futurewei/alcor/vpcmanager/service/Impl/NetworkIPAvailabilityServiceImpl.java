@@ -52,6 +52,13 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
 
     private RestTemplate restTemplate = new RestTemplate();
 
+    /**
+     * get network ip availability by vpc id
+     * @param vpcid
+     * @return
+     * @throws ResourceNotFoundException
+     * @throws ResourcePersistenceException
+     */
     @Override
     public NetworkIPAvailabilityEntity getNetworkIPAvailability(String vpcid) throws ResourceNotFoundException, ResourcePersistenceException {
 
@@ -59,7 +66,7 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
 
         VpcEntity vpcEntity = this.vpcDatabaseService.getByVpcId(vpcid);
         if (vpcEntity == null) {
-            throw new ResourceNotFoundException("vpc can not be found");
+            throw new ResourceNotFoundException("vpc can not be found" + vpcid);
         }
 
         networkIPAvailabilityEntity = setNetworkIPAvailability(vpcEntity);
@@ -67,37 +74,44 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         return networkIPAvailabilityEntity;
     }
 
+    /**
+     * list all network ip availabilities
+     * @param queryParams
+     * @return
+     * @throws CacheException
+     * @throws ResourceNotFoundException
+     */
     @Override
-    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities(String vpcId, String vpcName, String tenantId, String projectId) throws CacheException, ResourceNotFoundException {
+    public List<NetworkIPAvailabilityEntity> getNetworkIPAvailabilities(Map<String, Object[]> queryParams) throws CacheException, ResourceNotFoundException {
 
         List<NetworkIPAvailabilityEntity> networkIPAvailabilityEntities = new ArrayList<NetworkIPAvailabilityEntity>();
 
-        Map<String, VpcEntity> vpcStates = this.vpcDatabaseService.getAllVpcs();
+        Map<String, VpcEntity> vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
 
         // Filter vpcStates by request parameters
-        if (vpcId != null) {
-            vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> vpcId.equalsIgnoreCase(state.getValue().getId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-        }
-
-        if (vpcName != null) {
-            vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> vpcName.equalsIgnoreCase(state.getValue().getName()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-        }
-
-        if (tenantId != null) {
-            vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> tenantId.equalsIgnoreCase(state.getValue().getTenantId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-        }
-
-        if (projectId != null) {
-            vpcStates = vpcStates.entrySet().stream()
-                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId()))
-                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-        }
+//        if (vpcId != null) {
+//            vpcStates = vpcStates.entrySet().stream()
+//                    .filter(state -> vpcId.equalsIgnoreCase(state.getValue().getId()))
+//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+//        }
+//
+//        if (vpcName != null) {
+//            vpcStates = vpcStates.entrySet().stream()
+//                    .filter(state -> vpcName.equalsIgnoreCase(state.getValue().getName()))
+//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+//        }
+//
+//        if (tenantId != null) {
+//            vpcStates = vpcStates.entrySet().stream()
+//                    .filter(state -> tenantId.equalsIgnoreCase(state.getValue().getTenantId()))
+//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+//        }
+//
+//        if (projectId != null) {
+//            vpcStates = vpcStates.entrySet().stream()
+//                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId()))
+//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
+//        }
 
 
         for (Map.Entry<String, VpcEntity> entry : vpcStates.entrySet()) {
@@ -109,6 +123,12 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         return networkIPAvailabilityEntities;
     }
 
+    /**
+     * set up network ip availabilities with vpc state
+     * @param vpcEntity
+     * @return
+     * @throws ResourceNotFoundException
+     */
     @Override
     public NetworkIPAvailabilityEntity setNetworkIPAvailability(VpcEntity vpcEntity) throws ResourceNotFoundException {
 
@@ -185,6 +205,12 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         return networkIPAvailabilityEntity;
     }
 
+    /**
+     * get subnets by subnet ids
+     * @param subnets
+     * @return list of subnet state
+     * @throws ResourceNotFoundException
+     */
     @Override
     public List<SubnetEntity> getSubnets(List<String> subnets) throws ResourceNotFoundException {
 
@@ -203,6 +229,11 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         return subnetEntities;
     }
 
+    /**
+     * get used_ips by range id
+     * @param rangeId
+     * @return integer
+     */
     @Override
     public Integer getUsedIps(String rangeId) {
         String subnetManagerServiceUrl = subnetUrl + "/subnets/" + rangeId;
