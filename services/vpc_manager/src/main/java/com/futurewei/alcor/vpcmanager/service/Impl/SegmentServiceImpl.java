@@ -112,7 +112,6 @@ public class SegmentServiceImpl implements SegmentService {
         Long key = null;
         String partitionStringFormat = null;
         Random ran = new Random();
-//        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
 
         try {
             NetworkVxlanType vxlan = new NetworkVxlanType();
@@ -122,10 +121,9 @@ public class SegmentServiceImpl implements SegmentService {
             while (round <= ConstantsConfig.MAX_ROUNDS) {
                 // Randomly allocate a partition and check if the partition exist in db
                 int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
-                partitionStringFormat = partition + "";
+                partitionStringFormat = String.valueOf(partition);
                 NetworkVxlanRange networkVxlanRange = this.vxlanRangeRepository.findItem(partitionStringFormat);
                 if (networkVxlanRange == null) {
-//                  rangeId = UUID.randomUUID().toString();
                     int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
@@ -178,7 +176,6 @@ public class SegmentServiceImpl implements SegmentService {
         Long key = null;
         String partitionStringFormat = null;
         Random ran = new Random();
-//        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
 
         try {
             NetworkGREType gre = new NetworkGREType();
@@ -188,10 +185,9 @@ public class SegmentServiceImpl implements SegmentService {
             while (round <= ConstantsConfig.MAX_ROUNDS) {
                 // Randomly allocate a partition and check if the partition exist in db
                 int partition = ran.nextInt(NetworkType.GRE_PARTITION);
-                partitionStringFormat = partition + "";
+                partitionStringFormat = String.valueOf(partition);
                 NetworkGRERange networkGRERange = this.greRangeRepository.findItem(partitionStringFormat);
                 if (networkGRERange == null) {
-//                  rangeId = UUID.randomUUID().toString();
                     int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);

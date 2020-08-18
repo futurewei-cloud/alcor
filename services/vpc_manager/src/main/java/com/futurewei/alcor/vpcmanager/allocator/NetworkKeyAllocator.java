@@ -26,9 +26,6 @@ public class NetworkKeyAllocator implements KeyAllocator {
     @Override
     public Long allocate() throws Exception {
         int freeBit = bitSet.nextClearBit(0);
-//        if (freeBit < 0 || freeBit >= keyNum) {
-//            throw new NetworkKeyNotEnoughException();
-//        }
         if (freeBit < 0 || freeBit >= keyNum) {
             return ConstantsConfig.keyNotEnoughReturnValue;
         }
