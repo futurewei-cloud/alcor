@@ -47,10 +47,10 @@ public class StrictRbacManager implements RbacManger {
     private ServiceRbacRule serviceRbacRule;
 
     public StrictRbacManager() throws IOException {
-        initServiceRbacRule();
+        initServiceRbacRules();
     }
 
-    private void initServiceRbacRule() throws IOException {
+    private void initServiceRbacRules() throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(SERVICE_RBAC_FILE_PATH);
         if (is == null) {
             is = ClassLoader.getSystemResourceAsStream(DEFAULT_RBAC_FILE_PATH);

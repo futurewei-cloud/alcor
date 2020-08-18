@@ -1,1 +1,63 @@
-# Alcor - A Hyperscale Cloud-Native SDN Control PlaneNOTE: This document is under development== IntroductionShared-nothing Micro-service Architecture* Micro-services design** Each micro-service has its dedicated responsibility (e,g, allocating virtual IPs, virtual MACs) and provides gRPC apis for service access* Shared-nothing architecture** Database shards, cache and memory are owned by a service, and are not allowed to share across service boundary* Shared-nothing architecture brings the following benefits:** Eliminates contention of storage among services** Reduce cache miss rate and hot cache removal due to noisy neighbors** Each service could scale on its own by adding new instances, cache instance and database tables** No single point of failure issue since there is no central resource bottleneck in the system== Alcor Platform Key Feature Design=== Large Scale* Support 1 M VM/containers with MQ layer and batch processing* Ability to process (potentially thousands) Goal State configuration in big batch for customers=== High Throughput* Target is 10K VM/container provisioning per minute=== Ultra-low LatencyFast provisioning: One-layer controller design with Goal State push model and fast path* Using gRPC for super-fast goal state update for certain customer scenarios like serverless* Goal state model consisting of network resource state and operation type,grouping of network configurations and instantaneous provisioning=== Unified VM/container networking management=== Support agility and velocity in DevOps* Sidecar model: decouple application and service governance in independent processes, across-language and upgrade decouple* Services could be updated independently due to service decoupling* Canary-based grey release=== Resilience* Controller AZ resilience* Communication channel resilience** gRPC-based fast path** MQ-based normal path (support Apache Pulsar, Kafka)** Rescue path (skip local crashed agent and call neighbor agent to pass network configuration)=== Compatibility* Compatibility with OpenStack, Kubernetes, and OPNFV* Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design)** Open driver framework at Controllers** Plugin model at Alcor Control Agent== Inside the Big Pictureplantuml::../../workflows/vm_create.puml[format="svg", align="center"]
+# Alcor - A Hyperscale Cloud-Native SDN Control Plane
+
+NOTE: This document is under development
+
+== Introduction
+
+Shared-nothing Micro-service Architecture
+
+* Micro-services design
+** Each micro-service has its dedicated responsibility (e,g, allocating virtual IPs, virtual MACs) and provides gRPC apis for service access
+* Shared-nothing architecture
+** Database shards, cache and memory are owned by a service, and are not allowed to share across service boundary
+* Shared-nothing architecture brings the following benefits:
+** Eliminates contention of storage among services
+** Reduce cache miss rate and hot cache removal due to noisy neighbors
+** Each service could scale on its own by adding new instances, cache instance and database tables
+** No single point of failure issue since there is no central resource bottleneck in the system
+
+
+== Alcor Platform Key Feature Design
+
+=== Large Scale
+
+* Support 1 M VM/containers with MQ layer and batch processing
+* Ability to process (potentially thousands) Goal State configuration in big batch for customers
+
+=== High Throughput
+
+* Target is 10K VM/container provisioning per minute
+
+=== Ultra-low Latency
+Fast provisioning: One-layer controller design with Goal State push model and fast path
+
+* Using gRPC for super-fast goal state update for certain customer scenarios like serverless
+* Goal state model consisting of network resource state and operation type,
+grouping of network configurations and instantaneous provisioning
+
+=== Unified VM/container networking management
+
+=== Support agility and velocity in DevOps
+* Sidecar model: decouple application and service governance in independent processes, across-language and upgrade decouple
+* Services could be updated independently due to service decoupling
+* Canary-based grey release
+
+=== Resilience
+
+* Controller AZ resilience
+
+* Communication channel resilience
+** gRPC-based fast path
+** MQ-based normal path (support Apache Pulsar, Kafka)
+** Rescue path (skip local crashed agent and call neighbor agent to pass network configuration)
+
+=== Compatibility
+
+* Compatibility with OpenStack, Kubernetes, and OPNFV
+* Support multiple data plane implementations including Mizar (eBPF/Geneve) currently and OVS/VxLan (in design)
+** Open driver framework at Controllers
+** Plugin model at Alcor Control Agent
+
+== Inside the Big Picture
+
+plantuml::../../workflows/vm_create.puml[format="svg", align="center"]
