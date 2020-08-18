@@ -136,12 +136,6 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
 
-//            this.vpcDatabaseService.addVpc(inVpcState);
-//
-//            inVpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
-//            if (inVpcState == null) {
-//                throw new ResourcePersistenceException();
-//            }
             inVpcState = VpcManagementUtil.configureNetworkDefaultParameters(inVpcState);
 
             // Check segments

@@ -108,12 +108,13 @@ public class SegmentController {
             // verify network type
             String networkType = segmentWebRequestObject.getNetworkType();
             Long key = null;
+            Integer mtu = vpcState.getMtu();
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
+                key = segmentService.addVxlanEntity(networkTypeId, networkType, vpcId, mtu);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
+                key = segmentService.addVlanEntity(networkTypeId, networkType, vpcId, mtu);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(networkTypeId, networkType, vpcId, vpcState.getMtu());
+                key = segmentService.addGreEntity(networkTypeId, networkType, vpcId, mtu);
             }
 
             if (key != null) {

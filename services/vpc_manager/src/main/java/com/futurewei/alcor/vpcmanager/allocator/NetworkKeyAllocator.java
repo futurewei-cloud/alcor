@@ -1,5 +1,6 @@
 package com.futurewei.alcor.vpcmanager.allocator;
 
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import lombok.Data;
@@ -25,8 +26,11 @@ public class NetworkKeyAllocator implements KeyAllocator {
     @Override
     public Long allocate() throws Exception {
         int freeBit = bitSet.nextClearBit(0);
+//        if (freeBit < 0 || freeBit >= keyNum) {
+//            throw new NetworkKeyNotEnoughException();
+//        }
         if (freeBit < 0 || freeBit >= keyNum) {
-            throw new NetworkKeyNotEnoughException();
+            return ConstantsConfig.keyNotEnoughReturnValue;
         }
         bitSet.set(freeBit);
         int index = firstKey + freeBit;
