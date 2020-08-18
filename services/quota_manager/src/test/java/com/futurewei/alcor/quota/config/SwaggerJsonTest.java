@@ -21,6 +21,7 @@ package com.futurewei.alcor.quota.config;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,9 @@ public class SwaggerJsonTest{
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private DefaultQuota defaultQuota;
 
     @Test
     public void createSpringfoxSwaggerJson() throws Exception{

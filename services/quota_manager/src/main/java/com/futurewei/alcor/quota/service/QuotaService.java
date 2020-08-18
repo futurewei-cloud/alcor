@@ -32,7 +32,7 @@ public interface QuotaService {
 
     Map<String, Integer> getDefault();
 
-    List<Map<String, Integer>> findAllQuotas() throws QuotaException;
+    List<Map<String, Object>> findAllQuotas() throws QuotaException;
 
     Map<String, Integer> updateQuota(String projectId, Map<String, Integer> quota) throws QuotaException;
 

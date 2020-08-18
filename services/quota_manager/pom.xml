@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.futurewei.alcor</groupId>
-    <artifactId>quota_manager</artifactId>
+    <artifactId>quotamanager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>AlcorQuotaManager</name>
     <description>Quota Manager Module</description>

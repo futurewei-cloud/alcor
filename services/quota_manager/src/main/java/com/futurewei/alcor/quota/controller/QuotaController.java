@@ -25,14 +25,14 @@ import com.futurewei.alcor.web.entity.quota.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Controller
+@RestController
 public class QuotaController {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuotaController.class);
@@ -46,7 +46,7 @@ public class QuotaController {
      */
     @GetMapping({"/project/{project_id}/quotas", "/v4/{project_id}/quotas"})
     public QuotaWebsJson getAllQuotas() throws Exception {
-        List<Map<String, Integer>> quotaEntities = quotaService.findAllQuotas();
+        List<Map<String, Object>> quotaEntities = quotaService.findAllQuotas();
         return new QuotaWebsJson(quotaEntities);
     }
 
@@ -111,7 +111,9 @@ public class QuotaController {
     @PostMapping("/project/{projectId}/quota/apply")
     public ApplyInfo allocateQuota(@PathVariable String projectId,
                                            @RequestBody ApplyInfo applyInfo) throws QuotaException {
-        applyInfo.setApplyId(UUID.randomUUID().toString());
+        if (StringUtils.isEmpty(applyInfo.getApplyId())) {
+            applyInfo.setApplyId(UUID.randomUUID().toString());
+        }
         if(applyInfo.getProjectId() == null || applyInfo.getTenantId() == null) {
             applyInfo.setProjectId(projectId);
             applyInfo.setTenantId(projectId);

@@ -41,6 +41,9 @@ import java.util.*;
 public class QuotaServiceImpl implements QuotaService {
     private static final Logger LOG = LoggerFactory.getLogger(QuotaService.class);
 
+    private static final String PROJECT_ID_FIELD_NAME = "project_id";
+    private static final String TENANT_ID_FIELD_NAME = "tenant_id";
+
     @Autowired
     private DefaultQuota defaultQuota;
 
@@ -64,13 +67,13 @@ public class QuotaServiceImpl implements QuotaService {
     public Map<String, Integer> findQuotaByProjectId(String projectId) throws QuotaException {
         Map<String, Integer> defaultQuotaMap = defaultQuota.getDefaultsCopy();
         try {
-            Map<String, QuotaEntity> quotaUsages = quotaRepository.findProjectQuotas(projectId);
-            if (quotaUsages == null) {
+            Map<String, QuotaEntity> quotas = quotaRepository.findProjectQuotas(projectId);
+            if (quotas == null || quotas.isEmpty()) {
                 return defaultQuotaMap;
             }
 
-            for (QuotaEntity quotaUsage: quotaUsages.values()) {
-                defaultQuotaMap.put(quotaUsage.getResource(), quotaUsage.getLimit());
+            for (QuotaEntity quota: quotas.values()) {
+                defaultQuotaMap.put(quota.getResource(), quota.getLimit());
             }
             return defaultQuotaMap;
         } catch (CacheException e) {
@@ -83,7 +86,15 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     public Map<String, QuotaUsageEntity> findQuotaDetailByProjectId(String projectId) throws QuotaException {
         try {
-            return quotaUsageRepository.findProjectQuotas(projectId);
+            Map<String, QuotaUsageEntity> usageEntityMap = quotaUsageRepository.findProjectQuotas(projectId);
+            if (usageEntityMap == null || usageEntityMap.isEmpty()) {
+                throw new TenantQuotaNotFoundException(projectId);
+            }
+            Map<String, QuotaUsageEntity> usageResourceMap = new HashMap<>();
+            for (QuotaUsageEntity quotaUsage : usageEntityMap.values()) {
+                usageResourceMap.put(quotaUsage.getResource(), quotaUsage);
+            }
+            return usageResourceMap;
         } catch (CacheException e) {
             LOG.error("get quota entity error, {}", e.getMessage());
             throw new QuotaException(String.format("get quota for project %s failed, reason:%s",
@@ -97,18 +108,23 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
     @Override
-    public List<Map<String, Integer>> findAllQuotas() throws QuotaException {
-        Map<String, Map<String, Integer>> allQuotas = new HashMap<>();
+    public List<Map<String, Object>> findAllQuotas() throws QuotaException {
+        Map<String, Map<String, Object>> allQuotas = new HashMap<>();
         try {
             Map<String, QuotaEntity> quotaMap = quotaRepository.findAllItems();
-            for (QuotaEntity quotaUsage: quotaMap.values()) {
-                String projectId = quotaUsage.getProjectId();
-                Map<String, Integer> projectQuota = allQuotas.get(projectId);
+            for (QuotaEntity quota : quotaMap.values()) {
+                String projectId = quota.getProjectId();
+                Map<String, Object> projectQuota = allQuotas.get(projectId);
                 if (projectQuota == null) {
-                    projectQuota = defaultQuota.getDefaultsCopy();
+                    Map<String, Integer> defaultMap = defaultQuota.getDefaultsCopy();
+                    projectQuota = new HashMap<>(defaultMap.size() + 2);
+                    Map<String, Object> finalProjectQuota = projectQuota;
+                    defaultMap.forEach((k, v) -> finalProjectQuota.merge(k, v, (v1, v2) -> v1));
+                    projectQuota.put(PROJECT_ID_FIELD_NAME, projectId);
+                    projectQuota.put(TENANT_ID_FIELD_NAME, projectId);
                     allQuotas.put(projectId, projectQuota);
                 }
-                projectQuota.put(quotaUsage.getResource(), quotaUsage.getLimit());
+                projectQuota.put(quota.getResource(), quota.getLimit());
             }
             return new ArrayList<>(allQuotas.values());
         } catch (CacheException e) {
@@ -168,8 +184,8 @@ public class QuotaServiceImpl implements QuotaService {
                     QuotaUsageEntity quotaUsage = quotaUsageRepository.findItem(id);
                     if (quotaUsage != null) {
                         quotaUsage.setLimit(defaultQuota.getDefaults().get(quota.getResource()));
+                        quotaUsageRepository.addItem(quotaUsage);
                     }
-                    quotaUsageRepository.addItem(quotaUsage);
                 } finally {
                     lock.unlock(id);
                 }
