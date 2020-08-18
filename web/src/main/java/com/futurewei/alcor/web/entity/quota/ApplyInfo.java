@@ -38,9 +38,9 @@ public class ApplyInfo {
 
     public ApplyInfo() {}
 
-    public ApplyInfo(String applyId, String tenantId, String projectId, List<ResourceDelta> resourceDeltas) {
+    public ApplyInfo(String applyId, String projectId, List<ResourceDelta> resourceDeltas) {
         this.applyId = applyId;
-        this.tenantId = tenantId;
+        this.tenantId = projectId;
         this.projectId = projectId;
         this.resourceDeltas = resourceDeltas;
     }

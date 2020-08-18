@@ -23,20 +23,20 @@ import java.util.Map;
 
 public class QuotaWebsJson {
 
-    private List<Map<String, Integer>> quotas;
+    private List<Map<String, Object>> quotas;
 
     public QuotaWebsJson() {
     }
 
-    public QuotaWebsJson(List<Map<String, Integer>> quotas) {
+    public QuotaWebsJson(List<Map<String, Object>> quotas) {
         this.quotas = quotas;
     }
 
-    public List<Map<String, Integer>> getQuotas() {
+    public List<Map<String, Object>> getQuotas() {
         return quotas;
     }
 
-    public void setQuotas(List<Map<String, Integer>> quotas) {
+    public void setQuotas(List<Map<String, Object>> quotas) {
         this.quotas = quotas;
     }
 }
