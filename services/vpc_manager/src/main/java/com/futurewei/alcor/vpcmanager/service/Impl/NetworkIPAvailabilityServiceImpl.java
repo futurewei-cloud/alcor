@@ -88,32 +88,6 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
 
         Map<String, VpcEntity> vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
 
-        // Filter vpcStates by request parameters
-//        if (vpcId != null) {
-//            vpcStates = vpcStates.entrySet().stream()
-//                    .filter(state -> vpcId.equalsIgnoreCase(state.getValue().getId()))
-//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-//        }
-//
-//        if (vpcName != null) {
-//            vpcStates = vpcStates.entrySet().stream()
-//                    .filter(state -> vpcName.equalsIgnoreCase(state.getValue().getName()))
-//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-//        }
-//
-//        if (tenantId != null) {
-//            vpcStates = vpcStates.entrySet().stream()
-//                    .filter(state -> tenantId.equalsIgnoreCase(state.getValue().getTenantId()))
-//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-//        }
-//
-//        if (projectId != null) {
-//            vpcStates = vpcStates.entrySet().stream()
-//                    .filter(state -> projectId.equalsIgnoreCase(state.getValue().getProjectId()))
-//                    .collect(Collectors.toMap(state -> state.getKey(), state -> state.getValue()));
-//        }
-
-
         for (Map.Entry<String, VpcEntity> entry : vpcStates.entrySet()) {
             VpcEntity vpcEntity = (VpcEntity) entry.getValue();
             NetworkIPAvailabilityEntity networkIPAvailabilityEntity = setNetworkIPAvailability(vpcEntity);

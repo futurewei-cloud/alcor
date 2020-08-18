@@ -20,4 +20,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="RangeId is null or empty")
 public class RangeIdIsNullOrEmpty extends Exception{
+
+    public RangeIdIsNullOrEmpty(){}
+
+    public RangeIdIsNullOrEmpty(String message) {
+        super(message);
+    }
 }

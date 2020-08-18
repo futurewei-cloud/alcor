@@ -325,7 +325,7 @@ public class SubnetServiceImp implements SubnetService {
         String ipManagerServiceUrl = ipUrl + "range" + "/" + rangeId;
         IpAddrRangeRequest ipAddrRange = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
         if (ipAddrRange == null) {
-            logger.info("can not find ipAddrRange by range id");
+            logger.info("can not find ipAddrRange by range id" + rangeId);
             return null;
         }
 

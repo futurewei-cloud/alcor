@@ -84,10 +84,9 @@ public class SubnetController {
 
             usedIps = this.subnetService.getUsedIpByRangeId(rangeId);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            throw new RangeIdIsNullOrEmpty();
+            throw new RangeIdIsNullOrEmpty("RangeId is null or empty" + rangeId);
         } catch (UsedIpsIsNotCorrect e) {
-            throw new UsedIpsIsNotCorrect();
+            throw e;
         }
 
         return usedIps;
@@ -106,7 +105,6 @@ public class SubnetController {
 
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
             throw new SubnetIdIsNullOrEmpty();
         }
 
