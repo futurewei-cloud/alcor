@@ -91,6 +91,10 @@ public class SegmentControllerTests {
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
+        Mockito.when(vpcDatabaseService.getByVpcId(null))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.segmentId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
                 .andDo(print())
                 .andExpect(status().is(201))
