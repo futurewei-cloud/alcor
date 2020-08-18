@@ -64,7 +64,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
-    @Rbac(resourceName="eip")
+    @Rbac(resource ="eip")
     @PostMapping("/project/{project_id}/elasticips")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -90,7 +90,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
-    @Rbac(resourceName="eip")
+    @Rbac(resource ="eip")
     @PutMapping("/project/{project_id}/elasticips/{elasticip_id}")
     @ResponseBody
     @DurationStatistics
@@ -115,7 +115,7 @@ public class ElasticIpController {
      * @return ResponseId
      * @throws Exception Various exceptions that may occur during the create process
      */
-    @Rbac(resourceName="eip")
+    @Rbac(resource ="eip")
     @DeleteMapping("/project/{project_id}/elasticips/{elasticip_id}")
     @DurationStatistics
     public ResponseId deleteElasticIp(@PathVariable("project_id") String projectId,
@@ -141,7 +141,7 @@ public class ElasticIpController {
      * @return ElasticIpInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
-    @Rbac(resourceName="eip")
+    @Rbac(resource ="eip")
     @GetMapping(value = {"/project/{project_id}/elasticips/{elasticip_id}"})
     @DurationStatistics
     public ElasticIpInfoWrapper getElasticIp(@PathVariable("project_id") String projectId,
@@ -167,7 +167,7 @@ public class ElasticIpController {
      * @return ElasticIpsInfoWrapper
      * @throws Exception Various exceptions that may occur during the create process
      */
-    @Rbac(resourceName="eip")
+    @Rbac(resource ="eip")
     @GetMapping(value = {"/project/{project_id}/elasticips"})
     @FieldFilter(type= ElasticIp.class)
     @DurationStatistics

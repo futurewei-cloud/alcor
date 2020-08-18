@@ -14,7 +14,24 @@ there are some resources operations access should control by roles.
 
 == Authorization implementation
 A request come API GW service first, API GW will verify the token in http request. And API GW will add a new http header
-'X-Token-info'. Microservice will get the token info from http header.
+'X-Token-info'. Microservice will get the token info from http header. +
+Not all microservices apis require Rbac. We only need to add the @Rbac annotation to the APIs that need to support Rbac,
+And set the 'resource' attribute of the @Rbac annotation. Finally, you need to introduce RbacConfiguration to the microservice entry class. +
+Like this.
+......
+@EnableAsync
+@SpringBootApplication
+@Import({DbBaseConfiguration.class, JsonHandlerConfiguration.class, RbacConfiguration.class})
+public class SubnetApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SubnetApplication.class, args);
+    }
+
+}
+......
+We only need to set these modifiers for the microservices.
+THe RbacManager automatically completes the rest of the work.
 
 == Access Type
 Alcor rbac supports a few of access type

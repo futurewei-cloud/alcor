@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.controller;
 
-import com.futurewei.alcor.common.entity.TokenEntity;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
@@ -38,7 +37,6 @@ import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -100,9 +98,7 @@ public class SubnetController {
         return usedIps;
     }
 
-
-    @Rbac(name="vpc")
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
@@ -154,7 +150,7 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets/bulk"})
@@ -164,7 +160,7 @@ public class SubnetController {
         return new SubnetsWebJson();
     }
 
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets"})
@@ -376,7 +372,7 @@ public class SubnetController {
         }
     }
 
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectId}/subnets/{subnetId}"})
@@ -436,7 +432,7 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectId}/subnets/{subnetId}"})
@@ -467,7 +463,7 @@ public class SubnetController {
         return new ResponseId(subnetId);
     }
 
-    @Rbac(resourceName ="subnet")
+    @Rbac(resource ="subnet")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,

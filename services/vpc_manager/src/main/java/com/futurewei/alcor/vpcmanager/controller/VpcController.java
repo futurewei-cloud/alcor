@@ -66,7 +66,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resourceName ="vpc")
+    @Rbac(resource ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -112,7 +112,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resourceName ="vpc")
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -189,7 +189,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resourceName ="vpc")
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -247,7 +247,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
-    @Rbac(resourceName ="vpc")
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -282,7 +282,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
-    @Rbac(resourceName ="vpc")
+    @Rbac(resource ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,

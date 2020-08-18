@@ -34,12 +34,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -48,6 +46,10 @@ import java.util.*;
 
 import static com.futurewei.alcor.common.constants.CommonConstants.*;
 
+/**
+ *  An aspect pointcut for rbac control. It handle all have {@link com.futurewei.alcor.web.rbac.aspect.Rbac @Rbac}
+ *  annotation methods.
+ */
 @Aspect
 @Component
 public class RbacAspect {
@@ -70,6 +72,13 @@ public class RbacAspect {
     @Pointcut("@annotation(com.futurewei.alcor.web.rbac.aspect.Rbac)")
     public void annotationPointCut(){}
 
+    /**
+     * check request header token info and check token roles for access method.
+     *
+     * @param pjp real execute method
+     * @return object real method return
+     * @throws Throwable if check roles permissions failed throw exception
+     */
     @Around("annotationPointCut()")
     public Object checkRbac(ProceedingJoinPoint pjp) throws Throwable {
 
@@ -77,7 +86,7 @@ public class RbacAspect {
         String tokenInfo = request.getHeader(TOKEN_INFO_HEADER);
         MethodSignature ms = (MethodSignature)pjp.getSignature();
         Rbac rbac = ms.getMethod().getAnnotation(Rbac.class);
-        String resourceName = rbac.resourceName();
+        String resourceName = rbac.resource();
 
         Optional<TokenEntity> tokenEntityOptional = ControllerUtil.getUserTokenInfo(tokenInfo);
         if (tokenEntityOptional.isPresent()) {

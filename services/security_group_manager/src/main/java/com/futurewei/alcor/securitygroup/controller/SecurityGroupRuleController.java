@@ -41,7 +41,7 @@ public class SecurityGroupRuleController {
     @Autowired
     private HttpServletRequest request;
 
-    @Rbac(resourceName="security_group_rule")
+    @Rbac(resource ="security_group_rule")
     @PostMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -74,7 +74,7 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.createSecurityGroupRuleBulk(securityGroupRuleBulkJson);
     }
 
-    @Rbac(resourceName="security_group_rule")
+    @Rbac(resource ="security_group_rule")
     @DeleteMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
     public void deleteSecurityGroupRule(@PathVariable("project_id") String projectId,
@@ -85,7 +85,7 @@ public class SecurityGroupRuleController {
         securityGroupRuleService.deleteSecurityGroupRule(securityGroupRuleId);
     }
 
-    @Rbac(resourceName="security_group_rule")
+    @Rbac(resource ="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules/{security_group_rule_id}", "v4/{project_id}/security-group-rules/{security_group_rule_id}"})
     @DurationStatistics
@@ -97,7 +97,7 @@ public class SecurityGroupRuleController {
         return securityGroupRuleService.getSecurityGroupRule(securityGroupRuleId);
     }
 
-    @Rbac(resourceName="security_group_rule")
+    @Rbac(resource ="security_group_rule")
     @FieldFilter(type = SecurityGroupRule.class)
     @GetMapping({"/project/{project_id}/security-group-rules", "v4/{project_id}/security-group-rules"})
     @DurationStatistics

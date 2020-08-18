@@ -48,7 +48,7 @@ public class SecurityGroupController {
     @Autowired
     private HttpServletRequest request;
 
-    @Rbac(resourceName="security_group")
+    @Rbac(resource ="security_group")
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -63,7 +63,7 @@ public class SecurityGroupController {
         return securityGroupService.createSecurityGroup(securityGroupJson);
     }
 
-    @Rbac(resourceName="security_group")
+    @Rbac(resource ="security_group")
     @PostMapping({"/project/{project_id}/security-groups/bulk", "v4/{project_id}/security-groups/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -88,7 +88,7 @@ public class SecurityGroupController {
         return securityGroupService.createSecurityGroupBulk(tenantId, projectId, securityGroupBulkJson);
     }
 
-    @Rbac(resourceName="security_group")
+    @Rbac(resource ="security_group")
     @PutMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(@PathVariable("project_id") String projectId,
@@ -101,7 +101,7 @@ public class SecurityGroupController {
         return securityGroupService.updateSecurityGroup(securityGroupId, securityGroupJson);
     }
 
-    @Rbac(resourceName="security_group")
+    @Rbac(resource ="security_group")
     @DeleteMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public void deleteSecurityGroup(@PathVariable("project_id") String projectId,
@@ -112,7 +112,7 @@ public class SecurityGroupController {
         securityGroupService.deleteSecurityGroup(securityGroupId);
     }
 
-    @Rbac(resourceName="security_group")
+    @Rbac(resource ="security_group")
     @FieldFilter(type=SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
@@ -134,7 +134,7 @@ public class SecurityGroupController {
         return securityGroupService.getDefaultSecurityGroup(projectId, tenantId);
     }
 
-    @Rbac(resourceName ="security_group")
+    @Rbac(resource ="security_group")
     @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @DurationStatistics
