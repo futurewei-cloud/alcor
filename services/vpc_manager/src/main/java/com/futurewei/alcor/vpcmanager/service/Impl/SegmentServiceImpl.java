@@ -76,7 +76,7 @@ public class SegmentServiceImpl implements SegmentService {
             }
 
             key = this.vlanRangeRepository.allocateVlanKey(rangeId);
-            if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
                 throw new NetworkKeyNotEnoughException();
             }
 
@@ -142,7 +142,7 @@ public class SegmentServiceImpl implements SegmentService {
                 round ++;
             }
 
-            if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
                 throw new NetworkKeyNotEnoughException();
             }
 
@@ -208,7 +208,7 @@ public class SegmentServiceImpl implements SegmentService {
                 round ++;
             }
             
-            if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
                 throw new NetworkKeyNotEnoughException();
             }
 
