@@ -43,7 +43,7 @@ public class VpcWebRequestObject extends CustomerResource {
     private Integer mtu;
 
     @JsonProperty("port_security_enabled")
-    private boolean portSecurityEnabled;
+    private boolean portSecurityEnabled = true;
 
     @JsonProperty("provider:network_type")
     private String networkType;
