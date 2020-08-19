@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SecurityGroupManagerProxy {
+
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private String projectId;
 

@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 
 @Data
-public class NetworkSegmentRangeWebRequestObject extends CustomerResource {
+public class NetworkSegmentRangeWebRequest extends CustomerResource {
 
     @JsonProperty("minimum")
     private Integer minimum;
@@ -47,9 +47,9 @@ public class NetworkSegmentRangeWebRequestObject extends CustomerResource {
     @JsonProperty("shared")
     private Boolean shared;
 
-    public NetworkSegmentRangeWebRequestObject () {}
+    public NetworkSegmentRangeWebRequest() {}
 
-    public NetworkSegmentRangeWebRequestObject(String projectId, String id, String name, String description, Integer minimum, Integer maximum, String tags, String tagsAny, String notTags, String notTagsAny, String networkType, String physicalNetwork, String tenantId, String sortDir, String sortKey, String fields, Boolean shared) {
+    public NetworkSegmentRangeWebRequest(String projectId, String id, String name, String description, Integer minimum, Integer maximum, String tags, String tagsAny, String notTags, String notTagsAny, String networkType, String physicalNetwork, String tenantId, String sortDir, String sortKey, String fields, Boolean shared) {
         super(projectId, id, name, description);
         this.minimum = minimum;
         this.maximum = maximum;
