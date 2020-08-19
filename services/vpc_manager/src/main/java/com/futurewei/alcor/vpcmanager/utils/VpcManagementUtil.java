@@ -37,7 +37,7 @@ public class VpcManagementUtil {
         if (resource == null) {
             return false;
         }
-        VpcWebRequestObject network = resource.getNetwork();
+        VpcWebRequest network = resource.getNetwork();
 
         // mtu
         Integer mtu = network.getMtu();
