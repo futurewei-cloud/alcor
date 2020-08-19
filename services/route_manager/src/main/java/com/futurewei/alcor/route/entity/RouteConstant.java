@@ -7,5 +7,6 @@ public interface RouteConstant {
 
     final Integer DEFAULT_PRIORITY = 0;
 
-    final RouteTableType DEFAULT_ROUTE_TABLE_TYPE = RouteTableType.MAIN;
+    final RouteTableType DEFAULT_ROUTE_TABLE_TYPE = RouteTableType.PRIVATE_VPC;
+
 }

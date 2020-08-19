@@ -29,6 +29,8 @@ import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
+import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.route.RouterWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
@@ -421,5 +423,76 @@ public class VpcController {
 
         return new VpcWebJson(inVpcState);
 
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/vpcs/test"})
+    @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
+    public VpcWebJson createVpcState_Test(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
+        VpcEntity inVpcState = new VpcEntity();
+
+        if (StringUtils.isEmpty(resource.getNetwork().getId())) {
+            UUID vpcId = UUID.randomUUID();
+            resource.getNetwork().setId(vpcId.toString());
+        }
+
+        try {
+
+            if (!VpcManagementUtil.checkVpcRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
+            BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
+            RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
+            RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
+
+            this.vpcDatabaseService.addVpc(inVpcState);
+
+            inVpcState = this.vpcDatabaseService.getByVpcId(inVpcState.getId());
+            if (inVpcState == null) {
+                throw new ResourcePersistenceException();
+            }
+            inVpcState = VpcManagementUtil.configureNetworkDefaultParameters(inVpcState);
+
+            // Check segments
+            List<SegmentInfoInVpc> segments = vpcWebRequestObject.getSegments();
+            if (segments != null) {
+                List<SegmentInfoInVpc> newSegments = new ArrayList<>();
+                for (SegmentInfoInVpc segmentInfo : segments) {
+                    SegmentInfoInVpc newSegmentInfo = new SegmentInfoInVpc(segmentInfo.getNetworkType(),
+                            segmentInfo.getPhysicalNetwork(),
+                            segmentInfo.getSegmentationId());
+                    newSegments.add(newSegmentInfo);
+                }
+                inVpcState.setSegments(newSegments);
+            }
+
+            // get route info
+            String routerId = UUID.randomUUID().toString();
+            String routerTableId = UUID.randomUUID().toString();
+            RouterWebJson response = this.vpcService.getRoute_test(routerId, routerTableId, inVpcState);
+
+            // add RouteWebObject
+            if (response != null) {
+                Router router = response.getRouter();
+                inVpcState.setRouter(router);
+            }
+
+            // allocate a segment for network
+            inVpcState = this.vpcService.allocateSegmentForNetwork(inVpcState);
+
+            this.vpcDatabaseService.addVpc(inVpcState);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        } catch (ResourceNullException e) {
+            throw new Exception(e);
+        }
+
+        return new VpcWebJson(inVpcState);
     }
 }

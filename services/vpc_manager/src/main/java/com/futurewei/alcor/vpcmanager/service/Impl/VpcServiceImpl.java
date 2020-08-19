@@ -6,6 +6,7 @@ import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RouterWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.slf4j.Logger;
@@ -41,9 +42,17 @@ public class VpcServiceImpl implements VpcService {
     @Override
     @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
-        String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
+        String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes";
         HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
         RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
+        return response;
+    }
+
+    @Override
+    public RouterWebJson getRoute_test(String routerId, String routeTableId, VpcEntity vpcState) {
+        String routeManagerServiceUrl = routeUrl + "/routers/" + routerId + "/routetable/" + routeTableId;
+        HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
+        RouterWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouterWebJson.class);
         return response;
     }
 

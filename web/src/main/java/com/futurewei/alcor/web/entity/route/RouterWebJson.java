@@ -13,12 +13,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
 package com.futurewei.alcor.web.entity.route;
 
-public enum RouteTableType {
+import lombok.Data;
 
-    PUBLIC_SUBNET,
-    PRIVATE_SUBNET
+@Data
+public class RouterWebJson {
 
+    private Router router;
+
+    public RouterWebJson () {}
+
+    public RouterWebJson(Router router) {
+        this.router = router;
+    }
 }

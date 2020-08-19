@@ -15,18 +15,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.route;
 
-public class RouterState {
-    private String tenantId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.common.entity.CustomerResource;
+import lombok.Data;
 
-    public RouterState(String tenantId) {
-        this.tenantId = tenantId;
-    }
+import java.util.List;
 
-    public String getTenantId() {
-        return tenantId;
-    }
+@Data
+public class Router extends CustomerResource {
 
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
+    @JsonProperty("route_tables")
+    private List<RouteTable> routeTables;
+
+    public Router() {}
+
+    public Router(String projectId, String Id, String name, String description, List<RouteTable> routeTables) {
+        super(projectId, Id, name, description);
+        this.routeTables = routeTables;
     }
 }
