@@ -22,11 +22,9 @@ import java.util.*;
 public class ElasticIpControllerUtils {
 
 
-    public static boolean isIpAddressInvalid(String ipAddress, Integer ipVersion) {
-        boolean isInvalid = true;
-        if (ipVersion.equals(IpVersion.IPV4.getVersion())) {
-            isInvalid = !Ipv4AddrUtil.formatCheck(ipAddress);
-        } else if (ipVersion.equals(IpVersion.IPV6.getVersion())) {
+    public static boolean isIpAddressInvalid(String ipAddress) {
+        boolean isInvalid = !Ipv4AddrUtil.formatCheck(ipAddress);
+        if (isInvalid) {
             isInvalid = !Ipv6AddrUtil.formatCheck(ipAddress);
         }
 
@@ -90,7 +88,7 @@ public class ElasticIpControllerUtils {
         }
 
         if (elasticIpInfo.getElasticIp() != null) {
-            if (isIpAddressInvalid(elasticIpInfo.getElasticIp(), elasticIpInfo.getElasticIpVersion())) {
+            if (isIpAddressInvalid(elasticIpInfo.getElasticIp())) {
                 throw new ElasticIpEipAddressException();
             }
         }
@@ -99,21 +97,12 @@ public class ElasticIpControllerUtils {
             elasticIpInfo.setPortId("");
         }
         if (elasticIpInfo.getPortId().isEmpty()) {
-            if (elasticIpInfo.getPrivateIp()!= null || elasticIpInfo.getPrivateIpVersion() != null) {
+            if (elasticIpInfo.getPrivateIp()!= null) {
                 throw new ElasticIpNoPortIdException();
             }
         } else {
-            if (elasticIpInfo.getPrivateIpVersion() != null) {
-                if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
-                    throw new ElasticIpPipVersionException();
-                }
-            }
-
             if (elasticIpInfo.getPrivateIp() != null) {
-                if (elasticIpInfo.getPrivateIpVersion() == null) {
-                    elasticIpInfo.setPrivateIpVersion(IpVersion.IPV4.getVersion());
-                }
-                if (isIpAddressInvalid(elasticIpInfo.getPrivateIp(), elasticIpInfo.getPrivateIpVersion())) {
+                if (isIpAddressInvalid(elasticIpInfo.getPrivateIp())) {
                     throw new ElasticIpPipAddressException();
                 }
             }
@@ -168,26 +157,18 @@ public class ElasticIpControllerUtils {
             if (elasticIpInfo.getElasticIpVersion() == null) {
                 elasticIpInfo.setElasticIpVersion(IpVersion.IPV4.getVersion());
             }
-            if (isIpAddressInvalid(elasticIpInfo.getElasticIp(), elasticIpInfo.getElasticIpVersion())) {
+            if (isIpAddressInvalid(elasticIpInfo.getElasticIp())) {
                 throw new ElasticIpEipAddressException();
             }
         }
 
         if (StringUtils.isEmpty(elasticIpInfo.getPortId())) {
-            if (elasticIpInfo.getPrivateIp() != null || elasticIpInfo.getPrivateIpVersion() != null) {
+            if (elasticIpInfo.getPrivateIp() != null) {
                 throw new ElasticIpNoPortIdException();
             }
         } else {
-            if (elasticIpInfo.getPrivateIpVersion() != null) {
-                if (isIpVersionInvalid(elasticIpInfo.getPrivateIpVersion())) {
-                    throw new ElasticIpPipVersionException();
-                }
-            }
             if (elasticIpInfo.getPrivateIp() != null) {
-                if (elasticIpInfo.getPrivateIp() == null) {
-                    elasticIpInfo.setPrivateIpVersion(IpVersion.IPV4.getVersion());
-                }
-                if (isIpAddressInvalid(elasticIpInfo.getPrivateIp(), elasticIpInfo.getPrivateIpVersion())) {
+                if (isIpAddressInvalid(elasticIpInfo.getPrivateIp())) {
                     throw new ElasticIpPipAddressException();
                 }
             }
