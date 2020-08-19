@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.dao.VlanRangeRepository;
+import com.futurewei.alcor.vpcmanager.dao.VlanRepository;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
@@ -51,8 +52,12 @@ public class SegmentControllerTests {
 
     @MockBean
     private VpcDatabaseService vpcDatabaseService;
+
     @MockBean
     private VlanRangeRepository vlanRangeRepository;
+
+    @MockBean
+    private VlanRepository vlanRepository;
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/segments/" + UnitTestConfig.segmentId;
     private String createUri = "/project/" + UnitTestConfig.projectId + "/segments";
@@ -122,7 +127,7 @@ public class SegmentControllerTests {
                     .andDo(print())
                     .andExpect(status().is(412));
         } catch (NetworkKeyNotEnoughException ex) {
-            assertEquals("Key is not enough to be allocated", ex.getMessage());
+            assertEquals("Key is not enough to be allocated111", ex.getMessage());
         }
 
     }
