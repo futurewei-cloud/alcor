@@ -88,11 +88,13 @@ public class SegmentServiceImpl implements SegmentService {
             logger.info("Allocate vlan key success, key: " + key);
             return key;
 
-        } catch (Exception e) {
+        } catch (DatabasePersistenceException e) {
             this.vlanRepository.deleteItem(vlanId);
             this.vlanRangeRepository.releaseVlanKey(rangeId, key);
             logger.info("Allocate vlan key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            throw e;
+        } catch (NetworkKeyNotEnoughException e) {
+            throw e;
         }
     }
 
@@ -156,7 +158,7 @@ public class SegmentServiceImpl implements SegmentService {
             this.vxlanRepository.deleteItem(vxlanId);
             this.vxlanRangeRepository.releaseVxlanKey(partitionStringFormat, key);
             logger.info("Allocate vxlan key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            throw e;
         }
     }
 
@@ -220,7 +222,7 @@ public class SegmentServiceImpl implements SegmentService {
             this.greRepository.deleteItem(greId);
             this.greRangeRepository.releaseGreKey(partitionStringFormat, key);
             logger.info("Allocate gre key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            throw e;
         }
     }
 

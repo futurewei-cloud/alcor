@@ -4,6 +4,7 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
@@ -136,6 +137,8 @@ public class SegmentController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
+            throw new Exception(e);
+        } catch (NetworkKeyNotEnoughException e) {
             throw new Exception(e);
         }
 

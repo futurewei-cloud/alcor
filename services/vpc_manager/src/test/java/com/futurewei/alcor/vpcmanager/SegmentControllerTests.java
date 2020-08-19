@@ -1,6 +1,9 @@
 package com.futurewei.alcor.vpcmanager;
 
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
+import com.futurewei.alcor.vpcmanager.dao.VlanRangeRepository;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
@@ -27,8 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,6 +51,8 @@ public class SegmentControllerTests {
 
     @MockBean
     private VpcDatabaseService vpcDatabaseService;
+    @MockBean
+    private VlanRangeRepository vlanRangeRepository;
 
     private String getByIdUri = "/project/" + UnitTestConfig.projectId + "/segments/" + UnitTestConfig.segmentId;
     private String createUri = "/project/" + UnitTestConfig.projectId + "/segments";
@@ -90,10 +94,10 @@ public class SegmentControllerTests {
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
-        Mockito.when(vpcDatabaseService.getByVpcId(null))
-                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
-                        UnitTestConfig.segmentId, UnitTestConfig.name,
-                        UnitTestConfig.cidr, null));
+//        Mockito.when(vpcDatabaseService.getByVpcId(null))
+//                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+//                        UnitTestConfig.segmentId, UnitTestConfig.name,
+//                        UnitTestConfig.cidr, null));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -111,14 +115,16 @@ public class SegmentControllerTests {
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.segmentId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
-        Mockito.when(vpcDatabaseService.getByVpcId(null))
-                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
-                        UnitTestConfig.segmentId, UnitTestConfig.name,
-                        UnitTestConfig.cidr, null));
-        this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
-                .andDo(print())
-                .andExpect(status().is(201))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.segment.id").value(UnitTestConfig.segmentId));
+        Mockito.when(vlanRangeRepository.allocateVlanKey(anyString()))
+                .thenReturn(ConstantsConfig.keyNotEnoughReturnValue);
+        try {
+            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
+                    .andDo(print())
+                    .andExpect(status().is(412));
+        } catch (NetworkKeyNotEnoughException ex) {
+            assertEquals("Key is not enough to be allocated", ex.getMessage());
+        }
+
     }
 
     @Test
