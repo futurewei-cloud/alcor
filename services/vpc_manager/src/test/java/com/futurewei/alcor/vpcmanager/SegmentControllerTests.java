@@ -3,7 +3,6 @@ package com.futurewei.alcor.vpcmanager;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
-import com.futurewei.alcor.web.entity.SegmentEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 
@@ -18,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScans;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -83,6 +81,27 @@ public class SegmentControllerTests {
 
     @Test
     public void createSegment_create_pass () throws Exception {
+        RouteWebJson routeWebJson = new RouteWebJson();
+        Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
+                .thenReturn(new SegmentEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.segmentId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, UnitTestConfig.vpcId));
+        Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.segmentId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
+        Mockito.when(vpcDatabaseService.getByVpcId(null))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.segmentId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
+        this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
+                .andDo(print())
+                .andExpect(status().is(201))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.segment.id").value(UnitTestConfig.segmentId));
+    }
+
+    @Test
+    public void createSegment_create_keyNotEnough () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(segmentDatabaseService.getBySegmentId(UnitTestConfig.segmentId))
                 .thenReturn(new SegmentEntity(UnitTestConfig.projectId,

@@ -13,7 +13,6 @@ import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentWebRequestJson;
 import com.futurewei.alcor.web.entity.vpc.SegmentWebRequest;
 import com.futurewei.alcor.web.entity.vpc.SegmentWebResponseJson;
-import com.futurewei.alcor.web.entity.*;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,7 @@ public class SegmentController {
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
 
-            String vpcId = segmentWebRequestObject.getVpcId();
+            String vpcId = segmentWebRequest.getVpcId();
             VpcEntity vpcState = this.vpcDatabaseService.getByVpcId(vpcId);
 
             // verify network type
