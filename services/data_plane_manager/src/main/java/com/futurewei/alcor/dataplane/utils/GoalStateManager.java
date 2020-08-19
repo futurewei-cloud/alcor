@@ -44,7 +44,8 @@ import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 @Component
 public class GoalStateManager {
-  @Autowired private GoalStateService goalStateService;
+    public static final int FORMAT_REVISION_NUMBER = 1;
+    @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
 
   private void printNetworkConfiguration(NetworkConfiguration networkConfiguration)
@@ -202,8 +203,8 @@ public class GoalStateManager {
                                   .build();
                           fixedIps.add(fixedIp1);
                             DHCP.DHCPConfiguration dhcpConfiguration=DHCP.DHCPConfiguration.newBuilder()
-                                    .setRevisionNumber(1)
-                                    .setFormatVersion(1)
+                                    .setRevisionNumber(FORMAT_REVISION_NUMBER)
+                                    .setFormatVersion(FORMAT_REVISION_NUMBER)
                                     .setSubnetId(fixedIp.getSubnetId())
                                     .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
                                     .setIpv4Address(fixedIp.getIpAddress())
@@ -227,10 +228,10 @@ public class GoalStateManager {
                                         .iterator()
                                         .next()
                                         .getVpcId())
-                                .setFormatVersion(1)
+                                .setFormatVersion(FORMAT_REVISION_NUMBER)
                                 .setAdminStateUp(true)
                                 .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
-                                .setRevisionNumber(1)
+                                .setRevisionNumber(FORMAT_REVISION_NUMBER)
                                 .addAllFixedIps(fixedIps)
                                 .buildPartial();
                         // since dpm has to do everything including neighbor in 1 shot
@@ -282,7 +283,7 @@ public class GoalStateManager {
                                   .setVpcId(subnetEntity1.getVpcId())
                                   .setProjectId(portStateWithEverythingFilledNB.getProjectId())
                                   .setCidr(subnetEntity1.getCidr())
-                                  .setFormatVersion(1)
+                                  .setFormatVersion(FORMAT_REVISION_NUMBER)
                                   .setTunnelId(subnetEntity1.getTunnelId())
                                   .build();
                           Subnet.SubnetState subnetState =
@@ -313,8 +314,8 @@ public class GoalStateManager {
                                 Vpc.VpcConfiguration.newBuilder()
                                     .setId(vpcEntity.getId())
                                     .setCidr(vpcEntity.getCidr())
-                                    .setFormatVersion(1)
-                                    .setRevisionNumber(1)
+                                    .setFormatVersion(FORMAT_REVISION_NUMBER)
+                                    .setRevisionNumber(FORMAT_REVISION_NUMBER)
                                     .build();
                             Vpc.VpcState vpcState =
                                 Vpc.VpcState.newBuilder()
