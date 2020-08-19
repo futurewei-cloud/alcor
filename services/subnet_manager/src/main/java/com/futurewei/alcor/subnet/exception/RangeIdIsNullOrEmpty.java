@@ -13,27 +13,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.subnet;
+package com.futurewei.alcor.subnet.exception;
 
-import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.UUID;
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="RangeId is null or empty")
+public class RangeIdIsNullOrEmpty extends Exception{
 
-@Data
-public class SubnetRequestWebJson {
+    public RangeIdIsNullOrEmpty(){}
 
-    private SubnetWebRequestObject subnet;
-
-    public SubnetRequestWebJson() {
+    public RangeIdIsNullOrEmpty(String message) {
+        super(message);
     }
-
-    public SubnetRequestWebJson(SubnetWebRequestObject subnetWebRequestObject) {
-        this.subnet = subnetWebRequestObject;
-    }
-
-    public SubnetRequestWebJson(SubnetWebRequestObject subnetObject, UUID genId) {
-        this.subnet = subnetObject;
-        this.subnet.setId(String.valueOf(genId));
-    }
-
 }

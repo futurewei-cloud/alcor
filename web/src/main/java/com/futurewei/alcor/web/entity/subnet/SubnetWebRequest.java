@@ -25,7 +25,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.util.List;
 
 @Data
-public class SubnetWebRequestObject extends CustomerResource {
+public class SubnetWebRequest extends CustomerResource {
 
     @JsonProperty("network_id")
     private String vpcId;
@@ -89,7 +89,7 @@ public class SubnetWebRequestObject extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SubnetWebRequestObject(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, Boolean dhcpEnable, List<RouteEntity> routeEntities, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetWebRequest(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, Boolean dhcpEnable, List<RouteEntity> routeEntities, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;

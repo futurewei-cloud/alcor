@@ -7,17 +7,17 @@ import java.util.UUID;
 @Data
 public class VpcWebRequestJson {
 
-    private VpcWebRequestObject network;
+    private VpcWebRequest network;
 
     public VpcWebRequestJson() {
 
     }
 
-    public VpcWebRequestJson(VpcWebRequestObject vpcObject) {
+    public VpcWebRequestJson(VpcWebRequest vpcObject) {
         this.network = vpcObject;
     }
 
-    public VpcWebRequestJson(VpcWebRequestObject vpcObject, UUID genId) {
+    public VpcWebRequestJson(VpcWebRequest vpcObject, UUID genId) {
         this.network = vpcObject;
         this.network.setId(String.valueOf(genId));
     }
