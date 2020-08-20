@@ -170,7 +170,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @throws Exception Internal Db Operation Exception
      */
     @DurationStatistics
-    public synchronized void createRange(NetworkRangeRequest request) throws Exception {
+    public synchronized String createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
                 logger.warn("Create network range failed: Network Range already exists");
@@ -193,7 +193,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
             tx.commit();
         }
-
+        return String.valueOf(request.getPartition());
     }
 
     /**

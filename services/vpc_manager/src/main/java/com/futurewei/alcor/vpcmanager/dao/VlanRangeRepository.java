@@ -168,7 +168,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @throws Exception Internal Db Operation Exception
      */
     @DurationStatistics
-    public synchronized void createRange(NetworkRangeRequest request) throws Exception {
+    public synchronized String createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
                 logger.warn("Create network range failed: Network Range already exists");
@@ -191,7 +191,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
 
             tx.commit();
         }
-
+        return request.getId();
     }
 
     /**

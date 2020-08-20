@@ -4,6 +4,7 @@ import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.dao.VlanRangeRepository;
 import com.futurewei.alcor.vpcmanager.dao.VlanRepository;
+import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
@@ -122,6 +123,8 @@ public class SegmentControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vlanRangeRepository.allocateVlanKey(anyString()))
                 .thenReturn(ConstantsConfig.keyNotEnoughReturnValue);
+        Mockito.when(vlanRangeRepository.createRange(any(NetworkRangeRequest.class)))
+                .thenReturn(ConstantsConfig.partition);
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.segmentResource))
                     .andDo(print())

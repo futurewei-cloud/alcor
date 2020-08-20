@@ -20,5 +20,6 @@ public class ConstantsConfig {
     public static Integer MTU = 1450;
     public static Long keyNotEnoughReturnValue = -1L;
     public static int MAX_ROUNDS = 5;
+    public static String partition = "1";
 
 }

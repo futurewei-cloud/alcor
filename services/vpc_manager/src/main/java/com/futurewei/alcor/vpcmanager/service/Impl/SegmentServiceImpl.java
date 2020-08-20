@@ -68,7 +68,7 @@ public class SegmentServiceImpl implements SegmentService {
             if (map.size() == 0) {
                 rangeId = UUID.randomUUID().toString();
                 NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, NetworkType.VLAN_PARTITION, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
-                this.vlanRangeRepository.createRange(request);
+                rangeId = this.vlanRangeRepository.createRange(request);
                 map = this.vlanRangeRepository.findAllItems();
             }
             for (Map.Entry<String, NetworkVlanRange> entry : map.entrySet()) {
@@ -129,7 +129,7 @@ public class SegmentServiceImpl implements SegmentService {
                     int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
-                    this.vxlanRangeRepository.createRange(request);
+                    partitionStringFormat = this.vxlanRangeRepository.createRange(request);
                 } else {
                     partitionStringFormat = networkVxlanRange.getId();
                 }
@@ -193,7 +193,7 @@ public class SegmentServiceImpl implements SegmentService {
                     int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
-                    this.greRangeRepository.createRange(request);
+                    partitionStringFormat = this.greRangeRepository.createRange(request);
                 } else {
                     partitionStringFormat = networkGRERange.getId();
                 }
