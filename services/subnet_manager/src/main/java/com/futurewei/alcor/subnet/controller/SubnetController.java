@@ -23,11 +23,8 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
-<<<<<<< HEAD
 import com.futurewei.alcor.subnet.exception.*;
-=======
 import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
->>>>>>> 5045447... add policy json files
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
