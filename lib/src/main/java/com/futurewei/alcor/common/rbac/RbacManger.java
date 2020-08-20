@@ -26,20 +26,75 @@ import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *  A Rbac decide whether user token can operate the resource
+ *  if check failed ,throw a exception
+ */
 public interface RbacManger {
 
-    void checkUpdate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
+    /**
+     * check user whether have the permission to update the resource
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param bodyFields http put request body fields
+     * @param ownerChecker a checker which check whether user is owner of the resource
+     * @throws Exception if check failed, throw a exception
+     */
+    void checkUpdate(String resource, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
 
-    void checkGet(String resourceName, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception;
+    /**
+     * check user whether have the permission to get the resource and resource fields.
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param getFields http get request url  fields
+     * @param ownerChecker a checker which check whether user is owner of the resouce
+     * @throws Exception if check failed, throw a exception
+     */
+    void checkGet(String resource, TokenEntity tokenEntity, String[] getFields, OwnerChecker ownerChecker) throws Exception;
 
-    void processGetExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws Exception;
+    /**
+     * remove resource fields that user have no permission to see.
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param ownerChecker a checker which check whether user is owner of the resource
+     * @throws Exception if check failed, throw a exception
+     */
+    void processGetExcludeFields(String resource, TokenEntity tokenEntity, OwnerChecker ownerChecker, Object obj) throws Exception;
 
-    void processListExcludeFields(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws Exception;
+    /**
+     * remove resource fields that user have no permission to see.
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param ownerChecker a checker which check whether user is owner of the resource
+     * @param objList http response objects
+     * @throws Exception if check failed, throw a exception
+     */
+    void processListExcludeFields(String resource, TokenEntity tokenEntity, OwnerChecker ownerChecker, List<Object> objList) throws Exception;
 
-    boolean isAdmin(String resourceName, TokenEntity tokenEntity);
+    /**
+     * check user whether is admin user.
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     */
+    boolean isAdmin(String resource, TokenEntity tokenEntity);
 
-    void checkDelete(String resourceName, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws Exception;
+    /**
+     * check user whether have the permission to delete the resource
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param ownerChecker a checker which check whether user is owner of the resouce
+     * @throws Exception if check failed, throw a exception
+     */
+    void checkDelete(String resource, TokenEntity tokenEntity, OwnerChecker ownerChecker) throws Exception;
 
-    void checkCreate(String resourceName, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
+    /**
+     * check user whether have the permission to create the resource
+     * @param resource the resource name
+     * @param tokenEntity the user token info
+     * @param bodyFields http put request body fields
+     * @param ownerChecker a checker which check whether user is owner of the resouce
+     * @throws Exception if check failed, throw a exception
+     */
+    void checkCreate(String resource, TokenEntity tokenEntity, List<String> bodyFields, OwnerChecker ownerChecker) throws Exception;
 
 }

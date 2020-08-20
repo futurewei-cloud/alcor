@@ -130,7 +130,7 @@ public class StrictRbacManager implements RbacManger {
             boolean valid = checkRule(fieldRbacRule.getRuleType(), tokenRoles,
                     fieldRbacRule.getRoles(), ownerChecker);
             if(!valid) {
-                LOG.warn("{}:{} check policy rule failed", actionName, fieldRbacRule.getName());
+                // LOG.info("{}:{} check policy rule failed", actionName, fieldRbacRule.getName());
                 excludeFields.add(fieldRbacRule.getName());
             }
         }
