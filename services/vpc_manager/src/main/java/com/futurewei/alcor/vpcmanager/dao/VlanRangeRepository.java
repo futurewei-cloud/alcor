@@ -6,6 +6,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
@@ -119,7 +120,9 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
             }
 
             key = networkVlanRange.allocateKey();
-            cache.put(networkVlanRange.getId(), networkVlanRange);
+            if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                cache.put(networkVlanRange.getId(), networkVlanRange);
+            }
 
             tx.commit();
         }
@@ -165,7 +168,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
      * @throws Exception Internal Db Operation Exception
      */
     @DurationStatistics
-    public synchronized void createRange(NetworkRangeRequest request) throws Exception {
+    public synchronized String createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
                 logger.warn("Create network range failed: Network Range already exists");
@@ -188,7 +191,7 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
 
             tx.commit();
         }
-
+        return request.getId();
     }
 
     /**
