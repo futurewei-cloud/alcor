@@ -29,17 +29,17 @@ It interacts with VPM Manager, Subnet Manager, Port Manager, and Data Plane Mana
 In order to compatible with both OpenStack Neutron's router concept and VPC's routing table concept in a public cloud,
 the main resource for route manager is designed as a three-layer structure:
 
-image::router_three_layers_strcuture.png[]
+image::router_three_layers_strcuture.PNG[]
 
 === Service Architecture
 
-image::route_manager_service_architecture.png[]
+image::route_manager_service_architecture.PNG[]
 
 === Key Workflow
 
 == Database Schema
 
-image::route_manager_data_schemas.png[]
+image::route_manager_data_schemas.PNG[]
 
 == REST APIs
 
