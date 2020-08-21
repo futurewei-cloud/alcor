@@ -184,7 +184,7 @@ public class NeutronRouterController {
 
             // TODO: check resource
 
-            neutronRouterWebRequestObject = resource.getNeutronRouterWebRequestObject();
+            neutronRouterWebRequestObject = resource.getRouter();
             RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
             String id = neutronRouterWebRequestObject.getId();
 
@@ -222,7 +222,7 @@ public class NeutronRouterController {
 
             // TODO: check resource
 
-            neutronRouterWebRequestObject = resource.getNeutronRouterWebRequestObject();
+            neutronRouterWebRequestObject = resource.getRouter();
             NeutronRouterWebRequestObject inNeutronRouter = this.neutronRouterService.getNeutronRouter(routerId);
 
             NeutronRouteUtil.copyPropertiesIgnoreNull(neutronRouterWebRequestObject, inNeutronRouter);

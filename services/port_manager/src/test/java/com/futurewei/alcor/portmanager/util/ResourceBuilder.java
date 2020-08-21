@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -218,7 +219,7 @@ public class ResourceBuilder {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
         route.setTarget(UnitTestConfig.routeTarget);
-        route.setAssociatedType(RouteTableType.MAIN);
+        route.setAssociatedType(RouteTableType.VPC);
 
         return new RouteWebJson(route);
     }
@@ -227,7 +228,7 @@ public class ResourceBuilder {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
         route.setTarget(UnitTestConfig.routeTarget);
-        route.setAssociatedType(RouteTableType.MAIN);
+        route.setAssociatedType(RouteTableType.VPC);
 
         List<RouteEntity> routes = new ArrayList<>();
         routes.add(route);

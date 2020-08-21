@@ -20,12 +20,12 @@ import lombok.Data;
 @Data
 public class NeutronRouterWebJson {
 
-    private NeutronRouterWebRequestObject neutronRouterWebRequestObject;
+    private NeutronRouterWebRequestObject router;
 
     public NeutronRouterWebJson () {}
 
     public NeutronRouterWebJson(NeutronRouterWebRequestObject neutronRouterWebRequestObject) {
-        this.neutronRouterWebRequestObject = neutronRouterWebRequestObject;
+        this.router = neutronRouterWebRequestObject;
     }
 
 }
