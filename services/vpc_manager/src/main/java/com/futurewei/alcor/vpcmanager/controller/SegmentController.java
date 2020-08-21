@@ -4,11 +4,17 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentManagementUtil;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebRequestJson;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebRequest;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebResponseJson;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +34,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class SegmentController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private VpcDatabaseService vpcDatabaseService;
 
     @Autowired
     private SegmentDatabaseService segmentDatabaseService;
@@ -92,20 +101,24 @@ public class SegmentController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            SegmentWebRequest segmentWebRequest = resource.getSegment();
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
 
+            String vpcId = segmentWebRequest.getVpcId();
+            VpcEntity vpcState = this.vpcDatabaseService.getByVpcId(vpcId);
+
             // verify network type
-            String networkType = segmentWebRequestObject.getNetworkType();
+            String networkType = segmentWebRequest.getNetworkType();
             Long key = null;
+            Integer mtu = vpcState.getMtu();
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVxlanEntity(networkTypeId, networkType, vpcId, mtu);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVlanEntity(networkTypeId, networkType, vpcId, mtu);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addGreEntity(networkTypeId, networkType, vpcId, mtu);
             }
 
             if (key != null) {
@@ -124,6 +137,8 @@ public class SegmentController {
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
+            throw new Exception(e);
+        } catch (NetworkKeyNotEnoughException e) {
             throw new Exception(e);
         }
 
@@ -155,8 +170,8 @@ public class SegmentController {
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
-            SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            SegmentWebRequest segmentWebRequest = resource.getSegment();
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
             RestPreconditionsUtil.populateResourceSegmentId(segmentEntity, segmentid);
@@ -166,7 +181,7 @@ public class SegmentController {
                 throw new ResourceNotFoundException("Segment not found : " + segmentid);
             }
 
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             Integer revisionNumber = segmentEntity.getRevisionNumber();
             if (revisionNumber == null) {
                 segmentEntity.setRevisionNumber(1);

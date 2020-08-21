@@ -14,8 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = MacManagerConstant.MAC_EXCEPTION_RANGE_VALUE_INVALID)
 public class MacRangeInvalidException extends Exception {
     public MacRangeInvalidException() {
+        super(MacManagerConstant.MAC_EXCEPTION_RANGE_VALUE_INVALID);
     }
 
     public MacRangeInvalidException(String message) {

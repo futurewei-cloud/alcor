@@ -14,8 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED)
 public class MacAddressRetryLimitExceedException extends Exception {
     public MacAddressRetryLimitExceedException() {
+        super(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
     }
 
     public MacAddressRetryLimitExceedException(String message) {

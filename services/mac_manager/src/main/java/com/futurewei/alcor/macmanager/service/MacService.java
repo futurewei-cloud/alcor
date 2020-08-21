@@ -12,25 +12,25 @@ import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import java.util.Map;
 
 public interface MacService {
-    MacState getMacStateByMacAddress(String macAddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacAddressInvalidException;
+    MacState getMacStateByMacAddress(String macAddress) throws Exception;
 
-    MacState createMacState(MacState macState) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressFullException, MacAddressRetryLimitExceedException;
+    MacState createMacState(MacState macState) throws Exception;
 
-    MacState createMacStateInRange(String rangeid, MacState macState ) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException, MacAddressUniquenessViolationException, MacAddressRetryLimitExceedException, MacAddressFullException;
+    MacState createMacStateInRange(String rangeid, MacState macState ) throws Exception;
 
-    MacState updateMacState(String macaddress, MacState macState) throws ParameterNullOrEmptyException, ParameterUnexpectedValueException, MacRepositoryTransactionErrorException, ResourceNotFoundException;
+    MacState updateMacState(String macaddress, MacState macState) throws Exception;
 
-    String releaseMacState(String macAddress) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, ResourceNotFoundException;
+    String releaseMacState(String macAddress) throws Exception;
 
-    MacRange getMacRangeByMacRangeId(String macRangeId) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException;
+    MacRange getMacRangeByMacRangeId(String macRangeId) throws Exception;
 
-    Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws MacRepositoryTransactionErrorException;
+    Map<String, MacRange> getAllMacRanges(Map<String, Object[]> queryParams) throws Exception;
 
-    MacRange createMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException;
+    MacRange createMacRange(MacRange macRange) throws Exception;
 
-    MacRange updateMacRange(MacRange macRange) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeInvalidException;
+    MacRange updateMacRange(MacRange macRange) throws Exception;
 
-    String deleteMacRange(String rangeid) throws ParameterNullOrEmptyException, MacRepositoryTransactionErrorException, MacRangeDeleteNotAllowedException;
+    String deleteMacRange(String rangeid) throws Exception;
 
     MacStateBulkJson createMacStateBulk(MacStateBulkJson macStateBulkJson) throws Exception;
 

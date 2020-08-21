@@ -74,16 +74,16 @@ public class VpcServiceImpl implements VpcService {
         Long key = null;
         if (networkType == null) {
             // create a vxlan type segment as default
-            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
+            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId(), vpcEntity.getMtu());
 
             vpcEntity.setNetworkType(NetworkTypeEnum.VXLAN.getNetworkType());
 
         } else if (networkType.equals(NetworkTypeEnum.VXLAN.getNetworkType())) {
-            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId());
+            key = this.segmentService.addVxlanEntity( networkTypeId, NetworkTypeEnum.VXLAN.getNetworkType(), vpcEntity.getId(), vpcEntity.getMtu());
         } else if (networkType.equals(NetworkTypeEnum.VLAN.getNetworkType())) {
-            key = this.segmentService.addVlanEntity( networkTypeId, NetworkTypeEnum.VLAN.getNetworkType(), vpcEntity.getId());
+            key = this.segmentService.addVlanEntity( networkTypeId, NetworkTypeEnum.VLAN.getNetworkType(), vpcEntity.getId(), vpcEntity.getMtu());
         } else if (networkType.equals(NetworkTypeEnum.GRE.getNetworkType())) {
-            key = this.segmentService.addGreEntity( networkTypeId, NetworkTypeEnum.GRE.getNetworkType(), vpcEntity.getId());
+            key = this.segmentService.addGreEntity( networkTypeId, NetworkTypeEnum.GRE.getNetworkType(), vpcEntity.getId(), vpcEntity.getMtu());
         }
 
         if (key != null) {

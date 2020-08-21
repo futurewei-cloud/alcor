@@ -22,6 +22,7 @@ package com.futurewei.alcor.common.db.repo;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,4 +35,6 @@ public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
     Map<String, T> findAllItems(Set<String> keys) throws CacheException;
 
     Boolean contains(String key) throws CacheException;
+
+    void addAllItem(Map<String, T> newItems) throws CacheException;
 }

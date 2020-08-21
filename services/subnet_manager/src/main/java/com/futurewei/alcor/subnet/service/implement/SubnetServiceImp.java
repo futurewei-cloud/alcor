@@ -13,6 +13,7 @@ import com.futurewei.alcor.subnet.config.IpVersionConfig;
 import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
 import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
 import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
+import com.futurewei.alcor.subnet.exception.UsedIpsIsNotCorrect;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
@@ -90,7 +91,7 @@ public class SubnetServiceImp implements SubnetService {
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetRequestWebJson resource,
+                                  SubnetWebRequestJson resource,
                                   String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
@@ -135,7 +136,6 @@ public class SubnetServiceImp implements SubnetService {
         }
         return vpcResponse;
     }
-
 
     @Override
     @DurationStatistics
@@ -321,6 +321,26 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
+    public Integer getUsedIpByRangeId(String rangeId) throws UsedIpsIsNotCorrect {
+        String ipManagerServiceUrl = ipUrl + "range" + "/" + rangeId;
+        IpAddrRangeRequest ipAddrRange = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
+        if (ipAddrRange == null) {
+            logger.info("can not find ipAddrRange by range id" + rangeId);
+            return null;
+        }
+
+        Long usedIPs = ipAddrRange.getUsedIps();
+        if (usedIPs == null || usedIPs > Integer.MAX_VALUE || usedIPs < 0) {
+            throw new UsedIpsIsNotCorrect();
+        }
+
+        Integer usedIps = Integer.parseInt(String.valueOf(usedIPs));
+
+        return usedIps;
+    }
+
+    @Override
+    @DurationStatistics
     public void addSubnetIdToVpc(String subnetId, String projectId, String vpcId) throws Exception {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
@@ -372,5 +392,4 @@ public class SubnetServiceImp implements SubnetService {
 
         return false;
     }
-
 }

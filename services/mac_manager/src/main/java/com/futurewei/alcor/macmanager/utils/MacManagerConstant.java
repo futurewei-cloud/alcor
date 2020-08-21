@@ -47,4 +47,8 @@ public class MacManagerConstant {
     public static final String MAC_EXCEPTION_RANGE_VALUE_INVALID = "MAC range is not vaild. Ranges' start value should be less than end value.";
     public static final String MAC_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for a service to call a repository";
     public static final String MAC_EXCEPTION_DELETE_DEFAULT_RANGE = "It is not allowed to delete default range.";
+
+    public static final String MAC_EXCEPTION_REQUIRE_PARAMS_NULL = "params project_id or vpc_id or port_id can not be null";
+    public static final String MAC_EXCEPTION_REQUIRE_PARAMS_EMPTY = "params project_id or vpc_id or port_id can not be empty";
+    public static final String MAC_EXCEPTION_STATE_INVALID = "state must be Active or Inactive";
 }
