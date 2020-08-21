@@ -29,7 +29,7 @@ It interacts with VPM Manager, Subnet Manager, Port Manager, and Data Plane Mana
 In order to compatible with both OpenStack Neutron's router concept and VPC's routing table concept in a public cloud,
 the main resource for route manager is designed as a three-layer structure:
 
-image::router_three_layers_strcuture.PNG[]
+image::route_manager_highlevel_design.PNG[]
 
 === Service Architecture
 
@@ -341,7 +341,7 @@ anchor:neutron_routers_post[]
 
 * Method: `POST`
 * Request: `/project/{projectid}/routers`
-* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Request Parameter: `@PathVariable String projectid, @RequestBody RouterWebRequestJson resource`
 * Action: Creates a logical router. The logical router does not have any internal interface
 and it is not associated with any subnet. You can optionally specify an external gateway for a router at create time.
 * Response: Router's state
