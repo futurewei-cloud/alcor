@@ -45,159 +45,603 @@ image::route_manager_data_schemas.PNG[]
 
 === API Snapshot
 
-[width="100%",cols="22%,12%,50%,17%"]
+[width="100%",cols="32%,12%,40%,17%"]
 |===
 |*API Name* |*Method* |*Request*|*Response*
-
-|Get/Verify VPC State By VPC Id
+|List Neutron routers
 |GET
-|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
-|VPC state
-<<VpcState_Get1,[sample]>>
+|/project/{projectid}/routers
+|All routers' state
+<<neutron_routers_get,[sample]>>
 
-|Create VPC StateS
+|Create a Neutron router
 |POST
-|/project/{projectid}/vpcs, /v4/{projectid}/vpcs
-|VPC state
+|/project/{projectid}/routers
+|Router state
+<<neutron_routers_post,[sample]>>
+
+|Show a Neutron router
+|GET
+|/project/{projectid}/routers/{routerid}
+|Router state
+<<neutron_router_get,[sample]>>
+
+|Update a Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}
+|Router state
+<<neutron_router_put,[sample]>>
+
+|Delete a Neutron router
+|DELETE
+|/project/{projectid}/routers/{routerid}
+|ResponseId
+<<neutron_router_del,[sample]>>
+
+|Add an interface to Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/add_router_interface
+|Router state
+<<neutron_router_add_interface,[sample]>>
+
+|Remove an interface from Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/remove_router_interface
+|Router state
+<<neutron_router_rm_interface,[sample]>>
+
+|Add routes to Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/add_extra_routes
+|Router state
+<<neutron_router_add_routes,[sample]>>
+
+|Remove routes from Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/remove_extra_routes
+|Router state
+<<neutron_router_rm_routes,[sample]>>
+
+|Get or Create VPC router
+|POST
+|/project/{projectid}/vpcs/{vpcid}/router
+|VPC router state
 <<VpcState_Post1,[sample]>>
 
-|Update VPC Address
-|PUT
-|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
-|VPC state
-<<VpcState_Put1,[sample]>>
-
-|Delete VPC Address
+|Delete VPC router
 |DELETE
-|/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}
+|/project/{projectid}/vpcs/{vpcid}/router
 |ResponseId
 <<VpcState_Delete1,[sample]>>
 
-|GET VPC State By Project Id
+|Get or Create VPC route table
+|POST
+|/project/{projectid}/vpcs/{vpcid}/routetable
+|VPC routetable state
+<<VpcState_Post1,[sample]>>
+
+|Delete VPC route table
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}/routetable
+|ResponseId
+<<VpcState_Delete1,[sample]>>
+
+|List VPC route table
 |GET
-|/project/{projectid}/vpcs
-|Map
+|/project/{projectid}/vpcs/{vpcid}/routetable
+|VPC routing rules
+<<VpcState_Get1,[sample]>>
+
+|Update VPC route table
+|PUT
+|/project/{projectid}/vpcs/{vpcid}/routetable
+|VPC routing rules
+<<VpcState_Post1,[sample]>>
+
+|Show a VPC routing rule
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule ID
 <<VpcState_Get2,[sample]>>
+
+|Create a VPC routing rule
+|POST
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule ID
+<<VpcState_Get2,[sample]>>
+
+|Update a VPC routing rule
+|PUT
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule ID
+<<VpcState_Get2,[sample]>>
+
+|Delete a VPC routing rule
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|ResponseId
+<<VpcState_Delete1,[sample]>>
+
+|Get or Create Subnet route table
+|POST
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<VpcState_Get2,[sample]>>
+
+|Delete Subnet route table
+|DELETE
+|/project/{projectid}/subnets/{subnetid}/routetable
+|ResponseId
+<<VpcState_Delete1,[sample]>>
+
+|List Subnet route table
+|GET
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routing rules
+<<VpcState_Get2,[sample]>>
+
+|Update Subnet route table
+|PUT
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routing rules
+<<VpcState_Get2,[sample]>>
+
+|Show a Subnet routing rule
+|GET
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rule ID
+<<VpcState_Get2,[sample]>>
+
+|Create a Subnet routing rule
+|POST
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rule ID
+<<VpcState_Get2,[sample]>>
+
+|Update a Subnet routing rule
+|PUT
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rule ID
+<<VpcState_Get2,[sample]>>
+
+|Delete a Subnet routing rule
+|DELETE
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|ResponseId
+<<VpcState_Delete1,[sample]>>
 |===
 
 === API Specification
 
-anchor:VpcState_Get1[]
-**(1) Get/Verify VPC state by VPC Id**
+anchor:neutron_routers_get[]
+**(1) List Neutron routers**
 
 * Method: `GET`
-
-* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
-
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
-
-* Response: vpc state
+* Request: `/project/{projectid}/routers`
+* Request Parameter: `@PathVariable String projectid`
+* Action: Lists logical routers that the project who submits the request can access.
+* Response: Routers' state
 * Normal response codes: 200
-* Error response codes: 400, 404, 500
-
+* Error response codes: 400, 401, 404, 500
 * Example
-
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
 
 Response:
 {
-  "network": {
-    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-    "name": "vpc_test1",
-    "cidr": "00-14-2A-3B-47-37",
-  }
+    "routers": [
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.3",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::c",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+            "name": "router2",
+            "revision_number": 1,
+            "routes": [
+                {
+                    "destination": "179.24.1.0/24",
+                    "nexthop": "172.24.3.99"
+                }
+            ],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        },
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.6",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::9",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "name": "router1",
+            "revision_number": 1,
+            "routes": [],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        }
+    ]
 }
 ....
 
-anchor:VpcState_Post1[]
-**(1) Create VPC State**
+anchor:neutron_routers_post[]
+**(2) Create a Neutron router**
 
 * Method: `POST`
-
-* Request: `/project/{projectid}/vpcs, /v4/{projectid}/vpcs`
-
+* Request: `/project/{projectid}/routers`
 * Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
-
-* Response: vpc state
+* Action: Creates a logical router. The logical router does not have any internal interface
+and it is not associated with any subnet. You can optionally specify an external gateway for a router at create time.
+* Response: Router's state
 * Normal response codes: 201
-* Error response codes: 400, 404, 500, 503
-
+* Error response codes: 400, 401, 404, 500, 503
 * Example
-
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs
---data "{\"vpc\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"name\":\"test_vpc\",\"description\":\"vpc\",\"cidr\":\"10.0.0.0/16\"}}"
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
+
+Body:
+{
+    "router": {
+        "name": "router1",
+        "external_gateway_info": {
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ]
+        },
+        "admin_state_up": true
+    }
+}
 
 Response:
 {
-  "network": {
-    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-    "name": "test_vpc",
-    "cidr": "10.0.0.0/16",
-    "description": "vpc"
-  }
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "routes": [],
+        "revision_number": 1,
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
 }
 ....
 
-anchor:VpcState_Put1[]
-**(1) Update VPC State**
+anchor:neutron_router_get[]
+**(3) Show a Neutron router**
+
+* Method: `GET`
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid`
+* Action: Shows details for a router
+* Response: Router state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
+
+Response:
+{
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                },
+                {
+                    "ip_address": "2001:db8::9",
+                    "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "revision_number": 1,
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ],
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
+}
+....
+
+anchor:neutron_router_put[]
+**(4) Update a Neutron router**
 
 * Method: `PUT`
-
-* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
-
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid, @RequestBody VpcWebRequestJson resource`
-
-* Response: vpc state
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Action: Updates a logical router. This operation does not enable the update of router interfaces.
+* Response: Router's state
 * Normal response codes: 201
-* Error response codes: 400, 404, 500, 503
-
+* Error response codes: 400, 401, 404, 500, 503
 * Example
-
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
---data "{\"vpc\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"name\":\"test_vpc\",\"description\":\"vpc\",\"cidr\":\"10.0.0.0/16\"}}"
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
+
+Body:
+{
+    "router": {
+        "distributed": false,
+        "external_gateway_info": {
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ]
+        },
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ]
+    }
+}
 
 Response:
 {
-  "network": {
-    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-    "name": "test_vpc",
-    "cidr": "10.0.0.0/16",
-    "description": "vpc"
-  }
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "revision_number": 3,
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ],
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
 }
 ....
 
-anchor:VpcState_Delete1[]
-**(1) Delete VPC State**
+anchor:neutron_router_del[]
+**(5) Delete a Neutron router**
 
 * Method: `DELETE`
-
-* Request: `/project/{projectid}/vpcs/{vpcid}, /v4/{projectid}/vpcs/{vpcid}`
-
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
-
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid`
+* Action: Deletes a logical router and, if present, its external gateway interface.
+This operation fails if the router has attached interfaces.
 * Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 404, 500
-
 * Example
-
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
 
 Response:
-{"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"}
+{"id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95"}
 ....
+
+anchor:neutron_router_add_interface[]
+**(6) Add an interface to Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/add_router_interface`
+* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Action: Adds an internal interface to a logical router.
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409
+* Details: Specify the ID of a subnet or port in the request body:
+** Subnet ID. The gateway IP address for the subnet is used as an IP address of the created router interface.
+** Port ID. The IP address associated with the port is used as an IP address of the created router interface.
+If a port with the same network ID does not exist, this operation creates a port on the router for that subnet.
+* Response: If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
+If the port is already in use, this operation returns the Conflict (409) response code. If no error,
+the same ID that is passed in the request body when a port is specified or
+the ID of a port that this operation creates to attach the subnet to the router will be returned.
+* Others: After you run this operation, the operation sets:
+** The **device_id** attribute of this port to the router ID
+** The **device_owner** attribute to **network:router_interface**
+* Example
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_router_interface
+
+Body:
+{
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"
+}
+
+or
+
+{
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0"
+}
+
+Response:
+{
+    "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+    "network_id": "91c013e2-d65a-474e-9177-c3e1799ca726",
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0",
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1",
+    "subnet_ids": [
+        "a2f1f29d-571b-4533-907f-5803ab96ead1"
+    ],
+    "project_id": "0bd18306d801447bb457a46252d82d13",
+    "tenant_id": "0bd18306d801447bb457a46252d82d13",
+    "tags": ["tag1,tag2"]
+}
+....
+
+anchor:neutron_router_rm_interface[]
+**(7) Remove an interface from Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/remove_router_interface`
+* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Action: Delete an internal router interface, which detach a subnet from the router.Adds an internal interface to a logical router.
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409
+* Details: You must specify either a subnet ID or port ID in the request body; the operation uses this value to identify which router interface to delete.
+If this subnet ID is the last subnet on the port, this operation deletes the port itself.
+* Response: If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
+If the port is already in use, this operation returns the Conflict (409) response code. If no error,
+the same ID that is passed in the request body when a port is specified or
+the ID of a port that this operation creates to attach the subnet to the router will be returned.
+* Others: After you run this operation, the operation sets:
+** The **device_id** attribute of this port to the router ID
+** The **device_owner** attribute to **network:router_interface**
+* Example
 
 anchor:VpcState_Get2[]
 **(1) Get/Verify VPC state by Project Id**
