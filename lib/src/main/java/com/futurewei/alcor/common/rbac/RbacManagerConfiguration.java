@@ -32,7 +32,7 @@ public class RbacManagerConfiguration {
 
     @Bean
     public RbacManger rbacManger() throws IOException {
-        if (rbacType.equals("ignore")) {
+        if (rbacType.toLowerCase().equals("ignore")) {
             return new IgnoreRbacManager();
         }
         return new StrictRbacManager();

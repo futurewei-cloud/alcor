@@ -4,8 +4,8 @@ v0.1, 2020-08-14
 :imagesdir: ../../images
 
 == Introduction
-Alcor Rbac (Role based access control) is designed to be compatible with neutron Rbac. Both are based on Openstack Keystone
- roles while Alcor Rbac is at a finer granularity level at microservices compared to Neutron at the whole service level.
+Alcor Rbac (Role based access control) is designed to be compatible with neutron Rbac. Both are based on https://docs.openstack.org/api-ref/identity/v3/?expanded=list-roles-detail#roles[Openstack Keystone roles]
+while Alcor Rbac is at a finer granularity level at microservices compared to Neutron at the whole service level.
 Alcor microservices load rbac rules at from its own rbac_policy.json file under the resource directory of each microservice.
 
 == Microservices with support of Rbac
