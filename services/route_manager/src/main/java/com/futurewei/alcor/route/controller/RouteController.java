@@ -271,12 +271,13 @@ public class RouteController {
             String id = UUID.randomUUID().toString();
             String projectId = vpcEntity.getProjectId();
             String destination = vpcEntity.getCidr();
+            String vpcId = vpcEntity.getId();
 
             routeEntry = new RouteEntry(projectId, id, "default_route_rule", "",
                     destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, routeTableId, null);
             List<RouteEntry> routeEntries = new ArrayList<>();
             routeEntries.add(routeEntry);
-            routeTable = new RouteTable(projectId, routerId, "default_route_table", "",routeEntries, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE);
+            routeTable = new RouteTable(projectId, routerId, "default_route_table", "",routeEntries, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE,vpcId);
 
             List<RouteTable> routeTables = new ArrayList<>();
             routeTables.add(routeTable);

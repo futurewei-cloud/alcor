@@ -17,6 +17,7 @@ package com.futurewei.alcor.web.entity.route;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import lombok.Data;
 
 import java.util.List;
@@ -24,18 +25,22 @@ import java.util.List;
 @Data
 public class RouteTable extends CustomerResource {
 
-    @JsonProperty("route_entries")
+    @JsonProperty("routes")
     private List<RouteEntry> routeEntities;
 
     @JsonProperty("route_table_type")
     private RouteTableType routeTableType;
 
+    // store subnet_id
+    @JsonProperty("owner")
+    private String owner;
+
     public RouteTable () {}
 
-    public RouteTable(String projectId, String Id, String name, String description, List<RouteEntry> routeEntities, RouteTableType routeTableType) {
-        super(projectId, Id, name, description);
+    public RouteTable(String projectId, String id, String name, String description, List<RouteEntry> routeEntities, RouteTableType routeTableType, String owner) {
+        super(projectId, id, name, description);
         this.routeEntities = routeEntities;
         this.routeTableType = routeTableType;
+        this.owner = owner;
     }
-
 }

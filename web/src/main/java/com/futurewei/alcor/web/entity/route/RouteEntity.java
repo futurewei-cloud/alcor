@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.route;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
