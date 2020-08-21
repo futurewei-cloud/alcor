@@ -33,6 +33,10 @@ public class Router extends CustomerResource {
     @JsonProperty("owner")
     private String owner;
 
+    // store vpc_id
+    @JsonProperty("router_extra_attribute_id")
+    private String routerExtraAttributeId;
+
     // store subnet_gateway_port_id
     @JsonProperty("ports")
     private List<String> ports;
@@ -61,7 +65,7 @@ public class Router extends CustomerResource {
         this.routeTables = routeTables;
     }
 
-    public Router(String projectId, String id, String name, String description, List<RouteTable> routeTables, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status) {
+    public Router(String projectId, String id, String name, String description, List<RouteTable> routeTables, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
         super(projectId, id, name, description);
         this.routeTables = routeTables;
         this.owner = owner;
@@ -69,5 +73,6 @@ public class Router extends CustomerResource {
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
         this.status = status;
+        this.routerExtraAttributeId = routerExtraAttributeId;
     }
 }

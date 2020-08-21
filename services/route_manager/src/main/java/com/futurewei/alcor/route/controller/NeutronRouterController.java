@@ -19,22 +19,31 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.route.entity.RouteConstant;
+import com.futurewei.alcor.route.exception.CanNotFindRouter;
+import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
+import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
+import com.futurewei.alcor.route.utils.NeutronRouteUtil;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.route.RouterWebJson;
-import com.futurewei.alcor.web.entity.route.RoutersWebJson;
+import com.futurewei.alcor.web.entity.route.*;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -48,11 +57,18 @@ public class NeutronRouterController {
     private RouterDatabaseService routerDatabaseService;
 
     @Autowired
+    private RouterExtraAttributeDatabaseService routerExtraAttributeDatabaseService;
+
+    @Autowired
+    private NeutronRouterService neutronRouterService;
+
+    @Autowired
     private HttpServletRequest request;
 
     /**
      * Show a Neutron router
      * @param routerId
+     * @param projectid
      * @return
      * @throws Exception
      */
@@ -60,52 +76,84 @@ public class NeutronRouterController {
             method = GET,
             value = {"/project/{projectid}/routers/{routerId}"})
     @DurationStatistics
-    public RouterWebJson getNeutronRouterByRouterId(@PathVariable String projectid,@PathVariable String routerId) throws Exception {
+    public NeutronRouterWebJson getNeutronRouterByRouterId(@PathVariable String projectid,@PathVariable String routerId) throws Exception {
 
-        Router router = null;
+        NeutronRouterWebRequestObject neutronRouterWebRequestObject = null;
+
+//        Router router = null;
+//        RouterExtraAttribute routerExtraAttribute = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            router = this.routerDatabaseService.getByRouterId(routerId);
+            neutronRouterWebRequestObject = this.neutronRouterService.getNeutronRouter(routerId);
+
+//            router = this.routerDatabaseService.getByRouterId(routerId);
+//            if (router == null) {
+//                return new NeutronRouterWebJson();
+//            }
+//
+//            routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+//
+//            BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
+//            if (routerExtraAttribute != null) {
+//                BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
+//            }
+
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            throw new Exception(e);
+            throw e;
+        } catch (CanNotFindRouter e) {
+            logger.error(e.getMessage() + " : " + routerId);
+            return new NeutronRouterWebJson();
         }
 
-        if (router == null) {
-            //TODO: REST error code
-            return new RouterWebJson();
-        }
-
-        return new RouterWebJson(router);
+        return new NeutronRouterWebJson(neutronRouterWebRequestObject);
     }
 
     /**
      * List Neutron routers
-     * @param projectId
+     * @param projectid
      * @return
      * @throws Exception
      */
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectId}/routers"})
+            value = {"/project/{projectid}/routers"})
     @DurationStatistics
-    public RoutersWebJson getNeutronRouters(@PathVariable String projectId) throws Exception {
+    public NeutronRoutersWebJson getNeutronRouters(@PathVariable String projectid) throws Exception {
+
+        List<NeutronRouterWebRequestObject> neutronRouters = new ArrayList<>();
 
         Map<String, Router> routers = null;
+        RouterExtraAttribute routerExtraAttribute = null;
 
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(request.getParameterMap(), Router.class);
 
         ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-            RestPreconditionsUtil.verifyResourceFound(projectId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
 
             routers = this.routerDatabaseService.getAllRouters(queryParams);
+            if (routers == null) {
+                return new NeutronRoutersWebJson();
+            }
+
+            for (Map.Entry<String, Router> entry : routers.entrySet()) {
+                NeutronRouterWebRequestObject neutronRouterWebRequestObject = new NeutronRouterWebRequestObject();
+                Router router = (Router) entry.getValue();
+                routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+
+                BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
+                if (routerExtraAttribute != null) {
+                    BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
+                }
+
+                neutronRouters.add(neutronRouterWebRequestObject);
+            }
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -113,27 +161,52 @@ public class NeutronRouterController {
             throw new Exception(e);
         }
 
-        return new RoutersWebJson(new ArrayList<>(routers.values()));
+        return new NeutronRoutersWebJson(neutronRouters);
     }
 
     /**
      * Create a Neutron router
-     * @param projectId
+     * @param projectid
+     * @param resource
      * @return
      * @throws Exception
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectId}/routers"})
+            value = {"/project/{projectid}/routers"})
     @DurationStatistics
-    public RouterWebJson createNeutronRouters(@PathVariable String projectId) throws Exception {
-        return new RouterWebJson();
+    public NeutronRouterWebJson createNeutronRouters(@PathVariable String projectid, @RequestBody NeutronRouterWebJson resource) throws Exception {
+
+        NeutronRouterWebRequestObject neutronRouterWebRequestObject = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+
+            // TODO: check resource
+
+            neutronRouterWebRequestObject = resource.getNeutronRouterWebRequestObject();
+            RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
+            String id = neutronRouterWebRequestObject.getId();
+
+            if (id == null || StringUtils.isEmpty(id)) {
+                UUID vpcId = UUID.randomUUID();
+                neutronRouterWebRequestObject.setId(vpcId.toString());
+            }
+
+            // TODO: configure default value
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return new NeutronRouterWebJson(neutronRouterWebRequestObject);
     }
 
     /**
      * Update a Neutron router
      * @param projectid
      * @param routerId
+     * @param resource
      * @return
      * @throws Exception
      */
@@ -141,8 +214,28 @@ public class NeutronRouterController {
             method = PUT,
             value = {"/project/{projectid}/routers/{routerId}"})
     @DurationStatistics
-    public RouterWebJson updateNeutronRouterByRouterId(@PathVariable String projectid,@PathVariable String routerId) throws Exception {
-        return new RouterWebJson();
+    public NeutronRouterWebJson updateNeutronRouterByRouterId(@PathVariable String projectid,@PathVariable String routerId, @RequestBody NeutronRouterWebJson resource) throws Exception {
+        NeutronRouterWebRequestObject neutronRouterWebRequestObject = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+
+            // TODO: check resource
+
+            neutronRouterWebRequestObject = resource.getNeutronRouterWebRequestObject();
+            NeutronRouterWebRequestObject inNeutronRouter = this.neutronRouterService.getNeutronRouter(routerId);
+
+            NeutronRouteUtil.copyPropertiesIgnoreNull(neutronRouterWebRequestObject, inNeutronRouter);
+
+            // TODO: configure default value
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        } catch (CanNotFindRouter e) {
+            throw e;
+        }
+
+        return new NeutronRouterWebJson(neutronRouterWebRequestObject);
     }
 
 }
