@@ -46,8 +46,6 @@ public class TestBeanFactoryPostProcessor implements BeanDefinitionRegistryPostP
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         try {
-            System.out.println(Arrays.asList(registry.getBeanDefinitionNames()).toString());
-
             registry.removeBeanDefinition(IGNITE_BEAN_FACTORY_NAME);
             BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
                     .genericBeanDefinition(IgniteCacheFactory.class, () -> {

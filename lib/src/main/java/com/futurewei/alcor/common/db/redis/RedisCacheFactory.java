@@ -73,10 +73,17 @@ public class RedisCacheFactory implements ICacheFactory {
     }
 
     @Override
-    public <T> IDistributedLock getDistributedLock(Class<T> t) {
+    public <V> IDistributedLock getDistributedLock(Class<V> t) {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(lettuceConnectionFactory);
 
         return new RedisDistributedLock(template, LOCK_PREFIX + t.getName(), tryLockInterval, expireTime);
+    }
+
+    @Override
+    public Transaction getTransaction() {
+        RedisTemplate<?, ?> template = new RedisTemplate<>();
+        template.setConnectionFactory(lettuceConnectionFactory);
+        return new RedisTransaction(template);
     }
 }

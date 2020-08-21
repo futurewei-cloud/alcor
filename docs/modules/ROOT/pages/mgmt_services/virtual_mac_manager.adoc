@@ -372,6 +372,12 @@ TBD
 
 TBD
 
+== Allocate algorithms
+There are two allocate algorithms, Random and Bitset.
+. Random has better support in concurrency and higher throughput, but it allocates large bulk mac creation slowly.
+. Bitset is weaker than the random algorithm in concurrency performance, but the bitset delay is always stable and is obviously
+better than the random algorithm when mac addresses allocated in large batches.
+
 [bibliography]
 == References
 

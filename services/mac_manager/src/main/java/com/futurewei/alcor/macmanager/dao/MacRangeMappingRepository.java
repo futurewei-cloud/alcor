@@ -24,6 +24,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.macmanager.dao.api.IRangeMappingRepository;
 import com.futurewei.alcor.web.entity.mac.MacAllocate;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class MacRangeMappingRepository implements IRangeMappingRepository {
@@ -44,44 +46,31 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     @Autowired
     public MacRangeMappingRepository(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
-        mappingCache = new HashMap<>();
+        mappingCache = new ConcurrentHashMap<>();
     }
 
     @Override
     @DurationStatistics
-    public long size(String rangeId) throws CacheException {
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).size();
+    public long getUsedCapacity(String rangeId) throws CacheException {
+        return getRangeCache(rangeId).size();
     }
 
     @Override
     @DurationStatistics
     public Boolean putIfAbsent(String rangeId, Long macLong) throws CacheException {
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).putIfAbsent(macLong, rangeId);
+        return getRangeCache(rangeId).putIfAbsent(macLong, rangeId);
     }
 
     @Override
     @DurationStatistics
     public void addItem(String rangeId, Long macLong) throws CacheException {
-        mappingCache.get(rangeId).put(macLong, rangeId);
+        getRangeCache(rangeId).put(macLong, rangeId);
     }
 
     @Override
     @DurationStatistics
     public Boolean releaseMac(String rangeId, Long macLong) throws CacheException {
-        if(!mappingCache.containsKey(rangeId)){
-            createRangeCache(rangeId);
-        }
-        return mappingCache.get(rangeId).remove(macLong);
-    }
-
-    private void createRangeCache(String rangeId){
-        mappingCache.put(rangeId, cacheFactory.getCache(String.class, rangeId));
+        return getRangeCache(rangeId).remove(macLong);
     }
 
     @Override
@@ -94,7 +83,7 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
     @Override
     @DurationStatistics
     public Set<Long> getAll(String rangeId, Set<Long> macs) throws CacheException{
-        Map<Long, String> existMacs = mappingCache.get(rangeId).getAll(macs);
+        Map<Long, String> existMacs =getRangeCache(rangeId).getAll(macs);
         Set<Long> newMacs = new HashSet<>();
         for(Long mac : macs){
             if(!existMacs.containsKey(mac) || existMacs.get(mac) == null){
@@ -102,5 +91,19 @@ public class MacRangeMappingRepository implements IRangeMappingRepository {
             }
         }
         return newMacs;
+    }
+
+    @Override
+    public void putAll(String rangeId, Map<Long, String> entries) throws CacheException {
+        getRangeCache(rangeId).putAll(entries);
+    }
+
+    private ICache<Long, String> getRangeCache(String rangeId){
+        ICache<Long, String> cache = mappingCache.get(rangeId);
+        if (cache == null) {
+            mappingCache.putIfAbsent(rangeId, cacheFactory.getCache(String.class, rangeId));
+            cache = mappingCache.get(rangeId);
+        }
+        return cache;
     }
 }

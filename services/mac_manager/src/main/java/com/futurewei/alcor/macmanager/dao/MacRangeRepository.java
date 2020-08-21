@@ -27,6 +27,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -157,5 +158,10 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
     @DurationStatistics
     public Boolean contains(String key) throws CacheException {
         return cache.containsKey(key);
+    }
+
+    @Override
+    public void addAllItem(Map<String, MacRange> newItems) throws CacheException {
+        cache.putAll(newItems);
     }
 }
