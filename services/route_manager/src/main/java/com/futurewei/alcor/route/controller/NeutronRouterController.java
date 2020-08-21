@@ -24,8 +24,6 @@ import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.Router;
 import com.futurewei.alcor.web.entity.route.RouterWebJson;
 import com.futurewei.alcor.web.entity.route.RoutersWebJson;
-import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;

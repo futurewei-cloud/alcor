@@ -29,7 +29,6 @@ import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import com.futurewei.alcor.web.entity.route.Router;
 import com.futurewei.alcor.web.entity.route.RouterWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
@@ -438,7 +437,7 @@ public class VpcController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            VpcWebRequestObject vpcWebRequestObject = resource.getNetwork();
+            VpcWebRequest vpcWebRequestObject = resource.getNetwork();
             BeanUtils.copyProperties(vpcWebRequestObject, inVpcState);
             RestPreconditionsUtil.verifyResourceNotNull(inVpcState);
             RestPreconditionsUtil.populateResourceProjectId(inVpcState, projectid);
