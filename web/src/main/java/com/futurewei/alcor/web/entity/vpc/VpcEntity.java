@@ -3,9 +3,8 @@ package com.futurewei.alcor.web.entity.vpc;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
 import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
