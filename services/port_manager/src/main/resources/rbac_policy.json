@@ -53,7 +53,7 @@
           "name": "allowed_address_pairs",
           "description": "Specify ''allowed_address_pairs'' attribute when creating a port",
           "rule_type": "admin_or_owner",
-          "roles": ["admin"]
+          "roles": []
         }
       ]
     },
@@ -149,7 +149,7 @@
           "name": "allowed_address_pairs",
           "description": "Update ''allowed_address_pairs'' attribute of a port",
           "rule_type": "admin_or_owner",
-          "roles": ["admin"]
+          "roles": []
         }
       ]
     },

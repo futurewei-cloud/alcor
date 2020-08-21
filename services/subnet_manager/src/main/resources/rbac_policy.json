@@ -5,7 +5,7 @@
       "method_type": "POST",
       "description": "Create a subnet",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": [],
       "field_rbac_rules": [
         {
           "name": "service_types",
@@ -26,7 +26,7 @@
       "method_type": "GET",
       "description": "Get or list subnet",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": [],
       "field_rbac_rules": [
         {
           "name": "segment_id",
@@ -41,7 +41,7 @@
       "method_type": "PUT",
       "description": "Update a subnet",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": [],
       "field_rbac_rules": [
         {
           "name": "service_types",
@@ -62,7 +62,7 @@
       "method_type": "DELETE",
       "description": "Delete a vpc",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     }
   ]
 }

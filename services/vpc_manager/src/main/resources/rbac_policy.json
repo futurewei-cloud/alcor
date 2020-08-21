@@ -62,7 +62,7 @@
       "method_type": "GET",
       "description": "Get or list vpc",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": [],
       "field_rbac_rules": [
         {
           "name": "router:external",
@@ -101,7 +101,7 @@
       "method_type": "PUT",
       "description": "Update a vpc",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"],
+      "roles": [],
       "field_rbac_rules": [
         {
           "name": "shared",
@@ -149,7 +149,7 @@
           "name": "port_security_enabled",
           "description": "Update ''port_security_enabled'' attribute of a vpc",
           "rule_type": "admin_or_owner",
-          "roles": ["admin"]
+          "roles": []
         }
       ]
     },
@@ -158,7 +158,7 @@
       "method_type": "DELETE",
       "description": "Delete a vpc",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     }
   ]
 }

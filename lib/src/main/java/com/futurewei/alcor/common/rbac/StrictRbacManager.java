@@ -204,8 +204,8 @@ public class StrictRbacManager implements RbacManger {
     private boolean checkRule(String ruleType, List<String> tokenRoles, List<String> ruleRoles,
                               OwnerChecker ownerChecker) {
         // rule roles is empty, so every role can be ok
-        if (ruleRoles == null || ruleRoles.isEmpty()) {
-            return true;
+        if (ruleRoles == null) {
+            ruleRoles = Collections.emptyList();
         }
 
         // token roles is empty, but rule need some role, return false directly
@@ -220,9 +220,9 @@ public class StrictRbacManager implements RbacManger {
         } else if (RuleType.ADMIN_OR_OWNER.equals(ruleType)) {
             return tokenRoles.contains(ADMIN_ROLE_NAME) || ownerChecker.apply();
         } else if (RuleType.MUlTI_ROLES.equals(ruleType)) {
-            return ruleRoles.stream().anyMatch(tokenRoles::contains);
+            return ruleRoles.isEmpty() || ruleRoles.stream().anyMatch(tokenRoles::contains);
         } else if (RuleType.MUlTI_ROLES_OR_OWNER.equals(ruleType)) {
-            return ruleRoles.stream().anyMatch(tokenRoles::contains) || ownerChecker.apply();
+            return ruleRoles.isEmpty() || ruleRoles.stream().anyMatch(tokenRoles::contains) || ownerChecker.apply();
         } else {
             // maybe rule defined error, this can't block, return true
             LOG.warn("unknown defined rbac rule type {}", ruleType);

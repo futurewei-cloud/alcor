@@ -20,21 +20,21 @@
       "method_type": "GET",
       "description": "Get or list eip",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "update_eip",
       "method_type": "PUT",
       "description": "Update a eip",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "delete_eip",
       "method_type": "DELETE",
       "description": "Delete a eip",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     }
   ]
 }

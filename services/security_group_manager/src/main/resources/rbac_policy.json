@@ -5,7 +5,7 @@
       "method_type": "POST",
       "description": "Create a security group",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "get_security_group",
@@ -19,35 +19,35 @@
       "method_type": "PUT",
       "description": "Update a security group",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "delete_security_group",
       "method_type": "DELETE",
       "description": "Delete a security group",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "create_security_group_rule",
       "method_type": "POST",
       "description": "Create a security group rule",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "get_security_group_rule",
       "method_type": "GET",
       "description": "Get or list security group rule",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     },
     {
       "name": "delete_security_group_rule",
       "method_type": "DELETE",
       "description": "Delete a security group rule",
       "rule_type": "admin_or_owner",
-      "roles": ["admin"]
+      "roles": []
     }
   ]
 }
