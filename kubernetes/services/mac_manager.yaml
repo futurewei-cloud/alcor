@@ -14,6 +14,10 @@ data:
     ignite.trust-store-password=123456
     macmanager.oui = AA-BB-CC
     macmanager.retrylimit = 1000
+    macmanager.pool.low-request-numbers=10
+    macmanager.pool.middle-request-numbers=20
+    macmanager.pool.high-request-numbers=60
+    macmanager.pool.top-request-numbers=400
 ---
 apiVersion: apps/v1
 kind: Deployment
