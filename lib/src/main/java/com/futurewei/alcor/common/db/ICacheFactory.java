@@ -46,4 +46,6 @@ public interface ICacheFactory {
      * @return IDistributedLock
      */
     <T> IDistributedLock getDistributedLock(Class<T> t);
+
+    Transaction getTransaction();
 }

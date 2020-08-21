@@ -29,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -83,11 +84,8 @@ public class MockIgniteServer {
     }
 
     public static Ignite getIgnite(){
-        if(igniteServer == null){
-            // if no need create a real ignite server, we return a mock Ignite client
-            return new IgniteNodeClientMock();
-        }
-        return igniteServer;
+        // if no need create a real ignite server, we return a mock Ignite client
+        return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
     }
 
     /**
@@ -104,7 +102,7 @@ public class MockIgniteServer {
         }
 
         @Override
-        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> var1) {
+        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> cacheCfg) {
             return new IgniteCacheProxyImpl();
         }
     }

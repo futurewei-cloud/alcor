@@ -14,8 +14,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.macmanager.exception;
 
+import com.futurewei.alcor.macmanager.utils.MacManagerConstant;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION)
 public class MacAddressUniquenessViolationException extends Exception {
     public MacAddressUniquenessViolationException() {
+        super(MacManagerConstant.MAC_EXCEPTION_UNIQUENESSSS_VILOATION);
     }
 
     public MacAddressUniquenessViolationException(String message) {
