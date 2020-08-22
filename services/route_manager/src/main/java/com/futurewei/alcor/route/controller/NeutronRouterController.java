@@ -185,13 +185,13 @@ public class NeutronRouterController {
             // TODO: check resource
 
             neutronRouterWebRequestObject = resource.getRouter();
-            RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
             String id = neutronRouterWebRequestObject.getId();
 
             if (id == null || StringUtils.isEmpty(id)) {
                 UUID vpcId = UUID.randomUUID();
                 neutronRouterWebRequestObject.setId(vpcId.toString());
             }
+            RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
 
             // TODO: configure default value
 

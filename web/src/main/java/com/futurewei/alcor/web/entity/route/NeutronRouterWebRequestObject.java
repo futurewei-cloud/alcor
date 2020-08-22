@@ -46,7 +46,7 @@ public class NeutronRouterWebRequestObject extends CustomerResource {
     @JsonProperty("status")
     private String status;
 
-    @JsonProperty("status")
+    @JsonProperty("external_gateway_info")
     private ExternalGateway external_gateway_info;
 
     @JsonProperty("revision_number")
