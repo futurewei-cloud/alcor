@@ -557,8 +557,8 @@ anchor:neutron_router_del[]
 * Method: `DELETE`
 * Request: `/project/{projectid}/routers/{routerid}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
-* Action: Deletes a logical router and, if present, its external gateway interface. (need to talk PM about the port,
-router only has gateway ip and subnet_id)
+* Action: Deletes a logical router and, if present, its external gateway interface. (#need to talk PM about the port,
+router only has gateway ip and subnet_id#)
 This operation fails if the router has attached interfaces.
 * Response: ResponseId
 * Normal response codes: 200
@@ -583,14 +583,14 @@ anchor:neutron_router_add_interface[]
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
 * Details: Specify the ID of a subnet or port in the request body:
-** Subnet ID. The gateway IP address for the subnet is used as an IP address of the created router interface.
-** Port ID. The IP address associated with the port is used as an IP address of the created router interface.
+** Subnet ID. The gateway IP address for the subnet is used as an IP address of the created router interface. (#need to get gw port id#)
+** Port ID. The IP address associated with the port is used as an IP address of the created router interface. (#PM need to know is the port has been used#)
 If a port with the same network ID does not exist, this operation creates a port on the router for that subnet.
 * Response: If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
-If the port is already in use, this operation returns the Conflict (409) response code. If no error,
-the same ID that is passed in the request body when a port is specified or
+If the port is already in use, this operation returns the Conflict (409) response code. (#PM need to provide this information#)
+If no error, the same ID that is passed in the request body when a port is specified or
 the ID of a port that this operation creates to attach the subnet to the router will be returned.
-* Others: After you run this operation, the operation sets:
+* Others: After you run this operation, the operation sets: (#notify PM to do that#)
 ** The **device_id** attribute of this port to the router ID
 ** The **device_owner** attribute to **network:router_interface**
 * Example
@@ -644,6 +644,35 @@ the ID of a port that this operation creates to attach the subnet to the router 
 ** The **device_id** attribute of this port to the router ID
 ** The **device_owner** attribute to **network:router_interface**
 * Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_router_interface
+
+Body:
+{
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"
+}
+
+or
+
+{
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0"
+}
+
+Response:
+{
+    "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+    "network_id": "91c013e2-d65a-474e-9177-c3e1799ca726",
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0",
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1",
+    "subnet_ids": [
+        "a2f1f29d-571b-4533-907f-5803ab96ead1"
+    ],
+    "project_id": "0bd18306d801447bb457a46252d82d13",
+    "tenant_id": "0bd18306d801447bb457a46252d82d13",
+    "tags": ["tag1,tag2"]
+}
+....
 
 anchor:VpcState_Get2[]
 **(1) Get/Verify VPC state by Project Id**
