@@ -342,8 +342,10 @@ anchor:neutron_routers_post[]
 * Method: `POST`
 * Request: `/project/{projectid}/routers`
 * Request Parameter: `@PathVariable String projectid, @RequestBody RouterWebRequestJson resource`
-* Action: Creates a logical router. The logical router does not have any internal interface
-and it is not associated with any subnet. You can optionally specify an external gateway for a router at create time.
+* Operation: Creates a logical router. The logical router does not have any internal interface
+and it is not associated with any subnet.
+*** You can optionally specify an external gateway for a router at create time.
+Need to update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager,
 * Response: Router's state
 * Normal response codes: 201
 * Error response codes: 400, 401, 404, 500, 503
@@ -476,7 +478,10 @@ anchor:neutron_router_put[]
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody RouterWebRequestJson resource`
-* Action: Updates a logical router. This operation does not enable the update of router interfaces.
+* Operation: Updates a logical router. This operation does not enable the update of router's internal interfaces.
+** If the update include an external gateway for the router,
+the operation need to ask Subnet Manager to update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager,
+** If the update include routes, the existing all routes will be replaced by new routes.
 * Response: Router's state
 * Normal response codes: 201
 * Error response codes: 400, 401, 404, 500, 503
@@ -557,9 +562,9 @@ anchor:neutron_router_del[]
 * Method: `DELETE`
 * Request: `/project/{projectid}/routers/{routerid}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
-* Action: Deletes a logical router and, if present, its external gateway interface. (#need to talk PM about the port,
-router only has gateway ip and subnet_id#)
-This operation fails if the router has attached interfaces.
+* Operation: Deletes a logical router.
+** If external gateway interface presents, ask Subnet Manager to unattach the gateway port (reset port's **device_id** attributes).
+** This operation fails if the router has attached internal interfaces.
 * Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 404, 500
@@ -578,21 +583,21 @@ anchor:neutron_router_add_interface[]
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/add_router_interface`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
-* Action: Adds an internal interface to a logical router.
+* Operation: Adds an internal interface to a logical router.
+** Specify the ID of a subnet or port in the request body:
+*** _Subnet ID_. Ask Subnet Manager about the gateway IP address for the subnet and its port id.
+*** _Port ID_. Ask Subnet Manager about the gateway IP address associated with the port and it's subnet id.
+If a port with the same network ID does not exist, this operation will ask Subnet Manager to create a port and attach it to the router.
+** After you run this operation, the operation ask Subnet Manager to update the following attributes for the port:
+*** The **device_id** attribute of this port to the router ID
+*** The **device_owner** attribute to **network:router_interface**
+** If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
+** If the port is already in use (ask Subnet Manager), this operation returns the Conflict (409) response code.
+** If no error, the same ID that is passed in the request body when a port is specified or
+the ID of a port that this operation creates to attach the subnet to the router will be returned.
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
-* Details: Specify the ID of a subnet or port in the request body:
-** Subnet ID. The gateway IP address for the subnet is used as an IP address of the created router interface. (#need to get gw port id#)
-** Port ID. The IP address associated with the port is used as an IP address of the created router interface. (#PM need to know is the port has been used#)
-If a port with the same network ID does not exist, this operation creates a port on the router for that subnet.
-* Response: If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
-If the port is already in use, this operation returns the Conflict (409) response code. (#PM need to provide this information#)
-If no error, the same ID that is passed in the request body when a port is specified or
-the ID of a port that this operation creates to attach the subnet to the router will be returned.
-* Others: After you run this operation, the operation sets: (#notify PM to do that#)
-** The **device_id** attribute of this port to the router ID
-** The **device_owner** attribute to **network:router_interface**
 * Example
 ....
 http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_router_interface
@@ -628,21 +633,21 @@ anchor:neutron_router_rm_interface[]
 
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/remove_router_interface`
-* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
-* Action: Delete an internal router interface, which detach a subnet from the router.
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Delete an internal router interface, which detach a subnet from the router.
+** You must specify either a subnet ID or port ID in the request body; the operation uses this value to identify which router interface to delete.
+** After you run this operation,
+**  If you specify both subnet ID and port ID, the subnet ID must correspond to the subnet ID of the first IP address on the port.
+Otherwise, this operation returns the Conflict (409).
+** If you try to delete the router interface for subnets that are used by one or more **routes**, this operation returns the Conflict (409) response code.
+** If the router or the subnet and port do not exist or are not visible to you, this operation returns the **Not Found (404)** response code.
+** As a consequence of this operation, the operation removes the port connecting the router with the subnet from the subnet for the network.
+The operation ask Subnet Manager to reset he following attributes for the port:
+*** **device_id** attribute
+*** **device_owner** attribute
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
-* Details: You must specify either a subnet ID or port ID in the request body; the operation uses this value to identify which router interface to delete.
-If this subnet ID is the last subnet on the port, this operation deletes the port itself.
-* Response: If you specify both subnet ID and port ID, the subnet ID must correspond to the subnet ID of the first IP address on the port.
-Otherwise, this operation returns the Conflict (409).
-If the port is already in use, this operation returns the Conflict (409) response code. If no error,
-the same ID that is passed in the request body when a port is specified or
-the ID of a port that this operation creates to attach the subnet to the router will be returned.
-* Others: After you run this operation, the operation sets:
-** The **device_id** attribute of this port to the router ID
-** The **device_owner** attribute to **network:router_interface**
 * Example
 
 ....
@@ -674,28 +679,90 @@ Response:
 }
 ....
 
-anchor:VpcState_Get2[]
-**(1) Get/Verify VPC state by Project Id**
+anchor:neutron_router_add_routes[]
+**(8) Add routes to Neutron router**
 
 * Method: `GET`
-
-* Request: `/project/{projectid}/vpcs`
-
-* Request Parameter: `@PathVariable String projectid`
-
-* Response: map
+* Request: `/project/{projectid}/routers/{routerid}/add_extra_routes`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Atomically adds a set of extra routes to the router’s already existing extra routes.
+** When (destinationA, nexthopA) is to be added but it is already present that is accepted and the request succeeds.
+** Two or more routes with the same destination but with different nexthops are all accepted.
+** A route whose destination overlaps the destination of existing routes (e.g. 192.168.1.0/24 and 192.168.1.0/22) can be added and existing routes are left untouched.
+* Response: Router's state
 * Normal response codes: 200
-* Error response codes: 400, 404, 500
-
+* Error response codes: 400, 401, 404, 412, 500
 * Example
 
 ....
-Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_extra_routes
+
+Body:
+{
+   "router" : {
+      "routes" : [
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
 
 Response:
-Map<String, VpcWebResponseObject> vpcStates
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
 ....
+
+anchor:neutron_router_rm_routes[]
+**(8) Remove routes from Neutron router**
+
+* Method: `GET`
+* Request: `/project/{projectid}/routers/{routerid}/remove_extra_routes`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Atomically removes a set of extra routes from the router’s already existing extra routes.
+** An extra route is only removed if there is an exact match (including the destination and nexthop) between the route sent and the route already present.
+** When (destinationA, nexthopA) is to be removed but it is already missing that is accepted and the request succeeds.
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/remove_extra_routes
+
+Body:
+{
+   "router" : {
+      "routes" : [
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
+
+Response:
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" }
+      ]
+   }
+}
+....
+
+
 
 == Concurrency Handling
 When creating segments, we need to concurrently create instances of network type (vlan, vxlan, gre), and multiple instances may assign their key Id.
