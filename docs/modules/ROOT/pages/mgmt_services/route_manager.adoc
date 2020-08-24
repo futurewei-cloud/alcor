@@ -413,7 +413,7 @@ anchor:neutron_router_get[]
 
 * Method: `GET`
 * Request: `/project/{projectid}/routers/{routerid}`
-* Request Parameter: `@PathVariable String projectid`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
 * Action: Shows details for a router
 * Response: Router state
 * Normal response codes: 200
@@ -475,7 +475,7 @@ anchor:neutron_router_put[]
 
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}`
-* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody RouterWebRequestJson resource`
 * Action: Updates a logical router. This operation does not enable the update of router interfaces.
 * Response: Router's state
 * Normal response codes: 201
@@ -556,8 +556,9 @@ anchor:neutron_router_del[]
 
 * Method: `DELETE`
 * Request: `/project/{projectid}/routers/{routerid}`
-* Request Parameter: `@PathVariable String projectid`
-* Action: Deletes a logical router and, if present, its external gateway interface.
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
+* Action: Deletes a logical router and, if present, its external gateway interface. (need to talk PM about the port,
+router only has gateway ip and subnet_id)
 This operation fails if the router has attached interfaces.
 * Response: ResponseId
 * Normal response codes: 200
@@ -576,7 +577,7 @@ anchor:neutron_router_add_interface[]
 
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/add_router_interface`
-* Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
 * Action: Adds an internal interface to a logical router.
 * Response: Router's state
 * Normal response codes: 200
@@ -628,13 +629,14 @@ anchor:neutron_router_rm_interface[]
 * Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/remove_router_interface`
 * Request Parameter: `@PathVariable String projectid, @RequestBody VpcsWebJson resource`
-* Action: Delete an internal router interface, which detach a subnet from the router.Adds an internal interface to a logical router.
+* Action: Delete an internal router interface, which detach a subnet from the router.
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
 * Details: You must specify either a subnet ID or port ID in the request body; the operation uses this value to identify which router interface to delete.
 If this subnet ID is the last subnet on the port, this operation deletes the port itself.
-* Response: If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
+* Response: If you specify both subnet ID and port ID, the subnet ID must correspond to the subnet ID of the first IP address on the port.
+Otherwise, this operation returns the Conflict (409).
 If the port is already in use, this operation returns the Conflict (409) response code. If no error,
 the same ID that is passed in the request body when a port is specified or
 the ID of a port that this operation creates to attach the subnet to the router will be returned.
