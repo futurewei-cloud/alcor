@@ -15,13 +15,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service;
 
+import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.exception.CanNotFindRouter;
+import com.futurewei.alcor.route.exception.NeutronRouterIsNull;
 import com.futurewei.alcor.web.entity.route.NeutronRouterWebRequestObject;
 
 public interface NeutronRouterService {
 
     public NeutronRouterWebRequestObject getNeutronRouter (String routerId) throws ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter;
-
+    public void saveRouterAndRouterExtraAttribute (NeutronRouterWebRequestObject neutronRouter) throws NeutronRouterIsNull, DatabasePersistenceException;
 }

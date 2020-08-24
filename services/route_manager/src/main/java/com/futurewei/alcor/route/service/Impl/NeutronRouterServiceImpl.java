@@ -15,21 +15,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.exception.CanNotFindRouter;
+import com.futurewei.alcor.route.exception.NeutronRouterIsNull;
 import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
-import com.futurewei.alcor.web.entity.route.NeutronRouterWebJson;
-import com.futurewei.alcor.web.entity.route.NeutronRouterWebRequestObject;
-import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.route.RouterExtraAttribute;
+import com.futurewei.alcor.web.entity.route.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class NeutronRouterServiceImpl implements NeutronRouterService {
@@ -54,10 +55,31 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         RouterExtraAttribute routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
 
         BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
+        List<RouteTable> routeTables = router.getRouteTables();
+        neutronRouterWebRequestObject.setRouteTables(routeTables);
         if (routerExtraAttribute != null) {
             BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
         }
         return neutronRouterWebRequestObject;
+    }
+
+    @Override
+    public void saveRouterAndRouterExtraAttribute(NeutronRouterWebRequestObject neutronRouter) throws NeutronRouterIsNull, DatabasePersistenceException {
+        if (neutronRouter == null) {
+            throw new NeutronRouterIsNull();
+        }
+
+        Router router = new Router();
+        RouterExtraAttribute routerExtraAttribute = new RouterExtraAttribute();
+
+        BeanUtils.copyProperties(neutronRouter, router);
+        BeanUtils.copyProperties(neutronRouter, routerExtraAttribute);
+        List<RouteTable> routeTables = neutronRouter.getRouteTables();
+        router.setRouteTables(routeTables);
+
+        this.routerDatabaseService.addRouter(router);
+        this.routerExtraAttributeDatabaseService.addRouterExtraAttribute(routerExtraAttribute);
+
     }
 
 }
