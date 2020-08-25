@@ -38,6 +38,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class NeutronRouterServiceImpl implements NeutronRouterService {
@@ -81,13 +82,17 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new NeutronRouterIsNull();
         }
 
+        String attachedRouterExtraAttributeId = UUID.randomUUID().toString();
+
         Router router = new Router();
         RouterExtraAttribute routerExtraAttribute = new RouterExtraAttribute();
 
         BeanUtils.copyProperties(neutronRouter, router);
         BeanUtils.copyProperties(neutronRouter, routerExtraAttribute);
+        routerExtraAttribute.setId(attachedRouterExtraAttributeId);
         RouteTable routeTable = neutronRouter.getRouteTable();
         router.setRouteTable(routeTable);
+        router.setRouterExtraAttributeId(attachedRouterExtraAttributeId);
 
         this.routerDatabaseService.addRouter(router);
         this.routerExtraAttributeDatabaseService.addRouterExtraAttribute(routerExtraAttribute);
@@ -108,7 +113,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // Only pass in the value of the port
         if (portId != null && subnetId == null) {
 
-            // 通过port id 找到 subnet
+            // get subnet by port id
             SubnetsWebJson subnetsWebJson = getSubnetsByPortId(portId);
             if (subnetsWebJson == null) {
                 return new RouterInterfaceResponse();
@@ -136,13 +141,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         port = subnet.getPortId();
         attachedRouterId = subnet.getAttachedRouterId();
 
-        // check port_id是否已经被其它router使用
+        // check if port_id is used by other router
         if (attachedRouterId != null) {
             throw new PortIsAlreadyInUse();
         }
         subnet.setAttachedRouterId(routerId);
 
-        // update 两个device fields
+        // update device_id and device_owner
         PortEntity portEntity = new PortEntity();
         portEntity.setDeviceId(routerId);
         portEntity.setDeviceOwner("network:router_interface");
@@ -164,7 +169,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         router.setPorts(ports);
         this.routerDatabaseService.addRouter(router);
 
-        // 构造 response
+        // Construct response
         List<String> subnetIds = new ArrayList<>(){{add(subnetId);}};
         return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetId, subnetIds, projectId, projectId, subnet.getTags());
     }
@@ -176,7 +181,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         String attachedPort = null;
         String attachedRouterId = null;
 
-        // 如果两个一起传，检查是否有冲突
+        // if pass in both port_id and subnet_id, check conflict
         if (portId != null && subnetId != null) {
             SubnetWebJson subnetWebJson = getSubnet(subnetId);
             if (subnetWebJson == null) {
@@ -195,7 +200,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             }
 
         }else if (portId != null && subnetId == null) {
-            // 通过port id 找到 subnet
+            // get subnet by port id
             SubnetsWebJson subnetsWebJson = getSubnetsByPortId(portId);
             if (subnetsWebJson == null) {
                 return new RouterInterfaceResponse();
@@ -217,13 +222,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             return new RouterInterfaceResponse();
         }
 
-        // 第二个 check
+        // check if the router or the subnet and port do not exist or are not visible
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {
             throw new RouterOrSubnetAndPortNotExistOrNotVisible();
         }
 
-        // 第三个check
+        // check if you try to delete the router interface for subnets that are used by one or more route
         projectId = subnet.getProjectId();
         attachedRouterId = subnet.getAttachedRouterId();
         String gatewayIp = subnet.getGatewayIp();
@@ -246,7 +251,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // remove interface
         subnet.setPortId(null);
 
-        // update 两个device fields
+        // update device_id and device_owner
         PortEntity portEntity = new PortEntity();
         portEntity.setDeviceId(routerId);
         portEntity.setDeviceOwner("network:router_interface");
@@ -255,7 +260,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // update subnet
         updateSubnet(projectId, subnetId, subnet);
 
-        // 构造 response
+        // Construct response
         List<String> subnetIds = new ArrayList<>(){{add(subnetId);}};
         return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetId, subnetIds, projectId, projectId, subnet.getTags());
 
@@ -306,7 +311,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         router.setRouteTable(routeTable);
         this.routerDatabaseService.addRouter(router);
 
-        // 构造 response
+        // Construct response
         for (RouteEntry routeEntry : routeEntities) {
             String destination = routeEntry.getDestination();
             String nexthop = routeEntry.getNexthop();
@@ -355,7 +360,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         router.setRouteTable(routeTable);
         this.routerDatabaseService.addRouter(router);
 
-        // 构造 response
+        // Construct response
         for (RouteEntry routeEntry : routeEntities) {
             String destination = routeEntry.getDestination();
             String nexthop = routeEntry.getNexthop();
