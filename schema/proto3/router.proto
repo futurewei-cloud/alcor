@@ -29,8 +29,24 @@ message RouterConfiguration {
 
     string request_id = 3;
     string id = 4;
-    string host_dvr_mac_address = 5;
-    repeated string subnet_ids = 6;
+    MessageType message_type = 5; // DELTA (default) or FULL
+    string host_dvr_mac_address = 6;
+
+    message RoutingRule {
+        OperationType operation_type = 1;
+        string id = 2;
+        string name = 3;
+        string destination = 4;
+        string nextHop = 5;
+        uint32 priority = 6;
+    }
+
+    message SubnetRoutingTable {
+        string subnet_id = 1;
+        repeated RoutingRule routing_rules = 2;
+    }
+
+    repeated SubnetRoutingTable subnet_routing_tables = 7;
 }
 
 message RouterState {
