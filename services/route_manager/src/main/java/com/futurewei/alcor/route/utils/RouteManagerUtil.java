@@ -77,16 +77,6 @@ public class RouteManagerUtil {
             response.setAvailabilityZones(availabilityZones);
         }
 
-        // create_at and update_at
-        Date currentTime = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = formatter.format(currentTime);
-
-        String utc = DateUtil.localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
-
-        response.setCreated_at(utc);
-        response.setUpdated_at(utc);
-
         // revision_number
         Integer revisionNumber = response.getRevisionNumber();
         if (revisionNumber == null || revisionNumber < 1) {
