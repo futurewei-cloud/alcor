@@ -27,7 +27,7 @@ import java.util.List;
 public class Router extends CustomerResource {
 
     @JsonProperty("routetable")
-    private List<RouteTable> routeTables;
+    private RouteTable routeTable;
 
     // store vpc_id
     @JsonProperty("owner")
@@ -60,14 +60,14 @@ public class Router extends CustomerResource {
 
     public Router() {}
 
-    public Router(String projectId, String Id, String name, String description, List<RouteTable> routeTables) {
+    public Router(String projectId, String Id, String name, String description, RouteTable routeTable) {
         super(projectId, Id, name, description);
-        this.routeTables = routeTables;
+        this.routeTable = routeTable;
     }
 
-    public Router(String projectId, String id, String name, String description, List<RouteTable> routeTables, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
+    public Router(String projectId, String id, String name, String description, RouteTable routeTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
         super(projectId, id, name, description);
-        this.routeTables = routeTables;
+        this.routeTable = routeTable;
         this.owner = owner;
         this.ports = ports;
         this.tenantId = tenantId;

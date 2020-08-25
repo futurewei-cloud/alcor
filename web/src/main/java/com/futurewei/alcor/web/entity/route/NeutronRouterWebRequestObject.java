@@ -27,13 +27,13 @@ import java.util.List;
 public class NeutronRouterWebRequestObject extends CustomerResource {
 
     @JsonProperty("routetable")
-    private List<RouteTable> routeTables;
+    private RouteTable routeTable;
 
     // store vpc_id
     @JsonProperty("owner")
     private String owner;
 
-    // store subnet_gateway_port_id
+    // store subnet_gateway_port_id / interface
     @JsonProperty("ports")
     private List<String> ports;
 
@@ -76,19 +76,11 @@ public class NeutronRouterWebRequestObject extends CustomerResource {
     @JsonProperty("conntrack_helpers")
     private List<String> conntrackHelpers;
 
-    @CreatedDate
-    @JsonProperty("created_at")
-    private String created_at;
-
-    @LastModifiedDate
-    @JsonProperty("updated_at")
-    private String updated_at;
-
     public NeutronRouterWebRequestObject () {}
 
-    public NeutronRouterWebRequestObject(String projectId, String id, String name, String description, List<RouteTable> routeTables, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, ExternalGateway external_gateway_info, Integer revisionNumber, boolean distributed, boolean ha, List<String> availabilityZoneHints, List<String> availabilityZones, String serviceTypeId, String flavorId, List<String> tags, List<String> conntrackHelpers, String created_at, String updated_at) {
+    public NeutronRouterWebRequestObject(String projectId, String id, String name, String description, RouteTable routeTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, ExternalGateway external_gateway_info, Integer revisionNumber, boolean distributed, boolean ha, List<String> availabilityZoneHints, List<String> availabilityZones, String serviceTypeId, String flavorId, List<String> tags, List<String> conntrackHelpers) {
         super(projectId, id, name, description);
-        this.routeTables = routeTables;
+        this.routeTable = routeTable;
         this.owner = owner;
         this.ports = ports;
         this.tenantId = tenantId;
@@ -104,7 +96,5 @@ public class NeutronRouterWebRequestObject extends CustomerResource {
         this.flavorId = flavorId;
         this.tags = tags;
         this.conntrackHelpers = conntrackHelpers;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
     }
 }

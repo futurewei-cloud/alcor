@@ -9,8 +9,6 @@ public interface VpcService {
 
     public RouteWebJson getRoute (String vpcId, VpcEntity vpcState);
 
-    public RouterWebJson getRoute_test (String routerId, String routeTableId, VpcEntity vpcState);
-
     public VpcEntity allocateSegmentForNetwork (VpcEntity vpcEntity) throws Exception;
 
     public boolean checkSubnetsAreEmpty (VpcEntity vpcEntity) throws SubnetsNotEmptyException;

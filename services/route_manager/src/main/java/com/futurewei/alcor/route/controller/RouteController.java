@@ -279,9 +279,7 @@ public class RouteController {
             routeEntries.add(routeEntry);
             routeTable = new RouteTable(projectId, routerId, "default_route_table", "",routeEntries, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE,vpcId);
 
-            List<RouteTable> routeTables = new ArrayList<>();
-            routeTables.add(routeTable);
-            router = new Router(projectId, routeTableId, "default_router", "",routeTables);
+            router = new Router(projectId, routeTableId, "default_router", "", routeTable);
 
             //this.routeDatabaseService.addRoute(routeEntity);
 

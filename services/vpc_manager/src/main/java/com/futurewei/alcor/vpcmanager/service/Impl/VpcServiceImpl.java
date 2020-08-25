@@ -48,14 +48,6 @@ public class VpcServiceImpl implements VpcService {
         return response;
     }
 
-    @Override
-    public RouterWebJson getRoute_test(String routerId, String routeTableId, VpcEntity vpcState) {
-        String routeManagerServiceUrl = routeUrl + "/routers/" + routerId + "/routetable/" + routeTableId;
-        HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
-        RouterWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouterWebJson.class);
-        return response;
-    }
-
     /**
      * Allocate a segment for the network
      * @param vpcEntity

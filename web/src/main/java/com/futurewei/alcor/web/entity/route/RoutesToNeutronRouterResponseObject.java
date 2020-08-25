@@ -16,31 +16,27 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.route;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.common.enumClass.RouteTableType;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class RouteTable extends CustomerResource {
+public class RoutesToNeutronRouterResponseObject {
+
+    @JsonProperty("id")
+    private String id;
+
+    @JsonProperty("name")
+    private String name;
 
     @JsonProperty("routes")
-    private List<RouteEntry> routeEntities;
+    private List<RoutesToNeutronRouteObject> routes;
 
-    @JsonProperty("route_table_type")
-    private RouteTableType routeTableType;
+    public RoutesToNeutronRouterResponseObject () {}
 
-    // store subnet_id / vpc_id
-    @JsonProperty("owner")
-    private String owner;
-
-    public RouteTable () {}
-
-    public RouteTable(String projectId, String id, String name, String description, List<RouteEntry> routeEntities, RouteTableType routeTableType, String owner) {
-        super(projectId, id, name, description);
-        this.routeEntities = routeEntities;
-        this.routeTableType = routeTableType;
-        this.owner = owner;
+    public RoutesToNeutronRouterResponseObject(String id, String name, List<RoutesToNeutronRouteObject> routes) {
+        this.id = id;
+        this.name = name;
+        this.routes = routes;
     }
 }

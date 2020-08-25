@@ -13,43 +13,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
 package com.futurewei.alcor.web.entity.route;
 
-import com.futurewei.alcor.common.entity.CustomerResource;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class RouteEntry extends CustomerResource {
+public class RoutesToNeutronRouteObject {
 
-    @NotNull
+    @JsonProperty("destination")
     private String destination;
 
-    @NotNull
-    private String target;
-
-    @NotNull
-    private Integer priority;
-
-    @NotNull
-    private String routeTableId;
-
     // gateway_ip_address
-    @NotNull
+    @JsonProperty("nexthop")
     private String nexthop;
 
-    public RouteEntry() {
+    public RoutesToNeutronRouteObject() {}
 
-    }
-
-    public RouteEntry(String projectId, String Id, String name, String description,
-                       String destination, String target, Integer priority, String routeTableId, String nexthop) {
-        super(projectId, Id, name, description);
+    public RoutesToNeutronRouteObject(String destination, String nexthop) {
         this.destination = destination;
-        this.target = target;
-        this.priority = priority;
-        this.routeTableId = routeTableId;
         this.nexthop = nexthop;
     }
 }
