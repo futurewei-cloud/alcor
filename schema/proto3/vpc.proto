@@ -23,7 +23,9 @@ option java_outer_classname = "Vpc";
 
 import "common.proto";
 
-message VpcConfiguration {  // are we ready to remove VpcState based on the current router discussion?
+// Not used based on the current design including router E2E
+// To be removed once we complete the design for all major features
+message VpcConfiguration {  
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
