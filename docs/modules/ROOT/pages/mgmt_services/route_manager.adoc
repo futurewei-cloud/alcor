@@ -10,7 +10,7 @@ The Route Manager is an Alcor microservice which manages the route tables and ro
 It also provides router-related functionalities to compatible with OpenStack Neutron's router APIs.
 Its responsibilities include but are not limited to creating, updating, deleting, and searching routers, route tables,
 and route entries resource for a Network/VPC/Subnet.
-It interacts with VPM Manager, Subnet Manager, Port Manager, and Data Plane Manager to provide route information for them.
+It interacts with VPC Manager, Subnet Manager, Port Manager, and Data Plane Manager to provide route information for them.
 
 == Service Requirements
 
@@ -36,6 +36,14 @@ image::route_manager_highlevel_design.PNG[]
 image::route_manager_service_architecture.PNG[]
 
 === Key Workflow
+
+** For case #4, add or delete a non-gateway port.
+
+image::route_manager_l3_neighbors_update_4.PNG[]
+
+** For case #5, add or delete a gateway port (for Neutron only).
+
+image::route_manager_l3_neighbors_update_5.PNG[]
 
 == Database Schema
 
@@ -106,91 +114,91 @@ image::route_manager_data_schemas.PNG[]
 |POST
 |/project/{projectid}/vpcs/{vpcid}/router
 |VPC router state
-<<VpcState_Post1,[sample]>>
+<<vpc_get_add_post,[sample]>>
 
 |Delete VPC router
 |DELETE
 |/project/{projectid}/vpcs/{vpcid}/router
 |ResponseId
-<<VpcState_Delete1,[sample]>>
+<<vpc_rm_router,[sample]>>
 
-|Get or Create VPC route table
+|Create VPC route table
 |POST
 |/project/{projectid}/vpcs/{vpcid}/routetable
 |VPC routetable state
-<<VpcState_Post1,[sample]>>
+<<vpc_add_routetable,[sample]>>
 
 |Delete VPC route table
 |DELETE
 |/project/{projectid}/vpcs/{vpcid}/routetable
 |ResponseId
-<<VpcState_Delete1,[sample]>>
+<<vpc_rm_routetable,[sample]>>
 
 |List VPC route table
 |GET
 |/project/{projectid}/vpcs/{vpcid}/routetable
 |VPC routing rules
-<<VpcState_Get1,[sample]>>
+<<vpc_list_routetable,[sample]>>
 
 |Update VPC route table
 |PUT
 |/project/{projectid}/vpcs/{vpcid}/routetable
 |VPC routing rules
-<<VpcState_Post1,[sample]>>
+<<vpc_update_routetable,[sample]>>
 
 |Show a VPC routing rule
 |GET
 |/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
 |VPC routing rule ID
-<<VpcState_Get2,[sample]>>
+<<vpc_show_routingrule,[sample]>>
 
 |Create a VPC routing rule
 |POST
 |/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
 |VPC routing rule ID
-<<VpcState_Get2,[sample]>>
+<<vpc_add_routingrule,[sample]>>
 
 |Update a VPC routing rule
 |PUT
 |/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
 |VPC routing rule ID
-<<VpcState_Get2,[sample]>>
+<<vpc_update_routingrule,[sample]>>
 
 |Delete a VPC routing rule
 |DELETE
 |/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
 |ResponseId
-<<VpcState_Delete1,[sample]>>
+<<vpc_rm_routingrule,[sample]>>
 
-|Get or Create Subnet route table
+|Create Subnet route table
 |POST
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routetable state
-<<VpcState_Get2,[sample]>>
+<<subnet_add_routetable,[sample]>>
 
 |Delete Subnet route table
 |DELETE
 |/project/{projectid}/subnets/{subnetid}/routetable
 |ResponseId
-<<VpcState_Delete1,[sample]>>
+<<subnet_rm_routetable,[sample]>>
 
 |List Subnet route table
 |GET
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routing rules
-<<VpcState_Get2,[sample]>>
+<<subnet_list_routetable,[sample]>>
 
 |Update Subnet route table
 |PUT
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routing rules
-<<VpcState_Get2,[sample]>>
+<<subnet_update_routetable,[sample]>>
 
 |Show a Subnet routing rule
 |GET
 |/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
 |Subnet routing rule ID
-<<VpcState_Get2,[sample]>>
+<<subnet_show_routingrule,[sample]>>
 
 |Create a Subnet routing rule
 |POST
@@ -479,8 +487,8 @@ anchor:neutron_router_put[]
 * Request: `/project/{projectid}/routers/{routerid}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody RouterWebRequestJson resource`
 * Operation: Updates a logical router. This operation does not enable the update of router's internal interfaces.
-** If the update include an external gateway for the router,
-the operation need to ask Subnet Manager to update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager,
+** If the update include an external gateway for the router, the operation will ask Subnet Manager to
+update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager.
 ** If the update include routes, the existing all routes will be replaced by new routes.
 * Response: Router's state
 * Normal response codes: 201
@@ -563,7 +571,7 @@ anchor:neutron_router_del[]
 * Request: `/project/{projectid}/routers/{routerid}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
 * Operation: Deletes a logical router.
-** If external gateway interface presents, ask Subnet Manager to unattach the gateway port (reset port's **device_id** attributes).
+** If external gateway interface presents, ask Subnet Manager to unattach the gateway port (reset port's **device_id** attribute).
 ** This operation fails if the router has attached internal interfaces.
 * Response: ResponseId
 * Normal response codes: 200
@@ -588,7 +596,7 @@ anchor:neutron_router_add_interface[]
 *** _Subnet ID_. Ask Subnet Manager about the gateway IP address for the subnet and its port id.
 *** _Port ID_. Ask Subnet Manager about the gateway IP address associated with the port and it's subnet id.
 If a port with the same network ID does not exist, this operation will ask Subnet Manager to create a port and attach it to the router.
-** After you run this operation, the operation ask Subnet Manager to update the following attributes for the port:
+** This operation will ask Subnet Manager to update the following attributes for the port:
 *** The **device_id** attribute of this port to the router ID
 *** The **device_owner** attribute to **network:router_interface**
 ** If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
@@ -762,7 +770,128 @@ Response:
 }
 ....
 
+anchor:neutron_routers_get[]
+**(9) List Neutron routers**
 
+* Method: `GET`
+* Request: `/project/{projectid}/routers`
+* Request Parameter: `@PathVariable String projectid`
+* Action: Lists logical routers that the project who submits the request can access.
+* Response: Routers' state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
+
+Response:
+{
+    "routers": [
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.3",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::c",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+            "name": "router2",
+            "revision_number": 1,
+            "routes": [
+                {
+                    "destination": "179.24.1.0/24",
+                    "nexthop": "172.24.3.99"
+                }
+            ],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        },
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.6",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::9",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "name": "router1",
+            "revision_number": 1,
+            "routes": [],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        }
+    ]
+}
+....
 
 == Concurrency Handling
 When creating segments, we need to concurrently create instances of network type (vlan, vxlan, gre), and multiple instances may assign their key Id.
