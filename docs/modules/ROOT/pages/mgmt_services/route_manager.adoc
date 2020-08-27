@@ -111,10 +111,10 @@ image::route_manager_data_schemas.PNG[]
 <<neutron_router_rm_routes,[sample]>>
 
 |Get or Create VPC router
-|POST
+|GET
 |/project/{projectid}/vpcs/{vpcid}/router
 |VPC router state
-<<vpc_get_add_post,[sample]>>
+<<vpc_get_add_router,[sample]>>
 
 |Delete VPC router
 |DELETE
@@ -122,34 +122,22 @@ image::route_manager_data_schemas.PNG[]
 |ResponseId
 <<vpc_rm_router,[sample]>>
 
-|Create VPC route table
-|POST
-|/project/{projectid}/vpcs/{vpcid}/routetable
-|VPC routetable state
-<<vpc_add_routetable,[sample]>>
-
-|Delete VPC route table
-|DELETE
-|/project/{projectid}/vpcs/{vpcid}/routetable
-|ResponseId
-<<vpc_rm_routetable,[sample]>>
-
-|List VPC route table
+|Get or Create VPC default route table
 |GET
-|/project/{projectid}/vpcs/{vpcid}/routetable
-|VPC routing rules
-<<vpc_list_routetable,[sample]>>
+|/project/{projectid}/vpcs/{vpcid}/vpcroutetable
+|VPC routing table state
+<<vpc_add_routetable,[sample]>>
 
 |Update VPC route table
 |PUT
-|/project/{projectid}/vpcs/{vpcid}/routetable
+|/project/{projectid}/vpcs/{vpcid}/vpcroutetable
 |VPC routing rules
 <<vpc_update_routetable,[sample]>>
 
 |Show a VPC routing rule
 |GET
 |/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule ID
+|VPC routing rule state
 <<vpc_show_routingrule,[sample]>>
 
 |Create a VPC routing rule
@@ -170,8 +158,20 @@ image::route_manager_data_schemas.PNG[]
 |ResponseId
 <<vpc_rm_routingrule,[sample]>>
 
-|Create Subnet route table
-|POST
+|List all routing tables in VPC
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routetables
+|List of routing tables
+<<vpc_list_routetables,[sample]>>
+
+|Show a routing table in VPC
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routetable/{routetableid}
+|Route table state
+<<vpc_show_routetable,[sample]>>
+
+|Get or Create Subnet route table
+|GET
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routetable state
 <<subnet_add_routetable,[sample]>>
@@ -182,41 +182,41 @@ image::route_manager_data_schemas.PNG[]
 |ResponseId
 <<subnet_rm_routetable,[sample]>>
 
-|List Subnet route table
-|GET
-|/project/{projectid}/subnets/{subnetid}/routetable
-|Subnet routing rules
-<<subnet_list_routetable,[sample]>>
-
 |Update Subnet route table
 |PUT
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routing rules
 <<subnet_update_routetable,[sample]>>
 
+|List Routing rules in Subnet route table
+|GET
+|/project/{projectid}/subnets/{subnetid}/routingrules
+|Subnet routing rules
+<<subnet_list_routetable,[sample]>>
+
 |Show a Subnet routing rule
 |GET
 |/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rule ID
+|Subnet routing rule
 <<subnet_show_routingrule,[sample]>>
 
 |Create a Subnet routing rule
 |POST
 |/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rule ID
-<<VpcState_Get2,[sample]>>
+|Subnet routing rules
+<<subnet_add_routingrule,[sample]>>
 
 |Update a Subnet routing rule
 |PUT
 |/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rule ID
-<<VpcState_Get2,[sample]>>
+|Subnet routing rules
+<<subnet_update_routingrule,[sample]>>
 
 |Delete a Subnet routing rule
 |DELETE
 |/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|ResponseId
-<<VpcState_Delete1,[sample]>>
+|Subnet routing rules
+<<subnet_delete_routingrule,[sample]>>
 |===
 
 === API Specification
@@ -690,7 +690,7 @@ Response:
 anchor:neutron_router_add_routes[]
 **(8) Add routes to Neutron router**
 
-* Method: `GET`
+* Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/add_extra_routes`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
 * Operation: Atomically adds a set of extra routes to the router’s already existing extra routes.
@@ -731,9 +731,9 @@ Response:
 ....
 
 anchor:neutron_router_rm_routes[]
-**(8) Remove routes from Neutron router**
+**(9) Remove routes from Neutron router**
 
-* Method: `GET`
+* Method: `PUT`
 * Request: `/project/{projectid}/routers/{routerid}/remove_extra_routes`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
 * Operation: Atomically removes a set of extra routes from the router’s already existing extra routes.
@@ -770,129 +770,237 @@ Response:
 }
 ....
 
-anchor:neutron_routers_get[]
-**(9) List Neutron routers**
+anchor:vpc_get_add_router[]
+**(10) Get or Create VPC router**
 
 * Method: `GET`
-* Request: `/project/{projectid}/routers`
-* Request Parameter: `@PathVariable String projectid`
-* Action: Lists logical routers that the project who submits the request can access.
-* Response: Routers' state
+* Request: `/project/{projectid}/vpcs/{vpcid}/router`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get or create a router for a VPC.
+** If VPC already has a router, return the router state.
+** If VPC doesn't have a router, create a new router, create a VPC routing table and pump-in the VPC default routing rules.
+* Response: VPC router state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
 * Example
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/router
 
 Response:
 {
-    "routers": [
+    "router":
         {
-            "admin_state_up": true,
-            "availability_zone_hints": [],
-            "availability_zones": [
-                "nova"
-            ],
-            "created_at": "2018-03-19T19:17:04Z",
-            "description": "",
-            "distributed": false,
-            "external_gateway_info": {
-                "enable_snat": true,
-                "external_fixed_ips": [
-                    {
-                        "ip_address": "172.24.4.3",
-                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
-                    },
-                    {
-                        "ip_address": "2001:db8::c",
-                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
-                    }
-                ],
-                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
-            },
-            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
-            "ha": false,
-            "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
-            "name": "router2",
-            "revision_number": 1,
-            "routes": [
-                {
-                    "destination": "179.24.1.0/24",
-                    "nexthop": "172.24.3.99"
-                }
-            ],
-            "status": "ACTIVE",
-            "updated_at": "2018-03-19T19:17:22Z",
-            "project_id": "0bd18306d801447bb457a46252d82d13",
-            "tenant_id": "0bd18306d801447bb457a46252d82d13",
-            "service_type_id": null,
-            "tags": ["tag1,tag2"],
-            "conntrack_helpers": [
-                {
-                    "protocol": "udp",
-                    "helper": "tftp",
-                    "port": 69
-                },
-                {
-                    "protocol": "tcp",
-                    "helper": "ftp",
-                    "port": 21
-                }
-            ]
-        },
-        {
-            "admin_state_up": true,
-            "availability_zone_hints": [],
-            "availability_zones": [
-                "nova"
-            ],
-            "created_at": "2018-03-19T19:17:04Z",
-            "description": "",
-            "distributed": false,
-            "external_gateway_info": {
-                "enable_snat": true,
-                "external_fixed_ips": [
-                    {
-                        "ip_address": "172.24.4.6",
-                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
-                    },
-                    {
-                        "ip_address": "2001:db8::9",
-                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
-                    }
-                ],
-                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
-            },
-            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
-            "ha": false,
             "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
-            "name": "router1",
-            "revision_number": 1,
-            "routes": [],
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "admin_state_up": true,
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCrouter",
             "status": "ACTIVE",
             "updated_at": "2018-03-19T19:17:22Z",
-            "project_id": "0bd18306d801447bb457a46252d82d13",
-            "tenant_id": "0bd18306d801447bb457a46252d82d13",
-            "service_type_id": null,
-            "tags": ["tag1,tag2"],
-            "conntrack_helpers": [
-                {
-                    "protocol": "udp",
-                    "helper": "tftp",
-                    "port": 69
-                },
-                {
-                    "protocol": "tcp",
-                    "helper": "ftp",
-                    "port": 21
-                }
-            ]
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
         }
-    ]
 }
 ....
 
+**(11) Delete VPC router**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/vpcs/{vpcid}/router`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Deletes a VPC router.
+** This operation fails if the VPC router contains subnet routing tables.
+** If there is no any subnet routing tables attached to the VPC router, this operation will delete VPC routing table and VPC router.
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/router
+
+Response:
+{"id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95"}
+....
+
+anchor:vpc_add_routetable[]
+**(12) Get or Create VPC default route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/vpcroutetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get or create a router for a VPC.
+** If VPC has a VPC routing table, return the routing table's state.
+** If VPC doesn't have a VPC routing table, this operation will create a VPC routing table and pump-in the VPC default routing rules.
+* Response: VPC routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/vpcroutetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC,
+            "routes" : [
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": "100" },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": "200" }
+            ]
+        }
+}
+....
+
+anchor:vpc_update_routetable[]
+**(13) Update VPC route table**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/vpcs/{vpcid}/vpcroutetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Update routing rules for VPC's default routing table.
+** The existing routing rules in VPC's default routing table will be replaced by new routing rules.
+** If the existing routing rules are not included in the request body:
+*** If those exisitng rules didn't used by any subnet's routing table, the operation will delete those rules from routing rule entity.
+*** If those existing rules are currently used by other subnet's routing table, the opratoin returns the Conflict (409) response code
+** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
+*** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
+** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
+* Response: VPC routing rules
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/vpcroutetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC,
+            "routes" : [
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" },
+                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+            ]
+        }
+}
+....
+
+|Show a VPC routing rule
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule state
+<<vpc_show_routingrule,[sample]>>
+
+|Create a VPC routing rule
+|POST
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule ID
+<<vpc_add_routingrule,[sample]>>
+
+|Update a VPC routing rule
+|PUT
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|VPC routing rule ID
+<<vpc_update_routingrule,[sample]>>
+
+|Delete a VPC routing rule
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
+|ResponseId
+<<vpc_rm_routingrule,[sample]>>
+
+|List all routing tables in VPC
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routetables
+|List of routing tables
+<<vpc_list_routetables,[sample]>>
+
+|Show a routing table in VPC
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routetable/{routetableid}
+|Route table state
+<<vpc_show_routetable,[sample]>>
+
+|Get or Create Subnet route table
+|GET
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<subnet_add_routetable,[sample]>>
+
+|Delete Subnet route table
+|DELETE
+|/project/{projectid}/subnets/{subnetid}/routetable
+|ResponseId
+<<subnet_rm_routetable,[sample]>>
+
+|Update Subnet route table
+|PUT
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routing rules
+<<subnet_update_routetable,[sample]>>
+
+|List Routing rules in Subnet route table
+|GET
+|/project/{projectid}/subnets/{subnetid}/routingrules
+|Subnet routing rules
+<<subnet_list_routetable,[sample]>>
+
+|Show a Subnet routing rule
+|GET
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rule
+<<subnet_show_routingrule,[sample]>>
+
+|Create a Subnet routing rule
+|POST
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rules
+<<subnet_add_routingrule,[sample]>>
+
+|Update a Subnet routing rule
+|PUT
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rules
+<<subnet_update_routingrule,[sample]>>
+
+|Delete a Subnet routing rule
+|DELETE
+|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
+|Subnet routing rules
+<<subnet_delete_routingrule,[sample]>>
 == Concurrency Handling
 When creating segments, we need to concurrently create instances of network type (vlan, vxlan, gre), and multiple instances may assign their key Id.
 
