@@ -40,6 +40,9 @@ public class NetworkConfiguration {
   @JsonProperty("security_groups_internal")
   private List<SecurityGroup> securityGroups;
 
+  @JsonProperty("neighbor_info")
+  private List<NeighborInfo> neighborInfos;
+
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
       this.portEntities = new ArrayList<>();
@@ -118,6 +121,14 @@ public class NetworkConfiguration {
 
   public void setSecurityGroups(List<SecurityGroup> securityGroups) {
     this.securityGroups = securityGroups;
+  }
+
+  public List<NeighborInfo> getNeighborInfos() {
+    return neighborInfos;
+  }
+
+  public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+    this.neighborInfos = neighborInfos;
   }
 
   @Override

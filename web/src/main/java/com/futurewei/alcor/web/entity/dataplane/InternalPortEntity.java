@@ -27,8 +27,8 @@ public class InternalPortEntity extends PortEntity {
     @JsonProperty("routes")
     private List<RouteEntity> routes;
 
-    @JsonProperty("neighbor_info")
-    private List<NeighborInfo> neighborInfos;
+    @JsonProperty("neighbor_ids")
+    private List<String> neighborIds;
 
     @JsonProperty("binding_host_ip")
     private String bindingHostIP;
@@ -41,12 +41,12 @@ public class InternalPortEntity extends PortEntity {
         this.routes = routes;
     }
 
-    public List<NeighborInfo> getNeighborInfos() {
-        return neighborInfos;
+    public List<String> getNeighborIds() {
+        return neighborIds;
     }
 
-    public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
-        this.neighborInfos = neighborInfos;
+    public void setNeighborIds(List<String> neighborIds) {
+        this.neighborIds = neighborIds;
     }
 
     public String getBindingHostIP() {
@@ -90,11 +90,11 @@ public class InternalPortEntity extends PortEntity {
     public InternalPortEntity(
             PortEntity portEntity,
             List<RouteEntity> routeEntities,
-            List<NeighborInfo> neighborInfos,
+            List<String> neighborIds,
             String bindingHostIP) {
         super(portEntity);
         this.routes = routeEntities;
-        this.neighborInfos = neighborInfos;
+        this.neighborIds = neighborIds;
         this.bindingHostIP = bindingHostIP;
     }
 }
