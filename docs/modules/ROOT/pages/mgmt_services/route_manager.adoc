@@ -134,39 +134,15 @@ image::route_manager_data_schemas.PNG[]
 |VPC routing rules
 <<vpc_update_routetable,[sample]>>
 
-|Show a VPC routing rule
-|GET
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule state
-<<vpc_show_routingrule,[sample]>>
-
-|Create a VPC routing rule
-|POST
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule ID
-<<vpc_add_routingrule,[sample]>>
-
-|Update a VPC routing rule
-|PUT
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule ID
-<<vpc_update_routingrule,[sample]>>
-
-|Delete a VPC routing rule
-|DELETE
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|ResponseId
-<<vpc_rm_routingrule,[sample]>>
-
 |List all routing tables in VPC
 |GET
 |/project/{projectid}/vpcs/{vpcid}/routetables
 |List of routing tables
 <<vpc_list_routetables,[sample]>>
 
-|Show a routing table in VPC
+|Show a routing table
 |GET
-|/project/{projectid}/vpcs/{vpcid}/routetable/{routetableid}
+|/project/{projectid}/routetables/{routetableid}
 |Route table state
 <<vpc_show_routetable,[sample]>>
 
@@ -176,47 +152,17 @@ image::route_manager_data_schemas.PNG[]
 |Subnet routetable state
 <<subnet_add_routetable,[sample]>>
 
-|Delete Subnet route table
-|DELETE
-|/project/{projectid}/subnets/{subnetid}/routetable
-|ResponseId
-<<subnet_rm_routetable,[sample]>>
-
 |Update Subnet route table
 |PUT
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routing rules
 <<subnet_update_routetable,[sample]>>
 
-|List Routing rules in Subnet route table
-|GET
-|/project/{projectid}/subnets/{subnetid}/routingrules
-|Subnet routing rules
-<<subnet_list_routetable,[sample]>>
-
-|Show a Subnet routing rule
-|GET
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rule
-<<subnet_show_routingrule,[sample]>>
-
-|Create a Subnet routing rule
-|POST
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_add_routingrule,[sample]>>
-
-|Update a Subnet routing rule
-|PUT
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_update_routingrule,[sample]>>
-
-|Delete a Subnet routing rule
+|Delete Subnet route table
 |DELETE
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_delete_routingrule,[sample]>>
+|/project/{projectid}/subnets/{subnetid}/routetable
+|ResponseId
+<<subnet_rm_routetable,[sample]>>
 |===
 
 === API Specification
@@ -854,10 +800,10 @@ Response:
             "updated_at": "2018-03-19T19:17:22Z",
             "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
             "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-            "type": "VPC,
+            "type": "VPC",
             "routes" : [
-                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": "100" },
-                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": "200" }
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": 100 },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 200 }
             ]
         }
 }
@@ -889,8 +835,9 @@ Body:
 {
    "routetable" : {
       "routes" : [
-         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
-         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
       ]
    }
 }
@@ -907,121 +854,216 @@ Response:
             "updated_at": "2018-03-19T19:17:22Z",
             "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
             "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-            "type": "VPC,
+            "type": "VPC",
             "routes" : [
-                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
-                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" },
-                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
-                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
             ]
         }
 }
 ....
 
-|Show a VPC routing rule
-|GET
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule state
-<<vpc_show_routingrule,[sample]>>
+anchor:vpc_list_routetables[]
+**(14) List all routing tables in VPC**
 
-|Create a VPC routing rule
-|POST
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule ID
-<<vpc_add_routingrule,[sample]>>
-
-|Update a VPC routing rule
-|PUT
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|VPC routing rule ID
-<<vpc_update_routingrule,[sample]>>
-
-|Delete a VPC routing rule
-|DELETE
-|/project/{projectid}/vpcs/{vpcid}/routingrules/{routingruleid}
-|ResponseId
-<<vpc_rm_routingrule,[sample]>>
-
-|List all routing tables in VPC
-|GET
-|/project/{projectid}/vpcs/{vpcid}/routetables
-|List of routing tables
-<<vpc_list_routetables,[sample]>>
-
-|Show a routing table in VPC
-|GET
-|/project/{projectid}/vpcs/{vpcid}/routetable/{routetableid}
-|Route table state
-<<vpc_show_routetable,[sample]>>
-
-|Get or Create Subnet route table
-|GET
-|/project/{projectid}/subnets/{subnetid}/routetable
-|Subnet routetable state
-<<subnet_add_routetable,[sample]>>
-
-|Delete Subnet route table
-|DELETE
-|/project/{projectid}/subnets/{subnetid}/routetable
-|ResponseId
-<<subnet_rm_routetable,[sample]>>
-
-|Update Subnet route table
-|PUT
-|/project/{projectid}/subnets/{subnetid}/routetable
-|Subnet routing rules
-<<subnet_update_routetable,[sample]>>
-
-|List Routing rules in Subnet route table
-|GET
-|/project/{projectid}/subnets/{subnetid}/routingrules
-|Subnet routing rules
-<<subnet_list_routetable,[sample]>>
-
-|Show a Subnet routing rule
-|GET
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rule
-<<subnet_show_routingrule,[sample]>>
-
-|Create a Subnet routing rule
-|POST
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_add_routingrule,[sample]>>
-
-|Update a Subnet routing rule
-|PUT
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_update_routingrule,[sample]>>
-
-|Delete a Subnet routing rule
-|DELETE
-|/project/{projectid}/subnets/{subnetid}/routingrules/{routingruleid}
-|Subnet routing rules
-<<subnet_delete_routingrule,[sample]>>
-== Concurrency Handling
-When creating segments, we need to concurrently create instances of network type (vlan, vxlan, gre), and multiple instances may assign their key Id.
-
-Sample for allocating vlan key
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/routetables`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get a list of routing tables in a VPC, including routing tables for VPC default, public subnet, and private subnet.
+* Response: List of routing tables in a VPC
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
 ....
-public synchronized Long allocateVlanKey (String rangeId) throws Exception {
-        Long key;
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/routetables
 
-        try (Transaction tx = cache.getTransaction().start()) {
-            NetworkVlanRange networkVlanRange = cache.get(rangeId);
-            if (networkVlanRange == null) {
-                throw new RangeNotFoundException();
-            }
+Response:
+{
+    "routetables": [
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC",
+            "routes" : [
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": 100 },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 200 }
+            ]
+        },
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+            ]
+        },
+    ]
+}
+....
 
-            key = networkVlanRange.allocateKey();
-            cache.put(networkVlanRange.getId(), networkVlanRange);
+anchor:vpc_show_routetable[]
+**(15) Show a routing table**
 
-            tx.commit();
+* Method: `GET`
+* Request: `/project/{projectid}/routetables/{routetableid}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routetableid`
+* Operation: Get detail information of a routing table by routetable id.
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routetable/f79bf3b0-fc8e-45df-93c7-f8a44de01c95
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+            ]
         }
-
-        return key;
-    }
+}
 ....
+
+anchor:subnet_add_routetable[]
+**(16) Get or Create Subnet route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get detail information of a subnet's routing table.
+If the routing table doesn't exist, this operation will create a routing table and pump-in VPC's default routing rules.
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_update_routetable[]
+**(17) Update Subnet route table**
+
+* Method: `PUT`
+* Request: `|/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Update subnet's routing rules.
+** The existing routing rules in subnet's routing table will be replaced by new routing rules.
+** If the existing rules are comes from VPC's default routing rule, just detete those rules from the routing table.
+** If the existing routing rules are not included in the request body:
+*** If those exisitng rules didn't used by any subnet's routing table, the operation will delete those rules from routing rule entity.
+*** If those existing rules are currently used by other subnet's routing table, the opratoin returns the Conflict (409) response code
+** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
+*** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
+** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
+* Response: Subnet routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+            ]
+        }
+}
+....
+
+anchor:subnet_rm_routetable[]]
+**(18) Delete Subnet route table**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Deletes a subnet routing table. (#May not needed.#)
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{"id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95"}
+....
+
+== Concurrency Handling
+
 //include::../../../services/vpc_manager/target/swagger/swagger.adoc[]
