@@ -17,20 +17,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
-import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
+import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -41,6 +42,7 @@ import org.thymeleaf.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
@@ -64,6 +66,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(resource ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -109,6 +112,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -185,6 +189,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -242,6 +247,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
+    @Rbac(resource ="vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -276,6 +282,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
+    @Rbac(resource ="vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -283,10 +290,11 @@ public class VpcController {
     @DurationStatistics
     public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap():requestParams;
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), VpcEntity.class);
+                ControllerUtil.transformUrlPathParams(requestParams, VpcEntity.class);
 
-        ControllerUtil.handleUserRoles(request.getHeader(ControllerUtil.TOKEN_INFO_HEADER), queryParams);
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceFound(projectId);

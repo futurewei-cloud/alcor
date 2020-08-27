@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 
 public class ControllerUtil {
 
@@ -59,6 +61,36 @@ public class ControllerUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * get token user info from http request header
+     * @param tokenInfo the json token form http request header "X-Token-Info"
+     * @return token info
+     */
+    public static Optional<TokenEntity> getUserTokenInfo(String tokenInfo) {
+        if(StringUtils.isEmpty(tokenInfo)){
+            return Optional.empty();
+        }
+
+        try{
+            TokenEntity tokenEntity = JsonUtil.readValue(tokenInfo, TokenEntity.class);
+            return Optional.of(tokenEntity);
+        } catch (IOException e) {
+            LOG.error("handle token user roles failed ", e);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * get token user info from http request header
+     * @param tokenEntity token info object
+     * @return token info
+     */
+    public static boolean isAdmin(TokenEntity tokenEntity) {
+        String adminRole = "admin";
+        List<String> roles = tokenEntity.getRoles();
+        return roles != null && roles.contains(adminRole);
     }
 
     /**
@@ -155,7 +187,7 @@ public class ControllerUtil {
         return filterStrBuilder.substring(0, filterStrBuilder.length() - 1);
     }
 
-    private static <T> Field[] getAllDeclaredFields(Class<T> tClass){
+    public static <T> Field[] getAllDeclaredFields(Class<T> tClass){
         Field[] selfFields = tClass.getDeclaredFields();
         Class<? super T> superClass = tClass.getSuperclass();
         if(superClass != null && !superClass.getName().equals(Object.class.getName())) {

@@ -1,0 +1,68 @@
+{
+  "serviceRules": [
+    {
+      "name": "create_subnet",
+      "method_type": "POST",
+      "description": "Create a subnet",
+      "rule_type": "admin_or_owner",
+      "roles": [],
+      "field_rbac_rules": [
+        {
+          "name": "service_types",
+          "description": "Specify ''service_types'' attribute when creating a subnet",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "segment_id",
+          "description": "Specify ''segment_id'' attribute when creating a subnet",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "get_subnet",
+      "method_type": "GET",
+      "description": "Get or list subnet",
+      "rule_type": "admin_or_owner",
+      "roles": [],
+      "field_rbac_rules": [
+        {
+          "name": "segment_id",
+          "description": "Get ''segment_id'' attribute of a subnet",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "update_subnet",
+      "method_type": "PUT",
+      "description": "Update a subnet",
+      "rule_type": "admin_or_owner",
+      "roles": [],
+      "field_rbac_rules": [
+        {
+          "name": "service_types",
+          "description": "Update ''service_types'' attribute of a subnet",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "segment_id",
+          "description": "Update ''segment_id'' attribute of a subnet",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "delete_subnet",
+      "method_type": "DELETE",
+      "description": "Delete a vpc",
+      "rule_type": "admin_or_owner",
+      "roles": []
+    }
+  ]
+}
