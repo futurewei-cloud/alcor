@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
@@ -31,11 +32,13 @@ public class NetworkConfig {
 
     private List<SecurityGroup> securityGroups;
 
+    private List<NeighborInfo> neighborInfos;
+
     public static class ExtendPortEntity extends InternalPortEntity {
         private String bindingHostId;
 
         public ExtendPortEntity(InternalPortEntity internalPortEntity, String bindingHostId) {
-            super(internalPortEntity, internalPortEntity.getRoutes(), internalPortEntity.getNeighborInfos(), internalPortEntity.getBindingHostIP());
+            super(internalPortEntity, internalPortEntity.getRoutes(), null, null, internalPortEntity.getBindingHostIP());
             this.bindingHostId = bindingHostId;
         }
 
@@ -81,5 +84,13 @@ public class NetworkConfig {
 
     public void setSecurityGroups(List<SecurityGroup> securityGroups) {
         this.securityGroups = securityGroups;
+    }
+
+    public List<NeighborInfo> getNeighborInfos() {
+        return neighborInfos;
+    }
+
+    public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+        this.neighborInfos = neighborInfos;
     }
 }

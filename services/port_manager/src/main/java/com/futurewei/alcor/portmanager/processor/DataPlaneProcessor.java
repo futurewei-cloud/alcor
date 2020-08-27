@@ -22,14 +22,15 @@ import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
@@ -42,6 +43,38 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         return null;
+    }
+
+    private void setNeighborInfos(PortContext context, InternalPortEntity internalPortEntity) {
+        List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
+        if (internalPortEntity.getFixedIps() == null || neighborInfos == null) {
+            return;
+        }
+
+        Set<String> subnetIds = internalPortEntity.getFixedIps().stream()
+                .map(PortEntity.FixedIp::getSubnetId)
+                .collect(Collectors.toSet());
+
+        List<String> routerSubnetIds = context.getRouterSubnetIds();
+
+        Iterator<NeighborInfo> iterator = neighborInfos.iterator();
+        while (iterator.hasNext()) {
+            NeighborInfo neighborInfo = iterator.next();
+
+            if (!routerSubnetIds.contains(neighborInfo.getSubnetId())) {
+                iterator.remove();
+                continue;
+            }
+
+            if (subnetIds.contains(neighborInfo.getSubnetId())) {
+                internalPortEntity.getL2NeighborIds().add(neighborInfo.getPortIp());
+                if (subnetIds.size() > 1) {
+                    internalPortEntity.getL3NeighborIds().add(neighborInfo.getPortIp());
+                }
+            } else {
+                internalPortEntity.getL3NeighborIds().add(neighborInfo.getPortIp());
+            }
+        }
     }
 
     private void setTheMissingFields(PortContext context, List<PortEntity> portEntities) throws Exception {
@@ -60,6 +93,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
             if (internalPortEntity.getMacAddress() == null) {
                 internalPortEntity.setMacAddress(portEntity.getMacAddress());
             }
+
+            setNeighborInfos(context, internalPortEntity);
         }
 
         List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();
