@@ -22,19 +22,24 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 
 public class DatabaseProcessor extends AbstractProcessor {
-    private NeighborInfo buildNeighborInfo(InternalPortEntity internalPortEntity) {
+    private List<NeighborInfo> buildNeighborInfos(InternalPortEntity internalPortEntity) {
+        List<NeighborInfo> neighborInfos = new ArrayList<>();
         String bindingHostIp = internalPortEntity.getBindingHostIP();
         if (bindingHostIp == null) {
-            return null;
+            return neighborInfos;
         }
 
-        NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
-                internalPortEntity.getBindingHostId(),
-                internalPortEntity.getId(),
-                internalPortEntity.getMacAddress(),
-                internalPortEntity.getFixedIps().get(0).getIpAddress());
+        for (PortEntity.FixedIp fixedIp: internalPortEntity.getFixedIps()) {
+            NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
+                    internalPortEntity.getBindingHostId(),
+                    internalPortEntity.getId(),
+                    internalPortEntity.getMacAddress(),
+                    fixedIp.getIpAddress(),
+                    fixedIp.getSubnetId());
+            neighborInfos.add(neighborInfo);
+        }
 
-        return neighborInfo;
+        return neighborInfos;
     }
 
     @Override
@@ -44,16 +49,15 @@ public class DatabaseProcessor extends AbstractProcessor {
         NetworkConfig networkConfig = context.getNetworkConfig();
         List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities();
         for (InternalPortEntity internalPortEntity : internalPortEntities) {
-            NeighborInfo neighborInfo = buildNeighborInfo(internalPortEntity);
-            if (neighborInfo == null) {
+            List<NeighborInfo> neighborInfoList = buildNeighborInfos(internalPortEntity);
+            if (neighborInfoList.size() == 0) {
                 continue;
             }
             if (!portNeighbors.containsKey(internalPortEntity.getVpcId())) {
-                List<NeighborInfo> neighborInfos = new ArrayList<>();
-                portNeighbors.put(internalPortEntity.getVpcId(), neighborInfos);
+                portNeighbors.put(internalPortEntity.getVpcId(), new ArrayList<>());
             }
 
-            portNeighbors.get(internalPortEntity.getVpcId()).add(neighborInfo);
+            portNeighbors.get(internalPortEntity.getVpcId()).addAll(neighborInfoList);
         }
 
         /**
@@ -68,12 +72,16 @@ public class DatabaseProcessor extends AbstractProcessor {
     @Override
     void updateProcess(PortContext context) throws Exception {
         List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
-        NeighborInfo neighborInfo = null;
+        List<NeighborInfo> neighborInfos = null;
         if (internalPortEntities.size() > 0) {
-            neighborInfo = buildNeighborInfo(internalPortEntities.get(0));
+            neighborInfos = buildNeighborInfos(internalPortEntities.get(0));
         }
+
         PortEntity oldPortEntity = context.getOldPortEntity();
-        context.getPortRepository().updatePort(oldPortEntity, neighborInfo);
+
+        //TODO: A port may have more than one ip address,
+        // for one ip address we should create one neighborInfo
+        context.getPortRepository().updatePort(oldPortEntity, neighborInfos.get(0));
     }
 
     @Override

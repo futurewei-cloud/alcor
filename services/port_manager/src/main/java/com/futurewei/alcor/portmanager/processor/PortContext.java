@@ -34,6 +34,7 @@ public class PortContext {
     private List<PortEntity> portEntities; //For add and delete
     private PortEntity oldPortEntity; //For update
     private PortEntity newPortEntity; //For update
+    private List<String> routerSubnetIds;
 
     public PortContext() {
 
@@ -141,5 +142,13 @@ public class PortContext {
 
     public void setNewPortEntity(PortEntity newPortEntity) {
         this.newPortEntity = newPortEntity;
+    }
+
+    public List<String> getRouterSubnetIds() {
+        return routerSubnetIds;
+    }
+
+    public void setRouterSubnetIds(List<String> routerSubnetIds) {
+        this.routerSubnetIds = routerSubnetIds;
     }
 }

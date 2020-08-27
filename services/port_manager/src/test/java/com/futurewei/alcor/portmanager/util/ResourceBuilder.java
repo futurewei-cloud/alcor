@@ -36,6 +36,7 @@ import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.router.RouterSubnets;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
@@ -318,5 +319,14 @@ public class ResourceBuilder {
         elasticIpInfo.setPortId("");
 
         return new ElasticIpInfoWrapper(elasticIpInfo);
+    }
+
+    public static RouterSubnets buildRouterSubnets() {
+        RouterSubnets routerSubnets = new RouterSubnets();
+        List<String> subnetIds = new ArrayList<>();
+        subnetIds.add(UnitTestConfig.subnetId);
+        routerSubnets.setSubnetIds(subnetIds);
+
+        return routerSubnets;
     }
 }
