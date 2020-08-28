@@ -81,27 +81,12 @@ public class NeutronRouterController {
 
         NeutronRouterWebRequestObject neutronRouterWebRequestObject = null;
 
-//        Router router = null;
-//        RouterExtraAttribute routerExtraAttribute = null;
-
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
             neutronRouterWebRequestObject = this.neutronRouterService.getNeutronRouter(routerid);
-
-//            router = this.routerDatabaseService.getByRouterId(routerId);
-//            if (router == null) {
-//                return new NeutronRouterWebJson();
-//            }
-//
-//            routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
-//
-//            BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
-//            if (routerExtraAttribute != null) {
-//                BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
-//            }
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -146,7 +131,10 @@ public class NeutronRouterController {
             for (Map.Entry<String, Router> entry : routers.entrySet()) {
                 NeutronRouterWebRequestObject neutronRouterWebRequestObject = new NeutronRouterWebRequestObject();
                 Router router = (Router) entry.getValue();
-                routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+                String routerExtraAttributeId = router.getRouterExtraAttributeId();
+                if (routerExtraAttributeId != null && !routerExtraAttributeId.equals("")) {
+                    routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(routerExtraAttributeId);
+                }
 
                 BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
                 if (routerExtraAttribute != null) {
