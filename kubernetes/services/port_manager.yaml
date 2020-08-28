@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: port-configmap
+data:
+  application.properties: |
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-port-service.ignite-alcor-port.svc.cluster.local
+    ignite.port=10802
+    logging.level.root=DEBUG
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+    microservices.ip.service.url=http://ipmanager-service.default.svc.cluster.local:9004/ips
+    microservices.mac.service.url=http://macmanager-service.default.svc.cluster.local:9005/macs
+    microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
+    microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
+    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/v4/port/
+    microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011
+    alcor.vif_type=ovs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: portmanager
+  name: portmanager
+spec:
+  selector:
+    matchLabels:
+      app: portmanager
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: portmanager
+    spec:
+      volumes:
+        - name: port-volume
+          configMap:
+            name: port-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: port_manager:v1.0
+        #- image: fwnetworking/controller:port_manager-v0.3.0
+          name: portmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorPortManager-0.1.0.jar", "--spring.config.location=/etc/port/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: port-volume
+              mountPath: /etc/port
+          envFrom:
+            - configMapRef:
+                name: port-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portmanager-service
+  labels:
+    name: portmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9006
+      targetPort: 8080
+      nodePort: 30008
+  selector:
+    app: portmanager
+

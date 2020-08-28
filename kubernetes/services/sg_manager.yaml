@@ -1,66 +1,64 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: route-configmap
+  name: sg-configmap
 data:
   application.properties: |
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     logging.level.root=DEBUG
-    logging.level.org.springframework.web=info
-    logging.file.path=.
-    logging.type=file
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: routemanager
-  name: routemanager
+    app: sgmanager
+  name: sgmanager
 spec:
   selector:
     matchLabels:
-      app: routemanager
+      app: sgmanager
   replicas: 3
   template:
     metadata:
       labels:
-        app: routemanager
+        app: sgmanager
     spec:
       volumes:
-        - name: route-volume
+        - name: sg-volume
           configMap:
-            name: route-configmap
+            name: sg-configmap
             items:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: route_manager:v1.0
-        #- image: fwnetworking/controller:route_manager-v0.3.0
-          name: routemanager-web
+        - image: security_group_manager:v1.0
+        #- image: fwnetworking/controller:node_manager-v0.3.0
+          name: sgmanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorRouteManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
+          command: ["java", "-jar", "/app/AlcorSecurityGroupManager-0.1.0.jar", "--spring.config.location=/etc/sg/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
-            - name: route-volume
-              mountPath: /etc/app
+            - name: sg-volume
+              mountPath: /etc/sg
           envFrom:
             - configMapRef:
-                name: route-configmap
+                name: sg-configmap
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: routemanager-service
+  name: sgmanager-service
   labels:
-    name: routemanager-service
+    name: sgmanager-service
 spec:
   type: NodePort
   ports:
-    - port: 9003
+    - port: 9008
       targetPort: 8080
-      nodePort: 30003
+      nodePort: 30011
   selector:
-    app: routemanager
+    app: sgmanager
+

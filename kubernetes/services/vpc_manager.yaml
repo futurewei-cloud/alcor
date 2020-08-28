@@ -4,14 +4,15 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    spring.redis.host=10.106.100.62
-    spring.redis.port=6379
-    logging.level.root=info
-    logging.level.org.springframework.web=info
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    logging.level.root=debug
+    logging.level.org.springframework.web=debug
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.route.service.url=http://192.168.1.25:30003/vpcs/
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/vpcs/
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,8 +24,7 @@ spec:
   selector:
     matchLabels:
       app: vpcmanager
-  replicas: 1
-  #replicas: 3
+  replicas: 3
   template:
     metadata:
       labels:
@@ -38,7 +38,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:vpcKube5
+        - image: vpc_manager:v1.0
         #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent
@@ -61,7 +61,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8001
+    - port: 9001
       targetPort: 8080
       nodePort: 30001
   selector:
