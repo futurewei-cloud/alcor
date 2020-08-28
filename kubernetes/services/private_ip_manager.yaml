@@ -4,8 +4,10 @@ metadata:
   name: ip-configmap
 data:
   application.properties: |
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
-    ignite.port=10800
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
+    ignite.port=10801
+    logging.level.root=DEBUG
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,7 +19,7 @@ spec:
   selector:
     matchLabels:
       app: ipmanager
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -31,7 +33,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:ipKube1
+        - image: private_ip_manager:v1.0
         #- image: fwnetworking/controller:ip_manager-v0.3.0
           name: ipmanager-web
           imagePullPolicy: IfNotPresent

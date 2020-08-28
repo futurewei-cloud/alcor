@@ -4,10 +4,11 @@ metadata:
   name: vpc-configmap
 data:
   application.properties: |
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
-    logging.level.root=info
-    logging.level.org.springframework.web=info
+    logging.level.root=debug
+    logging.level.org.springframework.web=debug
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
@@ -37,7 +38,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:vpcKube1
+        - image: vpc_manager:v1.0
         #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: vpcmanager-web
           imagePullPolicy: IfNotPresent

@@ -32,6 +32,45 @@ kind: Namespace
 metadata:
   name: ignite-alcor
 ---
+#kind: StorageClass
+#apiVersion: storage.k8s.io/v1
+#metadata:
+  #name: manual  #StorageClass name
+  #namespace: ignite-alcor #Ignite namespace
+#provisioner: kubernetes.io/aws-ebs
+#parameters:
+  #type: gp2 #Volume type io1, gp2, sc1, st1. Default: gp2
+  #zones: us-east-1d
+#---
+#kind: PersistentVolume
+#apiVersion: v1
+#metadata:
+  #name: ignite-alcor
+  #namespace: ignite-alcor
+  #labels:
+    #type: local
+#spec:
+  #storageClassName: manual
+  #capacity:
+    #storage: 10Gi
+  #accessModes:
+    #- ReadWriteOnce
+  #hostPath:
+    #path: "/mnt/data"
+#---
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+  #name: ignite-alcor
+  #namespace: ignite-alcor
+#spec:
+  #storageClassName: manual
+  #accessModes:
+    #- ReadWriteOnce
+  #resources:
+    #requests:
+      #storage: 1Gi
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -63,6 +102,7 @@ spec:
     app: ignite-alcor
 ---
 apiVersion: apps/v1
+#kind: Deployment
 kind: StatefulSet
 metadata:
   labels:
@@ -93,10 +133,26 @@ spec:
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
               value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_config.xml
+              #value: /opt/ignite/apache-ignite/config/default-config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
               value: "-Djava.net.preferIPv4Stack=true"
+            #- name: JVM_OPTS
+              #value: "-Djava.net.preferIPv4Stack=true \
+                      #-XX:+PrintGCDetails \
+                      #-XX:+PrintGCTimeStamps \
+                      #-XX:+PrintGCDateStamps \
+                      #-XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 \
+                      #-XX:GCLogFileSize=100M \
+                      #-Xloggc:/opt/ignite/apache-ignite/work/log/ignite-gc.log \
+                      #-server \ 
+                      #-Xms50g \
+                      #-Xmx50g \
+                      #-XX:+AlwaysPreTouch \
+                      #-XX:+UseG1GC \
+                      #-XX:+ScavengeBeforeFullGC \
+                      #-XX:+DisableExplicitGC"
           ports:
             - name: port8080
               containerPort: 8080
@@ -114,6 +170,30 @@ spec:
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
             - name: ignite-alcor-config-volume
-              mountPath: /opt/ignite/config
+              mountPath: /opt/storage
+            #- name: ignite-alcor-wal-volume
+              #mountPath: /db/wal
+            #- name: ignite-alcor-walArchive-volume
+              #mountPath: /db/wal/archive
       volumes:
         - name: ignite-alcor-config-volume
+          hostPath: 
+            path: /root/work/storage
+        #- name: ignite-alcor-wal-volume
+          #hostPath: 
+            #path: /root/work/db
+        #- name: ignite-alcor-walArchive-volume
+          #hostPath: 
+            #path: /root/work/db/archive
+            
+          #persistentVolumeClaim:
+            #claimName: ignite-alcor
+  #volumeClaimTemplates:
+  #- metadata:
+      #name: ignite-alcor-config-volume
+    #spec:
+      #accessModes: [ "ReadWriteOnce" ]
+      #storageClassName: "ignite-persistence-storage-class"
+      #resources:
+        #requests:
+          #storage: 1Gi
