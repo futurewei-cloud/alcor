@@ -1,0 +1,96 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+
+collections "Node Manager"
+collections "Route Manager"
+collections "Port Manager"
+collections "Data Plane Manager"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \nHost 1"
+end box
+
+box "Compute Host 2" #LightGreen
+participant "ACA on \nHost 2"
+end box
+
+==Scenarios A: GREEN subnet VM1 on Host 1, RED subnet VM2 on Host 2==
+
+==Scenario A1: Setup GREEN subnet VM1 on Host 1 ==
+autonumber 10
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet),\nSubnetids(the list of connected subnets including GREEN subnet)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor output {neighbor host_ip, neighbor host DVR mac(new)}
+"Port Manager" -> "Data Plane Manager": POST /port async with RequestBody NetworkConfiguration=\n{[VM1 port w/ L2_neighbor_info=NULL L3_neighbor_info=NULL],\n[green Subnet],[VPC],[SG]}
+"Data Plane Manager" -> "ACA on \nHost 1": Port: CREATE (FULL) new GREEN subnet port, \nDHCP: CREATE (FULL) on new port
+
+==Scenario A2: Setup RED subnet VM2 on Host 2 Needs update ==
+autonumber 20
+"Port Manager" -> "Route Manager": Query about the new RED subnet port
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to this new port),\nsubnetid(s)(the list of connected subnet including RED subnet?)}
+"Port Manager" -> "Node Manager": Get node info (host_id(?), dvr_mac (local? how about neighbor_dvr_mac for L3?)
+"Port Manager" -> "Data Plane Manager": Port: CREATE new RED subnet port + \nConnected Router: INFO, \nL2 neighbors on RED subnet + \nL3 neighbors on connected subnet + \nCorresponding subnet: INFO
+"Data Plane Manager" -> "ACA on \nHost 2": Port: CREATE (FULL) new RED subnet port, \nConnected Router: INFO, \nDHCP: CREATE (FULL) on new port, \nL3 neighbors CREATE (DELTA) for VM1 + \nCorresponding subnet: INFO (GREEN)
+
+==Scenario A2: Setup L3 neighbor about RED subnet VM2 on Host 1 Needs update ==
+autonumber 30
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet),\nSubnetids(the list of connected subnets including GREEN subnet)}
+"Port Manager" -> "Node Manager": Get node info (host_id(?), dvr_mac (local? how about neighbor_dvr_mac for L3?)
+"Port Manager" -> "Data Plane Manager": Port: CREATE new GREEN subnet port + \nConnected Router: INFO, \nL2 neighbors on GREEN subnet + \nL3 neighbors on connected subnet + \nCorresponding subnet: INFO
+"Data Plane Manager" -> "ACA on \nHost 1": Port: CREATE (FULL) new GREEN subnet port, \nConnected Router: INFO, \nDHCP: CREATE (FULL) on new port, \nL3 neighbors CREATE (DELTA) for VM2 + \nCorresponding subnet: INFO (RED)
+
+==Scenarios B: GREEN subnet VM1 and VM3 on Host 1, RED subnet VM2 and VM4 on Host 2==
+
+==Scenario B1: Setup GREEN subnet VM1 and VM3 on Host 1 ==
+autonumber 40
+"Port Manager" -> "Data Plane Manager": Configure GREEN subnet VM1 and VM3 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM2 and VM4\n+Subnet=INFO(RED)
+
+==Scenario B2: Setup RED subnet VM2 and VM4 on Host 2 ==
+autonumber 40
+"Port Manager" -> "Data Plane Manager": Configure RED subnet VM2 and VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1 and VM3\n+Subnet=INFO(GREEN)
+
+
+==Scenarios C: GREEN subnet VM1 on Host 1, RED subnet VM2 on Host 1 also==
+
+autonumber 50
+"Port Manager" -> "Data Plane Manager": Configure GREEN subnet VM1 and RED subnet VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
+==Scenarios D: GREEN subnet VM1 on Host 1, VM3 on Host 2, RED subnet VM2 on Host 1, VM4 on Host 2==
+
+==Scenario D1: Setup GREEN subnet VM1 and RED subnet VM2 on Host 1 ==
+autonumber 60
+"Port Manager" -> "Data Plane Manager": Configure GREEN subnet VM1 and RED subnet VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+
+==Scenario D2: Setup GREEN subnet VM3 and RED subnet VM4 on Host 2 ==
+autonumber 70
+"Port Manager" -> "Data Plane Manager": Configure GREEN subnet VM3 and RED subnet VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
+
+@enduml
+
