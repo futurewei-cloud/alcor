@@ -15,13 +15,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,5 +205,46 @@ public class PortServiceImpl implements PortService {
         LOG.info("List port success, projectId: {}", projectId);
 
         return result;
+    }
+
+    private List<NeighborInfo> doUpdateNeighbors(RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws CacheException {
+        String vpcId = routerSubnetUpdateInfo.getVpcId();
+        String subnetId = routerSubnetUpdateInfo.getSubnetId();
+        List<String> oldSubnetIds = routerSubnetUpdateInfo.getOldSubnetIds();
+        RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
+
+        Map<String, NeighborInfo> neighbors = portRepository.getNeighbors(vpcId);
+
+        for (Map.Entry<String, NeighborInfo> entry: neighbors.entrySet()) {
+            NeighborInfo neighborInfo = entry.getValue();
+            if (subnetId.equals(neighborInfo.getSubnetId())) {
+                if (operationType.equals(RouterSubnetUpdateInfo.OperationType.ADD)) {
+                    neighborInfo.setNeighborType(NeighborInfo.NeighborType.L3);
+                } else {
+                    neighborInfo.setNeighborType(NeighborInfo.NeighborType.L2);
+                }
+            } else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
+                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L3);
+            } else {
+                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L2);
+            }
+        }
+
+        return new ArrayList<>(neighbors.values());
+    }
+
+    @Override
+    @DurationStatistics
+    public RouterSubnetUpdateInfo updateNeighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+        List<NeighborInfo> neighbors = doUpdateNeighbors(routerSubnetUpdateInfo);
+
+        NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+        networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
+        networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
+        networkConfiguration.setNeighborInfos(neighbors);
+
+        new UpdateNetworkConfigRequest(null, networkConfiguration).send();
+
+        return routerSubnetUpdateInfo;
     }
 }

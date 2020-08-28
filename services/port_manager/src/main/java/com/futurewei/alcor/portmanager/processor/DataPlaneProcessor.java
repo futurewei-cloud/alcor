@@ -45,7 +45,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         return null;
     }
 
-    private void setNeighborInfos(PortContext context, InternalPortEntity internalPortEntity) {
+    private void setNeighborType(PortContext context, InternalPortEntity internalPortEntity) {
         List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
         if (internalPortEntity.getFixedIps() == null || neighborInfos == null) {
             return;
@@ -67,12 +67,9 @@ public class DataPlaneProcessor extends AbstractProcessor {
             }
 
             if (subnetIds.contains(neighborInfo.getSubnetId())) {
-                internalPortEntity.getL2NeighborIds().add(neighborInfo.getPortIp());
-                if (subnetIds.size() > 1) {
-                    internalPortEntity.getL3NeighborIds().add(neighborInfo.getPortIp());
-                }
+                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L3);
             } else {
-                internalPortEntity.getL3NeighborIds().add(neighborInfo.getPortIp());
+                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L2);
             }
         }
     }
@@ -94,7 +91,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
                 internalPortEntity.setMacAddress(portEntity.getMacAddress());
             }
 
-            setNeighborInfos(context, internalPortEntity);
+            setNeighborType(context, internalPortEntity);
         }
 
         List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();

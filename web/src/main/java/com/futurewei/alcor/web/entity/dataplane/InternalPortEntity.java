@@ -27,12 +27,6 @@ public class InternalPortEntity extends PortEntity {
     @JsonProperty("routes")
     private List<RouteEntity> routes;
 
-    @JsonProperty("l2_neighbor_ids")
-    private List<String> l2NeighborIds;
-
-    @JsonProperty("l3_neighbor_ids")
-    private List<String> l3NeighborIds;
-
     @JsonProperty("binding_host_ip")
     private String bindingHostIP;
 
@@ -42,22 +36,6 @@ public class InternalPortEntity extends PortEntity {
 
     public void setRoutes(List<RouteEntity> routes) {
         this.routes = routes;
-    }
-
-    public List<String> getL2NeighborIds() {
-        return l2NeighborIds;
-    }
-
-    public void setL2NeighborIds(List<String> l2NeighborIds) {
-        this.l2NeighborIds = l2NeighborIds;
-    }
-
-    public List<String> getL3NeighborIds() {
-        return l3NeighborIds;
-    }
-
-    public void setL3NeighborIds(List<String> l3NeighborIds) {
-        this.l3NeighborIds = l3NeighborIds;
     }
 
     public String getBindingHostIP() {
@@ -101,13 +79,9 @@ public class InternalPortEntity extends PortEntity {
     public InternalPortEntity(
             PortEntity portEntity,
             List<RouteEntity> routeEntities,
-            List<String> l2NeighborIds,
-            List<String> l3NeighborIds,
             String bindingHostIP) {
         super(portEntity);
         this.routes = routeEntities;
-        this.l2NeighborIds = l2NeighborIds;
-        this.l3NeighborIds = l3NeighborIds;
         this.bindingHostIP = bindingHostIP;
     }
 }
