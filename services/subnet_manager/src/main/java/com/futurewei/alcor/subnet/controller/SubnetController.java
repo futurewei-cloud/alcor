@@ -284,12 +284,12 @@ public class SubnetController {
             }
             if (gatewayIpIsInAllocatedRange) {
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
-                inSubnetEntity.setPortId(portId);
+                inSubnetEntity.setGatewayPortId(portId);
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
                     inSubnetEntity.setGatewayIp(gatewayIP);
-                    inSubnetEntity.setPortId(portId);
+                    inSubnetEntity.setGatewayPortId(portId);
                 }
             }
             if (ipResponse != null && ipResponse.getIpVersion() == 4) {

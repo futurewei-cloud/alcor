@@ -41,8 +41,9 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("gateway_ip")
     private String gatewayIp = "";
 
+    // subnet_gateway_port_id
     @JsonProperty("port_id")
-    private String portId;
+    private String gatewayPortId;
 
     @JsonProperty("attached_router_id")
     private String attachedRouterId;

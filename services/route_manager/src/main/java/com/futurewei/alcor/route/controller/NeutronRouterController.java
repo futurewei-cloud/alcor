@@ -192,8 +192,8 @@ public class NeutronRouterController {
             String id = neutronRouterWebRequestObject.getId();
 
             if (id == null || StringUtils.isEmpty(id)) {
-                UUID vpcId = UUID.randomUUID();
-                neutronRouterWebRequestObject.setId(vpcId.toString());
+                UUID routerId = UUID.randomUUID();
+                neutronRouterWebRequestObject.setId(routerId.toString());
             }
             RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
 
@@ -201,7 +201,7 @@ public class NeutronRouterController {
             neutronRouterWebRequestObject = RouteManagerUtil.configureNeutronRouterParameters(neutronRouterWebRequestObject);
 
             // save router and router_extra_attribute
-            this.neutronRouterService.saveRouterAndRouterExtraAttribute(neutronRouterWebRequestObject);
+            neutronRouterWebRequestObject = this.neutronRouterService.saveRouterAndRouterExtraAttribute(neutronRouterWebRequestObject);
 
         } catch (Exception e) {
             throw e;
@@ -293,7 +293,7 @@ public class NeutronRouterController {
         String portId = resource.getPortId();
         String subnetId = resource.getSubnetId();
 
-        RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.addAnInterfaceToNeutronRouter(portId, subnetId, routerid);
+        RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.addAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
 
         return routerInterfaceResponse;
 
@@ -312,7 +312,7 @@ public class NeutronRouterController {
         String portId = resource.getPortId();
         String subnetId = resource.getSubnetId();
 
-        RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.removeAnInterfaceToNeutronRouter(portId, subnetId, routerid);
+        RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.removeAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
 
         return routerInterfaceResponse;
 

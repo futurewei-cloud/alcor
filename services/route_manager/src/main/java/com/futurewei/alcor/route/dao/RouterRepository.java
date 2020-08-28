@@ -70,9 +70,9 @@ public class RouterRepository implements ICacheRepository<Router> {
 
     @Override
     @DurationStatistics
-    public void addItem(Router routeTable) throws CacheException {
-        logger.log(Level.INFO, "Add router, router Id:" + routeTable.getId());
-        cache.put(routeTable.getId(), routeTable);
+    public void addItem(Router router) throws CacheException {
+        logger.log(Level.INFO, "Add router, router Id:" + router.getId());
+        cache.put(router.getId(), router);
 
     }
 

@@ -15,11 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.route.service.NeutronRouterService;
+import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -45,16 +47,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${microservices.subnet.service.url}")
-    private String subnetUrl;
+    @Autowired
+    private NeutronRouterToSubnetService routerToSubnetService;
 
     @Autowired
     private RouterDatabaseService routerDatabaseService;
 
     @Autowired
     private RouterExtraAttributeDatabaseService routerExtraAttributeDatabaseService;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter {
@@ -72,15 +72,18 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         neutronRouterWebRequestObject.setRouteTable(routeTable);
         if (routerExtraAttribute != null) {
             BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
+            neutronRouterWebRequestObject.setId(routerId);
         }
         return neutronRouterWebRequestObject;
     }
 
     @Override
-    public void saveRouterAndRouterExtraAttribute(NeutronRouterWebRequestObject neutronRouter) throws NeutronRouterIsNull, DatabasePersistenceException {
+    public NeutronRouterWebRequestObject saveRouterAndRouterExtraAttribute(NeutronRouterWebRequestObject neutronRouter) throws NeutronRouterIsNull, DatabasePersistenceException {
         if (neutronRouter == null) {
             throw new NeutronRouterIsNull();
         }
+        NeutronRouterWebRequestObject inNeutronRouter = new NeutronRouterWebRequestObject();
+        BeanUtils.copyProperties(neutronRouter, inNeutronRouter);
 
         String attachedRouterExtraAttributeId = UUID.randomUUID().toString();
 
@@ -91,58 +94,75 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         BeanUtils.copyProperties(neutronRouter, routerExtraAttribute);
         routerExtraAttribute.setId(attachedRouterExtraAttributeId);
         RouteTable routeTable = neutronRouter.getRouteTable();
+        if (routeTable == null) {
+            routeTable = new RouteTable();
+            List<RouteEntry> routeEntities = new ArrayList<>();
+            String routeTableId = UUID.randomUUID().toString();
+            routeTable.setId(routeTableId);
+            routeTable.setRouteEntities(routeEntities);
+            routeTable.setRouteTableType(RouteTableType.NEUTRON);
+        }
         router.setRouteTable(routeTable);
         router.setRouterExtraAttributeId(attachedRouterExtraAttributeId);
+        inNeutronRouter.setRouteTable(routeTable);
 
         this.routerDatabaseService.addRouter(router);
         this.routerExtraAttributeDatabaseService.addRouterExtraAttribute(routerExtraAttribute);
 
+
+        return inNeutronRouter;
+
     }
 
     @Override
-    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String portId, String subnetId, String routerId) throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter, DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId {
+    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter, DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId {
         if (portId != null && subnetId != null) {
             throw new SpecifyBothSubnetIDAndPortID();
         }
 
         SubnetEntity subnet = null;
+        String subnetid = null;
         String projectId = null;
-        String port = null;
         String attachedRouterId = null;
 
         // Only pass in the value of the port
         if (portId != null && subnetId == null) {
 
             // get subnet by port id
-            SubnetsWebJson subnetsWebJson = getSubnetsByPortId(portId);
+            SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectid, portId);
             if (subnetsWebJson == null) {
                 return new RouterInterfaceResponse();
             }
             ArrayList<SubnetEntity> subnets = subnetsWebJson.getSubnets();
+            if (subnets.size() == 0) {
+                return new RouterInterfaceResponse();
+            }
             if (subnets.size() != 1) {
                 throw new SubnetNotBindUniquePortId();
             }
             subnet = subnets.get(0);
+            subnetid = subnet.getId();
         }
         // Only pass in the value of the subnet
         else if (portId == null && subnetId != null) {
 
             // get subnet by subnet id
-            SubnetWebJson subnetWebJson = getSubnet(subnetId);
-            if (subnetWebJson == null) {
+            SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectid, subnetId);
+            subnet = subnetWebJson.getSubnet();
+            if (subnet == null) {
                 logger.warn("can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
-            subnet = subnetWebJson.getSubnet();
+            subnetid = subnetId;
         } else {
             return new RouterInterfaceResponse();
         }
         projectId = subnet.getProjectId();
-        port = subnet.getPortId();
+        portId = subnet.getGatewayPortId();
         attachedRouterId = subnet.getAttachedRouterId();
 
         // check if port_id is used by other router
-        if (attachedRouterId != null) {
+        if (attachedRouterId != null && !attachedRouterId.equals("")) {
             throw new PortIsAlreadyInUse();
         }
         subnet.setAttachedRouterId(routerId);
@@ -154,13 +174,16 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         subnet.setPort(portEntity);
 
         // update subnet
-        updateSubnet(projectId, subnetId, subnet);
+        this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
 
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {
             throw new CanNotFindRouter();
         }
         List<String> ports = router.getPorts();
+        if (ports == null){
+            ports = new ArrayList<>();
+        }
 
         if (ports.contains(portId)) {
             throw new PortIDIsAlreadyExist();
@@ -170,26 +193,28 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
-        List<String> subnetIds = new ArrayList<>(){{add(subnetId);}};
-        return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetId, subnetIds, projectId, projectId, subnet.getTags());
+        List<String> subnetIds = new ArrayList<>(){};
+        subnetIds.add(subnetid);
+        return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetid, subnetIds, projectId, projectId, subnet.getTags());
     }
 
     @Override
-    public RouterInterfaceResponse removeAnInterfaceToNeutronRouter(String portId, String subnetId, String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, AttachedPortsNotMatchPortId, RouterTableNotExist, RouterInterfaceAreUsedByRoutes, SubnetNotBindUniquePortId {
+    public RouterInterfaceResponse removeAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, AttachedPortsNotMatchPortId, RouterTableNotExist, RouterInterfaceAreUsedByRoutes, SubnetNotBindUniquePortId, DatabasePersistenceException {
         SubnetEntity subnet = null;
         String projectId = null;
+        String subnetid = null;
         String attachedPort = null;
         String attachedRouterId = null;
 
         // if pass in both port_id and subnet_id, check conflict
         if (portId != null && subnetId != null) {
-            SubnetWebJson subnetWebJson = getSubnet(subnetId);
-            if (subnetWebJson == null) {
+            SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectid, subnetId);
+            subnet = subnetWebJson.getSubnet();
+            if (subnet == null) {
                 logger.warn("can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
-            subnet = subnetWebJson.getSubnet();
-            attachedPort = subnet.getPortId();
+            attachedPort = subnet.getGatewayPortId();
             if (attachedPort != null) {
                 if (!attachedPort.equals(portId)) {
                     throw new AttachedPortsNotMatchPortId();
@@ -198,26 +223,32 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 logger.warn("There is no IP address on the port");
                 return new RouterInterfaceResponse();
             }
+            subnetid = subnetId;
 
         }else if (portId != null && subnetId == null) {
             // get subnet by port id
-            SubnetsWebJson subnetsWebJson = getSubnetsByPortId(portId);
+            SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectid, portId);
             if (subnetsWebJson == null) {
                 return new RouterInterfaceResponse();
             }
             ArrayList<SubnetEntity> subnets = subnetsWebJson.getSubnets();
+            if (subnets.size() == 0) {
+                return new RouterInterfaceResponse();
+            }
             if (subnets.size() != 1) {
                 throw new SubnetNotBindUniquePortId();
             }
             subnet = subnets.get(0);
+            subnetid = subnet.getId();
         }else if (portId == null && subnetId != null) {
             // get subnet by subnet id
-            SubnetWebJson subnetWebJson = getSubnet(subnetId);
-            if (subnetWebJson == null) {
+            SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectid, subnetId);
+            subnet = subnetWebJson.getSubnet();
+            if (subnet == null) {
                 logger.warn("can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
-            subnet = subnetWebJson.getSubnet();
+            subnetid = subnetId;
         }else {
             return new RouterInterfaceResponse();
         }
@@ -249,20 +280,32 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         // remove interface
-        subnet.setPortId(null);
+        subnet.setAttachedRouterId("");
+
+        List<String> ports = router.getPorts();
+        if (ports == null){
+            return new RouterInterfaceResponse();
+        }
+
+        if (ports.contains(portId)) {
+            ports.remove(portId);
+        }
+        router.setPorts(ports);
+        this.routerDatabaseService.addRouter(router);
 
         // update device_id and device_owner
         PortEntity portEntity = new PortEntity();
-        portEntity.setDeviceId(routerId);
-        portEntity.setDeviceOwner("network:router_interface");
+        portEntity.setDeviceId(null);
+        portEntity.setDeviceOwner(null);
         subnet.setPort(portEntity);
 
         // update subnet
-        updateSubnet(projectId, subnetId, subnet);
+        this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
 
         // Construct response
-        List<String> subnetIds = new ArrayList<>(){{add(subnetId);}};
-        return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetId, subnetIds, projectId, projectId, subnet.getTags());
+        List<String> subnetIds = new ArrayList<>(){};
+        subnetIds.add(subnetid);
+        return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetid, subnetIds, projectId, projectId, subnet.getTags());
 
     }
 
@@ -372,27 +415,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         responseRouter.setRoutes(responseRoutes);
 
         return new RoutesToNeutronWebResponse(responseRouter);
-    }
-
-    @Override
-    public SubnetWebJson getSubnet(String subnetId) {
-        String subnetManagerServiceUrl = subnetUrl + "/subnets/" + subnetId;
-        SubnetWebJson response = restTemplate.getForObject(subnetManagerServiceUrl, SubnetWebJson.class);
-        return response;
-    }
-
-    @Override
-    public SubnetsWebJson getSubnetsByPortId(String portId) {
-        String subnetManagerServiceUrl = subnetUrl + "/subnets?port_id=" + portId;
-        SubnetsWebJson response = restTemplate.getForObject(subnetManagerServiceUrl, SubnetsWebJson.class);
-        return response;
-    }
-
-    @Override
-    public void updateSubnet(String projectid, String subnetId, SubnetEntity subnet) {
-        String subnetManagerServiceUrl = subnetUrl + "/project/" + projectid + "/subnets/" + subnetId;
-        HttpEntity<SubnetWebJson> request = new HttpEntity<>(new SubnetWebJson(subnet));
-        restTemplate.put(subnetManagerServiceUrl, request, SubnetWebJson.class);
     }
 
 }
