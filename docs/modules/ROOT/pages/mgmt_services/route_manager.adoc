@@ -1045,7 +1045,7 @@ Response:
 }
 ....
 
-anchor:subnet_rm_routetable[]]
+anchor:subnet_rm_routetable[]
 **(18) Delete Subnet route table**
 
 * Method: `DELETE`
