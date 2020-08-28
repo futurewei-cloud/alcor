@@ -163,6 +163,12 @@ image::route_manager_data_schemas.PNG[]
 |/project/{projectid}/subnets/{subnetid}/routetable
 |ResponseId
 <<subnet_rm_routetable,[sample]>>
+
+|Get connected subnets
+|GET
+|/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets
+|ResponseId
+<<get_connected_subnets,[sample]>>
 |===
 
 === API Specification
@@ -1062,6 +1068,43 @@ http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e
 
 Response:
 {"id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95"}
+....
+
+anchor:get_connected_subnets[]
+**(16) Get connected subnets**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get connected subnets and router's information for the new added subnet.
+This operation has three cases depending on the routing table type for the input subnet.
+** If the subnet has no corresponding routing table (for neutron subnet only), return null.
+** If the subnet's routing table type is *neutron*: (1) get router by *network:id*
+(2) get ports from the router (3) get subnet-ids from portsubnetmap table
+(4) return all connected subnet-ids and router's information
+** If the subnet's routing table type is not neutron: (1) get router by *VPC:id*
+(2) get all routing tables from the router (3) get subnet-id from each routing table
+(4) return all subnet-ids and router's information
+* Response: Router state and all connected subnet-ids
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/connected-subnets
+
+Response:
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" }
+      ]
+   },
+   "subnets": ["subnet1-id", "subnet2-id"]
+}
 ....
 
 == Concurrency Handling
