@@ -22,11 +22,10 @@ import com.futurewei.alcor.web.entity.port.IpAllocation;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.VifType;
 import com.futurewei.alcor.web.entity.port.VnicType;
+import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
+import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RestParameterValidator {
     public static void checkMacAddress(PortEntity portEntity) throws Exception {
@@ -128,5 +127,25 @@ public class RestParameterValidator {
 
         //Check ip allocation
         checkIpAllocation(portEntity);
+    }
+
+    public static void checkRouterSubnetUpdateInfo(RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+        if (StringUtils.isEmpty(routerSubnetUpdateInfo.getVpcId())) {
+            throw new VpcIdInvalid();
+        }
+
+        if (StringUtils.isEmpty(routerSubnetUpdateInfo.getSubnetId())) {
+            throw new SubnetIdInvalid();
+        }
+
+        RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
+        if (!RouterSubnetUpdateInfo.OperationType.ADD.equals(operationType) &&
+                !RouterSubnetUpdateInfo.OperationType.DELETE.equals(operationType)) {
+            throw new OperationTypeInvalid();
+        }
+
+        if (routerSubnetUpdateInfo.getOldSubnetIds() == null) {
+            routerSubnetUpdateInfo.setOldSubnetIds(new ArrayList<>());
+        }
     }
 }

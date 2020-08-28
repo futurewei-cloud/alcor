@@ -29,6 +29,7 @@ import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -783,5 +784,10 @@ public class PortServiceImpl implements PortService {
         }
 
         return result;
+    }
+
+    @Override
+    public RouterSubnetUpdateInfo updateNeighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+        return null;
     }
 }

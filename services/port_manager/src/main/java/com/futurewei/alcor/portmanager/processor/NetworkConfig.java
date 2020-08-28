@@ -38,7 +38,7 @@ public class NetworkConfig {
         private String bindingHostId;
 
         public ExtendPortEntity(InternalPortEntity internalPortEntity, String bindingHostId) {
-            super(internalPortEntity, internalPortEntity.getRoutes(), null, null, internalPortEntity.getBindingHostIP());
+            super(internalPortEntity, internalPortEntity.getRoutes(), internalPortEntity.getBindingHostIP());
             this.bindingHostId = bindingHostId;
         }
 

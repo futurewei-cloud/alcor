@@ -20,6 +20,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import io.netty.util.internal.StringUtil;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
+import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkRouterSubnetUpdateInfo;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -202,5 +204,23 @@ public class PortController {
                 .collect(Collectors.toList());
 
         return new PortWebBulkJson(portsList);
+    }
+
+    /**
+     * Update neighbor tables and send them to DPM when adding or deleting gateway port
+     * @param projectId Project Id
+     * @param routerSubnetUpdateInfo Router's latest subnet information
+     * @return RouterSubnetUpdateInfo
+     * @throws Exception Db operation exception
+     */
+    @Rbac(resource ="port")
+    @PostMapping({"/project/{project_id}/update-l3-neighbors", "v4/{project_id}/update-l3-neighbors"})
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
+    public RouterSubnetUpdateInfo updateL3Neighbors(@PathVariable("project_id") String projectId,
+                                                    @RequestBody RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+        checkRouterSubnetUpdateInfo(routerSubnetUpdateInfo);
+        return portService.updateNeighbors(projectId, routerSubnetUpdateInfo);
     }
 }
