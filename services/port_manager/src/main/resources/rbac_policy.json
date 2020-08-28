@@ -1,0 +1,164 @@
+{
+  "serviceRules": [
+    {
+      "name": "create_port",
+      "method_type": "POST",
+      "description": "Create a port",
+      "rule_type": "rule_any",
+      "roles": [],
+      "field_rbac_rules": [
+        {
+          "name": "device_owner",
+          "description": "Specify ''device_owner'' attribute when creating a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "mac_address",
+          "description": "Specify ''mac_address'' attribute when creating a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "fixed_ips",
+          "description": "Specify ''mac_address'' attribute when creating a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "port_security_enabled",
+          "description": "Specify ''port_security_enabled'' attribute when creating a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "binding:host_id",
+          "description": "Specify ''binding:host_id'' attribute when creating a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:profile",
+          "description": "Specify ''binding:profile'' attribute when creating a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:vnic_type",
+          "description": "Specify ''binding:vnic_type'' attribute when creating a port",
+          "rule_type": "rule_any",
+          "roles": []
+        },
+        {
+          "name": "allowed_address_pairs",
+          "description": "Specify ''allowed_address_pairs'' attribute when creating a port",
+          "rule_type": "admin_or_owner",
+          "roles": []
+        }
+      ]
+    },
+    {
+      "name": "get_port",
+      "method_type": "GET",
+      "description": "Get or list port",
+      "rule_type": "multi_roles_or_owner",
+      "roles": ["admin", "advsvc"],
+      "field_rbac_rules": [
+        {
+          "name": "binding:vif_type",
+          "description": "Get ''binding:vif_type'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:vif_details",
+          "description": "Get ''binding:vif_details'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:host_id",
+          "description": "Get ''binding:host_id'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:profile",
+          "description": "Get ''binding:profile'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "resource_request",
+          "description": "Get ''resource_request'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        }
+      ]
+    },
+    {
+      "name": "update_port",
+      "method_type": "PUT",
+      "description": "Update a port",
+      "rule_type": "multi_roles_or_owner",
+      "roles": ["admin", "advsvc"],
+      "field_rbac_rules": [
+        {
+          "name": "device_owner",
+          "description": "Update ''device_owner'' attribute of a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "mac_address",
+          "description": "Update ''mac_address'' attribute of a port",
+          "rule_type": "multi_roles",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "fixed_ips",
+          "description": "Update ''mac_address'' attribute of a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "port_security_enabled",
+          "description": "Update ''port_security_enabled'' attribute of a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "binding:host_id",
+          "description": "Update ''binding:host_id'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:profile",
+          "description": "Update ''binding:profile'' attribute of a port",
+          "rule_type": "admin_only",
+          "roles": ["admin"]
+        },
+        {
+          "name": "binding:vnic_type",
+          "description": "Update ''binding:vnic_type'' attribute of a port",
+          "rule_type": "multi_roles_or_owner",
+          "roles": ["admin", "advsvc"]
+        },
+        {
+          "name": "allowed_address_pairs",
+          "description": "Update ''allowed_address_pairs'' attribute of a port",
+          "rule_type": "admin_or_owner",
+          "roles": []
+        }
+      ]
+    },
+    {
+      "name": "delete_port",
+      "method_type": "DELETE",
+      "description": "Delete a port",
+      "rule_type": "multi_roles_or_owner",
+      "roles": ["admin", "advsvc"]
+    }
+  ]
+}
