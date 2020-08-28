@@ -43,6 +43,9 @@ public class NetworkConfiguration {
   @JsonProperty("neighbor_info")
   private List<NeighborInfo> neighborInfos;
 
+  @JsonProperty("routerinfo")
+  private List<InternalRouteConfiguration> routerinfo;
+
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
       this.portEntities = new ArrayList<>();

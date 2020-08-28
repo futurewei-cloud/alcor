@@ -13,7 +13,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class NeighborInfo {
@@ -37,6 +40,9 @@ public class NeighborInfo {
 
     @JsonProperty("neighbor_type")
     private NeighborType neighborType;
+
+    @JsonProperty("fixedIps")
+    private List<PortEntity.FixedIp> fixedIps;
 
     public enum NeighborType {
         L2("L2"),

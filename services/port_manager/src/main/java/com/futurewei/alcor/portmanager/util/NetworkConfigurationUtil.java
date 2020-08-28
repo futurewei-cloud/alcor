@@ -56,8 +56,10 @@ public class NetworkConfigurationUtil {
 
         List<RouteEntity> routeEntities = portRouteEntityMap.get(portEntity.getId());
         String bindingHostIp = nodeInfoMap.get(portEntity.getId()).getLocalIp();
-
-        InternalPortEntity internalPortEntity = new InternalPortEntity(portEntity, routeEntities, filteredNeighborInfoList, bindingHostIp);
+        List<String> neighborIdList=new ArrayList<>();
+        for(NeighborInfo neighborInfo:filteredNeighborInfoList)
+            neighborIdList.add(neighborInfo.getHostId());
+        InternalPortEntity internalPortEntity = new InternalPortEntity(portEntity, routeEntities, neighborIdList, bindingHostIp);
 
         return internalPortEntity;
     }

@@ -33,6 +33,12 @@ public class InternalPortEntity extends PortEntity {
     @JsonProperty("binding_host_ip")
     private String bindingHostIP;
 
+    @JsonProperty("connected_router_id")
+    private String connectedRouterId;
+
+    @JsonProperty("neighbor_info")
+    private List<NeighborInfo> neighborInfos;
+
     public List<RouteEntity> getRoutes() {
         return routes;
     }
