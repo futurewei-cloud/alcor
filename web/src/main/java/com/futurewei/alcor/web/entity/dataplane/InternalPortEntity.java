@@ -24,9 +24,6 @@ import java.util.Set;
 @Data
 public class InternalPortEntity extends PortEntity {
 
-    @JsonProperty("routes")
-    private List<RouteEntity> routes;
-
     @JsonProperty("neighbor_ids")
     private List<String> neighborIds;
 
@@ -35,17 +32,6 @@ public class InternalPortEntity extends PortEntity {
 
     @JsonProperty("connected_router_id")
     private String connectedRouterId;
-
-    @JsonProperty("neighbor_info")
-    private List<NeighborInfo> neighborInfos;
-
-    public List<RouteEntity> getRoutes() {
-        return routes;
-    }
-
-    public void setRoutes(List<RouteEntity> routes) {
-        this.routes = routes;
-    }
 
     public List<String> getNeighborIds() {
         return neighborIds;
@@ -95,11 +81,9 @@ public class InternalPortEntity extends PortEntity {
 
     public InternalPortEntity(
             PortEntity portEntity,
-            List<RouteEntity> routeEntities,
             List<String> neighborIds,
             String bindingHostIP) {
         super(portEntity);
-        this.routes = routeEntities;
         this.neighborIds = neighborIds;
         this.bindingHostIP = bindingHostIP;
     }
