@@ -348,4 +348,28 @@ public class NeutronRouterController {
 
     }
 
+    @RequestMapping(
+            method = GET,
+            value = {"/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets"})
+    @DurationStatistics
+    public ConnectedSubnetsWebResponse getConnectedSubnets(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
+
+        ConnectedSubnetsWebResponse connectedSubnetsWebResponse = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            connectedSubnetsWebResponse = this.neutronRouterService.getConnectedSubnets(projectid, vpcid, subnetid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        }
+
+        return connectedSubnetsWebResponse;
+
+    }
+
 }

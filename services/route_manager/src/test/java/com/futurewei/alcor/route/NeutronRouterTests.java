@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.Assert.*;
 
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
@@ -76,6 +77,7 @@ public class NeutronRouterTests {
     private String removeInterfaceToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/remove_router_interface";
     private String addRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/add_extra_routes";
     private String removeRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/remove_extra_routes";
+    private String getConnectedSubnets = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/subnets/" + UnitTestConfig.subnetId + "/connected-subnets";
 
     @Test
     public void getNeutronRouterById_pass () throws Exception {
@@ -526,6 +528,25 @@ public class NeutronRouterTests {
                     .content(UnitTestConfig.routesToNeutronRouterRequest))
                     .andDo(print())
                     .andExpect(status().is(404));
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
+
+    @Test
+    public void getConnectedSubnets_pass () throws Exception {
+        Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());setRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());setRouteTableType(RouteTableType.NEUTRON);}});}});
+        Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
+                .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortId(UnitTestConfig.portId);}});}});}});
+        Mockito.when(routerToSubnetService.getSubnet(anyString(), anyString()))
+                .thenReturn(new SubnetWebJson(){{setSubnet(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortId(UnitTestConfig.portId);}});}});
+
+        try {
+            this.mockMvc.perform(get(getConnectedSubnets))
+                    .andDo(print())
+                    .andExpect(status().isOk());
         } catch (Exception e) {
             throw e;
         }
