@@ -22,6 +22,7 @@ import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -207,43 +208,64 @@ public class PortServiceImpl implements PortService {
         return result;
     }
 
-    private List<NeighborInfo> doUpdateNeighbors(RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws CacheException {
+    private List<NeighborEntry> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
+        List<NeighborEntry> neighborTable = new ArrayList<>();
+        for (NeighborInfo localNeighborInfo: localNeighborInfos) {
+            for (NeighborInfo l3Neighbor: l3Neighbors) {
+                NeighborEntry neighborEntry = new NeighborEntry();
+                neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
+                neighborEntry.setLocalIp(localNeighborInfo.getPortIp());
+                neighborEntry.setNeighborIp(l3Neighbor.getPortIp());
+                neighborTable.add(neighborEntry);
+            }
+        }
+
+        return neighborTable;
+    }
+
+    private List<NeighborEntry> updateNeighborTable(RouterSubnetUpdateInfo routerSubnetUpdateInfo, List<NeighborInfo> neighborInfos) throws CacheException {
         String vpcId = routerSubnetUpdateInfo.getVpcId();
         String subnetId = routerSubnetUpdateInfo.getSubnetId();
         List<String> oldSubnetIds = routerSubnetUpdateInfo.getOldSubnetIds();
-        RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
 
         Map<String, NeighborInfo> neighbors = portRepository.getNeighbors(vpcId);
+
+        List<NeighborInfo> localNeighborInfos = new ArrayList<>();
+        List<NeighborInfo> l3Neighbors = new ArrayList<>();
 
         for (Map.Entry<String, NeighborInfo> entry: neighbors.entrySet()) {
             NeighborInfo neighborInfo = entry.getValue();
             if (subnetId.equals(neighborInfo.getSubnetId())) {
-                if (operationType.equals(RouterSubnetUpdateInfo.OperationType.ADD)) {
-                    neighborInfo.setNeighborType(NeighborInfo.NeighborType.L3);
-                } else {
-                    neighborInfo.setNeighborType(NeighborInfo.NeighborType.L2);
-                }
-            } else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
-                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L3);
-            } else {
-                neighborInfo.setNeighborType(NeighborInfo.NeighborType.L2);
+                localNeighborInfos.add(neighborInfo);
+                neighborInfos.add(neighborInfo);
+            }else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
+                l3Neighbors.add(neighborInfo);
+                neighborInfos.add(neighborInfo);
             }
         }
 
-        return new ArrayList<>(neighbors.values());
+        return buildNeighborTable(localNeighborInfos, l3Neighbors);
     }
 
     @Override
     @DurationStatistics
-    public RouterSubnetUpdateInfo updateNeighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
-        List<NeighborInfo> neighbors = doUpdateNeighbors(routerSubnetUpdateInfo);
+    public RouterSubnetUpdateInfo updateL3Neighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+        List<NeighborInfo> neighborInfos = new ArrayList<>();
+        List<NeighborEntry> neighborTable = updateNeighborTable(routerSubnetUpdateInfo, neighborInfos);
 
-        NetworkConfiguration networkConfiguration = new NetworkConfiguration();
-        networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-        networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
-        networkConfiguration.setNeighborInfos(neighbors);
-
-        new UpdateNetworkConfigRequest(null, networkConfiguration).send();
+        if (neighborTable.size() > 0) {
+            NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+            networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
+            RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
+            if (RouterSubnetUpdateInfo.OperationType.ADD.equals(operationType)) {
+                networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
+            } else {
+                networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_DELETE);
+            }
+            networkConfiguration.setNeighborInfos(neighborInfos);
+            networkConfiguration.setNeighborTable(neighborTable);
+            new UpdateNetworkConfigRequest(null, networkConfiguration).send();
+        }
 
         return routerSubnetUpdateInfo;
     }

@@ -38,6 +38,10 @@ public class FetchRouterSubnetsRequest extends AbstractRequest {
         this.routerManagerRestClient = SpringContextUtil.getBean(RouterManagerRestClient.class);
     }
 
+    public String getVpcId() {
+        return vpcId;
+    }
+
     public List<String> getSubnetIds() {
         return subnetIds;
     }

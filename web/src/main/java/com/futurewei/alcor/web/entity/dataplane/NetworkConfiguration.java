@@ -43,6 +43,9 @@ public class NetworkConfiguration {
   @JsonProperty("neighbor_info")
   private List<NeighborInfo> neighborInfos;
 
+  @JsonProperty("neighbor_table")
+  private List<NeighborEntry> neighborTable;
+
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
       this.portEntities = new ArrayList<>();
@@ -129,6 +132,14 @@ public class NetworkConfiguration {
 
   public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
     this.neighborInfos = neighborInfos;
+  }
+
+  public List<NeighborEntry> getNeighborTable() {
+    return neighborTable;
+  }
+
+  public void setNeighborTable(List<NeighborEntry> neighborTable) {
+    this.neighborTable = neighborTable;
   }
 
   @Override

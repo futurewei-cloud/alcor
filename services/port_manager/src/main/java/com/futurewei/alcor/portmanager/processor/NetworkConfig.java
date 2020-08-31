@@ -17,10 +17,12 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
+import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkConfig {
@@ -33,6 +35,8 @@ public class NetworkConfig {
     private List<SecurityGroup> securityGroups;
 
     private List<NeighborInfo> neighborInfos;
+
+    private List<NeighborEntry> neighborTable;
 
     public static class ExtendPortEntity extends InternalPortEntity {
         private String bindingHostId;
@@ -92,5 +96,16 @@ public class NetworkConfig {
 
     public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
         this.neighborInfos = neighborInfos;
+    }
+
+    public List<NeighborEntry> getNeighborTable() {
+        return neighborTable;
+    }
+
+    public void addNeighborEntries(List<NeighborEntry> neighborEntries) {
+        if (this.neighborTable == null) {
+            this.neighborTable = new ArrayList<>();
+        }
+        this.neighborTable.addAll(neighborEntries);
     }
 }

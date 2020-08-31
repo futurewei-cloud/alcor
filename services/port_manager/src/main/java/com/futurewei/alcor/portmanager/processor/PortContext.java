@@ -17,7 +17,10 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
+import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +37,8 @@ public class PortContext {
     private List<PortEntity> portEntities; //For add and delete
     private PortEntity oldPortEntity; //For update
     private PortEntity newPortEntity; //For update
-    private List<String> routerSubnetIds;
+    private Map<String, List<String>> routerSubnetIds;
+    private List<NodeInfo> nodeInfos;
 
     public PortContext() {
 
@@ -144,11 +148,26 @@ public class PortContext {
         this.newPortEntity = newPortEntity;
     }
 
-    public List<String> getRouterSubnetIds() {
-        return routerSubnetIds;
+    public List<String> getRouterSubnetIds(String vpcId) {
+        return this.routerSubnetIds.get(vpcId);
     }
 
-    public void setRouterSubnetIds(List<String> routerSubnetIds) {
+    public void setRouterSubnetIds(Map<String, List<String>> routerSubnetIds) {
         this.routerSubnetIds = routerSubnetIds;
+    }
+
+    public void addRouterSubnetIds(String vpcId, List<String> subnetIds) {
+        if (this.routerSubnetIds == null) {
+            this.routerSubnetIds = new HashMap<>();
+        }
+        this.routerSubnetIds.put(vpcId, subnetIds);
+    }
+
+    public List<NodeInfo> getNodeInfos() {
+        return nodeInfos;
+    }
+
+    public void setNodeInfos(List<NodeInfo> nodeInfos) {
+        this.nodeInfos = nodeInfos;
     }
 }
