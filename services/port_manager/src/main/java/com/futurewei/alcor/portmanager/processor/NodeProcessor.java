@@ -42,6 +42,8 @@ public class NodeProcessor extends AbstractProcessor {
                 }
             }
         }
+
+        request.getContext().setNodeInfos(nodeInfoList);
     }
 
     private void getNodeInfo(PortContext context, List<PortEntity> portEntities) {

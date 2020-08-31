@@ -221,6 +221,6 @@ public class PortController {
     public RouterSubnetUpdateInfo updateL3Neighbors(@PathVariable("project_id") String projectId,
                                                     @RequestBody RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
         checkRouterSubnetUpdateInfo(routerSubnetUpdateInfo);
-        return portService.updateNeighbors(projectId, routerSubnetUpdateInfo);
+        return portService.updateL3Neighbors(projectId, routerSubnetUpdateInfo);
     }
 }

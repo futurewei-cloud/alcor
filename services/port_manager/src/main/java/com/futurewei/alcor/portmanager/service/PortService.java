@@ -41,5 +41,5 @@ public interface PortService {
 
     List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception;
 
-    RouterSubnetUpdateInfo updateNeighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception;
+    RouterSubnetUpdateInfo updateL3Neighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception;
 }

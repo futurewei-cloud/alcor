@@ -23,8 +23,10 @@ import java.util.*;
 
 public class RouterProcessor extends AbstractProcessor {
     private void fetchConnectedSubnetIdsCallback(IRestRequest request) {
-        List<String> subnetIds = ((FetchRouterSubnetsRequest) request).getSubnetIds();
-        request.getContext().setRouterSubnetIds(subnetIds);
+        FetchRouterSubnetsRequest fetchRouterSubnetsRequest = ((FetchRouterSubnetsRequest) request);
+        String vpcId = fetchRouterSubnetsRequest.getVpcId();
+        List<String> subnetIds = fetchRouterSubnetsRequest.getSubnetIds();
+        request.getContext().addRouterSubnetIds(vpcId, subnetIds);
     }
 
     private void getRouterSubnetIds(PortContext context, String vpcId, String subnetId) {

@@ -787,7 +787,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
-    public RouterSubnetUpdateInfo updateNeighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+    public RouterSubnetUpdateInfo updateL3Neighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
         return null;
     }
 }
