@@ -447,6 +447,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             return null;
         } else if(routeTableType.getRouteTableType().equals("neutron")){
             List<String> ports = router.getPorts();
+            // check ports
+            if (ports == null || ports.size() <= 1) {
+                return null;
+            }
             for (String portId : ports) {
                 // get subnet by port id
                 SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectId, portId);
