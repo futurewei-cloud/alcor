@@ -1,21 +1,21 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: ignite-alcor
+  name: ignite-alcor-mac
 roleRef:
   kind: ClusterRole
-  name: ignite-alcor
+  name: ignite-alcor-mac
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
-    name: ignite-alcor
-    namespace: ignite-alcor
+    name: ignite-alcor-mac
+    namespace: ignite-alcor-mac
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-mac
+  namespace: ignite-alcor-mac
 rules:
   - apiGroups:
       - ""
@@ -30,23 +30,23 @@ rules:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ignite-alcor
+  name: ignite-alcor-mac
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-mac
+  namespace: ignite-alcor-mac
 ---
 apiVersion: v1
 kind: Service
 metadata:
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
-  name: ignite-alcor-service
+  name: ignite-alcor-mac-service
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
-  namespace: ignite-alcor
+  namespace: ignite-alcor-mac
   labels:
-    app: ignite-alcor
+    app: ignite-alcor-mac
 spec:
   type: LoadBalancer
   ports:
@@ -54,35 +54,35 @@ spec:
       port: 8080
       targetPort: 8080
     - name: sql
-      port: 10800
+      port: 10803
       targetPort: 10800
     - name: thinclients
       port: 10900
       targetPort: 10900
   selector:
-    app: ignite-alcor
+    app: ignite-alcor-mac
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: ignite-alcor
-  name: ignite-alcor
-  namespace: ignite-alcor
+    app: ignite-alcor-mac
+  name: ignite-alcor-mac
+  namespace: ignite-alcor-mac
 spec:
   selector:
     matchLabels:
-      app: ignite-alcor
-  serviceName: ignite-alcor-service
+      app: ignite-alcor-mac
+  serviceName: ignite-alcor-mac-service
   replicas: 3
   template:
     metadata:
       labels:
-        app: ignite-alcor
+        app: ignite-alcor-mac
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: ignite-alcor-mac
       containers:
-        - name: ignite-alcor-node
+        - name: ignite-alcor-mac-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
           #resources:
@@ -92,13 +92,11 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_config.xml
+              value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_mac_config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
               value: "-Djava.net.preferIPv4Stack=true"
-            #- name: JVM_OPTS
-              #value: "-Djava.net.preferIPv4Stack=true \
                       #-XX:+PrintGCDetails \
                       #-XX:+PrintGCTimeStamps \
                       #-XX:+PrintGCDateStamps \
@@ -128,31 +126,9 @@ spec:
             - name: port10900
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
-            - name: ignite-alcor-config-volume
-              mountPath: /opt/storage
-            #- name: ignite-alcor-wal-volume
-              #mountPath: /db/wal
-            #- name: ignite-alcor-walArchive-volume
-              #mountPath: /db/wal/archive
+            - name: ignite-alcor-mac-config-volume
+              mountPath: /opt/mac
       volumes:
-        - name: ignite-alcor-config-volume
+        - name: ignite-alcor-mac-config-volume
           hostPath: 
-            path: /root/work/storage
-        #- name: ignite-alcor-wal-volume
-          #hostPath: 
-            #path: /root/work/db
-        #- name: ignite-alcor-walArchive-volume
-          #hostPath: 
-            #path: /root/work/db/archive
-            
-          #persistentVolumeClaim:
-            #claimName: ignite-alcor
-  #volumeClaimTemplates:
-  #- metadata:
-      #name: ignite-alcor-config-volume
-    #spec:
-      #accessModes: [ "ReadWriteOnce" ]
-      #storageClassName: "ignite-persistence-storage-class"
-      #resources:
-        #requests:
-          #storage: 1Gi
+            path: /root/work/mac
