@@ -28,8 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -51,11 +53,14 @@ public class StrictRbacManager implements RbacManger {
     }
 
     private void initServiceRbacRules() throws IOException {
-        InputStream is = ClassLoader.getSystemResourceAsStream(SERVICE_RBAC_FILE_PATH);
-        if (is == null) {
-            is = ClassLoader.getSystemResourceAsStream(DEFAULT_RBAC_FILE_PATH);
+        ClassPathResource resource = new ClassPathResource(SERVICE_RBAC_FILE_PATH);
+        if (!resource.exists()) {
+            resource = new ClassPathResource(DEFAULT_RBAC_FILE_PATH);
+            if (!resource.exists()) {
+                throw new FileNotFoundException("rbac_policy.json cannot be opened because it does not exist");
+            }
         }
-        serviceRbacRule = JsonUtil.readValue(is, ServiceRbacRule.class);
+        serviceRbacRule = JsonUtil.readValue(resource.getInputStream(), ServiceRbacRule.class);
     }
 
     @Override

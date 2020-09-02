@@ -68,7 +68,10 @@ public class DatabaseProcessor extends AbstractProcessor {
     @Override
     void updateProcess(PortContext context) throws Exception {
         List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
-        NeighborInfo neighborInfo = buildNeighborInfo(internalPortEntities.get(0));
+        NeighborInfo neighborInfo = null;
+        if (internalPortEntities.size() > 0) {
+            neighborInfo = buildNeighborInfo(internalPortEntities.get(0));
+        }
         PortEntity oldPortEntity = context.getOldPortEntity();
         context.getPortRepository().updatePort(oldPortEntity, neighborInfo);
     }
