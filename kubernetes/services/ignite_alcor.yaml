@@ -32,45 +32,6 @@ kind: Namespace
 metadata:
   name: ignite-alcor
 ---
-#kind: StorageClass
-#apiVersion: storage.k8s.io/v1
-#metadata:
-  #name: manual  #StorageClass name
-  #namespace: ignite-alcor #Ignite namespace
-#provisioner: kubernetes.io/aws-ebs
-#parameters:
-  #type: gp2 #Volume type io1, gp2, sc1, st1. Default: gp2
-  #zones: us-east-1d
-#---
-#kind: PersistentVolume
-#apiVersion: v1
-#metadata:
-  #name: ignite-alcor
-  #namespace: ignite-alcor
-  #labels:
-    #type: local
-#spec:
-  #storageClassName: manual
-  #capacity:
-    #storage: 10Gi
-  #accessModes:
-    #- ReadWriteOnce
-  #hostPath:
-    #path: "/mnt/data"
-#---
-#kind: PersistentVolumeClaim
-#apiVersion: v1
-#metadata:
-  #name: ignite-alcor
-  #namespace: ignite-alcor
-#spec:
-  #storageClassName: manual
-  #accessModes:
-    #- ReadWriteOnce
-  #resources:
-    #requests:
-      #storage: 1Gi
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -102,7 +63,6 @@ spec:
     app: ignite-alcor
 ---
 apiVersion: apps/v1
-#kind: Deployment
 kind: StatefulSet
 metadata:
   labels:
@@ -125,15 +85,14 @@ spec:
         - name: ignite-alcor-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "16"
+          #resources:
+            #requests:
+              #cpu: "16"
           env:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
               value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_config.xml
-              #value: /opt/ignite/apache-ignite/config/default-config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS

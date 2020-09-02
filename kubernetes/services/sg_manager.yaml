@@ -19,7 +19,7 @@ spec:
   selector:
     matchLabels:
       app: sgmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -58,7 +58,7 @@ spec:
   ports:
     - port: 9008
       targetPort: 8080
-      nodePort: 30011
+      nodePort: 30008
   selector:
     app: sgmanager
 

@@ -22,7 +22,7 @@ spec:
   selector:
     matchLabels:
       app: routemanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:

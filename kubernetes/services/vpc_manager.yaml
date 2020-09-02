@@ -13,6 +13,7 @@ data:
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/vpcs/
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +25,7 @@ spec:
   selector:
     matchLabels:
       app: vpcmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:

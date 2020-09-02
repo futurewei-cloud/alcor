@@ -58,7 +58,7 @@ spec:
   ports:
     - port: 9004
       targetPort: 8080
-      nodePort: 30007
+      nodePort: 30004
   selector:
     app: ipmanager
 

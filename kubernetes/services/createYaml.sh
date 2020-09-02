@@ -13,7 +13,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   
   echo "Create yaml files done"
   
-  sleep 20s
+  sleep 40s
   
   kubectl exec -it ignite-alcor-0 -n ignite-alcor -c ignite-alcor-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   

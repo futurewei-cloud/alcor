@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: macmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:

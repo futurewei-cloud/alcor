@@ -48,7 +48,7 @@ metadata:
   labels:
     app: ignite-alcor-port
 spec:
-  #type: LoadBalancer
+  type: LoadBalancer
   ports:
     - name: rest
       port: 8080
@@ -56,9 +56,9 @@ spec:
     - name: sql
       port: 10802
       targetPort: 10800
-    #- name: thinclients
-      #port: 10900
-      #targetPort: 10900
+    - name: thinclients
+      port: 10900
+      targetPort: 10900
   selector:
     app: ignite-alcor-port
 ---
@@ -74,7 +74,7 @@ spec:
     matchLabels:
       app: ignite-alcor-port
   serviceName: ignite-alcor-port-service
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -85,15 +85,18 @@ spec:
         - name: ignite-alcor-port-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
+          #resources:
+            #requests:
+              #cpu: "16"
           env:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
               value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_port_config.xml
-            #- name: IGNITE_QUIET
-              #value: "false"
-            #- name: JVM_OPTS
-              #value: "-Djava.net.preferIPv4Stack=true \
+            - name: IGNITE_QUIET
+              value: "false"
+            - name: JVM_OPTS
+              value: "-Djava.net.preferIPv4Stack=true"
                       #-XX:+PrintGCDetails \
                       #-XX:+PrintGCTimeStamps \
                       #-XX:+PrintGCDateStamps \
