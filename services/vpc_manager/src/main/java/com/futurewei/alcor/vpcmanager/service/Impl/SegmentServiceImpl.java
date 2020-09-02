@@ -157,7 +157,7 @@ public class SegmentServiceImpl implements SegmentService {
         } catch (Exception e) {
             this.vxlanRepository.deleteItem(vxlanId);
             this.vxlanRangeRepository.releaseVxlanKey(partitionStringFormat, key);
-            logger.info("Allocate vxlan key or db operation failed");
+            logger.info("Allocate vxlan key or db operation failed, key: " + key);
             throw e;
         }
     }
