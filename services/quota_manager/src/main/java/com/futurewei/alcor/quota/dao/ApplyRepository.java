@@ -84,4 +84,9 @@ public class ApplyRepository implements ICacheRepositoryEx<ApplyInfo> {
     public void deleteItem(String id) throws CacheException {
         cache.remove(id);
     }
+
+    @Override
+    public void addAllItem(Map<String, ApplyInfo> newItems) throws CacheException {
+        cache.putAll(newItems);
+    }
 }
