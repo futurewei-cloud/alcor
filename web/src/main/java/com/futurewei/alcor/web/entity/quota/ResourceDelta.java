@@ -16,23 +16,35 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.web.entity.quota;
 
+public class ResourceDelta {
 
-import com.futurewei.alcor.common.db.CacheException;
+    private String resource;
 
-import java.util.Map;
-import java.util.Set;
+    private int amount;
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
+    public ResourceDelta() {
+    }
 
-    long size();
+    public ResourceDelta(String resource, int amount) {
+        this.resource = resource;
+        this.amount = amount;
+    }
 
-    Boolean putIfAbsent(T newItem) throws CacheException;
+    public String getResource() {
+        return resource;
+    }
 
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
 
-    Boolean contains(String key) throws CacheException;
+    public int getAmount() {
+        return amount;
+    }
 
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
 }

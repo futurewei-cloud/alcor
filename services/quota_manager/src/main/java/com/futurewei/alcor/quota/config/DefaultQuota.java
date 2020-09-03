@@ -16,23 +16,25 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-import com.futurewei.alcor.common.db.CacheException;
-
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
+@Component
+@ConfigurationProperties(prefix = "quota")
+public class DefaultQuota {
 
-    long size();
+    private final Map<String, Integer> defaults = new HashMap<>();
 
-    Boolean putIfAbsent(T newItem) throws CacheException;
+    public Map<String, Integer> getDefaults() {
+        return defaults;
+    }
 
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public Map<String, Integer> getDefaultsCopy() {
+        return new HashMap<>(defaults);
+    }
 }

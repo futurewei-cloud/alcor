@@ -16,23 +16,16 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.CacheException;
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class ResourceUnknownQuotaException extends QuotaException{
 
-import java.util.Map;
-import java.util.Set;
+    public ResourceUnknownQuotaException(String unknown) {
+        super("Unknown quota resources " + unknown);
+    }
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
 }

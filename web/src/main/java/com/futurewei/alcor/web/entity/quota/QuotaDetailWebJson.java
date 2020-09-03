@@ -16,23 +16,25 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
-
-
-import com.futurewei.alcor.common.db.CacheException;
+package com.futurewei.alcor.web.entity.quota;
 
 import java.util.Map;
-import java.util.Set;
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
+public class QuotaDetailWebJson {
 
-    long size();
+    private Map<String, QuotaUsageEntity> quota;
 
-    Boolean putIfAbsent(T newItem) throws CacheException;
+    public QuotaDetailWebJson() {}
 
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
+    public QuotaDetailWebJson(Map<String, QuotaUsageEntity> quota) {
+        this.quota = quota;
+    }
 
-    Boolean contains(String key) throws CacheException;
+    public Map<String, QuotaUsageEntity> getQuota() {
+        return quota;
+    }
 
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public void setQuota(Map<String, QuotaUsageEntity> quota) {
+        this.quota = quota;
+    }
 }

@@ -16,23 +16,17 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class OverLimitQuotaException extends QuotaException {
+
+    public OverLimitQuotaException(String resources) {
+        super("Quota exceeded for resources " + resources);
+    }
 
 
-import com.futurewei.alcor.common.db.CacheException;
-
-import java.util.Map;
-import java.util.Set;
-
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
 }

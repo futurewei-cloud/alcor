@@ -16,23 +16,15 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.CacheException;
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class InvalidQuotaValueException extends QuotaException {
 
-import java.util.Map;
-import java.util.Set;
-
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public InvalidQuotaValueException(String resources) {
+        super("Change would make usage less than 0 for the following resource: " + resources);
+    }
 }

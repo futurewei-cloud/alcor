@@ -16,23 +16,20 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.exception;
 
+import com.futurewei.alcor.web.entity.quota.QuotaUsageEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.CacheException;
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class ApplyInfoNotFoundException extends QuotaException {
 
-import java.util.Map;
-import java.util.Set;
+    public ApplyInfoNotFoundException() {
+        super("Apply info could not be found");
+    }
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public ApplyInfoNotFoundException(String message) {
+        super(message);
+    }
 }

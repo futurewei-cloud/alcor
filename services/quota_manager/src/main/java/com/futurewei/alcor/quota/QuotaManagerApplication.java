@@ -16,23 +16,20 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota;
 
+import com.futurewei.alcor.common.db.DbBaseConfiguration;
+import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
-import com.futurewei.alcor.common.db.CacheException;
+@SpringBootApplication
+@Import({JsonHandlerConfiguration.class, DbBaseConfiguration.class})
+public class QuotaManagerApplication {
 
-import java.util.Map;
-import java.util.Set;
+    public static void main(String[] args) {
+        SpringApplication.run(QuotaManagerApplication.class);
+    }
 
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
 }

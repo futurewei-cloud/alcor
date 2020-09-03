@@ -16,23 +16,13 @@
  * /
  */
 
-package com.futurewei.alcor.common.db.repo;
+package com.futurewei.alcor.quota.exception;
 
+public class QuotaException extends Exception {
 
-import com.futurewei.alcor.common.db.CacheException;
+    public QuotaException() {}
 
-import java.util.Map;
-import java.util.Set;
-
-public interface ICacheRepositoryEx<T> extends ICacheRepository<T> {
-
-    long size();
-
-    Boolean putIfAbsent(T newItem) throws CacheException;
-
-    Map<String, T> findAllItems(Set<String> keys) throws CacheException;
-
-    Boolean contains(String key) throws CacheException;
-
-    void addAllItem(Map<String, T> newItems) throws CacheException;
+    public QuotaException(String message) {
+        super(message);
+    }
 }
