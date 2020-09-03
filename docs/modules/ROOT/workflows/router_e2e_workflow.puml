@@ -55,7 +55,7 @@ autonumber 20
 "Data Plane Manager" -> "ACA on \n Host 1": L3 neighbors CREATE (DELTA) P2 + Router: INFO\n (w/ host 1 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
 
 
-===Scenarios B: Create GREEN subnet P1 on Host 1, then RED subnet P2 on Host 2, GREEN and RED subnets NOT connected until after P1 and P2 is created==
+===Scenarios B: (Neutron only) Create GREEN subnet P1 on Host 1, then RED subnet P2 on Host 2, GREEN and RED subnets NOT connected until after P1 and P2 is created==
 
 ==Scenario B1: Setup GREEN subnet P1 on Host 1 ==
 autonumber 30
@@ -90,19 +90,14 @@ autonumber 50
 "Data Plane Manager" -> "ACA on \n Host 2": L3 neighbors CREATE (DELTA) P1 + Router: INFO\n (w/ host 2 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
 
 
-===Scenario C: Routing rule added for GREEN subnet, GREEN subnet P1 on Host 1, RED subnet P2 on Host 2  ==
+===Scenario C: (VPC only) Routing rule added for GREEN subnet, GREEN subnet P1 on Host 1, RED subnet P2 on Host 2  ==
 autonumber 60
 "Customer" -> "Route Manager": Existing router created with GREEN and RED subnet connected
-"Customer" -> "Route Manager": Add routing rule on GREEN subnet\n does customer provide an router ID or subnet ID?
-"Route Manager" -> "Subnet Manager": Update routing rule for GREEN subnet?
-"Route Manager" -> "Port Manager": Update L3 Neighbor? for new routing rule that add more L3 neighbors, like connecting YELLOW subnet to router?
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip, neighbor host DVR mac(new)}\n May merge with call above
-"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[Neighbor port Id=[P1,P2]],[Router INFO][GREEN+RED Subnet],[VPC],[SG]} 
-"Data Plane Manager" -> "ACA on \n Host 1": L3 neighbors CREATE (DELTA) P3 + Router: INFO\n (w/ host 1 local DVR mac), Subnet: INFO (RED+GREEN+YELLOW? needed for router)
-
-"Route Manager" -> "Port Manager": for new routing rule that does add neighbor, like new external routing rule, does it talk to port manager?
-"Route Manager" -> "Data Plane Manager": looks like we may need the path for this...
+"Customer" -> "Route Manager": Add routing rule on GREEN subnet\n customer provide subnet ID
+"Route Manager" -> "Subnet Manager": For new routing rule like new external routing rule\n (new) send GREEN subnet level routing rule to subnet manager
+"Subnet Manager" -> "Subnet Manager": Look at all the ports in GREEN subnet\n Look up cache for their {host_ip,\n local_host_dvr_mac (not needed)}
+"Subnet Manager" -> "Data Plane Manager": For all the involved host which has GREEN subnet port, Update router info\n which includes the new routing rule on GREEN subnet
+"Data Plane Manager" -> "ACA on \n Host 1": Router: INFO (add new routing rule on GREEN subnet)\n Subnet: INFO (GREEN needed for router)
 
 @enduml
 
