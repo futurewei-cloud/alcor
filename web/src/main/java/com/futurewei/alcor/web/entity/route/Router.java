@@ -27,7 +27,10 @@ import java.util.List;
 public class Router extends CustomerResource {
 
     @JsonProperty("routetable")
-    private RouteTable routeTable;
+    private RouteTable neutronRouteTable;
+
+    @JsonProperty("routetables")
+    private List<RouteTable> vpcRouteTable;
 
     // store vpc_id
     @JsonProperty("owner")
@@ -60,14 +63,20 @@ public class Router extends CustomerResource {
 
     public Router() {}
 
-    public Router(String projectId, String Id, String name, String description, RouteTable routeTable) {
+    public Router(String projectId, String Id, String name, String description, RouteTable neutronRouteTable) {
         super(projectId, Id, name, description);
-        this.routeTable = routeTable;
+        this.neutronRouteTable = neutronRouteTable;
     }
 
-    public Router(String projectId, String id, String name, String description, RouteTable routeTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
+    public Router(String projectId, String Id, String name, String description, List<RouteTable> vpcRouteTable) {
+        super(projectId, Id, name, description);
+        this.vpcRouteTable = vpcRouteTable;
+    }
+
+    public Router(String projectId, String id, String name, String description, RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
         super(projectId, id, name, description);
-        this.routeTable = routeTable;
+        this.neutronRouteTable = neutronRouteTable;
+        this.vpcRouteTable = vpcRouteTable;
         this.owner = owner;
         this.ports = ports;
         this.tenantId = tenantId;

@@ -23,8 +23,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.dao.RouterRepository;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.web.entity.route.Router;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.futurewei.alcor.common.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ import java.util.Map;
 @Service
 public class RouterDatabaseServiceImpl implements RouterDatabaseService {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger();
 
     @Autowired
     RouterRepository routerRepository;

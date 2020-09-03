@@ -252,42 +252,4 @@ public class RouteController {
         
     }
 
-    @RequestMapping(
-            method = POST,
-            value = {"/routers/{routerId}/routetable/{routeTableId}"})
-    @ResponseStatus(HttpStatus.CREATED)
-    @DurationStatistics
-    public RouterWebJson createDefaultRouterForVpc(@PathVariable String routerId, @PathVariable String routeTableId, @RequestBody VpcWebJson resource) throws Exception {
-        RouteEntry routeEntry = null;
-        RouteTable routeTable = null;
-        Router router = null;
-
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerId);
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(routeTableId);
-            VpcEntity vpcEntity = resource.getNetwork();
-            RestPreconditionsUtil.verifyResourceNotNull(vpcEntity);
-
-            String id = UUID.randomUUID().toString();
-            String projectId = vpcEntity.getProjectId();
-            String destination = vpcEntity.getCidr();
-            String vpcId = vpcEntity.getId();
-
-            routeEntry = new RouteEntry(projectId, id, "default_route_rule", "",
-                    destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, routeTableId, null);
-            List<RouteEntry> routeEntries = new ArrayList<>();
-            routeEntries.add(routeEntry);
-            routeTable = new RouteTable(projectId, routerId, "default_route_table", "",routeEntries, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE,vpcId);
-
-            router = new Router(projectId, routeTableId, "default_router", "", routeTable);
-
-            //this.routeDatabaseService.addRoute(routeEntity);
-
-            //this.routeWithVpcMapperService.addMapperByRouteEntity(vpcId, routeEntity);
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        }
-
-        return new RouterWebJson(router);
-    }
 }

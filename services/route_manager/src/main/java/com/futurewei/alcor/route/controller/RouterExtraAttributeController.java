@@ -15,8 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.futurewei.alcor.common.logging.*;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class RouterExtraAttributeController {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger();
 
 }

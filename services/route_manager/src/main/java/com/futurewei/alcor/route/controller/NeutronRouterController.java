@@ -29,8 +29,7 @@ import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
 import com.futurewei.alcor.route.utils.RouteManagerUtil;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.futurewei.alcor.common.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -52,7 +52,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class NeutronRouterController {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger();
 
     @Autowired
     private RouterDatabaseService routerDatabaseService;
@@ -91,7 +91,7 @@ public class NeutronRouterController {
         } catch (ParameterNullOrEmptyException e) {
             throw e;
         } catch (CanNotFindRouter e) {
-            logger.error(e.getMessage() + " : " + routerid);
+            logger.log(Level.WARNING, e.getMessage() + " : " + routerid);
             return new NeutronRouterWebJson();
         }
 
@@ -211,7 +211,7 @@ public class NeutronRouterController {
             value = {"/project/{projectid}/routers/{routerid}"})
     @DurationStatistics
     public NeutronRouterWebJson updateNeutronRouterByRouterId(@PathVariable String projectid,@PathVariable String routerid, @RequestBody NeutronRouterWebJson resource) throws Exception {
-        NeutronRouterWebRequestObject neutronRouterWebRequestObject = null;
+        NeutronRouterWebRequestObject inNeutronRouter = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -221,13 +221,13 @@ public class NeutronRouterController {
                 throw new ResourceNotValidException("request resource is invalid");
             }
 
-            neutronRouterWebRequestObject = resource.getRouter();
-            NeutronRouterWebRequestObject inNeutronRouter = this.neutronRouterService.getNeutronRouter(routerid);
+            NeutronRouterWebRequestObject neutronRouterWebRequestObject = resource.getRouter();
+            inNeutronRouter = this.neutronRouterService.getNeutronRouter(routerid);
 
             RouteManagerUtil.copyPropertiesIgnoreNull(neutronRouterWebRequestObject, inNeutronRouter);
 
-            // configure default value
-            neutronRouterWebRequestObject = RouteManagerUtil.configureNeutronRouterParameters(neutronRouterWebRequestObject);
+            // save router and router_extra_attribute
+            inNeutronRouter = this.neutronRouterService.saveRouterAndRouterExtraAttribute(inNeutronRouter);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -235,7 +235,7 @@ public class NeutronRouterController {
             throw e;
         }
 
-        return new NeutronRouterWebJson(neutronRouterWebRequestObject);
+        return new NeutronRouterWebJson(inNeutronRouter);
     }
 
     @RequestMapping(
@@ -256,6 +256,7 @@ public class NeutronRouterController {
         if (ports != null && ports.size() != 0) {
             throw new RouterHasAttachedInterfaces();
         }
+        // TODO: also need to consider internet gw port, if internet gateway ports for subnets are still in this router, the deletion should return error message to user. Now we unset internet gw
         this.routerDatabaseService.deleteRouter(routerid);
 
         RouterExtraAttribute routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
@@ -282,6 +283,12 @@ public class NeutronRouterController {
         String subnetId = resource.getSubnetId();
 
         RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.addAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
+
+        // TODO: return all connected subnet-ids to Port Manager. The algorithm as follow:
+        //1. get ports array from the router.
+        //2. get subnet-ids from the mapping table of port-subnet for all ports.
+        //3. call Port Manager's /project/{project_id}/update-l3-neighbors/{new_subnet_id} with BODY {operation_type, vpcid, [old_subnet_ids]}.
+        //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
 
         return routerInterfaceResponse;
 
@@ -323,6 +330,8 @@ public class NeutronRouterController {
 
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, router);
 
+        // TODO:  l3-neighbors-updating (waiting for PM)
+
         return routesToNeutronWebResponse;
 
     }
@@ -343,6 +352,8 @@ public class NeutronRouterController {
         }
 
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesToNeutronRouter(routerid, router);
+
+        // TODO: call PM for routing rule updating (waiting for PM)
 
         return routesToNeutronWebResponse;
 
