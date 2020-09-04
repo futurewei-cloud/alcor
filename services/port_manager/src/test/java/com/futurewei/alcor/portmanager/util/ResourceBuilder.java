@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -33,7 +34,6 @@ import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteTableType;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
@@ -219,7 +219,7 @@ public class ResourceBuilder {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
         route.setTarget(UnitTestConfig.routeTarget);
-        route.setAssociatedType(RouteTableType.MAIN);
+        route.setAssociatedType(RouteTableType.VPC);
 
         return new RouteWebJson(route);
     }
@@ -228,7 +228,7 @@ public class ResourceBuilder {
         RouteEntity route = new RouteEntity();
         route.setDestination(UnitTestConfig.routeDestination);
         route.setTarget(UnitTestConfig.routeTarget);
-        route.setAssociatedType(RouteTableType.MAIN);
+        route.setAssociatedType(RouteTableType.VPC);
 
         List<RouteEntity> routes = new ArrayList<>();
         routes.add(route);

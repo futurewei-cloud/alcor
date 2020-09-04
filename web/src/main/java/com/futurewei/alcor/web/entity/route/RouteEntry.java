@@ -17,12 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.route;
 
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.common.enumClass.RouteTableType;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class RouteEntity extends CustomerResource {
+public class RouteEntry extends CustomerResource {
 
     @NotNull
     private String destination;
@@ -34,22 +33,23 @@ public class RouteEntity extends CustomerResource {
     private Integer priority;
 
     @NotNull
-    private RouteTableType associatedType;
+    private String routeTableId;
 
+    // gateway_ip_address
     @NotNull
-    private String associatedTableId;
+    private String nexthop;
 
-    public RouteEntity() {
+    public RouteEntry() {
 
     }
 
-    public RouteEntity(String projectId, String Id, String name, String description,
-                       String destination, String target, Integer priority, RouteTableType type, String tableId) {
-        super(projectId, Id, name, "");
+    public RouteEntry(String projectId, String Id, String name, String description,
+                       String destination, String target, Integer priority, String routeTableId, String nexthop) {
+        super(projectId, Id, name, description);
         this.destination = destination;
         this.target = target;
         this.priority = priority;
-        this.associatedType = type;
-        this.associatedTableId = tableId;
+        this.routeTableId = routeTableId;
+        this.nexthop = nexthop;
     }
 }

@@ -13,43 +13,34 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-
 package com.futurewei.alcor.web.entity.route;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @Data
-public class RouteEntity extends CustomerResource {
+public class RouteTable extends CustomerResource {
 
-    @NotNull
-    private String destination;
+    @JsonProperty("routes")
+    private List<RouteEntry> routeEntities;
 
-    @NotNull
-    private String target;
+    @JsonProperty("route_table_type")
+    private RouteTableType routeTableType;
 
-    @NotNull
-    private Integer priority;
+    // store subnet_id / vpc_id
+    @JsonProperty("owner")
+    private String owner;
 
-    @NotNull
-    private RouteTableType associatedType;
+    public RouteTable () {}
 
-    @NotNull
-    private String associatedTableId;
-
-    public RouteEntity() {
-
-    }
-
-    public RouteEntity(String projectId, String Id, String name, String description,
-                       String destination, String target, Integer priority, RouteTableType type, String tableId) {
-        super(projectId, Id, name, "");
-        this.destination = destination;
-        this.target = target;
-        this.priority = priority;
-        this.associatedType = type;
-        this.associatedTableId = tableId;
+    public RouteTable(String projectId, String id, String name, String description, List<RouteEntry> routeEntities, RouteTableType routeTableType, String owner) {
+        super(projectId, id, name, description);
+        this.routeEntities = routeEntities;
+        this.routeTableType = routeTableType;
+        this.owner = owner;
     }
 }

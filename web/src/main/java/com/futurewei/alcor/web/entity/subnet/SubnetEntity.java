@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.entity.subnet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,8 +37,19 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("availability_zone")
     private String availabilityZone;
 
+    // TODO: considering to put into port
     @JsonProperty("gateway_ip")
     private String gatewayIp = "";
+
+    // subnet_gateway_port_id
+    @JsonProperty("port_id")
+    private String gatewayPortId;
+
+    @JsonProperty("attached_router_id")
+    private String attachedRouterId;
+
+    @JsonProperty("port_detail")
+    private PortEntity port;
 
     @JsonProperty("enable_dhcp")
     private Boolean dhcpEnable;
@@ -51,6 +63,7 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("routes")
     private List<RouteEntity> routeEntities;
 
+    // TODO: considering to put into port
     @JsonProperty("gateway_macAddress")
     private String gatewayMacAddress;
 
