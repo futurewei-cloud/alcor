@@ -22,4 +22,5 @@ public interface SegmentService {
     public NetworkRangeRequest deleteRange(String rangeId) throws Exception;
     public NetworkRangeRequest getRange(String rangeId) throws Exception;
     public List<NetworkRangeRequest> listRanges();
+    public void createDefaultNetworkTypeTable () throws Exception;
 }
