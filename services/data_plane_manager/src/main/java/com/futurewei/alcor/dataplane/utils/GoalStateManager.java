@@ -458,6 +458,7 @@ public class GoalStateManager {
             currentPortEntity.getId(),
             currentPortEntity.getMacAddress()));
     tempPorts.add(currentPortEntity.getId());
+    /*
     if (currentPortEntity.getNeighborInfos() != null) {
       for (NeighborInfo neighborInfo : currentPortEntity.getNeighborInfos()) {
         tempNeighbor.add(
@@ -470,6 +471,8 @@ public class GoalStateManager {
         tempPorts.add(neighborInfo.getPortId());
       }
     }
+
+     */
 
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
     neighborInfoInSameSubenetMap.put(fixedIp.getSubnetId(), tempNeighbor);
