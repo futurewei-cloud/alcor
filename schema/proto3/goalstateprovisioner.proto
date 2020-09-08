@@ -35,6 +35,11 @@ service GoalStateProvisioner {
     rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
     }
 
+    // same as PushNetworkResourceStates with streaming GoalState and streaming GoalStateOperationReply
+    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateOperationReply) {
+    }
+
+
     // Retrieve a group of network resource states (stored as a steam of GoalState objects)
     rpc RetrieveNetworkResourceStates (GoalStateRequest) returns (stream GoalState) {
     }

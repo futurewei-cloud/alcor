@@ -34,7 +34,7 @@ message NeighborConfiguration {
 
     string request_id = 3;
     string id = 4;
-    NeighborType neighbor_type = 5; // L2 (default) or L3
+    MessageType message_type = 5; // DELTA (default) or FULL
     string project_id = 6;
     string vpc_id = 7;
     string name = 8;
@@ -43,8 +43,9 @@ message NeighborConfiguration {
     string neighbor_host_dvr_mac = 11;
 
     message FixedIp {
-        string subnet_id = 1;
-        string ip_address = 2;
+        NeighborType neighbor_type = 1;
+        string subnet_id = 2;
+        string ip_address = 3;
     }
 
     message AllowAddressPair {
