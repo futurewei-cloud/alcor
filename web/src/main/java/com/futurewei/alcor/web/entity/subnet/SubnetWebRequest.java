@@ -17,6 +17,7 @@ package com.futurewei.alcor.web.entity.subnet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,6 +36,12 @@ public class SubnetWebRequest extends CustomerResource {
 
     @JsonProperty("gateway_ip")
     private String gatewayIp;
+
+    @JsonProperty("attached_router_id")
+    private String attachedRouterId;
+
+    @JsonProperty("port_detail")
+    private PortEntity port;
 
     @JsonProperty("enable_dhcp")
     private Boolean dhcpEnable;
@@ -89,11 +96,13 @@ public class SubnetWebRequest extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public SubnetWebRequest(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, Boolean dhcpEnable, List<RouteEntity> routeEntities, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
+    public SubnetWebRequest(String projectId, String id, String name, String description, String vpcId, String cidr, String gatewayIp, String attachedRouterId, PortEntity port, Boolean dhcpEnable, List<RouteEntity> routeEntities, Integer ipVersion, String ipv6AddressMode, String ipv6RaMode, Integer revisionNumber, String segmentId, String tenantId, String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, List<String> dnsNameservers, List<AllocationPool> allocationPools, List<HostRoute> hostRoutes, List<String> serviceTypes, String created_at, String updated_at) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.cidr = cidr;
         this.gatewayIp = gatewayIp;
+        this.attachedRouterId = attachedRouterId;
+        this.port = port;
         this.dhcpEnable = dhcpEnable;
         this.routeEntities = routeEntities;
         this.ipVersion = ipVersion;

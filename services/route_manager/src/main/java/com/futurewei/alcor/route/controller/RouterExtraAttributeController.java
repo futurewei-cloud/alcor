@@ -13,17 +13,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.route.controller;
 
-package com.futurewei.alcor.web.entity.route;
+import com.futurewei.alcor.common.logging.*;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.bind.annotation.RestController;
 
-public enum RouteTableType {
+@RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
+public class RouterExtraAttributeController {
 
-    // Main route table
-    MAIN,
+    private Logger logger = LoggerFactory.getLogger();
 
-    // Customer route table
-    CUSTOM,
-
-    // Gateway route table
-    GATEWAY
 }

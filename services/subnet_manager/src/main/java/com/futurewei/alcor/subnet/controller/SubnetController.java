@@ -290,10 +290,12 @@ public class SubnetController {
             }
             if (gatewayIpIsInAllocatedRange) {
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
+                inSubnetEntity.setGatewayPortId(portId);
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
                     inSubnetEntity.setGatewayIp(gatewayIP);
+                    inSubnetEntity.setGatewayPortId(portId);
                 }
             }
             if (ipResponse != null && ipResponse.getIpVersion() == 4) {
@@ -464,7 +466,7 @@ public class SubnetController {
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
-            value = "/project/{projectId}/subnets")
+            value = {"/project/{projectId}/subnets", "/subnets"})
     @DurationStatistics
     public SubnetsWebJson getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectId) throws Exception {
 

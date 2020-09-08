@@ -13,20 +13,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.controller;
 
-public class RouterState {
-    private String tenantId;
+import com.futurewei.alcor.common.logging.*;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.bind.annotation.RestController;
 
-    public RouterState(String tenantId) {
-        this.tenantId = tenantId;
-    }
+@RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
+public class RouteTableController {
 
-    public String getTenantId() {
-        return tenantId;
-    }
+    private Logger logger = LoggerFactory.getLogger();
 
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
-    }
 }

@@ -4,20 +4,19 @@ metadata:
   name: mac-configmap
 data:
   application.properties: |
+    ignite.thin.client.enable=true
     spring.redis.host=localhost
     spring.redis.port=6380
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
-    ignite.port=10800
-    ignite.key-store-path=keystore.jks
-    ignite.key-store-password=123456
-    ignite.trust-store-path=truststore.jks
-    ignite.trust-store-password=123456
+    ignite.host=ignite-alcor-mac-service.ignite-alcor-mac.svc.cluster.local
+    ignite.port=10803
+    #ignite.key-store-path=keystore.jks
+    #ignite.key-store-password=123456
+    #ignite.trust-store-path=truststore.jks
+    #ignite.trust-store-password=123456
+    logging.level.root=DEBUG
     macmanager.oui = AA-BB-CC
-    macmanager.retrylimit = 1000
-    macmanager.pool.low-request-numbers=10
-    macmanager.pool.middle-request-numbers=20
-    macmanager.pool.high-request-numbers=60
-    macmanager.pool.top-request-numbers=400
+    macmanager.pool.size = 100
+    macmanager.retrylimit = 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: macmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -43,7 +42,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:macKube1
+        - image: mac_manager:v1.0
         #- image: fwnetworking/controller:mac_manager-v0.3.0
           name: macmanager-web
           imagePullPolicy: IfNotPresent

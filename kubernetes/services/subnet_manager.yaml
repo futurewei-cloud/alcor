@@ -4,9 +4,10 @@ metadata:
   name: subnet-configmap
 data:
   application.properties: |
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
-    logging.level.root=info
+    logging.level.root=DEBUG
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
@@ -26,7 +27,7 @@ spec:
   selector:
     matchLabels:
       app: subnetmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -40,7 +41,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:subnetKube1
+        - image: subnet_manager:v1.0
         #- image: fwnetworking/controller:subnet_manager-v0.3.0
           name: subnetmanager-web
           imagePullPolicy: IfNotPresent
@@ -65,7 +66,7 @@ spec:
   ports:
     - port: 9002
       targetPort: 8080
-      nodePort: 30006
+      nodePort: 30002
   selector:
     app: subnetmanager
 

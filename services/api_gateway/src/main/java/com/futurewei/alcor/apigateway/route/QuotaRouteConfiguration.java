@@ -31,7 +31,7 @@ public class QuotaRouteConfiguration {
     public RouteLocator quotaGroupLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(r -> r.path("/*/quotas", "/*/quotas/*",
-                        "/project/*/quotas", "/project/*/quotas/*")
+                        "/project/*/quotas", "/project/*/quotas/*", "/project/*/quotas/*/*")
                         .uri(quotaUrl))
                 .build();
     }

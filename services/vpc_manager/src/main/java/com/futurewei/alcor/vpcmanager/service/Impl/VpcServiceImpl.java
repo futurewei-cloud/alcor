@@ -41,7 +41,7 @@ public class VpcServiceImpl implements VpcService {
     @Override
     @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
-        String routeManagerServiceUrl = routeUrl + vpcId + "/routes";
+        String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes";
         HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
         RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
         return response;
