@@ -21,6 +21,7 @@ import java.util.List;
 
 public class MulticastGoalState {
     private List<String> hostIps;
+    private List<String> nextTopics;
     private Goalstate.GoalState goalState;
 
     public MulticastGoalState() {
@@ -38,6 +39,14 @@ public class MulticastGoalState {
 
     public void setHostIps(List<String> hostIps) {
         this.hostIps = hostIps;
+    }
+
+    public List<String> getNextTopics() {
+        return nextTopics;
+    }
+
+    public void setNextTopics(List<String> nextTopics) {
+        this.nextTopics = nextTopics;
     }
 
     public Goalstate.GoalState getGoalState() {

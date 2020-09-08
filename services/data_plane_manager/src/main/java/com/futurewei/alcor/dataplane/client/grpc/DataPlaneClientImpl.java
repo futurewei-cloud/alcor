@@ -20,19 +20,16 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Configuration
+@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "grpc")
 public class DataPlaneClientImpl implements DataPlaneClient {
-    private int grpcPort;
-
-    @Autowired
-    public DataPlaneClientImpl(int grpcPort) {
-        this.grpcPort = grpcPort;
-    }
+    private int grpcPort = 6677;
 
     @Override
     public void createGoalState(Goalstate.GoalState goalState, String hostIp) throws Exception {
@@ -43,7 +40,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     public void createGoalState(List<UnicastGoalState> unicastGoalStates) throws Exception {
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
             GoalStateProvisionerClient goalStateProvisionerClient =
-                    new GoalStateProvisionerClient(unicastGoalState.getHostIp(), grpcPort);
+                    new GoalStateProvisionerClient(unicastGoalState.getNextTopic(), grpcPort);
             goalStateProvisionerClient.PushNetworkResourceStates(unicastGoalState.getGoalState());
             goalStateProvisionerClient.shutdown();
         }

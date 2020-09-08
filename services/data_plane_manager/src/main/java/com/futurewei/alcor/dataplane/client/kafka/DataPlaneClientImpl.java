@@ -19,10 +19,13 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-
+@Configuration
+@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "kafka")
 public class DataPlaneClientImpl implements DataPlaneClient {
 
     @Override

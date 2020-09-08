@@ -13,17 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.dataplane.exception;
 
-package com.futurewei.alcor.dataplane;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class DataPlaneManager {
-
-  public static void main(String[] args) {
-    SpringApplication.run(DataPlaneManager.class, args);
-  }
+@ResponseStatus(code = HttpStatus.SERVICE_UNAVAILABLE, reason = "Group topic not found")
+public class GroupTopicNotFound extends Exception {
 }

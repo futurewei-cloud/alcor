@@ -19,6 +19,7 @@ import com.futurewei.alcor.schema.Goalstate;
 
 public class UnicastGoalState {
     private String hostIp;
+    private String nextTopic;
     private Goalstate.GoalState goalState;
 
     public UnicastGoalState() {
@@ -36,6 +37,14 @@ public class UnicastGoalState {
 
     public void setHostIp(String hostIp) {
         this.hostIp = hostIp;
+    }
+
+    public String getNextTopic() {
+        return nextTopic;
+    }
+
+    public void setNextTopic(String nextTopic) {
+        this.nextTopic = nextTopic;
     }
 
     public Goalstate.GoalState getGoalState() {

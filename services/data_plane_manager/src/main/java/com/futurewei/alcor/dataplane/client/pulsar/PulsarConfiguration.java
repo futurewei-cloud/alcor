@@ -23,19 +23,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "pulsar", name = "enable", value = "true")
+@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
 public class PulsarConfiguration {
     @Value("${pulsar.url}")
     private String pulsarUrl;
 
-    @Value("${pulsar.unicast.topic}")
+    @Value("${pulsar.unicast.topic:#{null}}")
     private String unicastTopic;
 
-    @Value("${pulsar.multicast.topic}")
-    private String multicastTopic;
+    @Value("${host.ip.to.group.topic.map}")
+    private String hostIpToGroupTopicMap;
+
+    @Value("${group.topic.to.multicast.topic.map}")
+    private String groupTopicToMulticastTopicMap;
 
     @Bean
-    public PulsarClient PulsarClientInstance() throws PulsarClientException {
+    public PulsarClient pulsarClientInstance() throws PulsarClientException {
         return PulsarClient.builder().serviceUrl(pulsarUrl).build();
     }
 
@@ -47,7 +50,11 @@ public class PulsarConfiguration {
         return unicastTopic;
     }
 
-    public String getMulticastTopic() {
-        return multicastTopic;
+    public String getHostIpToGroupTopicMap() {
+        return hostIpToGroupTopicMap;
+    }
+
+    public String getGroupTopicToMulticastTopicMap() {
+        return groupTopicToMulticastTopicMap;
     }
 }

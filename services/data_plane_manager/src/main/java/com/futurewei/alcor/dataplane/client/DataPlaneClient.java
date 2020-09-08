@@ -18,11 +18,9 @@ package com.futurewei.alcor.dataplane.client;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 public interface DataPlaneClient {
     void createGoalState(GoalState goalState, String hostIp) throws Exception;
     void createGoalState(List<UnicastGoalState> unicastGoalStates) throws Exception;
