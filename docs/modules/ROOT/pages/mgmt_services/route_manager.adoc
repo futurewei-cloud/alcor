@@ -968,7 +968,9 @@ anchor:subnet_add_routetable[]
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Get detail information of a subnet's routing table.
-If the routing table doesn't exist, this operation will create a routing table and pump-in VPC's default routing rules.
+** If the routing table doesn't exist, this operation will create a routing table.
+*** If the subnet type is *Neutron*, pump-in default gateway routing rule into route table, e.g.: {0.0.0.0/0, 192.168.0.1}.
+*** If the subnet type is *public-subnet* or *private-subnet*, pump-in VPC's default routing rules.
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
