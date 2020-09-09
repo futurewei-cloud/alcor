@@ -45,6 +45,10 @@ image::route_manager_l3_neighbors_update_4.PNG[]
 
 image::route_manager_l3_neighbors_update_5.PNG[]
 
+** For case #6, update subnet's routing rules.
+
+image::route_manager_subnet_routing_rules_update_6.PNG[]
+
 === Sequence Diagram
 
 == Database Schema
@@ -148,8 +152,14 @@ image::route_manager_data_schemas.PNG[]
 |Route table state
 <<vpc_show_routetable,[sample]>>
 
-|Get or Create Subnet route table
+|Get Subnet route table
 |GET
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<subnet_get_routetable,[sample]>>
+
+|Create Subnet route table
+|POST
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routetable state
 <<subnet_add_routetable,[sample]>>
@@ -557,6 +567,8 @@ If a port with the same network ID does not exist, this operation will ask Subne
 ** If the port is already in use (ask Subnet Manager), this operation returns the Conflict (409) response code.
 ** If no error, the same ID that is passed in the request body when a port is specified or
 the ID of a port that this operation creates to attach the subnet to the router will be returned.
+** This operation needs to notify Port Manager or Subnet Manager to update L3 neighbors information for all ports in the
+same subnet and all ports in the connected subnets (refer to case #5 in the key workflow).
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
@@ -607,6 +619,8 @@ Otherwise, this operation returns the Conflict (409).
 The operation ask Subnet Manager to reset he following attributes for the port:
 *** **device_id** attribute
 *** **device_owner** attribute
+** This operation needs to notify Port Manager or Subnet Manager to update L3 neighbors information for all ports in the
+same subnet and all ports in the connected subnets (refer to case #5 in the key workflow).
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409
@@ -826,15 +840,19 @@ anchor:vpc_update_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
 * Operation: Update routing rules for VPC's default routing table.
 ** The existing routing rules in VPC's default routing table will be replaced by new routing rules.
-** If the existing routing rules are not included in the request body:
-*** If those exisitng rules didn't used by any subnet's routing table, the operation will delete those rules from routing rule entity.
-*** If those existing rules are currently used by other subnet's routing table, the opratoin returns the Conflict (409) response code
+** If the existing routing rules are not included in the request body :
+*** If those exisitng rules didn't used by any subnet's routing table (#may not need to check#),
+the operation will delete those rules from routing rule entity.
+*** If those existing rules are currently used by other subnet's routing table,
+the opratoin returns the Conflict (409) response code. (#may not need to check#)
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
-*** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
+*** If the same routing rule with different priority, the operation just need to update the priroity for the specified routing rules.
 ** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
+** #This operation will impact all subnets that currently using VPC default routing rules. After updating,
+Route Manager may need to push new VPC default routing rules to those subnets in DPM/ACA.#
 * Response: VPC routing rules
 * Normal response codes: 200
-* Error response codes: 400, 401, 404, 412, 500
+* Error response codes: 400, 401, 404, 409, 412, 500
 * Example
 
 ....
@@ -955,22 +973,20 @@ Response:
             "type": "private-subnet",
             "routes" : [
                 { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
-                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
             ]
         }
 }
 ....
 
-anchor:subnet_add_routetable[]
-**(16) Get or Create Subnet route table**
+anchor:subnet_get_routetable[]
+**(16) Show Subnet route table**
 
 * Method: `GET`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Get detail information of a subnet's routing table.
-** If the routing table doesn't exist, this operation will create a routing table.
-*** If the subnet type is *Neutron*, pump-in default gateway routing rule into route table, e.g.: {0.0.0.0/0, 192.168.0.1}.
-*** If the subnet type is *public-subnet* or *private-subnet*, pump-in VPC's default routing rules.
+** If the routing table doesn't exist, this operation will create a routing table (call API for creating subnet route table).
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -994,30 +1010,79 @@ Response:
             "type": "private-subnet",
             "routes" : [
                 { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
-                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_add_routetable[]
+**(17) Create Subnet route table**
+
+* Method: `POST`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Create subnet's routing table.
+** If the subnet type is *Neutron*, push default gateway routing rule into route table,
+e.g.: { "destination": "0.0.0.0/0", "nexthop": "192.168.0.1", "priority": -1 }. (#may not needed#)
+** If the subnet type is *public-subnet* or *private-subnet*, push-in VPC's default routing rules (#may not needed#).
+** #The above operations can be deferred to when Subnet Manager pushing subnet's routing rules to DPM/ACA#
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+         { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 },
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
             ]
         }
 }
 ....
 
 anchor:subnet_update_routetable[]
-**(17) Update Subnet route table**
+**(18) Update Subnet route table**
 
 * Method: `PUT`
-* Request: `|/project/{projectid}/subnets/{subnetid}/routetable`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Update subnet's routing rules.
 ** The existing routing rules in subnet's routing table will be replaced by new routing rules.
-** If the existing rules are comes from VPC's default routing rule, just detete those rules from the routing table.
-** If the existing routing rules are not included in the request body:
-*** If those exisitng rules didn't used by any subnet's routing table, the operation will delete those rules from routing rule entity.
-*** If those existing rules are currently used by other subnet's routing table, the opratoin returns the Conflict (409) response code
+** If the existing routing rules are not included in the request body, just delete them.
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
-*** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
-** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
+** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
+** For new routing rules, this operation will create new routing rule entities and insert them into routing table.
+** #This operation needs to notify Subnet Manager to update L3 neighbor for all ports in the same subnet.#
+(refer to case #6 in the key workflow)
 * Response: Subnet routing table state
 * Normal response codes: 200
-* Error response codes: 400, 401, 404, 412, 500
+* Error response codes: 400, 401, 404, 409, 412, 500
 * Example
 
 ....
@@ -1057,7 +1122,7 @@ Response:
 ....
 
 anchor:subnet_rm_routetable[]
-**(18) Delete Subnet route table**
+**(19) Delete Subnet route table**
 
 * Method: `DELETE`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
@@ -1076,16 +1141,16 @@ Response:
 ....
 
 anchor:get_connected_subnets[]
-**(16) Get connected subnets**
+**(20) Get connected subnets**
 
 * Method: `GET`
 * Request: `/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
-* Operation: Get connected subnets and router's information for the new added subnet.
+* Operation: Get connected subnets and router's information for the new added subnet (refer to case #4 in the key workflow).
 This operation has three cases depending on the routing table type for the input subnet.
 ** If the subnet has no corresponding routing table (for neutron subnet only), return null.
 ** If the subnet's routing table type is *neutron*: (1) get router by *network:id*
-(2) get ports from the router (3) get subnet-ids from portsubnetmap table
+(2) get ports from the router (3) get each port's correcponding subnet-id via Subnet Manager's API
 (4) return all connected subnet-ids and router's information
 ** If the subnet's routing table type is not neutron: (1) get router by *VPC:id*
 (2) get all routing tables from the router (3) get subnet-id from each routing table
