@@ -1,0 +1,6 @@
+@startuml
+
+actor User
+User -> Horizon : Create a Neutron Router
+Horizon -> "Route Manager" : POST
+@enduml

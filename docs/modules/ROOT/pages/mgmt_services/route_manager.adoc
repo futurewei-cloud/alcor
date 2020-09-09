@@ -45,6 +45,8 @@ image::route_manager_l3_neighbors_update_4.PNG[]
 
 image::route_manager_l3_neighbors_update_5.PNG[]
 
+=== Sequence Diagram
+
 == Database Schema
 
 image::route_manager_data_schemas.PNG[]
@@ -757,6 +759,7 @@ Response:
 }
 ....
 
+anchor:vpc_rm_router[]
 **(11) Delete VPC router**
 
 * Method: `DELETE`
@@ -767,7 +770,7 @@ Response:
 ** If there is no any subnet routing tables attached to the VPC router, this operation will delete VPC routing table and VPC router.
 * Response: ResponseId
 * Normal response codes: 200
-* Error response codes: 400, 404, 500
+* Error response codes: 400, 404, 409, 500
 * Example
 ....
 Request:
