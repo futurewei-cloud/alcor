@@ -985,19 +985,6 @@ Response:
 }
 ....
 
-
-|Get Subnet route table (for Neutron)
-|GET
-|/project/{projectid}/subnets/{subnetid}/neutron-routetable
-|Subnet routetable state
-<<subnet_get_neutron_routetable,[sample]>>
-
-|Create Subnet route table (for Neutron)
-|POST
-|/project/{projectid}/subnets/{subnetid}/routetable
-|Subnet routetable state
-<<subnet_add_neutron_routetable,[sample]>>
-
 anchor:subnet_get_vpc_routetable[]
 **(16) Get or Create a VPC Subnet route table**
 
