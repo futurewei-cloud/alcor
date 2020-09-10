@@ -38,7 +38,7 @@ autonumber 10
 "Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
 "Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet)\n Subnetids(the list of connected subnets including GREEN subnet)}
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip, neighbor host DVR mac(new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[GREEN Subnet],[VPC],[SG]}
 "Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1\n DHCP: CREATE (FULL) P1
 
@@ -47,7 +47,7 @@ autonumber 20
 "Port Manager" -> "Route Manager": Query routing info and connected subnets {RED subnet id, vpc id}
 "Route Manager" -> "Port Manager": Response {routerinfo(connected to RED subnet)\n Subnetids(the list of connected subnets including RED subnet)}
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip, neighbor host DVR mac(new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P2 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=[P1]],[Router INFO][GREEN+RED Subnet],[VPC],[SG]}
 "Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P2\n DHCP: CREATE (FULL) P2\n L3 neighbors CREATE (DELTA) P1 + Router: INFO \n (w/ host 2 local DVR mac), Subnet: INFO (GREEN+RED)
 
@@ -62,7 +62,7 @@ autonumber 30
 "Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
 "Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet),\n Subnetids(the list of connected subnets including GREEN subnet)}\n Should return none
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port \n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor \n output {neighbor host_ip, neighbor host DVR mac(new)}\n May merge with call above
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor \n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[GREEN Subnet],[VPC],[SG]}
 "Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1, \n DHCP: CREATE (FULL) P1\n Subnet: INFO (GREEN only)
 
@@ -71,7 +71,7 @@ autonumber 40
 "Port Manager" -> "Route Manager": Query routing info and connected subnets {RED subnet id, vpc id}
 "Route Manager" -> "Port Manager": Response {routerinfo(connected to RED subnet)\n Subnetids(the list of connected subnets including RED subnet)}\n Should return none
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip, neighbor host DVR mac(new)}\n May merge with call above
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P2 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[VPC],[SG]}
 "Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P2\n DHCP: CREATE (FULL) P2\n Subnet: INFO (RED only)
 
@@ -84,7 +84,7 @@ autonumber 50
 "Route Manager" -> "Subnet Manager": Update router ID for RED subnet
 "Route Manager" -> "Port Manager": Update L3 Neighbor
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
-"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip, neighbor host DVR mac(new)}\n May merge with call above
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[Neighbor port Id=[P1,P2]],[Router INFO][GREEN+RED Subnet],[VPC],[SG]} 
 "Data Plane Manager" -> "ACA on \n Host 1": L3 neighbors CREATE (DELTA) P2 + Router: INFO\n (w/ host 1 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
 "Data Plane Manager" -> "ACA on \n Host 2": L3 neighbors CREATE (DELTA) P1 + Router: INFO\n (w/ host 2 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
