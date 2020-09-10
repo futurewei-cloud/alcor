@@ -152,17 +152,23 @@ image::route_manager_data_schemas.PNG[]
 |Route table state
 <<vpc_show_routetable,[sample]>>
 
-|Get Subnet route table
+|Get or Create Subnet route table (for VPC)
 |GET
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routetable state
-<<subnet_get_routetable,[sample]>>
+<<subnet_get_vpc_routetable,[sample]>>
 
-|Create Subnet route table
+|Get Subnet route table (for Neutron)
+|GET
+|/project/{projectid}/subnets/{subnetid}/neutron-routetable
+|Subnet routetable state
+<<subnet_get_neutron_routetable,[sample]>>
+
+|Create Subnet route table (for Neutron)
 |POST
 |/project/{projectid}/subnets/{subnetid}/routetable
 |Subnet routetable state
-<<subnet_add_routetable,[sample]>>
+<<subnet_add_neutron_routetable,[sample]>>
 
 |Update Subnet route table
 |PUT
@@ -979,14 +985,30 @@ Response:
 }
 ....
 
-anchor:subnet_get_routetable[]
-**(16) Show Subnet route table**
+
+|Get Subnet route table (for Neutron)
+|GET
+|/project/{projectid}/subnets/{subnetid}/neutron-routetable
+|Subnet routetable state
+<<subnet_get_neutron_routetable,[sample]>>
+
+|Create Subnet route table (for Neutron)
+|POST
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<subnet_add_neutron_routetable,[sample]>>
+
+anchor:subnet_get_vpc_routetable[]
+**(16) Get or Create a VPC Subnet route table**
 
 * Method: `GET`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
-* Operation: Get detail information of a subnet's routing table.
-** If the routing table doesn't exist, this operation will create a routing table (call API for creating subnet route table).
+* Operation: Get or Create a VPC subnet routing table.
+** If the routing table doesn't exist, this operation will create a routing table for the subnet.
+** (_How to assign public or private subnet?_) **
+** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
+(_Pending Item: the contract and API from Subnet Manager_)
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -1016,17 +1038,53 @@ Response:
 }
 ....
 
-anchor:subnet_add_routetable[]
-**(17) Create Subnet route table**
+anchor:subnet_get_neutron_routetable[]
+**(17) Show a Neutron Subnet route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/subnets/{subnetid}/neutron-routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get detail information of a Neutron subnet routing table.
+** If the routing table doesn't exist, return NONE.
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "neutron-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_add_neutron_routetable[]
+**(18) Create Neutron Subnet route table**
 
 * Method: `POST`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
-* Operation: Create subnet's routing table.
-** If the subnet type is *Neutron*, push default gateway routing rule into route table,
-e.g.: { "destination": "0.0.0.0/0", "nexthop": "192.168.0.1", "priority": -1 }. (#may not needed#)
-** If the subnet type is *public-subnet* or *private-subnet*, push-in VPC's default routing rules (#may not needed#).
-** #The above operations can be deferred to when Subnet Manager pushing subnet's routing rules to DPM/ACA#
+* Operation: Create a Neutron subnet routing table.
+** Assign *neutron-subnet* for *type* in the route table.
+** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
+(_Pending Item: the contract and API from Subnet Manager__)
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -1057,7 +1115,7 @@ Response:
             "updated_at": "2018-03-19T19:17:22Z",
             "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
             "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-            "type": "private-subnet",
+            "type": "neutron-subnet",
             "routes" : [
                 { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
                 { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
@@ -1067,7 +1125,7 @@ Response:
 ....
 
 anchor:subnet_update_routetable[]
-**(18) Update Subnet route table**
+**(19) Update Subnet route table**
 
 * Method: `PUT`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
@@ -1122,7 +1180,7 @@ Response:
 ....
 
 anchor:subnet_rm_routetable[]
-**(19) Delete Subnet route table**
+**(20) Delete Subnet route table**
 
 * Method: `DELETE`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
@@ -1141,7 +1199,7 @@ Response:
 ....
 
 anchor:get_connected_subnets[]
-**(20) Get connected subnets**
+**(21) Get connected subnets**
 
 * Method: `GET`
 * Request: `/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets`
