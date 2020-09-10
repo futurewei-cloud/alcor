@@ -52,9 +52,16 @@ public class NetworkVxlanRange {
     }
 
     public void release(Long key) throws Exception {
-//        if (allocated.get(key) == null) {
-//            throw new NetworkKeyAllocNotFoundException();
-//        }
+        if (allocated.get(key) == null) {
+            throw new NetworkKeyAllocNotFoundException();
+        }
+
+        allocator.release(key);
+        allocated.remove(key);
+        updateUsedKeys();
+    }
+
+    public void tryToRelease(Long key) throws Exception {
         if (allocated.get(key) == null) {
             return;
         }

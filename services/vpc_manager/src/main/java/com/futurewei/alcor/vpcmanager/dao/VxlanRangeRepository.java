@@ -145,7 +145,7 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
                 throw new RangeNotFoundException();
             }
 
-            networkVxlanRange.release(key);
+            networkVxlanRange.tryToRelease(key);
             cache.put(networkVxlanRange.getId(), networkVxlanRange);
 
             tx.commit();

@@ -146,7 +146,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
                 throw new RangeNotFoundException();
             }
 
-            networkGRERange.release(key);
+            networkGRERange.tryToRelease(key);
             cache.put(networkGRERange.getId(), networkGRERange);
 
             tx.commit();
