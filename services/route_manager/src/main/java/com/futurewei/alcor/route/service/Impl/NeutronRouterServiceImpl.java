@@ -98,7 +98,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             String routeTableId = UUID.randomUUID().toString();
             routeTable.setId(routeTableId);
             routeTable.setRouteEntities(routeEntities);
-            routeTable.setRouteTableType(RouteTableType.NEUTRON);
+            routeTable.setRouteTableType(RouteTableType.NEUTRON_ROUTER);
         }
         router.setNeutronRouteTable(routeTable);
         router.setRouterExtraAttributeId(attachedRouterExtraAttributeId);

@@ -20,6 +20,8 @@ import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 @Data
 public class RouteEntry extends CustomerResource {
 
@@ -52,4 +54,14 @@ public class RouteEntry extends CustomerResource {
         this.routeTableId = routeTableId;
         this.nexthop = nexthop;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        //if (!super.equals(o)) return false;
+        RouteEntry that = (RouteEntry) o;
+        return destination.equals(that.destination) && nexthop.equals(that.nexthop);
+    }
+
 }

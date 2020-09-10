@@ -19,5 +19,5 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.NOT_FOUND, reason="can not find vpc by vpc id")
-public class CanNotFindVpc extends Exception{
+public class CanNotFindVpc extends Exception {
 }

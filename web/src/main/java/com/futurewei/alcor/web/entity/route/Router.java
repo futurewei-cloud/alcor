@@ -26,8 +26,11 @@ import java.util.List;
 @Data
 public class Router extends CustomerResource {
 
-    @JsonProperty("routetable")
+    @JsonProperty("neutron_router_routetable")
     private RouteTable neutronRouteTable;
+
+    @JsonProperty("neutron_subnet_routetables")
+    private List<RouteTable> neutronSubnetRouteTables;
 
     @JsonProperty("routetables")
     private List<RouteTable> vpcRouteTable;
