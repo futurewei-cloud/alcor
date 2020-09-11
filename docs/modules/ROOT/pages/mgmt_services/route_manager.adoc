@@ -7,7 +7,7 @@ v0.1, 2020-08-17
 == Overview
 
 The Route Manager is an Alcor microservice which manages the route tables and route entries for all VPCs and Subnets.
-It also provides router-related functionalities to compatible with OpenStack Neutron's router APIs.
+It also provides router-related functionalities to be compatible with OpenStack Neutron's router APIs.
 Its responsibilities include but are not limited to creating, updating, deleting, and searching routers, route tables,
 and route entries resource for a Network/VPC/Subnet.
 It interacts with VPC Manager, Subnet Manager, Port Manager, and Data Plane Manager to provide route information for them.
@@ -22,7 +22,7 @@ It interacts with VPC Manager, Subnet Manager, Port Manager, and Data Plane Mana
 . Router resource managed by an owner, Neutron or VPC.
 . Route table resource managed by an owner, VPC or Subnet.
 . Route entry should include destination, nexthop, target, and priority.
-. Warning message should be raised if same route entry with different priority has been inserted by users.
+. Warning message should be raised when adding an invalid routing rule.
 . Route Manager should provide APIs for OpenStack Neutron's Router operations.
 
 == Design
