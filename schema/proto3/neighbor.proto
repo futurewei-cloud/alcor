@@ -40,7 +40,6 @@ message NeighborConfiguration {
     string name = 8;
     string mac_address = 9;
     string host_ip_address = 10;
-    string neighbor_host_dvr_mac = 11;
 
     message FixedIp {
         NeighborType neighbor_type = 1;
@@ -53,8 +52,8 @@ message NeighborConfiguration {
         string mac_address = 2;
     }
 
-    repeated FixedIp fixed_ips = 12;
-    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated FixedIp fixed_ips = 11;
+    repeated AllowAddressPair allow_address_pairs = 12;
 }
 
 message NeighborState {

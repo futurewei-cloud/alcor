@@ -23,6 +23,11 @@ option java_outer_classname = "Router";
 
 import "common.proto";
 
+enum DestinationType {
+    INTERNET = 0;
+    VPC_GW = 1;
+}
+
 message RouterConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
@@ -32,13 +37,19 @@ message RouterConfiguration {
     MessageType message_type = 5; // DELTA (default) or FULL
     string host_dvr_mac_address = 6;
 
+    message RoutingRuleExtraInfo{
+        DestinationType destination_type = 1;
+        string next_hop_mac = 2;
+        }
+
     message RoutingRule {
         OperationType operation_type = 1;
         string id = 2;
         string name = 3;
-        string destination = 4;
-        string nextHop = 5;
+        string destination = 4;  // destination IP, could be 154.12.42.24/32 (host address) or 0.0.0.0/0 (network address)
+        string next_hop_ip = 5;
         uint32 priority = 6;
+        RoutingRuleExtraInfo routing_rule_extra_info = 7;
     }
 
     message SubnetRoutingTable {
