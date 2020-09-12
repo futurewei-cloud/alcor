@@ -1,6 +1,7 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
+import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
@@ -157,7 +158,7 @@ public class SegmentServiceImpl implements SegmentService {
         } catch (Exception e) {
             this.vxlanRepository.deleteItem(vxlanId);
             this.vxlanRangeRepository.releaseVxlanKey(partitionStringFormat, key);
-            logger.info("Allocate vxlan key or db operation failed");
+            logger.info("Allocate vxlan key or db operation failed, key: " + key);
             throw e;
         }
     }
@@ -449,5 +450,26 @@ public class SegmentServiceImpl implements SegmentService {
         logger.info("List vlan range success, result: {}", result);
 
         return result;
+    }
+
+    @Override
+    public void createDefaultNetworkTypeTable() throws Exception {
+
+        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i ++) {
+            int firstKey = i * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+            int lastKey = (i + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+            String partitionStringFormat = String.valueOf(i);
+            NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.VXLAN.getNetworkType(), i, firstKey, lastKey);
+            partitionStringFormat = this.vxlanRangeRepository.createRange(request);
+        }
+
+        for (int i = 0; i < NetworkType.GRE_PARTITION; i ++) {
+            int firstKey = i * NetworkType.GRE_ONE_PARTITION_SIZE;
+            int lastKey = (i + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
+            String partitionStringFormat = String.valueOf(i);
+            NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.GRE.getNetworkType(), i, firstKey, lastKey);
+            partitionStringFormat = this.greRangeRepository.createRange(request);
+        }
+
     }
 }
