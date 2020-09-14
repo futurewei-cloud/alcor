@@ -12,7 +12,7 @@ public class RouterRouteConfiguration {
     private String routeUrl;
 
     @Bean
-    public RouteLocator vpcRouteLocator(RouteLocatorBuilder builder){
+    public RouteLocator routeRouteLocator(RouteLocatorBuilder builder){
         return builder.routes()
                 .route(r -> r.path("/*/routers", "/*/routers/*",
                         "/*/routers/*/add_router_interface", "/*/routers/*/remove_router_interface",
