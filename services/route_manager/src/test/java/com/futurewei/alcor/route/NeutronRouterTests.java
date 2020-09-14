@@ -542,7 +542,7 @@ public class NeutronRouterTests {
     public void getConnectedSubnets_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
                 .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
-                    setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());setRouteTableType(RouteTableType.NEUTRON_ROUTER);}});}});
+                    setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());setRouteTableType(RouteTableType.NEUTRON_ROUTER.getRouteTableType());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortId(UnitTestConfig.portId);}});}});}});
         Mockito.when(routerToSubnetService.getSubnet(anyString(), anyString()))

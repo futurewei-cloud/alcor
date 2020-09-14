@@ -98,7 +98,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             String routeTableId = UUID.randomUUID().toString();
             routeTable.setId(routeTableId);
             routeTable.setRouteEntities(routeEntities);
-            routeTable.setRouteTableType(RouteTableType.NEUTRON_ROUTER);
+            routeTable.setRouteTableType(RouteTableType.NEUTRON_ROUTER.getRouteTableType());
         }
         router.setNeutronRouteTable(routeTable);
         router.setRouterExtraAttributeId(attachedRouterExtraAttributeId);
@@ -444,11 +444,11 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (routeTable == null) {
             return null;
         }
-        RouteTableType routeTableType = routeTable.getRouteTableType();
+        String routeTableType = routeTable.getRouteTableType();
 
         if (routeTableType == null) {
             return null;
-        } else if(routeTableType.getRouteTableType().equals("neutron")){
+        } else if(routeTableType.equals("neutron")){
             List<String> ports = router.getPorts();
             // check ports
             if (ports == null || ports.size() <= 1) {

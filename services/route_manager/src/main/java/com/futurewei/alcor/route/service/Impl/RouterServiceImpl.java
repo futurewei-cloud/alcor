@@ -103,7 +103,7 @@ public class RouterServiceImpl implements RouterService {
         routeEntities.add(routeEntry);
         this.routeEntryDatabaseService.addRouteEntry(routeEntry);
 
-        RouteTable routeTable = new RouteTable(projectId, routeTableId, "default_vpc_routeTable", "", routeEntities, RouteTableType.VPC, owner);
+        RouteTable routeTable = new RouteTable(projectId, routeTableId, "default_vpc_routeTable", "", routeEntities, RouteTableType.VPC.getRouteTableType(), owner);
         vpcRouteTables.add(routeTable);
         this.routeTableDatabaseService.addRouteTable(routeTable);
 
@@ -116,9 +116,7 @@ public class RouterServiceImpl implements RouterService {
 
     @Override
     public String deleteVpcRouter(String projectId, String vpcId) throws Exception {
-        VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
-        VpcEntity vpcEntity = vpcResponse.getNetwork();
-        Router router = vpcEntity.getRouter();
+        Router router = getOrCreateVpcRouter(projectId, vpcId);
         if (router == null) {
             return null;
         }
@@ -129,7 +127,7 @@ public class RouterServiceImpl implements RouterService {
             return null;
         }
         for (RouteTable routeTable : vpcRouteTable) {
-            String routeTableType = routeTable.getRouteTableType().getRouteTableType();
+            String routeTableType = routeTable.getRouteTableType();
             if (RouteTableType.PRIVATE_SUBNET.getRouteTableType().equals(routeTableType) || RouteTableType.PUBLIC_SUBNET.getRouteTableType().equals(routeTableType)) {
                 throw new VpcRouterContainsSubnetRoutingTables();
             }
@@ -154,7 +152,7 @@ public class RouterServiceImpl implements RouterService {
         // If VPC has a VPC routing table, return the routing table’s state
         List<RouteTable> vpcRouteTables = router.getVpcRouteTable();
         for (RouteTable vpcRouteTable : vpcRouteTables) {
-            String routeTableType = vpcRouteTable.getRouteTableType().getRouteTableType();
+            String routeTableType = vpcRouteTable.getRouteTableType();
             if (RouteTableType.VPC.getRouteTableType().equals(routeTableType)) {
                 return vpcRouteTable;
             }
@@ -179,7 +177,7 @@ public class RouterServiceImpl implements RouterService {
         routeEntities.add(routeEntry);
         this.routeEntryDatabaseService.addRouteEntry(routeEntry);
 
-        RouteTable routeTable = new RouteTable(projectId, routeTableId, "default_vpc_routeTable", "", routeEntities, RouteTableType.VPC, owner);
+        RouteTable routeTable = new RouteTable(projectId, routeTableId, "default_vpc_routeTable", "", routeEntities, RouteTableType.VPC.getRouteTableType(), owner);
         vpcRouteTables.add(routeTable);
         this.routeTableDatabaseService.addRouteTable(routeTable);
 
@@ -201,7 +199,7 @@ public class RouterServiceImpl implements RouterService {
         // check if there is a vpc default routetable
         List<RouteTable> vpcRouteTables = router.getVpcRouteTable();
         for (RouteTable vpcRouteTable : vpcRouteTables) {
-            String routeTableType = vpcRouteTable.getRouteTableType().getRouteTableType();
+            String routeTableType = vpcRouteTable.getRouteTableType();
             if (RouteTableType.VPC.getRouteTableType().equals(routeTableType)) {
                 routeTable = vpcRouteTable;
                 vpcRouteTables.remove(vpcRouteTable);
@@ -215,7 +213,7 @@ public class RouterServiceImpl implements RouterService {
                 routeTableId = UUID.randomUUID().toString();
                 inRoutetable.setId(routeTableId);
             }
-            inRoutetable.setRouteTableType(RouteTableType.VPC);
+            inRoutetable.setRouteTableType(RouteTableType.VPC.getRouteTableType());
             vpcRouteTables.add(inRoutetable);
             router.setVpcRouteTable(vpcRouteTables);
             this.routerDatabaseService.addRouter(router);
@@ -225,11 +223,14 @@ public class RouterServiceImpl implements RouterService {
             List<RouteEntry> routeEntities = routeTable.getRouteEntities();
             List<RouteEntry> inRouteEntities = inRoutetable.getRouteEntities();
 
-            for (RouteEntry routeEntry : routeEntities) {
-                if (!inRouteEntities.contains(routeEntry)) {
-                    // TODO: check if existing rules are currently used by other subnet’s routing table
+            if (routeEntities != null) {
+                for (RouteEntry routeEntry : routeEntities) {
+                    if (inRouteEntities == null || !inRouteEntities.contains(routeEntry)) {
+                        // TODO: check if existing rules are currently used by other subnet’s routing table
+                    }
                 }
             }
+
             routeTable.setRouteEntities(inRouteEntities);
             vpcRouteTables.add(routeTable);
             router.setVpcRouteTable(vpcRouteTables);

@@ -1,0 +1,288 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+package com.futurewei.alcor.route;
+
+import com.futurewei.alcor.common.enumClass.RouteTableType;
+import com.futurewei.alcor.route.config.UnitTestConfig;
+import com.futurewei.alcor.route.service.RouteEntryDatabaseService;
+import com.futurewei.alcor.route.service.RouteTableDatabaseService;
+import com.futurewei.alcor.route.service.RouterDatabaseService;
+import com.futurewei.alcor.route.service.VpcRouterToVpcService;
+import com.futurewei.alcor.web.entity.route.RouteTable;
+import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ComponentScan(value = "com.futurewei.alcor.common.test.config")
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"httpbin=http://localhost:${wiremock.server.port}"})
+@AutoConfigureMockMvc
+public class VpcRouterTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private RouterDatabaseService routerDatabaseService;
+
+    @MockBean
+    private VpcRouterToVpcService vpcRouterToVpcService;
+
+    @MockBean
+    private RouteTableDatabaseService routeTableDatabaseService;
+
+    @MockBean
+    private RouteEntryDatabaseService routeEntryDatabaseService;
+
+    private String vpcRouterUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/router";
+    private String vpcRouteTableUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/vpcroutetable";
+    private String getVpcRouteTablesUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/routetables";
+    private String RouteTablesUri = "/project/" + UnitTestConfig.projectId + "/routetables/" + UnitTestConfig.routeTableId;
+    private String subnetRouteTableUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId + "/routetable";
+
+    @Test
+    public void getOrCreateVpcRouter_alreadyHaveVpcRouter_pass () throws Exception {
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        this.mockMvc.perform(get(vpcRouterUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.router.id").value(UnitTestConfig.routerId));
+    }
+
+    @Test
+    public void getOrCreateVpcRouter_notHaveVpcRouter_pass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>());
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+        this.mockMvc.perform(get(vpcRouterUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.router.name").value(UnitTestConfig.vpcRouterName));
+    }
+
+    @Test
+    public void getOrCreateVpcRouter_ExistMultipleVpcRouter_notPass () throws Exception {
+        Router router1 = new Router();
+        router1.setId(UnitTestConfig.routerId);
+        Router router2 = new Router();
+        router2.setId(UnitTestConfig.routerId);
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router1);put(UnitTestConfig.routerId, router2);}});
+
+        try {
+            this.mockMvc.perform(get(vpcRouterUri))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.router.id").value(UnitTestConfig.routerId));
+        }catch (Exception e) {
+            assertEquals("exist multiple vpc router searched by vpc id", e.getMessage());
+            System.out.println("-----json returned =" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void deleteVpcRouter_pass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+        this.mockMvc.perform(delete(vpcRouterUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.routerId));
+    }
+
+    @Test
+    public void deleteVpcRouter_VpcRouterContainsSubnetRoutingTables_notPass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+
+        try {
+            this.mockMvc.perform(delete(vpcRouterUri))
+                    .andDo(print())
+                    .andExpect(status().is(409));
+        }catch (Exception e) {
+            assertEquals("the VPC router contains subnet routing tables", e.getMessage());
+            System.out.println("-----json returned =" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void getOrCreateVpcRouteTable_pass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+
+        this.mockMvc.perform(get(vpcRouteTableUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routeTableId));
+    }
+
+    @Test
+    public void updateVpcRouteTable_pass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+
+        this.mockMvc.perform(put(vpcRouteTableUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.vpcRouteTableResource))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routeTableId));
+    }
+
+    @Test
+    public void updateVpcRouteTable_ResourceNotValid_notPass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+
+        try {
+            this.mockMvc.perform(put(vpcRouteTableUri).contentType(MediaType.APPLICATION_JSON)
+                    .content(UnitTestConfig.vpcRouteTableExceptionResource))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }catch (Exception e) {
+            assertEquals("Request processing failed; nested exception is com.futurewei.alcor.common.exception.ResourceNotValidException: request resource is invalid", e.getMessage());
+            System.out.println("-----json returned =" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void getVpcRouteTables_pass () throws Exception {
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
+        this.mockMvc.perform(get(getVpcRouteTablesUri))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getVpcRouteTableById_pass () throws Exception {
+        RouteTable routetable = new RouteTable();
+        routetable.setId(UnitTestConfig.routeTableId);
+
+        Mockito.when(routeTableDatabaseService.getByRouteTableId(UnitTestConfig.routeTableId))
+                .thenReturn(routetable);
+        this.mockMvc.perform(get(RouteTablesUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routeTableId));;
+    }
+
+    @Test
+    public void getOrCreateSubnetRouteTable_pass () throws Exception {
+        RouteTable routetable = new RouteTable();
+        routetable.setId(UnitTestConfig.routeTableId);
+
+        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        this.mockMvc.perform(get(subnetRouteTableUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routerId));
+    }
+
+}

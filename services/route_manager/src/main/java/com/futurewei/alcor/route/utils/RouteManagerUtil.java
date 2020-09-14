@@ -17,6 +17,7 @@ package com.futurewei.alcor.route.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.common.utils.DateUtil;
 import com.futurewei.alcor.web.entity.route.*;
 import org.springframework.beans.BeanUtils;
@@ -121,10 +122,11 @@ public class RouteManagerUtil {
         }
 
         // routeTableType
-        String routeTableType = routetable.getRouteTableType().getRouteTableType();
-        if (routeTableType != null && !routeTableType.equals("vpc")) {
+        String routeTableTypeStr = resource.getRoutetable().getRouteTableType();
+        if (routeTableTypeStr != null && !routeTableTypeStr.equals("vpc")) {
             return false;
         }
+
 
         return true;
     }
