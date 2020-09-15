@@ -1,0 +1,243 @@
+= ALCOR CONTROL AGENT-ALCOR DATAPLANE MANAGER Test Report 
+Xiaodong Zhang <xzhang2@futurewei.com>
+v0.1, 2020-09-15
+:toc: right
+:imagesdir: ../../images
+
+*ALCOR CONTROL AGENT-ALCOR DATAPLANE MANAGER Test Report*
+
+**Abstract：**This document contains Alcor Dataplane Manager-Alcor Control Agent grpc performance test result and analysis
+
+[arabic]
+. *Environment description*
+
+[cols=",",options="header",]
+|===
+|*IP address* |
+|*A* |*10.213.43.162*
+|*B* |*10.213.43.163*
+|*C* |*10.213.43.164*
+|*D* |*10.213.43.166*
+|*E* |*10.213.43.187*
+|F |*10.213.43.188*
+|===
+
+[cols=",,",options="header",]
+|===
+|*Hardware Configuration:* | |
+| |*A, B, C, D, E running ALCOR CONTROL AGENT* |*F running as ALCOR DATAPLANE MANAGER*
+|*CPU* |40 cores |56 cores
+|*Model Name* |Intel(R) Xeon(R) CPU E5-2690 v2 @ 3.00GHz |Intel(R) Xeon(R) CPU E5-2697 v3 @ 2.60GHz
+|*cpu MHz* |2231.772 |2599.079
+|*Memory* |192GB |386GB
+|*Network* |NetXtreme BCM5719 Gigabit Ethernet PCIe (GB network) |82599ES 10-Gigabit SFI/SFP+ Network Connection
+|*Storage* |LSI raid (no ssd) |AVAGO (no ssd)
+|*Software Configuration:* | |
+|*System* |Ubuntu18 LTS |
+|*Server* |ALCOR CONTROL AGENT on A, B, C, D, E |
+|*Client* |ALCOR DATAPLANE MANAGER on F |
+|===
+
+[arabic, start=2]
+. *Test step:*
+
+F send goal state message to A-E at the same time concurrently after first warming up then wait for the response, goal state message is different in each payload
+
+On A-E there are 2600 ACA running on each box, ACA code has been revised to cut off the ovsdb and mq operations
+
+image::p1.png["Test Deployment",width=488,height=302]
+
+[arabic, start=3]
+. *Test results*
+
+[cols=",,,,,,",options="header",]
+|===
+|*Log Time Cost Summary (ms)* | | | | | |
+|*Thread* |*1* |*32* |*56* |*100* |*512* |*10800*
+|*Average* |39212.88 |2028.181 |2074.611 |2218.439 |2366.94 |4712.059
+|*MIN* |47 |226 |367 |405 |363 |239
+|*MAX* |76068 |3510 |3578 |3682 |4186 |15827
+|*MEDIAN* |39785.5 |2120.5 |2202.5 |2314 |2463 |3594
+|*>AVERAGE* |50.73% |51.87% |53.23% |52.62% |53.09% |30.96%
+|*<AVERAGE* |49.27% |48.13% |46.77% |47.38% |46.91% |69.04%
+|*99% TILE** |95950.55 |4491.329 |4578.124 |4665.579 |5168.91 |15046.85
+|*95% TILE*** |82382.84 |3902.315 |3979.458 |4080.394 |4498.873 |12575.49
+|*90% TILE**** |75444.81 |3601.115 |3673.322 |3781.151 |4156.241 |11311.72
+|===
+
+* 99% TILE* :upper limit confidence interval =mean + standard deviation*2.576(z score of 99%)
+* 95% TILE* :upper limit confidence interval =mean + standard deviation*1.96(z score of 95%)
+* 90% TILE* :upper limit confidence interval =mean + standard deviation*1.645(z score of 90%)
+
+[arabic, start=4]
+. *Test results analysis*
+[loweralpha]
+.. {blank}
++
+____
+*System Resource Usage on F-- ALCOR DATAPLANE MANAGER (context switch)*
+____
+
+____
+image::p2.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
+
+[loweralpha, start=2]
+. {blank}
++
+____
+*Time Cost on F -- ALCOR DATAPLANE MANAGER round trip*
+____
+
+____
+image::p3.png["thread number of Alcor DataPlane Manager",width=553,height=302]
+____
+
+[loweralpha, start=3]
+. {blank}
++
+____
+*Time Cost Charts for round trip when thread number change on F*
+____
+
+[cols=",",options="header",]
+|===
+|*1 thread* |*32 threads*
+|image::p4.png[image,width=276,height=165] |image::p5.png[image,width=262,height=156]
+|*56 threads* |*100 threads*
+|image::p6.png[image,width=262,height=156] |image::p7.png[image,width=262,height=156]
+|*512 threads* |*10800 threads*
+|image::p8.png[image,width=262,height=156] |image::p9.png[image,width=262,height=156]
+|===
+
+[arabic, start=5]
+. *Test Conclusion*
+
+[loweralpha]
+. *Alcor DataPlane Manager could support more than 10k concurrent ACA grpc requests*
+. *Alcor DataPlane Manager runs well when from 32 threads up for the performance*
+. *A-E hardware configuration could run 1800 stable ACA instances on each box*
+
+[arabic, start=6]
+. *Problems for now*
+
+[arabic]
+. *ALCOR CONTROL AGENT crash during start*
+
+=========================log start=======================
+
+\{
+
+"created":"@1600052532.408232982",
+
+"description":"No address added out of total 1 resolved",
+
+"file":"/var/local/git/grpc/src/core/ext/transport/chttp2/server/chttp2_server.cc",
+
+"file_line":394,
+
+"referenced_errors":[
+
+\{
+
+"created":"@1600052532.408229693",
+
+"description":"Failed to add any wildcard listeners",
+
+"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_posix.cc",
+
+"file_line":341,
+
+"referenced_errors":[
+
+\{
+
+"created":"@1600052532.408207668",
+
+"description":"Unable to configure socket",
+
+"fd":6,
+
+"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
+
+"file_line":217,
+
+"referenced_errors":[
+
+\{
+
+"created":"@1600052532.408201365",
+
+"description":"Address already in use",
+
+"errno":98,
+
+"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
+
+"file_line":190,
+
+"os_error":"Address already in use",
+
+"syscall":"bind"
+
+}
+
+]
+
+},
+
+\{
+
+"created":"@1600052532.408229169",
+
+"description":"Unable to configure socket",
+
+"fd":6,
+
+"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
+
+"file_line":217,
+
+"referenced_errors":[
+
+\{
+
+"created":"@1600052532.408225113",
+
+"description":"Address already in use",
+
+"errno":98,
+
+"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
+
+"file_line":190,
+
+"os_error":"Address already in use",
+
+"syscall":"bind"
+
+}
+
+]
+
+}
+
+]
+
+}
+
+]
+
+}
+
+=========================log end=======================
+
+[arabic, start=2]
+. *ALCOR CONTROL AGENT crash after several heavy test*
+
+Syslog does not say error on ALCOR CONTROL AGENT
+
+[arabic, start=3]
+. *io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason*
+
+After reduce load on A-E, this issue is gone
