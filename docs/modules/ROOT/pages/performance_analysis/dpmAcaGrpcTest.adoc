@@ -103,11 +103,11 @@ ____
 [cols=",",options="header",]
 |===
 |*1 thread* |*32 threads*
-|image::p4.png[image,width=276,height=165] |image::p5.png[image,width=262,height=156]
+|image::p4.png["1 thread",width=276,height=165] |image::p5.png["32 thread",width=262,height=156]
 |*56 threads* |*100 threads*
-|image::p6.png[image,width=262,height=156] |image::p7.png[image,width=262,height=156]
+|image::p6.png["56 thread",width=262,height=156] |image::p7.png["100 thread",width=262,height=156]
 |*512 threads* |*10800 threads*
-|image::p8.png[image,width=262,height=156] |image::p9.png[image,width=262,height=156]
+|image::p8.png["512 thread",width=262,height=156] |image::p9.png["10800 thread",width=262,height=156]
 |===
 
 [arabic, start=5]
