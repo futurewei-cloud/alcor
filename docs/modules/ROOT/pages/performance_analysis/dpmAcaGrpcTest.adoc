@@ -100,15 +100,35 @@ ____
 *Time Cost Charts for round trip when thread number change on F*
 ____
 
-[cols=",",options="header",]
-|===
-|*1 thread* |*32 threads*
-|image::p4.png["1 thread",width=276,height=165] |image::p5.png["32 thread",width=262,height=156]
-|*56 threads* |*100 threads*
-|image::p6.png["56 thread",width=262,height=156] |image::p7.png["100 thread",width=262,height=156]
-|*512 threads* |*10800 threads*
-|image::p8.png["512 thread",width=262,height=156] |image::p9.png["10800 thread",width=262,height=156]
-|===
+single thread
+____
+image::p4.png["1 thread",width=276,height=165]
+____
+
+32 threads
+____
+image::p5.png["32 thread",width=262,height=156]
+____
+
+56 threads
+____
+image::p6.png["56 thread",width=262,height=156]
+____
+
+100 threads
+____
+image::p7.png["100 thread",width=262,height=156]
+____
+
+512 threads
+____
+image::p5.png["512 thread",width=262,height=156]
+____
+
+10800 threads
+____
+image::p5.png["10800 thread",width=262,height=156]
+____
 
 [arabic, start=5]
 . *Test Conclusion*
