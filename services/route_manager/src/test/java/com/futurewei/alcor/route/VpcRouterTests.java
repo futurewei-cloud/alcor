@@ -285,4 +285,51 @@ public class VpcRouterTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routerId));
     }
 
+    @Test
+    public void getOrCreateSubnetRouteTable_ExistMultipleSubnetRouteTable_notPass () throws Exception {
+        RouteTable routetable1 = new RouteTable();
+        routetable1.setId(UnitTestConfig.routeTableId);
+        RouteTable routetable2 = new RouteTable();
+        routetable2.setId(UnitTestConfig.routeTableId2);
+
+        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable1);put(UnitTestConfig.routeTableId2, routetable2);}});
+
+        try {
+            this.mockMvc.perform(get(subnetRouteTableUri))
+                    .andDo(print())
+                    .andExpect(status().is(500));
+        }catch (Exception e) {
+            assertEquals("exist multiple subnet routetable searched by subnet id", e.getMessage());
+            System.out.println("-----json returned =" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void updateSubnetRouteTable_pass () throws Exception {
+        RouteTable routetable = new RouteTable();
+        routetable.setId(UnitTestConfig.routeTableId);
+
+        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.vpcRouteTableResource))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));
+    }
+
+    @Test
+    public void deleteSubnetRouteTable_pass () throws Exception {
+        RouteTable routetable = new RouteTable();
+        routetable.setId(UnitTestConfig.routeTableId);
+
+        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        this.mockMvc.perform(delete(subnetRouteTableUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(UnitTestConfig.routeTableId));
+    }
+
 }
