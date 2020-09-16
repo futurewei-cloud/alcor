@@ -18,6 +18,7 @@ package com.futurewei.alcor.route.service.Impl;
 import com.futurewei.alcor.route.exception.CanNotFindSubnet;
 import com.futurewei.alcor.route.service.VpcRouterToSubnetService;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -37,6 +38,13 @@ public class VpcRouterToSubnetServiceImpl implements VpcRouterToSubnetService {
         if (response == null || response.getSubnet() == null) {
             throw new CanNotFindSubnet();
         }
+        return response;
+    }
+
+    @Override
+    public SubnetsWebJson getSubnetsByVpcId(String projectId, String vpcId) {
+        String subnetManagerServiceUrl = subnetUrl+ "/project/" + projectId + "/subnets?network_id=" + vpcId;
+        SubnetsWebJson response = restTemplate.getForObject(subnetManagerServiceUrl, SubnetsWebJson.class);
         return response;
     }
 }

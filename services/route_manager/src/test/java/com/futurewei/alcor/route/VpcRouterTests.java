@@ -17,12 +17,11 @@ package com.futurewei.alcor.route;
 
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
-import com.futurewei.alcor.route.service.RouteEntryDatabaseService;
-import com.futurewei.alcor.route.service.RouteTableDatabaseService;
-import com.futurewei.alcor.route.service.RouterDatabaseService;
-import com.futurewei.alcor.route.service.VpcRouterToVpcService;
+import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.web.entity.route.RouteTable;
 import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.junit.Test;
@@ -65,6 +64,9 @@ public class VpcRouterTests {
 
     @MockBean
     private RouteTableDatabaseService routeTableDatabaseService;
+
+    @MockBean
+    private VpcRouterToSubnetService vpcRouterToSubnetService;
 
     @MockBean
     private RouteEntryDatabaseService routeEntryDatabaseService;
@@ -158,17 +160,24 @@ public class VpcRouterTests {
         router.setId(UnitTestConfig.routerId);
         router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
 
+        SubnetsWebJson subnetsWebJson = new SubnetsWebJson();
+        ArrayList<SubnetEntity> subnets = new ArrayList<>(){{add(new SubnetEntity());add(new SubnetEntity());}};
+        subnetsWebJson.setSubnets(subnets);
+
+
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
         Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcWebJson);
+        Mockito.when(vpcRouterToSubnetService.getSubnetsByVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(subnetsWebJson);
 
         try {
             this.mockMvc.perform(delete(vpcRouterUri))
                     .andDo(print())
                     .andExpect(status().is(409));
         }catch (Exception e) {
-            assertEquals("the VPC router contains subnet routing tables", e.getMessage());
+            assertEquals("there are some subnets exist in the VPC. We cannot delete VPC router and VPC default routing table.", e.getMessage());
             System.out.println("-----json returned =" + e.getMessage());
         }
     }
@@ -204,12 +213,15 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
+        router.setVpcDefaultRouteTableId(UnitTestConfig.routeTableId);
         router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
         Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcWebJson);
+        Mockito.when(routeTableDatabaseService.getByRouteTableId(UnitTestConfig.routeTableId))
+                .thenReturn(new RouteTable(){{setId(UnitTestConfig.routeTableId);}});
 
         this.mockMvc.perform(put(vpcRouteTableUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.vpcRouteTableResource))
@@ -313,7 +325,7 @@ public class VpcRouterTests {
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
         this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
-                .content(UnitTestConfig.vpcRouteTableResource))
+                .content(UnitTestConfig.subnetRouteTableResource))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));

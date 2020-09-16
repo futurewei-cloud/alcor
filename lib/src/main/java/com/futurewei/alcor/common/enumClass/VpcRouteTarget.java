@@ -13,15 +13,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.route.service;
+package com.futurewei.alcor.common.enumClass;
 
-import com.futurewei.alcor.route.exception.CanNotFindSubnet;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
+public enum VpcRouteTarget {
 
-public interface VpcRouterToSubnetService {
+    LOCAL("local"),
+    INTERNET_GW("internet_gw"),
+    NAT_GW("nat_gw");
 
-    public SubnetWebJson getSubnet (String projectId, String subnetId) throws CanNotFindSubnet;
-    public SubnetsWebJson getSubnetsByVpcId (String projectId, String vpcId);
+    private String vpcRouteTarget;
+
+    VpcRouteTarget (String env) {
+        this.vpcRouteTarget = env;
+    }
+
+    public String getVpcRouteTarget () {
+        return vpcRouteTarget;
+    }
 
 }

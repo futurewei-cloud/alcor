@@ -18,6 +18,6 @@ package com.futurewei.alcor.route.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.CONFLICT, reason="the VPC router contains subnet routing tables")
-public class VpcRouterContainsSubnetRoutingTables extends Exception{
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="there are some subnets exist in the VPC. We cannot delete VPC router and VPC default routing table.")
+public class VpcContainsSubnet extends Exception{
 }

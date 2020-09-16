@@ -35,6 +35,10 @@ public class Router extends CustomerResource {
     @JsonProperty("routetables")
     private List<RouteTable> vpcRouteTable;
 
+    // store vpc_default_route_table_id
+    @JsonProperty("vpc_default_route_table_id")
+    private String vpcDefaultRouteTableId;
+
     // store vpc_id
     @JsonProperty("owner")
     private String owner;
@@ -76,7 +80,7 @@ public class Router extends CustomerResource {
         this.vpcRouteTable = vpcRouteTable;
     }
 
-    public Router(String projectId, String id, String name, String description, RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId) {
+    public Router(String projectId, String id, String name, String description, RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId, String vpcDefaultRouteTableId) {
         super(projectId, id, name, description);
         this.neutronRouteTable = neutronRouteTable;
         this.vpcRouteTable = vpcRouteTable;
@@ -86,5 +90,6 @@ public class Router extends CustomerResource {
         this.adminStateUp = adminStateUp;
         this.status = status;
         this.routerExtraAttributeId = routerExtraAttributeId;
+        this.vpcDefaultRouteTableId = vpcDefaultRouteTableId;
     }
 }

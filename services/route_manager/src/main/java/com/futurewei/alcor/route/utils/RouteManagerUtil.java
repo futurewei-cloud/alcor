@@ -131,4 +131,24 @@ public class RouteManagerUtil {
         return true;
     }
 
+    public static boolean checkSubnetRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
+        if (resource == null) {
+            return false;
+        }
+
+        RouteTable routetable = resource.getRoutetable();
+        if (routetable == null) {
+            return false;
+        }
+
+        // routeTableType
+        String routeTableTypeStr = resource.getRoutetable().getRouteTableType();
+        if (routeTableTypeStr != null && !routeTableTypeStr.equals("public_subnet") && !routeTableTypeStr.equals("private_subnet")) {
+            return false;
+        }
+
+
+        return true;
+    }
+
 }
