@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface SegmentService {
 
-    public Long addVlanEntity (String vlanId, String networkType, String vpcId) throws Exception;
-    public Long addVxlanEntity (String vxlanId, String networkType, String vpcId) throws Exception;
-    public Long addGreEntity (String greId, String networkType, String vpcId) throws DatabasePersistenceException, CacheException, Exception;
+    public Long addVlanEntity (String vlanId, String networkType, String vpcId, Integer mtu) throws Exception;
+    public Long addVxlanEntity (String vxlanId, String networkType, String vpcId, Integer mtu) throws Exception;
+    public Long addGreEntity (String greId, String networkType, String vpcId, Integer mtu) throws DatabasePersistenceException, CacheException, Exception;
     public void releaseVlanEntity (String vlanId, Long key) throws DatabasePersistenceException;
     public void releaseVxlanEntity (String vxlanId, Long key) throws DatabasePersistenceException;
     public void releaseGreEntity (String greId, Long key) throws DatabasePersistenceException;
@@ -22,4 +22,5 @@ public interface SegmentService {
     public NetworkRangeRequest deleteRange(String rangeId) throws Exception;
     public NetworkRangeRequest getRange(String rangeId) throws Exception;
     public List<NetworkRangeRequest> listRanges();
+    public void createDefaultNetworkTypeTable () throws Exception;
 }

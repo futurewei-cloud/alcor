@@ -24,9 +24,7 @@ import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -38,6 +36,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -252,4 +251,5 @@ public class RouteController {
         return new ResponseId(routeId);
         
     }
+
 }

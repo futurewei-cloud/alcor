@@ -1,0 +1,103 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+
+actor "Customer"
+collections "Route Manager"
+collections "Node Manager"
+collections "Subnet Manager"
+collections "Port Manager"
+collections "Data Plane Manager"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \n Host 1"
+end box
+
+box "Compute Host 2" #LightGreen
+participant "ACA on \n Host 2"
+end box
+
+===Scenarios A: Create GREEN subnet P1 on Host 1, then RED subnet P2 on Host 2, both subnets connected to same router==
+
+==Scenario A1: Setup GREEN subnet P1 on Host 1 ==
+autonumber 10
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet)\n Subnetids(the list of connected subnets including GREEN subnet)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
+"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[GREEN Subnet],[VPC],[SG]}
+"Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1\n DHCP: CREATE (FULL) P1
+
+==Scenario A2: Setup RED subnet P2 on Host 2 ==
+autonumber 20
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {RED subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to RED subnet)\n Subnetids(the list of connected subnets including RED subnet)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
+"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P2 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=[P1]],[Router INFO][GREEN+RED Subnet],[VPC],[SG]}
+"Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P2\n DHCP: CREATE (FULL) P2\n L3 neighbors CREATE (DELTA) P1 + Router: INFO \n (w/ host 2 local DVR mac), Subnet: INFO (GREEN+RED)
+
+==Scenario A3: Setup L3 neighbor about RED subnet P2 on Host 1 ==
+"Data Plane Manager" -> "ACA on \n Host 1": L3 neighbors CREATE (DELTA) P2 + Router: INFO\n (w/ host 1 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
+
+
+===Scenarios B: (Neutron only) Create GREEN subnet P1 on Host 1, then RED subnet P2 on Host 2, GREEN and RED subnets NOT connected until after P1 and P2 is created==
+
+==Scenario B1: Setup GREEN subnet P1 on Host 1 ==
+autonumber 30
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {GREEN subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to GREEN subnet),\n Subnetids(the list of connected subnets including GREEN subnet)}\n Should return none
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port \n output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor \n output {neighbor host_ip} May merge with above
+"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[GREEN Subnet],[VPC],[SG]}
+"Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1, \n DHCP: CREATE (FULL) P1\n Subnet: INFO (GREEN only)
+
+==Scenario B2: Setup RED subnet P2 on Host 2 ==
+autonumber 40
+"Port Manager" -> "Route Manager": Query routing info and connected subnets {RED subnet id, vpc id}
+"Route Manager" -> "Port Manager": Response {routerinfo(connected to RED subnet)\n Subnetids(the list of connected subnets including RED subnet)}\n Should return none
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
+"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P2 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[VPC],[SG]}
+"Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P2\n DHCP: CREATE (FULL) P2\n Subnet: INFO (RED only)
+
+==Scenario B3: Router created and connected GREEN + RED subnet together ==
+autonumber 50
+"Customer" -> "Route Manager": Create new router
+"Customer" -> "Route Manager": Connect GREEN subnet\n to new router
+"Route Manager" -> "Subnet Manager": Update router ID for GREEN subnet
+"Customer" -> "Route Manager": Connect RED subnet\n to new router
+"Route Manager" -> "Subnet Manager": Update router ID for RED subnet
+"Route Manager" -> "Port Manager": Update L3 Neighbor
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
+"Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
+"Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[Neighbor port Id=[P1,P2]],[Router INFO][GREEN+RED Subnet],[VPC],[SG]} 
+"Data Plane Manager" -> "ACA on \n Host 1": L3 neighbors CREATE (DELTA) P2 + Router: INFO\n (w/ host 1 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
+"Data Plane Manager" -> "ACA on \n Host 2": L3 neighbors CREATE (DELTA) P1 + Router: INFO\n (w/ host 2 local DVR mac), Subnet: INFO (RED+GREEN needed for router)
+
+
+===Scenario C: (VPC only) Routing rule added for GREEN subnet, GREEN subnet P1 on Host 1, RED subnet P2 on Host 2  ==
+autonumber 60
+"Customer" -> "Route Manager": Existing router created with GREEN and RED subnet connected
+"Customer" -> "Route Manager": Add routing rule on GREEN subnet\n customer provide subnet ID
+"Route Manager" -> "Subnet Manager": For new routing rule like new external routing rule\n (new) send GREEN subnet level routing rule to subnet manager
+"Subnet Manager" -> "Subnet Manager": Look at all the ports in GREEN subnet\n Look up cache for their {host_ip,\n local_host_dvr_mac (not needed)}
+"Subnet Manager" -> "Data Plane Manager": For all the involved host which has GREEN subnet port, Update router info\n which includes the new routing rule on GREEN subnet
+"Data Plane Manager" -> "ACA on \n Host 1": Router: INFO (add new routing rule on GREEN subnet)\n Subnet: INFO (GREEN needed for router)
+
+@enduml
+

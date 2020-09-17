@@ -23,16 +23,19 @@ option java_outer_classname = "Vpc";
 
 import "common.proto";
 
-message VpcConfiguration {
+// Not used based on the current design including router E2E
+// To be removed once we complete the design for all major features
+message VpcConfiguration {  
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
     string request_id = 3;
     string id = 4;
-    string project_id = 5;
-    string name = 6;
-    string cidr = 7;
-    int64 tunnel_id = 8;
+    MessageType message_type = 5; // DELTA (default) or FULL
+    string project_id = 6;
+    string name = 7;
+    string cidr = 8;
+    int64 tunnel_id = 9;
 
     message SubnetId {
         string id = 1;
@@ -43,8 +46,8 @@ message VpcConfiguration {
         string next_hop = 2;
     }
 
-    repeated SubnetId subnet_ids = 9;
-    repeated Route routes = 10;
+    repeated SubnetId subnet_ids = 10;
+    repeated Route routes = 11;
 }
 
 message VpcState {

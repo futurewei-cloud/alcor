@@ -93,12 +93,18 @@ public class NeighborInfo {
 
     @Override
     public int hashCode() {
-       return 1;
+        return (getHostId() + getHostIp() + getPortId() + getPortIp() + getPortMac()).hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof NeighborInfo))
+           return false;
         NeighborInfo o=(NeighborInfo)obj;
-        return this.hostId.equals(o.hostId)&&this.hostIp.equals(o.hostIp)&&this.portId.equals(o.portId);
+        return this.hostId.equals(o.hostId)
+                &&this.hostIp.equals(o.hostIp)
+                &&this.portId.equals(o.portId)
+                &&this.portIp.equals(o.portIp)
+                &&this.portMac.equals(o.portMac);
     }
 }

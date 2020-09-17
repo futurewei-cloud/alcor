@@ -3,8 +3,8 @@ package com.futurewei.alcor.web.entity.vpc;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.route.Router;
+
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,6 +19,9 @@ public class VpcEntity extends CustomerResource {
 
     @JsonProperty("routes")
     private List<RouteEntity> routeEntities;
+
+    @JsonProperty("router")
+    private Router router;
 
     @JsonProperty("admin_state_up")
     private boolean adminStateUp;

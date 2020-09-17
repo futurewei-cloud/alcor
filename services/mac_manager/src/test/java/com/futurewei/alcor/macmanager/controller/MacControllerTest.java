@@ -24,7 +24,9 @@ import com.futurewei.alcor.macmanager.dao.MacStateRepository;
 import org.junit.After;
 
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +34,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -50,21 +53,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MacControllerTest extends MockIgniteServer {
     private static final ObjectMapper om = new ObjectMapper();
+
     @MockBean
     MacRangeRepository mockMacRangeRepository;
+
     @MockBean
     MacStateRepository mockMacStateRepository;
+
     @MockBean
     MacRangeMappingRepository macRangeMappingRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void contextLoads() {
+    public void contextLoads() {
     }
 
     @Test
@@ -89,7 +97,7 @@ public class MacControllerTest extends MockIgniteServer {
         String json = om.writeValueAsString(macStateJson1);
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         when(mockMacStateRepository.putIfAbsent(any())).thenReturn(true);
-        when(macRangeMappingRepository.size(strRangeId)).thenReturn(0L);
+        when(macRangeMappingRepository.getUsedCapacity(strRangeId)).thenReturn(0L);
         when(macRangeMappingRepository.putIfAbsent(any(String.class), anyLong())).thenReturn(true);
         MvcResult result = this.mockMvc.perform(post("/macs")
                 .content(json)

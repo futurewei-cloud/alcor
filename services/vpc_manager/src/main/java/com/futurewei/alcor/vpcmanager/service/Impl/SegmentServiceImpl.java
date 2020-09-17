@@ -1,9 +1,12 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.constants.NetworkType;
+import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.entity.*;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.dao.*;
@@ -45,6 +48,7 @@ public class SegmentServiceImpl implements SegmentService {
 
     /**
      * Create a vlan
+     *
      * @param vlanId
      * @param networkType
      * @param vpcId
@@ -53,7 +57,7 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addVlanEntity(String vlanId, String networkType, String vpcId) throws Exception {
+    public Long addVlanEntity(String vlanId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
         String rangeId = null;
@@ -65,7 +69,7 @@ public class SegmentServiceImpl implements SegmentService {
             if (map.size() == 0) {
                 rangeId = UUID.randomUUID().toString();
                 NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, NetworkType.VLAN_PARTITION, NetworkType.VLAN_FIRST_KEY, NetworkType.VLAN_LAST_KEY);
-                this.vlanRangeRepository.createRange(request);
+                rangeId = this.vlanRangeRepository.createRange(request);
                 map = this.vlanRangeRepository.findAllItems();
             }
             for (Map.Entry<String, NetworkVlanRange> entry : map.entrySet()) {
@@ -73,12 +77,11 @@ public class SegmentServiceImpl implements SegmentService {
             }
 
             key = this.vlanRangeRepository.allocateVlanKey(rangeId);
-
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                vlan.setMtu(mtu);
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                throw new NetworkKeyNotEnoughException();
             }
+
+            vlan.setMtu(mtu);
             vlan.setVlanId(vlanId);
             vlan.setKey(key);
 
@@ -86,16 +89,19 @@ public class SegmentServiceImpl implements SegmentService {
             logger.info("Allocate vlan key success, key: " + key);
             return key;
 
-        } catch (Exception e) {
+        } catch (DatabasePersistenceException e) {
             this.vlanRepository.deleteItem(vlanId);
-            this.vlanRangeRepository.releaseVlanKey(rangeId,key);
+            this.vlanRangeRepository.releaseVlanKey(rangeId, key);
             logger.info("Allocate vlan key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            throw e;
+        } catch (NetworkKeyNotEnoughException e) {
+            throw e;
         }
     }
 
     /**
      * Create a vxlan
+     *
      * @param vxlanId
      * @param networkType
      * @param vpcId
@@ -104,43 +110,44 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addVxlanEntity(String vxlanId, String networkType, String vpcId) throws Exception {
+    public Long addVxlanEntity(String vxlanId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
-        String rangeId = null;
+        String partitionStringFormat = null;
         Random ran = new Random();
-        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
 
         try {
             NetworkVxlanType vxlan = new NetworkVxlanType();
+            // the number of randomly allocating partition in vxlan range
+            int round = 1;
 
-            // Find all partitions exist in db
-            Map<String, NetworkVxlanRange> map = this.vxlanRangeRepository.findAllItems();
-            for (Map.Entry<String, NetworkVxlanRange> entry : map.entrySet()) {
-                int temp_partition = entry.getValue().getPartition();
-                String temp_rangeId = entry.getValue().getId();
-                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
+            while (round <= ConstantsConfig.MAX_ROUNDS) {
+                // Randomly allocate a partition and check if the partition exist in db
+                int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
+                partitionStringFormat = String.valueOf(partition);
+                NetworkVxlanRange networkVxlanRange = this.vxlanRangeRepository.findItem(partitionStringFormat);
+                if (networkVxlanRange == null) {
+                    int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+                    int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+                    NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
+                    partitionStringFormat = this.vxlanRangeRepository.createRange(request);
+                } else {
+                    partitionStringFormat = networkVxlanRange.getId();
+                }
+
+                key = this.vxlanRangeRepository.allocateVxlanKey(partitionStringFormat);
+
+                if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                    break;
+                }
+                round ++;
             }
 
-            // Randomly allocate a partition and check if the partition exist in db
-            int partition = ran.nextInt(NetworkType.VXLAN_PARTITION);
-            if (!partitionsAndRangeIds.containsKey(partition)) {
-                rangeId = UUID.randomUUID().toString();
-                int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
-                int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, partition, firstKey, lastKey);
-                this.vxlanRangeRepository.createRange(request);
-            }else {
-                rangeId = partitionsAndRangeIds.get(partition);
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                throw new NetworkKeyNotEnoughException();
             }
 
-            key = this.vxlanRangeRepository.allocateVxlanKey(rangeId);
-
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                vxlan.setMtu(mtu);
-            }
+            vxlan.setMtu(mtu);
             vxlan.setVxlanId(vxlanId);
             vxlan.setKey(key);
 
@@ -150,14 +157,15 @@ public class SegmentServiceImpl implements SegmentService {
 
         } catch (Exception e) {
             this.vxlanRepository.deleteItem(vxlanId);
-            this.vxlanRangeRepository.releaseVxlanKey(rangeId,key);
-            logger.info("Allocate vxlan key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            this.vxlanRangeRepository.releaseVxlanKey(partitionStringFormat, key);
+            logger.info("Allocate vxlan key or db operation failed, key: " + key);
+            throw e;
         }
     }
 
     /**
      * Create a gre
+     *
      * @param greId
      * @param networkType
      * @param vpcId
@@ -166,43 +174,44 @@ public class SegmentServiceImpl implements SegmentService {
      */
     @Override
     @DurationStatistics
-    public Long addGreEntity(String greId, String networkType, String vpcId) throws Exception {
+    public Long addGreEntity(String greId, String networkType, String vpcId, Integer mtu) throws Exception {
 
         Long key = null;
-        String rangeId = null;
+        String partitionStringFormat = null;
         Random ran = new Random();
-        Map<Integer, String> partitionsAndRangeIds = new HashMap<>();
 
         try {
             NetworkGREType gre = new NetworkGREType();
+            // the number of randomly allocating partition in gre range
+            int round = 1;
 
-            // Find all partitions exist in db
-            Map<String, NetworkGRERange> map = this.greRangeRepository.findAllItems();
-            for (Map.Entry<String, NetworkGRERange> entry : map.entrySet()) {
-                int temp_partition = entry.getValue().getPartition();
-                String temp_rangeId = entry.getValue().getId();
-                partitionsAndRangeIds.put(temp_partition, temp_rangeId);
+            while (round <= ConstantsConfig.MAX_ROUNDS) {
+                // Randomly allocate a partition and check if the partition exist in db
+                int partition = ran.nextInt(NetworkType.GRE_PARTITION);
+                partitionStringFormat = String.valueOf(partition);
+                NetworkGRERange networkGRERange = this.greRangeRepository.findItem(partitionStringFormat);
+                if (networkGRERange == null) {
+                    int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
+                    int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
+                    NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
+                    partitionStringFormat = this.greRangeRepository.createRange(request);
+                } else {
+                    partitionStringFormat = networkGRERange.getId();
+                }
+
+                key = this.greRangeRepository.allocateGreKey(partitionStringFormat);
+
+                if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                    break;
+                }
+                round ++;
+            }
+            
+            if (key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                throw new NetworkKeyNotEnoughException();
             }
 
-            // Randomly allocate a partition and check if the partition exist in db
-            int partition = ran.nextInt(NetworkType.GRE_PARTITION);
-            if (!partitionsAndRangeIds.containsKey(partition)) {
-                rangeId = UUID.randomUUID().toString();
-                int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
-                int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
-                NetworkRangeRequest request = new NetworkRangeRequest(rangeId, networkType, partition, firstKey, lastKey);
-                this.greRangeRepository.createRange(request);
-            }else {
-                rangeId = partitionsAndRangeIds.get(partition);
-            }
-
-            key = this.greRangeRepository.allocateGreKey(rangeId);
-
-            if (vpcId != null) {
-                VpcEntity vpc = this.vpcDatabaseService.getByVpcId(vpcId);
-                Integer mtu = vpc.getMtu();
-                gre.setMtu(mtu);
-            }
+            gre.setMtu(mtu);
             gre.setGreId(greId);
             gre.setKey(key);
 
@@ -212,14 +221,15 @@ public class SegmentServiceImpl implements SegmentService {
 
         } catch (Exception e) {
             this.greRepository.deleteItem(greId);
-            this.greRangeRepository.releaseGreKey(rangeId,key);
+            this.greRangeRepository.releaseGreKey(partitionStringFormat, key);
             logger.info("Allocate gre key or db operation failed");
-            throw new DatabasePersistenceException(e.getMessage());
+            throw e;
         }
     }
 
     /**
      * Delete the vlan and release its associated resources
+     *
      * @param vlanId
      * @param key
      * @throws DatabasePersistenceException
@@ -248,6 +258,7 @@ public class SegmentServiceImpl implements SegmentService {
 
     /**
      * Delete the vxlan and release its associated resources
+     *
      * @param vxlanId
      * @param key
      * @throws DatabasePersistenceException
@@ -280,6 +291,7 @@ public class SegmentServiceImpl implements SegmentService {
 
     /**
      * Delete the gre and release its associated resources
+     *
      * @param greId
      * @param key
      * @throws DatabasePersistenceException
@@ -424,7 +436,7 @@ public class SegmentServiceImpl implements SegmentService {
         Map<String, NetworkVlanRange> ipAddrRangeMap = vlanRangeRepository.findAllItems();
 
         List<NetworkRangeRequest> result = new ArrayList<>();
-        ipAddrRangeMap.forEach((k,v) -> {
+        ipAddrRangeMap.forEach((k, v) -> {
             NetworkRangeRequest range = new NetworkRangeRequest();
             range.setId(v.getId());
             range.setNetworkType(v.getNetworkType());
@@ -438,5 +450,26 @@ public class SegmentServiceImpl implements SegmentService {
         logger.info("List vlan range success, result: {}", result);
 
         return result;
+    }
+
+    @Override
+    public void createDefaultNetworkTypeTable() throws Exception {
+
+        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i ++) {
+            int firstKey = i * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+            int lastKey = (i + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
+            String partitionStringFormat = String.valueOf(i);
+            NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.VXLAN.getNetworkType(), i, firstKey, lastKey);
+            partitionStringFormat = this.vxlanRangeRepository.createRange(request);
+        }
+
+        for (int i = 0; i < NetworkType.GRE_PARTITION; i ++) {
+            int firstKey = i * NetworkType.GRE_ONE_PARTITION_SIZE;
+            int lastKey = (i + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
+            String partitionStringFormat = String.valueOf(i);
+            NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.GRE.getNetworkType(), i, firstKey, lastKey);
+            partitionStringFormat = this.greRangeRepository.createRange(request);
+        }
+
     }
 }

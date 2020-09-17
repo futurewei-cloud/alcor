@@ -23,8 +23,8 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.service.implement.SubnetServiceImp;
-import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequest;
 import org.apache.commons.net.util.SubnetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -33,11 +33,11 @@ public class SubnetManagementUtil {
 
     private static SubnetService subnetService = new SubnetServiceImp();
 
-    public static boolean checkSubnetRequestResourceIsValid(SubnetRequestWebJson resource) {
+    public static boolean checkSubnetRequestResourceIsValid(SubnetWebRequestJson resource) {
         if (resource == null) {
             return false;
         }
-        SubnetWebRequestObject subnet = resource.getSubnet();
+        SubnetWebRequest subnet = resource.getSubnet();
 
         // network_id
         String networkId = subnet.getVpcId();

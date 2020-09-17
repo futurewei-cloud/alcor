@@ -11,17 +11,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: dpmmanager
-  name: dpmmanager
+    app: dataplanemanager
+  name: dataplanemanager
 spec:
   selector:
     matchLabels:
-      app: dpmmanager
-  replicas: 3
+      app: dataplanemanager
+  replicas: 5
   template:
     metadata:
       labels:
-        app: dpmmanager
+        app: dataplanemanager
     spec:
       volumes:
         - name: dpm-volume
@@ -31,11 +31,11 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:dpmKube1
+        - image: data_plane_manager:v1.0
         #- image: fwnetworking/controller:dpm_manager-v0.3.0
-          name: dpmmanager-web
+          name: dataplanemanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorDataPlaneManager-0.1.0-SNAPSHOT.jar", "--spring.config.location=/etc/dpm/application.properties"]
+          command: ["java", "-jar", "/app/AlcorDataPlaneManager-0.1.0.jar", "--spring.config.location=/etc/dpm/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -48,9 +48,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: dpmmanager-service
+  name: dataplanemanager-service
   labels:
-    name: dpmmanager-service
+    name: dataplanemanager-service
 spec:
   type: NodePort
   ports:
@@ -58,5 +58,5 @@ spec:
       targetPort: 8080
       nodePort: 30010
   selector:
-    app: dpmmanager
+    app: dataplanemanager
 

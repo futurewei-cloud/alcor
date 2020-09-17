@@ -36,10 +36,6 @@ public class ElasticIp extends CustomerResource {
     @JsonProperty("port_id")
     private String portId;
 
-    @JsonProperty("private_ip_version")
-    @JsonInclude(value = JsonInclude.Include.NON_NULL)
-    private Integer privateIpVersion;
-
     @JsonProperty("private_ip")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String privateIp;
@@ -59,7 +55,6 @@ public class ElasticIp extends CustomerResource {
         this.elasticIpVersion = eip.getElasticIpVersion();
         this.elasticIp = eip.getElasticIp();
         this.portId = eip.getPortId();
-        this.privateIpVersion = eip.getPrivateIpVersion();
         this.privateIp = eip.getPrivateIp();
         this.dnsName = eip.getDnsName();
         this.dnsDomain = eip.getDnsDomain();
@@ -67,13 +62,12 @@ public class ElasticIp extends CustomerResource {
 
     public ElasticIp(String projectId, String id, String name, String description,
                      String rangeId, Integer elasticIpVersion, String elasticIp, String portId,
-                     Integer privateIpVersion, String privateIp, String dnsName, String dnsDomain) {
+                     String privateIp, String dnsName, String dnsDomain) {
         super(projectId, id, name, description);
         this.rangeId = rangeId;
         this.elasticIpVersion = elasticIpVersion;
         this.elasticIp = elasticIp;
         this.portId = portId;
-        this.privateIpVersion = privateIpVersion;
         this.privateIp = privateIp;
         this.dnsName = dnsName;
         this.dnsDomain = dnsDomain;
@@ -111,14 +105,6 @@ public class ElasticIp extends CustomerResource {
         this.portId = portId;
     }
 
-    public Integer getPrivateIpVersion() {
-        return privateIpVersion;
-    }
-
-    public void setPrivateIpVersion(Integer privateIpVersion) {
-        this.privateIpVersion = privateIpVersion;
-    }
-
     public String getPrivateIp() {
         return privateIp;
     }
@@ -150,7 +136,6 @@ public class ElasticIp extends CustomerResource {
                 ", elasticIpVersion=" + elasticIpVersion +
                 ", elasticIp='" + elasticIp + '\'' +
                 ", portId='" + portId + '\'' +
-                ", privateIpVersion=" + privateIpVersion +
                 ", privateIp='" + privateIp + '\'' +
                 ", dnsName='" + dnsName + '\'' +
                 ", dnsDomain='" + dnsDomain + '\'' +

@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eip-configmap
+data:
+  application.properties: |
+    microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    ignite.thin.client.enable=true
+    management.health.redis.enabled=false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: eipmanager
+  name: eipmanager
+spec:
+  selector:
+    matchLabels:
+      app: eipmanager
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: eipmanager
+    spec:
+      volumes:
+        - name: eip-volume
+          configMap:
+            name: eip-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: elastic_ip_manager:v1.0
+        #- image: fwnetworking/controller:mac_manager-v0.3.0
+          name: eipmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorElasticIpManager-0.1.0.jar", "--spring.config.location=/etc/eip/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: eip-volume
+              mountPath: /etc/eip
+          envFrom:
+            - configMapRef:
+                name: eip-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eipmanager-service
+  labels:
+    name: eipmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9011
+      targetPort: 8080
+      nodePort: 30011
+  selector:
+    app: eipmanager
+

@@ -40,6 +40,7 @@
         <module>services/data_plane_manager</module>
         <module>services/security_group_manager</module>
         <module>services/elastic_ip_manager</module>
+        <module>services/quota_manager</module>
     </modules>
     <packaging>pom</packaging>
 

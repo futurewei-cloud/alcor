@@ -28,6 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,55 +61,32 @@ public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     @Override
     @DurationStatistics
     public MacState findItem(String macAddress) throws CacheException {
-        MacState macState = null;
-        try {
-            macState = cache.get(macAddress);
-        } catch (CacheException e) {
-            logger.error("MacStateRepository findItem() exception:", e);
-            throw e;
-        }
-        return macState;
+        return cache.get(macAddress);
     }
 
     /**
      * get all MAC-port allocation states
      *
-     * @param
      * @return map of all MAC states
      * @throws CacheException Db or cache operation exception
      */
     @Override
     @DurationStatistics
     public Map<String, MacState> findAllItems() throws CacheException {
-        Map<String, MacState> map = null;
-        try {
-            map = cache.getAll();
-        } catch (CacheException e) {
-            logger.error("MacStateRepository findAllItems() exception:", e);
-            throw e;
-        }
-        return map;
+        return cache.getAll();
     }
 
     @Override
     @DurationStatistics
     public Map<String, MacState> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        Map<String, MacState> map = null;
-        try {
-            map = cache.getAll(queryParams);
-        } catch (CacheException e) {
-            logger.error("MacStateRepository findAllItems() exception:", e);
-            throw e;
-        }
-        return map;
+        return cache.getAll(queryParams);
     }
 
     /**
      * add a new MAC-port allocation state to node repository
      *
      * @param macState MAC state
-     * @return void
-     * @throws Exception Db or cache operation exception
+     * @throws CacheException Db or cache operation exception
      */
     @Override
     @DurationStatistics
@@ -120,8 +98,7 @@ public class MacStateRepository implements ICacheRepositoryEx<MacState> {
      * delete a MAC-port allocation state from node repository
      *
      * @param macAddress MAC address
-     * @return void
-     * @throws Exception Db or cache operation exception
+     * @throws CacheException Db or cache operation exception
      */
     @Override
     @DurationStatistics
@@ -151,5 +128,10 @@ public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     @DurationStatistics
     public Boolean contains(String key) throws CacheException {
         return cache.containsKey(key);
+    }
+
+    @Override
+    public void addAllItem(Map<String, MacState> newItems) throws CacheException {
+        cache.putAll(newItems);
     }
 }

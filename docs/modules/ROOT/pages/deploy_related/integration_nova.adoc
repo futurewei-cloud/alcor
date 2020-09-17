@@ -1,4 +1,5 @@
 = Integration with OpenStack Nova
+Jianwei Zuo <740684863@qq.com>
 v0.1, 2020-05-17
 :toc: right
 :imagesdir: ../../images
@@ -21,14 +22,14 @@ We would want to integrate with Nova to support the same set of user operations,
 
 == Review of OpenStack Workflow
 
-nova create a vm will through four stage.
+Nova create a vm will through four stage.
 1. check network options is ok
 2. allocate network resource
 3. rollback if fail
 
 In scenario column on below table, tag by above scenario and features.
 
-nova call neutron apis
+Nova call Neutron apis
 [width="100%",cols="1,1,1,1,1,1,1", options="header"]
 |====================
 |Name |Method |Params |Fields |Neutron API |Alcor status |Scenario
@@ -261,48 +262,54 @@ image::vm_create.png["VM creation workflow", width=1024, link="vm_create.png"]
 == Required Changes
 https://github.com/openstack/python-neutronclient[neutronclient project]
 
-Nova use python-neutronclient to call neutron apis.Only need to change neutronclient/v2.0/client:Client class.
+Nova use python-neutronclient to call Neutron apis.Only need to change neutronclient/v2.0/client:Client class.
 
-== How nova client identify alcor server url
-In openstack, there are a auth server keystone, it can offer server url auth and endpoint catalog.  +
+== How Nova client identify Alcor server url
+In OpenStack, there are a auth server Keystone, it can offer server url auth and endpoint catalog.  +
 https://docs.openstack.org/mitaka/cli-reference/keystone.html[keystone online docs]
 
-So alcor need register endpoint in keystone. +
+So Alcor need register endpoint in Keystone. +
 Register:
 
-$ openstack endpoint create --region RegionOne
+```
+$ OpenStack endpoint create --region RegionOne
 network public http://<alcor_ip>:<port>
 
-$ openstack endpoint create --region RegionOne
+$ OpenStack endpoint create --region RegionOne
 network internal http://<alcor_ip>:<port>
 
-$ openstack endpoint create --region RegionOne
+$ OpenStack endpoint create --region RegionOne
 network admin http://<alcor_ip>:<port>
+```
 
-After register in keystone, nova can get alcor endpoint from keystone. No need to change nova config file.
+After register in Keystone, Nova can get Alcor endpoint from Keystone. No need to change Nova config file.
 
 
 == Integration Proposal
 
-There are two ways to integration with nova:
+. Microservice APIs should support multi params query, e.g., show/list actions
+. Rename resource name in url path or add same resource name in url path
+. Support "field" params in api and response body should have the "field" params content
 
-1. Change python-neutronclient to call alcor related api.
+There are two ways to integration with Nova:
+
+1. Change python-neutronclient to call Alcor related api.
 
     advantages:
         1)easy to accomplish
 
     disadvantages:
-        1）hard to maintain, Need change all neutornclient if a new change in alcor api
-        2）poor compatibility, Need replace all neutronclient when integration with new openstack environment
+        1）hard to maintain, Need change all neutornclient if a new change in Alcor api
+        2）poor compatibility, Need replace all neutronclient when integration with new OpenStack environment
 
-2. Make an adaption layer in alcor to adapt alcor related api to standard neutron api.
+2. Make an adaption layer in Alcor to adapt Alcor related api to standard Neutron api.
 
     advantages:
-        easy to maintain, all changes is in alcor
-        strong compatibility, easy to integration with other openstack components and environment
+        easy to maintain, all changes is in Alcor
+        strong compatibility, easy to integration with other OpenStack components and environment
 
     disadvantages:
-        need to add a new layer to adapt neutron api
+        need to add a new layer to adapt Neutron api
 
 == Test Plan
 
