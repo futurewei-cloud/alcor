@@ -21,12 +21,12 @@ import java.util.List;
 @Data
 public class NeutronRoutersWebJson {
 
-    private List<NeutronRouterWebRequestObject> neutronRouters;
+    private List<NeutronRouterWebRequestObject> routers;
 
     public NeutronRoutersWebJson () {}
 
-    public NeutronRoutersWebJson(List<NeutronRouterWebRequestObject> neutronRouters) {
-        this.neutronRouters = neutronRouters;
+    public NeutronRoutersWebJson(List<NeutronRouterWebRequestObject> routers) {
+        this.routers = routers;
     }
 
 }

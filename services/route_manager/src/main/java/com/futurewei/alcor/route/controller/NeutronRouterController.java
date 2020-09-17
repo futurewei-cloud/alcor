@@ -136,10 +136,10 @@ public class NeutronRouterController {
                     routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(routerExtraAttributeId);
                 }
 
-                BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
                 if (routerExtraAttribute != null) {
                     BeanUtils.copyProperties(routerExtraAttribute, neutronRouterWebRequestObject);
                 }
+                BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
 
                 neutronRouters.add(neutronRouterWebRequestObject);
             }
@@ -186,6 +186,7 @@ public class NeutronRouterController {
             RestPreconditionsUtil.verifyResourceNotNull(neutronRouterWebRequestObject);
 
             // configure default value
+            neutronRouterWebRequestObject.setProjectId(projectid);
             neutronRouterWebRequestObject = RouteManagerUtil.configureNeutronRouterParameters(neutronRouterWebRequestObject);
 
             // save router and router_extra_attribute
