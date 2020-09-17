@@ -7,17 +7,19 @@ v0.1, 2020-05-04
 
 The Subnet Manager is an Alcor microservice which manages the life cycle of all Subnets.
 Its responsibilities include but are not limited to creating, updating, deleting, and searching a resource model of a subnet.
-It needs to interact with VPC Manager, Route Manager, Mac manager, IP manager to create subnet。
+It needs to interact with VPC Manager, Route Manager, Port Manager, Mac manager, IP manager to create subnet.
+It also needs to dispatch routing update information from Route Manager to Distributed Virtual Routers in corresponding ACAs.
 
 == Service Requirements
 
 [arabic]
-. Supply subnets for all the vpcs, e.g., (VPC 1, Port 1) -> Subnet 1
+. Provide Subnet related operations for VPC, such as subnet creation, updating, deletion and query.
+. Maintain information for all related ports of each subnet, including id, ip address, mac address, host ip address and host mac address.
 . Concurrency control mechanism should be provided to process multiple concurrent subnet creation requests.
-.  Get route rule information from route manager
-. Algorithm with random, but less conflict possibility
-. Fall back mechanism if there is a conflict among creation of subnet
-. Working together with other services including vpc manager, route manager, mac manager and ip manager.
+. Process routing rules from Route manager and dispatch routing rules updating to DPM/ACA.
+. Algorithm with random, but less conflict possibility.
+. Fall back mechanism if there is a conflict among creation of subnet.
+. Working together with other services including VPC manager, Route manager, Port Manager, Mac manager and IP manager.
 
 == Design
 
