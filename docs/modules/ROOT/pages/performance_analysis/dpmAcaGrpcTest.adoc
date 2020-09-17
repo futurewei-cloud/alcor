@@ -90,7 +90,15 @@ ____
 ____
 
 ____
-image::p3.png["thread number of Alcor DataPlane Manager",width=553,height=302]
+image::omax.png["thread number of Alcor DataPlane Manager",width=553,height=302]
+____
+
+____
+*Time Cost on single execution max -- ALCOR DATAPLANE MANAGER round trip*
+____
+
+____
+image::jmax.png["thread number of single execution max time Alcor DataPlane Manager",width=553,height=302]
 ____
 
 [loweralpha, start=3]
@@ -102,33 +110,48 @@ ____
 
 single thread
 ____
-image::p4.png["1 thread",width=276,height=165]
+image::1-1.png["1 thread",width=276,height=165]
+____
+
+single thread -- 2nd time
+____
+image::1-2.png["1 thread 2nd time",width=276,height=165]
 ____
 
 32 threads
 ____
-image::p5.png["32 thread",width=262,height=156]
+image::32-1.png["32 thread",width=262,height=156]
+____
+
+32 threads -- 2nd time
+____
+image::32-2.png["32 thread 2nd time",width=262,height=156]
 ____
 
 56 threads
 ____
-image::p6.png["56 thread",width=262,height=156]
+image::56-1.png["56 thread",width=262,height=156]
 ____
 
-100 threads
+56 threads -- 2nd time
 ____
-image::p7.png["100 thread",width=262,height=156]
-____
-
-512 threads
-____
-image::p5.png["512 thread",width=262,height=156]
+image::56-2.png["56 thread 2nd time",width=262,height=156]
 ____
 
-10800 threads
+128 threads
 ____
-image::p5.png["10800 thread",width=262,height=156]
+image::128-1.png["128 thread",width=262,height=156]
 ____
+
+128 threads  -- 2nd time
+____
+image::128-2.png["128 thread 2nd time",width=262,height=156]
+____
+
+for 256 threads and below, the success rate is 100%
+
+
+for 512 threads above, the success rate is under 100%
 
 [arabic, start=5]
 . *Test Conclusion*
@@ -136,128 +159,19 @@ ____
 [loweralpha]
 . *Alcor DataPlane Manager could support more than 10k concurrent ACA grpc requests*
 . *Alcor DataPlane Manager runs well when from 32 threads up for the performance*
-. *A-E hardware configuration could run 1800 stable ACA instances on each box*
+. *A-E hardware configuration could run 200 stable ACA instances on each box*
 
 [arabic, start=6]
 . *Problems for now*
 
 [arabic]
-. *ALCOR CONTROL AGENT crash during start*
 
-=========================log start=======================
-
-\{
-
-"created":"@1600052532.408232982",
-
-"description":"No address added out of total 1 resolved",
-
-"file":"/var/local/git/grpc/src/core/ext/transport/chttp2/server/chttp2_server.cc",
-
-"file_line":394,
-
-"referenced_errors":[
-
-\{
-
-"created":"@1600052532.408229693",
-
-"description":"Failed to add any wildcard listeners",
-
-"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_posix.cc",
-
-"file_line":341,
-
-"referenced_errors":[
-
-\{
-
-"created":"@1600052532.408207668",
-
-"description":"Unable to configure socket",
-
-"fd":6,
-
-"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
-
-"file_line":217,
-
-"referenced_errors":[
-
-\{
-
-"created":"@1600052532.408201365",
-
-"description":"Address already in use",
-
-"errno":98,
-
-"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
-
-"file_line":190,
-
-"os_error":"Address already in use",
-
-"syscall":"bind"
-
-}
-
-]
-
-},
-
-\{
-
-"created":"@1600052532.408229169",
-
-"description":"Unable to configure socket",
-
-"fd":6,
-
-"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
-
-"file_line":217,
-
-"referenced_errors":[
-
-\{
-
-"created":"@1600052532.408225113",
-
-"description":"Address already in use",
-
-"errno":98,
-
-"file":"/var/local/git/grpc/src/core/lib/iomgr/tcp_server_utils_posix_common.cc",
-
-"file_line":190,
-
-"os_error":"Address already in use",
-
-"syscall":"bind"
-
-}
-
-]
-
-}
-
-]
-
-}
-
-]
-
-}
-
-=========================log end=======================
-
-[arabic, start=2]
+[arabic, start=1]
 . *ALCOR CONTROL AGENT crash after several heavy test*
 
 Syslog does not say error on ALCOR CONTROL AGENT
 
-[arabic, start=3]
+[arabic, start=2]
 . *io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason*
 
 After reduce load on A-E, this issue is gone
