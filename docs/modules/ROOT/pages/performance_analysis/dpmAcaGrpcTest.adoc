@@ -158,8 +158,8 @@ for 512 threads above, the success rate is under 100%
 
 [loweralpha]
 . *Alcor DataPlane Manager could support more than 10k concurrent ACA grpc requests*
-. *Alcor DataPlane Manager runs well when from 32 threads up for the performance*
-. *A-E hardware configuration could run 200 stable ACA instances on each box*
+. *Alcor DataPlane Manager runs well when from 32 threads up to 256 threads for the performance*
+. *A-E hardware configuration could run 2000 stable ACA instances on each box*
 
 [arabic, start=6]
 . *Problems for now*
