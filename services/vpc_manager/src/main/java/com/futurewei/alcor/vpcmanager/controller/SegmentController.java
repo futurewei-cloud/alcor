@@ -281,4 +281,21 @@ public class SegmentController {
 
     }
 
+    @RequestMapping(
+            method = POST,
+            value = "/segments/createDefaultTable")
+    @DurationStatistics
+    public void createDefaultTable() throws Exception {
+
+        try {
+
+            this.segmentService.createDefaultNetworkTypeTable();
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+
+    }
+
 }

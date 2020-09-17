@@ -61,6 +61,16 @@ public class NetworkVxlanRange {
         updateUsedKeys();
     }
 
+    public void tryToRelease(Long key) throws Exception {
+        if (allocated.get(key) == null) {
+            return;
+        }
+
+        allocator.release(key);
+        allocated.remove(key);
+        updateUsedKeys();
+    }
+
     public KeyAlloc getNetworkKey(Long key) throws Exception {
         KeyAlloc keyAlloc = (KeyAlloc)allocated.get(key);
         if (keyAlloc != null) {

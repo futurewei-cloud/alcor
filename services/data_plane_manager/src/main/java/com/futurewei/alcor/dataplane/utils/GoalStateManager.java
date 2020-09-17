@@ -244,7 +244,7 @@ public class GoalStateManager {
                                     .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
                                     .setId(pid)
                                     .setHostInfo(h)
-                                    .setMessageTypeValue(Port.MessageType.DELTA_VALUE)
+                                    .setMessageTypeValue(Common.MessageType.DELTA_VALUE)
                                     .build();
                             final PortState portStateSB =
                                 PortState.newBuilder()
@@ -259,7 +259,7 @@ public class GoalStateManager {
                                 .toBuilder()
                                 .setId(portStateWithEverythingFilledNB.getId())
                                 .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
-                                .setMessageTypeValue(Port.MessageType.FULL_VALUE)
+                                .setMessageTypeValue(Common.MessageType.FULL_VALUE)
                                 .build();
 
                         final PortState portStateSB =
