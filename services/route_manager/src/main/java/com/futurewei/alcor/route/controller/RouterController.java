@@ -58,6 +58,13 @@ public class RouterController {
     @Autowired
     private RouteTableDatabaseService routeTableDatabaseService;
 
+    /**
+     * Get or Create VPC router
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}/router"})
@@ -85,6 +92,13 @@ public class RouterController {
         return new RouterWebJson(router);
     }
 
+    /**
+     * Delete VPC router
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}/router"})
@@ -113,6 +127,13 @@ public class RouterController {
         return new ResponseId(routerId);
     }
 
+    /**
+     * Get or Create VPC default route table
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}/vpcroutetable"})
@@ -140,6 +161,14 @@ public class RouterController {
         return new RouteTableWebJson(routetable);
     }
 
+    /**
+     * Update VPC route table
+     * @param projectid
+     * @param vpcid
+     * @param resource
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}/vpcroutetable"})
@@ -172,6 +201,13 @@ public class RouterController {
         return new RouteTableWebJson(routetable);
     }
 
+    /**
+     * List all routing tables in VPC
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}/routetables"})
@@ -194,6 +230,13 @@ public class RouterController {
         return new RouteTablesWebJson(routetables);
     }
 
+    /**
+     * Show a routing table
+     * @param projectid
+     * @param routetableid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/routetables/{routetableid}"})
@@ -216,6 +259,13 @@ public class RouterController {
         return new RouteTableWebJson(routetable);
     }
 
+    /**
+     * Show Subnet route table or Create Subnet route table
+     * @param projectid
+     * @param subnetid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
@@ -243,6 +293,14 @@ public class RouterController {
         return new RouteTableWebJson(routeTable);
     }
 
+    /**
+     * Update Subnet route table
+     * @param projectid
+     * @param subnetid
+     * @param resource
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
@@ -275,6 +333,13 @@ public class RouterController {
         return new RouteTableWebJson(routetable);
     }
 
+    /**
+     * Delete Subnet route table
+     * @param projectid
+     * @param subnetid
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(
             method = DELETE,
             value = {"//project/{projectid}/subnets/{subnetid}/routetable"})
