@@ -19,6 +19,7 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.schema.Common.MessageType;
 import com.futurewei.alcor.schema.Common.NetworkType;
 import com.futurewei.alcor.schema.Common.EtherType;
 import com.futurewei.alcor.schema.Common.Protocol;
@@ -29,7 +30,6 @@ import com.futurewei.alcor.schema.Goalstate.GoalState;
 import com.futurewei.alcor.schema.Neighbor.NeighborState;
 import com.futurewei.alcor.schema.Neighbor.NeighborConfiguration;
 import com.futurewei.alcor.schema.Neighbor.NeighborType;
-import com.futurewei.alcor.schema.Port.MessageType;
 import com.futurewei.alcor.schema.Port.PortConfiguration;
 import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
@@ -253,7 +253,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
             //neighborConfigBuilder.setId();
             NeighborType neighborType = NeighborType.valueOf(neighborEntry.getNeighborType().getType());
-            neighborConfigBuilder.setNeighborType(neighborType);
+            //neighborConfigBuilder.setNeighborType(neighborType);
             //neighborConfigBuilder.setProjectId();
             neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
             //neighborConfigBuilder.setName();
@@ -381,7 +381,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
         //routerConfigBuilder.setHostDvrMacAddress();
-        routerConfigBuilder.addAllSubnetIds(subnetIds);
+        //routerConfigBuilder.addAllSubnetIds(subnetIds);
 
         RouterState.Builder routerStateBuilder = RouterState.newBuilder();
         routerStateBuilder.setOperationType(networkConfig.getOpType());
