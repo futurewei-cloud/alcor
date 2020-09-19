@@ -33,10 +33,10 @@ import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
-import com.futurewei.alcor.web.entity.router.RouterSubnets;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
@@ -321,12 +321,10 @@ public class ResourceBuilder {
         return new ElasticIpInfoWrapper(elasticIpInfo);
     }
 
-    public static RouterSubnets buildRouterSubnets() {
-        RouterSubnets routerSubnets = new RouterSubnets();
+    public static ConnectedSubnetsWebResponse buildRouterSubnets() {
         List<String> subnetIds = new ArrayList<>();
         subnetIds.add(UnitTestConfig.subnetId);
-        routerSubnets.setSubnetIds(subnetIds);
-
+        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(null, subnetIds);
         return routerSubnets;
     }
 }

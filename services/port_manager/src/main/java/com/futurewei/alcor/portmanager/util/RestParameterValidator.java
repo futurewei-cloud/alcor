@@ -22,7 +22,7 @@ import com.futurewei.alcor.web.entity.port.IpAllocation;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.VifType;
 import com.futurewei.alcor.web.entity.port.VnicType;
-import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -129,23 +129,23 @@ public class RestParameterValidator {
         checkIpAllocation(portEntity);
     }
 
-    public static void checkRouterSubnetUpdateInfo(RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
-        if (StringUtils.isEmpty(routerSubnetUpdateInfo.getVpcId())) {
+    public static void checkRouterSubnetUpdateInfo(RouterUpdateInfo routerUpdateInfo) throws Exception {
+        if (StringUtils.isEmpty(routerUpdateInfo.getVpcId())) {
             throw new VpcIdInvalid();
         }
 
-        if (StringUtils.isEmpty(routerSubnetUpdateInfo.getSubnetId())) {
+        if (StringUtils.isEmpty(routerUpdateInfo.getSubnetId())) {
             throw new SubnetIdInvalid();
         }
 
-        RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
-        if (!RouterSubnetUpdateInfo.OperationType.ADD.equals(operationType) &&
-                !RouterSubnetUpdateInfo.OperationType.DELETE.equals(operationType)) {
+        RouterUpdateInfo.OperationType operationType = routerUpdateInfo.getOperationType();
+        if (!RouterUpdateInfo.OperationType.ADD.equals(operationType) &&
+                !RouterUpdateInfo.OperationType.DELETE.equals(operationType)) {
             throw new OperationTypeInvalid();
         }
 
-        if (routerSubnetUpdateInfo.getOldSubnetIds() == null) {
-            routerSubnetUpdateInfo.setOldSubnetIds(new ArrayList<>());
+        if (routerUpdateInfo.getOldSubnetIds() == null) {
+            routerUpdateInfo.setOldSubnetIds(new ArrayList<>());
         }
     }
 }

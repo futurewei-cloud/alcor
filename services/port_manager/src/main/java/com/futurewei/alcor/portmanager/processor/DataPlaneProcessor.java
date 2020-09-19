@@ -80,11 +80,14 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private void buildL3Neighbors(PortContext context, InternalPortEntity internalPortEntity, PortEntity.FixedIp fixedIp, List<String> routerSubnetIds) throws Exception {
         List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
+        if (neighborInfos == null) {
+            return;
+        }
 
         List<NeighborInfo> l3Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
         for (NeighborInfo neighborInfo: neighborInfos) {
-            if (neighborInfo.getPortId().equals(fixedIp.getIpAddress())) {
+            if (neighborInfo.getPortIp().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
             }else if (routerSubnetIds.contains(neighborInfo.getSubnetId()) &&
                     !neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {

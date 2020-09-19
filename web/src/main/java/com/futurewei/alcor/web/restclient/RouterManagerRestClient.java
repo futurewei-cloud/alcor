@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.router.RouterSubnets;
+import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,21 +25,11 @@ public class RouterManagerRestClient extends AbstractRestClient {
     @Value("${microservices.router.service.url:#{\"\"}}")
     private String routerManagerUrl;
 
-    public RouterSubnets getRouterSubnets(String projectId, String vpcId, String subnetId) throws Exception {
+    public ConnectedSubnetsWebResponse getRouterSubnets(String projectId, String vpcId, String subnetId) throws Exception {
         String url = String.format("/project/%s/vpcs/%s/subnets/%s/connected-subnets", projectId, vpcId, subnetId);
-        RouterSubnets routerSubnets = restTemplate.getForObject(url, RouterSubnets.class);
+        ConnectedSubnetsWebResponse routerSubnets = restTemplate.getForObject(url, ConnectedSubnetsWebResponse.class);
         if (routerSubnets == null) {
             throw new Exception("Get router connected subnets failed");
-        }
-
-        return routerSubnets;
-    }
-
-    public RouterSubnets getConnectedSubnetIdsBulk(String projectId, String vpcId, String subnetId) throws Exception {
-        String url = String.format("/project/%s/vpcs/%s/subnets/%s/connected-subnets", projectId, vpcId, subnetId);
-        RouterSubnets routerSubnets = restTemplate.getForObject(url, RouterSubnets.class);
-        if (routerSubnets == null) {
-            throw new Exception("Get vpc connected subnets failed");
         }
 
         return routerSubnets;

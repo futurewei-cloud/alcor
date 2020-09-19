@@ -13,26 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.router;
+package com.futurewei.alcor.portmanager.exception;
 
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class RouterSubnets {
-    private List<String> subnetIds;
-
-    public RouterSubnets() {
-
-    }
-
-    public RouterSubnets(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
-    }
-
-    public List<String> getSubnetIds() {
-        return subnetIds;
-    }
-
-    public void setSubnetIds(List<String> subnetIds) {
-        this.subnetIds = subnetIds;
-    }
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Unsupported operation exception")
+public class UnsupportedException extends Exception {
 }

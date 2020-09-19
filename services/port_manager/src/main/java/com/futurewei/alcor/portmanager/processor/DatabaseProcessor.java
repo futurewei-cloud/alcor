@@ -37,8 +37,7 @@ public class DatabaseProcessor extends AbstractProcessor {
                     internalPortEntity.getMacAddress(),
                     fixedIp.getIpAddress(),
                     internalPortEntity.getVpcId(),
-                    fixedIp.getSubnetId(),
-                    NeighborInfo.NeighborType.L2);
+                    fixedIp.getSubnetId());
             neighborInfos.add(neighborInfo);
         }
 

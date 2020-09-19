@@ -13,13 +13,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.router;
+package com.futurewei.alcor.web.entity.route;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class RouterSubnetUpdateInfo {
+public class RouterUpdateInfo {
     @JsonProperty("vpc_id")
     private String vpcId;
 
@@ -51,11 +51,11 @@ public class RouterSubnetUpdateInfo {
         }
     }
 
-    public RouterSubnetUpdateInfo() {
+    public RouterUpdateInfo() {
 
     }
 
-    public RouterSubnetUpdateInfo(String vpcId, String subnetId, OperationType operationType, List<String> oldSubnetIds) {
+    public RouterUpdateInfo(String vpcId, String subnetId, OperationType operationType, List<String> oldSubnetIds) {
         this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.operationType = operationType;

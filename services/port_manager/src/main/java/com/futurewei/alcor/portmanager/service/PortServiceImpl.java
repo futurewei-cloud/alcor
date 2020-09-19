@@ -28,7 +28,7 @@ import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
-import com.futurewei.alcor.web.entity.router.RouterSubnetUpdateInfo;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,10 +223,10 @@ public class PortServiceImpl implements PortService {
         return neighborTable;
     }
 
-    private List<NeighborEntry> updateNeighborTable(RouterSubnetUpdateInfo routerSubnetUpdateInfo, List<NeighborInfo> neighborInfos) throws CacheException {
-        String vpcId = routerSubnetUpdateInfo.getVpcId();
-        String subnetId = routerSubnetUpdateInfo.getSubnetId();
-        List<String> oldSubnetIds = routerSubnetUpdateInfo.getOldSubnetIds();
+    private List<NeighborEntry> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, List<NeighborInfo> neighborInfos) throws CacheException {
+        String vpcId = routerUpdateInfo.getVpcId();
+        String subnetId = routerUpdateInfo.getSubnetId();
+        List<String> oldSubnetIds = routerUpdateInfo.getOldSubnetIds();
 
         Map<String, NeighborInfo> neighbors = portRepository.getNeighbors(vpcId);
 
@@ -249,15 +249,15 @@ public class PortServiceImpl implements PortService {
 
     @Override
     @DurationStatistics
-    public RouterSubnetUpdateInfo updateL3Neighbors(String projectId, RouterSubnetUpdateInfo routerSubnetUpdateInfo) throws Exception {
+    public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
         List<NeighborInfo> neighborInfos = new ArrayList<>();
-        List<NeighborEntry> neighborTable = updateNeighborTable(routerSubnetUpdateInfo, neighborInfos);
+        List<NeighborEntry> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
 
         if (neighborTable.size() > 0) {
             NetworkConfiguration networkConfiguration = new NetworkConfiguration();
             networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-            RouterSubnetUpdateInfo.OperationType operationType = routerSubnetUpdateInfo.getOperationType();
-            if (RouterSubnetUpdateInfo.OperationType.ADD.equals(operationType)) {
+            RouterUpdateInfo.OperationType operationType = routerUpdateInfo.getOperationType();
+            if (RouterUpdateInfo.OperationType.ADD.equals(operationType)) {
                 networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
             } else {
                 networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_DELETE);
@@ -267,6 +267,6 @@ public class PortServiceImpl implements PortService {
             new UpdateNetworkConfigRequest(null, networkConfiguration).send();
         }
 
-        return routerSubnetUpdateInfo;
+        return routerUpdateInfo;
     }
 }

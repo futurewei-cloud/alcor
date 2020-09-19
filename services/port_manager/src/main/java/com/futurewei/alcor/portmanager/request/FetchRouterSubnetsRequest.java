@@ -18,7 +18,7 @@ package com.futurewei.alcor.portmanager.request;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetConnectedSubnetException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
-import com.futurewei.alcor.web.entity.router.RouterSubnets;
+import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import com.futurewei.alcor.web.restclient.RouterManagerRestClient;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class FetchRouterSubnetsRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
-        RouterSubnets connectedSubnetIds = routerManagerRestClient.getRouterSubnets(context.getProjectId(), vpcId, subnetId);
+        ConnectedSubnetsWebResponse connectedSubnetIds = routerManagerRestClient.getRouterSubnets(context.getProjectId(), vpcId, subnetId);
         if (connectedSubnetIds == null || connectedSubnetIds.getSubnetIds() == null) {
             throw new GetConnectedSubnetException();
         }
