@@ -15,22 +15,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.common.enumClass;
 
-public enum RouteTableType {
+public enum VpcRouteTarget {
 
-    PUBLIC_SUBNET("public_subnet"),
-    PRIVATE_SUBNET("private_subnet"),
-    VPC("vpc"),
-    NEUTRON_ROUTER("neutron_router"),
-    NEUTRON_SUBNET("neutron_subnet");
+    LOCAL("local"),
+    INTERNET_GW("internet_gw"),
+    NAT_GW("nat_gw");
 
-    private String routeTableType;
+    private String vpcRouteTarget;
 
-    RouteTableType (String env) {
-        this.routeTableType = env;
+    VpcRouteTarget (String env) {
+        this.vpcRouteTarget = env;
     }
 
-    public String getRouteTableType () {
-        return routeTableType;
+    public String getVpcRouteTarget () {
+        return vpcRouteTarget;
     }
 
 }

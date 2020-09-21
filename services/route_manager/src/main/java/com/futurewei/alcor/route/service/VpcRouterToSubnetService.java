@@ -13,24 +13,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.enumClass;
+package com.futurewei.alcor.route.service;
 
-public enum RouteTableType {
+import com.futurewei.alcor.route.exception.CanNotFindSubnet;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 
-    PUBLIC_SUBNET("public_subnet"),
-    PRIVATE_SUBNET("private_subnet"),
-    VPC("vpc"),
-    NEUTRON_ROUTER("neutron_router"),
-    NEUTRON_SUBNET("neutron_subnet");
+public interface VpcRouterToSubnetService {
 
-    private String routeTableType;
-
-    RouteTableType (String env) {
-        this.routeTableType = env;
-    }
-
-    public String getRouteTableType () {
-        return routeTableType;
-    }
+    public SubnetWebJson getSubnet (String projectId, String subnetId) throws CanNotFindSubnet;
+    public SubnetsWebJson getSubnetsByVpcId (String projectId, String vpcId);
 
 }

@@ -13,24 +13,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.enumClass;
+package com.futurewei.alcor.web.entity.route;
 
-public enum RouteTableType {
+import lombok.Data;
 
-    PUBLIC_SUBNET("public_subnet"),
-    PRIVATE_SUBNET("private_subnet"),
-    VPC("vpc"),
-    NEUTRON_ROUTER("neutron_router"),
-    NEUTRON_SUBNET("neutron_subnet");
+import java.util.List;
 
-    private String routeTableType;
+@Data
+public class RouteTablesWebJson {
 
-    RouteTableType (String env) {
-        this.routeTableType = env;
+    private List<RouteTable> routetables;
+
+    public RouteTablesWebJson () {}
+
+    public RouteTablesWebJson(List<RouteTable> routetables) {
+        this.routetables = routetables;
     }
-
-    public String getRouteTableType () {
-        return routeTableType;
-    }
-
 }

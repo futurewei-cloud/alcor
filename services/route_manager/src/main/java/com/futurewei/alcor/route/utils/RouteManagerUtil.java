@@ -17,9 +17,9 @@ package com.futurewei.alcor.route.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.web.entity.route.NeutronRouterWebJson;
-import com.futurewei.alcor.web.entity.route.NeutronRouterWebRequestObject;
+import com.futurewei.alcor.web.entity.route.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -114,6 +114,46 @@ public class RouteManagerUtil {
         }
 
         return response;
+    }
+
+    public static boolean checkVpcDefaultRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
+        if (resource == null) {
+            return false;
+        }
+
+        RouteTable routetable = resource.getRoutetable();
+        if (routetable == null) {
+            return false;
+        }
+
+        // routeTableType
+        String routeTableTypeStr = resource.getRoutetable().getRouteTableType();
+        if (routeTableTypeStr != null && !routeTableTypeStr.equals("vpc")) {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    public static boolean checkSubnetRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
+        if (resource == null) {
+            return false;
+        }
+
+        RouteTable routetable = resource.getRoutetable();
+        if (routetable == null) {
+            return false;
+        }
+
+        // routeTableType
+        String routeTableTypeStr = resource.getRoutetable().getRouteTableType();
+        if (routeTableTypeStr != null && !routeTableTypeStr.equals("public_subnet") && !routeTableTypeStr.equals("private_subnet")) {
+            return false;
+        }
+
+
+        return true;
     }
 
 }

@@ -13,24 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.enumClass;
+package com.futurewei.alcor.route.exception;
 
-public enum RouteTableType {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    PUBLIC_SUBNET("public_subnet"),
-    PRIVATE_SUBNET("private_subnet"),
-    VPC("vpc"),
-    NEUTRON_ROUTER("neutron_router"),
-    NEUTRON_SUBNET("neutron_subnet");
-
-    private String routeTableType;
-
-    RouteTableType (String env) {
-        this.routeTableType = env;
-    }
-
-    public String getRouteTableType () {
-        return routeTableType;
-    }
-
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="VPC router and route tables can't be deleted as the associated VPC contains subnets")
+public class VpcNonEmptyException extends Exception{
 }
