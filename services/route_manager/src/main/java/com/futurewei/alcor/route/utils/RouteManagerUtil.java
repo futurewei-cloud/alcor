@@ -42,6 +42,11 @@ public class RouteManagerUtil {
         return emptyNames.toArray(res);
     }
 
+    /**
+     * Overwrite BeanUtils.copyProperties method, and properties with null values are now ignored during the copy process
+     * @param src
+     * @param target
+     */
     public static void copyPropertiesIgnoreNull (Object src, Object target){
         BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
     }
