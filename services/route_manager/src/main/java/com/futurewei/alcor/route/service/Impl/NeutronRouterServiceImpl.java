@@ -62,8 +62,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (router == null) {
             throw new CanNotFindRouter();
         }
-
-        RouterExtraAttribute routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+        RouterExtraAttribute routerExtraAttribute = null;
+        if (router.getRouterExtraAttributeId() != null) {
+            routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+        }
 
         BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
         RouteTable routeTable = router.getNeutronRouteTable();
