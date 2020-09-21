@@ -18,6 +18,6 @@ package com.futurewei.alcor.route.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="exist multiple subnet routetable searched by subnet id")
-public class ExistMultipleSubnetRouteTable extends Exception {
+@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="There exist multiple subnet route tables for the same subnet id")
+public class OwnMultipleSubnetRouteTablesException extends Exception {
 }

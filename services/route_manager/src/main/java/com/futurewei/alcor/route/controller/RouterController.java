@@ -22,8 +22,8 @@ import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import com.futurewei.alcor.common.logging.*;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.exception.CanNotFindVpc;
-import com.futurewei.alcor.route.exception.ExistMultipleSubnetRouteTable;
-import com.futurewei.alcor.route.exception.VpcContainsSubnet;
+import com.futurewei.alcor.route.exception.OwnMultipleSubnetRouteTablesException;
+import com.futurewei.alcor.route.exception.VpcNonEmptyException;
 import com.futurewei.alcor.route.service.RouteTableDatabaseService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.route.service.RouterService;
@@ -119,7 +119,7 @@ public class RouterController {
         } catch (CanNotFindVpc e) {
             logger.log(Level.WARNING, e.getMessage() + " : " + vpcid);
             throw e;
-        } catch (VpcContainsSubnet e) {
+        } catch (VpcNonEmptyException e) {
             logger.log(Level.WARNING, e.getMessage() + " : " + vpcid);
             throw e;
         }
@@ -283,7 +283,7 @@ public class RouterController {
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
-        } catch (ExistMultipleSubnetRouteTable e) {
+        } catch (OwnMultipleSubnetRouteTablesException e) {
             logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
             throw e;
         } catch (DatabasePersistenceException e) {
@@ -323,7 +323,7 @@ public class RouterController {
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
-        } catch (ExistMultipleSubnetRouteTable e) {
+        } catch (OwnMultipleSubnetRouteTablesException e) {
             logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
             throw e;
         } catch (DatabasePersistenceException e) {
