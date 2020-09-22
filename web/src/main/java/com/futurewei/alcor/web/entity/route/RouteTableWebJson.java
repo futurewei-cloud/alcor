@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity.route;/*
+/*
 Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.web.entity.route;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class NeutronRoutersWebJson {
+public class RouteTableWebJson {
 
-    private List<NeutronRouterWebRequestObject> routers;
+    private RouteTable routetable;
 
-    public NeutronRoutersWebJson () {}
+    public RouteTableWebJson () {}
 
-    public NeutronRoutersWebJson(List<NeutronRouterWebRequestObject> routers) {
-        this.routers = routers;
+    public RouteTableWebJson(RouteTable routetable) {
+        this.routetable = routetable;
     }
-
 }

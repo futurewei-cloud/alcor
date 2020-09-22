@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity.route;/*
+/*
 Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.common.enumClass;
 
-import lombok.Data;
+public enum VpcRouteTarget {
 
-import java.util.List;
+    LOCAL("local"),
+    INTERNET_GW("internet_gw"),
+    NAT_GW("nat_gw");
 
-@Data
-public class NeutronRoutersWebJson {
+    private String vpcRouteTarget;
 
-    private List<NeutronRouterWebRequestObject> routers;
+    VpcRouteTarget (String env) {
+        this.vpcRouteTarget = env;
+    }
 
-    public NeutronRoutersWebJson () {}
-
-    public NeutronRoutersWebJson(List<NeutronRouterWebRequestObject> routers) {
-        this.routers = routers;
+    public String getVpcRouteTarget () {
+        return vpcRouteTarget;
     }
 
 }

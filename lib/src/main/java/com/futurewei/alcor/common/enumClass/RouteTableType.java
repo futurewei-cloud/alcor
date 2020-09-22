@@ -20,7 +20,8 @@ public enum RouteTableType {
     PUBLIC_SUBNET("public_subnet"),
     PRIVATE_SUBNET("private_subnet"),
     VPC("vpc"),
-    NEUTRON("neutron");
+    NEUTRON_ROUTER("neutron_router"),
+    NEUTRON_SUBNET("neutron_subnet");
 
     private String routeTableType;
 

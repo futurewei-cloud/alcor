@@ -1,4 +1,4 @@
-package com.futurewei.alcor.web.entity.route;/*
+/*
 Copyright 2019 The Alcor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.route.exception;
 
-import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-
-@Data
-public class NeutronRoutersWebJson {
-
-    private List<NeutronRouterWebRequestObject> routers;
-
-    public NeutronRoutersWebJson () {}
-
-    public NeutronRoutersWebJson(List<NeutronRouterWebRequestObject> routers) {
-        this.routers = routers;
-    }
-
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="VPC router and route tables can't be deleted as the associated VPC contains subnets")
+public class VpcNonEmptyException extends Exception{
 }
