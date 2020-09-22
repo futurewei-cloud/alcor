@@ -27,19 +27,12 @@ public class RouterManagerRestClient extends AbstractRestClient {
 
     public ConnectedSubnetsWebResponse getRouterSubnets(String projectId, String vpcId, String subnetId) throws Exception {
         String url = String.format("/project/%s/vpcs/%s/subnets/%s/connected-subnets", projectId, vpcId, subnetId);
+        url = routerManagerUrl + url;
         ConnectedSubnetsWebResponse routerSubnets = restTemplate.getForObject(url, ConnectedSubnetsWebResponse.class);
         if (routerSubnets == null) {
             throw new Exception("Get router connected subnets failed");
         }
 
         return routerSubnets;
-    }
-
-    public void addRouterInterface(String routerId, PortEntity portEntity) {
-        String url = String.format("/v2.0/routers/%s/add_router_interface", routerId);
-    }
-
-    public void removeRouterInterface(String routerId) {
-        String url = String.format("/v2.0/routers/%s/remove_router_interface", routerId);
     }
 }
