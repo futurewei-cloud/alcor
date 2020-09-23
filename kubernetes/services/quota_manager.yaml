@@ -59,6 +59,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: quota-configmap
+          env:
+            - name: test-env
+              valueFrom:
+                configMapKeyRef:
+                  name: quota-configmap
+                  key: application.properties
 ---
 apiVersion: v1
 kind: Service
