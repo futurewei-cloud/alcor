@@ -27,21 +27,13 @@ import java.util.function.Supplier;
 
 public class AsyncExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
-    private static final ThreadPoolExecutor executor;
-
-    //Make sure we have only one thread pool
-    static {
-        executor = new ThreadPoolExecutor(
+    public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 ThreadPoolExecutorConfig.corePoolSize,
                 ThreadPoolExecutorConfig.maximumPoolSize,
                 ThreadPoolExecutorConfig.KeepAliveTime,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
                 new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
-
-        //Release threads in the thread pool when they are not needed
-        executor.allowCoreThreadTimeOut(true);
-    }
 
     private List<CompletableFuture> futures = new ArrayList<>();
 
