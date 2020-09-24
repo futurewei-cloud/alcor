@@ -256,8 +256,8 @@ public class PortServiceImpl implements PortService {
         if (neighborTable.size() > 0) {
             NetworkConfiguration networkConfiguration = new NetworkConfiguration();
             networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-            RouterUpdateInfo.OperationType operationType = routerUpdateInfo.getOperationType();
-            if (RouterUpdateInfo.OperationType.ADD.equals(operationType)) {
+            String operationType = routerUpdateInfo.getOperationType();
+            if (RouterUpdateInfo.OperationType.ADD.getType().equals(operationType)) {
                 networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
             } else {
                 networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_DELETE);

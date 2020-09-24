@@ -27,7 +27,7 @@ public class RouterUpdateInfo {
     private String subnetId;
 
     @JsonProperty("operation_type")
-    private OperationType operationType;
+    private String operationType;
 
     @JsonProperty("old_subnet_ids")
     private List<String> oldSubnetIds;
@@ -55,7 +55,7 @@ public class RouterUpdateInfo {
 
     }
 
-    public RouterUpdateInfo(String vpcId, String subnetId, OperationType operationType, List<String> oldSubnetIds) {
+    public RouterUpdateInfo(String vpcId, String subnetId, String operationType, List<String> oldSubnetIds) {
         this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.operationType = operationType;
@@ -78,11 +78,11 @@ public class RouterUpdateInfo {
         this.subnetId = subnetId;
     }
 
-    public OperationType getOperationType() {
+    public String getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(OperationType operationType) {
+    public void setOperationType(String operationType) {
         this.operationType = operationType;
     }
 

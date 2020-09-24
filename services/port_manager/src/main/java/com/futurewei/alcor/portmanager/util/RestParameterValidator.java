@@ -138,9 +138,9 @@ public class RestParameterValidator {
             throw new SubnetIdInvalid();
         }
 
-        RouterUpdateInfo.OperationType operationType = routerUpdateInfo.getOperationType();
-        if (!RouterUpdateInfo.OperationType.ADD.equals(operationType) &&
-                !RouterUpdateInfo.OperationType.DELETE.equals(operationType)) {
+        String operationType = routerUpdateInfo.getOperationType();
+        if (!RouterUpdateInfo.OperationType.ADD.getType().equals(operationType) &&
+                !RouterUpdateInfo.OperationType.DELETE.getType().equals(operationType)) {
             throw new OperationTypeInvalid();
         }
 

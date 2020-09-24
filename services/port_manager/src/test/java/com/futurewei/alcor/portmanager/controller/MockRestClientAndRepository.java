@@ -143,6 +143,9 @@ public class MockRestClientAndRepository {
         Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
                 .thenReturn(buildPortNeighbors(UnitTestConfig.portId1));
 
+        Mockito.when(portRepository.getNeighbors(UnitTestConfig.vpcId))
+                .thenReturn(buildNeighbors());
+
         Mockito.when(elasticIpManagerRestClient.updateElasticIp(any()))
                 .thenReturn(buildElasticIp());
 

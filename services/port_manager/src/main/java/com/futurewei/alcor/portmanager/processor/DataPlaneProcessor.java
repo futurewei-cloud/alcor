@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
+import com.futurewei.alcor.portmanager.exception.NodeInfoNotFound;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
@@ -58,6 +59,10 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private NeighborInfo getNeighborInfo(PortContext context, InternalPortEntity internalPortEntity, PortEntity.FixedIp fixedIp) throws Exception {
         List<NodeInfo> nodeInfos = context.getNodeInfos();
+        if (nodeInfos == null) {
+            throw new NodeInfoNotFound();
+        }
+
         NeighborInfo neighborInfo = null;
         for (NodeInfo nodeInfo: nodeInfos) {
             if (internalPortEntity.getBindingHostIP().equals(nodeInfo.getLocalIp())) {
