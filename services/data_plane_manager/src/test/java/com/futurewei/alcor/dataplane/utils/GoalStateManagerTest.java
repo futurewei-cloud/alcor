@@ -44,7 +44,7 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * unknown
+     * Test Failure1 During Integration With Nova
      */
     @Test
     public void testFailure1DuringIntegrationWithNova() {
@@ -54,7 +54,7 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * unknown
+     * Test Failure2 During Integration With Nova
      */
     @Test
     public void testFailure2DuringIntegrationWithNova() {
@@ -125,7 +125,7 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * unknown
+     * Scenario: Resource Request With Updated All fields
      */
     @Test
     public void scenarioResourceRequestWithUpdatedAllfields() {
