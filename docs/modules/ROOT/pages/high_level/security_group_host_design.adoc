@@ -38,7 +38,7 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
 ------------------------------------------------------------
    +-------------+                     +---------------+
    |             |                     |               |
-   |    VM A     |                     |     VM B      |
+   |    VM 1     |                     |     VM 2      |
    |             |                     |               |
    +---+------+--+                     +---+-------+---+
        | eth  |                            |  eth  |
@@ -48,7 +48,7 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
        | tap  |                            |  tap  |
  +-----+------+-----+                 +----+-------+-----+
  |                  |                 |                  |
- |   Linux Bridge   |                 |   Linux Bridge   |
+ |   Linux Bridge 1 |                 |   Linux Bridge 2 |
  |                  |                 |                  |
  +-----+------+-----+                 +-----+------+-----+
        | veth |                             | veth |
@@ -56,11 +56,11 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
           |                                    |
        +--+---+                             +--+---+
        | veth |                             | veth |
-+------+------+-----------------------------+------+----------+
-|                                                             |
-|                     OVS  BRIDGE  (br-int)                   |
-|                                                             |
-+-------------------------------------------------------------+
++------+------+-----------------------------+------+---------+
+|                                                            |
+|                     OVS  Bridge  (br-int)                  |
+|                                                            |
++------------------------------------------------------------+
 ------------------------------------------------------------
 
 
@@ -88,6 +88,19 @@ Note: Each packet register is 64 bits wide (OVS has 8 of them) and maskable <<ov
 === Remote Security Group Rule handling
 
 A Security Group rule can reference to a remote security group for both ingress and egress traffic. When a security group rule is added to security group A, customer can set security group B as the source (for ingress rule) or destination (for egress rule). This allows ports associated with security group B to access ports that are port of security group A, and vice versa.
+
+[source,shell]
+------------------------------------------------------------
++-----------+     +-----------+ 
+| Compute   |     | Compute   |
+| Node 1    |     | Node 2    |
+|           |     |           |
+|       OVS + <---| OVS       |
+|           |     |           |
+| Port 1    |     | Port 2    |
+| SG A      |     | SG B      |
++-----------+     +-----------+
+------------------------------------------------------------
 
 The default security group has rules that allows ports assoicated with it to talk to each other.
 
