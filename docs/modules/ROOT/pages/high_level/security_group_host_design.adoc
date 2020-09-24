@@ -34,7 +34,34 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
 3. Update of security group rule requires the whole security group to be pushed down to compute host to recompile the IP Tables chain (TBD: review Neutron Agent behavior)
 4. This IP Tables implementation cannot be offloaded to hardware, except using a SoC/ARM based NIC which has capability to run the whole linux OS
 
-TBD: add picture
+[source,shell]
+------------------------------------------------------------
+   +-------------+                     +---------------+
+   |             |                     |               |
+   |    VM A     |                     |     VM B      |
+   |             |                     |               |
+   +---+------+--+                     +---+-------+---+
+       | eth  |                            |  eth  |
+       +--+---+                            +---+---+
+          |                                    |
+       +--+---+                            +---+---+
+       | tap  |                            |  tap  |
+ +-----+------+-----+                 +----+-------+-----+
+ |                  |                 |                  |
+ |   Linux Bridge   |                 |   Linux Bridge   |
+ |                  |                 |                  |
+ +-----+------+-----+                 +-----+------+-----+
+       | veth |                             | veth |
+       +--+---+                             +--+---+
+          |                                    |
+       +--+---+                             +--+---+
+       | veth |                             | veth |
++------+------+-----------------------------+------+----------+
+|                                                             |
+|                     OVS  BRIDGE  (br-int)                   |
+|                                                             |
++-------------------------------------------------------------+
+------------------------------------------------------------
 
 
 === AFTER April 2016 OpenStack Mitaka release
@@ -69,18 +96,24 @@ To support this using the minimal set of OpenFlow rules, we will need to mark re
 
 == Default Security Group
 
+[source,shell]
+------------------------------------------------------------
 ALLOW: Direction=Egress, Ether Type=IPv4, IP Protocol=Any, Port Range=Any, Remote IP Prefix=0.0.0.0/0
 ALLOW: Direction=Egress, Ether Type=IPv6, IP Protocol=Any, Port Range=Any, Remote IP Prefix=::/0
 ALLOW: Direction=Ingress, Ether Type=IPv4, IP Protocol=Any, Port Range=Any, Remote SG=default
 ALLOW: Direction=Ingress, Ether Type=IPv6, IP Protocol=Any, Port Range=Any, Remote SG=default
+------------------------------------------------------------
 
 User can add or delete rules but cannot remove this security group.
 
 
 == Customer created Security Group
 
+[source,shell]
+------------------------------------------------------------
 ALLOW: Direction=Egress, Ether Type=IPv4, IP Protocol=Any, Port Range=Any, Remote IP Prefix=0.0.0.0/0
 ALLOW: Direction=Egress, Ether Type=IPv6, IP Protocol=Any, Port Range=Any, Remote IP Prefix=::/0
+------------------------------------------------------------
 
 User can add or delete rules or remove this security group.
 
