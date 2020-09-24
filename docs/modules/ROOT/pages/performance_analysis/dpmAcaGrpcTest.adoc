@@ -66,39 +66,6 @@ image::p1.png["Test Deployment",width=488,height=302]
 |===  
 
 
-____
-* 10k neighbor, overall time cost for different concurrent thread number*
-____
-
-____
-image::1w-ov.png["context swith Alcor DataPlane Manager",width=553,height=302]
-____
-
-____
-* 10k neighbor, every connection time cost for different concurrent thread number*
-____
-
-____
-image::1w-ov-jc.png["context swith Alcor DataPlane Manager",width=553,height=302]
-____
-
-
-____
-* when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number*
-____
-
-____
-image::other-ov-jc.png["context swith Alcor DataPlane Manager",width=553,height=302]
-____
-
-____
-* when neighbor number changed, overall time cost for different concurrent thread number*
-____
-
-____
-image::other-ov.png["context swith Alcor DataPlane Manager",width=553,height=302]
-____
-
 [arabic, start=4]
 . *Test results analysis*
 [loweralpha]
@@ -182,6 +149,47 @@ for 256 threads and below, the success rate is 100%
 
 
 for 512 threads above, the success rate is under 100%
+
+____
+* 10k neighbor, overall time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov.png["10k neighbor, overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* 10k neighbor, every connection time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov-jc.png["10k neighbor, every connection time cost for different concurrent thread number",width=553,height=302]
+____
+
+
+____
+* when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov-jc.png[" when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* when neighbor number changed, overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov.png["when neighbor number changed, overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* here is details on each test box about every execution time cost *
+____
+
+____
+image::detail-jc.png["here is details on each test box about every execution time cost",width=1024,height=800]
+____
 
 [arabic, start=5]
 . *Test Conclusion*
