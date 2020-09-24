@@ -66,8 +66,38 @@ image::p1.png["Test Deployment",width=488,height=302]
 |===  
 
 
+____
+* 10k neighbor, overall time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
+
+____
+* 10k neighbor, every connection time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov-jc.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
 
 
+____
+* when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov-jc.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
+
+____
+* when neighbor number changed, overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
 
 [arabic, start=4]
 . *Test results analysis*
