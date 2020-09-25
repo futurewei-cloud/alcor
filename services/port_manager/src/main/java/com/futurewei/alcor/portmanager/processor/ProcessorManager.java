@@ -27,21 +27,48 @@ import java.util.*;
 public class ProcessorManager {
     private static final Logger LOG = LoggerFactory.getLogger(ProcessorManager.class);
 
-    private static List<IProcessor> statelessProcessors = new ArrayList<>();
-    private static Map<Class, IProcessor> allProcessors = new HashMap<>();
-    private static IProcessor headProcessor;
-    private static IProcessor dataPlaneProcessor;
-    private static IProcessor databaseProcessor;
+    private static List<IProcessor> processors = new ArrayList<>();
+    private static Map<Class, IProcessor> processorMap = new HashMap<>();
 
     private void buildProcessChain() {
-        IProcessor prev = headProcessor;
-        for (IProcessor processor: statelessProcessors) {
-            prev.setNextProcessor(processor);
-            prev = processor;
+        LOG.info("Build process chain: ");
+
+        if (processors.isEmpty()) {
+            LOG.warn("Processor number is 0");
+            return;
         }
 
-        prev.setNextProcessor(dataPlaneProcessor);
-        dataPlaneProcessor.setNextProcessor(databaseProcessor);
+        if (processors.size() == 1) {
+            LOG.info("{}", processors.get(0));
+            processors.get(0).setNextProcessor(null);
+            return;
+        }
+
+        LOG.info("{}", processors.get(0));
+        IProcessor prev = processors.get(0);
+
+        for (int i = 1; i < processors.size(); i++) {
+            prev.setNextProcessor(processors.get(i));
+            prev = processors.get(i);
+            LOG.info("{}", processors.get(i));
+        }
+
+        prev.setNextProcessor(null);
+    }
+
+    private void instanceProcessor(Class<? extends IProcessor> processorClass) throws Exception {
+        if (processorClass.isAnnotationPresent(AfterProcessor.class)) {
+            Class<?>[] parents = processorClass.getAnnotation(AfterProcessor.class).value();
+            for (Class<?> parent: parents) {
+                instanceProcessor((Class<? extends IProcessor>)parent);
+            }
+        }
+
+        if (!processorMap.containsKey(processorClass)) {
+            IProcessor processor = processorClass.getDeclaredConstructor().newInstance();
+            processors.add(processor);
+            processorMap.put(processorClass, processor);
+        }
     }
 
     @PostConstruct
@@ -49,19 +76,8 @@ public class ProcessorManager {
         Set<Class<? extends AbstractProcessor>> subClasses = ReflectionUtil.getSubClassByInterface(
                 "com.futurewei.alcor.portmanager.processor", AbstractProcessor.class);
 
-        for (Class<? extends IProcessor> subType: subClasses) {
-            IProcessor processor = subType.getDeclaredConstructor().newInstance();
-            if (processor instanceof PortProcessor) {
-                headProcessor = processor;
-            } else if (processor instanceof DataPlaneProcessor) {
-                dataPlaneProcessor = processor;
-            } else if (processor instanceof DatabaseProcessor) {
-                databaseProcessor = processor;
-            } else {
-                statelessProcessors.add(processor);
-            }
-
-            allProcessors.put(processor.getClass(), processor);
+        for (Class<? extends IProcessor> subClass: subClasses) {
+            instanceProcessor(subClass);
         }
 
         buildProcessChain();
@@ -70,14 +86,14 @@ public class ProcessorManager {
     }
 
     public static IProcessor getProcessChain() {
-        return headProcessor;
+        return processors.isEmpty() ? null : processors.get(0);
     }
 
     public static IProcessor getProcessor(Class tClass) {
-        return allProcessors.get(tClass);
+        return processorMap.get(tClass);
     }
 
-    public static List<IProcessor> getStatelessProcessors() {
-        return statelessProcessors;
+    public static List<IProcessor> getProcessors() {
+        return processors;
     }
 }

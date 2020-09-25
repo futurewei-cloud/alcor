@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AfterProcessor(PortProcessor.class)
 public class NodeProcessor extends AbstractProcessor {
     private void fetchNodeCallback(IRestRequest request) {
         List<NodeInfo> nodeInfoList = ((FetchNodeRequest) request).getNodeInfoList();

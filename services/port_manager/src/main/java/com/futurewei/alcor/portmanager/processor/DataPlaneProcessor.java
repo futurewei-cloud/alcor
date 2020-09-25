@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+@AfterProcessor({FixedIpsProcessor.class, MacProcessor.class,
+        NeighborProcessor.class, NodeProcessor.class, PortProcessor.class,
+        RouterProcessor.class, SecurityGroupProcessor.class, VpcProcessor.class})
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
 
@@ -194,7 +197,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
         context.getRequestManager().waitAllRequestsFinish();
 
         NetworkConfig networkConfig = context.getNetworkConfig();
-        if (networkConfig.getPortEntities().size() == 0) {
+        if (networkConfig.getPortEntities() == null
+                || networkConfig.getPortEntities().size() == 0) {
             return null;
         }
 

@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AfterProcessor(PortProcessor.class)
 public class NeighborProcessor extends AbstractProcessor {
     private void fetchPortNeighborCallback(IRestRequest request) {
         List<PortNeighbors> portNeighborsList = ((FetchPortNeighborRequest) request).getPortNeighborsList();

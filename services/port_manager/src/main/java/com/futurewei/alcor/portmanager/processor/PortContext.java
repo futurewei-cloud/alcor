@@ -149,7 +149,7 @@ public class PortContext {
     }
 
     public List<String> getRouterSubnetIds(String vpcId) {
-        return this.routerSubnetIds.get(vpcId);
+        return (this.routerSubnetIds != null) ? this.routerSubnetIds.get(vpcId) : null;
     }
 
     public void setRouterSubnetIds(Map<String, List<String>> routerSubnetIds) {
