@@ -26,6 +26,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 
 import java.util.*;
 
+@AfterProcessor(PortProcessor.class)
 public class SecurityGroupProcessor extends AbstractProcessor {
     public void fetchSecurityGroupCallback(IRestRequest request) {
         List<SecurityGroup> securityGroups = ((FetchSecurityGroupRequest) request)

@@ -18,34 +18,32 @@ package com.futurewei.alcor.portmanager.processor;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.request.FetchPortNeighborRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
-import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@AfterProcessor(PortProcessor.class)
 public class NeighborProcessor extends AbstractProcessor {
     private void fetchPortNeighborCallback(IRestRequest request) {
         List<PortNeighbors> portNeighborsList = ((FetchPortNeighborRequest) request).getPortNeighborsList();
-        List<InternalPortEntity> internalPortEntities =
-                request.getContext().getNetworkConfig().getPortEntities();
-
-        for (InternalPortEntity internalPortEntity : internalPortEntities) {
-            for (PortNeighbors portNeighbors: portNeighborsList) {
-                if (portNeighbors.getNeighbors() == null) {
-                    continue;
-                }
-
-                if (internalPortEntity.getVpcId().equals(portNeighbors.getVpcId())) {
-                    List<NeighborInfo> neighborInfos = new ArrayList<>(portNeighbors.getNeighbors().values());
-                    internalPortEntity.setNeighborInfos(neighborInfos);
-                }
-            }
+        if (portNeighborsList == null || portNeighborsList.size() == 0) {
+            return;
         }
+
+        List<NeighborInfo> neighborInfos = new ArrayList<>();
+        for (PortNeighbors portNeighbors: portNeighborsList) {
+            if (portNeighbors.getNeighbors() == null ||
+                    portNeighbors.getNeighbors().size() == 0) {
+                continue;
+            }
+
+            neighborInfos.addAll(portNeighbors.getNeighbors().values());
+        }
+
+        NetworkConfig networkConfig = request.getContext().getNetworkConfig();
+        networkConfig.setNeighborInfos(neighborInfos);
     }
 
     private void getNeighbors(PortContext context, List<PortEntity> portEntities) {

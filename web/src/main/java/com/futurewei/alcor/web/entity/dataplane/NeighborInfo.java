@@ -32,6 +32,12 @@ public class NeighborInfo {
     @JsonProperty("port_ip")
     private String portIp;
 
+    @JsonProperty("vpc_id")
+    private String vpcId;
+
+    @JsonProperty("subnet_id")
+    private String subnetId;
+
     public NeighborInfo() {
     }
 
@@ -83,12 +89,38 @@ public class NeighborInfo {
         this.portIp = portIp;
     }
 
+    public NeighborInfo(String hostIp, String hostId, String portId, String portMac, String portIp, String vpcId, String subnetId) {
+        this.hostIp = hostIp;
+        this.hostId = hostId;
+        this.portId = portId;
+        this.portMac = portMac;
+        this.portIp = portIp;
+        this.vpcId = vpcId;
+        this.subnetId = subnetId;
+    }
+
     public String getPortIp() {
         return portIp;
     }
 
     public void setPortIp(String portIp) {
         this.portIp = portIp;
+    }
+
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
+    public String getVpcId() {
+        return vpcId;
+    }
+
+    public void setVpcId(String vpcId) {
+        this.vpcId = vpcId;
     }
 
     @Override

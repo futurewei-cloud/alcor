@@ -163,7 +163,7 @@ public class PortProcessor extends AbstractProcessor {
 
     private InternalPortEntity buildInternalPortEntity(PortEntity portEntity) {
         InternalPortEntity internalPortEntity =
-                new InternalPortEntity(portEntity, null, null, null);
+                new InternalPortEntity(portEntity, null, null);
         NetworkConfig.ExtendPortEntity extendPortEntity =
                 new NetworkConfig.ExtendPortEntity(internalPortEntity, portEntity.getBindingHostId());
 

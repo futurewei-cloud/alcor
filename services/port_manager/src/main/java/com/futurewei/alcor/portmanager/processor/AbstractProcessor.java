@@ -40,7 +40,7 @@ public abstract class AbstractProcessor implements IProcessor {
 
     @Override
     public void createPort(PortContext context) throws Exception {
-        LOG.debug("createPort() processor: {}", this);
+        LOG.info("createPort() processor: {}", this);
 
         createProcess(context);
         if (getNextProcessor() != null) {
