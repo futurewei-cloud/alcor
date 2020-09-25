@@ -139,8 +139,8 @@ public class RestParameterValidator {
         }
 
         String operationType = routerUpdateInfo.getOperationType();
-        if (!RouterUpdateInfo.OperationType.ADD.getType().equals(operationType) &&
-                !RouterUpdateInfo.OperationType.DELETE.getType().equals(operationType)) {
+        if (StringUtils.isEmpty(operationType) ||(!RouterUpdateInfo.OperationType.ADD.getType().equals(operationType.toLowerCase()) &&
+                !RouterUpdateInfo.OperationType.DELETE.getType().equals(operationType.toLowerCase()))) {
             throw new OperationTypeInvalid();
         }
 

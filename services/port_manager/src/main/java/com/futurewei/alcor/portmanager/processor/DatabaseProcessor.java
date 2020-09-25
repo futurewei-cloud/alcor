@@ -30,7 +30,6 @@ public class DatabaseProcessor extends AbstractProcessor {
             return neighborInfos;
         }
 
-        //TODO: Support a port with multiple neighborInfos
         for (PortEntity.FixedIp fixedIp: internalPortEntity.getFixedIps()) {
             NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
                     internalPortEntity.getBindingHostId(),
