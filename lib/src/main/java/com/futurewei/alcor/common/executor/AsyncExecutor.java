@@ -28,17 +28,14 @@ import java.util.function.Supplier;
 public class AsyncExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            ThreadPoolExecutorConfig.corePoolSize,
-            ThreadPoolExecutorConfig.maximumPoolSize,
-            ThreadPoolExecutorConfig.KeepAliveTime,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
-            new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
-    private List<CompletableFuture> futures;
+                ThreadPoolExecutorConfig.corePoolSize,
+                ThreadPoolExecutorConfig.maximumPoolSize,
+                ThreadPoolExecutorConfig.KeepAliveTime,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
+                new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
 
-    public AsyncExecutor() {
-        futures = new ArrayList<>();
-    }
+    private List<CompletableFuture> futures = new ArrayList<>();
 
     public <T>CompletableFuture runAsync(Supplier<T> supplier) {
         return CompletableFuture.supplyAsync(supplier);
