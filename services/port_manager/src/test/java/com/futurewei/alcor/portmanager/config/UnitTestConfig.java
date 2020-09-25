@@ -55,6 +55,7 @@ public class UnitTestConfig {
     public static String vpcId = "3d53801c-32ce-4e97-9572-bb966f4d175e";
     public static String tenantId = "3d53801c-32ce-4e97-9572-bb966f476ec";
     public static String subnetId = "3d53801c-32ce-4e97-9572-bb966f4056b";
+    public static String subnetId2 = "3d53801c-32ce-4e97-9572-bb966fe82b1";
     public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f6ba29";
     public static String vpcCidr = "11.11.1.0/24";
     public static String ip1 = "11.11.11.100";
@@ -84,6 +85,7 @@ public class UnitTestConfig {
     public static String elasticIpId1 = "3d53801c-32ce-4e97-9572-bb966f4dc123";
     public static String elasticIpName1 = "elastic ip1";
     public static String elasticIpAddress1 = "200.10.1.10";
+    public static String operationType = "add";
     public static String portEntityWithFixedIps = "{\n" +
             "    \"port\": {\n" +
             "        \"id\":\"" + portId1 + "\",\n" +
@@ -426,5 +428,11 @@ public class UnitTestConfig {
             "        \"dns_domain\":\"" + "\",\n" +
             "        \"dns_name\":\"" + "\"\n" +
             "    }\n" +
+            "}";
+    public static String updateL3Neighbor = "{\n" +
+            "        \"vpc_id\":\"" + vpcId + "\",\n" +
+            "        \"subnet_id\":\"" + subnetId + "\",\n" +
+            "        \"operation_type\":\"" + operationType + "\",\n" +
+            "        \"old_subnet_ids\":[\"" + subnetId + "\",\"" + subnetId2 + "\"]\n" +
             "}";
 }

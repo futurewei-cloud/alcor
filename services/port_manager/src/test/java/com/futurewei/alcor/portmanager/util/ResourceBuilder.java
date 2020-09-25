@@ -33,6 +33,7 @@ import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
@@ -295,7 +296,8 @@ public class ResourceBuilder {
 
     public static NeighborInfo buildNeighborInfo(String portId) {
         NeighborInfo neighborInfo = new NeighborInfo(UnitTestConfig.ip1,
-                UnitTestConfig.nodeId1, portId, UnitTestConfig.mac1);
+                UnitTestConfig.nodeId1, portId, UnitTestConfig.mac1,
+                UnitTestConfig.ip1, UnitTestConfig.vpcId, UnitTestConfig.subnetId);
 
         return neighborInfo;
     }
@@ -309,6 +311,21 @@ public class ResourceBuilder {
         return new PortNeighbors(UnitTestConfig.vpcId, neighborInfoMap);
     }
 
+    public static Map<String, NeighborInfo> buildNeighbors() {
+        Map<String, NeighborInfo> neighborInfoMap = new HashMap<>();
+        NeighborInfo neighborInfo1 = new NeighborInfo(UnitTestConfig.ip1,
+                UnitTestConfig.nodeId1, UnitTestConfig.portId1, UnitTestConfig.mac1,
+                UnitTestConfig.ip1, UnitTestConfig.vpcId, UnitTestConfig.subnetId);
+        NeighborInfo neighborInfo2 = new NeighborInfo(UnitTestConfig.ip2,
+                UnitTestConfig.nodeId2, UnitTestConfig.portId2, UnitTestConfig.mac2,
+                UnitTestConfig.ip2, UnitTestConfig.vpcId, UnitTestConfig.subnetId2);
+        neighborInfoMap.put(UnitTestConfig.portId1, neighborInfo1);
+        neighborInfoMap.put(UnitTestConfig.portId2, neighborInfo2);
+
+        return neighborInfoMap;
+    }
+
+
     public static ElasticIpInfoWrapper buildElasticIp() {
         ElasticIpInfo elasticIpInfo = new ElasticIpInfo();
         elasticIpInfo.setId(UnitTestConfig.elasticIpId1);
@@ -318,5 +335,13 @@ public class ResourceBuilder {
         elasticIpInfo.setPortId("");
 
         return new ElasticIpInfoWrapper(elasticIpInfo);
+    }
+
+    public static ConnectedSubnetsWebResponse buildRouterSubnets() {
+        List<String> subnetIds = new ArrayList<>();
+        subnetIds.add(UnitTestConfig.subnetId);
+        subnetIds.add(UnitTestConfig.subnetId2);
+        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(null, subnetIds);
+        return routerSubnets;
     }
 }

@@ -29,6 +29,7 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AfterProcessor(PortProcessor.class)
 public class FixedIpsProcessor extends AbstractProcessor {
     private boolean fixedIpsContainSubnet(List<PortEntity.FixedIp> fixedIps, String subnetId) {
         if (fixedIps == null) {
