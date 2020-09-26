@@ -20,16 +20,18 @@ import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.schema.Goalstate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class DataPlaneClientImpl implements DataPlaneClient {
+
     private int grpcPort;
 
     @Autowired
-    public DataPlaneClientImpl(int grpcPort) {
+    public DataPlaneClientImpl(@Value("${dataplane.grpc.port}")int grpcPort) {
         this.grpcPort = grpcPort;
     }
 
