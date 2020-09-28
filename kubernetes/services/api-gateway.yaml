@@ -25,7 +25,7 @@ data:
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006/
     microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008/
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/
-    microservices.quota.service.url = http://vpcmanager-service.default.svc.cluster.local:9001/
+    microservices.quota.service.url = http://quotamanager-service.default.svc.cluster.local:9012/
     microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011/
 
     keystone.enable=true

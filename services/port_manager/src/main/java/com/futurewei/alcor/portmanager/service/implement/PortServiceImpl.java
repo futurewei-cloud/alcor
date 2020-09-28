@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
-import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
@@ -29,11 +28,10 @@ import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -783,5 +781,10 @@ public class PortServiceImpl implements PortService {
         }
 
         return result;
+    }
+
+    @Override
+    public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
+        throw new UnsupportedException();
     }
 }

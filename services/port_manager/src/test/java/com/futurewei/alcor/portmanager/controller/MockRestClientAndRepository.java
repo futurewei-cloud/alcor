@@ -18,7 +18,6 @@ package com.futurewei.alcor.portmanager.controller;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.NodeInfo;
-import com.futurewei.alcor.web.entity.ip.IpVersion;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -62,6 +61,9 @@ public class MockRestClientAndRepository {
 
     @MockBean
     private ElasticIpManagerRestClient elasticIpManagerRestClient;
+
+    @MockBean
+    private RouterManagerRestClient routerManagerRestClient;
 
     @MockBean
     private PortRepository portRepository;
@@ -141,7 +143,14 @@ public class MockRestClientAndRepository {
         Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
                 .thenReturn(buildPortNeighbors(UnitTestConfig.portId1));
 
+        Mockito.when(portRepository.getNeighbors(UnitTestConfig.vpcId))
+                .thenReturn(buildNeighbors());
+
         Mockito.when(elasticIpManagerRestClient.updateElasticIp(any()))
                 .thenReturn(buildElasticIp());
+
+        Mockito.when(routerManagerRestClient.getRouterSubnets(
+                UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId))
+                .thenReturn(buildRouterSubnets());
     }
 }
