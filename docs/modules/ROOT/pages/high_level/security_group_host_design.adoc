@@ -8,8 +8,24 @@ NOTE: This document is under development
 
 == Architecture Overview
 
-TBD: add picture
-
+[source,shell]
+------------------------------------------------------------
+                  .                                    .
+           _______|\                            _______|\
+          \  egress \                          \  egress \
+          /_______  /                          /_______  /
+                  |/     .----------------.         |/
+                  '      |  OVS (br-int)  |         '
+                         |                |
+(VM or container port)---|    OpenFlow    |---(br-tun then NIC HW)
+                         |     Rules      |
+            .            |                |      .
+           /|________    '----------------'     /|________
+          /  ingress /                         /  ingress /
+          \  ________\                         \  ________\
+           \|                                   \|
+            '                                    '
+------------------------------------------------------------
 
 == Requirements
 
@@ -104,7 +120,18 @@ A Security Group rule can reference to a remote security group for both ingress 
 
 The default security group has rules that allows ports assoicated with it to talk to each other.
 
-To support this using the minimal set of OpenFlow rules, we will need to mark remote ports with its assoicated security group. We will update our neighbor configuration schema to include assoicated security group IDs. For L3 neighbor, we will leverage on-demand rule so that the OpenFlow rule for the marking is only setup when needed (for egress). For L2 neighbor, we will go ahead to setup its OpenFlow rule for the marking since it is limited by the subnet size. We will consider doing on-demand rule for L2 neighbors in the future if needed.
+To support this using the minimal set of OpenFlow rules, we will mark remote ports with its assoicated security group using conjunctive flows discussed in the next session. We will update our neighbor configuration schema to include assoicated security group IDs. For L3 neighbor, we will leverage on-demand rule so that the OpenFlow rule for the marking is only setup when needed (for egress). For L2 neighbor, we will go ahead to setup its OpenFlow rule for the marking since it is limited by the subnet size. We will consider doing on-demand rule for L2 neighbors in the future if needed.
+
+
+=== Conjunctive flows
+
+With a security group rule that is assoicated with a remote group ID, ingress rule will need to match on the "n" remote ports IP address (nw_src) and also match on the mac addresses (dl_src) for all the ports "m" assoicated with this security group. It will result with n * m flows without using conjuctive flows. The situation is much worst when there are multiple (e.g. 10) security groups assoicated with a single port.
+
+We will use a conj_id for each combination of (remote SG_id, local port SG_id, ingress/egress, ethertype, flow priority). This rule is shared between security group rules and used by any flow that matches the same combo.
+
+Conjunctive flows can have 2 or more dimensions. We will use the first dimension to match the remote ports IP. We want to merge the rules with when there are multiple IP address if possible. The second dimension will be used to match the local port mac addresses and also other portion of the rule other than its remote SG_id. With mutiple security group rules assoicated with a single port, the openflow rules can overlap. To improve the situation, we want to consolidate and merge the second dimension rules also.
+
+Once a traffic flow matches both dimensions, it will be assigned with a conj_id. The conj_id will point to the openflow rules for security group rules processing.
 
 
 == Default Security Group
@@ -138,8 +165,7 @@ With port security enabled, since all the traffic are blocked by default. A list
 
 == Workflow on Security Group programming
 
-TBD: add workflow
-
+image::security_group_workflow.png[] 
 
 == Sample Openflow rule for Security Group
 
@@ -229,6 +255,10 @@ root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 
 == Pending Items
 
+. Can we rely on a gateway node to check for security group rules? Is it a bad idea due to security concern and waste of bandwidth (unneeded traffic send out from compute host to gateway which can be dropped at the compute host)?
+
+. Can we only download the needed security group rule from Alcor controller into compute host when it is needed? What is the latency requirement if we this "on-demand"?
+
 . What happen if host crashed, do we ask the Alcor controller for the whole set of configuration upon restart?
 
 
@@ -242,3 +272,5 @@ root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 - [[[ovs-openflow,5]]] https://object-storage-ca-ymq-1.vexxhost.net/swift/v1/6e4619c416ff4bd19e1c087f27a43eea/www-assets-prod/presentation-media/Austin-Summit-SG-firewall-Presentation-v2.3.pdf
 - [[[openstack-implementation,6]]]  https://github.com/openstack/neutron/commit/ef29f7eb9a2a37133eacdb7f019b48ec3f9a42c3 
 - [[[neutron-security-group,7]]] https://docs.openstack.org/nova/train/admin/security-groups.html
+- [[[dragonflow-conj,8]]] https://docs.openstack.org/dragonflow/ocata/specs/security_groups.html
+- [[[ovs-firewall-internal,9]]] https://docs.openstack.org/neutron/train/contributor/internals/openvswitch_firewall.html
