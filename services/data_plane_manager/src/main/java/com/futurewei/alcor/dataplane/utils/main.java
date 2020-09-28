@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 public class main {
     public static void main(String[] args) {
-        String Json = DataPlaneManagerUtil.autoGenerateUTsInput(0, 2);
+        String Json = DataPlaneManagerUtil.autoGenerateUTsInput(0, 2, 1, 1, false, false, true);
         System.out.println("Json:" +  Json);
     }
 }
