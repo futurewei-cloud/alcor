@@ -17,7 +17,7 @@ NOTE: This document is under development
                   |/     .----------------.         |/
                   '      |  OVS (br-int)  |         '
                          |                |
-(VM or container port)---|    OpenFlow    |---(br-tun then NIC HW)
+ VM/Container port <---> |    OpenFlow    | <--> br-tun then NIC HW
                          |     Rules      |
             .            |                |      .
            /|________    '----------------'     /|________
@@ -96,9 +96,7 @@ The Security Group design uses OVS and OpenFlow, building on the latest Neutron 
 . Enable scale and performance from ground up, addressing the biggest pain point on neutron
 . OpenFlow rules can be offloaded to hardware
 
-Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the assoicated ports on the compute host. That will promote the scale and performance compare to Neutron. To support this, we will use openflow "packet register" storage and a global or local host unique ID to mark the ports assoicated for a particular security group, to use the corresponding security group rule. Remote security group rule will use similar approach explained below.
-
-Note: Each packet register is 64 bits wide (OVS has 8 of them) and maskable <<ovs-fields>>. To support a port which assoicated with multiple SGs, we will set one bit which maps to a SG. Therefore, we may have a limit of 512 SGs on a compute host for the ports to share. We can fall back to non-sharing SG when the limit reached (similar to neutron's non-sharing SG OVS implementation).
+Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the assoicated ports on the compute host. That will promote the scale and performance compare to Neutron. To support this, we will use openflow conjuction flow<<ovs-fields>>, which is a multiple dimension matching process. We will mark the ports assoicated for a particular security group using the first dimension of a conjunctive flow discussed in the later session.
 
 
 === Remote Security Group Rule handling
@@ -166,6 +164,19 @@ With port security enabled, since all the traffic are blocked by default. A list
 == Workflow on Security Group programming
 
 image::security_group_workflow.png[] 
+
+
+== Implementation Proposal
+
+We will use a list of openflow tables on br-int for security group rule implementation, leveraging neutron's ovs-firewall driver as a reference. Most importantly, we need to keep scale and performance in mind. Therefore, we will:
+
+. keep the minimal number of openflow tables as needed
+. leverage the on-demand feature to install security group rules when needed, unknown egress L3 traffic will be sent to openflow controller, that's ACA, which is similar to L3 on-demand routing algorithm.
+
+In order to support remote SG rules, our neighbor configuration will be updated to include the assoicated SG_id for the neighbor port.
+
+To support a simplified goal state message when only one SG rule is updated (in a SG which has 100s of existing rules), we have added operation_type into each security group rule inside a SG configuration message. Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed. The DPM<->ACA schema (securitygroup.proto) already has that.
+
 
 == Sample Openflow rule for Security Group
 
