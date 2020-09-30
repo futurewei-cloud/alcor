@@ -17,18 +17,18 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class SubnetRoutingTable {
+public class InternalSubnetRoutingTable {
     @JsonProperty("subnet_id")
     private String subnet_id;
 
     @JsonProperty("routing_rules")
-    private List<RoutingRule> routing_rules;
+    private List<InternalRoutingRule> routing_rules;
 
-    public SubnetRoutingTable() {
+    public InternalSubnetRoutingTable() {
 
     }
 
-    public SubnetRoutingTable(String subnet_id, List<RoutingRule> routing_rules) {
+    public InternalSubnetRoutingTable(String subnet_id, List<InternalRoutingRule> routing_rules) {
         this.subnet_id = subnet_id;
         this.routing_rules = routing_rules;
     }
@@ -36,8 +36,8 @@ public class SubnetRoutingTable {
     public String getSubnetId() { return this.subnet_id; }
     public void setSubnetId(String subnet_id) { this.subnet_id = subnet_id; }
 
-    public List<RoutingRule> getRoutingRules() { return this.routing_rules; }
-    public void setRoutingRules(List<RoutingRule> routing_rules) {
+    public List<InternalRoutingRule> getRoutingRules() { return this.routing_rules; }
+    public void setRoutingRules(List<InternalRoutingRule> routing_rules) {
         this.routing_rules = routing_rules;
     }
 }

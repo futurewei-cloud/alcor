@@ -18,9 +18,7 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.enumClass.OperationType;
 
-import java.util.List;
-
-public class RoutingRule {
+public class InternalRoutingRule {
     @JsonProperty("id")
     private String id;
 
@@ -40,19 +38,19 @@ public class RoutingRule {
     private OperationType operation_type;
 
     @JsonProperty("routing_rule_extra_info")
-    private RoutingRuleExtraInfo routing_rule_extra_info;
+    private InternalRoutingRuleExtraInfo routing_rule_extra_info;
 
-    public RoutingRule() {
+    public InternalRoutingRule() {
 
     }
 
-    public RoutingRule(String id,
-                       String name,
-                       String destination,
-                       String next_hop_ip,
-                       String priority,
-                       OperationType operation_type,
-                       RoutingRuleExtraInfo routing_rule_extra_info) {
+    public InternalRoutingRule(String id,
+                               String name,
+                               String destination,
+                               String next_hop_ip,
+                               String priority,
+                               OperationType operation_type,
+                               InternalRoutingRuleExtraInfo routing_rule_extra_info) {
         this.id = id;
         this.name = name;
         this.destination = destination;
@@ -80,8 +78,8 @@ public class RoutingRule {
     public OperationType getOperationType() { return this.operation_type; }
     public void setOperationType(OperationType operation_type) { this.operation_type = operation_type; }
 
-    public RoutingRuleExtraInfo getRoutingRuleExtraInfo() { return this.routing_rule_extra_info; }
-    public void setRoutingRuleExtraInfo(RoutingRuleExtraInfo routing_rule_extra_info) {
+    public InternalRoutingRuleExtraInfo getRoutingRuleExtraInfo() { return this.routing_rule_extra_info; }
+    public void setRoutingRuleExtraInfo(InternalRoutingRuleExtraInfo routing_rule_extra_info) {
         this.routing_rule_extra_info = routing_rule_extra_info;
     }
 }

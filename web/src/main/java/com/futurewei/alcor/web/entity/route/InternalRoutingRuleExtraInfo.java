@@ -18,18 +18,18 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 
-public class RoutingRuleExtraInfo {
+public class InternalRoutingRuleExtraInfo {
     @JsonProperty("next_hop_mac")
     private String next_hop_mac;
 
     @JsonProperty("destination_type")
     private VpcRouteTarget destination_type;
 
-    public RoutingRuleExtraInfo() {
+    public InternalRoutingRuleExtraInfo() {
 
     }
 
-    public RoutingRuleExtraInfo(String next_hop_mac, VpcRouteTarget destination_type) {
+    public InternalRoutingRuleExtraInfo(String next_hop_mac, VpcRouteTarget destination_type) {
         this.next_hop_mac = next_hop_mac;
         this.destination_type = destination_type;
     }

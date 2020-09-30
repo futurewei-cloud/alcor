@@ -18,18 +18,18 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.enumClass.OperationType;
 
-public class RouterConfigurationInfo {
+public class InternalRouterInfo {
     @JsonProperty("operation_type")
     private OperationType operation_type;
 
     @JsonProperty("configuration")
-    private RouterConfiguration configuration;
+    private InternalRouterConfiguration configuration;
 
-    public RouterConfigurationInfo() {
+    public InternalRouterInfo() {
 
     }
 
-    public RouterConfigurationInfo(OperationType operation_type, RouterConfiguration configuration) {
+    public InternalRouterInfo(OperationType operation_type, InternalRouterConfiguration configuration) {
         this.operation_type = operation_type;
         this.configuration = configuration;
     }
@@ -37,8 +37,8 @@ public class RouterConfigurationInfo {
     public OperationType getOperationType() { return this.operation_type; }
     public void setOperationType(OperationType operation_type) { this.operation_type = operation_type; }
 
-    public RouterConfiguration getRouterConfiguration() { return this.configuration; }
-    public void setRouterConfiguration(RouterConfiguration configuration) {
+    public InternalRouterConfiguration getRouterConfiguration() { return this.configuration; }
+    public void setRouterConfiguration(InternalRouterConfiguration configuration) {
         this.configuration = configuration;
     }
 }

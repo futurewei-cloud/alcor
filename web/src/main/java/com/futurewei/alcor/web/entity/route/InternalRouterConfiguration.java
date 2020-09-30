@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.enumClass.MessageType;
 import java.util.List;
 
-public class RouterConfiguration {
+public class InternalRouterConfiguration {
     @JsonProperty("format_version")
     private String format_version;
 
@@ -39,16 +39,16 @@ public class RouterConfiguration {
     private String host_dvr_mac;
 
     @JsonProperty("subnet_routing_tables")
-    private List<SubnetRoutingTable> subnet_routing_tables;
+    private List<InternalSubnetRoutingTable> subnet_routing_tables;
 
-    public RouterConfiguration() {
+    public InternalRouterConfiguration() {
 
     }
 
-    public RouterConfiguration(String id,
-                               String request_id,
-                               MessageType message_type,
-                               List<SubnetRoutingTable> subnet_routing_tables) {
+    public InternalRouterConfiguration(String id,
+                                       String request_id,
+                                       MessageType message_type,
+                                       List<InternalSubnetRoutingTable> subnet_routing_tables) {
         this.id = id;
         this.request_id = request_id;
         this.message_type = message_type;
@@ -91,10 +91,10 @@ public class RouterConfiguration {
         this.host_dvr_mac = host_dvr_mac;
     }
 
-    public List<SubnetRoutingTable> getSubnetRoutingTables() {
+    public List<InternalSubnetRoutingTable> getSubnetRoutingTables() {
         return subnet_routing_tables;
     }
-    public void setSubnetRoutingTables(List<SubnetRoutingTable> subnet_routing_tables) {
+    public void setSubnetRoutingTables(List<InternalSubnetRoutingTable> subnet_routing_tables) {
         this.subnet_routing_tables = subnet_routing_tables;
     }
 }
