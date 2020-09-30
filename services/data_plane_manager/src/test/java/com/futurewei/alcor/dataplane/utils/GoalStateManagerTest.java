@@ -20,9 +20,11 @@ public class GoalStateManagerTest {
 
     static Gson gson = null;
     static GoalStateManager goalStateManager = null;
+    static DataPlaneManagerUtil util = null;
 
     @BeforeClass
     public static void setUp() {
+        util = new DataPlaneManagerUtil();
         goalStateManager = new GoalStateManager();
         ExclusionStrategy myExclusionStrategy =
                 new ExclusionStrategy() {
@@ -144,6 +146,26 @@ public class GoalStateManagerTest {
         check(input, output);
     }
 
+    /**
+     * Scenario: L3 - Create first Port (P1) without neighbor at Host 1
+     */
+    @Test
+    public void scenario_L3_createFirstPortP1AtHost1_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, false, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, false, false, 0, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3 - Create first Port (P2) with neighbor P1 at Host 1
+     */
+    @Test
+    public void scenario_L3_createFirstPortP2WithNeighborP1AtHost1_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, false, true, 1, true);
+        L3Check(input, output);
+    }
+
     private void check(String input, String output) {
 
         NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
@@ -163,6 +185,24 @@ public class GoalStateManagerTest {
         assertEquals(
                 goalStateHashMap
                         .get(goalStateHashMap.keySet().iterator().next())
+                        .getPortStatesList()
+                        .size(),
+                stringGoalStateMap
+                        .get(stringGoalStateMap.keySet().iterator().next())
+                        .getPortStatesList()
+                        .size());
+    }
+
+    private void L3Check(NetworkConfiguration input, Map<String, Goalstate.GoalState> output) {
+
+        Map<String, Goalstate.GoalState> stringGoalStateMap =
+                goalStateManager.transformNorthToSouth(input);
+
+        assertEquals(output.keySet().toString(), stringGoalStateMap.keySet().toString());
+        assertEquals(output.values().size(), stringGoalStateMap.values().size());
+        assertEquals(
+                output
+                        .get(output.keySet().iterator().next())
                         .getPortStatesList()
                         .size(),
                 stringGoalStateMap
