@@ -59,16 +59,15 @@ autonumber 30
 "Port Manager" -> "Port Manager": Determine the list of ports assoicated with SG1
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip}
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[Subnet],[VPC],[SG1]}
-"Data Plane Manager" -> "ACA on \n Host 1": Port: INFO P1, [SG1]: INFO\n (particular ingress rule: added/updated/deleted)
+"Data Plane Manager" -> "ACA on \n Host 1": Port: INFO P1, [SG1]: UPDATE\n (particular ingress rule: added/updated/deleted)
 
-===Scenarios D: In SG2 one ingress remote SG rules points to remote SG1, one new port P4 added to SG1==
+===Scenarios D: In SG2 one ingress SG rules points to remote SG1, one new port P4 added to SG1==
 
 autonumber 40
 "Customer" -> "Port Manager": Create P4 assoicated with SG1
 "Port Manager" -> "SG Manager": Query SG1 info for P4
 "SG Manager" -> "Port Manager": Response {SG_info...)}
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip}
-"Port Manager" -> "SG Manager": Query SG2 info for P1 (because PM found P1 as L2 neighbor)
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P4 port w/ L2_neighbor_Id=P1 \n L3_neighbor_Id=NULL],[Subnet],[VPC],[SG1 for P4,SG2 for P1]}
 "Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P4 DHCP: CREATE (FULL) P4,\n L2 Neighbor=P1, L3 Neighbor=NULL,\n Subnet: INFO, [SG1,SG2]: INFO
 "Data Plane Manager" -> "ACA on \n Host 1": L2 Neighbor state=P1, Subnet: INFO, [SG1]: INFO

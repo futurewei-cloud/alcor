@@ -14,8 +14,8 @@ NOTE: This document is under development
            _______|\                            _______|\
           \  egress \                          \  egress \
           /_______  /                          /_______  /
-                  |/     .----------------.         |/
-                  '      |  OVS (br-int)  |         '
+                  |/     .----------------.            |/
+                  '      |  OVS (br-int)  |            '
                          |                |
  VM/Container port <---> |    OpenFlow    | <--> br-tun then NIC HW
                          |     Rules      |
@@ -35,7 +35,7 @@ We want to have a design that is:
 . agile update - allow granular update/add/delete one or more security group rule on host (as oppose to push down all the rules for an update) 
 . scalable - needs to handle 100,000 ports in a VPC, and 1,000,000 machines in a region
 . high performance - low latency VM to VM communication with port security enabled
-. lean - minimal resource overhead on host (e.g. namespace?, bridges, linux device, linux kernel)
+. lean - minimal resource overhead on host (e.g. bridges, linux device, linux kernel)
 . fast migration - VMs migration should have network blackout time < a few seconds
 
 Note that Security groups are stateful - meaning allowed ingress traffic are allowed to flow out, and vice versa. Therefore, a connection tracking mechanism is required for its implementation. 
@@ -98,6 +98,9 @@ The Security Group design uses OVS and OpenFlow, building on the latest Neutron 
 
 Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the assoicated ports on the compute host. That will promote the scale and performance compare to Neutron. To support this, we will use openflow conjuction flow<<ovs-fields>>, which is a multiple dimension matching process. We will mark the ports assoicated for a particular security group using the first dimension of a conjunctive flow discussed in the later session.
 
+=== Example of Delta update
+
+TBD
 
 === Remote Security Group Rule handling
 
@@ -173,7 +176,7 @@ We will use a list of openflow tables on br-int for security group rule implemen
 . keep the minimal number of openflow tables as needed
 . leverage the on-demand feature to install security group rules when needed, unknown egress L3 traffic will be sent to openflow controller, that's ACA, which is similar to L3 on-demand routing algorithm.
 
-In order to support remote SG rules, our neighbor configuration will be updated to include the assoicated SG_id for the neighbor port.
+In order to support remote SG rules, our neighbor configuration will be updated to include the assoicated SG_ids for the neighbor port.
 
 To support a simplified goal state message when only one SG rule is updated (in a SG which has 100s of existing rules), we have added operation_type into each security group rule inside a SG configuration message. Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed. The DPM<->ACA schema (securitygroup.proto) already has that.
 
