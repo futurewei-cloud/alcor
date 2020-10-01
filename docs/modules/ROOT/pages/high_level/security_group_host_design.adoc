@@ -43,12 +43,12 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
 
 == Neutron Security Group
 
-=== Challanges BEFORE April 2016 OpenStack Mitaka release
+=== Historical Challanges BEFORE April 2016 OpenStack Mitaka release
 
 1. Adds a linux bridge between each VM port and OVS bridge (br-int)
 2. Uses linux devices and linux kernel to support IP Tables implementation
 3. Update of security group rule requires the whole security group to be pushed down to compute host to recompile the IP Tables chain (TBD: review Neutron Agent behavior)
-4. This IP Tables implementation cannot be offloaded to hardware, except using a SoC/ARM based NIC which has capability to run the whole linux OS
+4. This IP Tables implementation cannot be offloaded to hardware, except using a SoC/ARM based NIC which has capability to run the whole Linux OS
 
 [source,shell]
 ------------------------------------------------------------
@@ -100,7 +100,25 @@ Our highlighted improvement is to use only one OpenFlow rule per security group 
 
 === Example of Delta update
 
-TBD
+Another highlight our design bring is to support minimal goal state message when only one SG rule is updated (in a SG which has 100s of existing rules). We have added operation_type into each security group rule inside a SG configuration message. Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed. The DPM<->ACA schema (securitygroup.proto) already has that.
+
+[source,shell]
+------------------------------------------------------------
+    message SecurityGroupRule {
+        04 bytes - OperationType operation_type = 1;  <---------here
+        36 bytes - string security_group_id = 2;
+        36 bytes - string id = 3;
+        04 bytes - Direction direction = 4;
+        04 bytes - EtherType ethertype = 5;
+        04 bytes - Protocol protocol = 6;
+        04 bytes - uint32 port_range_min = 7;
+        04 bytes - uint32 port_range_max = 8;
+        18 bytes - string remote_ip_prefix = 9;
+        36 bytes - string remote_group_id = 10;
+    }
+------------------------------------------------------------
+
+The goal state message size reduction is significant. With Delta update, message size with one security group rule will be around 150 bytes plus outer goal state message and protobuf overhead (around 50 bytes, message total ~200 bytes). Without Delta update, full message size with 100 security group rules will be 150 bytes times 100 plus outer goal state message and protobuf overhead (around 50 bytes, message total ~15050 bytes).
 
 === Remote Security Group Rule handling
 
@@ -178,24 +196,31 @@ We will use a list of openflow tables on br-int for security group rule implemen
 
 In order to support remote SG rules, our neighbor configuration will be updated to include the assoicated SG_ids for the neighbor port.
 
-To support a simplified goal state message when only one SG rule is updated (in a SG which has 100s of existing rules), we have added operation_type into each security group rule inside a SG configuration message. Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed. The DPM<->ACA schema (securitygroup.proto) already has that.
-
 
 == Sample Openflow rule for Security Group
 
-Below is the full set of OpenFlow rules on br-int when a VM is added in a microstack setup:
+Below is the full set of OpenFlow rules on br-int when a VM is added in a microstack setup for reference<<ovs-firewall-internal>>:
 
 [source,shell]
 ------------------------------------------------------------
 root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
+
+===== table 0 (LOCAL_SWITCHING) =====
+"contains a low priority rule to continue packets processing in table 60 (TRANSIENT) aka TRANSIENT table. table 0 (LOCAL_SWITCHING) is left for use to other features that take precedence over firewall, e.g. DVR. The only requirement is that after such a feature is done with its processing, it needs to pass packets for processing to the TRANSIENT table."
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=0, n_packets=0, n_bytes=0, priority=65535,vlan_tci=0x0fff/0x1fff actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.231s, table=0, n_packets=39, n_bytes=3432, priority=2,in_port="int-br-ex" actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=0, n_packets=185, n_bytes=18157, priority=0 actions=resubmit(,60)
+
+===== table 23,24 (NOT USED) =====
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=23, n_packets=0, n_bytes=0, priority=0 actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=24, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+===== table 60 - (TRANSIENT) =====
+"This TRANSIENT table distinguishes the ingress traffic from the egress traffic and loads into register 5 a value identifying the port (for egress traffic based on the switch port number, and for ingress traffic based on the network id and destination MAC address); register 6 contains a value identifying the network (which is also the OVSDB port tag) to isolate connections into separate conntrack zones. For VLAN networks, the physical VLAN tag will be used to act as an extra match rule to do such identifying work as well."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=114, n_bytes=10202, priority=100,in_port="tap0308ac0c-28" actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],resubmit(,71)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=70, n_bytes=7913, priority=90,dl_vlan=1,dl_dst=fa:16:3e:38:c6:87 actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],strip_vlan,resubmit(,81)
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=60, n_packets=1, n_bytes=42, priority=3 actions=NORMAL
+
  cookie=0x18b5fbabf7b6e3f3, duration=22960.796s, table=71, n_packets=0, n_bytes=0, priority=110,ct_state=+trk actions=ct_clear,resubmit(,71)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=130 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=3, n_bytes=210, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=133 actions=resubmit(,94)

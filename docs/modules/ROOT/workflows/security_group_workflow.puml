@@ -70,7 +70,7 @@ autonumber 40
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip}
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P4 port w/ L2_neighbor_Id=P1 \n L3_neighbor_Id=NULL],[Subnet],[VPC],[SG1 for P4,SG2 for P1]}
 "Data Plane Manager" -> "ACA on \n Host 2": Port: CREATE (FULL) P4 DHCP: CREATE (FULL) P4,\n L2 Neighbor=P1, L3 Neighbor=NULL,\n Subnet: INFO, [SG1,SG2]: INFO
-"Data Plane Manager" -> "ACA on \n Host 1": L2 Neighbor state=P1, Subnet: INFO, [SG1]: INFO
+"Data Plane Manager" -> "ACA on \n Host 1": L2 Neighbor state=P4, Subnet: INFO, [SG1]: INFO
 
 @enduml
 
