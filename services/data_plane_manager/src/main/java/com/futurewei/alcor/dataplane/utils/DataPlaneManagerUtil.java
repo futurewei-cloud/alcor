@@ -16,12 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.common.enumClass.RouteTableType;
+import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
-import com.futurewei.alcor.dataplane.service.ovs.DataPlaneServiceImpl;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -30,7 +30,6 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class DataPlaneManagerUtil {
         List<NeighborInfo> neighborINFO = new ArrayList<>();
         if (hasNeighbor) {
             for (int i = 0; i < neighborNum; i ++) {
-                NeighborInfo neighborInfo = new NeighborInfo("10.213.43.18" + i, "ephost_0", "f37810eb-7f83-45fa-a4d4-1b31e75399d" + i, "86:ea:77:ad:52:55", "192.168.2.2", "9192a4d4-ffff-4ece-b3f0-8d36e3d88038", "a87e0f87-a2d9-44ef-9194-9a62f1785940");
+                NeighborInfo neighborInfo = new NeighborInfo(DPMAutoUnitTestConstant.hostIp + i, DPMAutoUnitTestConstant.hostId, DPMAutoUnitTestConstant.portId + i, DPMAutoUnitTestConstant.portMac, DPMAutoUnitTestConstant.portIp, DPMAutoUnitTestConstant.vpcId, DPMAutoUnitTestConstant.subnetId + i);
                 neighborINFO.add(neighborInfo);
             }
         }
@@ -61,8 +60,8 @@ public class DataPlaneManagerUtil {
             for (int j = i + 1; j < L2IPNumInNeighborTable; j ++) {
                 int num2 = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp("192.168.2." + num1);
-                neighborEntry.setNeighborIp("192.168.2." + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + num1);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L2neighborIp + num2);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
                 neighborTable.add(neighborEntry);
             }
@@ -73,8 +72,8 @@ public class DataPlaneManagerUtil {
             for (int j = i + 1; j < L3IPNumInNeighborTable; j ++) {
                 int num2 = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp("192.168.3." + num1);
-                neighborEntry.setNeighborIp("192.168.3." + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L3localIp + num1);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + num2);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
                 neighborTable.add(neighborEntry);
             }
@@ -85,8 +84,8 @@ public class DataPlaneManagerUtil {
             for (int j = 0; j < L3IPNumInNeighborTable; j ++) {
                 int num2 = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp("192.168.2." + num1);
-                neighborEntry.setNeighborIp("192.168.3." + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + num1);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + num2);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
                 neighborTable.add(neighborEntry);
             }
@@ -98,25 +97,25 @@ public class DataPlaneManagerUtil {
         for (int j = 0; j < hostNum; j ++) {
             for (int i = 0; i < portNum; i ++) {
                 List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
-                PortEntity.FixedIp fixedIp = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f178594" + i, "192.168.2.2" + i);
+                PortEntity.FixedIp fixedIp = new PortEntity.FixedIp(DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.IpAddress + i);
                 fixedIps.add(fixedIp);
 
-                PortEntity portEntity = new PortEntity("3dda2801-d675-4688-a63f-dcda8d327f50", "f37810eb-7f83-45fa-a4d4-1b31e75399d" + i,
-                        "test_cni_port" + i, "", "9192a4d4-ffff-4ece-b3f0-8d36e3d88038", true, "86:ea:77:ad:52:5" + i, "veth" + i, fastPath,
+                PortEntity portEntity = new PortEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.portId + i,
+                        DPMAutoUnitTestConstant.portName + i, "", DPMAutoUnitTestConstant.vpcId, true, DPMAutoUnitTestConstant.portMacAddress + i, DPMAutoUnitTestConstant.vethName + i, fastPath,
                         null, null, null, fixedIps, null, null, null,
-                        "ephost_0", null, null, null, null,
-                        "/var/run/netns/test_netw_ns", null, null, null, null, null,
+                        DPMAutoUnitTestConstant.bindingHostId, null, null, null, null,
+                        DPMAutoUnitTestConstant.networkNamespace, null, null, null, null, null,
                         null, false, null, null, 0, null, null,
                         false, false);
 
                 List<RouteEntity> routeEntities = new ArrayList<>();
                 if (hasRouteEntities) {
-                    RouteEntity routeEntity = new RouteEntity("3dda2801-d675-4688-a63f-dcda8d327f50", "58f536d1-eb89-49cc-a3e6-756f70d206e" + i,
-                            "default_route_rule", "", "10.0.0.0/24", "Local", 0, RouteTableType.VPC, "");
+                    RouteEntity routeEntity = new RouteEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.routeId + i,
+                            DPMAutoUnitTestConstant.routeName, "", DPMAutoUnitTestConstant.destination, DPMAutoUnitTestConstant.target, 0, RouteTableType.VPC, "");
                     routeEntities.add(routeEntity);
                 }
 
-                String bindingHostIP = "10.213.43.18" + j;
+                String bindingHostIP = DPMAutoUnitTestConstant.bindingHostIp + j;
 
                 InternalPortEntity port = new InternalPortEntity(portEntity, routeEntities, bindingHostIP);
                 portEntities.add(port);
@@ -127,11 +126,11 @@ public class DataPlaneManagerUtil {
 
         // set vpcs
         List<VpcEntity> vpcs = new ArrayList<>();
-        VpcEntity vpc = new VpcEntity("3dda2801-d675-4688-a63f-dcda8d327f50", "9192a4d4-ffff-4ece-b3f0-8d36e3d88038", "test_vpc",
+        VpcEntity vpc = new VpcEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.vpcId, DPMAutoUnitTestConstant.vpcName,
                 "", null, false, null, null, false, null,
                 null, null, false, null, false, false, false,
                 null, null, null, null, null, null, null,
-                null, null, null, null, null, "192.168.0.0/16");
+                null, null, null, null, null, DPMAutoUnitTestConstant.cidr);
         vpcs.add(vpc);
         networkConfiguration.setVpcs(vpcs);
 
@@ -139,16 +138,16 @@ public class DataPlaneManagerUtil {
         List<InternalSubnetEntity> subnets = new ArrayList<>();
         for (int i = 0; i < subnetNum; i ++) {
             int num = i + 2;
-            SubnetEntity subnetEntity = new SubnetEntity("3dda2801-d675-4688-a63f-dcda8d327f50", "a87e0f87-a2d9-44ef-9194-9a62f178594" + i, "test_subnet" + i, "", "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
-                    "192.168." + num + ".0/24", "uswest-1", "192.168." + num + ".1", false, null,
-                    null, null, "96:ea:77:ad:52:55", null,
+            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.subnetName + i, "", DPMAutoUnitTestConstant.vpcId,
+                    "192.168." + num + ".0/24", DPMAutoUnitTestConstant.availabilityZone, "192.168." + num + ".1", false, null,
+                    null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null, false, null, null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null);
-            Long tunnelId = Long.parseLong("8888" + i);
+            Long tunnelId = Long.parseLong(DPMAutoUnitTestConstant.tunnelId + i);
             InternalSubnetEntity subnet = new InternalSubnetEntity(subnetEntity, tunnelId);
             subnets.add(subnet);
         }
@@ -157,6 +156,7 @@ public class DataPlaneManagerUtil {
         // set securityGroups
         List<SecurityGroup> securityGroups = new ArrayList<>();
         SecurityGroup securityGroup = new SecurityGroup();
+        securityGroups.add(securityGroup);
         networkConfiguration.setSecurityGroups(securityGroups);
 
         return networkConfiguration;
@@ -167,7 +167,7 @@ public class DataPlaneManagerUtil {
         for (int i = 0; i < hostNum; i ++) {
             HostGoalState hostGoalState = new HostGoalState();
             NetworkConfiguration networkConfiguration = autoGenerateUTsInput(operationType, resourceType, portNum, hostNum, subnetNum, L2IPNumInNeighborTable, L3IPNumInNeighborTable, hasRouteEntities, hasNeighbor, neighborNum, fastPath);
-            hostGoalState = buildHostGoalState(networkConfiguration, "10.213.43.18" + i, networkConfiguration.getPortEntities());
+            hostGoalState = buildHostGoalState(networkConfiguration, DPMAutoUnitTestConstant.hostIp + i, networkConfiguration.getPortEntities());
             goalStateHashMap.put(hostGoalState.getHostIp(), hostGoalState.getGoalState());
         }
 
