@@ -153,7 +153,7 @@ Conjunctive flows can have 2 or more dimensions. We will use the first dimension
 Once a traffic flow matches both dimensions, it will be assigned with a conj_id. The conj_id will point to the openflow rules for security group rules processing.
 
 
-== Default Security Group
+=== Default Security Group
 
 [source,shell]
 ------------------------------------------------------------
@@ -166,7 +166,7 @@ ALLOW: Direction=Ingress, Ether Type=IPv6, IP Protocol=Any, Port Range=Any, Remo
 User can add or delete rules but cannot remove this security group.
 
 
-== Customer created Security Group
+=== Customer created Security Group
 
 [source,shell]
 ------------------------------------------------------------
@@ -177,7 +177,7 @@ ALLOW: Direction=Egress, Ether Type=IPv6, IP Protocol=Any, Port Range=Any, Remot
 User can add or delete rules or remove this security group.
 
 
-== Hidden Security Group Policies
+=== Hidden Security Group Policies
 
 With port security enabled, since all the traffic are blocked by default. A list of hidden security group rule are allowed to enable basic connectivity, which include allowing for ICMP, ICMP6, ARP, DHCP, DHCPv6, SSH and connection tracking. The system will also enabled a rule to only allow traffic coming out from the port has the assigned virtual mac address to disallow mac spoofing. See later session for a sample set of openflow rules when a VM port has been added.
 
@@ -201,41 +201,54 @@ In order to support remote SG rules, our neighbor configuration will be updated 
 
 Below is the full set of OpenFlow rules on br-int when a VM is added in a microstack setup for reference<<ovs-firewall-internal>>:
 
-[source,shell]
-------------------------------------------------------------
 root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 
-===== table 0 (LOCAL_SWITCHING) =====
+=== table 0 (LOCAL_SWITCHING) ===
 "contains a low priority rule to continue packets processing in table 60 (TRANSIENT) aka TRANSIENT table. table 0 (LOCAL_SWITCHING) is left for use to other features that take precedence over firewall, e.g. DVR. The only requirement is that after such a feature is done with its processing, it needs to pass packets for processing to the TRANSIENT table."
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=0, n_packets=0, n_bytes=0, priority=65535,vlan_tci=0x0fff/0x1fff actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.231s, table=0, n_packets=39, n_bytes=3432, priority=2,in_port="int-br-ex" actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=0, n_packets=185, n_bytes=18157, priority=0 actions=resubmit(,60)
 
-===== table 23,24 (NOT USED) =====
+=== table 23,24 (NOT USED) ===
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=23, n_packets=0, n_bytes=0, priority=0 actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=24, n_packets=0, n_bytes=0, priority=0 actions=drop
 
-===== table 60 - (TRANSIENT) =====
+=== table 60 - (TRANSIENT) ===
 "This TRANSIENT table distinguishes the ingress traffic from the egress traffic and loads into register 5 a value identifying the port (for egress traffic based on the switch port number, and for ingress traffic based on the network id and destination MAC address); register 6 contains a value identifying the network (which is also the OVSDB port tag) to isolate connections into separate conntrack zones. For VLAN networks, the physical VLAN tag will be used to act as an extra match rule to do such identifying work as well."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=114, n_bytes=10202, priority=100,in_port="tap0308ac0c-28" actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],resubmit(,71)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=70, n_bytes=7913, priority=90,dl_vlan=1,dl_dst=fa:16:3e:38:c6:87 actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],strip_vlan,resubmit(,81)
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=60, n_packets=1, n_bytes=42, priority=3 actions=NORMAL
 
+=== table 71 (BASE_EGRESS) ===
+"table 71 (BASE_EGRESS) implements ARP spoofing protection, IP spoofing protection, allows traffic related to IP address allocations (dhcp, dhcpv6, slaac, ndp) for egress traffic, and allows ARP replies. Also identifies not tracked connections which are processed later with information obtained from conntrack. Notice the zone=NXM_NX_REG6[0..15] in actions when obtaining information from conntrack. It says every port has its own conntrack zone defined by the value in register 6 (OVSDB port tag identifying the network). It’s there to avoid accepting established traffic that belongs to different port with same conntrack parameters.
+
+The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack information for a use-case where Neutron logical port is placed directly to the hypervisor. In such case kernel does conntrack lookup before packet reaches Open vSwitch bridge. Tracked packets are sent back for processing by the same table after conntrack information is cleared."
  cookie=0x18b5fbabf7b6e3f3, duration=22960.796s, table=71, n_packets=0, n_bytes=0, priority=110,ct_state=+trk actions=ct_clear,resubmit(,71)
+
+"Rules below allow ICMPv6 traffic for multicast listeners, neighbour solicitation and neighbour advertisement."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=130 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=3, n_bytes=210, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=133 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=1, n_bytes=78, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=135 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=95,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=136 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=70,icmp6,reg5=0x3,in_port="tap0308ac0c-28",icmp_type=134 actions=resubmit(,93)
+
+"Following rules implement ARP spoofing protection"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=3, n_bytes=126, priority=95,arp,reg5=0x3,in_port="tap0308ac0c-28",dl_src=fa:16:3e:38:c6:87,arp_spa=192.168.222.248 actions=resubmit(,94)
- cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=101, n_bytes=8742, priority=65,ip,reg5=0x3,in_port="tap0308ac0c-28",dl_src=fa:16:3e:38:c6:87,nw_src=192.168.222.248 actions=ct(table=72,zone=NXM_NX_REG6[0..15])
+
+"DHCP and DHCPv6 traffic is allowed to instance but DHCP servers are blocked on instances."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=2, n_bytes=686, priority=80,udp,reg5=0x3,in_port="tap0308ac0c-28",tp_src=68,tp_dst=67 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=80,udp6,reg5=0x3,in_port="tap0308ac0c-28",tp_src=546,tp_dst=547 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=70,udp,reg5=0x3,in_port="tap0308ac0c-28",tp_src=67,tp_dst=68 actions=resubmit(,93)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=0, n_bytes=0, priority=70,udp6,reg5=0x3,in_port="tap0308ac0c-28",tp_src=547,tp_dst=546 actions=resubmit(,93)
+
+"Flowing rules obtain conntrack information for valid IP and MAC address combinations. All other packets are dropped."
+ cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=101, n_bytes=8742, priority=65,ip,reg5=0x3,in_port="tap0308ac0c-28",dl_src=fa:16:3e:38:c6:87,nw_src=192.168.222.248 actions=ct(table=72,zone=NXM_NX_REG6[0..15])
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=2, n_bytes=180, priority=65,ipv6,reg5=0x3,in_port="tap0308ac0c-28",dl_src=fa:16:3e:38:c6:87,ipv6_src=fe80::f816:3eff:fe38:c687 actions=ct(table=72,zone=NXM_NX_REG6[0..15])
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=71, n_packets=2, n_bytes=180, priority=10,reg5=0x3,in_port="tap0308ac0c-28" actions=ct_clear,resubmit(,93)
  cookie=0x18b5fbabf7b6e3f3, duration=22960.848s, table=71, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+=== table 72 (RULES_EGRESS) ===
+"table 72 (RULES_EGRESS) accepts only established or related connections, and implements rules defined by security groups. As this egress connection might also be an ingress connection for some other port, it’s not switched yet but eventually processed by the ingress pipeline."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=74,ct_state=+est-rel-rpl,ipv6,reg5=0x3 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=80, n_bytes=7120, priority=74,ct_state=+est-rel-rpl,ip,reg5=0x3 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=74,ct_state=+new-est,ipv6,reg5=0x3 actions=resubmit(,73)
@@ -248,6 +261,8 @@ root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ip,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ipv6,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=22960.837s, table=72, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=0, n_bytes=0, priority=100,reg6=0x1,dl_dst=fa:16:3e:38:c6:87 actions=load:0x3->NXM_NX_REG5[],resubmit(,81)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=21, n_bytes=1622, priority=90,ct_state=+new-est,ip,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15]),resubmit(,91)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=0, n_bytes=0, priority=90,ct_state=+new-est,ipv6,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15]),resubmit(,91)
@@ -289,7 +304,6 @@ root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
  cookie=0x18b5fbabf7b6e3f3, duration=22960.766s, table=92, n_packets=0, n_bytes=0, priority=0 actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22960.756s, table=93, n_packets=4, n_bytes=360, priority=0 actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22960.785s, table=94, n_packets=110, n_bytes=9842, priority=1 actions=NORMAL
-------------------------------------------------------------
 
 
 == Pending Items
