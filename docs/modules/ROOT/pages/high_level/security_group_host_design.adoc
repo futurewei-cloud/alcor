@@ -1,4 +1,4 @@
-= Key System Flows
+= Alcor Security Group Design on Host
 Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
 v0.1, 2020-09-18
 :toc: right
@@ -31,23 +31,30 @@ NOTE: This document is under development
 
 We want to have a design that is:
 
-. fast provision - end to end port provision including security group < 100ms
-. agile update - allow granular update/add/delete one or more security group rule on host (as oppose to push down all the rules for an update) 
-. scalable - needs to handle 100,000 ports in a VPC, and 1,000,000 machines in a region
-. high performance - low latency VM to VM communication with port security enabled
-. lean - minimal resource overhead on host (e.g. bridges, linux device, linux kernel)
-. fast migration - VMs migration should have network blackout time < a few seconds
+. Fast provision - end to end port provision including security group < a few 100ms
+. Agile update - allow granular update/add/delete one or more security group rule on compute hosts, as opposed to push down all the rules for an update
+. Scalable - needs to handle 100,000 ports in a VPC given 1,000,000 machines in a region
+. High performance - low latency VM-to-VM communication with port security enabled
+. Lean - minimal resource overhead on compute hosts (e.g., bridges, linux device, linux kernel)
+. Fast migration - VMs migration should have network blackout time < a few seconds
 
-Note that Security groups are stateful - meaning allowed ingress traffic are allowed to flow out, and vice versa. Therefore, a connection tracking mechanism is required for its implementation. 
+Note that Security groups are stateful, which means that allowed ingress connections are also allowed to flow out, and vice versa.
+Therefore, a connection tracking mechanism is required for its implementation.
 
 
-== Neutron Security Group
+== Background: OpenStack Neutron Security Group
 
-=== Historical Challanges BEFORE April 2016 OpenStack Mitaka release
+OpenStack Neutron makes a significant change on design and implmentation of security group in its Mitaka release which was shipped on April 2016.
 
-1. Adds a linux bridge between each VM port and OVS bridge (br-int)
-2. Uses linux devices and linux kernel to support IP Tables implementation
-3. Update of security group rule requires the whole security group to be pushed down to compute host to recompile the IP Tables chain (TBD: review Neutron Agent behavior)
+
+=== Before OpenStack Mitaka Release
+
+Here are a few historical challenge before OpenStack Mitaka release on April 2016.
+
+1. Adds a Linux bridge between each VM port and OVS bridge (br-int)
+2. Uses Linux devices and linux kernel to support IP Tables implementation
+3. Update of single security group rule requires the whole security group to be pushed down to compute hosts,
+and requires the IP Tables chain to be recompiled (TBD: review Neutron Agent behavior)
 4. This IP Tables implementation cannot be offloaded to hardware, except using a SoC/ARM based NIC which has capability to run the whole Linux OS
 
 [source,shell]
@@ -80,27 +87,38 @@ Note that Security groups are stateful - meaning allowed ingress traffic are all
 ------------------------------------------------------------
 
 
-=== AFTER April 2016 OpenStack Mitaka release
+=== After OpenStack Mitaka Release
 
-The OpenStack community recognized the challange of IP Tables implementation for security group rules. With OVS implementation of connection tracking <<ovs-conntrack>>, many open source solutions including ovs_dpdk_firewall<<intel>> and dragonflow<<dragonflow-security-group>> start leveraging it for OpenStack. It is natural for OpenStack neutron to adopt it. OpenStack Mitaka introduced offical OVS Firewall driver, which addressed many of the issues in the prior releases. But Alcor can do even better than that.
+The OpenStack community recognized the challenge of IP Tables implementation for security group rules.
+With OVS implementation of connection tracking <<ovs-conntrack>>, many open source solutions including ovs_dpdk_firewall<<intel>> and Dragonflow<<dragonflow-security-group>> start leveraging it for OpenStack.
+It is natural for OpenStack Neutron to adopt it.
+OpenStack Mitaka introduced official OVS Firewall driver, which addressed many of the issues in the prior releases.
+But Alcor can do even better than that.
 
 
 == Design approach
 
-The Security Group design uses OVS and OpenFlow, building on the latest Neutron OVS firewall rule approach. It offers the following advantages compare to Neutron:   
+The Security Group design uses OVS and OpenFlow, building on the latest Neutron OVS firewall rule approach.
+It offers the following advantages compared to Neutron:
 
-. Direct connection from VM port to OVS, don't need extra linux bridge/linux devices/linux kernel/IP Tables
-. Direct and not chatty Alcor controller to Alcor control agent communication
-. Support Delta update: Update of security group rule only require the changed rule to be push down to compute host
-. Only one set of security group rule is configured in OVS to be shared with all ports using it
-. Enable scale and performance from ground up, addressing the biggest pain point on neutron
+. On-Host direct connection from VM port to OVS: it doesn't need extra Linux bridge, Linux devices, Linux kernel or IP Tables;
+. Direct and simplified communication between Alcor controller to Alcor control agent;
+. Delta update: Update of security group rule only require the changed rule to be push down to compute hosts;
+. Reduced OVS SG rules: Only one set of security group rules is configured in OVS to be shared with all ports using it
+. Enable scale and performance from the ground up, addressing the biggest pain point on Neutron
 . OpenFlow rules can be offloaded to hardware
 
-Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the assoicated ports on the compute host. That will promote the scale and performance compare to Neutron. To support this, we will use openflow conjuction flow<<ovs-fields>>, which is a multiple dimension matching process. We will mark the ports assoicated for a particular security group using the first dimension of a conjunctive flow discussed in the later session.
+Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the associated ports on a compute host.
+That will promote the scale and performance compared to Neutron.
+To support this, we will use openflow conjuction flow<<ovs-fields>>, which is a multiple dimension matching process.
+We will mark the ports associated for a particular security group using the first dimension of a conjunctive flow discussed in the later session.
 
-=== Example of Delta update
+=== Example of Delta Update
 
-Another highlight our design bring is to support minimal goal state message when only one SG rule is updated (in a SG which has 100s of existing rules). We have added operation_type into each security group rule inside a SG configuration message. Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed. The DPM<->ACA schema (securitygroup.proto) already has that.
+Another highlight our design bring is to support minimal goal state message when only one SG rule is updated (in an SG which has 100s of existing rules).
+We have added operation_type into each security group rule inside an SG configuration message.
+Therefore, only one SG rule is needed in the goal state message without the need to include 100s of existing rules when they have not changed.
+The DPM<->ACA schema (securitygroup.proto) already has that.
 
 [source,shell]
 ------------------------------------------------------------
@@ -118,11 +136,15 @@ Another highlight our design bring is to support minimal goal state message when
     }
 ------------------------------------------------------------
 
-The goal state message size reduction is significant. With Delta update, message size with one security group rule will be around 150 bytes plus outer goal state message and protobuf overhead (around 50 bytes, message total ~200 bytes). Without Delta update, full message size with 100 security group rules will be 150 bytes times 100 plus outer goal state message and protobuf overhead (around 50 bytes, message total ~15050 bytes).
+The goal state message size reduction is significant.
+With Delta update, message size with one security group rule will be around 150 bytes plus outer goal state message and protobuf overhead (around 50 bytes, message total ~200 bytes).
+Without Delta update, full message size with 100 security group rules will be 150 bytes times 100 plus outer goal state message and protobuf overhead (around 50 bytes, message total ~15,050 bytes).
 
-=== Remote Security Group Rule handling
+=== Remote Security Group Rule Handling
 
-A Security Group rule can reference to a remote security group for both ingress and egress traffic. When a security group rule is added to security group A, customer can set security group B as the source (for ingress rule) or destination (for egress rule). This allows ports associated with security group B to access ports that are port of security group A, and vice versa.
+A Security Group rule can refer to a remote security group for both ingress and egress traffic.
+When a security group rule is added to security group A, customer can set security group B as the source (for ingress rule) or destination (for egress rule).
+This allows ports associated with security group B to access ports that are port of security group A, and vice versa.
 
 [source,shell]
 ------------------------------------------------------------
@@ -137,18 +159,29 @@ A Security Group rule can reference to a remote security group for both ingress 
 +-----------+     +-----------+
 ------------------------------------------------------------
 
-The default security group has rules that allows ports assoicated with it to talk to each other.
+The default security group has rules that allow associated ports of the default rule to talk to each other.
 
-To support this using the minimal set of OpenFlow rules, we will mark remote ports with its assoicated security group using conjunctive flows discussed in the next session. We will update our neighbor configuration schema to include assoicated security group IDs. For L3 neighbor, we will leverage on-demand rule so that the OpenFlow rule for the marking is only setup when needed (for egress). For L2 neighbor, we will go ahead to setup its OpenFlow rule for the marking since it is limited by the subnet size. We will consider doing on-demand rule for L2 neighbors in the future if needed.
-
+To support this using the minimal set of OpenFlow rules, we will mark remote ports with its associated security group using conjunctive flows discussed in the next session.
+We will update our neighbor configuration schema to include associated security group IDs.
+For L3 neighbor, we will leverage on-demand rules so that the OpenFlow rule for the marking is only setup when needed (for egress).
+For L2 neighbor, we will go ahead to setup its OpenFlow rules for the marking since it is limited by the subnet size.
+We will consider doing on-demand rule for L2 neighbors in the future if needed.
 
 === Conjunctive flows
 
-With a security group rule that is assoicated with a remote group ID, ingress rule will need to match on the "n" remote ports IP address (nw_src) and also match on the mac addresses (dl_src) for all the ports "m" assoicated with this security group. It will result with n * m flows without using conjuctive flows. The situation is much worst when there are multiple (e.g. 10) security groups assoicated with a single port.
+With a security group rule that is associated with a remote group ID, ingress rule will need to match on the "n" remote ports IP address (nw_src) and match on the mac addresses (dl_src) for all the ports "m" associated with this security group.
+It will result with n * m flows without using conjuctive flows.
+The situation is much worse when there are multiple (e.g., 10) security groups associated with a single port.
 
-We will use a conj_id for each combination of (remote SG_id, local port SG_id, ingress/egress, ethertype, flow priority). This rule is shared between security group rules and used by any flow that matches the same combo.
+We will use a conj_id for each combination of (remote SG_id, local port SG_id, ingress/egress, ethertype, flow priority).
+This rule is shared between security group rules and used by any flow that matches the same combo.
 
-Conjunctive flows can have 2 or more dimensions. We will use the first dimension to match the remote ports IP. We want to merge the rules with when there are multiple IP address if possible. The second dimension will be used to match the local port mac addresses and also other portion of the rule other than its remote SG_id. With mutiple security group rules assoicated with a single port, the openflow rules can overlap. To improve the situation, we want to consolidate and merge the second dimension rules also.
+Conjunctive flows can have 2 or more dimensions.
+We will use the first dimension to match the remote ports IP.
+We want to merge the rules with when there are multiple IP address if possible.
+The second dimension will be used to match the local port mac addresses and also other portion of the rule other than its remote SG_id.
+With multiple security group rules associated with a single port, the openflow rules can overlap.
+To improve the situation, we want to consolidate and merge the second dimension rules.
 
 Once a traffic flow matches both dimensions, it will be assigned with a conj_id. The conj_id will point to the openflow rules for security group rules processing.
 
@@ -179,7 +212,10 @@ User can add or delete rules or remove this security group.
 
 === Hidden Security Group Policies
 
-With port security enabled, since all the traffic are blocked by default. A list of hidden security group rule are allowed to enable basic connectivity, which include allowing for ICMP, ICMP6, ARP, DHCP, DHCPv6, SSH and connection tracking. The system will also enabled a rule to only allow traffic coming out from the port has the assigned virtual mac address to disallow mac spoofing. See later session for a sample set of openflow rules when a VM port has been added.
+With port security enabled, since all the traffic are blocked by default.
+A list of hidden security group rule are allowed to enable basic connectivity, which include allowing for ICMP, ICMP6, ARP, DHCP, DHCPv6, SSH and connection tracking.
+The system will also enable a rule to only allow traffic coming out from the port has the assigned virtual MAC address to disallow MAC spoofing.
+See later session for a sample set of openflow rules when a VM port has been added.
 
 
 == Workflow on Security Group programming
@@ -189,17 +225,20 @@ image::security_group_workflow.png[]
 
 == Implementation Proposal
 
-We will use a list of openflow tables on br-int for security group rule implementation, leveraging neutron's ovs-firewall driver as a reference. Most importantly, we need to keep scale and performance in mind. Therefore, we will:
+We will use a list of openflow tables on br-int for security group rule implementation, leveraging Neutron's ovs-firewall driver as a reference.
+Most importantly, we need to keep scale and performance in mind.
+Therefore, we will:
 
 . keep the minimal number of openflow tables as needed
-. leverage the on-demand feature to install security group rules when needed, unknown egress L3 traffic will be sent to openflow controller, that's ACA, which is similar to L3 on-demand routing algorithm.
+. leverage the on-demand feature to install security group rules when needed, unknown egress L3 traffic will be sent to OpenFlow controller, which is ACA.
+This is similar to L3 on-demand routing algorithm.
 
-In order to support remote SG rules, our neighbor configuration will be updated to include the assoicated SG_ids for the neighbor port.
+In order to support remote SG rules, our neighbor configuration will be updated to include the associated SG_ids for the neighbor port.
 
 
 == Sample Openflow rule for Security Group
 
-Below is the full set of OpenFlow rules on br-int when a VM is added in a microstack setup for reference<<ovs-firewall-internal>>:
+Below is the full set of OpenFlow rules on br-int when a VM is added in a Microstack setup for reference<<ovs-firewall-internal>>:
 
 root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 
@@ -308,11 +347,13 @@ The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack infor
 
 == Pending Items
 
-. Can we rely on a gateway node to check for security group rules? Is it a bad idea due to security concern and waste of bandwidth (unneeded traffic send out from compute host to gateway which can be dropped at the compute host)?
+. Can we rely on a centralized gateway service to check for security group rules?
+Is it a bad idea due to security concern and waste of bandwidth as all kinds of traffic, some of which can be dropped previously at the compute hosts, will be sent out from compute hosts to gateway)?
 
-. Can we only download the needed security group rule from Alcor controller into compute host when it is needed? What is the latency requirement if we this "on-demand"?
+. Can we only download the needed security group rule from Alcor Controller into compute hosts when it is needed?
+What is the latency requirement if we enable "on-demand" programming?
 
-. What happen if host crashed, do we ask the Alcor controller for the whole set of configuration upon restart?
+. What happen if a host is crashed, do we ask the Alcor Controller for the whole set of configuration upon restart?
 
 
 [bibliography]
