@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AfterProcessor(PortProcessor.class)
 public class VpcProcessor extends AbstractProcessor {
     private void fetchVpcListCallback(IRestRequest request) {
         List<VpcEntity> vpcEntities = ((FetchVpcRequest) request).getVpcEntities();

@@ -1,4 +1,4 @@
-# Dockerfile for VPC Manager
+# Dockerfile for Quota Manager
 
 FROM jboss/base-jdk:11
 
@@ -11,7 +11,7 @@ MAINTAINER Zhonghao Lyu <zlyu@futurewei.com>
 #ENV SWAGGER_JSON "/app/swagger.json"
 #ENV PORT 801
 
-EXPOSE 8080
+EXPOSE 9012
 
 # Generate container image and run container
 #COPY ./target/swagger/swagger.json /app/swagger.json

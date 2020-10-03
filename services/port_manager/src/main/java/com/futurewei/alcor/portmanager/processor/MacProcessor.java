@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+@AfterProcessor(PortProcessor.class)
 public class MacProcessor extends AbstractProcessor {
     void allocateRandomMacAddressCallback(IRestRequest request) throws AllocateMacAddrException {
         List<MacState> macStates = ((AllocateMacAddressRequest) request).getResult();

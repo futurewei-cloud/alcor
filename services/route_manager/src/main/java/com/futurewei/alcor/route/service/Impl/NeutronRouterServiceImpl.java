@@ -62,8 +62,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (router == null) {
             throw new CanNotFindRouter();
         }
-
-        RouterExtraAttribute routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+        RouterExtraAttribute routerExtraAttribute = null;
+        if (router.getRouterExtraAttributeId() != null) {
+            routerExtraAttribute = this.routerExtraAttributeDatabaseService.getByRouterExtraAttributeId(router.getRouterExtraAttributeId());
+        }
 
         BeanUtils.copyProperties(router, neutronRouterWebRequestObject);
         RouteTable routeTable = router.getNeutronRouteTable();
@@ -98,7 +100,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             String routeTableId = UUID.randomUUID().toString();
             routeTable.setId(routeTableId);
             routeTable.setRouteEntities(routeEntities);
-            routeTable.setRouteTableType(RouteTableType.NEUTRON);
+            routeTable.setRouteTableType(RouteTableType.NEUTRON_ROUTER.getRouteTableType());
         }
         router.setNeutronRouteTable(routeTable);
         router.setRouterExtraAttributeId(attachedRouterExtraAttributeId);
@@ -444,11 +446,11 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (routeTable == null) {
             return null;
         }
-        RouteTableType routeTableType = routeTable.getRouteTableType();
+        String routeTableType = routeTable.getRouteTableType();
 
         if (routeTableType == null) {
             return null;
-        } else if(routeTableType.getRouteTableType().equals("neutron")){
+        } else if(routeTableType.equals("neutron")){
             List<String> ports = router.getPorts();
             // check ports
             if (ports == null || ports.size() <= 1) {

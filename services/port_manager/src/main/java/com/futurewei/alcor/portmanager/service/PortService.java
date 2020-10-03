@@ -17,10 +17,8 @@ package com.futurewei.alcor.portmanager.service;
 
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -42,4 +40,6 @@ public interface PortService {
     List<PortWebJson> listPort(String projectId) throws Exception;
 
     List<PortWebJson> listPort(String projectId, Map<String, Object[]> queryParams) throws Exception;
+
+    RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception;
 }
