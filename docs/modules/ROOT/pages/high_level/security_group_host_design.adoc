@@ -243,7 +243,7 @@ we will move that to table 73 (ACCEPT_OR_INGRESS) since those connection is alre
 
 == Sample Openflow rule for Security Group
 
-Below is the full set of OpenFlow rules on br-int when a VM is added in a Microstack setup for reference<<ovs-firewall-internal>>:
+Below is the full set of OpenFlow rules on br-int when a VM is added in a Microstack setup for reference, quoted text are copied from openstack documentation for better explanation <<ovs-firewall-internal>>:
 
 root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 
