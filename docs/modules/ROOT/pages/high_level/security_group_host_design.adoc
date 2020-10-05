@@ -235,6 +235,11 @@ This is similar to L3 on-demand routing algorithm.
 
 In order to support remote SG rules, our neighbor configuration will be updated to include the associated SG_ids for the neighbor port.
 
+=== Integration with Alcor Distributed Router
+
+Alcor Distribute Router was using table 0 to restart gateway mac address from the neighbor host DVR mac. 
+With addition of security group implementation, 
+we will move that to table 73 (ACCEPT_OR_INGRESS) since those connection is already accepted for ingress pipeline.
 
 == Sample Openflow rule for Security Group
 
@@ -243,7 +248,10 @@ Below is the full set of OpenFlow rules on br-int when a VM is added in a Micros
 root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
 
 === table 0 (LOCAL_SWITCHING) ===
-"contains a low priority rule to continue packets processing in table 60 (TRANSIENT) aka TRANSIENT table. table 0 (LOCAL_SWITCHING) is left for use to other features that take precedence over firewall, e.g. DVR. The only requirement is that after such a feature is done with its processing, it needs to pass packets for processing to the TRANSIENT table."
+"contains a low priority rule to continue packets processing in table 60 (TRANSIENT) aka TRANSIENT table. 
+table 0 (LOCAL_SWITCHING) is left for use to other features that take precedence over firewall, 
+e.g. DVR. The only requirement is that after such a feature is done with its processing, 
+it needs to pass packets for processing to the TRANSIENT table."
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=0, n_packets=0, n_bytes=0, priority=65535,vlan_tci=0x0fff/0x1fff actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.231s, table=0, n_packets=39, n_bytes=3432, priority=2,in_port="int-br-ex" actions=drop
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=0, n_packets=185, n_bytes=18157, priority=0 actions=resubmit(,60)
@@ -253,15 +261,27 @@ root@fw0009097:~# microstack.ovs-ofctl dump-flows br-int
  cookie=0x18b5fbabf7b6e3f3, duration=22961.497s, table=24, n_packets=0, n_bytes=0, priority=0 actions=drop
 
 === table 60 - (TRANSIENT) ===
-"This TRANSIENT table distinguishes the ingress traffic from the egress traffic and loads into register 5 a value identifying the port (for egress traffic based on the switch port number, and for ingress traffic based on the network id and destination MAC address); register 6 contains a value identifying the network (which is also the OVSDB port tag) to isolate connections into separate conntrack zones. For VLAN networks, the physical VLAN tag will be used to act as an extra match rule to do such identifying work as well."
+"This TRANSIENT table distinguishes the ingress traffic from the egress traffic and loads into register 5 
+a value identifying the port (for egress traffic based on the switch port number, and for ingress traffic 
+based on the network id and destination MAC address); register 6 contains a value identifying the network 
+(which is also the OVSDB port tag) to isolate connections into separate conntrack zones. For VLAN networks, 
+the physical VLAN tag will be used to act as an extra match rule to do such identifying work as well."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=114, n_bytes=10202, priority=100,in_port="tap0308ac0c-28" actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],resubmit(,71)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.933s, table=60, n_packets=70, n_bytes=7913, priority=90,dl_vlan=1,dl_dst=fa:16:3e:38:c6:87 actions=load:0x3->NXM_NX_REG5[],load:0x1->NXM_NX_REG6[],strip_vlan,resubmit(,81)
  cookie=0x18b5fbabf7b6e3f3, duration=22961.499s, table=60, n_packets=1, n_bytes=42, priority=3 actions=NORMAL
 
 === table 71 (BASE_EGRESS) ===
-"table 71 (BASE_EGRESS) implements ARP spoofing protection, IP spoofing protection, allows traffic related to IP address allocations (dhcp, dhcpv6, slaac, ndp) for egress traffic, and allows ARP replies. Also identifies not tracked connections which are processed later with information obtained from conntrack. Notice the zone=NXM_NX_REG6[0..15] in actions when obtaining information from conntrack. It says every port has its own conntrack zone defined by the value in register 6 (OVSDB port tag identifying the network). It’s there to avoid accepting established traffic that belongs to different port with same conntrack parameters.
+"table 71 (BASE_EGRESS) implements ARP spoofing protection, IP spoofing protection, allows traffic related 
+to IP address allocations (dhcp, dhcpv6, slaac, ndp) for egress traffic, and allows ARP replies. 
+Also identifies not tracked connections which are processed later with information obtained from conntrack. 
+Notice the zone=NXM_NX_REG6[0..15] in actions when obtaining information from conntrack. It says every port has
+ its own conntrack zone defined by the value in register 6 (OVSDB port tag identifying the network). 
+ It’s there to avoid accepting established traffic that belongs to different port with same conntrack parameters.
 
-The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack information for a use-case where Neutron logical port is placed directly to the hypervisor. In such case kernel does conntrack lookup before packet reaches Open vSwitch bridge. Tracked packets are sent back for processing by the same table after conntrack information is cleared."
+The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack information for a use-case where 
+Neutron logical port is placed directly to the hypervisor. In such case kernel does conntrack lookup before 
+packet reaches Open vSwitch bridge. Tracked packets are sent back for processing by the same table after 
+conntrack information is cleared."
  cookie=0x18b5fbabf7b6e3f3, duration=22960.796s, table=71, n_packets=0, n_bytes=0, priority=110,ct_state=+trk actions=ct_clear,resubmit(,71)
 
 "Rules below allow ICMPv6 traffic for multicast listeners, neighbour solicitation and neighbour advertisement."
@@ -287,26 +307,48 @@ The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack infor
  cookie=0x18b5fbabf7b6e3f3, duration=22960.848s, table=71, n_packets=0, n_bytes=0, priority=0 actions=drop
 
 === table 72 (RULES_EGRESS) ===
-"table 72 (RULES_EGRESS) accepts only established or related connections, and implements rules defined by security groups. As this egress connection might also be an ingress connection for some other port, it’s not switched yet but eventually processed by the ingress pipeline."
+"table 72 (RULES_EGRESS) accepts only established or related connections, and implements rules defined by 
+security groups. As this egress connection might also be an ingress connection for some other port, 
+it’s not switched yet but eventually processed by the ingress pipeline."
+Following rules allows all egress IPv4 and IPv6 traffic, as port of default security group rule.
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=74,ct_state=+est-rel-rpl,ipv6,reg5=0x3 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=80, n_bytes=7120, priority=74,ct_state=+est-rel-rpl,ip,reg5=0x3 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=74,ct_state=+new-est,ipv6,reg5=0x3 actions=resubmit(,73)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=21, n_bytes=1622, priority=74,ct_state=+new-est,ip,reg5=0x3 actions=resubmit(,73)
+
+invalid (+inv) packets sends to table 93 (DROPPED_TRAFFIC) to drop
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=2, n_bytes=180, priority=50,ct_state=+inv+trk actions=resubmit(,93)
+
+"Important on the flows below is the ct_mark=0x1. Flows that were marked as not existing anymore by rule 
+introduced later will value this value. Those are typically connections that were allowed by some security 
+group rule and the rule was removed."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=50,ct_mark=0x1,reg5=0x3 actions=resubmit(,93)
+
+"All other connections that are not marked and are established or related are allowed."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=50,ct_state=+est-rel+rpl,ct_zone=1,ct_mark=0,reg5=0x3 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=50,ct_state=-new-est+rel-inv,ct_zone=1,ct_mark=0,reg5=0x3 actions=resubmit(,94)
+
+"In the following, flows are marked established connections that weren’t matched in the previous flows, 
+which means they don’t have accepting security group rule anymore."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=40,ct_state=-est,reg5=0x3 actions=resubmit(,93)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ip,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=72, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ipv6,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=22960.837s, table=72, n_packets=0, n_bytes=0, priority=0 actions=drop
 
-
+=== table 73 (ACCEPT_OR_INGRESS) ===
+"In following table 73 (ACCEPT_OR_INGRESS) are all detected ingress connections sent to ingress pipeline. 
+Since the connection was already accepted by egress pipeline, all remaining egress connections are sent to 
+normal flood’n’learn switching in table 94 (ACCEPTED_EGRESS_TRAFFIC_NORMAL)."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=0, n_bytes=0, priority=100,reg6=0x1,dl_dst=fa:16:3e:38:c6:87 actions=load:0x3->NXM_NX_REG5[],resubmit(,81)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=21, n_bytes=1622, priority=90,ct_state=+new-est,ip,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15]),resubmit(,91)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=0, n_bytes=0, priority=90,ct_state=+new-est,ipv6,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15]),resubmit(,91)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=73, n_packets=82, n_bytes=7806, priority=80,reg5=0x3 actions=resubmit(,94)
  cookie=0x18b5fbabf7b6e3f3, duration=22960.828s, table=73, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+=== table 81 (BASE_INGRESS) ===
+"table 81 (BASE_INGRESS) is similar to table 71 (BASE_EGRESS), allows basic ingress traffic for obtaining 
+IP address and ARP queries. Note that vlan tag must be removed by adding strip_vlan to actions list, prior 
+to injecting packet directly to port. Not tracked packets are sent to obtain conntrack information."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=81, n_packets=3, n_bytes=126, priority=100,arp,reg5=0x3 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=81, n_packets=0, n_bytes=0, priority=100,icmp6,reg5=0x3,icmp_type=130 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=81, n_packets=0, n_bytes=0, priority=100,icmp6,reg5=0x3,icmp_type=135 actions=output:"tap0308ac0c-28"
@@ -317,31 +359,69 @@ The very first rule in table 71 (BASE_EGRESS) is a rule removing conntrack infor
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=81, n_packets=0, n_bytes=0, priority=90,ct_state=-trk,ipv6,reg5=0x3 actions=ct(table=82,zone=NXM_NX_REG6[0..15])
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=81, n_packets=0, n_bytes=0, priority=80,ct_state=+trk,reg5=0x3 actions=resubmit(,82)
  cookie=0x18b5fbabf7b6e3f3, duration=22960.818s, table=81, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+=== table 82 (RULES_INGRESS) ===
+"Similarly to table 72 (RULES_EGRESS), table 82 (RULES_INGRESS) accepts established and related connections. 
+In this case we allow all traffic coming from default security group. The first four flows match on the IP 
+addresses, and the next two flows match on the ICMP protocol. These six flows define conjunction flows, 
+and the next two define actions for them."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=77,ct_state=+est-rel-rpl,tcp,reg5=0x3,tp_dst=22 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=77,ct_state=+new-est,tcp,reg5=0x3,tp_dst=22 actions=ct(commit,zone=NXM_NX_REG6[0..15]),output:"tap0308ac0c-28",resubmit(,92)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=75,ct_state=+est-rel-rpl,icmp,reg5=0x3 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=75,ct_state=+new-est,icmp,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15]),output:"tap0308ac0c-28",resubmit(,92)
+
+conjunction rules in action:
+ cookie=0x18b5fbabf7b6e3f3, duration=1158.885s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+est-rel-rpl,ip,reg6=0x1,nw_src=192.168.222.248 actions=conjunction(8,1/2)
+ cookie=0x18b5fbabf7b6e3f3, duration=1158.885s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+new-est,ip,reg6=0x1,nw_src=192.168.222.248 actions=conjunction(9,1/2)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+est-rel-rpl,ip,reg5=0x3 actions=conjunction(8,2/2)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+est-rel-rpl,ipv6,reg5=0x3 actions=conjunction(16,2/2)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+new-est,ip,reg5=0x3 actions=conjunction(9,2/2)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+new-est,ipv6,reg5=0x3 actions=conjunction(17,2/2)
+
+"The remaining is a L4 protocol agnostic rule."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,conj_id=8,ct_state=+est-rel-rpl,ip,reg5=0x3 actions=load:0x8->NXM_NX_REG7[],output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,conj_id=16,ct_state=+est-rel-rpl,ipv6,reg5=0x3 actions=load:0x10->NXM_NX_REG7[],output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,conj_id=9,ct_state=+new-est,ip,reg5=0x3 actions=load:0x9->NXM_NX_REG7[],ct(commit,zone=NXM_NX_REG6[0..15]),output:"tap0308ac0c-28",resubmit(,92)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=70,conj_id=17,ct_state=+new-est,ipv6,reg5=0x3 actions=load:0x11->NXM_NX_REG7[],ct(commit,zone=NXM_NX_REG6[0..15]),output:"tap0308ac0c-28",resubmit(,92)
- cookie=0x18b5fbabf7b6e3f3, duration=1158.885s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+est-rel-rpl,ip,reg6=0x1,nw_src=192.168.222.248 actions=conjunction(8,1/2)
- cookie=0x18b5fbabf7b6e3f3, duration=1158.885s, table=82, n_packets=0, n_bytes=0, priority=70,ct_state=+new-est,ip,reg6=0x1,nw_src=192.168.222.248 actions=conjunction(9,1/2)
+
+invalid (+inv) packets or ct_mark=0x1 (removed rules) sends to table 93 (DROPPED_TRAFFIC) to drop
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=50,ct_state=+inv+trk actions=resubmit(,93)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=50,ct_mark=0x1,reg5=0x3 actions=resubmit(,93)
+
+"The mechanism for dropping connections that are not allowed anymore is the same as in table 72 (RULES_EGRESS)."
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=65, n_bytes=7025, priority=50,ct_state=+est-rel+rpl,ct_zone=1,ct_mark=0,reg5=0x3 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=50,ct_state=-new-est+rel-inv,ct_zone=1,ct_mark=0,reg5=0x3 actions=output:"tap0308ac0c-28"
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=40,ct_state=-est,reg5=0x3 actions=resubmit(,93)
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ip,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=1156.934s, table=82, n_packets=0, n_bytes=0, priority=40,ct_state=+est,ipv6,reg5=0x3 actions=ct(commit,zone=NXM_NX_REG6[0..15],exec(load:0x1->NXM_NX_CT_MARK[]))
  cookie=0x18b5fbabf7b6e3f3, duration=22960.808s, table=82, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+=== table 91 (ACCEPTED_EGRESS_TRAFFIC) ===
+"Packets are sent to table 91 (ACCEPTED_EGRESS_TRAFFIC) and table 94 (ACCEPTED_EGRESS_TRAFFIC_NORMAL) when 
+they are considered accepted by the egress pipeline, and they will be processed so that they are forwarded 
+to their destination by being submitted to a NORMAL action, that results in Ethernet flood/learn processing.
+
+Two tables are used to differentiate between the first packets of a connection and the following packets. 
+This was introduced for performance reasons to allow the logging extension to only log the first packets 
+of a connection. Only the first accepted packet of each connection session will go to table 91 (ACCEPTED_EGRESS_TRAFFIC) 
+and the following ones will go to table 94 (ACCEPTED_EGRESS_TRAFFIC_NORMAL).
+
+Note that table 91 (ACCEPTED_EGRESS_TRAFFIC) merely resubmits to table 94 (ACCEPTED_EGRESS_TRAFFIC_NORMAL) 
+that contains the actual NORMAL action; this allows to have a single place where the NORMAL action can be 
+overridden by other components (currently used by networking-bagpipe driver for networking-bgpvpn)."
  cookie=0x18b5fbabf7b6e3f3, duration=22960.776s, table=91, n_packets=21, n_bytes=1622, priority=1 actions=resubmit(,94)
+
+=== table 92 (ACCEPTED_INGRESS_TRAFFIC) ===
+"The first packet of each connection accepted by the ingress pipeline is sent to table 92 (ACCEPTED_INGRESS_TRAFFIC). 
+The default action in this table is DROP because at this point the packets have already been delivered to their 
+destination port. This integration point is essentially provided for the logging extension."
  cookie=0x18b5fbabf7b6e3f3, duration=22960.766s, table=92, n_packets=0, n_bytes=0, priority=0 actions=drop
+
+=== table 93 (DROPPED_TRAFFIC) ===
+"Packets are sent to table 93 (DROPPED_TRAFFIC) if processing by the ingress filtering concluded that they should be dropped."
  cookie=0x18b5fbabf7b6e3f3, duration=22960.756s, table=93, n_packets=4, n_bytes=360, priority=0 actions=drop
+
+=== table 94 (ACCEPTED_EGRESS_TRAFFIC_NORMAL)  ===
  cookie=0x18b5fbabf7b6e3f3, duration=22960.785s, table=94, n_packets=110, n_bytes=9842, priority=1 actions=NORMAL
 
 
