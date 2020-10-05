@@ -15,6 +15,7 @@ package com.futurewei.alcor.web.entity.dataplane;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
+import com.futurewei.alcor.web.entity.route.RouteTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
@@ -45,6 +46,9 @@ public class NetworkConfiguration {
 
   @JsonProperty("neighbor_table")
   private List<NeighborEntry> neighborTable;
+
+  @JsonProperty("routerinfo")
+  private List<RouteTable> routerTable;
 
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
