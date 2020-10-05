@@ -2,6 +2,7 @@ package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -21,6 +22,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     RouteRepository routeRepository;
 
     @Override
+    @DurationStatistics
     public RouteEntity getByRouteId(String routeId) {
         try {
             return this.routeRepository.findItem(routeId);
@@ -30,11 +32,13 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map getAllRoutes() throws CacheException {
         return this.routeRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addRoute(RouteEntity routeEntity) throws DatabasePersistenceException {
         try {
             this.routeRepository.addItem(routeEntity);
@@ -44,6 +48,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteRoute(String id) throws Exception {
         this.routeRepository.deleteItem(id);
     }

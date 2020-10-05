@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacRangePartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class MacRangePartitionRepository implements ICacheRepository<MacRangePartition> {
 
     private final ICache<String, MacRangePartition> cache;
@@ -41,26 +41,31 @@ public class MacRangePartitionRepository implements ICacheRepository<MacRangePar
     }
 
     @Override
+    @DurationStatistics
     public MacRangePartition findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, MacRangePartition> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, MacRangePartition> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(MacRangePartition macRangePartition) throws CacheException {
         cache.put(macRangePartition.getId(), macRangePartition);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         cache.remove(id);
     }

@@ -5,6 +5,8 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
@@ -24,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,6 +49,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
 
     @Override
+    @DurationStatistics
     public NetworkGRERange findItem(String id) {
         try {
             return cache.get(id);
@@ -59,6 +61,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
     }
 
     @Override
+    @DurationStatistics
     public Map<String, NetworkGRERange> findAllItems() {
         try {
             return cache.getAll();
@@ -71,11 +74,13 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
     }
 
     @Override
+    @DurationStatistics
     public Map<String, NetworkGRERange> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(NetworkGRERange networkGRERange) {
         logger.error("Add networkGreRange:{}", networkGRERange);
 
@@ -88,6 +93,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) {
         logger.error("Delete rangeId:{}", id);
 
@@ -105,6 +111,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @return range key in db
      * @throws Exception Db operation or key assignment exception
      */
+    @DurationStatistics
     public synchronized Long allocateGreKey (String rangeId) throws Exception {
         Long key;
 
@@ -115,7 +122,9 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
             }
 
             key = networkGRERange.allocateKey();
-            cache.put(networkGRERange.getId(), networkGRERange);
+            if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+                cache.put(networkGRERange.getId(), networkGRERange);
+            }
 
             tx.commit();
         }
@@ -129,6 +138,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @param key
      * @throws Exception Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized void releaseGreKey(String rangId, Long key) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkGRERange networkGRERange = cache.get(rangId);
@@ -136,13 +146,14 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
                 throw new RangeNotFoundException();
             }
 
-            networkGRERange.release(key);
+            networkGRERange.tryToRelease(key);
             cache.put(networkGRERange.getId(), networkGRERange);
 
             tx.commit();
         }
     }
 
+    @DurationStatistics
     public synchronized KeyAlloc getGreKeyAlloc(String rangeId, Long key) throws Exception {
         NetworkGRERange networkGRERange = cache.get(rangeId);
         if (networkGRERange == null) {
@@ -158,7 +169,8 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @throws Exception Network Range Already Exist Exception
      * @throws Exception Internal Db Operation Exception
      */
-    public synchronized void createRange(NetworkRangeRequest request) throws Exception {
+    @DurationStatistics
+    public synchronized String createRange(NetworkRangeRequest request) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             if (cache.get(request.getId()) != null) {
                 logger.warn("Create network range failed: Network Range already exists");
@@ -181,7 +193,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
             tx.commit();
         }
-
+        return String.valueOf(request.getPartition());
     }
 
     /**
@@ -190,6 +202,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @return gre range
      * @throws Exception Network Range Not Found Exception
      */
+    @DurationStatistics
     public synchronized NetworkGRERange deleteRange(String rangeId) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             NetworkGRERange networkGRERange = cache.get(rangeId);
@@ -212,6 +225,7 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
      * @return gre range
      * @throws Exception
      */
+    @DurationStatistics
     public synchronized NetworkGRERange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
     }

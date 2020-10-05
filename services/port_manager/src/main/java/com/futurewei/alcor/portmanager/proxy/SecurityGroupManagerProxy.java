@@ -18,12 +18,17 @@ package com.futurewei.alcor.portmanager.proxy;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetSecurityGroupException;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.restclient.SecurityGroupManagerRestClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SecurityGroupManagerProxy {
+
     private SecurityGroupManagerRestClient securityGroupManagerRestClient;
     private String projectId;
 
@@ -52,23 +57,24 @@ public class SecurityGroupManagerProxy {
         return securityGroupJson.getSecurityGroup();
     }
 
-    public PortSecurityGroupsJson bindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity) args;
+    private PortBindingSecurityGroupsJson buildPortBindingSecurityGroupsJson(PortEntity portEntity) {
+        PortBindingSecurityGroupsJson portBindingSecurityGroupsJson = new PortBindingSecurityGroupsJson();
+        List<PortBindingSecurityGroup> portBindingSecurityGroups = new ArrayList<>();
+        for (String securityGroupId: portEntity.getSecurityGroups()) {
+            portBindingSecurityGroups.add(new PortBindingSecurityGroup(portEntity.getId(), securityGroupId));
+        }
 
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(portEntity.getId());
-        portSecurityGroupsJson.setSecurityGroups(portEntity.getSecurityGroups());
-
-        return securityGroupManagerRestClient.bindSecurityGroups(projectId, portSecurityGroupsJson);
+        portBindingSecurityGroupsJson.setPortBindingSecurityGroups(portBindingSecurityGroups);
+        return portBindingSecurityGroupsJson;
     }
 
-    public PortSecurityGroupsJson unbindSecurityGroup(Object args) throws Exception {
-        PortEntity portEntity = (PortEntity) args;
+    public PortBindingSecurityGroupsJson bindSecurityGroup(Object args) throws Exception {
+        return securityGroupManagerRestClient.bindSecurityGroup(projectId,
+                buildPortBindingSecurityGroupsJson((PortEntity) args));
+    }
 
-        PortSecurityGroupsJson portSecurityGroupsJson = new PortSecurityGroupsJson();
-        portSecurityGroupsJson.setPortId(portEntity.getId());
-        portSecurityGroupsJson.setSecurityGroups(portEntity.getSecurityGroups());
-
-        return securityGroupManagerRestClient.bindSecurityGroups(projectId, portSecurityGroupsJson);
+    public PortBindingSecurityGroupsJson unbindSecurityGroup(Object args) throws Exception {
+        return securityGroupManagerRestClient.unbindSecurityGroup(projectId,
+                buildPortBindingSecurityGroupsJson((PortEntity) args));
     }
 }

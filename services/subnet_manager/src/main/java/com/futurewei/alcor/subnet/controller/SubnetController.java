@@ -19,9 +19,11 @@ package com.futurewei.alcor.subnet.controller;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -36,11 +38,13 @@ import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
@@ -52,9 +56,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SubnetController {
 
     @Autowired
@@ -68,24 +74,42 @@ public class SubnetController {
     @Autowired
     private SubnetService subnetService;
 
+    @RequestMapping(
+            method = GET,
+            value = {"/subnets/{rangeId}"})
+    @DurationStatistics
+    public Integer getUsedIPByRangeId(@PathVariable String rangeId) throws Exception {
+
+        Integer usedIps = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(rangeId);
+
+            usedIps = this.subnetService.getUsedIpByRangeId(rangeId);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new RangeIdIsNullOrEmpty("RangeId is null or empty" + rangeId);
+        } catch (UsedIpsIsNotCorrect e) {
+            throw e;
+        }
+
+        return usedIps;
+    }
+
+    @Rbac(resource ="subnet")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
-            value = {"/project/{projectId}/subnets/{subnetId}"})
-    public SubnetWebJson getSubnetStateById(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
-
+            value = {"/subnets/{subnetId}"})
+    @DurationStatistics
+    public SubnetWebJson getSubnetStateById(@PathVariable String subnetId) throws Exception {
         SubnetEntity subnetEntity = null;
 
         try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
-            RestPreconditionsUtil.verifyResourceFound(projectId);
 
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
         } catch (ParameterNullOrEmptyException e) {
-            //TODO: REST error code
-            logger.error(e.getMessage());
-            throw new Exception(e);
+            throw new SubnetIdIsNullOrEmpty();
         }
 
         if (subnetEntity == null) {
@@ -97,18 +121,49 @@ public class SubnetController {
     }
 
     @RequestMapping(
+            method = GET,
+            value = {"/project/{projectId}/subnets/{subnetId}"})
+    @DurationStatistics
+    public SubnetWebJson getSubnetStateByProjectIdAndId(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
+
+        SubnetEntity subnetEntity = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+            RestPreconditionsUtil.verifyResourceFound(projectId);
+
+            subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
+        } catch (ParameterNullOrEmptyException e) {
+            //TODO: REST error code
+            throw new ParameterNullOrEmptyException(e.getMessage());
+        }
+
+        if (subnetEntity == null) {
+            //TODO: REST error code
+            return new SubnetWebJson();
+        }
+
+        return new SubnetWebJson(subnetEntity);
+    }
+
+    @Rbac(resource ="subnet")
+    @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets/bulk"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SubnetsWebJson createSubnetStateBulk(@PathVariable String projectId, @RequestBody SubnetWebJson resource) throws Exception {
         return new SubnetsWebJson();
     }
 
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectId}/subnets"})
     @ResponseStatus(HttpStatus.CREATED)
-    public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetRequestWebJson resource) throws Exception {
+    @DurationStatistics
+    public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebRequestJson resource) throws Exception {
         long start = System.currentTimeMillis();
         SubnetEntity inSubnetEntity = new SubnetEntity();
         RouteWebJson routeResponse = null;
@@ -132,9 +187,15 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
+            // Short-term fix: set gateway_ip = "" if its value is null
+            String gateway_Ip = resource.getSubnet().getGatewayIp();
+            if (gateway_Ip == null) {
+                resource.getSubnet().setGatewayIp("");
+            }
+
             // TODO: Create a verification framework for all resources
-            SubnetWebRequestObject subnetWebRequestObject = resource.getSubnet();
-            BeanUtils.copyProperties(subnetWebRequestObject, inSubnetEntity);
+            SubnetWebRequest subnetWebRequest = resource.getSubnet();
+            BeanUtils.copyProperties(subnetWebRequest, inSubnetEntity);
 
             String subnetId = inSubnetEntity.getId();
             String vpcId = inSubnetEntity.getVpcId();
@@ -148,6 +209,9 @@ public class SubnetController {
 
             RestPreconditionsUtil.verifyResourceFound(vpcId);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetEntity, projectId);
+
+            // check if cidr overlap
+            this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
             //Allocate Gateway Mac
             CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
@@ -226,10 +290,12 @@ public class SubnetController {
             }
             if (gatewayIpIsInAllocatedRange) {
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
+                inSubnetEntity.setGatewayPortId(portId);
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
                     inSubnetEntity.setGatewayIp(gatewayIP);
+                    inSubnetEntity.setGatewayPortId(portId);
                 }
             }
             if (ipResponse != null && ipResponse.getIpVersion() == 4) {
@@ -305,10 +371,12 @@ public class SubnetController {
         }
     }
 
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectId}/subnets/{subnetId}"})
-    public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetRequestWebJson resource) throws Exception {
+    @DurationStatistics
+    public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebRequestJson resource) throws Exception {
 
         SubnetEntity subnetEntity = null;
 
@@ -320,7 +388,8 @@ public class SubnetController {
             Preconditions.checkNotNull(resource, "resource can not be null");
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
-            SubnetWebRequestObject inSubnetWebResponseObject = resource.getSubnet();
+
+            SubnetWebRequest inSubnetWebResponseObject = resource.getSubnet();
             Preconditions.checkNotNull(inSubnetWebResponseObject, "Empty resource");
 //            RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetWebResponseObject, projectId);
@@ -333,6 +402,10 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
             BeanUtils.copyProperties(inSubnetWebResponseObject, subnetEntity,
                     CommonUtil.getBeanNullPropertyNames(inSubnetWebResponseObject));
+            String gatewayIp = inSubnetWebResponseObject.getGatewayIp();
+            if (gatewayIp == null) {
+                subnetEntity.setGatewayIp(gatewayIp);
+            }
             Integer revisionNumber = subnetEntity.getRevisionNumber();
             if (revisionNumber == null || revisionNumber < 1) {
                 subnetEntity.setRevisionNumber(1);
@@ -358,9 +431,11 @@ public class SubnetController {
         return new SubnetWebJson(subnetEntity);
     }
 
+    @Rbac(resource ="subnet")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectId}/subnets/{subnetId}"})
+    @DurationStatistics
     public ResponseId deleteSubnetState(@PathVariable String projectId, @PathVariable String subnetId) throws Exception {
 
         SubnetEntity subnetEntity = null;
@@ -374,14 +449,12 @@ public class SubnetController {
                 return new ResponseId();
             }
 
-            RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
+            //RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
 
-            this.subnetDatabaseService.deleteSubnet(subnetId);
+            // delete subnet id in vpc
+            this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
         } catch (ParameterNullOrEmptyException e) {
-            logger.error(e.getMessage());
-            throw new Exception(e);
-        } catch (ParameterUnexpectedValueException e) {
             logger.error(e.getMessage());
             throw new Exception(e);
         }
@@ -389,15 +462,18 @@ public class SubnetController {
         return new ResponseId(subnetId);
     }
 
+    @Rbac(resource ="subnet")
     @FieldFilter(type=SubnetEntity.class)
     @RequestMapping(
             method = GET,
-            value = "/project/{projectId}/subnets")
+            value = {"/project/{projectId}/subnets", "/subnets"})
+    @DurationStatistics
     public SubnetsWebJson getSubnetStatesByProjectIdAndVpcId(@PathVariable String projectId) throws Exception {
 
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap():requestParams;
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), SubnetEntity.class);
-        queryParams.put("projectId", new String[]{projectId});
+                ControllerUtil.transformUrlPathParams(requestParams, SubnetEntity.class);
 
         Map<String, SubnetEntity> subnetStates = null;
 

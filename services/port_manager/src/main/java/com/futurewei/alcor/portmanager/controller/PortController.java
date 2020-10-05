@@ -20,7 +20,9 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
+import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
+import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkRouterSubnetUpdateInfo;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -58,6 +62,7 @@ public class PortController {
      * @return PortWebJson
      * @throws Exception Various exceptions that may occur during the create process
      */
+    @Rbac(resource ="port")
     @PostMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -112,6 +117,7 @@ public class PortController {
      * @return The new configuration of port
      * @throws Exception Various exceptions that may occur during the update process
      */
+    @Rbac(resource ="port")
     @PutMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
     @DurationStatistics
     public PortWebJson updatePort(@PathVariable("project_id") String projectId,
@@ -151,6 +157,7 @@ public class PortController {
      * @param portId Id of port
      * @throws Exception Various exceptions that may occur during the delete process
      */
+    @Rbac(resource ="port")
     @DeleteMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
     @DurationStatistics
     public void deletePort(@PathVariable("project_id") String projectId,
@@ -165,6 +172,7 @@ public class PortController {
      * @return PortWebJson
      * @throws Exception Db operation exception
      */
+    @Rbac(resource ="port")
     @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports/{port_id}", "v4/{project_id}/ports/{port_id}"})
     @DurationStatistics
@@ -179,18 +187,38 @@ public class PortController {
      * @return A list of port information
      * @throws Exception Db operation exception
      */
+    @Rbac(resource ="port")
     @FieldFilter(type=PortEntity.class)
     @GetMapping({"/project/{project_id}/ports", "v4/{project_id}/ports"})
     @DurationStatistics
     public PortWebBulkJson listPort(@PathVariable("project_id") String projectId) throws Exception {
+
+        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap():requestParams;
         Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(request.getParameterMap(), PortEntity.class);
-        queryParams.put("projectId", new String[]{projectId});
+                ControllerUtil.transformUrlPathParams(requestParams, PortEntity.class);
+
         List<PortWebJson> portWebJsonList = portService.listPort(projectId, queryParams);
         List<PortEntity> portsList = portWebJsonList.stream()
                 .map(PortWebJson::getPortEntity)
                 .collect(Collectors.toList());
 
         return new PortWebBulkJson(portsList);
+    }
+
+    /**
+     * Update neighbor tables and send them to DPM when adding or deleting gateway port
+     * @param projectId Project Id
+     * @param routerUpdateInfo Router's latest subnet information
+     * @return RouterSubnetUpdateInfo
+     * @throws Exception Db operation exception
+     */
+    @Rbac(resource ="port")
+    @PutMapping({"/project/{project_id}/update-l3-neighbors", "v4/{project_id}/update-l3-neighbors"})
+    @DurationStatistics
+    public RouterUpdateInfo updateL3Neighbors(@PathVariable("project_id") String projectId,
+                                              @RequestBody RouterUpdateInfo routerUpdateInfo) throws Exception {
+        checkRouterSubnetUpdateInfo(routerUpdateInfo);
+        return portService.updateL3Neighbors(projectId, routerUpdateInfo);
     }
 }

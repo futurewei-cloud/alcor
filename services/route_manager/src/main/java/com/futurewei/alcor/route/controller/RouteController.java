@@ -18,14 +18,13 @@ package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -33,15 +32,18 @@ import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class RouteController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -58,6 +60,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"routes/vpcs/{vpcId}/get"})
+    @DurationStatistics
     public RoutesWebJson getRulesByVpcId(@PathVariable String vpcId) throws Exception {
 
         List<RouteEntity> routes = null;
@@ -82,6 +85,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"routes/subnets/{subnetId}/get"})
+    @DurationStatistics
     public RoutesWebJson getRulesBySubnetId(@PathVariable String subnetId) throws Exception {
 
         List<RouteEntity> routes = null;
@@ -107,6 +111,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"/routes/{routeId}"})
+    @DurationStatistics
     public RouteWebJson getRuleByRouteId(@PathVariable String routeId) throws Exception {
 
         RouteEntity routeEntity = null;
@@ -133,6 +138,7 @@ public class RouteController {
             method = POST,
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public RouteWebJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -163,6 +169,7 @@ public class RouteController {
             method = POST,
             value = {"/subnets/{subnetId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public RouteWebJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -193,6 +200,7 @@ public class RouteController {
     @RequestMapping(
             method = DELETE,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
+    @DurationStatistics
     public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -219,6 +227,7 @@ public class RouteController {
     @RequestMapping(
             method = DELETE,
             value = {"/subnets/{subnetId}/routes/{routeId}"})
+    @DurationStatistics
     public ResponseId deleteRuleWithSubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -242,4 +251,5 @@ public class RouteController {
         return new ResponseId(routeId);
         
     }
+
 }

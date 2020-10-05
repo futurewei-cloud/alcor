@@ -23,15 +23,19 @@ option java_outer_classname = "Vpc";
 
 import "common.proto";
 
-message VpcConfiguration {
+// Not used based on the current design including router E2E
+// To be removed once we complete the design for all major features
+message VpcConfiguration {  
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string id = 3;
-    string project_id = 4;
-    string name = 5;
-    string cidr = 6;
-    int64 tunnel_id = 7;
+    string request_id = 3;
+    string id = 4;
+    MessageType message_type = 5; // DELTA (default) or FULL
+    string project_id = 6;
+    string name = 7;
+    string cidr = 8;
+    int64 tunnel_id = 9;
 
     message SubnetId {
         string id = 1;
@@ -42,18 +46,8 @@ message VpcConfiguration {
         string next_hop = 2;
     }
 
-    repeated SubnetId subnet_ids = 8;
-    repeated Route routes = 9;
-
-    // start Mizar specific session
-    // note that repeated field are inherently optional
-    message TransitRouter {
-        string vpc_id = 1;
-        string ip_address = 2;
-        string mac_address = 3;
-    }
-    repeated TransitRouter transit_routers = 10;
-    // end Mizar specific session
+    repeated SubnetId subnet_ids = 10;
+    repeated Route routes = 11;
 }
 
 message VpcState {

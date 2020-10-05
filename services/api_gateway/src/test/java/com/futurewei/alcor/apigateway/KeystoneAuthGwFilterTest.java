@@ -20,6 +20,7 @@ package com.futurewei.alcor.apigateway;
 
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import com.futurewei.alcor.apigateway.filter.KeystoneAuthGwFilter;
+import com.futurewei.alcor.common.entity.TokenEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -61,8 +63,10 @@ public class KeystoneAuthGwFilterTest {
         filter = new KeystoneAuthGwFilter();
         ReflectionTestUtils.setField(filter, "keystoneClient", keystoneClient);
         ReflectionTestUtils.setField(filter, "neutronUrlPrefix", "/v2.0");
-        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
-        when(keystoneClient.verifyToken(TEST_ERROR_TOKEN)).thenReturn("");
+        TokenEntity tokenEntity = new TokenEntity(TEST_TOKEN, false);
+        tokenEntity.setProjectId(TEST_PROJECT_ID);
+        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(Optional.of(tokenEntity));
+        when(keystoneClient.verifyToken(TEST_ERROR_TOKEN)).thenReturn(Optional.empty());
     }
 
     @Test

@@ -27,10 +27,13 @@ message DHCPConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string mac_address = 3;
-    string ipv4_address = 4;
-    string ipv6_address = 5;
-    string port_host_name = 6; // for local DNS response
+    string request_id = 3;
+    MessageType message_type = 4; // DELTA (default) or FULL
+    string subnet_id = 5;
+    string mac_address = 6;
+    string ipv4_address = 7;
+    string ipv6_address = 8;
+    string port_host_name = 9; // for local DNS response
 
     message ExtraDhcpOption {
         string name = 1;
@@ -41,8 +44,8 @@ message DHCPConfiguration {
         string entry = 1;
     }
 
-    repeated ExtraDhcpOption extra_dhcp_options = 7;
-    repeated DnsEntry dns_entry_list = 8;
+    repeated ExtraDhcpOption extra_dhcp_options = 10;
+    repeated DnsEntry dns_entry_list = 11;
 }
 
 message DHCPState {

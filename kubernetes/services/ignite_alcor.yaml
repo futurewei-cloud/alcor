@@ -85,9 +85,9 @@ spec:
         - name: ignite-alcor-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "16"
+          #resources:
+            #requests:
+              #cpu: "16"
           env:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
@@ -97,6 +97,21 @@ spec:
               value: "false"
             - name: JVM_OPTS
               value: "-Djava.net.preferIPv4Stack=true"
+            #- name: JVM_OPTS
+              #value: "-Djava.net.preferIPv4Stack=true \
+                      #-XX:+PrintGCDetails \
+                      #-XX:+PrintGCTimeStamps \
+                      #-XX:+PrintGCDateStamps \
+                      #-XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 \
+                      #-XX:GCLogFileSize=100M \
+                      #-Xloggc:/opt/ignite/apache-ignite/work/log/ignite-gc.log \
+                      #-server \ 
+                      #-Xms50g \
+                      #-Xmx50g \
+                      #-XX:+AlwaysPreTouch \
+                      #-XX:+UseG1GC \
+                      #-XX:+ScavengeBeforeFullGC \
+                      #-XX:+DisableExplicitGC"
           ports:
             - name: port8080
               containerPort: 8080
@@ -114,6 +129,30 @@ spec:
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
             - name: ignite-alcor-config-volume
-              mountPath: /opt/ignite/config
+              mountPath: /opt/storage
+            #- name: ignite-alcor-wal-volume
+              #mountPath: /db/wal
+            #- name: ignite-alcor-walArchive-volume
+              #mountPath: /db/wal/archive
       volumes:
         - name: ignite-alcor-config-volume
+          hostPath: 
+            path: /root/work/storage
+        #- name: ignite-alcor-wal-volume
+          #hostPath: 
+            #path: /root/work/db
+        #- name: ignite-alcor-walArchive-volume
+          #hostPath: 
+            #path: /root/work/db/archive
+            
+          #persistentVolumeClaim:
+            #claimName: ignite-alcor
+  #volumeClaimTemplates:
+  #- metadata:
+      #name: ignite-alcor-config-volume
+    #spec:
+      #accessModes: [ "ReadWriteOnce" ]
+      #storageClassName: "ignite-persistence-storage-class"
+      #resources:
+        #requests:
+          #storage: 1Gi

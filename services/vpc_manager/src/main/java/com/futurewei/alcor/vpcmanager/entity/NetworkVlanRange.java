@@ -1,5 +1,6 @@
 package com.futurewei.alcor.vpcmanager.entity;
 
+import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyAllocNotFoundException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyInvalidException;
 import com.futurewei.alcor.vpcmanager.allocator.NetworkKeyAllocator;
@@ -37,10 +38,13 @@ public class NetworkVlanRange {
 
     public Long allocateKey() throws Exception {
         Long key = allocator.allocate();
-        KeyAlloc keyAlloc = new KeyAlloc(key, id, networkType);
 
-        allocated.put(key, keyAlloc);
-        updateUsedKeys();
+        if (!key.equals(ConstantsConfig.keyNotEnoughReturnValue)) {
+            KeyAlloc keyAlloc = new KeyAlloc(key, id, networkType);
+
+            allocated.put(key, keyAlloc);
+            updateUsedKeys();
+        }
 
         return key;
     }

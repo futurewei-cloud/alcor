@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.utils;
 
+import com.futurewei.alcor.dataplane.exception.ClientOfDPMFailureException;
 import com.futurewei.alcor.dataplane.exception.DPMFailureException;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.*;
@@ -26,6 +27,10 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.futurewei.alcor.common.logging.Logger;
@@ -39,9 +44,30 @@ import static com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 
 @Component
 public class GoalStateManager {
-  @Autowired private GoalStateService goalStateService;
+    public static final int FORMAT_REVISION_NUMBER = 1;
+    @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
 
+  private void printNetworkConfiguration(NetworkConfiguration networkConfiguration)
+  {
+    LOG.log(Level.INFO,
+            "### networkConf str: "+networkConfiguration.toString());
+    ExclusionStrategy myExclusionStrategy =
+            new ExclusionStrategy() {
+              @Override
+              public boolean shouldSkipField(FieldAttributes fa) {
+                return fa.getName().equals("tenantId");
+              }
+
+              @Override
+              public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+              }
+            };
+    Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+    LOG.log(Level.INFO,"###############");
+    LOG.log(Level.INFO,gson.toJson(networkConfiguration));
+  }
   /**
    * transform client of dpm msg to aca protobuf format
    *
@@ -51,6 +77,9 @@ public class GoalStateManager {
    */
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
+    // print entry input
+    printNetworkConfiguration(networkConfiguration);
+
     Map<String, Set<String>> portsInSameSubnetMap = new HashMap<>();
 
     Map<String, Set<NeighborInfo>> neighborInfoInSameSubenetMap = new HashMap<>();
@@ -143,7 +172,9 @@ public class GoalStateManager {
               Set<PortState> portStateHashSet = new HashSet<>();
               Set<Subnet.SubnetState> subnetStateSet = new HashSet();
               Set<Vpc.VpcState> vpcStateSet = new HashSet();
-              final List<InternalPortEntity> internalPortEntitySet = eachGSOnSingleIP.getValue();
+                List<DHCP.DHCPState> dhcpStateList = new ArrayList();
+
+                final List<InternalPortEntity> internalPortEntitySet = eachGSOnSingleIP.getValue();
               boolean m = false;
               internalPortEntitySet.stream()
                   .forEach(
@@ -162,6 +193,7 @@ public class GoalStateManager {
                           }
                         }
                         List<FixedIp> fixedIps = new ArrayList();
+
                         for (PortEntity.FixedIp fixedIp :
                             portStateWithEverythingFilledNB.getFixedIps()) {
                           FixedIp fixedIp1 =
@@ -170,11 +202,25 @@ public class GoalStateManager {
                                   .setSubnetId(fixedIp.getSubnetId())
                                   .build();
                           fixedIps.add(fixedIp1);
+                            DHCP.DHCPConfiguration dhcpConfiguration=DHCP.DHCPConfiguration.newBuilder()
+                                    .setRevisionNumber(FORMAT_REVISION_NUMBER)
+                                    .setFormatVersion(FORMAT_REVISION_NUMBER)
+                                    .setSubnetId(fixedIp.getSubnetId())
+                                    .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
+                                    .setIpv4Address(fixedIp.getIpAddress())
+                                    .build();
+                            DHCP.DHCPState dhcpState= DHCP.DHCPState.newBuilder()
+                                    .setConfiguration(dhcpConfiguration)
+                                    .build();
+                            dhcpStateList.add(dhcpState);
                         }
+                        String name= portStateWithEverythingFilledNB.getName()==null
+                                ?"":portStateWithEverythingFilledNB.getName();
 
-                        Port.PortConfiguration portConfiguration =
+
+                              Port.PortConfiguration portConfiguration =
                             Port.PortConfiguration.newBuilder()
-                                .setName(portStateWithEverythingFilledNB.getName())
+                                .setName(name)
                                 .setProjectId(portStateWithEverythingFilledNB.getProjectId())
                                 .setVpcId(
                                     portStateWithEverythingFilledNB
@@ -182,10 +228,10 @@ public class GoalStateManager {
                                         .iterator()
                                         .next()
                                         .getVpcId())
-                                .setFormatVersion(1)
+                                .setFormatVersion(FORMAT_REVISION_NUMBER)
                                 .setAdminStateUp(true)
                                 .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
-                                .setRevisionNumber(1)
+                                .setRevisionNumber(FORMAT_REVISION_NUMBER)
                                 .addAllFixedIps(fixedIps)
                                 .buildPartial();
                         // since dpm has to do everything including neighbor in 1 shot
@@ -198,7 +244,7 @@ public class GoalStateManager {
                                     .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
                                     .setId(pid)
                                     .setHostInfo(h)
-                                    .setMessageTypeValue(Port.MessageType.DELTA_VALUE)
+                                    .setMessageTypeValue(Common.MessageType.DELTA_VALUE)
                                     .build();
                             final PortState portStateSB =
                                 PortState.newBuilder()
@@ -213,7 +259,7 @@ public class GoalStateManager {
                                 .toBuilder()
                                 .setId(portStateWithEverythingFilledNB.getId())
                                 .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
-                                .setMessageTypeValue(Port.MessageType.FULL_VALUE)
+                                .setMessageTypeValue(Common.MessageType.FULL_VALUE)
                                 .build();
 
                         final PortState portStateSB =
@@ -227,13 +273,17 @@ public class GoalStateManager {
                         // lookup subnet entity
                         for (InternalSubnetEntity subnetEntity1 :
                             portStateWithEverythingFilledNB.getSubnetEntities()) {
+                            if(subnetEntity1.getTunnelId()==null)
+                            {
+                                throw new ClientOfDPMFailureException("empty tunnelId in the subnet payload!");
+                            }
                           Subnet.SubnetConfiguration subnetConfiguration =
                               Subnet.SubnetConfiguration.newBuilder()
                                   .setId(subnetEntity1.getId())
                                   .setVpcId(subnetEntity1.getVpcId())
                                   .setProjectId(portStateWithEverythingFilledNB.getProjectId())
                                   .setCidr(subnetEntity1.getCidr())
-                                  .setFormatVersion(1)
+                                  .setFormatVersion(FORMAT_REVISION_NUMBER)
                                   .setTunnelId(subnetEntity1.getTunnelId())
                                   .build();
                           Subnet.SubnetState subnetState =
@@ -264,8 +314,8 @@ public class GoalStateManager {
                                 Vpc.VpcConfiguration.newBuilder()
                                     .setId(vpcEntity.getId())
                                     .setCidr(vpcEntity.getCidr())
-                                    .setFormatVersion(1)
-                                    .setRevisionNumber(1)
+                                    .setFormatVersion(FORMAT_REVISION_NUMBER)
+                                    .setRevisionNumber(FORMAT_REVISION_NUMBER)
                                     .build();
                             Vpc.VpcState vpcState =
                                 Vpc.VpcState.newBuilder()
@@ -275,6 +325,7 @@ public class GoalStateManager {
                                     .build();
                             vpcStateSet.add(vpcState);
                           }
+
                         }
                       });
               // leave a dummy security group value since for now there is no impl for sg
@@ -289,6 +340,7 @@ public class GoalStateManager {
                       .addAllPortStates(portStateHashSet)
                       .addAllSubnetStates(subnetStateSet)
                       .addSecurityGroupStates(0, securityGroupState)
+                          .addAllDhcpStates(dhcpStateList)
                       //                          .addAllVpcStates(vpcStateSet)
                       .build();
               goalStateHashMap.put(eachGSOnSingleIP.getKey(), goalState);
@@ -406,6 +458,7 @@ public class GoalStateManager {
             currentPortEntity.getId(),
             currentPortEntity.getMacAddress()));
     tempPorts.add(currentPortEntity.getId());
+    /*
     if (currentPortEntity.getNeighborInfos() != null) {
       for (NeighborInfo neighborInfo : currentPortEntity.getNeighborInfos()) {
         tempNeighbor.add(
@@ -418,6 +471,8 @@ public class GoalStateManager {
         tempPorts.add(neighborInfo.getPortId());
       }
     }
+
+     */
 
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
     neighborInfoInSameSubenetMap.put(fixedIp.getSubnetId(), tempNeighbor);

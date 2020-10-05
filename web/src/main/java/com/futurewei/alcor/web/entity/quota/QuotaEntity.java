@@ -15,52 +15,66 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.quota;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Data
 public class QuotaEntity {
 
-    @JsonProperty("floatingip")
-    private int floatingIp;
+    @JsonIgnore
+    private String id;
 
-    @JsonProperty("network")
-    private int network;
+    @JsonIgnore
+    private String projectId;
 
-    @JsonProperty("port")
-    private int port;
+    private String resource;
 
-    @JsonProperty("rbac_policy")
-    private int rbacPolicy;
-
-    @JsonProperty("router")
-    private int router;
-
-    @JsonProperty("security_group")
-    private int securityGroup;
-
-    @JsonProperty("security_group_rule")
-    private int securityGroupRule;
-
-    @JsonProperty("subnet")
-    private long subnet;
-
-    @JsonProperty("subnetpool")
-    private long subnetPool;
+    private int limit;
 
     public QuotaEntity() {
     }
 
-    public QuotaEntity(int floatingIp, int network, int port, int rbacPolicy, int router, int securityGroup,
-                       int securityGroupRule, int subnet, int subnetPool) {
-        this.floatingIp = floatingIp;
-        this.network = network;
-        this.port = port;
-        this.rbacPolicy = rbacPolicy;
-        this.router = router;
-        this.securityGroup = securityGroup;
-        this.securityGroupRule = securityGroupRule;
-        this.subnet = subnet;
-        this.subnetPool = subnetPool;
+    public QuotaEntity(String projectId, String resource, int limit) {
+        this.id = projectId + "_" + resource;
+        this.projectId = projectId;
+        this.resource = resource;
+        this.limit = limit;
+    }
+
+    public QuotaEntity(String id, String projectId, String resource, int limit) {
+        this.id = id;
+        this.projectId = projectId;
+        this.resource = resource;
+        this.limit = limit;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getResource() {
+        return resource;
+    }
+
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 }

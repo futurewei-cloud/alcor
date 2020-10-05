@@ -18,6 +18,7 @@ package com.futurewei.alcor.apigateway;
 
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import com.futurewei.alcor.apigateway.filter.KeystoneAuthGwFilter;
+import com.futurewei.alcor.common.entity.TokenEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -58,8 +61,10 @@ public class KeystoneAuthWebFilterTest {
     @Before
     public void setUp(){
         ReflectionTestUtils.setField(keystoneAuthGwFilter, "keystoneClient", keystoneClient);
-        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(TEST_PROJECT_ID);
-        when(keystoneClient.verifyToken(TEST_ERROR_TOKEN)).thenReturn("");
+        TokenEntity tokenEntity = new TokenEntity(TEST_TOKEN, false);
+        tokenEntity.setProjectId(TEST_PROJECT_ID);
+        when(keystoneClient.verifyToken(TEST_TOKEN)).thenReturn(Optional.of(tokenEntity));
+        when(keystoneClient.verifyToken(TEST_ERROR_TOKEN)).thenReturn(Optional.empty());
     }
 
     @Test

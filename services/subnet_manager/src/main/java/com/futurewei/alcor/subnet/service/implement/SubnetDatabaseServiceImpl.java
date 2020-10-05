@@ -2,6 +2,7 @@ package com.futurewei.alcor.subnet.service.implement;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.subnet.dao.SubnetRepository;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
@@ -17,6 +18,7 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     private SubnetRepository subnetRepository;
 
     @Override
+    @DurationStatistics
     public SubnetEntity getBySubnetId(String subnetId) {
         try {
             return this.subnetRepository.findItem(subnetId);
@@ -26,16 +28,19 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetEntity> getAllSubnets() throws CacheException {
         return this.subnetRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, SubnetEntity> getAllSubnets(Map<String, Object[]> queryParams) throws CacheException {
         return this.subnetRepository.findAllItems(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addSubnet(SubnetEntity subnetEntity) throws DatabasePersistenceException {
         try {
             this.subnetRepository.addItem(subnetEntity);
@@ -45,6 +50,7 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteSubnet(String id) throws CacheException {
         this.subnetRepository.deleteItem(id);
     }

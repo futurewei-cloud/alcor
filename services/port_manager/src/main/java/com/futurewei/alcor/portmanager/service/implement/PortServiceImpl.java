@@ -28,18 +28,18 @@ import com.futurewei.alcor.web.entity.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@Service
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+//@Service
+//@ComponentScan(value = "com.futurewei.alcor.common.utils")
+//@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+@Deprecated
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -125,6 +125,7 @@ public class PortServiceImpl implements PortService {
          they may not be completed until the rollback operation is completed.
          as a result, they cannot be rolled back.
          */
+        LOG.error("", e);
         executor.waitAll();
         rollBackAllOperations(rollbacks);
         throw e;
@@ -780,5 +781,10 @@ public class PortServiceImpl implements PortService {
         }
 
         return result;
+    }
+
+    @Override
+    public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
+        throw new UnsupportedException();
     }
 }

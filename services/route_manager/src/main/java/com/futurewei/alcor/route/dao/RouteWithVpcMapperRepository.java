@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.VpcToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -31,7 +32,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRouteMapper> {
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -52,27 +52,32 @@ public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRoute
     }
 
     @Override
+    @DurationStatistics
     public VpcToRouteMapper findItem(String id) throws CacheException {
         return cache.get(id);
     }
 
     @Override
+    @DurationStatistics
     public Map<String, VpcToRouteMapper> findAllItems() throws CacheException {
         return cache.getAll();
     }
 
     @Override
+    @DurationStatistics
     public Map<String, VpcToRouteMapper> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         return cache.getAll(queryParams);
     }
 
     @Override
+    @DurationStatistics
     public void addItem(VpcToRouteMapper vpcToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add RouteWithVpcMapper, mapper Id:" + vpcToRouteMapper.getVpcId());
         cache.put(vpcToRouteMapper.getVpcId(), vpcToRouteMapper);
     }
 
     @Override
+    @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete RouteWithVpcMapper, mapper Id:" + id);
         cache.remove(id);

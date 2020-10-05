@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quota-configmap
+data:
+  application.properties: |
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    ignite.thin.client.enable=true
+    logging.level.root=info
+    logging.level.org.springframework.web=info
+    logging.file.path=.
+    logging.type=file
+    quota.defaults.floating_ip=-1
+    quota.defaults.network=-1
+    quota.defaults.port=-1
+    quota.defaults.rbac_policy=-1
+    quota.defaults.router=-1
+    quota.defaults.security_group=-1
+    quota.defaults.security_group_rule=-1
+    quota.defaults.subnet=-1
+    quota.defaults.subnetpool=-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: quotamanager
+  name: quotamanager
+spec:
+  selector:
+    matchLabels:
+      app: quotamanager
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: quotamanager
+    spec:
+      volumes:
+        - name: quota-volume
+          configMap:
+            name: quota-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: quota_manager:v1.0
+          #- image: fwnetworking/controller:vpc_manager-v0.3.0
+          name: quotamanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorQuotaManager-0.1.0.jar", "--spring.config.location=/opt/jboss/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: quota-volume
+              mountPath: /opt/jboss
+          envFrom:
+            - configMapRef:
+                name: quota-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quotamanager-service
+  labels:
+    name: quotamanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9012
+      targetPort: 8080
+      nodePort: 30012
+  selector:
+    app: quotamanager

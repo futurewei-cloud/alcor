@@ -23,8 +23,8 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.service.implement.SubnetServiceImp;
-import com.futurewei.alcor.web.entity.subnet.SubnetRequestWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestObject;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequest;
 import org.apache.commons.net.util.SubnetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -33,11 +33,11 @@ public class SubnetManagementUtil {
 
     private static SubnetService subnetService = new SubnetServiceImp();
 
-    public static boolean checkSubnetRequestResourceIsValid(SubnetRequestWebJson resource) {
+    public static boolean checkSubnetRequestResourceIsValid(SubnetWebRequestJson resource) {
         if (resource == null) {
             return false;
         }
-        SubnetWebRequestObject subnet = resource.getSubnet();
+        SubnetWebRequest subnet = resource.getSubnet();
 
         // network_id
         String networkId = subnet.getVpcId();
@@ -205,5 +205,48 @@ public class SubnetManagementUtil {
 
     private static boolean isInner(long userIp, long begin, long end) {
         return (userIp >= begin) && (userIp <= end);
+    }
+
+    public static boolean IsCidrWithin (String cidr1, String cidr2) {
+        if (cidr2 == null || cidr2.length() == 0) {
+            return false;
+        }
+
+        if (cidr1 == null || cidr1.length() == 0) {
+            return true;
+        }
+
+        String[] ips1 = subnetService.cidrToFirstIpAndLastIp(cidr1);
+        long firstIp1Num = getIpNum(ips1[0]);
+        long lastIp1Num = getIpNum(ips1[1]);
+
+        String[] ips2 = subnetService.cidrToFirstIpAndLastIp(cidr2);
+        long firstIp2Num = getIpNum(ips2[0]);
+        long lastIp2Num = getIpNum(ips2[1]);
+
+        if (firstIp2Num <= firstIp1Num && lastIp1Num <= lastIp2Num) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean IsCidrOverlap (String cidr1, String cidr2) {
+        if (cidr1 == null || cidr2 == null || cidr1.length() == 0 || cidr2.length() == 0) {
+            return false;
+        }
+        String[] ips1 = subnetService.cidrToFirstIpAndLastIp(cidr1);
+        long firstIp1Num = getIpNum(ips1[0]);
+        long lastIp1Num = getIpNum(ips1[1]);
+
+        String[] ips2 = subnetService.cidrToFirstIpAndLastIp(cidr2);
+        long firstIp2Num = getIpNum(ips2[0]);
+        long lastIp2Num = getIpNum(ips2[1]);
+
+        if (lastIp1Num < firstIp2Num || lastIp2Num < firstIp1Num) {
+            return false;
+        }
+
+
+        return true;
     }
 }

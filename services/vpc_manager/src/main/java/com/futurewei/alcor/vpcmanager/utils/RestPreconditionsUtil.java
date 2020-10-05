@@ -20,8 +20,8 @@ import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.NetworkSegmentRangeEntity;
-import com.futurewei.alcor.web.entity.SegmentEntity;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.thymeleaf.util.StringUtils;
 

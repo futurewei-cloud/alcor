@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.nodemanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.NodeInfo;
@@ -45,6 +46,7 @@ public class NodeFileLoader {
      * @return total nodes number
      * @throws FileNotFoundException invalid file name, IOException file read exception, Parseexception json parsing exception
      */
+    @DurationStatistics
     public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws FileNotFoundException, IOException, ParseException{
         String strMethodName = "getHostNodeListFromUpload";
         JSONParser jsonParser = new JSONParser();
@@ -52,7 +54,7 @@ public class NodeFileLoader {
         logger.info(this.getClass().getName(), strMethodName);
         try {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
-            JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOST);
+            JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOSTS);
             if(nodeList != null){
                 nodeList.forEach(node -> {
                     NodeInfo hostNode = null;
@@ -87,10 +89,10 @@ public class NodeFileLoader {
     private NodeInfo parseNodeObject(JSONObject nodeJson) throws InvalidDataException {
         String strMethodName = "parseNodeObject";
         NodeInfo node = null;
-        String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID);
-        String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP);
-        String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC);
-        String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH);
+        String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID1);
+        String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP1);
+        String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC1);
+        String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
             node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort);
@@ -103,7 +105,7 @@ public class NodeFileLoader {
                     message.concat(" & ");
                 message.concat(NodeManagerConstant.NODE_EXCEPTION_MAC_FORMAT_INVALID);
             }
-            if (message != null){
+            if (message != null && !message.isEmpty()){
                 logger.error(strMethodName+NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
                 throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
             }

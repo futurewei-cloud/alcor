@@ -24,77 +24,64 @@ import java.util.Set;
 @Data
 public class InternalPortEntity extends PortEntity {
 
-  @JsonProperty("routes")
-  private List<RouteEntity> routes;
+    @JsonProperty("routes")
+    private List<RouteEntity> routes;
 
-  @JsonProperty("neighbor_info")
-  private List<NeighborInfo> neighborInfos;
+    @JsonProperty("binding_host_ip")
+    private String bindingHostIP;
 
-  @JsonProperty("binding_host_ip")
-  private String bindingHostIP;
+    public List<RouteEntity> getRoutes() {
+        return routes;
+    }
 
-  public List<RouteEntity> getRoutes() {
-    return routes;
-  }
+    public void setRoutes(List<RouteEntity> routes) {
+        this.routes = routes;
+    }
 
-  public void setRoutes(List<RouteEntity> routes) {
-    this.routes = routes;
-  }
+    public String getBindingHostIP() {
+        return bindingHostIP;
+    }
 
-  public List<NeighborInfo> getNeighborInfos() {
-    return neighborInfos;
-  }
+    public void setBindingHostIP(String bindingHostIP) {
+        this.bindingHostIP = bindingHostIP;
+    }
 
-  public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
-    this.neighborInfos = neighborInfos;
-  }
+    public Set<NeighborInfo> getInternalNeighborInfo1() {
+        return internalNeighborInfo1;
+    }
 
-  public String getBindingHostIP() {
-    return bindingHostIP;
-  }
+    public void setInternalNeighborInfo1(Set<NeighborInfo> internalNeighborInfo1) {
+        this.internalNeighborInfo1 = internalNeighborInfo1;
+    }
 
-  public void setBindingHostIP(String bindingHostIP) {
-    this.bindingHostIP = bindingHostIP;
-  }
+    public Set<InternalSubnetEntity> getSubnetEntities() {
+        return subnetEntities;
+    }
 
-  public Set<NeighborInfo> getInternalNeighborInfo1() {
-    return internalNeighborInfo1;
-  }
+    public void setSubnetEntities(Set<InternalSubnetEntity> subnetEntities) {
+        this.subnetEntities = subnetEntities;
+    }
 
-  public void setInternalNeighborInfo1(Set<NeighborInfo> internalNeighborInfo1) {
-    this.internalNeighborInfo1 = internalNeighborInfo1;
-  }
+    public Set<VpcEntity> getVpcEntities() {
+        return vpcEntities;
+    }
 
-  public Set<InternalSubnetEntity> getSubnetEntities() {
-    return subnetEntities;
-  }
+    public void setVpcEntities(Set<VpcEntity> vpcEntities) {
+        this.vpcEntities = vpcEntities;
+    }
 
-  public void setSubnetEntities(Set<InternalSubnetEntity> subnetEntities) {
-    this.subnetEntities = subnetEntities;
-  }
+    private Set<NeighborInfo> internalNeighborInfo1;
+    private Set<InternalSubnetEntity> subnetEntities;
+    private Set<VpcEntity> vpcEntities;
 
-  public Set<VpcEntity> getVpcEntities() {
-    return vpcEntities;
-  }
+    public InternalPortEntity() {}
 
-  public void setVpcEntities(Set<VpcEntity> vpcEntities) {
-    this.vpcEntities = vpcEntities;
-  }
-
-  private Set<NeighborInfo> internalNeighborInfo1;
-  private Set<InternalSubnetEntity> subnetEntities;
-  private Set<VpcEntity> vpcEntities;
-
-  public InternalPortEntity() {}
-
-  public InternalPortEntity(
-      PortEntity portEntity,
-      List<RouteEntity> routeEntities,
-      List<NeighborInfo> neighborInfos,
-      String bindingHostIP) {
-    super(portEntity);
-    this.routes = routeEntities;
-    this.neighborInfos = neighborInfos;
-    this.bindingHostIP = bindingHostIP;
-  }
+    public InternalPortEntity(
+            PortEntity portEntity,
+            List<RouteEntity> routeEntities,
+            String bindingHostIP) {
+        super(portEntity);
+        this.routes = routeEntities;
+        this.bindingHostIP = bindingHostIP;
+    }
 }

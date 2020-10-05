@@ -1,0 +1,1199 @@
+= Network ACL Manager Design Specification
+Piaoping Chen <chenpiaoping@yeah.net>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+
+== Overview
+
+Network ACL Manager is an Alcor microservice which manages the lifecycle of all network acls and all network acl rules.
+It provides rest interfaces for creating network acl, updating network acl, deleting network acl, creating network acl rule, 
+deleting network acl rule. The security group is associated with a port, but the network ACL is associated with a subnet, 
+A subnet can only be associated with one network ACL, but a network ACL can be associated with multiple subnets.
+A subnet must be associated with a network ACL, If a subnet does not be associated network ACL, it will be associated the default network ACL.
+And the action of default network ACL is deny. To different with Security Group, Network ACL is stateless.
+
+== Service Requirements
+
+[arabic]
+. Managing network acl and network acl rule resources.
+. Concurrency control mechanism should be provided to process multiple concurrent create/update Network ACL requests.
+. Working together with other services including vpc manager, subnet manager.
+. Support asynchronous interaction with other services.
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Create Network ACL
+|POST
+|/project/{project_id}/network-acls
+|Network ACL
+<<Create_Network_ACL,[sample]>>
+
+|Create Network ACL Bulk
+|POST
+|/project/{project_id}/network-acls/bulk
+|Network ACL list
+<<Create_Network_ACL_Bulk,[sample]>>
+
+|Update Network ACL
+|PUT
+|/project/{project_id}/network-acls/{network_acl_id}
+|Network ACL
+<<Update_Network_ACL,[sample]>>
+
+|Get Network ACL
+|GET
+|/project/{project_id}/network-acls/{network_acl_id}
+|Network ACL
+<<Get_Network_ACL,[sample]>>
+
+|List Network ACL
+|GET
+|/project/{project_id}/network-acls
+|Network ACL list
+<<List_Network_ACL,[sample]>>
+
+|Delete Network ACL
+|DELETE
+|/project/{project_id}/network-acls/{network_acl_id}
+|None
+<<Delete_Network_ACL,[sample]>>
+
+|Create Network ACL Rule
+|POST
+|/project/{project_id}/network-acl-rules
+|Network ACL Rule
+<<Create_Network_ACL_Rule,[sample]>>
+
+|Create Network ACL Rule Bulk
+|POST
+|/project/{project_id}/network-acl-rules/bulk
+|Network ACL Rule list
+<<Create_Network_ACL_Rule_Bulk,[sample]>>
+
+|Update Network ACL Rule
+|PUT
+|/project/{project_id}/network-acl-rules/{network_acl_rule_id}
+|Network ACL Rule
+<<Update_Network_ACL_Rule,[sample]>>
+
+|Get Network ACL Rule
+|GET
+|/project/{project_id}/network-acl-rules/{network_acl_rule_id}
+|Network ACL Rule
+<<Get_Network_ACL_Rule,[sample]>>
+
+|List Network ACL Rule
+|GET
+|/project/{project_id}/network-acl-rules
+|Network ACL Rule list
+<<List_Network_ACL_Rule,[sample]>>
+
+|Delete Network ACL Rule
+|DELETE
+| /project/{project_id}/network-acl-rules/{network_acl_rule_id}
+|None
+<<Delete_Network_ACL_Rule,[sample]>>
+
+|===
+
+=== API Specification
+
+anchor:Create_Network_ACL[]
+**(1) Create Network ACL**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/network-acls`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Network ACL
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls
+
+Body:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":null,
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":null,
+        "is_default":null
+    }
+}
+
+
+Response:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":null,
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":[
+            {
+                "project_id":null,
+                "id":"33857c04-982b-4ecc-a4aa-c580de0dd62a",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"f2ce3b3a-ed1e-471a-8d57-3e957969ad81",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"0866b869-8561-4670-9ae5-930d7b574feb",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"1deab9a3-4919-48d5-b031-e686e64945ec",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            }],
+        "is_default":null
+    }
+}
+
+
+....
+anchor:Create_Network_ACL_Bulk[]
+**(2) Create Network ACL Bulk**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/network-acls/bulk`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Network ACL list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls/bulk
+
+Body:
+{
+    "network_acls":[
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "name":"test_network_acl1",
+            "description":null,
+            "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+            "associated_subnets":[
+                "3d53801c-32ce-4e97-9572-bb966fab628"],
+            "network_acl_rules":null,
+            "is_default":null
+        },
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f678e1",
+            "name":"test_network_acl2",
+            "description":null,
+            "vpc_id":"3d53801c-32ce-4e97-9572-bb966faab241",
+            "associated_subnets":[
+                "3d53801c-32ce-4e97-9572-bb966f76ae1"],
+            "network_acl_rules":null,
+            "is_default":null
+        }]
+}
+
+
+Response:
+{
+    "network_acls":[
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "name":"test_network_acl1",
+            "description":null,
+            "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+            "associated_subnets":[
+                "3d53801c-32ce-4e97-9572-bb966fab628"],
+            "network_acl_rules":[
+                {
+                    "project_id":null,
+                    "id":"2af0f630-c726-46c6-82ab-e68df106ca9a",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"0.0.0.0/0",
+                    "direction":"ingress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"0b7b9728-01bb-4636-8d90-df7b4c3ab02b",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"0.0.0.0/0",
+                    "direction":"egress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"48d59e39-ff4a-4a4e-9771-e8fc5b5e6fa5",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"::/0",
+                    "direction":"ingress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"a745dc84-b544-4192-8b6f-93b484debbcf",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"::/0",
+                    "direction":"egress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                }],
+            "is_default":null
+        },
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f678e1",
+            "name":"test_network_acl2",
+            "description":null,
+            "vpc_id":"3d53801c-32ce-4e97-9572-bb966faab241",
+            "associated_subnets":[
+                "3d53801c-32ce-4e97-9572-bb966f76ae1"],
+            "network_acl_rules":[
+                {
+                    "project_id":null,
+                    "id":"2af0f630-c726-46c6-82ab-e68df106ca9a",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"0.0.0.0/0",
+                    "direction":"ingress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"0b7b9728-01bb-4636-8d90-df7b4c3ab02b",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"0.0.0.0/0",
+                    "direction":"egress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"48d59e39-ff4a-4a4e-9771-e8fc5b5e6fa5",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"::/0",
+                    "direction":"ingress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                },
+                {
+                    "project_id":null,
+                    "id":"a745dc84-b544-4192-8b6f-93b484debbcf",
+                    "name":null,
+                    "description":null,
+                    "number":32767,
+                    "network_acl_id":null,
+                    "ip_prefix":"::/0",
+                    "direction":"egress",
+                    "protocol":"all",
+                    "port_range_max":null,
+                    "port_range_min":null,
+                    "icmp_type":null,
+                    "icmp_code":null,
+                    "ether_type":null,
+                    "action":"deny"
+                }],
+            "is_default":null
+        }]
+}
+
+
+....
+anchor:Update_Network_ACL[]
+**(3) Update Network ACL**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/network-acls/{network_acl_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String networkAclId`
+
+* Response: Network ACL
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls/3d53801c-32ce-4e97-9572-bb966f77ab4
+
+Body:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":null,
+        "is_default":null
+    }
+}
+
+
+Response:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":[
+            {
+                "project_id":null,
+                "id":"4f881647-b5d6-43e5-98a9-65b4b94f0d10",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"fa9a8224-cec8-40ac-ad48-4eeb57ed243c",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"03ca90fe-569d-4b38-8b26-dfc264df4bc8",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"f187f817-9a21-45e8-ae6c-397258071a73",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            }],
+        "is_default":null
+    }
+}
+
+
+....
+anchor:Get_Network_ACL[]
+**(4) Get Network ACL**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/network-acls/{network_acl_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String networkAclId`
+
+* Response: `Network ACL`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls/3d53801c-32ce-4e97-9572-bb966f77ab4
+
+Response:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":[
+            {
+                "project_id":null,
+                "id":"0f9fe2e0-e897-46b8-bf99-e6dcfd243489",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"3d16bb63-3be7-4b0c-ad04-64af6f2550be",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"5e24ac38-12d5-4bb6-892c-e6903a54054b",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"4c0387a7-4293-4ea9-b411-7ca51be529e3",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            }],
+        "is_default":null
+    }
+}
+
+
+....
+anchor:List_Network_ACL[]
+**(5) List Network ACL**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/network-acls`
+
+* Request Parameter:`@PathVariable String projectId`
+
+* Response: `Network ACL list`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls
+
+
+Response:
+[
+    {
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":[
+            {
+                "project_id":null,
+                "id":"644b4483-aff6-4eab-83e3-6e1c14a1a187",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"a409987d-b9c2-4fb5-ae26-3f03af642322",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"bc748d72-534a-4de5-b70d-551b07db7273",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"0cde6a6e-717b-4347-b56b-361070b09f6b",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            }],
+        "is_default":null
+    }
+]
+
+....
+anchor:Delete_Network_ACL[]
+**(6) Delete Network ACL**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/network-acls/{network_aclid}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String networkAclId`
+
+* Response: None
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acls/3d53801c-32ce-4e97-9572-bb966f88ca4
+
+Response:
+none
+
+....
+anchor:Create_Network_ACL_Rule[]
+**(7) Create Network ACL Rule**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/network-acl-rules`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: `Network ACL Rule `
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules
+
+Body:
+{
+    "network_acl_rule":{
+        "project_id":null,
+        "id":null,
+        "name":"test_network_acl_rule1",
+        "description":null,
+        "number":10,
+        "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "ip_prefix":"192.168.1.0/24",
+        "direction":"ingress",
+        "protocol":"tcp",
+        "port_range_max":65535,
+        "port_range_min":1,
+        "icmp_type":0,
+        "icmp_code":254,
+        "ether_type":"ipv4",
+        "action":"deny"
+    }
+}
+
+
+Response:
+{
+    "network_acl_rule":{
+        "project_id":null,
+        "id":"400c9924-1078-40e0-bf64-3bfe721e6daf",
+        "name":"test_network_acl_rule1",
+        "description":null,
+        "number":10,
+        "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "ip_prefix":"192.168.1.0/24",
+        "direction":"ingress",
+        "protocol":"tcp",
+        "port_range_max":65535,
+        "port_range_min":1,
+        "icmp_type":0,
+        "icmp_code":254,
+        "ether_type":"ipv4",
+        "action":"deny"
+    }
+}
+
+
+....
+anchor:Create_Network_ACL_Rule_Bulk[]
+**(8) Create Network ACL Rule Bulk**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/network-acl-rules/bulk`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Network ACL Rule list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules/bulk
+
+Body:
+{
+    "network_acl_rules":[
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f88ca4",
+            "name":"test_network_acl_rule1",
+            "description":null,
+            "number":10,
+            "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "ip_prefix":"192.168.1.0/24",
+            "direction":"ingress",
+            "protocol":"tcp",
+            "port_range_max":65535,
+            "port_range_min":1,
+            "icmp_type":0,
+            "icmp_code":254,
+            "ether_type":"ipv4",
+            "action":"deny"
+        },
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f992b1",
+            "name":"test_network_acl_rule2",
+            "description":null,
+            "number":20,
+            "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "ip_prefix":"192.168.2.0/24",
+            "direction":"egress",
+            "protocol":"tcp",
+            "port_range_max":600,
+            "port_range_min":10,
+            "icmp_type":1,
+            "icmp_code":255,
+            "ether_type":"ipv4",
+            "action":"allow"
+        }]
+}
+
+Response:
+{
+    "network_acl_rules":[
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f88ca4",
+            "name":"test_network_acl_rule1",
+            "description":null,
+            "number":10,
+            "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "ip_prefix":"192.168.1.0/24",
+            "direction":"ingress",
+            "protocol":"tcp",
+            "port_range_max":65535,
+            "port_range_min":1,
+            "icmp_type":0,
+            "icmp_code":254,
+            "ether_type":"ipv4",
+            "action":"deny"
+        },
+        {
+            "project_id":null,
+            "id":"3d53801c-32ce-4e97-9572-bb966f992b1",
+            "name":"test_network_acl_rule2",
+            "description":null,
+            "number":20,
+            "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+            "ip_prefix":"192.168.2.0/24",
+            "direction":"egress",
+            "protocol":"tcp",
+            "port_range_max":600,
+            "port_range_min":10,
+            "icmp_type":1,
+            "icmp_code":255,
+            "ether_type":"ipv4",
+            "action":"allow"
+        }]
+}
+
+....
+anchor:Update_Network_ACL_Rule[]
+**(9) Update Network ACL Rule**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/network-acl-rules/{network_acl_rule_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String networkAclRuleId`
+
+* Response: Network ACL Rule
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules/3d53801c-32ce-4e97-9572-bb966f77ab4
+
+Body:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":null,
+        "is_default":null
+    }
+}
+
+
+Response:
+{
+    "network_acl":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "name":"test_network_acl1",
+        "description":null,
+        "vpc_id":"3d53801c-32ce-4e97-9572-bb966fac7632",
+        "associated_subnets":[
+            "3d53801c-32ce-4e97-9572-bb966fab628"],
+        "network_acl_rules":[
+            {
+                "project_id":null,
+                "id":"4f881647-b5d6-43e5-98a9-65b4b94f0d10",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"fa9a8224-cec8-40ac-ad48-4eeb57ed243c",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"0.0.0.0/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"03ca90fe-569d-4b38-8b26-dfc264df4bc8",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"ingress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            },
+            {
+                "project_id":null,
+                "id":"f187f817-9a21-45e8-ae6c-397258071a73",
+                "name":null,
+                "description":null,
+                "number":32767,
+                "network_acl_id":null,
+                "ip_prefix":"::/0",
+                "direction":"egress",
+                "protocol":"all",
+                "port_range_max":null,
+                "port_range_min":null,
+                "icmp_type":null,
+                "icmp_code":null,
+                "ether_type":null,
+                "action":"deny"
+            }],
+        "is_default":null
+    }
+}
+
+....
+anchor:Get_Network_ACL_Rule[]
+**(10) Get Network ACL Rule**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/network-acl-rules/{network_acl_rule_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String networkAclRuleId`
+
+* Response: `Network ACL Rule`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules/3d53801c-32ce-4e97-9572-bb966f88ca4
+
+Response:
+{
+    "network_acl_rule":{
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f88ca4",
+        "name":"test_network_acl_rule1",
+        "description":null,
+        "number":10,
+        "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "ip_prefix":"192.168.1.0/24",
+        "direction":"ingress",
+        "protocol":"tcp",
+        "port_range_max":65535,
+        "port_range_min":1,
+        "icmp_type":0,
+        "icmp_code":254,
+        "ether_type":"ipv4",
+        "action":"deny"
+    }
+}
+
+
+....
+anchor:List_Network_ACL_Rule[]
+**(11) List Network ACL Rule**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/network-acl-rules`
+
+* Request Parameter:`@PathVariable String projectId`
+
+* Response: `Network ACL Rule list`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules
+
+
+Response:
+[
+    {
+        "project_id":null,
+        "id":"3d53801c-32ce-4e97-9572-bb966f88ca4",
+        "name":"test_network_acl_rule1",
+        "description":null,
+        "number":10,
+        "network_acl_id":"3d53801c-32ce-4e97-9572-bb966f77ab4",
+        "ip_prefix":"192.168.1.0/24",
+        "direction":"ingress",
+        "protocol":"tcp",
+        "port_range_max":65535,
+        "port_range_min":1,
+        "icmp_type":0,
+        "icmp_code":254,
+        "ether_type":"ipv4",
+        "action":"deny"
+    }
+]
+
+....
+anchor:Delete_Network_ACL_Rule[]
+**(12) Delete Network ACL Rule**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/network-acl-rules/{network_acl_rule_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String networkAclRuleId`
+
+* Response: None
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/network-acl-rules/3d53801c-32ce-4e97-9572-bb966f88ca4
+
+Response:
+none
+
+....
+== Database Data Schema
+
+
+== Concurrency Handling
+
+
+
+
+
+
+
+
+
+

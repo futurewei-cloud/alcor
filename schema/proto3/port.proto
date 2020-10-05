@@ -23,22 +23,17 @@ option java_outer_classname = "Port";
 
 import "common.proto";
 
-enum MessageType { 
-    DELTA = 0; // the default type
-    FULL = 1;
-}
-
 message PortConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
-    MessageType message_type = 3;
 
+    string request_id = 3;
     string id = 4;
-    NetworkType network_type = 5;
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
-    string network_ns = 9;
+    MessageType message_type = 5; // DELTA (default) or FULL
+    NetworkType network_type = 6; // to be removed, will use the one in subnet
+    string project_id = 7;
+    string vpc_id = 8;
+    string name = 9;
     string mac_address = 10;
     bool admin_state_up = 11;
 
@@ -65,10 +60,6 @@ message PortConfiguration {
     repeated FixedIp fixed_ips = 13;
     repeated AllowAddressPair allow_address_pairs = 14;
     repeated SecurityGroupId security_group_ids = 15;
-
-    // start Mizar specific session
-    string veth_name = 16;
-    // end Mizar specific session
 }
 
 message PortState {

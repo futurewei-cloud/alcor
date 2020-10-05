@@ -3,6 +3,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.GreRepository;
 import com.futurewei.alcor.vpcmanager.service.GreDatabaseService;
 import com.futurewei.alcor.vpcmanager.entity.NetworkGREType;
@@ -18,6 +19,7 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     GreRepository greRepository;
 
     @Override
+    @DurationStatistics
     public NetworkGREType getByGreId(String greId) {
         try {
             return this.greRepository.findItem(greId);
@@ -27,11 +29,13 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map getAllGres() throws CacheException {
         return this.greRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addGre(NetworkGREType gre) throws DatabasePersistenceException {
         try {
             this.greRepository.addItem(gre);
@@ -41,11 +45,13 @@ public class GreDatabaseServiceImpl implements GreDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteGre(String id) throws CacheException {
         this.greRepository.deleteItem(id);
     }
 
     @Override
+    @DurationStatistics
     public ICache<String, NetworkGREType> getCache() {
         return this.greRepository.getCache();
     }

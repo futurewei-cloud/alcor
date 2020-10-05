@@ -47,7 +47,7 @@ public interface MacPoolApi {
      * @param mac
      * @return
      */
-    Boolean reclaim(String rangeId, String oui, String mac);
+    Boolean release(String rangeId, String oui, String mac);
 
     /**
      * allocate a new mac form foreign
@@ -62,12 +62,12 @@ public interface MacPoolApi {
      * @param rangeId
      * @return
      */
-    long rangeSize(String rangeId) throws CacheException;
+    long getRangeSize(String rangeId) throws CacheException;
 
     /**
      * get a range available size
      * @param macRange
      * @return
      */
-    long rangeAvailableSize(MacRange macRange) throws CacheException ;
+    long getRangeAvailableSize(MacRange macRange) throws CacheException ;
 }

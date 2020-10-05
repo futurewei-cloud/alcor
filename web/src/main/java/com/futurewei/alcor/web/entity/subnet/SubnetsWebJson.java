@@ -31,4 +31,12 @@ public class SubnetsWebJson {
     public SubnetsWebJson(List<SubnetEntity> subnetEntityList) {
         this.subnets = new ArrayList<>(subnetEntityList);
     }
+
+    public ArrayList<SubnetEntity> getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(ArrayList<SubnetEntity> subnets) {
+        this.subnets = subnets;
+    }
 }

@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.elasticipmanager.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.elasticipmanager.config.IpVersion;
@@ -69,6 +70,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      * @throws ElasticIpAllocationException Allocation failed
      */
+    @DurationStatistics
     public ElasticIpInfo createElasticIp(ElasticIpInfo request) throws Exception {
         LOG.debug("Create an elastic ip, request: {}", request);
 
@@ -96,13 +98,14 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         String ipAddress = elasticIpAllocator.allocateIpAddress(range, request.getElasticIp());
         eip.setElasticIp(ipAddress);
 
+        PortEntity port = null;
         try{
             String portId = eip.getPortId();
             if (!StringUtils.isEmpty(portId)) {
-                String associatedIp = this.getAssociatedPortIp(request.getProjectId(), portId,
-                        request.getPrivateIpVersion(), request.getPrivateIp());
+                PortManagerProxy portManagerProxy = new PortManagerProxy(request.getProjectId());
+                port = portManagerProxy.getPortById(portId);
+                String associatedIp = this.getAssociatedPortIp(port, request.getPrivateIp());
                 eip.setPrivateIp(associatedIp);
-                eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
             }
 
             elasticIpRepo.addItem(eip);
@@ -117,7 +120,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
 
         LOG.debug("Create an elastic ip success, request: {}", request);
 
-        return new ElasticIpInfo(eip);
+        return new ElasticIpInfo(eip, port);
     }
 
     /**
@@ -128,6 +131,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpInUseException The elastic ip is associated with a port
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public void deleteElasticIp(String projectId, String elasticIpId) throws Exception {
         LOG.debug("Release an elastic ip, request: {}", elasticIpId);
 
@@ -158,14 +162,21 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpNotFoundException The elastic ip is not exits
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpInfo getElasticIp(String projectId, String elasticIpId) throws Exception {
         LOG.debug("Get an elastic ip, request: {}", elasticIpId);
 
         ElasticIp eip = elasticIpRepo.findItem(elasticIpId);
-        if (eip == null || !projectId.equals(eip.getProjectId())) {
+        if (eip == null) {
             throw new ElasticIpNotFoundException();
         }
-        ElasticIpInfo result = new ElasticIpInfo(eip);
+
+        PortEntity port = null;
+        if (!StringUtils.isEmpty(eip.getPortId())) {
+            PortManagerProxy portManagerProxy = new PortManagerProxy(projectId);
+            port = portManagerProxy.getPortById(eip.getPortId());
+        }
+        ElasticIpInfo result = new ElasticIpInfo(eip, port);
 
         LOG.debug("Get an elastic ip success, request: {}", elasticIpId);
 
@@ -179,6 +190,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @return A list of elastic ips information
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public List<ElasticIpInfo> getElasticIps(String projectId, Map<String, Object[]> queryParams) throws Exception {
         LOG.debug("Get elastic ips");
 
@@ -191,7 +203,12 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         List<ElasticIpInfo> results = new ArrayList<>();
         Map<String, ElasticIp> eips = elasticIpRepo.findAllItems(queryParams);
         for (ElasticIp eipItem: eips.values()) {
-            results.add(new ElasticIpInfo(eipItem));
+            PortEntity port = null;
+            if (!StringUtils.isEmpty(eipItem.getPortId())) {
+                PortManagerProxy portManagerProxy = new PortManagerProxy(projectId);
+                port = portManagerProxy.getPortById(eipItem.getPortId());
+            }
+            results.add(new ElasticIpInfo(eipItem, port));
         }
 
         LOG.debug("Get an elastic ip success");
@@ -209,6 +226,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
      * @throws ElasticIpModifyParameterException Not allowed to modify the parameter (elastic_ip etc.)
      * @throws ElasticIpInternalErrorException Internal process (database / lock etc.) error
      */
+    @DurationStatistics
     public ElasticIpInfo updateElasticIp(ElasticIpInfo request) throws Exception {
         LOG.debug("Update an elastic ip, request: {}", request);
 
@@ -231,27 +249,22 @@ public class ElasticIpServiceImpl implements ElasticIpService {
             throw new ElasticIpModifyParameterException();
         }
 
-        if (request.getPrivateIpVersion() != null && eip.getPrivateIpVersion() != null &&
-                !request.getPrivateIpVersion().equals(eip.getPrivateIpVersion())) {
-            throw new ElasticIpModifyParameterException();
-        }
-
         if (request.getPrivateIp() != null && eip.getPrivateIp() != null &&
                 !request.getPrivateIp().equals(eip.getPrivateIp())) {
             throw new ElasticIpModifyParameterException();
         }
 
         String newPortId = request.getPortId();
+        PortEntity port = null;
         if (newPortId != null) {
             eip.setPortId(newPortId);
             if (newPortId.isEmpty()) {
-                eip.setPrivateIpVersion(null);
                 eip.setPrivateIp(null);
             } else {
-                String associatedIp = this.getAssociatedPortIp(request.getProjectId(), newPortId,
-                        request.getPrivateIpVersion(), request.getPrivateIp());
+                PortManagerProxy portManagerProxy = new PortManagerProxy(request.getProjectId());
+                port = portManagerProxy.getPortById(newPortId);
+                String associatedIp = this.getAssociatedPortIp(port, request.getPrivateIp());
                 eip.setPrivateIp(associatedIp);
-                eip.setPrivateIpVersion(ElasticIpControllerUtils.getVersionByIpString(associatedIp));
             }
         }
 
@@ -277,7 +290,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
 
         LOG.debug("Update an elastic ip success, request: {}", request);
 
-        return new ElasticIpInfo(eip);
+        return new ElasticIpInfo(eip, port);
     }
 
     private Map<String, ElasticIp> getElasticIpsByPortId(String projectId, String portId) {
@@ -289,10 +302,8 @@ public class ElasticIpServiceImpl implements ElasticIpService {
         return elasticIpRepo.findAllItems(filter);
     }
 
-    private String getAssociatedPortIp(String projectId, String portId, Integer ipVersion, String ipAddress)
+    private String getAssociatedPortIp(PortEntity port, String ipAddress)
             throws Exception {
-        PortManagerProxy portManagerProxy = new PortManagerProxy(projectId);
-        PortEntity port = portManagerProxy.getPortById(portId);
 
         List<PortEntity.FixedIp> fixedIps = port.getFixedIps();
         List<String> fixedIpList = new ArrayList<>();
@@ -304,7 +315,7 @@ public class ElasticIpServiceImpl implements ElasticIpService {
             throw new ElasticIpPipNotFound();
         }
 
-        Map<String, ElasticIp> associatedEips = this.getElasticIpsByPortId(projectId, portId);
+        Map<String, ElasticIp> associatedEips = this.getElasticIpsByPortId(port.getProjectId(), port.getId());
         String associatedIp;
         if (ipAddress != null) {
             if (fixedIpList.contains(ipAddress)) {

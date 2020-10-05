@@ -27,36 +27,28 @@ message SubnetConfiguration {
     uint32 format_version = 1;
     uint32 revision_number = 2;
 
-    string id = 3;
-    string project_id = 4;
-    string vpc_id = 5;
-    string name = 6;
-    string cidr = 7;
-    int64 tunnel_id = 8;
+    string request_id = 3;
+    string id = 4;
+    MessageType message_type = 5; // DELTA (default) or FULL
+    NetworkType network_type = 6;
+    string project_id = 7;
+    string vpc_id = 8;
+    string name = 9;
+    string cidr = 10;
+
+    // TODO: change to uint32 but that would require change in DPM
+    uint64 tunnel_id = 11;
 
     message Gateway {
-        string vpc_id = 1;
-        string subnet_id = 2;
         string ip_address = 3;
         string mac_address = 4;
     }
 
-    Gateway gateway = 9;
-    bool dhcp_enable = 10;
-    string availability_zone = 11;
-    string primary_dns = 12;
-    string secondary_dns = 13;
-
-    // start Mizar specific session
-    // note that repeated field are inherently optional
-    message TransitSwitch {
-        string vpc_id = 1;
-        string subnet_id = 2;
-        string ip_address = 3;
-        string mac_address = 4;
-    }
-    repeated TransitSwitch transit_switches = 14;
-    // end Mizar specific session
+    Gateway gateway = 12;
+    bool dhcp_enable = 13;
+    string availability_zone = 14;
+    string primary_dns = 15;
+    string secondary_dns = 16;
 }
 
 message SubnetState {
