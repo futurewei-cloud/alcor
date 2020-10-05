@@ -36,7 +36,32 @@ import java.util.stream.Collectors;
 
 public class DataPlaneManagerUtil {
 
-    public NetworkConfiguration autoGenerateUTsInput(int operationType, int resourceType, int portNum, int hostNum, int subnetNum, int L2IPNumInNeighborTable, int L3IPNumInNeighborTable, boolean hasRouteEntities, boolean hasNeighbor, int neighborNum, boolean fastPath) {
+    /**
+     * Automatically generate the input of UTs, that is, the contractor of Port Manager to DPM
+     * @param operationType
+     * @param resourceType
+     * @param portNumPerHost
+     * @param hostNum
+     * @param subnetNum
+     * @param NumOfIPsInSubnet1
+     * @param NumOfIPsInSubnet2
+     * @param hasRouteEntities
+     * @param hasNeighbor
+     * @param neighborNum
+     * @param fastPath
+     * @return
+     */
+    public NetworkConfiguration autoGenerateUTsInput(int operationType,
+                                                     int resourceType,
+                                                     int portNumPerHost,
+                                                     int hostNum,
+                                                     int subnetNum,
+                                                     int NumOfIPsInSubnet1,
+                                                     int NumOfIPsInSubnet2,
+                                                     boolean hasRouteEntities,
+                                                     boolean hasNeighbor,
+                                                     int neighborNum,
+                                                     boolean fastPath) {
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
 
         // set operationType and resourceType
@@ -55,37 +80,37 @@ public class DataPlaneManagerUtil {
 
         // set neighborTable
         List<NeighborEntry> neighborTable = new ArrayList<>();
-        for (int i = 0; i < L2IPNumInNeighborTable; i ++) {
-            int num1 = i + 2;
-            for (int j = i + 1; j < L2IPNumInNeighborTable; j ++) {
-                int num2 = j + 2;
+        for (int i = 0; i < NumOfIPsInSubnet1; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = i + 1; j < NumOfIPsInSubnet1; j ++) {
+                int NeighborIpAddressOffset = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + num1);
-                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L2neighborIp + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L2neighborIp + NeighborIpAddressOffset);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
                 neighborTable.add(neighborEntry);
             }
         }
 
-        for (int i = 0; i < L3IPNumInNeighborTable; i ++) {
-            int num1 = i + 2;
-            for (int j = i + 1; j < L3IPNumInNeighborTable; j ++) {
-                int num2 = j + 2;
+        for (int i = 0; i < NumOfIPsInSubnet2; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = i + 1; j < NumOfIPsInSubnet2; j ++) {
+                int NeighborIpAddressOffset = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L3localIp + num1);
-                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L3localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + NeighborIpAddressOffset);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
                 neighborTable.add(neighborEntry);
             }
         }
 
-        for (int i = 0; i < L2IPNumInNeighborTable; i ++) {
-            int num1 = i + 2;
-            for (int j = 0; j < L3IPNumInNeighborTable; j ++) {
-                int num2 = j + 2;
+        for (int i = 0; i < NumOfIPsInSubnet1; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = 0; j < NumOfIPsInSubnet2; j ++) {
+                int NeighborIpAddressOffset = j + 2;
                 NeighborEntry neighborEntry = new NeighborEntry();
-                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + num1);
-                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + num2);
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + NeighborIpAddressOffset);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
                 neighborTable.add(neighborEntry);
             }
@@ -95,7 +120,7 @@ public class DataPlaneManagerUtil {
         // set portEntities
         List<InternalPortEntity> portEntities = new ArrayList<>();
         for (int j = 0; j < hostNum; j ++) {
-            for (int i = 0; i < portNum; i ++) {
+            for (int i = 0; i < portNumPerHost; i ++) {
                 List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
                 PortEntity.FixedIp fixedIp = new PortEntity.FixedIp(DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.IpAddress + i);
                 fixedIps.add(fixedIp);
@@ -137,9 +162,9 @@ public class DataPlaneManagerUtil {
         // set subnets
         List<InternalSubnetEntity> subnets = new ArrayList<>();
         for (int i = 0; i < subnetNum; i ++) {
-            int num = i + 2;
+            int IpAddressOffSet = i + 2;
             SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.subnetName + i, "", DPMAutoUnitTestConstant.vpcId,
-                    "192.168." + num + ".0/24", DPMAutoUnitTestConstant.availabilityZone, "192.168." + num + ".1", false, null,
+                    "192.168." + IpAddressOffSet + ".0/24", DPMAutoUnitTestConstant.availabilityZone, "192.168." + IpAddressOffSet + ".1", false, null,
                     null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
                     null, null, null, null, null,
                     null, null, false, null, null,
@@ -162,11 +187,37 @@ public class DataPlaneManagerUtil {
         return networkConfiguration;
     }
 
-    public Map<String, Goalstate.GoalState> autoGenerateUTsOutput(int operationType, int resourceType, int portNum, int hostNum, int subnetNum, int L2IPNumInNeighborTable, int L3IPNumInNeighborTable, boolean hasRouteEntities, boolean hasNeighbor, int neighborNum, boolean fastPath) throws Exception {
+    /**
+     * Automatically generate the output of UTs, that is, the contractor of DPM to ACA
+     * @param operationType
+     * @param resourceType
+     * @param portNumPerHost
+     * @param hostNum
+     * @param subnetNum
+     * @param NumOfIPsInSubnet1
+     * @param NumOfIPsInSubnet2
+     * @param hasRouteEntities
+     * @param hasNeighbor
+     * @param neighborNum
+     * @param fastPath
+     * @return
+     * @throws Exception
+     */
+    public Map<String, Goalstate.GoalState> autoGenerateUTsOutput(int operationType,
+                                                                  int resourceType,
+                                                                  int portNumPerHost,
+                                                                  int hostNum,
+                                                                  int subnetNum,
+                                                                  int NumOfIPsInSubnet1,
+                                                                  int NumOfIPsInSubnet2,
+                                                                  boolean hasRouteEntities,
+                                                                  boolean hasNeighbor,
+                                                                  int neighborNum,
+                                                                  boolean fastPath) throws Exception {
         Map<String, Goalstate.GoalState> goalStateHashMap = new HashMap<>();
         for (int i = 0; i < hostNum; i ++) {
             HostGoalState hostGoalState = new HostGoalState();
-            NetworkConfiguration networkConfiguration = autoGenerateUTsInput(operationType, resourceType, portNum, hostNum, subnetNum, L2IPNumInNeighborTable, L3IPNumInNeighborTable, hasRouteEntities, hasNeighbor, neighborNum, fastPath);
+            NetworkConfiguration networkConfiguration = autoGenerateUTsInput(operationType, resourceType, portNumPerHost, hostNum, subnetNum, NumOfIPsInSubnet1, NumOfIPsInSubnet2, hasRouteEntities, hasNeighbor, neighborNum, fastPath);
             hostGoalState = buildHostGoalState(networkConfiguration, DPMAutoUnitTestConstant.hostIp + i, networkConfiguration.getPortEntities());
             goalStateHashMap.put(hostGoalState.getHostIp(), hostGoalState.getGoalState());
         }
@@ -174,6 +225,13 @@ public class DataPlaneManagerUtil {
         return goalStateHashMap;
     }
 
+    /**
+     * get VpcEntity from NetworkConfiguration
+     * @param networkConfig
+     * @param vpcId
+     * @return
+     * @throws Exception
+     */
     private VpcEntity getVpcEntity(NetworkConfiguration networkConfig, String vpcId) throws Exception {
         VpcEntity result = null;
         for (VpcEntity vpcEntity: networkConfig.getVpcs()) {
@@ -189,6 +247,12 @@ public class DataPlaneManagerUtil {
         return result;
     }
 
+    /**
+     * build VpcState in GoalState
+     * @param networkConfig
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildVpcState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
@@ -223,6 +287,13 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * get InternalSubnetEntity from NetworkConfiguration
+     * @param networkConfig
+     * @param subnetId
+     * @return
+     * @throws Exception
+     */
     private InternalSubnetEntity getInternalSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
         InternalSubnetEntity result = null;
         for (InternalSubnetEntity internalSubnetEntity: networkConfig.getSubnets()) {
@@ -238,6 +309,12 @@ public class DataPlaneManagerUtil {
         return result;
     }
 
+    /**
+     * build SubnetState in GoalState
+     * @param networkConfig
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildSubnetState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
@@ -283,6 +360,12 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * build PortState in GoalState
+     * @param networkConfig
+     * @param portEntities
+     * @param goalStateBuilder
+     */
     private void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities, Goalstate.GoalState.Builder goalStateBuilder) {
         for (InternalPortEntity portEntity: portEntities) {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
@@ -333,6 +416,13 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * get NeighborInfo from NetworkConfiguration
+     * @param networkConfig
+     * @param hostIp
+     * @return
+     * @throws Exception
+     */
     private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp) throws Exception {
         NeighborInfo result = null;
         for (NeighborInfo neighborInfo: networkConfig.getNeighborInfos()) {
@@ -349,6 +439,13 @@ public class DataPlaneManagerUtil {
         return result;
     }
 
+    /**
+     * build NeighborState in GoalState
+     * @param networkConfig
+     * @param hostIp
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildNeighborState(NetworkConfiguration networkConfig, String hostIp, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         if (neighborInfos == null || neighborInfos.size() == 0) {
@@ -396,6 +493,13 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * get SecurityGroup from NetworkConfiguration
+     * @param networkConfig
+     * @param securityGroupId
+     * @return
+     * @throws Exception
+     */
     private SecurityGroup getSecurityGroup(NetworkConfiguration networkConfig, String securityGroupId) throws Exception {
         SecurityGroup result = null;
         for (SecurityGroup securityGroup: networkConfig.getSecurityGroups()) {
@@ -412,7 +516,12 @@ public class DataPlaneManagerUtil {
         return result;
     }
 
-
+    /**
+     * build SecurityGroupState in GoalState
+     * @param networkConfig
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildSecurityGroupState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
@@ -457,6 +566,12 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * build DhcpState in GoalState
+     * @param networkConfig
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildDhcpState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
@@ -484,6 +599,12 @@ public class DataPlaneManagerUtil {
         }
     }
 
+    /**
+     * build RouterState in GoalState
+     * @param networkConfig
+     * @param goalStateBuilder
+     * @throws Exception
+     */
     private void buildRouterState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
@@ -511,6 +632,14 @@ public class DataPlaneManagerUtil {
 
     }
 
+    /**
+     * build GoalState in a host
+     * @param networkConfig
+     * @param hostIp
+     * @param portEntities
+     * @return
+     * @throws Exception
+     */
     private HostGoalState buildHostGoalState(NetworkConfiguration networkConfig, String hostIp, List<InternalPortEntity> portEntities) throws Exception {
         Goalstate.GoalState.Builder goalStateBuilder = Goalstate.GoalState.newBuilder();
 

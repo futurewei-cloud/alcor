@@ -166,6 +166,46 @@ public class GoalStateManagerTest {
         L3Check(input, output);
     }
 
+    /**
+     * Scenario: L3 - Create Ports (P1, P2) without neighbor at Host 1, P1 and P2 are associated with different subnet
+     */
+    @Test
+    public void scenario_L3_createPortP1P2WithoutNeighborAtHost1_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false, false, 0, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3 - Create Ports (P2, P3) with neighborP1 at Host 1, P1 and P2 are associated with different subnet
+     */
+    @Test
+    public void scenario_L3_createPortP2P3WithNeighborP1AtHost1_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false, true, 1, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3 - Create Port (P1) without neighbor at Host 1 and Port (P2) without neighbor at Host 2, P1 and P2 are associated with same subnet
+     */
+    @Test
+    public void scenario_L3_createPortP1P2WithoutNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false, false, 0, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3 - Create Port (P1) without neighbor at Host 1 and Port (P2) with neighbor at Host 2, P1 and P2 are associated with same subnet
+     */
+    @Test
+    public void scenario_L3_createPortP1P2WithNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false, true, 1, true);
+        L3Check(input, output);
+    }
+
     private void check(String input, String output) {
 
         NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
