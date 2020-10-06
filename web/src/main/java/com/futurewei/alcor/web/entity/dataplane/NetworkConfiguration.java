@@ -47,8 +47,21 @@ public class NetworkConfiguration {
   @JsonProperty("neighbor_table")
   private List<NeighborEntry> neighborTable;
 
-  @JsonProperty("routerinfo")
+  @JsonProperty("routerInfo")
   private List<InternalRouterInfo> routerTable;
+
+  @Override
+  public String toString() {
+    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerTable=" + routerTable + '}';
+  }
+
+  public List<InternalRouterInfo> getRouterTable() {
+    return routerTable;
+  }
+
+  public void setRouterTable(List<InternalRouterInfo> routerTable) {
+    this.routerTable = routerTable;
+  }
 
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
@@ -146,8 +159,4 @@ public class NetworkConfiguration {
     this.neighborTable = neighborTable;
   }
 
-  @Override
-  public String toString() {
-    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + '}';
-  }
 }
