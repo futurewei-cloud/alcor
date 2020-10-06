@@ -15,6 +15,7 @@ package com.futurewei.alcor.web.entity.dataplane;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
@@ -45,6 +46,22 @@ public class NetworkConfiguration {
 
   @JsonProperty("neighbor_table")
   private List<NeighborEntry> neighborTable;
+
+  @JsonProperty("routers_internal")
+  private List<InternalRouterInfo> internalRouterInfos;
+
+  @Override
+  public String toString() {
+    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerTable=" + internalRouterInfos + '}';
+  }
+
+  public List<InternalRouterInfo> getInternalRouterInfos() {
+    return internalRouterInfos;
+  }
+
+  public void setInternalRouterInfos(List<InternalRouterInfo> internalRouterInfos) {
+    this.internalRouterInfos = internalRouterInfos;
+  }
 
   public void addPortEntity(InternalPortEntity portEntity) {
     if (this.portEntities == null) {
@@ -142,8 +159,4 @@ public class NetworkConfiguration {
     this.neighborTable = neighborTable;
   }
 
-  @Override
-  public String toString() {
-    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + '}';
-  }
 }
