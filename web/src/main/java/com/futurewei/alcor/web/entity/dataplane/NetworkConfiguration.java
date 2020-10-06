@@ -47,7 +47,7 @@ public class NetworkConfiguration {
   @JsonProperty("neighbor_table")
   private List<NeighborEntry> neighborTable;
 
-  @JsonProperty("routerInfo")
+  @JsonProperty("routers_internal")
   private List<InternalRouterInfo> routerTable;
 
   @Override
