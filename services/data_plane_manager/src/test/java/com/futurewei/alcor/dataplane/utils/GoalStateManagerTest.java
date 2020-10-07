@@ -151,8 +151,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createFirstPortP1AtHost1_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, false, false, 0, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, false, false, 0, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, true, true, true, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, true,true, true, false, 0, true);
         L3Check(input, output);
     }
 
@@ -161,8 +161,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createFirstPortP2WithNeighborP1AtHost1_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, false, true, 1, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, false, true, 1, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 1, 1, 2, 3, false,false, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 1, 1, 2, 3, false,false, false, true, 1, true);
         L3Check(input, output);
     }
 
@@ -171,8 +171,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createPortP1P2WithoutNeighborAtHost1_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false, false, 0, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false, false, 0, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false,false, false, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false,false, false, false, 0, true);
         L3Check(input, output);
     }
 
@@ -181,8 +181,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createPortP2P3WithNeighborP1AtHost1_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false, true, 1, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false, true, 1, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 2, 1, 2, 2, 0, false,false, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 2, 1, 2, 2, 0, false,false, false, true, 1, true);
         L3Check(input, output);
     }
 
@@ -191,8 +191,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createPortP1P2WithoutNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false, false, 0, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false, false, 0, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false,false, false, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false,false, false, false, 0, true);
         L3Check(input, output);
     }
 
@@ -201,8 +201,8 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_createPortP1P2WithNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
-        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false, true, 1, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false, true, 1, true);
+        NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false,false, false, true, 1, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false,false, false, true, 1, true);
         L3Check(input, output);
     }
 

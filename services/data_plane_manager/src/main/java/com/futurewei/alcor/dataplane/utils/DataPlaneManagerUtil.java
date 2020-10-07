@@ -23,9 +23,11 @@ import com.futurewei.alcor.dataplane.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
 import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.common.enumClass.OperationType;
+import com.futurewei.alcor.schema.Router;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
@@ -45,7 +47,9 @@ public class DataPlaneManagerUtil {
      * @param subnetNum
      * @param NumOfIPsInSubnet1
      * @param NumOfIPsInSubnet2
-     * @param hasRouteEntities
+     * @param hasInternalRouterInfo
+     * @param hasInternalSubnetRoutingTable
+     * @param hasInternalRoutingRule
      * @param hasNeighbor
      * @param neighborNum
      * @param fastPath
@@ -58,7 +62,9 @@ public class DataPlaneManagerUtil {
                                                      int subnetNum,
                                                      int NumOfIPsInSubnet1,
                                                      int NumOfIPsInSubnet2,
-                                                     boolean hasRouteEntities,
+                                                     boolean hasInternalRouterInfo,
+                                                     boolean hasInternalSubnetRoutingTable,
+                                                     boolean hasInternalRoutingRule,
                                                      boolean hasNeighbor,
                                                      int neighborNum,
                                                      boolean fastPath) {
@@ -67,6 +73,36 @@ public class DataPlaneManagerUtil {
         // set operationType and resourceType
         networkConfiguration.setOpType(Common.OperationType.forNumber(operationType));
         networkConfiguration.setRsType(Common.ResourceType.forNumber(resourceType));
+
+        // set routers_internal
+        List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+        if (hasInternalRouterInfo) {
+            InternalRouterInfo routerInfo = new InternalRouterInfo();
+            InternalRouterConfiguration internalRouterConfiguration = new InternalRouterConfiguration();
+            List<InternalSubnetRoutingTable> subnet_routing_tables = new ArrayList<>();
+
+            if (hasInternalSubnetRoutingTable) {
+                InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+                List<InternalRoutingRule> routing_rules = new ArrayList<>();
+
+                if (hasInternalRoutingRule){
+                    InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
+                    routing_rules.add(internalRoutingRule);
+                }
+
+                internalSubnetRoutingTable.setRoutingRules(routing_rules);
+                subnet_routing_tables.add(internalSubnetRoutingTable);
+            }
+
+            internalRouterConfiguration.setSubnetRoutingTables(subnet_routing_tables);
+
+
+            //routerInfo.setOperationType(OperationType.valueOf("create"));
+            routerInfo.setRouterConfiguration(internalRouterConfiguration);
+            internalRouterInfos.add(routerInfo);
+        }
+
+        networkConfiguration.setInternalRouterInfos(internalRouterInfos);
 
         // set neighborInfos
         List<NeighborInfo> neighborINFO = new ArrayList<>();
@@ -134,7 +170,7 @@ public class DataPlaneManagerUtil {
                         false, false);
 
                 List<RouteEntity> routeEntities = new ArrayList<>();
-                if (hasRouteEntities) {
+                if (hasInternalRouterInfo) {
                     RouteEntity routeEntity = new RouteEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.routeId + i,
                             DPMAutoUnitTestConstant.routeName, "", DPMAutoUnitTestConstant.destination, DPMAutoUnitTestConstant.target, 0, RouteTableType.VPC, "");
                     routeEntities.add(routeEntity);
@@ -196,7 +232,9 @@ public class DataPlaneManagerUtil {
      * @param subnetNum
      * @param NumOfIPsInSubnet1
      * @param NumOfIPsInSubnet2
-     * @param hasRouteEntities
+     * @param hasInternalRouterInfo
+     * @param hasInternalSubnetRoutingTable
+     * @param hasInternalRoutingRule
      * @param hasNeighbor
      * @param neighborNum
      * @param fastPath
@@ -210,14 +248,16 @@ public class DataPlaneManagerUtil {
                                                                   int subnetNum,
                                                                   int NumOfIPsInSubnet1,
                                                                   int NumOfIPsInSubnet2,
-                                                                  boolean hasRouteEntities,
+                                                                  boolean hasInternalRouterInfo,
+                                                                  boolean hasInternalSubnetRoutingTable,
+                                                                  boolean hasInternalRoutingRule,
                                                                   boolean hasNeighbor,
                                                                   int neighborNum,
                                                                   boolean fastPath) throws Exception {
         Map<String, Goalstate.GoalState> goalStateHashMap = new HashMap<>();
         for (int i = 0; i < hostNum; i ++) {
             HostGoalState hostGoalState = new HostGoalState();
-            NetworkConfiguration networkConfiguration = autoGenerateUTsInput(operationType, resourceType, portNumPerHost, hostNum, subnetNum, NumOfIPsInSubnet1, NumOfIPsInSubnet2, hasRouteEntities, hasNeighbor, neighborNum, fastPath);
+            NetworkConfiguration networkConfiguration = autoGenerateUTsInput(operationType, resourceType, portNumPerHost, hostNum, subnetNum, NumOfIPsInSubnet1, NumOfIPsInSubnet2, hasInternalRouterInfo, hasInternalSubnetRoutingTable, hasInternalRoutingRule, hasNeighbor, neighborNum, fastPath);
             hostGoalState = buildHostGoalState(networkConfiguration, DPMAutoUnitTestConstant.hostIp + i, networkConfiguration.getPortEntities());
             goalStateHashMap.put(hostGoalState.getHostIp(), hostGoalState.getGoalState());
         }
