@@ -1,0 +1,41 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+
+import "vpc.proto";
+import "subnet.proto";
+import "port.proto";
+import "neighbor.proto";
+import "securitygroup.proto";
+import "dhcp.proto";
+import "router.proto";
+
+message GoalState {
+    uint32 format_version = 1;
+
+    repeated VpcState vpc_states = 2;
+    repeated SubnetState subnet_states = 3;
+    repeated PortState port_states = 4;
+    repeated NeighborState neighbor_states = 5;
+    repeated SecurityGroupState security_group_states = 6;
+    repeated DHCPState dhcp_states = 7;
+    repeated RouterState router_states = 8;
+}

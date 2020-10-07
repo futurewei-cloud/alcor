@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vpc-configmap
+data:
+  application.properties: |
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    logging.level.root=debug
+    logging.level.org.springframework.web=debug
+    logging.file.path=.
+    logging.type=file
+    apache.kafka.address=172.17.0.1:9092
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/vpcs/
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: vpcmanager
+  name: vpcmanager
+spec:
+  selector:
+    matchLabels:
+      app: vpcmanager
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: vpcmanager
+    spec:
+      volumes:
+        - name: vpc-volume
+          configMap:
+            name: vpc-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: vpc_manager:v1.0
+        #- image: fwnetworking/controller:vpc_manager-v0.3.0
+          name: vpcmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorVpcManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: vpc-volume
+              mountPath: /etc/app
+          envFrom:
+            - configMapRef:
+                name: vpc-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpcmanager-service
+  labels:
+    name: vpcmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9001
+      targetPort: 8080
+      nodePort: 30001
+  selector:
+    app: vpcmanager
+

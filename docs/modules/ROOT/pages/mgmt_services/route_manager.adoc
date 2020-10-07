@@ -1,0 +1,1227 @@
+= Route Manager Design Specification
+Chun-Jen Chung <cchung@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-08-17
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+The Route Manager is an Alcor microservice which manages the route tables and route entries for all VPCs and Subnets.
+It also provides router-related functionalities to be compatible with OpenStack Neutron's router APIs.
+Its responsibilities include but are not limited to creating, updating, deleting, and searching routers, route tables,
+and route entries resource for a Network/VPC/Subnet.
+It interacts with VPC Manager, Subnet Manager, Port Manager, and Data Plane Manager to provide route information for them.
+
+== Service Requirements
+
+[arabic]
+. Availability Zone and Subnet-based route table.
+. Default route tables for VPC and subnet.
+. Default route to Internet Gateway in a public subnet route table.
+. Default route to NAT Gateway in a private subnet route table.
+. Router resource managed by an owner, Neutron or VPC.
+. Route table resource managed by an owner, VPC or Subnet.
+. Route entry should include destination, nexthop, target, and priority.
+. Warning message should be raised when adding an invalid routing rule.
+. Route Manager should provide APIs for OpenStack Neutron's Router operations.
+
+== Design
+In order to compatible with both OpenStack Neutron's router concept and VPC's routing table concept in a public cloud,
+the main resource for route manager is designed as a three-layer structure:
+
+image::route_manager_highlevel_design.PNG[]
+
+=== Service Architecture
+
+image::route_manager_service_architecture.PNG[]
+
+=== Key Workflow
+
+** For case #4, add or delete a non-gateway port.
+
+image::route_manager_l3_neighbors_update_4.PNG[]
+
+** For case #5, add or delete a gateway port (for Neutron only).
+
+image::route_manager_l3_neighbors_update_5.PNG[]
+
+** For case #6, update subnet's routing rules.
+
+image::route_manager_subnet_routing_rules_update_6.PNG[]
+
+=== Sequence Diagram
+
+== Database Schema
+
+image::route_manager_data_schemas.PNG[]
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="32%,12%,40%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+|List Neutron routers
+|GET
+|/project/{projectid}/routers
+|All routers' state
+<<neutron_routers_get,[sample]>>
+
+|Create a Neutron router
+|POST
+|/project/{projectid}/routers
+|Router state
+<<neutron_routers_post,[sample]>>
+
+|Show a Neutron router
+|GET
+|/project/{projectid}/routers/{routerid}
+|Router state
+<<neutron_router_get,[sample]>>
+
+|Update a Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}
+|Router state
+<<neutron_router_put,[sample]>>
+
+|Delete a Neutron router
+|DELETE
+|/project/{projectid}/routers/{routerid}
+|ResponseId
+<<neutron_router_del,[sample]>>
+
+|Add an interface to Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/add_router_interface
+|Router state
+<<neutron_router_add_interface,[sample]>>
+
+|Remove an interface from Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/remove_router_interface
+|Router state
+<<neutron_router_rm_interface,[sample]>>
+
+|Add routes to Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/add_extra_routes
+|Router state
+<<neutron_router_add_routes,[sample]>>
+
+|Remove routes from Neutron router
+|PUT
+|/project/{projectid}/routers/{routerid}/remove_extra_routes
+|Router state
+<<neutron_router_rm_routes,[sample]>>
+
+|Get or Create VPC router
+|GET
+|/project/{projectid}/vpcs/{vpcid}/router
+|VPC router state
+<<vpc_get_add_router,[sample]>>
+
+|Delete VPC router
+|DELETE
+|/project/{projectid}/vpcs/{vpcid}/router
+|ResponseId
+<<vpc_rm_router,[sample]>>
+
+|Get or Create VPC default route table
+|GET
+|/project/{projectid}/vpcs/{vpcid}/vpcroutetable
+|VPC routing table state
+<<vpc_add_routetable,[sample]>>
+
+|Update VPC route table
+|PUT
+|/project/{projectid}/vpcs/{vpcid}/vpcroutetable
+|VPC routing rules
+<<vpc_update_routetable,[sample]>>
+
+|List all routing tables in VPC
+|GET
+|/project/{projectid}/vpcs/{vpcid}/routetables
+|List of routing tables
+<<vpc_list_routetables,[sample]>>
+
+|Show a routing table
+|GET
+|/project/{projectid}/routetables/{routetableid}
+|Route table state
+<<vpc_show_routetable,[sample]>>
+
+|Get or Create Subnet route table (for VPC)
+|GET
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<subnet_get_vpc_routetable,[sample]>>
+
+|Get Subnet route table (for Neutron)
+|GET
+|/project/{projectid}/subnets/{subnetid}/neutron-routetable
+|Subnet routetable state
+<<subnet_get_neutron_routetable,[sample]>>
+
+|Create Subnet route table (for Neutron)
+|POST
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routetable state
+<<subnet_add_neutron_routetable,[sample]>>
+
+|Update Subnet route table
+|PUT
+|/project/{projectid}/subnets/{subnetid}/routetable
+|Subnet routing rules
+<<subnet_update_routetable,[sample]>>
+
+|Delete Subnet route table
+|DELETE
+|/project/{projectid}/subnets/{subnetid}/routetable
+|ResponseId
+<<subnet_rm_routetable,[sample]>>
+
+|Get connected subnets
+|GET
+|/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets
+|ResponseId
+<<get_connected_subnets,[sample]>>
+|===
+
+=== API Specification
+
+anchor:neutron_routers_get[]
+**(1) List Neutron routers**
+
+* Method: `GET`
+* Request: `/project/{projectid}/routers`
+* Request Parameter: `@PathVariable String projectid`
+* Action: Lists logical routers that the project who submits the request can access.
+* Response: Routers' state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
+
+Response:
+{
+    "routers": [
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.3",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::c",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+            "name": "router2",
+            "revision_number": 1,
+            "routes": [
+                {
+                    "destination": "179.24.1.0/24",
+                    "nexthop": "172.24.3.99"
+                }
+            ],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        },
+        {
+            "admin_state_up": true,
+            "availability_zone_hints": [],
+            "availability_zones": [
+                "nova"
+            ],
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "distributed": false,
+            "external_gateway_info": {
+                "enable_snat": true,
+                "external_fixed_ips": [
+                    {
+                        "ip_address": "172.24.4.6",
+                        "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                    },
+                    {
+                        "ip_address": "2001:db8::9",
+                        "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                    }
+                ],
+                "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+            },
+            "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+            "ha": false,
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "name": "router1",
+            "revision_number": 1,
+            "routes": [],
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "0bd18306d801447bb457a46252d82d13",
+            "tenant_id": "0bd18306d801447bb457a46252d82d13",
+            "service_type_id": null,
+            "tags": ["tag1,tag2"],
+            "conntrack_helpers": [
+                {
+                    "protocol": "udp",
+                    "helper": "tftp",
+                    "port": 69
+                },
+                {
+                    "protocol": "tcp",
+                    "helper": "ftp",
+                    "port": 21
+                }
+            ]
+        }
+    ]
+}
+....
+
+anchor:neutron_routers_post[]
+**(2) Create a Neutron router**
+
+* Method: `POST`
+* Request: `/project/{projectid}/routers`
+* Request Parameter: `@PathVariable String projectid, @RequestBody RouterWebRequestJson resource`
+* Operation: Creates a logical router. The logical router does not have any internal interface
+and it is not associated with any subnet.
+*** You can optionally specify an external gateway for a router at create time.
+Need to update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager,
+* Response: Router's state
+* Normal response codes: 201
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers
+
+Body:
+{
+    "router": {
+        "name": "router1",
+        "external_gateway_info": {
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ]
+        },
+        "admin_state_up": true
+    }
+}
+
+Response:
+{
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "routes": [],
+        "revision_number": 1,
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
+}
+....
+
+anchor:neutron_router_get[]
+**(3) Show a Neutron router**
+
+* Method: `GET`
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
+* Action: Shows details for a router
+* Response: Router state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
+
+Response:
+{
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                },
+                {
+                    "ip_address": "2001:db8::9",
+                    "subnet_id": "0c56df5d-ace5-46c8-8f4c-45fa4e334d18"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "revision_number": 1,
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ],
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
+}
+....
+
+anchor:neutron_router_put[]
+**(4) Update a Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody RouterWebRequestJson resource`
+* Operation: Updates a logical router. This operation does not enable the update of router's internal interfaces.
+** If the update include an external gateway for the router, the operation will ask Subnet Manager to
+update port's **device_owner** attribute to **network:router_gateway** in the Subnet Manager.
+** If the update include routes, the existing all routes will be replaced by new routes.
+* Response: Router's state
+* Normal response codes: 201
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
+
+Body:
+{
+    "router": {
+        "distributed": false,
+        "external_gateway_info": {
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ]
+        },
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ]
+    }
+}
+
+Response:
+{
+    "router": {
+        "admin_state_up": true,
+        "availability_zone_hints": [],
+        "availability_zones": [
+            "nova"
+        ],
+        "created_at": "2018-03-19T19:17:04Z",
+        "description": "",
+        "distributed": false,
+        "external_gateway_info": {
+            "enable_snat": true,
+            "external_fixed_ips": [
+                {
+                    "ip_address": "172.24.4.6",
+                    "subnet_id": "b930d7f6-ceb7-40a0-8b81-a425dd994ccf"
+                }
+            ],
+            "network_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        },
+        "flavor_id": "f7b14d9a-b0dc-4fbe-bb14-a0f4970a69e0",
+        "ha": false,
+        "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+        "name": "router1",
+        "revision_number": 3,
+        "routes": [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ],
+        "status": "ACTIVE",
+        "updated_at": "2018-03-19T19:17:22Z",
+        "project_id": "0bd18306d801447bb457a46252d82d13",
+        "tenant_id": "0bd18306d801447bb457a46252d82d13",
+        "service_type_id": null,
+        "tags": ["tag1,tag2"],
+        "conntrack_helpers": []
+    }
+}
+....
+
+anchor:neutron_router_del[]
+**(5) Delete a Neutron router**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/routers/{routerid}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid`
+* Operation: Deletes a logical router.
+** If external gateway interface presents, ask Subnet Manager to unattach the gateway port (reset port's **device_id** attribute).
+** This operation fails if the router has attached internal interfaces.
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95
+
+Response:
+{"id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95"}
+....
+
+anchor:neutron_router_add_interface[]
+**(6) Add an interface to Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/add_router_interface`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Adds an internal interface to a logical router.
+** Specify the ID of a subnet or port in the request body:
+*** _Subnet ID_. Ask Subnet Manager about the gateway IP address for the subnet and its port id.
+*** _Port ID_. Ask Subnet Manager about the gateway IP address associated with the port and it's subnet id.
+If a port with the same network ID does not exist, this operation will ask Subnet Manager to create a port and attach it to the router.
+** This operation will ask Subnet Manager to update the following attributes for the port:
+*** The **device_id** attribute of this port to the router ID
+*** The **device_owner** attribute to **network:router_interface**
+** If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
+** If the port is already in use (ask Subnet Manager), this operation returns the Conflict (409) response code.
+** If no error, the same ID that is passed in the request body when a port is specified or
+the ID of a port that this operation creates to attach the subnet to the router will be returned.
+** This operation needs to notify Port Manager or Subnet Manager to update L3 neighbors information for all ports in the
+same subnet and all ports in the connected subnets (refer to case #5 in the key workflow).
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409
+* Example
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_router_interface
+
+Body:
+{
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"
+}
+
+or
+
+{
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0"
+}
+
+Response:
+{
+    "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+    "network_id": "91c013e2-d65a-474e-9177-c3e1799ca726",
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0",
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1",
+    "subnet_ids": [
+        "a2f1f29d-571b-4533-907f-5803ab96ead1"
+    ],
+    "project_id": "0bd18306d801447bb457a46252d82d13",
+    "tenant_id": "0bd18306d801447bb457a46252d82d13",
+    "tags": ["tag1,tag2"]
+}
+....
+
+anchor:neutron_router_rm_interface[]
+**(7) Remove an interface from Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/remove_router_interface`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Delete an internal router interface, which detach a subnet from the router.
+** You must specify either a subnet ID or port ID in the request body; the operation uses this value to identify which router interface to delete.
+** After you run this operation,
+**  If you specify both subnet ID and port ID, the subnet ID must correspond to the subnet ID of the first IP address on the port.
+Otherwise, this operation returns the Conflict (409).
+** If you try to delete the router interface for subnets that are used by one or more **routes**, this operation returns the Conflict (409) response code.
+** If the router or the subnet and port do not exist or are not visible to you, this operation returns the **Not Found (404)** response code.
+** As a consequence of this operation, the operation removes the port connecting the router with the subnet from the subnet for the network.
+The operation ask Subnet Manager to reset he following attributes for the port:
+*** **device_id** attribute
+*** **device_owner** attribute
+** This operation needs to notify Port Manager or Subnet Manager to update L3 neighbors information for all ports in the
+same subnet and all ports in the connected subnets (refer to case #5 in the key workflow).
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_router_interface
+
+Body:
+{
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"
+}
+
+or
+
+{
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0"
+}
+
+Response:
+{
+    "id": "915a14a6-867b-4af7-83d1-70efceb146f9",
+    "network_id": "91c013e2-d65a-474e-9177-c3e1799ca726",
+    "port_id": "2dc46bcc-d1f2-4077-b99e-91ee28afaff0",
+    "subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1",
+    "subnet_ids": [
+        "a2f1f29d-571b-4533-907f-5803ab96ead1"
+    ],
+    "project_id": "0bd18306d801447bb457a46252d82d13",
+    "tenant_id": "0bd18306d801447bb457a46252d82d13",
+    "tags": ["tag1,tag2"]
+}
+....
+
+anchor:neutron_router_add_routes[]
+**(8) Add routes to Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/add_extra_routes`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Atomically adds a set of extra routes to the router’s already existing extra routes.
+** When (destinationA, nexthopA) is to be added but it is already present that is accepted and the request succeeds.
+** Two or more routes with the same destination but with different nexthops are all accepted.
+** A route whose destination overlaps the destination of existing routes (e.g. 192.168.1.0/24 and 192.168.1.0/22) can be added and existing routes are left untouched.
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/add_extra_routes
+
+Body:
+{
+   "router" : {
+      "routes" : [
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
+
+Response:
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
+....
+
+anchor:neutron_router_rm_routes[]
+**(9) Remove routes from Neutron router**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/routers/{routerid}/remove_extra_routes`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routertid, @RequestBody WebRequestJson resource`
+* Operation: Atomically removes a set of extra routes from the router’s already existing extra routes.
+** An extra route is only removed if there is an exact match (including the destination and nexthop) between the route sent and the route already present.
+** When (destinationA, nexthopA) is to be removed but it is already missing that is accepted and the request succeeds.
+* Response: Router's state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/f8a44de0-fc8e-45df-93c7-f79bf3b01c95/remove_extra_routes
+
+Body:
+{
+   "router" : {
+      "routes" : [
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13" },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14" }
+      ]
+   }
+}
+
+Response:
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" }
+      ]
+   }
+}
+....
+
+anchor:vpc_get_add_router[]
+**(10) Get or Create VPC router**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/router`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get or create a router for a VPC.
+** If VPC already has a router, return the router state.
+** If VPC doesn't have a router, create a new router, create a VPC routing table and pump-in the VPC default routing rules.
+* Response: VPC router state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/router
+
+Response:
+{
+    "router":
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "admin_state_up": true,
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCrouter",
+            "status": "ACTIVE",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        }
+}
+....
+
+anchor:vpc_rm_router[]
+**(11) Delete VPC router**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/vpcs/{vpcid}/router`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Deletes a VPC router.
+** This operation fails if the VPC router contains subnet routing tables.
+** If there is no any subnet routing tables attached to the VPC router, this operation will delete VPC routing table and VPC router.
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 409, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/router
+
+Response:
+{"id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95"}
+....
+
+anchor:vpc_add_routetable[]
+**(12) Get or Create VPC default route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/vpcroutetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get or create a router for a VPC.
+** If VPC has a VPC routing table, return the routing table's state.
+** If VPC doesn't have a VPC routing table, this operation will create a VPC routing table and pump-in the VPC default routing rules.
+* Response: VPC routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/vpcroutetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC",
+            "routes" : [
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": 100 },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 200 }
+            ]
+        }
+}
+....
+
+anchor:vpc_update_routetable[]
+**(13) Update VPC route table**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/vpcs/{vpcid}/vpcroutetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Update routing rules for VPC's default routing table.
+** The existing routing rules in VPC's default routing table will be replaced by new routing rules.
+** If the existing routing rules are not included in the request body :
+*** If those exisitng rules didn't used by any subnet's routing table (#may not need to check#),
+the operation will delete those rules from routing rule entity.
+*** If those existing rules are currently used by other subnet's routing table,
+the opratoin returns the Conflict (409) response code. (#may not need to check#)
+** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
+*** If the same routing rule with different priority, the operation just need to update the priroity for the specified routing rules.
+** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
+** #This operation will impact all subnets that currently using VPC default routing rules. After updating,
+Route Manager may need to push new VPC default routing rules to those subnets in DPM/ACA.#
+* Response: VPC routing rules
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/vpcroutetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC",
+            "routes" : [
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+            ]
+        }
+}
+....
+
+anchor:vpc_list_routetables[]
+**(14) List all routing tables in VPC**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/routetables`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
+* Operation: Get a list of routing tables in a VPC, including routing tables for VPC default, public subnet, and private subnet.
+* Response: List of routing tables in a VPC
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/routetables
+
+Response:
+{
+    "routetables": [
+        {
+            "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+            "owner" : "VPC:9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "VPCroutetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "VPC",
+            "routes" : [
+                { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11", "priority": 100 },
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 200 }
+            ]
+        },
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.0.1", "priority": 100 }
+            ]
+        },
+    ]
+}
+....
+
+anchor:vpc_show_routetable[]
+**(15) Show a routing table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/routetables/{routetableid}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String routetableid`
+* Operation: Get detail information of a routing table by routetable id.
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/routetable/f79bf3b0-fc8e-45df-93c7-f8a44de01c95
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_get_vpc_routetable[]
+**(16) Get or Create a VPC Subnet route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get or Create a VPC subnet routing table.
+** If the routing table doesn't exist, this operation will create a routing table for the subnet.
+** (_How to assign public or private subnet?_) **
+** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
+(_Pending Item: the contract and API from Subnet Manager_)
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_get_neutron_routetable[]
+**(17) Show a Neutron Subnet route table**
+
+* Method: `GET`
+* Request: `/project/{projectid}/subnets/{subnetid}/neutron-routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get detail information of a Neutron subnet routing table.
+** If the routing table doesn't exist, return NONE.
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "neutron-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_add_neutron_routetable[]
+**(18) Create Neutron Subnet route table**
+
+* Method: `POST`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Create a Neutron subnet routing table.
+** Assign *neutron-subnet* for *type* in the route table.
+** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
+(_Pending Item: the contract and API from Subnet Manager__)
+* Response: Routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+         { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 },
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "neutron-subnet",
+            "routes" : [
+                { "destination" : "192.168.1.0/24", "nexthop" : "192.168.1.1", "priority": 100 },
+                { "destination" : "192.168.2.0/24", "nexthop" : "192.168.2.1", "priority": 100 }
+            ]
+        }
+}
+....
+
+anchor:subnet_update_routetable[]
+**(19) Update Subnet route table**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Update subnet's routing rules.
+** The existing routing rules in subnet's routing table will be replaced by new routing rules.
+** If the existing routing rules are not included in the request body, just delete them.
+** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
+** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
+** For new routing rules, this operation will create new routing rule entities and insert them into routing table.
+** #This operation needs to notify Subnet Manager to update L3 neighbor for all ports in the same subnet.#
+(refer to case #6 in the key workflow)
+* Response: Subnet routing table state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 409, 412, 500
+* Example
+
+....
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Body:
+{
+   "routetable" : {
+      "routes" : [
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+         { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+         { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+      ]
+   }
+}
+
+Response:
+{
+    "routetable":
+        {
+            "id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95",
+            "owner" : "subnet:8d36e3d8-ffff-4ece-b3f0-9192a4d48038",
+            "created_at": "2018-03-19T19:17:04Z",
+            "description": "",
+            "name": "subnet1-routetable",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "tenant_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "type": "private-subnet",
+            "routes" : [
+                { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12", "priority": 100 },
+                { "destination" : "10.0.3.0/24", "nexthop" : "10.0.0.13", "priority": 200 },
+                { "destination" : "10.0.4.0/24", "nexthop" : "10.0.0.14", "priority": 300 }
+            ]
+        }
+}
+....
+
+anchor:subnet_rm_routetable[]
+**(20) Delete Subnet route table**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/subnets/{subnetid}/routetable`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Deletes a subnet routing table. (#May not needed.#)
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/routetable
+
+Response:
+{"id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95"}
+....
+
+anchor:get_connected_subnets[]
+**(21) Get connected subnets**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpcid}/subnets/{subnetid}/connected-subnets`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
+* Operation: Get connected subnets and router's information for the new added subnet (refer to case #4 in the key workflow).
+This operation has three cases depending on the routing table type for the input subnet.
+** If the subnet has no corresponding routing table (for neutron subnet only), return null.
+** If the subnet's routing table type is *neutron*: (1) get router by *network:id*
+(2) get ports from the router (3) get each port's correcponding subnet-id via Subnet Manager's API
+(4) return all connected subnet-ids and router's information
+** If the subnet's routing table type is not neutron: (1) get router by *VPC:id*
+(2) get all routing tables from the router (3) get subnet-id from each routing table
+(4) return all subnet-ids and router's information
+* Response: Router state and all connected subnet-ids
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/connected-subnets
+
+Response:
+{
+   "router" : {
+      "id" : "64e339bb-1a6c-47bd-9ee7-a0cf81a35172",
+      "name" : "router1",
+      "routes" : [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" }
+      ]
+   },
+   "subnets": ["subnet1-id", "subnet2-id"]
+}
+....
+
+== Concurrency Handling
+
+//include::../../../services/vpc_manager/target/swagger/swagger.adoc[]

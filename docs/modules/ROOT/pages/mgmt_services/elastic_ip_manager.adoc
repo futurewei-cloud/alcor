@@ -1,0 +1,768 @@
+= Elastic IP Manager Design Specification
+Eric Yuan <dakuaiera@sina.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-05-24
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Overview
+
+The Elastic IP (EIP) manager is responsible of allocating and releasing EIP as well as associating the allocated EIP to a running instance or network interface (port).
+This is the acting microservice that provides elastic/floating IP APIs to external customers (through API gateway) and driving the elastic IP CURD workflow.
+A network interface with an enabled EIP could establish inbound connections from and outbound connections to external networks like Internet.
+
+=== User Cases
+A customer of Alcor could leverage Elastic IP manager in the following cases:
+
+* Allocate or release a _standalone_ EIP within the user account.
+* Associate or disassociate an EIP to a running instance, which by default attach to its primary interface.
+* Associate or disassociate an EIP to a network interface.
+
+=== Service Basic Requirements
+
+[arabic]
+1. Provide CURD REST APIs for customers or provider admins to management EIPs. The APIs are compatible to OpenStack Neutron v2.0 APIs <<neutron_api>>.
+1. Provide CURD REST APIs for cloud provider admins to register or unregister a list of public IPv4 or IPv6 ranges in EIP manager.
+Note that those IP ranges should be owned by cloud provider.
+1. Allocate _standalone_ and _unique_ EIP address. Guarantee uniqueness of EIP address in a regional scope.
+1. Release public IP address per customer request or other microservices, and make it ready for reuse for other customers.
+1. Release (port, EIP) association when a port is to be deleted.
+1. Maintain EIP states and a mapping from an EIP to its owning interface/port.
+1. Association of an EIP to a running instance or network interface (port) at POST call (when fixed_ip_address is not NULL), or at PUT call.
+1. Disassociation of EIP with a network interface (primary or secondary).
+1. Working together with other services including port manager and DNS manager for allocation of port and external DNS, respectively.
+1. Concurrency control mechanism should be provided to process multiple concurrent EIP allocation requests.
+
+=== Service Advanced Requirements
+
+[arabic, start=11]
+1. Support bulk allocation and release of a list of IP addresses.
+1. Support BYOIP to allow customers to bring existing public IPv4 address range or IPv6 address range from their on-premises network to Alcor.
+
+== Workflow
+
+=== EIP Management
+
+=== EIP Association with Ports
+
+=== EIP Range Management
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Create an elastic IP
+|POST
+|/project/{project_id}/elasticips
+|elasticip info
+<<Elastic_IP_Create,[sample]>>
+
+|Get the elastic IP
+|GET
+|/project/{project_id}/elasticips/{elasticip_id}
+|elasticip info
+<<Elastic_IP_Get,[sample]>>
+
+|Get all elastic IPs
+|GET
+|/project/{project_id}/elasticips
+|elasticip info list
+<<Elastic_IP_Get_List,[sample]>>
+
+|Delete the elastic IP
+|DELETE
+|/project/{project_id}/elasticips/{elasticip_id}
+|
+<<Elastic_IP_Delete,[sample]>>
+
+|Bulk create elastic IPs
+|POST
+|/project/{project_id}/elasticips
+|elasticip info list
+<<Elastic_IP_Bulk_Create,[sample]>>
+
+|Bulk delete elastic IPs
+|DELETE
+|/project/{project_id}/elasticips
+|
+<<Elastic_IP_Bulk_Delete,[sample]>>
+
+|Update the elastic IP
+|PUT
+|/project/{project_id}/elasticips/{elasticip_id}
+|elasticip info
+<<Elastic_IP_Update,[sample]>>
+
+|Create an elastic IP range
+|POST
+|/elasticip-ranges
+|elasticip range info
+<<Elastic_IP_Range_Create,[sample]>>
+
+|Get the elastic IP range
+|GET
+|/elasticip-ranges/{elasticip_range_id}
+|elasticip range info
+<<Elastic_IP_Range_Get,[sample]>>
+
+|Get all elastic IP ranges
+|GET
+|/elasticip-ranges
+|elasticip range info list
+<<Elastic_IP_Range_Get_List,[sample]>>
+
+|Delete the elastic IP range
+|DELETE
+|/elasticip-ranges/{elasticip_range_id}
+|
+<<Elastic_IP_Range_Delete,[sample]>>
+
+|Update the elastic IP range
+|PUT
+|/project/{project_id}/elasticip-ranges/{elasticip_range_id}
+|elasticip range info
+<<Elastic_IP_Range_Update,[sample]>>
+
+|===
+
+=== API Specification
+
+anchor:Elastic_IP_Create[]
+**(1) Create an elastic IP**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/elasticips`
+
+* Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpStateJson elasticip`
+
+* Response: elastic ip info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips
+
+Body:
+{
+    "elasticip":
+    {
+        "id": null,
+        "project_id":"11223344-5566-7788-990011223300",
+        "name":"eip1",
+        "description":"elastic ip 1",
+        "elastic_ip_version":4,
+        "elastic_ip":null,
+        "port_id":null,
+        "private_ip_version":null,
+        "private_ip":null,
+        "dns_name":null,
+        "dns_domain":null,
+        "state":null
+    }
+}
+
+Response:
+{
+    "elasticip":
+    {
+        "id": "11223344-5566-7788-9900112233aa",
+        "project_id":"11223344-5566-7788-990011223300",
+        "name":"eip1",
+        "description":"elastic ip 1",
+        "elastic_ip_version":4,
+        "elastic_ip":"202.10.10.112",
+        "port_id":null,
+        "private_ip_version":null,
+        "private_ip":null,
+        "dns_name":null,
+        "dns_domain":null,
+        "state":"deactivated"
+    }
+}
+
+....
+
+anchor:Elastic_IP_Get[]
+**(2) Get the elastic IP**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/elasticips/{elasticip_id}`
+
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id`
+
+* Response: elastic ip info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips/11223344-5566-7788-990011223300
+
+Response:
+{
+    "elasticip":
+    {
+        "id": "11223344-5566-7788-9900112233aa",
+        "project_id":"11223344-5566-7788-990011223300",
+        "name":"eip1",
+        "description":"elastic ip 1",
+        "elastic_ip_version":4,
+        "elastic_ip":"202.10.10.112",
+        "port_id":null,
+        "private_ip_version":null,
+        "private_ip":null,
+        "dns_name":null,
+        "dns_domain":null,
+        "state":"deactivated"
+    }
+}
+
+....
+
+anchor:Elastic_IP_Get_List[]
+**(3) Get all elastic IPs**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/elasticips`
+
+* Request Parameter: `@PathVariable String project_id`
+
+* Response: elasticip info list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips
+
+Response:
+{
+    "elasticips":
+    [
+        {
+            "id": "11223344-5566-7788-9900112233aa",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip1",
+            "description":"elastic ip 1",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.112",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":"deactivated"
+        },
+        {
+            "id": "11223344-5566-7788-9900112233bb",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip1",
+            "description":"elastic ip 2",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.113",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":"deactivated"
+        }
+    ]
+}
+
+....
+
+anchor:Elastic_IP_Get[]
+**(4) Delete the elastic IP**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/elasticips/{elasticip_id}`
+
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id`
+
+* Response: null
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips/11223344-5566-7788-990011223300
+
+Response:
+null
+
+....
+
+anchor:Elastic_IP_Bulk_Create[]
+**(5) Bulk create elastic IPs**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/elasticips`
+
+* Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpsStateJson elasticips`
+
+* Response: elasticip info list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips
+
+Body:
+{
+    "elasticips":
+    [
+        {
+            "id": null,
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip1",
+            "description":"elastic ip 1",
+            "elastic_ip_version":4,
+            "elastic_ip":null,
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":null
+        },
+        {
+            "id": null,
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip2",
+            "description":"elastic ip 2",
+            "elastic_ip_version":4,
+            "elastic_ip":null,
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":null
+        }
+    ]
+}
+
+Response:
+{
+    "elasticips":
+    [
+        {
+            "id": "11223344-5566-7788-9900112233aa",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip1",
+            "description":"elastic ip 1",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.112",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":"deactivated"
+        },
+        {
+            "id": "11223344-5566-7788-9900112233bb",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip2",
+            "description":"elastic ip 2",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.113",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":"deactivated"
+        }   
+    ]
+}
+
+....
+
+anchor:Elastic_IP_Bulk_Delete[]
+**(6) Bulk delete elastic IPs**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/elasticips`
+
+* Request Parameter: `@PathVariable String project_id, @RequestBody ElasticIpsStateJson elasticips`
+
+* Response: null
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips
+
+Body:
+{
+    "elasticips":
+    [
+        {
+            "id": "11223344-5566-7788-9900112233aa",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip1",
+            "description":"elastic ip 1",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.112",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":null
+        },
+        {
+            "id": "11223344-5566-7788-9900112233bb",
+            "project_id":"11223344-5566-7788-990011223300",
+            "name":"eip2",
+            "description":"elastic ip 2",
+            "elastic_ip_version":4,
+            "elastic_ip":"202.10.10.113",
+            "port_id":null,
+            "private_ip_version":null,
+            "private_ip":null,
+            "dns_name":null,
+            "dns_domain":null,
+            "state":null
+        }   
+    ]
+}
+
+Response:
+null
+
+....
+
+anchor:Elastic_IP_Update[]
+**(7) Update the elastic IP**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/elasticips/{elasticip_id}`
+
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id, @RequestBody ElasticIpsStateJson elasticips`
+
+* Response: elastic ip info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticips/11223344-5566-7788-9900112233aa
+
+Body:
+{
+    "elasticip":
+    {
+        "id": "11223344-5566-7788-9900112233aa",
+        "project_id":"11223344-5566-7788-990011223300",
+        "name":"eip1",
+        "description":"elastic ip 1",
+        "elastic_ip_version":4,
+        "elastic_ip":"202.10.10.112",
+        "port_id":"11223344-5566-7788-990011223302",
+        "private_ip_version":4,
+        "private_ip":"192.168.10.10",
+        "dns_name":null,
+        "dns_domain":null,
+        "state":null
+    }
+}
+
+Response:
+{
+    "elasticip":
+    {
+        "id": "11223344-5566-7788-9900112233aa",
+        "project_id":"11223344-5566-7788-990011223300",
+        "name":"eip1",
+        "description":"elastic ip 1",
+        "elastic_ip_version":4,
+        "elastic_ip":"202.10.10.112",
+        "port_id":"11223344-5566-7788-990011223302",
+        "private_ip_version":4,
+        "private_ip":"192.168.10.10",
+        "dns_name":null,
+        "dns_domain":null,
+        "state":"activated"
+    }
+}
+
+....
+
+anchor:Elastic_IP_Range_Create[]
+**(8) Create an elastic IP range**
+
+* Method: `POST`
+
+* Request: `/elasticip-ranges`
+
+* Request Parameter: `@RequestBody ElasticIpRangeStateJson elasticip_range`
+
+* Response: elasticip range info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticip-ranges
+
+Body:
+{
+    "elasticip-range":
+    {
+        "id": null,
+        "name":"eip-range1",
+        "description":"elastic ip range 1",
+        "ip_version":4,
+        "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}],
+        "total_ip_count": null,
+        "used_ip_count": null
+    }
+}
+
+Response:
+{
+    "elasticip-range":
+    {
+        "id": "11223344-5566-7788-990011223301",
+        "name":"eip-range1",
+        "description":"elastic ip range 1",
+        "ip_version":4,
+        "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}],
+        "total_ip_count": 506,
+        "used_ip_count": 0
+    }
+}
+
+....
+
+anchor:Elastic_IP_Range_Get[]
+**(9) Get the elastic IP range**
+
+* Method: `GET`
+
+* Request: `/elasticip-range/{elasticip_range_id}`
+
+* Request Parameter: `@PathVariable String elasticip_range_id`
+
+* Response: elasticip range info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticip-range/11223344-5566-7788-990011223301
+
+Response:
+{
+    "elasticip-range":
+    {
+        "id": "11223344-5566-7788-990011223301",
+        "name":"eip-range1",
+        "description":"elastic ip range 1",
+        "ip_version":4,
+        "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}],
+        "total_ip_count": 506,
+        "used_ip_count": 0
+    }
+}
+
+....
+
+anchor:Elastic_IP_Range_Get_List[]
+**(9) Get all elastic IP ranges
+
+* Method: `GET`
+
+* Request: `/elasticip-ranges`
+
+* Request Parameter: ``
+
+* Response: elasticip range info list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticip-ranges
+
+Response:
+{
+    "elasticip-ranges":
+    [
+        {
+            "id": "11223344-5566-7788-990011223301",
+            "name":"eip-range1",
+            "description":"elastic ip range 1",
+            "ip_version":4,
+            "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}],
+            "total_ip_count": 506,
+            "used_ip_count": 0
+        },
+        {
+            "id": "11223344-5566-7788-990011223302",
+            "name":"eip-range2",
+            "description":"elastic ip range 2",
+            "ip_version":4,
+            "allocation_ranges": [{"start": "202.10.30.2", "end": "202.10.30.254"}],
+            "total_ip_count": 253,
+            "used_ip_count": 0
+        }
+    ]
+}
+
+....
+
+anchor:Elastic_IP_Range_Delete[]
+**(10) Delete the elastic IP range**
+
+* Method: `DELETE`
+
+* Request: `/elasticip-range/{elasticip_range_id}`
+
+* Request Parameter: `@PathVariable String elasticip_range_id`
+
+* Response: null
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticip-range/11223344-5566-7788-990011223301
+
+Response:
+null
+
+....
+
+anchor:Elastic_IP_Range_Update[]
+**(11) Update the elastic IP range**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/elasticip-ranges/{elasticip_range_id}`
+
+* Request Parameter: `@PathVariable String project_id, @PathVariable String elasticip_id, @RequestBody ElasticIpsStateJson elasticips`
+
+* Response: elasticip range info
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/elasticip-range/11223344-5566-7788-990011223301
+
+Body:
+{
+    "elasticip-range":
+    {
+        "id": "11223344-5566-7788-990011223301",
+        "name":"eip-range1",
+        "description":"elastic ip range 1",
+        "ip_version":4,
+        "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}, {"start": "202.10.50.2", "end": "202.10.50.254"}],
+        "total_ip_count": null,
+        "used_ip_count": null
+    }
+}
+
+Response:
+{
+    "elasticip-range":
+    {
+        "id": "11223344-5566-7788-990011223301",
+        "name":"eip-range1",
+        "description":"elastic ip range 1",
+        "ip_version":4,
+        "allocation_ranges": [{"start": "202.10.10.2", "end": "202.10.10.254"}, {"start": "202.10.20.2", "end": "202.10.20.254"}, {"start": "202.10.50.2", "end": "202.10.50.254"}]],
+        "total_ip_count": 759,
+        "used_ip_count": 0
+    }
+}
+
+....
+
+== Database Data Schema
+
+=== Elastic IP State
+One Elastic IP falls into one of two states:
+
+[width="100%",cols="30%,70%"]
+|===
+|*State* |*Details*
+
+|Activated
+|Elastic IP is associated with a port.
+
+|Deactivated
+|Elastic IP is not associated with any port.
+|===
+
+== IP allocation algorithm
+
+Because the elastic IP address pools are regional shared resources, the IP allocation algorithm needs take concurrency design for multiple calls from different customers at same time into consideration.
+It should be noted that the situation in IPv4 is quite different from that in IPv6. 
+In the protocol design of IPv6, the assignable address range of each IPv6 subnet is 2 ^ 64, which makes the probability of select a same address is very small when two addresses are randomly selected independently. Also, since 2 ^ 64 is a quite large number, the range of addresses that can be assigned remains almost unchanged even after millions of IPv6 addresses have been assigned, and the probability of randomly select a address that happens to be one of the assigned addresses is very small.
+The situation in IPv4 is different, because of the scarcity of IPv4 globally unique IPv4 addresses, cause for a public cloud services provider, IPv4 elastic IP address pools may not be very large. Generally  those address pools are consist of dozens of CIDRs with 20 to 24 mask length, which makes the IP allocation algorithm should early exclude those allocated IP addresses, and use some lock mechanism to avoid concurrency calls being assigned a same address.
+Therefore, IPv4 and IPv6 for elastic IP are recommended to use different allocation algorithms.
+
+=== IPv4 allocation algorithm
+[arabic]
+. Consider splitting the IPv4 address pool into 512 buckets according to a fixed algorithm. Each bucket carries a portion of the IPv4 address pool.
+. Each bucket should record a list of available addresses, so that when the bucket is selected, an allocable address can be quickly obtained.
+. Each bucket should also record a list of addresses that have been allocated so that the list of available addresses per bucket can be more easily updated when the address pool range changes.
+. There should be a global table that records which buckets no longer have available addresses in order to bypass them when randomly selecting buckets, and this table entry should be updated when the last available address of a bucket is allocated, or when an IP is released to a bucket with a empty available addresses list, and when the address pool range changes. A lock are required for updates.
+. When the address pool is too small to be divided into 512 buckets, these buckets without address can be treated as buckets without available addresses.
+. A feasible algorithm to split addresses into buckets is according to the remainder of the integer corresponds to each address divided by 512. When the address pool range changes, the bucket to which the assigned address belongs can remain unchanged.
+
+=== IPv6 allocation algorithm
+For each allocated IPv6 address there should be a independent record. When to randomly allocate an IPv6 address from a pool, it is needed to lock with the IPv6 address as key, and confirm the address is not  allocated according to the record.
+
+[bibliography]
+== References
+
+- [[[neutron_api,1]]] OpenStack Neutron API v2.0: https://docs.openstack.org/api-ref/network/v2/?expanded=#list-floating-ips
+
+
+

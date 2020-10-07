@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ip-configmap
+data:
+  application.properties: |
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
+    ignite.port=10801
+    logging.level.root=DEBUG
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ipmanager
+  name: ipmanager
+spec:
+  selector:
+    matchLabels:
+      app: ipmanager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ipmanager
+    spec:
+      volumes:
+        - name: ip-volume
+          configMap:
+            name: ip-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: private_ip_manager:v1.0
+        #- image: fwnetworking/controller:ip_manager-v0.3.0
+          name: ipmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorPrivateIpManager-0.1.0.jar", "--spring.config.location=/etc/ip/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: ip-volume
+              mountPath: /etc/ip
+          envFrom:
+            - configMapRef:
+                name: ip-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipmanager-service
+  labels:
+    name: ipmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9004
+      targetPort: 8080
+      nodePort: 30004
+  selector:
+    app: ipmanager
+

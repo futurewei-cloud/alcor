@@ -1,0 +1,76 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+option java_outer_classname = "Common";
+
+enum ResourceType {
+    VPC = 0;
+    SUBNET = 1;
+    PORT = 2;
+    NEIGHBOR = 3;
+    SECURITYGROUP = 4;
+    DHCP = 5;
+    ROUTER = 6;
+}
+
+enum OperationType {
+    CREATE = 0;
+    UPDATE = 1;
+    GET = 2;
+    DELETE = 3;
+    INFO = 4;
+    NEIGHBOR_CREATE_UPDATE = 5; // To be removed after using NeighborState
+    NEIGHBOR_GET = 6;           // To be removed after using NeighborState
+    NEIGHBOR_DELETE = 7;        // To be removed after using NeighborState
+}
+
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    INVALID_ARG = 2;
+    PENDING = 3;
+}
+
+enum EtherType {
+    IPV4 = 0;
+    IPV6 = 1;
+}
+
+enum Protocol {
+    TCP = 0;
+    UDP = 1;
+    ICMP = 2;
+    HTTP = 3;
+    ARP = 4;
+}
+
+enum NetworkType { 
+    VXLAN = 0; // the default type
+    VLAN = 1;
+    GRE = 2;
+    GENEVE = 3;
+    VXLAN_GPE = 4;
+}
+
+enum MessageType { 
+    DELTA = 0; // the default type
+    FULL = 1;
+}

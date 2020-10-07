@@ -1,0 +1,1123 @@
+= Security Group Manager Design Specification
+Piaoping Chen <chenpiaoping@yeah.net>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-04-08
+:toc: right
+
+== Overview
+
+Security Group Manager is an Alcor microservice which manages the lifecycle of all security groups and security group rules.
+It provides rest interfaces for creating security group, updating security group, deleting security group, creating security group rule,
+deleting security group rule, port binding security groups, and port unbinding security groups. Port Manager binds port to security groups by
+interacting with Security Group Manager.By default, each tenant has at least one security group, the default security group, which contains two default ingress security group rules. When tenant creates the first security group, Security Group Manager determines whether the tenant has a default security group, if it does not, create a default security group. If the tenant does not specify a security group when creating the port, the port should bind to the default security group.
+A port can bind to multiple security groups, but bind at least one. When port binds to a security group, Security Group Manager creates a binding relationship table entry between port and security group, and deletes the binding relationship table entry when port is released.
+
+
+== Service Requirements
+
+[arabic]
+. Managing security group and security group rule resources.
+. Create (port, Security Group) association when a port is created.
+. Release (port, Security Group) association when a port is released.
+. Concurrency control mechanism should be provided to process multiple concurrent bind/unbind Security Group requests.
+. Working together with other services including subnet manager, port manager.
+
+
+== REST APIs
+
+=== API Snapshot
+
+[width="100%",cols="22%,12%,50%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+
+|Create Security Group
+|POST
+|/project/{project_id}/security-groups
+|Security Group
+<<Create_Security_Group,[sample]>>
+
+|Create Security Group Bulk
+|POST
+|/project/{project_id}/security-groups/bulk
+|Security Group list
+<<Create_Security_Group_Bulk,[sample]>>
+
+|Update Security Group
+|PUT
+|/project/{project_id}/security-groups/{security_group_id}
+|Security Group
+<<Update_Security_Group,[sample]>>
+
+|Get Security Group
+|GET
+|/project/{project_id}/security-groups/{security_group_id}
+|Security Group
+<<Get_Security_Group,[sample]>>
+
+|List Security Group
+|GET
+|/project/{project_id}/security-groups
+|Security Group list
+<<List_Security_Group,[sample]>>
+
+|Delete Security Group
+|DELETE
+|/project/{project_id}/security-groups/{security_group_id}
+|None
+<<Delete_Security_Group,[sample]>>
+
+|Create Security Group Rule
+|POST
+|/project/{project_id}/security-group-rules
+|Security Group Rule
+<<Create_Security_Group_Rule,[sample]>>
+
+|Create Security Group Rule Bulk
+|POST
+|/project/{project_id}/security-group-rules/bulk
+|Security Group Rule list
+<<Create_Security_Group_Rule_Bulk,[sample]>>
+
+|Get Security Group Rule
+|GET
+|/project/{project_id}/security-group-rules/{security_group_rule_id}
+|Security Group Rule
+<<Get_Security_Group_Rule,[sample]>>
+
+|List Security Group Rule
+|GET
+|/project/{project_id}/security-group-rules
+|Security Group Rule list
+<<List_Security_Group_Rule,[sample]>>
+
+|Delete Security Group Rule
+|DELETE
+| /project/{project_id}/security-group-rules/{security_group_rule_id}
+|None
+<<Delete_Security_Group_Rule,[sample]>>
+
+|Binding Security Group
+|POST
+|/project/{project_id}/bind-security-groups
+|Port Security Groups
+<<Bind_Security_Group,[sample]>>
+
+|Unbinding Security Group
+|POST
+|/project/{project_id}/bind-security-groups
+|Port Security Groups
+<<Unbind_Security_Group,[sample]>>
+
+|===
+
+=== API Specification
+
+anchor:Create_Security_Group[]
+**(1) Create Security Group**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/security-groups`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Security Group
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups
+
+Body:
+{
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"name": "securityGroup1",
+		"description": "This is a security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628"
+	}
+}
+
+Response:
+{
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup1",
+		"description": "This is a security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "40a24482-eec2-4105-86ad-77a8539a566b",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "fde106d3-904c-455f-be34-e82879a1afcc",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:14"
+	}
+}
+
+....
+anchor:Create_Security_Group_Bulk[]
+**(2) Create Security Group Bulk**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/security-groups/bulk`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Security Group list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups/bulk
+
+Body:
+{
+	"security_groups": [{
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup1",
+		"description": "This is a security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": null,
+		"create_at": null,
+		"update_at": null
+	}, {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": null,
+		"create_at": null,
+		"update_at": null
+	}]
+}
+
+Response:
+{
+	"security_groups": [{
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup1",
+		"description": "This is a security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "bb71feb1-abd2-403f-93ca-7d87fe3e6082",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "50ec33df-fdc2-4256-9378-96b471b544d3",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:14"
+	}, {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "af97dfab-fc4f-45d8-9e29-d0a0d26ff3a1",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "c9b66c52-dfc3-4c8b-920e-75b2f740f5f6",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:14"
+	}]
+}
+
+....
+anchor:Update_Security_Group[]
+**(3) Update Security Group**
+
+* Method: `PUT`
+
+* Request: `/project/{project_id}/security-groups/{security_group_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String securityGroupId`
+
+* Response: Security Group
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups/3d53801c-32ce-4e97-9572-bb966f476ec
+
+Body:
+{
+	"security_group": {
+		"project_id": null,
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup2",
+		"description": "This is another security group"
+	}
+}
+
+Response:
+{
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "bb71feb1-abd2-403f-93ca-7d87fe3e6082",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "50ec33df-fdc2-4256-9378-96b471b544d3",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:15"
+	}
+}
+
+....
+anchor:Get_Security_Group[]
+**(4) Get Security Group**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/security-groups/{security_group_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String securityGroupId`
+
+* Response: `Security Group`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups/3d53801c-32ce-4e97-9572-bb966f476ec
+
+Response:
+{
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "bb71feb1-abd2-403f-93ca-7d87fe3e6082",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "50ec33df-fdc2-4256-9378-96b471b544d3",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:15"
+	}
+}
+
+....
+anchor:List_Security_Group[]
+**(5) List Security Group**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/security-groups`
+
+* Request Parameter:`@PathVariable String projectId`
+
+* Response: `Security Group list`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups
+
+
+Response:
+[{
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "af97dfab-fc4f-45d8-9e29-d0a0d26ff3a1",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "c9b66c52-dfc3-4c8b-920e-75b2f740f5f6",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:14"
+	}
+}, {
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "98d5b83c-2aed-4bc7-aa22-303960fd0017",
+		"name": "default",
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "11401dd4-2f9a-41c0-8fc3-7a0b7e6e28b3",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "98d5b83c-2aed-4bc7-aa22-303960fd0017",
+			"remote_group_id": null,
+			"direction": "ingress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "62ad51e8-c871-4ccd-a9c6-f17d64dcb89b",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "98d5b83c-2aed-4bc7-aa22-303960fd0017",
+			"remote_group_id": null,
+			"direction": "ingress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:14"
+	}
+}, {
+	"security_group": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"name": "securityGroup2",
+		"description": "This is another security group",
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_rules": [{
+			"project_id": null,
+			"id": "bb71feb1-abd2-403f-93ca-7d87fe3e6082",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv4"
+		}, {
+			"project_id": null,
+			"id": "50ec33df-fdc2-4256-9378-96b471b544d3",
+			"name": null,
+			"description": null,
+			"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+			"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+			"remote_group_id": null,
+			"direction": "egress",
+			"remote_ip_prefix": null,
+			"protocol": null,
+			"port_range_max": null,
+			"port_range_min": null,
+			"ether_type": "IPv6"
+		}],
+		"create_at": "2020-05-26 16:06:14",
+		"update_at": "2020-05-26 16:06:15"
+	}
+}]
+....
+anchor:Create_Security_Group_Rule[]
+**(6) Create Security Group Rule**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/security-group-rules`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: `Security Group Rule `
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-group-rules
+
+Body:
+{
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966fa6b23",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}
+
+Response:
+{
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966fa6b23",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}
+
+....
+anchor:Create_Security_Group_Rule_Bulk[]
+**(7) Create Security Group Rule Bulk**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/security-group-rules/bulk`
+
+* Request Parameter: `PathVariable String projectId`
+
+* Response: Security Group Rule list
+* Normal response codes: 200
+* Error response codes: 400, 412, 500
+
+* Example
+
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-group-rules/bulk
+
+Body:
+{
+	"security_group_rules": [{
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": null,
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}, {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": null,
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": "udp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}]
+}
+
+Response:
+{
+	"security_group_rules": [{
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "74eceed1-d325-4a91-9eb3-946f5d482726",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}, {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "d04928ff-425d-42cf-895c-4a0e167165c6",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": "udp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}]
+}
+
+....
+anchor:Get_Security_Group_Rule[]
+**(8) Get Security Group Rule**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/security-group-rules/{security_group_rule_id}`
+
+* Request Parameter: `PathVariable String projectId, @PathVariable String securityGroupRuleId`
+
+* Response: `Security Group Rule`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-group-rules/3d53801c-32ce-4e97-9572-bb966fa6b23
+
+Response:
+{
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966fa6b23",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}
+
+....
+anchor:List_Security_Group_Rule[]
+**(9) List Security Group Rule**
+
+* Method: `GET`
+
+* Request: `/project/{project_id}/security-group-rules`
+
+* Request Parameter:`@PathVariable String projectId`
+
+* Response: `Security Group Rule list`
+
+* Normal response codes: 201
+
+* Error response codes: 400, 409, 412, 500, 503
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-group-rules
+
+
+Response:
+[{
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "d04928ff-425d-42cf-895c-4a0e167165c6",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": "udp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "6b7c1e74-96cd-4c92-b67c-4a62212ceb94",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": "192.168.1.0/24",
+		"protocol": "icmp",
+		"port_range_max": 255,
+		"port_range_min": 0,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "af97dfab-fc4f-45d8-9e29-d0a0d26ff3a1",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "40a24482-eec2-4105-86ad-77a8539a566b",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "74eceed1-d325-4a91-9eb3-946f5d482726",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "62ad51e8-c871-4ccd-a9c6-f17d64dcb89b",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "98d5b83c-2aed-4bc7-aa22-303960fd0017",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv6"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "fde106d3-904c-455f-be34-e82879a1afcc",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv6"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "3d53801c-32ce-4e97-9572-bb966fa6b23",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "bb71feb1-abd2-403f-93ca-7d87fe3e6082",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "c9b66c52-dfc3-4c8b-920e-75b2f740f5f6",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f7a5f1",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv6"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "50ec33df-fdc2-4256-9378-96b471b544d3",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": null,
+		"direction": "egress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv6"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": null,
+		"id": "11401dd4-2f9a-41c0-8fc3-7a0b7e6e28b3",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "98d5b83c-2aed-4bc7-aa22-303960fd0017",
+		"remote_group_id": null,
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": null,
+		"port_range_max": null,
+		"port_range_min": null,
+		"ether_type": "IPv4"
+	}
+}, {
+	"security_group_rule": {
+		"project_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"id": "43532dd4-d2ab-4b36-832d-e630313c6857",
+		"name": null,
+		"description": null,
+		"tenant_id": "3d53801c-32ce-4e97-9572-bb966fab628",
+		"security_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"remote_group_id": "3d53801c-32ce-4e97-9572-bb966f476ec",
+		"direction": "ingress",
+		"remote_ip_prefix": null,
+		"protocol": "tcp",
+		"port_range_max": 65535,
+		"port_range_min": 1,
+		"ether_type": "IPv4"
+	}
+}]
+
+....
+anchor:Bind_Security_Group[]
+**(10) Bind Security Group**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/bind-security-groups`
+
+* Request Parameter: `@PathVariable String projectId`
+
+* Response: `Port Security Groups`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/bind-security-groups
+
+Body:
+{
+	"securityGroups": ["3d53801c-32ce-4e97-9572-bb966f476ec"],
+	"port_id": "3d53801c-32ce-4e97-9572-bb966fbb66e"
+}
+
+Response:
+{
+	"securityGroups": ["3d53801c-32ce-4e97-9572-bb966f476ec"],
+	"port_id": "3d53801c-32ce-4e97-9572-bb966fbb66e"
+}
+
+....
+anchor:Unbind_Security_Group[]
+**(11) Unbind Security Group**
+
+* Method: `POST`
+
+* Request: `/project/{project_id}/unbind-security-groups`
+
+* Request Parameter:`@PathVariable String projectId`
+
+* Response: `Port Security Groups`
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/unbind-security-groups
+
+Body:
+{
+	"securityGroups": ["3d53801c-32ce-4e97-9572-bb966f476ec"],
+	"port_id": "3d53801c-32ce-4e97-9572-bb966fbb66e"
+}
+
+Response:
+{
+	"securityGroups": ["3d53801c-32ce-4e97-9572-bb966f476ec"],
+	"port_id": "3d53801c-32ce-4e97-9572-bb966fbb66e"
+}
+
+....
+anchor:Delete_Security_Group[]
+**(12) Delete Security Group**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/security-groups/{security_group_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String securityGroupId`
+
+* Response: None
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-groups/3d53801c-32ce-4e97-9572-bb966f476ec
+
+Response:
+none
+
+
+....
+anchor:Delete_Security_Group_Rule[]
+**(13) Delete Security Group Rule**
+
+* Method: `DELETE`
+
+* Request: `/project/{project_id}/security-group-rules/{security_group_rule_id}`
+
+* Request Parameter: `@PathVariable String projectId, @PathVariable String securityGroupRuleId`
+
+* Response: None
+
+* Normal response codes: 200
+
+* Error response codes: 400, 412, 500
+
+* Example
+....
+Request:
+http://127.0.0.1:8080/project/3d53801c-32ce-4e97-9572-bb966fab628/security-group-rules/3d53801c-32ce-4e97-9572-bb966fa6b23
+
+Response:
+None
+
+
+....
+== Database Data Schema
+
+
+== Concurrency Handling
+

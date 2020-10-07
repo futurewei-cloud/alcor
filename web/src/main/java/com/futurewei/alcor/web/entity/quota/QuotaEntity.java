@@ -1,0 +1,80 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+package com.futurewei.alcor.web.entity.quota;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class QuotaEntity {
+
+    @JsonIgnore
+    private String id;
+
+    @JsonIgnore
+    private String projectId;
+
+    private String resource;
+
+    private int limit;
+
+    public QuotaEntity() {
+    }
+
+    public QuotaEntity(String projectId, String resource, int limit) {
+        this.id = projectId + "_" + resource;
+        this.projectId = projectId;
+        this.resource = resource;
+        this.limit = limit;
+    }
+
+    public QuotaEntity(String id, String projectId, String resource, int limit) {
+        this.id = id;
+        this.projectId = projectId;
+        this.resource = resource;
+        this.limit = limit;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getResource() {
+        return resource;
+    }
+
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+}

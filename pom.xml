@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.futurewei.alcor</groupId>
+    <artifactId>controller</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>AlcorController</name>
+    <description>Alcor Controller Project</description>
+
+    <properties>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
+        <snippets>${project.basedir}/target/generated-snippets/</snippets>
+    </properties>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <!--<version>1.5.8.RELEASE</version>-->
+        <version>2.1.6.RELEASE</version>
+    </parent>
+
+    <modules>
+        <module>lib</module>
+        <module>web</module>
+        <module>schema</module>
+        <module>services/api_gateway</module>
+        <module>services/vpc_manager</module>
+        <module>services/subnet_manager</module>
+        <module>services/route_manager</module>
+        <module>services/mac_manager</module>
+        <module>services/private_ip_manager</module>
+        <module>services/port_manager</module>
+        <module>services/node_manager</module>
+        <module>services/data_plane_manager</module>
+        <module>services/security_group_manager</module>
+        <module>services/elastic_ip_manager</module>
+        <module>services/quota_manager</module>
+		<module>services/network_acl_manager</module>
+    </modules>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.1.Final</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Build an executable JAR -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-docs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
+                            <attributes>
+                                <snippets>${snippets}</snippets>
+                                <imagesDir>${basedir}/docs/modules/ROOT/images</imagesDir>
+                            </attributes>
+                            <sourceDirectory>${basedir}/docs</sourceDirectory>
+                            <outputDirectory>target/generated-docs</outputDirectory>
+                            <preserveDirectories>true</preserveDirectories>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <imagesDir>${basedir}/docs/modules/ROOT/images</imagesDir>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+            </resource>
+        </resources>
+    </build>
+
+</project>

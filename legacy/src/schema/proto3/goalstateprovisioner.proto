@@ -1,0 +1,72 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
+
+syntax = "proto3";
+
+package alcorcontroller;
+
+option java_package = "com.futurewei.alcor.controller.service";
+
+import "common.proto";
+import "goalstate.proto";
+
+service GoalStateProvisioner {
+
+    // Push a group of network resource states
+    //
+    // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration
+    // Results consist of a list of operation statuses, and each status is a response to one operation request in the input
+    //
+    // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+    //       Use RetrieveNetworkResourceStates for state query.
+    rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
+    }
+
+    // Retrieve a group of network resource states (stored as a steam of GoalState objects)
+    rpc RetrieveNetworkResourceStates (GoalStateRequest) returns (stream GoalState) {
+    }
+}
+
+message GoalStateRequest {
+
+    repeated ResourceStateRequest state_requests = 1;
+
+    message ResourceStateRequest {
+        string resource_id = 1;
+        ResourceType resource_type = 2;
+    }
+}
+
+message GoalStateOperationReply {
+
+    repeated GoalStateOperationStatus operation_statuses = 1;
+
+    // Total operation time (in nanoseconds)
+    //    1. to process the message (consisting of multiple operations)
+    //    2. to program data plane
+    // Note: The list of operation_statuses details the time spent at each operation
+    uint32 message_total_operation_time = 2;
+
+    message GoalStateOperationStatus {
+        string resource_id = 1;
+        ResourceType resource_type = 2;
+        OperationType operation_type = 3;
+        OperationStatus operation_status = 4;
+        uint32 dataplane_programming_time = 5;
+        uint32 network_configuration_time = 6;
+        uint32 state_elapse_time = 7;
+    }
+}

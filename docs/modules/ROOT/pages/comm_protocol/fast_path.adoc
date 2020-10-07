@@ -1,0 +1,241 @@
+= Control Plane Fast Path
+Liguang Xie <lxie@futurewei.com>
+v1.0, 2019-08-15
+:toc: right
+:imagesdir: ../../images
+
+== Introduction
+
+A fast-provisioning and scalable network control plane is the core of a competitive public cloud offering.
+Such a feature would require an instantaneous delivery of networking configurations driven from a region-level Network Controller to Control Agents deployed at every server host of a data center.
+Due to the scale of data centers, which can range from a couple hundred thousand to a few million machines, a message queue subsystem (e.g., Kafka or RabbitMQ) or a multi-layer hierarchy system is usually adopted
+as a high-throughput and scalable solution for network configuration updates in the data center.
+However, this approach would introduce excessive latency in E2E message delivery.
+For example, in the case of handling 100,000s messages, the additional latency by Kafka would be 2-3 _ms_ <<kafka_benchmark,1 >>, <<kafka_benchmark2, 2>>.
+
+The infrastructure limitation does not fit into some customer scenarios when ultra-low latency for E2E network configuration provisioning (in a few 10 _ms_ or 100 _ms_) is a critical requirement.
+For example, the emerging serverless platforms and services like AWS Lambda or Azure Functions advertise low latency number of ~100 _ms_, as a major selling point.
+Lengthy cold start time or scale-out time harm customer experience <<serverless_limit,3>>, and
+the current workaround is simply keeping containers in a warm state by regularly sending events to serverless functions.
+In order to provide a competitive fast-provisioning solution with our new CloudFabric Networking platform, it would be necessary to build a control plane fast path to significantly reduce the E2E provisioning time.
+
+The main idea in this proposal is a Kafka bypass that utilizes a gRPC-based direct message channel.
+This channel would run between the Network Controllers and the Control Agents.
+gRPC has been shown to have low latency of 150-300 _μs_ in the case of handling 100,000s message <<gRPC_benchmark,4>>.
+This is a 10x improvement compared to Kafka.
+With this fast path, time-critical applications will benefit from the low latency of the gRPC protocol.
+
+== Architecture
+
+The following diagram illustrates the architecture of the network control plane fast path,
+and the bi-directional communication channel between the Network Controllers and Control Agents.
+
+image::fast_path.GIF["Fast path architecture", width=1024, link="fast_path.GIF"]
+
+=== Bi-directional Communication Channel
+The top-down communication channel from Controllers to Agents can be used in many scenarios which require low E2E latency for network configuration update:
+
+. Serverless application: Reduce the instantiation time of containers in which customers' code is running, and shorten waiting times of serverless function invokation.
+Either for the first time, or after having its configuration altered/serverless function scale outs.
+
+. Differentiated services: Provide certain SLAs on service provisioning time for premium customers who are willing to pay more to get SLB-backed services.
+
+On the other hand, the bottom-up communication channel from Agents to Controllers could serve as a feedback channel to provide the following.
+
+. Clear status message (e.g., transit switch programming is done
+so that Controllers may finalize endpoint host programming and give the green light for the host to start sending packets.
+. Actionable error situation (e.g. transit daemon down)
+
+Later on, we could also consider using the fast path for network health monitoring of transit Daemon/switch/router as well as local host networking components.
+
+=== Retry and Fallback Mechanisms
+
+To improve system stability, a client-side retry and fallback mechanism will be supported to overcome transient failures of gRPC servers,
+corrupted network connection or momentary loss of network connectivity.
+Possible server failures include temporary unavailability of a host node (e.g., host OS crash or restart),
+service unavailability of Control Agents or Network Controllers, or timeouts due to busy servers.
+When a failure occurs first, a gRPC client can retry the failing request immediately.
+If the request still fails, the client makes a few more attempts until a configurable maximum number of requests have been attempted.
+Then if the request remains unsuccessful, the client can fall back to the normal path by sending message to the Kafka cluster.
+
+=== Idempotent gRPC APIs
+
+By design, gRPC allows both the client and server to make independent and local decision of the success of the call.
+This means that the state on the client and server could be inconsistent,
+which could potentially cause an issue when a RPC call finishes successfully on the server side while fails on the client side.
+
+To address the above issue, the gRPC service APIs in both Network Agent and Network Controller are all idempotent.
+We support idempotent operations including Create, Update, Read and Delete on network resources.
+There is no additional effect if any service API is called more than once with the same input parameter(s).
+For example, if the Network Controller calls the same Control Agent twice and attempts to create one identical port, the second call should return SUCCESS and introduce no additional effect.
+
+
+//=== Client Hedging to Reduce Tail Latency
+
+//=== Secure Channels via SSL/TLS
+//A gRPC channel are secure by default via SSL/TLS until TLS is disabled for debugging or other purposes.
+
+
+== Contract between Controller and Agent
+
+The service APIs and the format of messages exchanged between the Control Agents and Network Controllers for the top-down channel is as follows:
+
+=== Service APIs
+
+*src/schema/proto3/goalstateprovisioner.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.service";
+
+import "common.proto";
+import "goalstate.proto";
+
+service GoalStateProvisioner {
+
+   // Push a group of network resource states
+   //
+   // Input: a GoalState object consists of a list of operation requests, and each request contains an
+   //        operation type and a resource configuration
+   // Results consist of a list of operation statuses, and each status is a response to one operation
+   //        request in the input
+   //
+   // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+   //       Use RetrieveNetworkResourceStates for state query.
+   rpc PushNetworkResourceStates(GoalState) returns (GoalStateOperationReply) {}
+
+
+   // Retrieve a group of network resource states (stored in a GoalState object)
+   rpc RetrieveNetworkResourceStates(GoalStateRequest) returns (GoalState) {}
+}
+------------------------------------------------------------
+
+
+=== Message Exchanged Between Agent and Controller
+
+* Goal state message.
+The goal state message allows any combination of VpcState, SubnetState, PortState and SecurityGroupState, and grouping of them.
+For example, one message could consists of one subnet state update with 1000 ports creation to a data-plane switch, or two VPC update to a single VM/container host.
+
+*src/schema/proto3/goalstate.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+
+import "vpc.proto";
+import "subnet.proto";
+import "port.proto";
+import "securitygroup.proto";
+
+message GoalState {
+   repeated VpcState vpc_states = 1;
+   repeated SubnetState subnet_states = 2;
+   repeated PortState port_states = 3;
+   repeated SecurityGroupState security_group_states = 4;
+}
+------------------------------------------------------------
+
+* VpcState message.
+OperationType includes CREATE, UPDATE, GET, DELETE, INFO, FINALIZE, CREATE_UPDATE_SWTICH, CREATE_UPDATE_ROUTER to cover various scenarios in network resource CURD operations.
+
+*src/schema/proto3/vpc.proto*
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcState {
+  OperationType operation_type = 1;
+  VpcConfiguration configuration =  2;
+}
+
+------------------------------------------------------------
+
+
+* VpcConfiguration message
+
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
+
+package aliothcontroller;
+
+option java_package = "com.futurewei.alioth.controller.schema";
+option java_outer_classname = "Vpc";
+
+import "common.proto";
+
+message VpcConfiguration {
+  int32 version = 1;
+
+  string project_id = 2;
+  string id  = 3;
+  string name = 4;
+  string cidr = 5;
+  int64 tunnel_id = 6;
+
+  message SubnetId {
+    string id = 1;
+  }
+
+  message Route {
+    string destination = 1;
+    string next_hop = 2;
+  }
+
+  message TransitRouter {
+    string vpc_id = 1;
+    string ip_address = 2;
+    string mac_address = 3;
+  }
+
+  repeated SubnetId subnet_ids = 7;
+  repeated Route routes = 8;
+  repeated TransitRouter transit_routers = 9;
+}
+------------------------------------------------------------
+
+//=== Error Handling
+
+
+== Proposed Changes
+
+The control plane fast path would requires the following changes:
+
+[width="100%",options="header"]
+|====================
+|Index|Feature Description|Priority|Note
+|1|An additional field (is_fast_path) in REST APIs that require fast path support|P0|An example is Create/Update Port
+|2|Top-down channel .3+^.^|P0|
+|2.1|gRPC server hosted in Control Agents|
+|2.2|gRPC client in Network Controllers|
+|3|Bottom-up channel .3+^.^|P1|
+|3.1|gRPC server hosted in Network Controllers|
+|3.2|gRPC client in Control Agents|
+|4|E2E latency measurement for fast path|P0|
+|5|Performance test to get scalability limit of gRPC|P1|
+|====================
+
+[bibliography]
+== References
+
+- [[kafka_benchmark]] Benchmarking Apache Kafka: 2 Million Writes Per Second (on three cheap machines): https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines
+- [[kafka_benchmark2]] Benchmarking Kafka Performance: https://hackernoon.com/benchmarking-kafka-performance-part-1-write-throughput-7c7a76ab7db1
+- [[serverless_limit]] Limitations of Serverless: https://www.oreilly.com/library/view/what-is-serverless/9781491984178/ch04.html
+- [[gRPC_benchmark]] gRPC Official Performance Benchmark: https://performance-dot-grpc-testing.appspot.com/explore?dashboard=5652536396611584
