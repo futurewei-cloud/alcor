@@ -701,4 +701,172 @@ public class DataPlaneManagerUtil {
         return hostGoalState;
     }
 
+    public NetworkConfiguration autoGenerateUTsInput_MoreCustomizableScenarios(int operationType,
+                                                     int resourceType,
+                                                     int portNumPerHost,
+                                                     int hostNum,
+                                                     int subnetNum,
+                                                     int NumOfIPsInSubnet1,
+                                                     int NumOfIPsInSubnet2,
+                                                     boolean hasInternalRouterInfo,
+                                                     boolean hasInternalSubnetRoutingTable,
+                                                     boolean hasInternalRoutingRule,
+                                                     boolean hasNeighbor,
+                                                     int neighborNum,
+                                                     boolean fastPath) {
+        NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+
+        // set operationType and resourceType
+        networkConfiguration.setOpType(Common.OperationType.forNumber(operationType));
+        networkConfiguration.setRsType(Common.ResourceType.forNumber(resourceType));
+
+        // set routers_internal
+        List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+        if (hasInternalRouterInfo) {
+            InternalRouterInfo routerInfo = new InternalRouterInfo();
+            InternalRouterConfiguration internalRouterConfiguration = new InternalRouterConfiguration();
+            List<InternalSubnetRoutingTable> subnet_routing_tables = new ArrayList<>();
+
+            if (hasInternalSubnetRoutingTable) {
+                InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+                List<InternalRoutingRule> routing_rules = new ArrayList<>();
+
+                if (hasInternalRoutingRule){
+                    InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
+                    routing_rules.add(internalRoutingRule);
+                }
+
+                internalSubnetRoutingTable.setRoutingRules(routing_rules);
+                subnet_routing_tables.add(internalSubnetRoutingTable);
+            }
+
+            internalRouterConfiguration.setSubnetRoutingTables(subnet_routing_tables);
+
+
+            //routerInfo.setOperationType(OperationType.valueOf("create"));
+            routerInfo.setRouterConfiguration(internalRouterConfiguration);
+            internalRouterInfos.add(routerInfo);
+        }
+
+        networkConfiguration.setInternalRouterInfos(internalRouterInfos);
+
+        // set neighborInfos
+        List<NeighborInfo> neighborINFO = new ArrayList<>();
+        if (hasNeighbor) {
+            for (int i = 0; i < neighborNum; i ++) {
+                NeighborInfo neighborInfo = new NeighborInfo(DPMAutoUnitTestConstant.hostIp + i, DPMAutoUnitTestConstant.hostId, DPMAutoUnitTestConstant.portId + i, DPMAutoUnitTestConstant.portMac, DPMAutoUnitTestConstant.portIp, DPMAutoUnitTestConstant.vpcId, DPMAutoUnitTestConstant.subnetId + 0);
+                neighborINFO.add(neighborInfo);
+            }
+        }
+        networkConfiguration.setNeighborInfos(neighborINFO);
+
+        // set neighborTable
+        List<NeighborEntry> neighborTable = new ArrayList<>();
+        for (int i = 0; i < NumOfIPsInSubnet1; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = i + 1; j < NumOfIPsInSubnet1; j ++) {
+                int NeighborIpAddressOffset = j + 2;
+                NeighborEntry neighborEntry = new NeighborEntry();
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L2neighborIp + NeighborIpAddressOffset);
+                neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
+                neighborTable.add(neighborEntry);
+            }
+        }
+
+        for (int i = 0; i < NumOfIPsInSubnet2; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = i + 1; j < NumOfIPsInSubnet2; j ++) {
+                int NeighborIpAddressOffset = j + 2;
+                NeighborEntry neighborEntry = new NeighborEntry();
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L3localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + NeighborIpAddressOffset);
+                neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
+                neighborTable.add(neighborEntry);
+            }
+        }
+
+        for (int i = 0; i < NumOfIPsInSubnet1; i ++) {
+            int IpAddressOffset = i + 2;
+            for (int j = 0; j < NumOfIPsInSubnet2; j ++) {
+                int NeighborIpAddressOffset = j + 2;
+                NeighborEntry neighborEntry = new NeighborEntry();
+                neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + IpAddressOffset);
+                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + NeighborIpAddressOffset);
+                neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
+                neighborTable.add(neighborEntry);
+            }
+        }
+        networkConfiguration.setNeighborTable(neighborTable);
+
+        // set portEntities
+        List<InternalPortEntity> portEntities = new ArrayList<>();
+        for (int j = 0; j < hostNum; j ++) {
+            for (int i = 0; i < portNumPerHost; i ++) {
+                List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+                PortEntity.FixedIp fixedIp = new PortEntity.FixedIp(DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.IpAddress + i);
+                fixedIps.add(fixedIp);
+
+                PortEntity portEntity = new PortEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.portId + i,
+                        DPMAutoUnitTestConstant.portName + i, "", DPMAutoUnitTestConstant.vpcId, true, DPMAutoUnitTestConstant.portMacAddress + i, DPMAutoUnitTestConstant.vethName + i, fastPath,
+                        null, null, null, fixedIps, null, null, null,
+                        DPMAutoUnitTestConstant.bindingHostId, null, null, null, null,
+                        DPMAutoUnitTestConstant.networkNamespace, null, null, null, null, null,
+                        null, false, null, null, 0, null, null,
+                        false, false);
+
+                List<RouteEntity> routeEntities = new ArrayList<>();
+                if (hasInternalRouterInfo) {
+                    RouteEntity routeEntity = new RouteEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.routeId + i,
+                            DPMAutoUnitTestConstant.routeName, "", DPMAutoUnitTestConstant.destination, DPMAutoUnitTestConstant.target, 0, RouteTableType.VPC, "");
+                    routeEntities.add(routeEntity);
+                }
+
+                String bindingHostIP = DPMAutoUnitTestConstant.bindingHostIp + j;
+
+                InternalPortEntity port = new InternalPortEntity(portEntity, routeEntities, bindingHostIP);
+                portEntities.add(port);
+            }
+        }
+
+        networkConfiguration.setPortEntities(portEntities);
+
+        // set vpcs
+        List<VpcEntity> vpcs = new ArrayList<>();
+        VpcEntity vpc = new VpcEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.vpcId, DPMAutoUnitTestConstant.vpcName,
+                "", null, false, null, null, false, null,
+                null, null, false, null, false, false, false,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, DPMAutoUnitTestConstant.cidr);
+        vpcs.add(vpc);
+        networkConfiguration.setVpcs(vpcs);
+
+        // set subnets
+        List<InternalSubnetEntity> subnets = new ArrayList<>();
+        for (int i = 0; i < subnetNum; i ++) {
+            int IpAddressOffSet = i + 2;
+            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.subnetName + i, "", DPMAutoUnitTestConstant.vpcId,
+                    "192.168." + IpAddressOffSet + ".0/24", DPMAutoUnitTestConstant.availabilityZone, "192.168." + IpAddressOffSet + ".1", false, null,
+                    null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
+                    null, null, null, null, null,
+                    null, null, false, null, null,
+                    null, false, null, null,
+                    null, null, null, null, null,
+                    null, null, false, null, null,
+                    null);
+            Long tunnelId = Long.parseLong(DPMAutoUnitTestConstant.tunnelId + i);
+            InternalSubnetEntity subnet = new InternalSubnetEntity(subnetEntity, tunnelId);
+            subnets.add(subnet);
+        }
+        networkConfiguration.setSubnets(subnets);
+
+        // set securityGroups
+        List<SecurityGroup> securityGroups = new ArrayList<>();
+        SecurityGroup securityGroup = new SecurityGroup();
+        securityGroups.add(securityGroup);
+        networkConfiguration.setSecurityGroups(securityGroups);
+
+        return networkConfiguration;
+    }
+
 }
