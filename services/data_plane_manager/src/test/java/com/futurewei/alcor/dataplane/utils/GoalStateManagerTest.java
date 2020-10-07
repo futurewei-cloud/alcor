@@ -177,7 +177,7 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * Scenario: L3 - Create Ports (P2, P3) with neighborP1 at Host 1, P1 and P2 are associated with different subnet
+     * Scenario: L3 - Create Ports (P2, P3) with neighbor P1 at Host 1, P2 and P3 are associated with different subnet
      */
     @Test
     public void scenario_L3_createPortP2P3WithNeighborP1AtHost1_FastPathOnly() throws Exception {
@@ -197,7 +197,7 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * Scenario: L3 - Create Port (P1) without neighbor at Host 1 and Port (P2) with neighbor at Host 2, P1 and P2 are associated with same subnet
+     * Scenario: L3 - Create Port (P1) with neighbor at Host 1 and Port (P2) with neighbor at Host 2, P1 and P2 are associated with same subnet
      */
     @Test
     public void scenario_L3_createPortP1P2WithNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
