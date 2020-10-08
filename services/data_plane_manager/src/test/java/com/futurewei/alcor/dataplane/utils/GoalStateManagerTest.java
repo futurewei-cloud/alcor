@@ -1,8 +1,11 @@
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
+import com.futurewei.alcor.dataplane.entity.UTPortWithSubnetAndIPMapping;
+import com.futurewei.alcor.dataplane.entity.UTSubnetInfo;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -12,6 +15,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -203,6 +209,41 @@ public class GoalStateManagerTest {
     public void scenario_L3_createPortP1P2WithNeighborAtHost1AndHost2_FastPathOnly() throws Exception {
         NetworkConfiguration input = util.autoGenerateUTsInput(0, 2, 1, 2, 2, 2, 0, false,false, false, true, 1, true);
         Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput(0, 2, 1, 2, 2, 2, 0, false,false, false, true, 1, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3_Customize_Second_Version - Create first Port (P1) without neighbor at Host 1
+     */
+    @Test
+    public void scenario_L3_Customize_Second_Version_createFirstPortP1AtHost1_FastPathOnly() throws Exception {
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping>
+        Map<String, UTPortWithSubnetAndIPMapping> map = new HashMap<>();
+        UTPortWithSubnetAndIPMapping mapping = new UTPortWithSubnetAndIPMapping();
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.20");
+        fixedIps.add(fixedIp);
+
+        mapping.setBindingHostId("ephost_0");
+        mapping.setFixedIps(fixedIps);
+        mapping.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
+        mapping.setPortMacAddress("86:ea:77:ad:52:50");
+        mapping.setPortName("test_cni_port0");
+        mapping.setVethName("veth0");
+        map.put("10.213.43.187", mapping);
+
+        // configure List<UTSubnetInfo>
+        List<UTSubnetInfo> UTSubnets = new ArrayList<>();
+        UTSubnetInfo utSubnetInfo = new UTSubnetInfo();
+        utSubnetInfo.setSubnetCidr("192.168.2.0/24");
+        utSubnetInfo.setSubnetGatewayIP("192.168.2.20");
+        utSubnetInfo.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utSubnetInfo.setSubnetName("test_subnet0");
+        utSubnetInfo.setTunnelId(Long.parseLong("88888"));
+        UTSubnets.add(utSubnetInfo);
+
+        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, 2, 3, true, true, true, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, 2, 3, true,true, true, false, 0, true);
         L3Check(input, output);
     }
 
