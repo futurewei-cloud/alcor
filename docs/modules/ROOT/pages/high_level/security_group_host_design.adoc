@@ -237,7 +237,7 @@ This is similar to L3 on-demand routing algorithm.
 
 In order to support remote SG rules, our neighbor configuration will be updated to include the associated SG_ids for the neighbor port.
 
-=== Code Changes
+=== Recommended Code Changes
 
 This session list the proposed code change location and details:
 
