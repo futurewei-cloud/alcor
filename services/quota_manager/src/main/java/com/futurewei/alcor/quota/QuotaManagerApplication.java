@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Import;
 public class QuotaManagerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(QuotaManagerApplication.class);
+        SpringApplication.run(QuotaManagerApplication.class, args);
     }
 
 }

@@ -29,7 +29,7 @@ public class RouteTable extends CustomerResource {
     private List<RouteEntry> routeEntities;
 
     @JsonProperty("route_table_type")
-    private RouteTableType routeTableType;
+    private String routeTableType;
 
     // store subnet_id / vpc_id
     @JsonProperty("owner")
@@ -37,7 +37,7 @@ public class RouteTable extends CustomerResource {
 
     public RouteTable () {}
 
-    public RouteTable(String projectId, String id, String name, String description, List<RouteEntry> routeEntities, RouteTableType routeTableType, String owner) {
+    public RouteTable(String projectId, String id, String name, String description, List<RouteEntry> routeEntities, String routeTableType, String owner) {
         super(projectId, id, name, description);
         this.routeEntities = routeEntities;
         this.routeTableType = routeTableType;
