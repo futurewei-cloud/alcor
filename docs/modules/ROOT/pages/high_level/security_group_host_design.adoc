@@ -213,8 +213,10 @@ User can add or delete rules or remove this security group.
 === Hidden Security Group Policies
 
 With port security enabled, since all the traffic are blocked by default.
-A list of hidden security group rule are allowed to enable basic connectivity, which include allowing for ICMP, ICMP6, ARP, DHCP, DHCPv6, SSH and connection tracking.
-The system will also enable a rule to only allow traffic coming out from the port has the assigned virtual MAC address to disallow MAC spoofing.
+A list of hidden security group rule are allowed to enable basic connectivity, which include allowing for ICMP, ICMP6, ARP, DHCP, DHCPv6, 
+SSH (TCP Port:22), RDP (TCP Port:3389) and connection tracking. The rule to allow incoming SSH and RDP can go to default security group.
+The system will also enable a rule to only allow traffic coming out from the port has the assigned virtual IP and virtual MAC address to 
+disallow IP and MAC spoofing.
 See later session for a sample set of openflow rules when a VM port has been added.
 
 
@@ -234,6 +236,20 @@ Therefore, we will:
 This is similar to L3 on-demand routing algorithm.
 
 In order to support remote SG rules, our neighbor configuration will be updated to include the associated SG_ids for the neighbor port.
+
+=== Code Changes
+
+This session list the proposed code change location and details:
+
+. add a new directory under /src, namely /sg.
+. add the implementation files related to security group under the new /src/sg directory, the main file should be named aca_sg_state_handler.cpp, similar to aca_dhcp_state_handler.cpp. Note that we don't have an interface definition like dhcp_programming_if for security group.
+. add a new class for the main security group implementation, add default openflow rules in constructor and clean up the openflow rules in destructor. Note that a port can have "port security" enabled (default) or disabled. Therefore, any default openflow rules need to work on both.
+. for openflow rule manipulation, use ACA_OVS_Control::get_instance().add_flow/mod_flows/del_flows.
+. modify CMakeLists.txt under /src to include new .cpp files.
+. modify aca_comm_mgr.cpp - Aca_Comm_Manager::update_goal_state - add a new block for Aca_SG_State_Handler::get_instance().update_sg_states similar to update_dhcp_states.
+. update test/gtest/aca_tests.cpp to include a set of unit and functional test cases for security group implementation. We may need to create a docker container, use ovs-docker to connect its port to br-int. Then push down a crafted goal state to configure a new port with a set of security group rules. The last step is to send some traffic to confirm the security group rules are working. See DISABLED_2_ports_ROUTING_test_traffic_one_machine in the same file for reference.
+
+We will need to create/update the corresponding header files accordingly.
 
 === Integration with Alcor Distributed Router
 
