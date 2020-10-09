@@ -1,9 +1,9 @@
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
-import com.futurewei.alcor.dataplane.entity.UTL3NeighborInfoMapping;
-import com.futurewei.alcor.dataplane.entity.UTPortWithSubnetAndIPMapping;
-import com.futurewei.alcor.dataplane.entity.UTSubnetInfo;
+import com.futurewei.alcor.dataplane.utils.entity.UTL3NeighborInfoMapping;
+import com.futurewei.alcor.dataplane.utils.entity.UTPortWithSubnetAndIPMapping;
+import com.futurewei.alcor.dataplane.utils.entity.UTSubnetInfo;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
