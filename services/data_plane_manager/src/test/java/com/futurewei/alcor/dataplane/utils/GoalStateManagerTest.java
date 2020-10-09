@@ -1,6 +1,7 @@
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
+import com.futurewei.alcor.dataplane.entity.UTL3NeighborInfoMapping;
 import com.futurewei.alcor.dataplane.entity.UTPortWithSubnetAndIPMapping;
 import com.futurewei.alcor.dataplane.entity.UTSubnetInfo;
 import com.futurewei.alcor.schema.Goalstate;
@@ -218,7 +219,8 @@ public class GoalStateManagerTest {
     @Test
     public void scenario_L3_Customize_Second_Version_createFirstPortP1AtHost1_FastPathOnly() throws Exception {
         // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping>
-        Map<String, UTPortWithSubnetAndIPMapping> map = new HashMap<>();
+        Map<String, List<UTPortWithSubnetAndIPMapping>> map = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> mapList = new ArrayList<>();
         UTPortWithSubnetAndIPMapping mapping = new UTPortWithSubnetAndIPMapping();
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         PortEntity.FixedIp fixedIp = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.20");
@@ -228,9 +230,11 @@ public class GoalStateManagerTest {
         mapping.setFixedIps(fixedIps);
         mapping.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
         mapping.setPortMacAddress("86:ea:77:ad:52:50");
-        mapping.setPortName("test_cni_port0");
+        mapping.setPortName("test_cni_port1");
         mapping.setVethName("veth0");
-        map.put("10.213.43.187", mapping);
+
+        mapList.add(mapping);
+        map.put("10.213.43.187", mapList);
 
         // configure List<UTSubnetInfo>
         List<UTSubnetInfo> UTSubnets = new ArrayList<>();
@@ -242,8 +246,78 @@ public class GoalStateManagerTest {
         utSubnetInfo.setTunnelId(Long.parseLong("88888"));
         UTSubnets.add(utSubnetInfo);
 
-        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, 2, 3, true, true, true, false, 0, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, 2, 3, true,true, true, false, 0, true);
+        // configure List<UTL3NeighborInfoMapping>
+        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
+        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
+        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add("192.168.2.20");}});
+        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
+
+        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true,true, true, false, 0, true);
+        L3Check(input, output);
+    }
+
+    /**
+     * Scenario: L3_Customize_Second_Version - Create Ports (P1, P2) without neighbor at Host 1, P1 and P2 are associated with same subnet
+     */
+    @Test
+    public void scenario_L3_Customize_Second_Version_createPortP1P2WithoutNeighborAtHost1_FastPathOnly() throws Exception {
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping>
+        Map<String, List<UTPortWithSubnetAndIPMapping>> map = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> mapList = new ArrayList<>();
+
+        // P1 configuration
+        UTPortWithSubnetAndIPMapping mapping1 = new UTPortWithSubnetAndIPMapping();
+        List<PortEntity.FixedIp> fixedIps1 = new ArrayList<>();
+        PortEntity.FixedIp fixedIp1 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.20");
+        fixedIps1.add(fixedIp1);
+
+        mapping1.setBindingHostId("ephost_0");
+        mapping1.setFixedIps(fixedIps1);
+        mapping1.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
+        mapping1.setPortMacAddress("86:ea:77:ad:52:50");
+        mapping1.setPortName("test_cni_port1");
+        mapping1.setVethName("veth0");
+
+        mapList.add(mapping1);
+
+        // P2 configuration
+        UTPortWithSubnetAndIPMapping mapping2 = new UTPortWithSubnetAndIPMapping();
+        List<PortEntity.FixedIp> fixedIps2 = new ArrayList<>();
+        PortEntity.FixedIp fixedIp2 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.21");
+        fixedIps2.add(fixedIp2);
+
+        mapping2.setBindingHostId("ephost_0");
+        mapping2.setFixedIps(fixedIps2);
+        mapping2.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d1");
+        mapping2.setPortMacAddress("86:ea:77:ad:52:51");
+        mapping2.setPortName("test_cni_port2");
+        mapping2.setVethName("veth0");
+
+        mapList.add(mapping2);
+
+        map.put("10.213.43.187", mapList);
+
+        // configure List<UTSubnetInfo>
+        List<UTSubnetInfo> UTSubnets = new ArrayList<>();
+        UTSubnetInfo utSubnetInfo = new UTSubnetInfo();
+        utSubnetInfo.setSubnetCidr("192.168.2.0/24");
+        utSubnetInfo.setSubnetGatewayIP("192.168.2.20");
+        utSubnetInfo.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utSubnetInfo.setSubnetName("test_subnet0");
+        utSubnetInfo.setTunnelId(Long.parseLong("88888"));
+        UTSubnets.add(utSubnetInfo);
+
+        // configure List<UTL3NeighborInfoMapping>
+        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
+        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
+        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add("192.168.2.20");add("192.168.2.21");}});
+        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
+
+        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true,true, true, false, 0, true);
         L3Check(input, output);
     }
 
