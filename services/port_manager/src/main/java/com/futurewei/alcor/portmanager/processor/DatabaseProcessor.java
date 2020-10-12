@@ -30,7 +30,7 @@ public class DatabaseProcessor extends AbstractProcessor {
             return neighborInfos;
         }
 
-        for (PortEntity.FixedIp fixedIp: internalPortEntity.getFixedIps()) {
+        for (PortEntity.FixedIp fixedIp : internalPortEntity.getFixedIps()) {
             NeighborInfo neighborInfo = new NeighborInfo(bindingHostIp,
                     internalPortEntity.getBindingHostId(),
                     internalPortEntity.getId(),
@@ -83,13 +83,13 @@ public class DatabaseProcessor extends AbstractProcessor {
 
         //TODO: A port may have more than one ip address,
         // for one ip address we should create one neighborInfo
-        context.getPortRepository().updatePort(oldPortEntity, neighborInfos.get(0));
+        context.getPortRepository().updatePort(oldPortEntity, neighborInfos != null ? neighborInfos.get(0) : null);
     }
 
     @Override
     void deleteProcess(PortContext context) throws Exception {
         //TODO: support batch deletion
-        for (PortEntity portEntity: context.getPortEntities()) {
+        for (PortEntity portEntity : context.getPortEntities()) {
             context.getPortRepository().deletePort(portEntity);
         }
     }
