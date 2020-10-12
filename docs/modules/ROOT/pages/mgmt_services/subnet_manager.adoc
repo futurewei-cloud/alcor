@@ -16,7 +16,7 @@ It also needs to dispatch routing update information from Route Manager to Distr
 . Provide Subnet related operations for VPC, such as subnet creation, updating, deletion and query.
 . Maintain information for all related ports of each subnet, including id, ip address, mac address, host ip address and host mac address.
 . Concurrency control mechanism should be provided to process multiple concurrent subnet creation requests.
-. Process routing rules from Route manager and dispatch routing rules updating to DPM/ACA.
+. Process routing rules from Route manager and dispatch routing rules updating messages to DPM and ACA.
 . Algorithm with random, but less conflict possibility.
 . Fall back mechanism if there is a conflict among creation of subnet.
 . Working together with other services including VPC manager, Route manager, Port Manager, Mac manager and IP manager.
