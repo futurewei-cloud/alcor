@@ -19,6 +19,9 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.List;
 
+/**
+ * Ports info per Host, host and port mapping
+ */
 public class UTPortWithSubnetAndIPMapping {
 
     private String portId;

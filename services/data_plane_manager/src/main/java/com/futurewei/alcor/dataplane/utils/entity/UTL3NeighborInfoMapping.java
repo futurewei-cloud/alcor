@@ -17,6 +17,9 @@ package com.futurewei.alcor.dataplane.utils.entity;
 
 import java.util.List;
 
+/**
+ * Used for configuring NeighborTable, subnet and its IPs mapping
+ */
 public class UTL3NeighborInfoMapping {
 
     private String subnetId;
