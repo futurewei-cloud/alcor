@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 import com.futurewei.alcor.dataplane.utils.DataPlaneManagerUtil;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
+import com.futurewei.alcor.dataplane.utils.entity.UTIPInfo;
 import com.futurewei.alcor.dataplane.utils.entity.UTL3NeighborInfoMapping;
 import com.futurewei.alcor.dataplane.utils.entity.UTPortWithSubnetAndIPMapping;
 import com.futurewei.alcor.dataplane.utils.entity.UTSubnetInfo;
@@ -102,12 +103,12 @@ public class main {
         List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
         UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
         utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add("192.168.2.20");add("192.168.2.21");}});
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.20", false));add(new UTIPInfo("192.168.2.21", false));}});
         L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
 
         DataPlaneManagerUtil util = new DataPlaneManagerUtil();
         GoalStateManager goalStateManager = new GoalStateManager();
-        NetworkConfiguration networkConfiguration = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);
+        NetworkConfiguration networkConfiguration = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, true, 0, true);
         String Json = gson.toJson(networkConfiguration);
         System.out.println("Input Json:" +  Json);
 
@@ -120,7 +121,7 @@ public class main {
 //                .getPortStatesList()
 //                .size());
 
-        Map<String, Goalstate.GoalState> goalStateMap = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);
+        Map<String, Goalstate.GoalState> goalStateMap = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, true, 0, true);
 //        System.out.println("Auto KeySet String:" +  goalStateMap.keySet().toString());
 //        System.out.println("Auto Value Size:" +  goalStateMap.values().size());
 //        System.out.println("Auto Port Size:" +  goalStateMap

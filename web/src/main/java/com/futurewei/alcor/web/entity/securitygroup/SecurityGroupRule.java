@@ -17,28 +17,34 @@ package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.google.gson.annotations.SerializedName;
 
 public class SecurityGroupRule extends CustomerResource {
 
     @JsonProperty("security_group_id")
+    @SerializedName("security_group_id")
     private String securityGroupId;
 
     @JsonProperty("remote_group_id")
+    @SerializedName("remote_group_id")
     private String remoteGroupId;
 
     @JsonProperty("direction")
     private String direction;
 
     @JsonProperty("remote_ip_prefix")
+    @SerializedName("remote_ip_prefix")
     private String remoteIpPrefix;
 
     @JsonProperty("protocol")
     private String protocol;
 
     @JsonProperty("port_range_max")
+    @SerializedName("port_range_max")
     private Integer portRangeMax;
 
     @JsonProperty("port_range_min")
+    @SerializedName("port_range_min")
     private Integer portRangeMin;
 
     @JsonProperty("ethertype")

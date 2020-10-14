@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -29,35 +30,44 @@ import java.util.List;
 public class SubnetEntity extends CustomerResource {
 
     @JsonProperty("network_id")
+    @SerializedName("network_id")
     private String vpcId;
 
     @JsonProperty("cidr")
     private String cidr;
 
     @JsonProperty("availability_zone")
+    @SerializedName("availability_zone")
     private String availabilityZone;
 
     // TODO: considering to put into port
     @JsonProperty("gateway_ip")
+    @SerializedName("gateway_ip")
     private String gatewayIp = "";
 
     // subnet_gateway_port_id
     @JsonProperty("port_id")
+    @SerializedName("port_id")
     private String gatewayPortId;
 
     @JsonProperty("attached_router_id")
+    @SerializedName("attached_router_id")
     private String attachedRouterId;
 
     @JsonProperty("port_detail")
+    @SerializedName("port_detail")
     private PortEntity port;
 
     @JsonProperty("enable_dhcp")
+    @SerializedName("enable_dhcp")
     private Boolean dhcpEnable;
 
     @JsonProperty("primary_dns")
+    @SerializedName("primary_dns")
     private String primaryDns;
 
     @JsonProperty("secondary_dns")
+    @SerializedName("secondary_dns")
     private String secondaryDns;
 
     @JsonProperty("routes")
@@ -65,78 +75,99 @@ public class SubnetEntity extends CustomerResource {
 
     // TODO: considering to put into port
     @JsonProperty("gateway_macAddress")
+    @SerializedName("gateway_macAddress")
     private String gatewayMacAddress;
 
     @JsonProperty("dns_list")
+    @SerializedName("dns_list")
     private List<String> dnsList;
 
     @JsonProperty("ip_version")
+    @SerializedName("ip_version")
     private Integer ipVersion;
 
     @JsonProperty("ipV4_rangeId")
+    @SerializedName("ipV4_rangeId")
     private String ipV4RangeId;
 
     @JsonProperty("ipV6_rangeId")
+    @SerializedName("ipV6_rangeId")
     private String ipV6RangeId;
 
     @JsonProperty("ipv6_address_mode")
+    @SerializedName("ipv6_address_mode")
     private String ipv6AddressMode;
 
     @JsonProperty("ipv6_ra_mode")
+    @SerializedName("ipv6_ra_mode")
     private String ipv6RaMode;
 
     @JsonProperty("revision_number")
+    @SerializedName("revision_number")
     private Integer revisionNumber;
 
     @JsonProperty("segment_id")
+    @SerializedName("segment_id")
     private String segmentId;
 
     @JsonProperty("shared")
     private Boolean shared;
 
     @JsonProperty("sort_dir")
+    @SerializedName("sort_dir")
     private String sortDir;
 
     @JsonProperty("sort_key")
+    @SerializedName("sort_key")
     private String sortKey;
 
     @JsonProperty("subnetpool_id")
+    @SerializedName("subnetpool_id")
     private String subnetpoolId;
 
     @JsonProperty("dns_publish_fixed_ip")
+    @SerializedName("dns_publish_fixed_ip")
     private boolean dnsPublishFixedIp;
 
     @JsonProperty("tags")
     private List<String> tags;
 
     @JsonProperty("tags-any")
+    @SerializedName("tags-any")
     private String tagsAny;
 
     @JsonProperty("not-tags")
+    @SerializedName("not-tags")
     private String notTags;
 
     @JsonProperty("not-tags-any")
+    @SerializedName("not-tags-any")
     private String notTagsAny;
 
     @JsonProperty("fields")
     private String fields;
 
     @JsonProperty("dns_nameservers")
+    @SerializedName("dns_nameservers")
     private List<String> dnsNameservers;
 
     @JsonProperty("allocation_pools")
+    @SerializedName("allocation_pools")
     private List<AllocationPool> allocationPools;
 
     @JsonProperty("host_routes")
+    @SerializedName("host_routes")
     private List<HostRoute> hostRoutes;
 
     @JsonProperty("prefixlen")
     private Integer prefixlen;
 
     @JsonProperty("use_default_subnet_pool")
+    @SerializedName("use_default_subnet_pool")
     private boolean useDefaultSubnetpool;
 
     @JsonProperty("service_types")
+    @SerializedName("service_types")
     private List<String> serviceTypes;
 
     @CreatedDate

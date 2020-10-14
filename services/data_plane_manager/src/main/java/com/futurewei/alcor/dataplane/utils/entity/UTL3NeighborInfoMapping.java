@@ -25,12 +25,12 @@ public class UTL3NeighborInfoMapping {
     private String subnetId;
 
     // list of IPs in this subnet
-    private List<String> IPsInSubnet;
+    private List<UTIPInfo> IPsInSubnet;
 
     public UTL3NeighborInfoMapping() {
     }
 
-    public UTL3NeighborInfoMapping(String subnetId, List<String> IPsInSubnet) {
+    public UTL3NeighborInfoMapping(String subnetId, List<UTIPInfo> IPsInSubnet) {
         this.subnetId = subnetId;
         this.IPsInSubnet = IPsInSubnet;
     }
@@ -43,11 +43,11 @@ public class UTL3NeighborInfoMapping {
         this.subnetId = subnetId;
     }
 
-    public List<String> getIPsInSubnet() {
+    public List<UTIPInfo> getIPsInSubnet() {
         return IPsInSubnet;
     }
 
-    public void setIPsInSubnet(List<String> IPsInSubnet) {
+    public void setIPsInSubnet(List<UTIPInfo> IPsInSubnet) {
         this.IPsInSubnet = IPsInSubnet;
     }
 }

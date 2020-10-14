@@ -1,6 +1,7 @@
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
+import com.futurewei.alcor.dataplane.utils.entity.UTIPInfo;
 import com.futurewei.alcor.dataplane.utils.entity.UTL3NeighborInfoMapping;
 import com.futurewei.alcor.dataplane.utils.entity.UTPortWithSubnetAndIPMapping;
 import com.futurewei.alcor.dataplane.utils.entity.UTSubnetInfo;
@@ -250,7 +251,7 @@ public class GoalStateManagerTest {
         List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
         UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
         utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add("192.168.2.20");}});
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.20", false));}});
         L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
 
         NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);
@@ -313,7 +314,7 @@ public class GoalStateManagerTest {
         List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
         UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
         utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add("192.168.2.20");add("192.168.2.21");}});
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.20", false));add(new UTIPInfo("192.168.2.21", false));}});
         L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
 
         NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, map, UTSubnets, L3NeighborInfoMapping, true, true, true, false, 0, true);

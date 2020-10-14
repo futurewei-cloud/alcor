@@ -17,14 +17,17 @@ package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
 public class SecurityGroup extends CustomerResource {
     @JsonProperty("tenant_id")
+    @SerializedName("tenant_id")
     private String tenantId;
 
     @JsonProperty("security_group_rules")
+    @SerializedName("security_group_rules")
     private List<SecurityGroupRule> securityGroupRules;
 
     @JsonProperty("create_at")

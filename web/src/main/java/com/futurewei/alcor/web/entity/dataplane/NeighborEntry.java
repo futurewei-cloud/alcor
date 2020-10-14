@@ -16,15 +16,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public class NeighborEntry {
     @JsonProperty("neighbor_type")
+    @SerializedName("neighbor_type")
     private NeighborType neighborType;
 
     @JsonProperty("local_ip")
+    @SerializedName("local_ip")
     private String localIp;
 
     @JsonProperty("neighbor_ip")
+    @SerializedName("neighbor_ip")
     private String neighborIp;
 
     public enum NeighborType {

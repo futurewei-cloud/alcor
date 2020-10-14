@@ -14,11 +14,13 @@ package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 @Data
 public class InternalSubnetEntity extends SubnetEntity {
     @JsonProperty("tunnel_id")
+    @SerializedName("tunnel_id")
     private Long tunnelId;
 
     public InternalSubnetEntity()
