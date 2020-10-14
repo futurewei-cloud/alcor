@@ -18,10 +18,7 @@ package com.futurewei.alcor.dataplane.utils;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
-import com.futurewei.alcor.dataplane.utils.entity.UTIPInfo;
-import com.futurewei.alcor.dataplane.utils.entity.UTL3NeighborInfoMapping;
-import com.futurewei.alcor.dataplane.utils.entity.UTPortWithSubnetAndIPMapping;
-import com.futurewei.alcor.dataplane.utils.entity.UTSubnetInfo;
+import com.futurewei.alcor.dataplane.utils.entity.*;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
@@ -365,11 +362,15 @@ public class DataPlaneManagerUtil {
         }
 
         List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
+        List<String> subnetIdsInFixedIP = new ArrayList<>();
         for (Port.PortState portState: portStates) {
             for (Port.PortConfiguration.FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
-                InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
-                        networkConfig, fixedIp.getSubnetId());
-                subnetEntities.add(internalSubnetEntity);
+                if (!subnetIdsInFixedIP.contains(fixedIp.getSubnetId())) {
+                    InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
+                            networkConfig, fixedIp.getSubnetId());
+                    subnetEntities.add(internalSubnetEntity);
+                    subnetIdsInFixedIP.add(fixedIp.getSubnetId());
+                }
             }
         }
 
@@ -469,7 +470,7 @@ public class DataPlaneManagerUtil {
     private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp) throws Exception {
         NeighborInfo result = null;
         for (NeighborInfo neighborInfo: networkConfig.getNeighborInfos()) {
-            if (neighborInfo.getHostId().equals(hostIp)) {
+            if (neighborInfo.getHostIp().equals(hostIp)) {
                 result = neighborInfo;
                 break;
             }
@@ -506,11 +507,11 @@ public class DataPlaneManagerUtil {
         }
 
         for (NeighborEntry neighborEntry: neighborTable) {
-            if (!hostIp.equals(neighborEntry.getLocalIp())) {
+
+            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, hostIp);
+            if (!hostIp.equals(neighborInfo.getHostIp())) {
                 continue;
             }
-
-            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, neighborEntry.getNeighborIp());
             Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
             //neighborConfigBuilder.setId();
             Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(neighborEntry.getNeighborType().getType());
@@ -690,7 +691,7 @@ public class DataPlaneManagerUtil {
             buildPortState(networkConfig, portEntities, goalStateBuilder);
         }
 
-        buildVpcState(networkConfig, goalStateBuilder);
+        //buildVpcState(networkConfig, goalStateBuilder);
         buildSubnetState(networkConfig, goalStateBuilder);
         buildNeighborState(networkConfig, hostIp, goalStateBuilder);
         buildSecurityGroupState(networkConfig, goalStateBuilder);
@@ -713,7 +714,7 @@ public class DataPlaneManagerUtil {
                                                                                boolean hasInternalSubnetRoutingTable,
                                                                                boolean hasInternalRoutingRule,
                                                                                boolean hasNeighbor,
-                                                                               int neighborNum,
+                                                                               Map<String, UTNeighborInfoDetail> neighborInfoDetails, // key - port_IP
                                                                                boolean fastPath) {
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
 
@@ -763,14 +764,21 @@ public class DataPlaneManagerUtil {
         List<NeighborEntry> neighborTable = new ArrayList<>();
         for (int i = 0; i < L3NeighborInfoMapping.size(); i ++) {
             UTL3NeighborInfoMapping local = L3NeighborInfoMapping.get(i);
+            String subnetId = local.getSubnetId();
             List<UTIPInfo> localIPsInSubnet = local.getIPsInSubnet();
             for (int j = 0; j < localIPsInSubnet.size(); j ++) {
                 String localIP = localIPsInSubnet.get(j).getIp();
                 boolean isExist = localIPsInSubnet.get(j).isExist();
                 if (isExist) {
                     NeighborInfo neighborInfo = new NeighborInfo();
+                    UTNeighborInfoDetail detail = neighborInfoDetails.get(localIP);
                     neighborInfo.setPortIp(localIP);
                     neighborInfo.setVpcId(DPMAutoUnitTestConstant.vpcId);
+                    neighborInfo.setSubnetId(subnetId);
+                    neighborInfo.setPortId(detail.getPortId());
+                    neighborInfo.setPortMac(detail.getPortMac());
+                    neighborInfo.setHostId(detail.getHostId());
+                    neighborInfo.setHostIp(detail.getHostIp());
                     neighborInfoMap.put(localIP, neighborInfo);
                     continue;
                 }
@@ -793,20 +801,24 @@ public class DataPlaneManagerUtil {
         for (int i = 0; i < L3NeighborInfoMapping.size(); i ++) {
             UTL3NeighborInfoMapping local = L3NeighborInfoMapping.get(i);
             List<UTIPInfo> localIPsInSubnet = local.getIPsInSubnet();
+            boolean[] isUsed = new boolean[L3NeighborInfoMapping.size() + 1];
             for (int j = 0; j < localIPsInSubnet.size(); j ++) {
                 String localIP = localIPsInSubnet.get(j).getIp();
                 boolean isExist = localIPsInSubnet.get(j).isExist();
                 if (isExist) {
                     continue;
                 }
-                for (int k = j + 1; k < localIPsInSubnet.size(); k ++) {
-                    String neighborIP = localIPsInSubnet.get(k).getIp();
-                    NeighborEntry neighborEntry = new NeighborEntry();
-                    neighborEntry.setLocalIp(localIP);
-                    neighborEntry.setNeighborIp(neighborIP);
-                    neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
-                    neighborTable.add(neighborEntry);
+                for (int k = 0; k < localIPsInSubnet.size(); k ++) {
+                    if (k != j && isUsed[k] == false) {
+                        String neighborIP = localIPsInSubnet.get(k).getIp();
+                        NeighborEntry neighborEntry = new NeighborEntry();
+                        neighborEntry.setLocalIp(localIP);
+                        neighborEntry.setNeighborIp(neighborIP);
+                        neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
+                        neighborTable.add(neighborEntry);
+                    }
                 }
+                isUsed[j] = true;
             }
         }
 
@@ -819,20 +831,6 @@ public class DataPlaneManagerUtil {
             List<UTPortWithSubnetAndIPMapping> mapList = (List<UTPortWithSubnetAndIPMapping>)entry.getValue();
             for (UTPortWithSubnetAndIPMapping mapping : mapList) {
                 List<PortEntity.FixedIp> fixedIps = mapping.getFixedIps();
-                for (int i = 0; i < fixedIps.size(); i ++) {
-                    String ipAddress = fixedIps.get(i).getIpAddress();
-                    String subnetId = fixedIps.get(i).getSubnetId();
-                    if (neighborInfoMap.containsKey(ipAddress)) {
-                        NeighborInfo neighborInfo = neighborInfoMap.get(ipAddress);
-                        neighborInfo.setPortId(mapping.getPortId());
-                        neighborInfo.setPortMac(mapping.getPortMacAddress());
-                        neighborInfo.setHostId(mapping.getBindingHostId());
-                        neighborInfo.setHostIp(bindingHostIP);
-                        neighborInfo.setSubnetId(subnetId);
-                        neighborInfoMap.put(ipAddress, neighborInfo);
-                    }
-                }
-
 
                 PortEntity portEntity = new PortEntity(DPMAutoUnitTestConstant.projectId, mapping.getPortId(),
                         mapping.getPortName(), "", DPMAutoUnitTestConstant.vpcId, true, mapping.getPortMacAddress(), mapping.getVethName(), fastPath,
@@ -898,19 +896,22 @@ public class DataPlaneManagerUtil {
 
     public Map<String, Goalstate.GoalState> autoGenerateUTsOutput_MoreCustomizableScenarios(int operationType,
                                                                   int resourceType,
-                                                                  Map<String, List<UTPortWithSubnetAndIPMapping>> map,
+                                                                  Map<String, List<UTPortWithSubnetAndIPMapping>> createPortsMap,
+                                                                  Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap,
                                                                   List<UTSubnetInfo> UTSubnets,
                                                                   List<UTL3NeighborInfoMapping> L3NeighborInfoMapping,
                                                                   boolean hasInternalRouterInfo,
                                                                   boolean hasInternalSubnetRoutingTable,
                                                                   boolean hasInternalRoutingRule,
                                                                   boolean hasNeighbor,
-                                                                  int neighborNum,
+                                                                  Map<String, UTNeighborInfoDetail> neighborInfoDetails,
                                                                   boolean fastPath) throws Exception {
         Map<String, Goalstate.GoalState> goalStateHashMap = new HashMap<>();
-        for (Map.Entry<String, List<UTPortWithSubnetAndIPMapping>> entry : map.entrySet()) {
+        for (Map.Entry<String, List<UTPortWithSubnetAndIPMapping>> entry : existPortsMap.entrySet()) {
             HostGoalState hostGoalState = new HostGoalState();
-            NetworkConfiguration networkConfiguration = autoGenerateUTsInput_MoreCustomizableScenarios(operationType, resourceType, map, UTSubnets, L3NeighborInfoMapping, hasInternalRouterInfo, hasInternalSubnetRoutingTable, hasInternalRoutingRule, hasNeighbor, neighborNum, fastPath);
+            Map<String, List<UTPortWithSubnetAndIPMapping>> portsMap = new HashMap<>();
+            portsMap.put(entry.getKey(), entry.getValue());
+            NetworkConfiguration networkConfiguration = autoGenerateUTsInput_MoreCustomizableScenarios(operationType, resourceType, portsMap, UTSubnets, L3NeighborInfoMapping, hasInternalRouterInfo, hasInternalSubnetRoutingTable, hasInternalRoutingRule, hasNeighbor, neighborInfoDetails, fastPath);
             hostGoalState = buildHostGoalState(networkConfiguration, entry.getKey(), networkConfiguration.getPortEntities());
             goalStateHashMap.put(hostGoalState.getHostIp(), hostGoalState.getGoalState());
         }

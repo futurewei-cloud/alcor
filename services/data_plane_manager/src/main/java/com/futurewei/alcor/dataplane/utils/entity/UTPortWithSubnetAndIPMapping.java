@@ -20,7 +20,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.List;
 
 /**
- * Ports info per Host, host and port mapping
+ * Ports created info per Host, not include the ports exist in host already, host and port mapping
  */
 public class UTPortWithSubnetAndIPMapping {
 
