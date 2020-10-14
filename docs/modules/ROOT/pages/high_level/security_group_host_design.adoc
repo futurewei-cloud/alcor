@@ -104,8 +104,8 @@ It offers the following advantages compared to Neutron:
 . On-Host direct connection from VM port to OVS: it doesn't need extra Linux bridge, Linux devices, Linux kernel or IP Tables;
 . Direct and simplified communication between Alcor controller to Alcor control agent;
 . Delta update: Update of security group rule only require the changed rule to be push down to compute hosts;
-. Reduced OVS SG rules: Only one set of security group rules is configured in OVS to be shared with all ports using it
-. Enable scale and performance from the ground up, addressing the biggest pain point on Neutron
+. Reduced OVS SG rules: Same security group rule can be shared with any port which follows the same conjunctive rule for remote security group rules;
+. Enable scale and performance from the ground up, addressing the biggest pain point on Neutron;
 . OpenFlow rules can be offloaded to hardware
 
 Our highlighted improvement is to use only one OpenFlow rule per security group rule, to be shared with all the associated ports on a compute host.
@@ -171,7 +171,7 @@ We will consider doing on-demand rule for L2 neighbors in the future if needed.
 
 With a security group rule that is associated with a remote group ID, ingress rule will need to match on the "n" remote ports IP address (nw_src) and match on the mac addresses (dl_src) for all the ports "m" associated with this security group.
 It will result with n * m flows without using conjuctive flows.
-The situation is much worse when there are multiple (e.g., 10) security groups associated with a single port.
+The situation is much worse when there are multiple (e.g. 10) security groups associated with a single port.
 
 We will use a conj_id for each combination of (remote SG_id, local port SG_id, ingress/egress, ethertype, flow priority).
 This rule is shared between security group rules and used by any flow that matches the same combo.
@@ -241,6 +241,8 @@ In order to support remote SG rules, our neighbor configuration will be updated 
 
 This session list the proposed code change location and details:
 
+. update neighbor.proto to add "repeated SecurityGroupId security_group_ids;" to support remote_group rules - futurewei team will do that
+. add the ignore logic when PortState::operation_type = INFO inside ACA_Dataplane_OVS::update_port_state_workitem similar to update_subnet_state_workitem
 . add a new directory under /src, namely /sg.
 . add the implementation files related to security group under the new /src/sg directory, the main file should be named aca_sg_state_handler.cpp, similar to aca_dhcp_state_handler.cpp. Note that we don't have an interface definition like dhcp_programming_if for security group.
 . add a new class for the main security group implementation, add default openflow rules in constructor and clean up the openflow rules in destructor. Note that a port can have "port security" enabled (default) or disabled. Therefore, any default openflow rules need to work on both.
@@ -253,9 +255,37 @@ We will need to create/update the corresponding header files accordingly.
 
 === Integration with Alcor Distributed Router
 
-Alcor Distribute Router was using table 0 to restart gateway mac address from the neighbor host DVR mac. 
+Alcor Distribute Router was using table 0 to restore gateway mac address from the neighbor host DVR mac. 
 With addition of security group implementation, 
 we will move that to table 73 (ACCEPT_OR_INGRESS) since those connection is already accepted for ingress pipeline.
+
+
+== VxLAN-GPE for remote security group
+
+We can consider leveraging VxLAN-GPE to address the scale problem with security group, specially with rules that contain remote group as the amount of ports (and assoicated IPs) on the remote group can be huge.
+
+While the current design still need to work with VxLAN only environment, we will consider leveraging VxLAN-GPE to embed remote security group IDs into ingress packets to apply ingress rule without needing to know all the ports IPs from the remote group before hand.
+
+=== VxLAN-GPE packet with remote security group info
+
+[source,shell]
+------------------------------------------------------------
+Outer header --- Middle header ----------- Inner packet
+VxLAN-GPE ------ NSH with remote SG ID --- IPv4/IPv6 original payload
+------------------------------------------------------------
+
+=== OVS egress processing
+
+OVS will need to stamp all packets coming out for a port with the assoicated SG IDs (zero to five).
+
+Each SG ID is about 36 bytes and 5 of them will be about 180 bytes. While VxLAN-GPE + NSH can embed all those information, but 180 bytes is too much data to put into header of every single packet. Therefore, we need to come up with way for more efficient marking and pre-negotiate it between the two end points. 
+
+=== OVS ingress processing
+
+Security group rule with remote group will be coverted to openflow rule to match on SG ID on ingress traffic. Since all VxLAN-GPE ports has all the outgoing traffic stamped with the assoicated SG IDs markings, the one openflow rule will simply look at the matching remote SG ID instead of a potential large scale set of IPs belong to all the ports assoicated with the remote SG.
+
+TBD: need to confirm openflow rule can match on NSH header for our need.
+
 
 == Sample Openflow rule for Security Group
 
