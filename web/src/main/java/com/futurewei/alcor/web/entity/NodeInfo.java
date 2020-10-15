@@ -45,6 +45,9 @@ public class NodeInfo implements Serializable {
     @JsonProperty("server_port")
     private int gRPCServerPort;
 
+    @JsonProperty("host_dvr_mac")
+    private String host_dvr_mac;
+
     public NodeInfo() {
 
     }
@@ -81,6 +84,16 @@ public class NodeInfo implements Serializable {
         }
         this.veth = "";
         this.gRPCServerPort = 0;
+    }
+
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac) {
+        this.id = id;
+        this.name = name;
+        this.localIp = localIp;
+        this.macAddress = macAddress;
+        this.veth = veth;
+        this.gRPCServerPort = gRPCServerPort;
+        this.host_dvr_mac = host_dvr_mac;
     }
 
     public boolean validateMac(String mac) {
@@ -145,5 +158,13 @@ public class NodeInfo implements Serializable {
 
     public void setgRPCServerPort(int gRPCServerPort) {
         this.gRPCServerPort = gRPCServerPort;
+    }
+
+    public String getHost_dvr_mac() {
+        return host_dvr_mac;
+    }
+
+    public void setHost_dvr_mac(String host_dvr_mac) {
+        this.host_dvr_mac = host_dvr_mac;
     }
 }
