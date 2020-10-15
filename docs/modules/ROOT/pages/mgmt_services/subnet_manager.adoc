@@ -1,5 +1,5 @@
 = Subnet Manager Design Specification
-Zhonghao Lyu <zlyu@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+Zhonghao Lyu <zlyu@futurewei.com>, Chun-Jen Chung <cchung@futurewei.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-05-04
 :toc: right
 
@@ -25,7 +25,11 @@ It also needs to dispatch routing update information from Route Manager to Distr
 
 === Service Architecture
 
+image::subnet_manager_routing_rules_update_architecture.PNG[]
+
 === Key Workflow
+
+image::subnet_manager_subnet_ports_mapping.PNG[]
 
 === Concurrency Control
 
