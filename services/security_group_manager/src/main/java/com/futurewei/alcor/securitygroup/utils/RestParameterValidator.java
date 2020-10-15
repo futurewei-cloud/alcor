@@ -32,10 +32,12 @@ public class RestParameterValidator {
         }
     }
 
-    public static void checkTenantId(String tenantId) throws TenantIdRequired {
+    public static String checkOrAssignTenantId(String tenantId, String projectId) throws ProjectIdRequired{
+        checkProjectId(projectId);
         if (StringUtils.isEmpty(tenantId)) {
-            throw new TenantIdRequired();
+            return projectId;
         }
+        return tenantId;
     }
 
     public static void checkSecurityGroup(SecurityGroupJson securityGroupJson) throws SecurityGroupRequired {
