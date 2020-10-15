@@ -48,7 +48,7 @@ public class SecurityGroupController {
     @Autowired
     private HttpServletRequest request;
 
-    @Rbac(resource ="security_group")
+    @Rbac(resource = "security_group")
     @PostMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,13 +57,14 @@ public class SecurityGroupController {
                                                  @RequestBody SecurityGroupJson securityGroupJson) throws Exception {
         checkProjectId(projectId);
         checkSecurityGroup(securityGroupJson);
-        checkTenantId(securityGroupJson.getSecurityGroup().getTenantId());
+        String tenantId = checkOrAssignTenantId(securityGroupJson.getSecurityGroup().getTenantId(), projectId);
         securityGroupJson.getSecurityGroup().setProjectId(projectId);
+        securityGroupJson.getSecurityGroup().setTenantId(tenantId);
 
         return securityGroupService.createSecurityGroup(securityGroupJson);
     }
 
-    @Rbac(resource ="security_group")
+    @Rbac(resource = "security_group")
     @PostMapping({"/project/{project_id}/security-groups/bulk", "v4/{project_id}/security-groups/bulk"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -75,7 +76,7 @@ public class SecurityGroupController {
 
         String tenantId = null;
         for (SecurityGroup securityGroup : securityGroupBulkJson.getSecurityGroups()) {
-            checkTenantId(securityGroup.getTenantId());
+            tenantId = checkOrAssignTenantId(securityGroup.getTenantId(), projectId);
             if (tenantId == null) {
                 tenantId = securityGroup.getTenantId();
             } else if (!tenantId.equals(securityGroup.getTenantId())) {
@@ -88,7 +89,7 @@ public class SecurityGroupController {
         return securityGroupService.createSecurityGroupBulk(tenantId, projectId, securityGroupBulkJson);
     }
 
-    @Rbac(resource ="security_group")
+    @Rbac(resource = "security_group")
     @PutMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public SecurityGroupJson updateSecurityGroup(@PathVariable("project_id") String projectId,
@@ -101,7 +102,7 @@ public class SecurityGroupController {
         return securityGroupService.updateSecurityGroup(securityGroupId, securityGroupJson);
     }
 
-    @Rbac(resource ="security_group")
+    @Rbac(resource = "security_group")
     @DeleteMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public void deleteSecurityGroup(@PathVariable("project_id") String projectId,
@@ -112,8 +113,8 @@ public class SecurityGroupController {
         securityGroupService.deleteSecurityGroup(securityGroupId);
     }
 
-    @Rbac(resource ="security_group")
-    @FieldFilter(type=SecurityGroup.class)
+    @Rbac(resource = "security_group")
+    @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups/{security_group_id}", "v4/{project_id}/security-groups/{security_group_id}"})
     @DurationStatistics
     public SecurityGroupJson getSecurityGroup(@PathVariable("project_id") String projectId,
@@ -129,20 +130,20 @@ public class SecurityGroupController {
     public SecurityGroupJson getDefaultSecurityGroup(@PathVariable("project_id") String projectId,
                                                      @PathVariable("tenant_id") String tenantId) throws Exception {
         checkProjectId(projectId);
-        checkTenantId(tenantId);
+        String assignedTenantId = checkOrAssignTenantId(tenantId, projectId);
 
-        return securityGroupService.getDefaultSecurityGroup(projectId, tenantId);
+        return securityGroupService.getDefaultSecurityGroup(projectId, assignedTenantId);
     }
 
-    @Rbac(resource ="security_group")
+    @Rbac(resource = "security_group")
     @FieldFilter(type = SecurityGroup.class)
     @GetMapping({"/project/{project_id}/security-groups", "v4/{project_id}/security-groups"})
     @DurationStatistics
     public SecurityGroupsJson listSecurityGroup(@PathVariable("project_id") String projectId) throws Exception {
         checkProjectId(projectId);
 
-        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
-        requestParams = requestParams == null ? request.getParameterMap():requestParams;
+        Map<String, String[]> requestParams = (Map<String, String[]>) request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap() : requestParams;
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(requestParams, SecurityGroup.class);
 
