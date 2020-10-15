@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.client;
 
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +25,11 @@ import java.util.List;
 
 @Component
 public interface DataPlaneClient {
-    void createGoalState(GoalState goalState, String hostIp) throws Exception;
     void createGoalState(List<HostGoalState> hostGoalStates) throws Exception;
     void updateGoalState(List<HostGoalState> hostGoalStates) throws Exception;
     void deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+
+    void createGoalState(MulticastGoalState multicastGoalState) throws Exception;
+    void updateGoalState(MulticastGoalState multicastGoalState) throws Exception;
+    void deleteGoalState(MulticastGoalState multicastGoalState) throws Exception;
 }

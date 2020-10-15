@@ -22,24 +22,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
 public class DataPlaneController {
     @Autowired
     private DataPlaneService dataPlaneService;
 
-    @PostMapping({"/port/", "v4/port/"})
+    @PostMapping({"/dpm/port/", "/dpm/v4/port/"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public NetworkConfiguration createNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.createNetworkConfiguration(networkConfiguration);
     }
 
-    @PutMapping({"/port/", "v4/port/"})
+    @PutMapping({"/dpm/port/", "/dpm/v4/port/"})
     @DurationStatistics
     public NetworkConfiguration updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.updateNetworkConfiguration(networkConfiguration);
     }
 
-    @DeleteMapping({"/port/", "v4/port/"})
+    @DeleteMapping({"/dpm/port/", "/dpm/v4/port/"})
     @DurationStatistics
     public NetworkConfiguration deleteNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.deleteNetworkConfiguration(networkConfiguration);

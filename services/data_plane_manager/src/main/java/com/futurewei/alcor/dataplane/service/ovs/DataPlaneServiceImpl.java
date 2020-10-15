@@ -17,6 +17,7 @@ package com.futurewei.alcor.dataplane.service.ovs;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
 import com.futurewei.alcor.schema.Common.MessageType;
@@ -188,6 +189,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             hostInfoBuilder.setIpAddress(portEntity.getBindingHostIP());
             //TODO: Do we need mac address?
             //hostInfoBuilder.setMacAddress()
+
+//             TODO: Unable Executing java.lang.NullPointerException: null
             portConfigBuilder.setHostInfo(hostInfoBuilder.build());
             portEntity.getFixedIps().forEach(fixedIp -> {
                 FixedIp.Builder fixedIpBuilder = FixedIp.newBuilder();
@@ -433,6 +436,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 List<InternalPortEntity> portEntities = entry.getValue();
                 hostGoalStates.add(buildHostGoalState(networkConfig, hostIp, portEntities));
             }
+
         } else if (ResourceType.NEIGHBOR.equals(networkConfig.getRsType())) {
             //hostGoalStates.add(buildHostGoalState(networkConfig, null, null));
         } else if (ResourceType.SECURITYGROUP.equals(networkConfig.getRsType())) {
@@ -444,6 +448,13 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         dataPlaneClient.createGoalState(hostGoalStates);
+
+        for (HostGoalState hostGoalState: hostGoalStates){
+//            TODO: Get neighbor host ip list
+            List<String> hostIps = null;
+            MulticastGoalState multicastGoalState = new MulticastGoalState(hostIps, hostGoalState.getGoalState());
+            dataPlaneClient.createGoalState(multicastGoalState);
+        }
 
         return networkConfig;
     }

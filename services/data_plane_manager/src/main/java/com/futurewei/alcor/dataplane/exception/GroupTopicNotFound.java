@@ -13,13 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.service;
+package com.futurewei.alcor.dataplane.exception;
 
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-
-public interface DataPlaneService {
-    NetworkConfiguration createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
-    NetworkConfiguration updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
-    NetworkConfiguration deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+@ResponseStatus(code = HttpStatus.SERVICE_UNAVAILABLE, reason = "Group topic not found")
+public class GroupTopicNotFound extends Exception {
 }
