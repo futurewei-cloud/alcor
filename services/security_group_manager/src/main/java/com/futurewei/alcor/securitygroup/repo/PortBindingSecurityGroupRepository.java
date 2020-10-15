@@ -57,7 +57,7 @@ public class PortBindingSecurityGroupRepository {
     @DurationStatistics
     public Collection<PortBindingSecurityGroup> getPortBindingSecurityGroupBySecurityGroupId(String securityGroupId) throws CacheException {
         Map<String, Object[]> filterParams = new HashMap<>();
-        filterParams.put("security_group_id", new String[] {securityGroupId});
+        filterParams.put("securityGroupId", new String[] {securityGroupId});
 
         Map<String, PortBindingSecurityGroup> portBindingSecurityGroupMap = bindingCache.getAll(filterParams);
         return portBindingSecurityGroupMap.values();
