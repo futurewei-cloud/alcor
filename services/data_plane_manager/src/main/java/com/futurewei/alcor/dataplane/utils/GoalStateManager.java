@@ -59,8 +59,6 @@ public class GoalStateManager {
 
   private void convert(NetworkConfiguration networkConfiguration) {
 
-    //      NetworkConfiguration result=new NetworkConfiguration();
-    //      result.setInternalRouterInfos(networkConfiguration.getInternalRouterInfos())
     final List<NeighborInfo> neighborInfos = networkConfiguration.getNeighborInfos();
     final List<NeighborEntry> neighborTable = networkConfiguration.getNeighborTable();
 
@@ -71,8 +69,6 @@ public class GoalStateManager {
     for (InternalPortEntity internalPortEntity : portEntities) {
       portIdPortMap.put(internalPortEntity.getId(), internalPortEntity);
 
-      //          for(NeighborInfo neighborInfo:neighborInfos)
-      //          {
       for (PortEntity.FixedIp ip : internalPortEntity.getFixedIps()) {
         Set<String> strings = hostIpFixedIpsMap.get(internalPortEntity.getBindingHostIP());
         if (strings == null) strings = new TreeSet<>();
@@ -89,30 +85,12 @@ public class GoalStateManager {
         ipMacMap.put(ip.getIpAddress(), internalPortEntity.getMacAddress());
       }
 
-      //              if(internalPortEntity.getFixedIps().contains(neighborInfo.getHostIp()))
-      //          }
     }
 
     for (NeighborInfo internalPortEntity : neighborInfos) {
-      //          portIdPortMap.put(internalPortEntity.getId(),internalPortEntity);
-
-      //          for(NeighborInfo neighborInfo:neighborInfos)
-      //          {
-      //          for(PortEntity.FixedIp ip:internalPortEntity.getFixedIps())
-      //          {
       ipPortIdMap.put(internalPortEntity.getPortIp(), internalPortEntity.getPortId());
       ipHostIpMap.put(internalPortEntity.getPortIp(), internalPortEntity.getHostIp());
-
-      //            final InternalPortEntity internalPortEntity1 =
-      //                    new InternalPortEntity();
-      //            internalPortEntity1.setId(internalPortEntity.getPortId());
-      //            internalPortEntity1.setBindingHostIP(internalPortEntity.getHostIp
       portIdNeighborInfoMap.put(internalPortEntity.getPortIp(), internalPortEntity);
-
-      //          for(NeighborInfo neighborInfo:neighborInfos)
-      //          {
-      //            for(PortEntity.FixedIp ip:internalPortEntity.getFixedIps())
-      //            {
       String ip = internalPortEntity.getPortIp();
       Set<String> strings = hostIpFixedIpsMap.get(internalPortEntity.getHostIp());
       if (strings == null) strings = new TreeSet<>();
@@ -729,22 +707,6 @@ public class GoalStateManager {
             currentPortEntity.getId(),
             currentPortEntity.getMacAddress()));
     tempPorts.add(currentPortEntity.getId());
-    /*
-    if (currentPortEntity.getNeighborInfos() != null) {
-      for (NeighborInfo neighborInfo : currentPortEntity.getNeighborInfos()) {
-        tempNeighbor.add(
-            new NeighborInfo(
-                neighborInfo.getHostIp(),
-                neighborInfo.getHostId(),
-                neighborInfo.getPortId(),
-                neighborInfo.getPortMac(),
-                neighborInfo.getPortIp()));
-        tempPorts.add(neighborInfo.getPortId());
-      }
-    }
-
-     */
-
     portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
     neighborInfoInSameSubenetMap.put(fixedIp.getSubnetId(), tempNeighbor);
   }

@@ -84,13 +84,13 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         for (PortState portState: portStates) {
-            VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getId());
+            VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getVpcId());
             VpcConfiguration.Builder vpcConfigBuilder = VpcConfiguration.newBuilder();
             vpcConfigBuilder.setId(vpcEntity.getId());
             vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
             vpcConfigBuilder.setName(vpcEntity.getName());
             vpcConfigBuilder.setCidr(vpcEntity.getCidr());
-            vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getTenantId()));
+            vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getSegmentationId() + ""));
 
             networkConfig.getSubnets().stream()
                     .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
@@ -157,8 +157,13 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
             subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
-            subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
-            subnetConfigBuilder.setSecondaryDns(subnetEntity.getSecondaryDns());
+            if (subnetEntity.getPrimaryDns() != null) {
+                subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
+            }
+
+            if (subnetEntity.getSecondaryDns() != null) {
+                subnetConfigBuilder.setSecondaryDns(subnetEntity.getSecondaryDns());
+            }
 
             SubnetState.Builder subnetStateBuilder = SubnetState.newBuilder();
             subnetStateBuilder.setOperationType(networkConfig.getOpType());
