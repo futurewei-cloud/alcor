@@ -19,16 +19,24 @@ It also needs to dispatch routing update information from Route Manager to Distr
 . Process routing rules from Route manager and dispatch routing rules updating messages to DPM and ACA.
 . Algorithm with random, but less conflict possibility.
 . Fall back mechanism if there is a conflict among creation of subnet.
-. Working together with other services including VPC manager, Route manager, Port Manager, Mac manager and IP manager.
+. Working together with other services including VPC manager, Route manager, Port Manager.
 
 == Design
 
 === Service Architecture
+Subnet Manager handles subnet resource management under a VPC and subnet level routing rules updating.
+It needs to interact with Route Manager, Port Manager and Data Plane Manager. The major functionalities
+and architecture of Subnet Manager as follows:
 
-image::subnet_manager_routing_rules_update_architecture.PNG[]
+==== The relation between Subnet Manager and other managers
+image::subnet_manager_architecture.PNG[]
 
 === Key Workflow
 
+==== Subnet level routing rules update
+image::subnet_manager_routing_rules_update_architecture.PNG[]
+
+=== Contracts between Subnet Manager, Port Manager and Data Plane Manager
 image::subnet_manager_subnet_ports_mapping.PNG[]
 
 === Concurrency Control
@@ -41,8 +49,11 @@ The resources which is allocated to subnet should be unique when there are concu
 ====== (2) Fallback
 In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
 
-== Database Schema
+== Data Schema
 
+image::subnet_manager_subnet_entity.PNG[]
+
+image::subnet_manager_subnetports_and_other_contracts.PNG[]
 
 == REST APIs
 
@@ -81,6 +92,19 @@ In case for subnet creation fails, the resources (include route info, ip address
 |/project/{projectId}/subnets
 |SubnetsWebJson
 <<SubnetState_Get2,[sample]>>
+
+|GET Subnet State By Gateway Port
+|GET
+|/project/{projectId}/subnets?{portId}
+|SubnetsWebJson
+<<SubnetState_Get_by_gwport,[sample]>>
+
+|Update Routing Rules for a subnet
+|PUT
+|/project/{projectId}/subnets/{subnetId}/update_routes
+|Subnet state
+<<SubnetState_Update_routing,[sample]>>
+
 |===
 
 === API Specification
@@ -117,24 +141,41 @@ Response:
 ....
 
 anchor:SubnetState_Post1[]
-**(1) Create Subnet State**
+**(2) Create Subnet State**
 
 * Method: `POST`
-
 * Request: `/project/{projectid}/subnets, /v4/{projectid}/subnets`
-
 * Request Parameter: `@PathVariable String projectid, @RequestBody SubnetWebJson resource`
-
+* Operation: Create a Subnet based on user's input.
+** If input body includes user-defined gateway ip address, this function needs to call Port Manager to create a port using
+the specified ip. If there is no user-defined gateway ip, this function use a default gateway ip address to request a port from
+Port Manager.
+** If input body includes Host Route, this function needs to send these routing rules to Route Manager and
+ask Route Manage to create a routetable for the specified subnet.
 * Response: subnet state
 * Normal response codes: 201
 * Error response codes: 400, 404, 500, 503
-
 * Example
 
 ....
 Request:
 http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
---data "{\"subnet\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"vpc_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\",\"name\":\"test_subnet\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Body:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+    "gateway_ip": "10.0.0.4",
+    "host_routes":[
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" },
+         { "destination" : "10.0.2.0/24", "nexthop" : "10.0.0.12" }
+    ]
+  }
+}
 
 Response:
 {
@@ -149,73 +190,84 @@ Response:
 ....
 
 anchor:SubnetState_Put1[]
-**(1) Update Subnet State**
+**(3) Update Subnet State**
 
 * Method: `PUT`
-
 * Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
-
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId, @RequestBody SubnetWebJson resource`
-
+* Operation: Update Subnet's state based on user's input.
+** If input body includes gateway ip address change, this function needs to ask Port Manager to update the specified ports.
+** If input body includes Host Route, this function needs to send these routing rules to Route Manager and
+ask Route Manage to update routetable for the specified subnet.
 * Response: subnet state
 * Normal response codes: 201
 * Error response codes: 400, 404, 500, 503
-
 * Example
 
 ....
 Request:
 http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets
---data "{\"subnet\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"vpc_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\",\"name\":\"test_subnet\",\"cidr\":\"10.0.0.0/16\"}}"
+
+Body:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+    "gateway_ip": "10.0.0.1",
+    "host_routes":[
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" }
+    ]
+  }
+}
 
 Response:
 {
   "subnet": {
     "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
     "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
-    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038"
     "name": "test_subnet",
     "cidr": "10.0.0.0/16",
+    "gateway_ip": "10.0.0.1",
+    "host_routes":[
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" }
+    ]
   }
 }
 ....
 
 anchor:SubnetState_Delete1[]
-**(1) Delete Subnet State**
+**(4) Delete Subnet State**
 
 * Method: `DELETE`
-
 * Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
-
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId`
-
+** This function needs to ask Port Manager to delete subnet's gateway port.
+** This function needs to ask Route Manager to delete subnet's routetable and routing rules.
 * Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 404, 500
-
 * Example
-
 ....
 Request:
-http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000
+http://localhost:8081/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets/9192a4d4-ffff-4ece-b3f0-8d36e3d88000
 
 Response:
 {"id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000"}
 ....
 
 anchor:SubnetState_Get2[]
-**(1) Get/Verify Subnet state by Project Id**
+**(5) Get/Verify Subnet state by Project Id**
 
 * Method: `GET`
-
-* Request: `/project/{projectid}/subnetId`
-
+* Request: `/project/{projectid}/subnets`
 * Request Parameter: `@PathVariable String projectid`
-
 * Response: map
 * Normal response codes: 200
 * Error response codes: 400, 404, 500
-
 * Example
 
 ....
@@ -226,4 +278,59 @@ Response:
 SubnetsWebJson, a list of subnets
 ....
 
+anchor:SubnetState_Get_by_gwport[]
+**(6) GET Subnet State By Gateway Port**
 
+* Method: `GET`
+* Request: `/project/{projectid}/subnets?{portId}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String portId`
+* Operation: Get subnet by subnet's gateway port ID.
+* Response: Subnet state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets?64e339bb-1a6c-47bd-9ee7-a0cf81a35172
+
+Response:
+{
+  "subnet": {
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "gateway_ip": "10.0.0.1",
+    "name": "test_subnet",
+    "cidr": "10.0.0.0/16",
+  }
+}
+....
+
+anchor:SubnetState_Update_routing[]
+**(7) Update Routing Rules for a subnet**
+
+* Method: `PUT`
+* Request: `/project/{projectId}/subnets/{subnetId}/update_routes`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId`
+* Operation: Insert subnet, port and host mapping information to *InternalRouterInfo* entity from Route Manager.
+This operation has three major tasks.
+** Extract subnet ids from *InternalRouterInfo*.
+** Extract ports info from *SubnetPorts* entity based on the subnet ids from *InternalRouterInfo*.
+** Create an *InternalPortHostMap* based on ports info and send down both *InternalRouterInfo* and *InternalPortHostMap*
+to Data Plane Manager.
+* Response: Response Id
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4-ffff-4ece-b3f0-8d36e3d88038/subnets/8d36e3d8-ffff-4ece-b3f0-9192a4d48038/connected-subnets
+
+Body:
+{
+   "router_info" : InternalRouterInfo
+}
+
+Response:
+{"id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95"}
+....
