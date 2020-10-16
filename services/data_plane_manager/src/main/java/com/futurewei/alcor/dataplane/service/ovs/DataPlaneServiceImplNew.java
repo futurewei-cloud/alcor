@@ -18,48 +18,46 @@ package com.futurewei.alcor.dataplane.service.ovs;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.dataplane.service.DataPlaneService;
-import com.futurewei.alcor.dataplane.utils.DataPlaneManagerValidationUtil;
-import com.futurewei.alcor.schema.Common.MessageType;
-import com.futurewei.alcor.schema.Common.NetworkType;
-import com.futurewei.alcor.schema.Common.EtherType;
-import com.futurewei.alcor.schema.Common.Protocol;
-import com.futurewei.alcor.schema.Common.ResourceType;
-import com.futurewei.alcor.schema.DHCP.DHCPState;
+import com.futurewei.alcor.dataplane.service.DataPlaneServiceNew;
+import com.futurewei.alcor.schema.Common.*;
 import com.futurewei.alcor.schema.DHCP.DHCPConfiguration;
+import com.futurewei.alcor.schema.DHCP.DHCPState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
-import com.futurewei.alcor.schema.Neighbor.NeighborState;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.alcor.schema.Neighbor.NeighborConfiguration;
-import com.futurewei.alcor.schema.Neighbor.NeighborType;
+import com.futurewei.alcor.schema.Neighbor.NeighborState;
 import com.futurewei.alcor.schema.Port.PortConfiguration;
-import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
-import com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 import com.futurewei.alcor.schema.Port.PortConfiguration.AllowAddressPair;
+import com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
+import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId;
 import com.futurewei.alcor.schema.Port.PortState;
-import com.futurewei.alcor.schema.Router.RouterState;
 import com.futurewei.alcor.schema.Router.RouterConfiguration;
+import com.futurewei.alcor.schema.Router.RouterState;
+import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration;
+import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
+import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState;
 import com.futurewei.alcor.schema.Subnet.SubnetConfiguration;
 import com.futurewei.alcor.schema.Subnet.SubnetConfiguration.Gateway;
 import com.futurewei.alcor.schema.Subnet.SubnetState;
 import com.futurewei.alcor.schema.Vpc.VpcConfiguration;
 import com.futurewei.alcor.schema.Vpc.VpcConfiguration.SubnetId;
 import com.futurewei.alcor.schema.Vpc.VpcState;
-import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState;
-import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration;
-import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import com.futurewei.alcor.web.entity.dataplane.*;
+import com.futurewei.alcor.web.entity.dataplane.refactor.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class DataPlaneServiceImpl implements DataPlaneService {
+public class DataPlaneServiceImplNew implements DataPlaneServiceNew {
     @Autowired
     private DataPlaneClient dataPlaneClient;
 
@@ -218,29 +216,41 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
     }
 
-    private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp) throws Exception {
-        NeighborInfo result = null;
-        for (NeighborInfo neighborInfo: networkConfig.getNeighborInfos()) {
-            if (neighborInfo.getHostId().equals(hostIp)) {
-                result = neighborInfo;
-                break;
-            }
-        }
+    private NeighborState buildOneNeighborState(NeighborInfo neighborInfo, OperationType operationType) {
+        NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
+        //neighborConfigBuilder.setId();
+        //NeighborType neighborType = NeighborType.valueOf(neighborEntry.getNeighborType().getType());
+        //neighborConfigBuilder.setNeighborType(neighborType);
+        //neighborConfigBuilder.setProjectId();
+        neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
+        //neighborConfigBuilder.setName();
+        neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
+        neighborConfigBuilder.setHostIpAddress(neighborInfo.getHostIp());
+        //TODO:setNeighborHostDvrMac
+        //neighborConfigBuilder.setNeighborHostDvrMac();
+        NeighborConfiguration.FixedIp.Builder fixedIpBuilder = NeighborConfiguration.FixedIp.newBuilder();
+        fixedIpBuilder.setSubnetId(neighborInfo.getSubnetId());
+        fixedIpBuilder.setIpAddress(neighborInfo.getPortIp());
+        neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
+        //TODO:setAllowAddressPairs
+        //neighborConfigBuilder.setAllowAddressPairs();
 
-        if (result == null) {
-            throw new NeighborInfoNotFound();
-        }
-
-        return result;
+        NeighborState.Builder neighborStateBuilder = NeighborState.newBuilder();
+        neighborStateBuilder.setOperationType(operationType);
+        neighborStateBuilder.setConfiguration(neighborConfigBuilder.build());
+        return neighborStateBuilder.build();
     }
 
-    private void buildNeighborState(NetworkConfiguration networkConfig, String hostIp, GoalState.Builder goalStateBuilder) throws Exception {
-        List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+    private void buildNeighborState(NetworkConfiguration networkConfig, String hostIp,
+                                    GoalState.Builder goalStateBuilder,
+                                    Map<String, GoalState> goalStateMap)
+            throws Exception {
+        Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         if (neighborInfos == null || neighborInfos.size() == 0) {
             return;
         }
 
-        List<NeighborEntry> neighborTable = networkConfig.getNeighborTable();
+        Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
         if (neighborTable == null || neighborTable.size() == 0) {
             return;
         }
@@ -250,34 +260,34 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             return;
         }
 
-        for (NeighborEntry neighborEntry: neighborTable) {
-            if (!hostIp.equals(neighborEntry.getLocalIp())) {
-                continue;
+        for (PortState portState: portStates) {
+
+            List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
+            for (FixedIp fixedIp: fixedIps) {
+                List<NeighborEntry> entries = neighborTable.get(fixedIp.getIpAddress());
+                for (NeighborEntry neighborEntry: entries) {
+                    NeighborInfo neighborInfo = neighborInfos.get(neighborEntry.getNeighborIp());
+                    if (hostIp.equals(neighborInfo.getHostId())) {
+                        continue;
+                    }
+                    goalStateBuilder.addNeighborStates(buildOneNeighborState(neighborInfo, networkConfig.getOpType()));
+
+                    // process other neighbor host
+                    NeighborInfo localNeighborInfo = neighborInfos.get(neighborEntry.getLocalIp());
+                    NeighborState remoteNeighborState = buildOneNeighborState(localNeighborInfo,
+                            networkConfig.getOpType());
+
+                    GoalState.Builder remoteGoalStateBuilder;
+                    if (goalStateMap.containsKey(neighborInfo.getHostIp())) {
+                        GoalState goalState = goalStateMap.get(neighborInfo.getHostIp());
+                        remoteGoalStateBuilder = goalState.toBuilder();
+                    } else {
+                        remoteGoalStateBuilder = GoalState.newBuilder();
+                    }
+                    remoteGoalStateBuilder.addNeighborStates(remoteNeighborState);
+                    goalStateMap.put(neighborInfo.getHostIp(), remoteGoalStateBuilder.build());
+                }
             }
-
-            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, neighborEntry.getNeighborIp());
-            NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
-            //neighborConfigBuilder.setId();
-            NeighborType neighborType = NeighborType.valueOf(neighborEntry.getNeighborType().getType());
-            //neighborConfigBuilder.setNeighborType(neighborType);
-            //neighborConfigBuilder.setProjectId();
-            neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
-            //neighborConfigBuilder.setName();
-            neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
-            neighborConfigBuilder.setHostIpAddress(neighborInfo.getHostIp());
-            //TODO:setNeighborHostDvrMac
-            //neighborConfigBuilder.setNeighborHostDvrMac();
-            NeighborConfiguration.FixedIp.Builder fixedIpBuilder = NeighborConfiguration.FixedIp.newBuilder();
-            fixedIpBuilder.setSubnetId(neighborInfo.getSubnetId());
-            fixedIpBuilder.setIpAddress(neighborInfo.getPortIp());
-            neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
-            //TODO:setAllowAddressPairs
-            //neighborConfigBuilder.setAllowAddressPairs();
-
-            NeighborState.Builder neighborStateBuilder = NeighborState.newBuilder();
-            neighborStateBuilder.setOperationType(networkConfig.getOpType());
-            neighborStateBuilder.setConfiguration(neighborConfigBuilder.build());
-            goalStateBuilder.addNeighborStates(neighborStateBuilder.build());
         }
     }
 
@@ -396,7 +406,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     }
 
-    private HostGoalState buildHostGoalState(NetworkConfiguration networkConfig, String hostIp, List<InternalPortEntity> portEntities) throws Exception {
+    private HostGoalState buildHostGoalState(NetworkConfiguration networkConfig, String hostIp,
+                                             List<InternalPortEntity> portEntities,
+                                             Map<String, GoalState> goalStateMap) throws Exception {
         GoalState.Builder goalStateBuilder = GoalState.newBuilder();
 
         if (portEntities != null && portEntities.size() > 0) {
@@ -405,7 +417,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         buildVpcState(networkConfig, goalStateBuilder);
         buildSubnetState(networkConfig, goalStateBuilder);
-        buildNeighborState(networkConfig, hostIp, goalStateBuilder);
+        buildNeighborState(networkConfig, hostIp, goalStateBuilder, goalStateMap);
         buildSecurityGroupState(networkConfig, goalStateBuilder);
         buildDhcpState(networkConfig, goalStateBuilder);
         buildRouterState(networkConfig, goalStateBuilder);
@@ -417,12 +429,11 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         return hostGoalState;
     }
 
-    @Override
-    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
-
-        // validation for networkConfig
-        DataPlaneManagerValidationUtil.validateInput(networkConfig);
+    private InternalDPMResultList processConfMsg(NetworkConfiguration networkConfig) throws Exception {
+        long start = System.currentTimeMillis();
+        InternalDPMResultList resultAll = new InternalDPMResultList();
         List<HostGoalState> hostGoalStates = new ArrayList<>();
+        Map<String, GoalState> goalStateMap = new HashMap<>();
         if (ResourceType.PORT.equals(networkConfig.getRsType())) {
             Map<String, List<InternalPortEntity>> hostPortEntities = new HashMap<>();
             for (InternalPortEntity portEntity: networkConfig.getPortEntities()) {
@@ -435,7 +446,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             for (Map.Entry<String, List<InternalPortEntity>> entry: hostPortEntities.entrySet()) {
                 String hostIp = entry.getKey();
                 List<InternalPortEntity> portEntities = entry.getValue();
-                hostGoalStates.add(buildHostGoalState(networkConfig, hostIp, portEntities));
+                hostGoalStates.add(buildHostGoalState(networkConfig, hostIp, portEntities, goalStateMap));
             }
         } else if (ResourceType.NEIGHBOR.equals(networkConfig.getRsType())) {
             //hostGoalStates.add(buildHostGoalState(networkConfig, null, null));
@@ -447,18 +458,54 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             throw new UnknownResourceType();
         }
 
-        dataPlaneClient.createGoalState(hostGoalStates);
+        for (Map.Entry<String, GoalState> entry: goalStateMap.entrySet()) {
+            HostGoalState hostGoalState = new HostGoalState();
+            hostGoalState.setHostIp(entry.getKey());
+            hostGoalState.setGoalState(entry.getValue());
+            hostGoalStates.add(hostGoalState);
+        }
 
-        return null;
+        List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> statuses =
+                dataPlaneClient.createGoalState(hostGoalStates);
+
+        AtomicInteger failed = new AtomicInteger(0);
+        resultAll.setOverrallTime(System.currentTimeMillis() - start);
+        List<InternalDPMResult> result = statuses.stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .flatMap(Collection::stream)
+                .map(status -> {
+                    if (status == null) {
+                        failed.incrementAndGet();
+                        return null;
+                    }
+
+                    return new InternalDPMResult(status.getResourceId(), status.getResourceType().toString(),
+                            status.getOperationStatus().toString(), status.getStateElapseTime());
+                }).filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        resultAll.setResultList(result);
+        if (failed.get() == 0) {
+            resultAll.setResultMessage("Successfully Handle request !!");
+        } else {
+            resultAll.setResultMessage("Failed Handle request !!");
+        }
+
+        return resultAll;
     }
 
     @Override
-    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processConfMsg(networkConfig);
     }
 
     @Override
-    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processConfMsg(networkConfig);
+    }
+
+    @Override
+    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processConfMsg(networkConfig);
     }
 }

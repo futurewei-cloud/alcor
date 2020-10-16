@@ -16,9 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.service;
 
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.refactor.NetworkConfiguration;
 
-public interface DataPlaneService {
+public interface DataPlaneServiceNew {
     InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
     InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
     InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
