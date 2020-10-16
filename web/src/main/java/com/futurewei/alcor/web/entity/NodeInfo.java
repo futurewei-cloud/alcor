@@ -87,9 +87,7 @@ public class NodeInfo implements Serializable {
     }
 
     public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac) {
-        this(id, name, localIp, macAddress);;
-        this.veth = veth;
-        this.gRPCServerPort = gRPCServerPort;
+        this(id, name, localIp, macAddress, veth, gRPCServerPort);
         this.hostDvrMac = host_dvr_mac;
     }
 
