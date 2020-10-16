@@ -16,21 +16,22 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.service.mizar;
 
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 
 public class DataPlaneServiceImpl implements DataPlaneService {
     @Override
-    public NetworkConfiguration createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
         return null;
     }
 
     @Override
-    public NetworkConfiguration updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
         return null;
     }
 
     @Override
-    public NetworkConfiguration deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
         return null;
     }
 }
