@@ -271,8 +271,11 @@ public class GoalStateManager {
                     portStateWithEverythingFilledNB -> {
                       List<FixedIp> fixedIps = new ArrayList();
                       boolean isExistingPort = false;
-                      for (PortEntity.FixedIp fixedIp :
-                          portStateWithEverythingFilledNB.getFixedIps()) {
+                      final List<PortEntity.FixedIp> fixedIps1 =
+                              portStateWithEverythingFilledNB.getFixedIps();
+                      for (PortEntity.FixedIp fixedIp : fixedIps1) {
+                        fixedIps.add(FixedIp.newBuilder().setSubnetId(fixedIp.getSubnetId())
+                                .setIpAddress(fixedIp.getIpAddress()).build());
                         //                                            AtomicBoolean isExistingPort =
                         // new AtomicBoolean(false);
                         for (NeighborInfo internalPortEntity : portIdNeighborInfoMap.values()) {
@@ -320,11 +323,11 @@ public class GoalStateManager {
                               .setMacAddress(portStateWithEverythingFilledNB.getMacAddress())
                               .setRevisionNumber(FORMAT_REVISION_NUMBER)
                               .addAllFixedIps(fixedIps)
-                              .buildPartial();
-
-                      Port.PortConfiguration portConfiguration2 =
-                          portConfiguration
-                              .toBuilder()
+//                              .buildPartial();
+//
+//                      Port.PortConfiguration portConfiguration2 =
+//                          portConfiguration
+//                              .toBuilder()
                               .setId(portStateWithEverythingFilledNB.getId())
                               .setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE)
                               .setMessageTypeValue(Common.MessageType.FULL_VALUE)
@@ -332,7 +335,7 @@ public class GoalStateManager {
 
                       final PortState portStateSB =
                           PortState.newBuilder()
-                              .setConfiguration(portConfiguration2)
+                              .setConfiguration(portConfiguration)
                               .setOperationType(Common.OperationType.CREATE)
                               .build();
 
