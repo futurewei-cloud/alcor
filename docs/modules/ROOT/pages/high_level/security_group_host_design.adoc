@@ -262,29 +262,45 @@ we will move that to table 73 (ACCEPT_OR_INGRESS) since those connection is alre
 
 == VxLAN-GPE for remote security group
 
-We can consider leveraging VxLAN-GPE to address the scale problem with security group, specially with rules that contain remote group as the amount of ports (and assoicated IPs) on the remote group can be huge.
+We can consider leveraging VxLAN-GPE to address the scale problem with security group, on rules that contain remote security group as the number of ports (and assoicated IPs) on the remote group can be huge. That will require local host to be aware of all the ports assoicated IPs to construct the corresponding openflow rules.
 
-While the current design still need to work with VxLAN only environment, we will consider leveraging VxLAN-GPE to embed remote security group IDs into ingress packets to apply ingress rule without needing to know all the ports IPs from the remote group before hand.
+While the current design still need to work with VxLAN only environment, we can leveraging VxLAN-GPE to embed remote security group IDs or markings into ingress packets. The local host can then apply ingress SG rule without needing to know all the ports IPs from the remote group beforehand.
 
 === VxLAN-GPE packet with remote security group info
 
 [source,shell]
 ------------------------------------------------------------
-Outer header --- Middle header ----------- Inner packet
-VxLAN-GPE ------ NSH with remote SG ID --- IPv4/IPv6 original payload
+Outer header -- Next header ------------ Inner packet
+VxLAN-GPE ----- NSH with remote SG ID -- IPv4/IPv6 original payload
 ------------------------------------------------------------
 
-=== OVS egress processing
+=== OVS egress marking
 
-OVS will need to stamp all packets coming out for a port with the assoicated SG IDs (zero to five).
+OVS (controlled by ACA) will need to stamp all packets coming out for a port with the assoicated SG IDs (zero to five).
 
-Each SG ID is about 36 bytes and 5 of them will be about 180 bytes. While VxLAN-GPE + NSH can embed all those information, but 180 bytes is too much data to put into header of every single packet. Therefore, we need to come up with way for more efficient marking and pre-negotiate it between the two end points. 
+Each SG ID is 36 characters string (36 bytes) or we can represent it using 16 bytes encoding. 5 of them will be 80 bytes plus adding 8 bytes NSH header will total 88 bytes increase of packet header. While VxLAN-GPE + NSH can embed all those information, but 88 bytes is too much data to put into header of every single packet. 
+
+[TBD] Therefore, we need to come up with a way for more efficient marking and pre-negotiate it between the two end points. 
+
 
 === OVS ingress processing
 
-Security group rule with remote group will be coverted to openflow rule to match on SG ID on ingress traffic. Since all VxLAN-GPE ports has all the outgoing traffic stamped with the assoicated SG IDs markings, the one openflow rule will simply look at the matching remote SG ID instead of a potential large scale set of IPs belong to all the ports assoicated with the remote SG.
+Security group rule with remote group will be coverted to openflow rule to match on SG ID on ingress traffic. Since all remote VxLAN-GPE ports has all the outgoing traffic stamped with the assoicated SG IDs markings, the one openflow rule will simply look at the matching remote SG ID instead of a potential large scale set of IPs belong to all the ports assoicated with the remote SG.
 
-TBD: need to confirm openflow rule can match on NSH header for our need.
+[TBD] need to confirm openflow rule can match on NSH header for our need.
+
+=== Notes
+
+Marking remote port SG alone doesn't help much, since we are learning about the remote port SG through L2/L3 neighbor already. 
+Maybe it will be helpful to deal with non-L2/non-L3 neighbor, e.g. VPC peering.
+Marking remote port SG will have benefit when we don't need to send down L2 and L3 neighbor, e.g. using Gateway approach.
+
+Another approach is to send control packets from remote host to local host to learn about the remote port IP to its assoicated SGs, right before the remote host is ready to send traffic to local host. The problems with this approach are:
+
+1. latency - first packet needs to wait until the control packet learning is completed
+2. scale - ACA handling huge number of control packet, e.g. 100s of VMs on the same network triggering at the same time
+3. security - put control packet outside tunnel has lower risk, but inside tenent networks tunnels has high risk because tenent can mess with it
+4. acknowledgement - what happen if control packet are missed? There is not reply mechanism
 
 
 == Sample Openflow rule for Security Group
