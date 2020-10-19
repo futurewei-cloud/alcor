@@ -10,7 +10,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.node;
 public class NodeManagerConstant {
     public static final int NODE_INFO_FILE = 1;
     public static final int NODE_INFO_REPOSITOTY = 2;
