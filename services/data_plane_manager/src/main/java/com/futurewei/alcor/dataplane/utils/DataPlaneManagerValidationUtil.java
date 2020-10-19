@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.utils;
 
-import com.futurewei.alcor.dataplane.exception.validation.*;
+import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -26,22 +26,18 @@ import java.util.List;
 
 public class DataPlaneManagerValidationUtil {
 
-    public static void checkInputPayloadFromPortManager (NetworkConfiguration networkConfig) throws Exception {
+    public static void validateInput(NetworkConfiguration networkConfig) throws Exception {
         if (networkConfig == null) {
             throw new NetworkConfigurationIsNull();
         }
 
         // rsType
         Common.ResourceType rsType = networkConfig.getRsType();
-        if (rsType == null) {
-            throw new ResourceTypeNotValid();
-        }
+        ParametersValidator.checkResourceType(rsType);
 
         // opType
         Common.OperationType opType = networkConfig.getOpType();
-        if (opType == null) {
-            throw new OperationTypeNotValid();
-        }
+        ParametersValidator.checkOperationType(opType);
 
         // ports_internal
         List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
@@ -50,12 +46,13 @@ public class DataPlaneManagerValidationUtil {
         }
         for (int i = 0; i < portEntities.size(); i ++) {
             InternalPortEntity port = portEntities.get(i);
+            String portId = port.getId();
+            if (isEmptyString(portId)) {
+                throw new PortIdNotFound();
+            }
 
             // binding_host_ip
-            String bindingHostIP = port.getBindingHostIP();
-            if (bindingHostIP == null || bindingHostIP.equals("")) {
-                throw new BindingHostIPNotFound();
-            }
+            ParametersValidator.checkBindingHostIP(port);
         }
 
         // vpcs_internal
@@ -65,10 +62,7 @@ public class DataPlaneManagerValidationUtil {
                 VpcEntity vpc = vpcs.get(i);
 
                 // vpc_id
-                String vpcId = vpc.getId();
-                if (vpcId == null || vpcId.equals("")) {
-                    throw new VpcIdNotFound();
-                }
+                ParametersValidator.checkVpcIdInVpcsInternal(vpc);
             }
         }
 
@@ -79,12 +73,13 @@ public class DataPlaneManagerValidationUtil {
         }
         for (int i = 0; i < subnets.size(); i ++) {
             InternalSubnetEntity subnet = subnets.get(i);
+            String subnetId = subnet.getId();
+            if (isEmptyString(subnetId)) {
+                throw new SubnetIdNotFound();
+            }
 
             // tunnel_id
-            Long tunnelId = subnet.getTunnelId();
-            if (tunnelId == null) {
-                throw new TunnelIdNotFound();
-            }
+            ParametersValidator.checkTunnelId(subnet);
         }
 
         // security_groups_internal
@@ -102,10 +97,26 @@ public class DataPlaneManagerValidationUtil {
                 NeighborInfo neighborInfo = neighborInfos.get(i);
 
                 // host_ip
-                String hostIp = neighborInfo.getHostIp();
-                if (hostIp == null || hostIp.equals("")) {
-                    throw new HostIPNotFound();
-                }
+                ParametersValidator.checkHostIp(neighborInfo);
+
+                // host_id
+                ParametersValidator.checkHostId(neighborInfo);
+
+                // port_id
+                ParametersValidator.checkPortId(neighborInfo);
+
+                // port_mac
+                ParametersValidator.checkPortMac(neighborInfo);
+
+                // port_ip
+                ParametersValidator.checkPortIp(neighborInfo);
+
+                // vpc_id
+                ParametersValidator.checkVpcIdInNeighborInfo(neighborInfo);
+
+                // subnet_id
+                ParametersValidator.checkSubnetId(neighborInfo);
+
             }
         }
 
@@ -126,8 +137,10 @@ public class DataPlaneManagerValidationUtil {
         }
 
 
+    }
 
-
+    public static boolean isEmptyString(String string) {
+        return string == null || string.isEmpty();
     }
 
 }

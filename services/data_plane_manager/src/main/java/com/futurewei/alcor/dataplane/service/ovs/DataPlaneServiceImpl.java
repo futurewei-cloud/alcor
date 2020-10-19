@@ -421,7 +421,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
     public NetworkConfiguration createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
 
         // validation for networkConfig
-        DataPlaneManagerValidationUtil.checkInputPayloadFromPortManager(networkConfig);
+        DataPlaneManagerValidationUtil.validateInput(networkConfig);
 
         List<HostGoalState> hostGoalStates = new ArrayList<>();
         if (ResourceType.PORT.equals(networkConfig.getRsType())) {

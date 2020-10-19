@@ -13,11 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.exception.validation;
+package com.futurewei.alcor.dataplane.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Subnets not found")
-public class SubnetsNotFound extends Exception {
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "InternalPortEntity: BindingHostIP Not Found")
+public class BindingHostIPNotFound extends Exception {
+
+    public BindingHostIPNotFound () {
+    }
+
+    public BindingHostIPNotFound (String portId) {
+        super("InternalPortEntity: BindingHostIP Not Found. Port_id: " + portId);
+    }
+
 }

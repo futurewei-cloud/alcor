@@ -13,20 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.dataplane.exception;
 
-package com.futurewei.alcor.privateipmanager;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.DbBaseConfiguration;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
-
-@SpringBootApplication
-@Import(DbBaseConfiguration.class)
-public class PrivateIpManagerApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(PrivateIpManagerApplication.class, args);
-    }
-
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "NeighborInfo: HostId Not Found")
+public class HostIdNotFound extends Exception {
 }
