@@ -19,6 +19,7 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.dataplane.utils.DataPlaneManagerValidationUtil;
 import com.futurewei.alcor.schema.Common.MessageType;
 import com.futurewei.alcor.schema.Common.NetworkType;
 import com.futurewei.alcor.schema.Common.EtherType;
@@ -418,6 +419,10 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     @Override
     public NetworkConfiguration createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+
+        // validation for networkConfig
+        DataPlaneManagerValidationUtil.validateInput(networkConfig);
+
         List<HostGoalState> hostGoalStates = new ArrayList<>();
         if (ResourceType.PORT.equals(networkConfig.getRsType())) {
             Map<String, List<InternalPortEntity>> hostPortEntities = new HashMap<>();
