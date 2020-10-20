@@ -50,17 +50,23 @@ The resources which is allocated to subnet should be unique when there are concu
 ====== (2) Fallback
 In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
 
-=== Pub-sub point-to-point channel
-* Subnet Manager maintains subnet-ports mapping and keep tracking port information updating
+=== Pub-sub point-to-point channel and sidecar cache pattern
+* Subnet Manager maintains subnet-ports mapping and keep tracking the updating of port information,
 including port-id, port-ip, port-mac, host-id and host-ip (refer to *SubnetPorts* entity in Data Schema).
-* The input data for subnet-ports mapping comes from Port Manager when there is a port updated.
+* The input data for subnet-ports mapping comes from Port Manager when there is a port updating event occur.
 We use a pub-sub model to maintain a point-to-point one way channel between Subnet Manager and Port Manager.
+Whenever a port update event triggered in port Manager, the Port Manager needs to post updating message (*UpdatePorts*) to the channel.
+* Subnet Manager as a subscriber to receive the port updating message and update the *SubnetPorts* entity in the cache.
+* The cache is implemented as a container attached to each Subnet Manager instance as a sidecar in the same POD.
+All sidecar caches are created as a cluster and synchronize the cache content all the time.
+
+image::subnet_manager_sidecar_cache_cluster.PNG[500,300]
 
 == Data Schema
 
-image::subnet_manager_subnet_entity.PNG[SubnetEntity,600,400]
+image::subnet_manager_subnet_entity.PNG[SubnetEntity,640,480]
 
-image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,400,200]
+image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,500,300]
 
 == REST APIs
 
@@ -327,9 +333,8 @@ anchor:SubnetState_Update_routing[]
 * Operation: Insert subnet, port and host mapping information to *InternalRouterInfo* entity from Route Manager.
 This operation has three major tasks.
 ** Extract subnet ids from *InternalRouterInfo*.
-** Extract ports info from *SubnetPorts* entity based on the subnet ids from *InternalRouterInfo*.
-** Create an *InternalPortHostMap* based on ports info and send down both *InternalRouterInfo* and *InternalPortHostMap*
-to Data Plane Manager.
+** Query *SubnetPorts* cache for the subnet ids and create a list of *SubnetsPorts* into *InternalSubnetsPorts*.
+** Send down the *InternalRouterInfo* and *InternalSubnetsPorts* to Data Plane Manager.
 * Response: Response Id
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -341,6 +346,7 @@ http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4
 Body:
 {
    "router_info" : InternalRouterInfo
+   "subnets_ports": InternalSubnetsPorts
 }
 
 Response:
