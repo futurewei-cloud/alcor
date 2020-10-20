@@ -49,6 +49,12 @@ The resources which is allocated to subnet should be unique when there are concu
 ====== (2) Fallback
 In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
 
+=== Pub-sub point-to-point channel
+* Subnet Manager maintains subnet-ports mapping and keep tracking port information updating
+including port-id, port-ip, port-mac, host-id and host-ip (refer to *SubnetPorts* entity in Data Schema).
+* The input data for subnet-ports mapping comes from Port Manager when there is a port updated.
+We use a pub-sub model to maintain a point-to-point one way channel between Subnet Manager and Port Manager.
+
 == Data Schema
 
 image::subnet_manager_subnet_entity.PNG[]
