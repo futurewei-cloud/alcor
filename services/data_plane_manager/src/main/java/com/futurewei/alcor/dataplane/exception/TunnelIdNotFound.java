@@ -13,26 +13,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.node;
+package com.futurewei.alcor.dataplane.exception;
 
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class NodesWebJson {
-    private List<NodeInfo> nodeInfos;
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "InternalSubnetEntity: TunnelId Not Found")
+public class TunnelIdNotFound extends Exception {
 
-    public NodesWebJson() {
-
+    public TunnelIdNotFound () {
     }
 
-    public NodesWebJson(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
+    public TunnelIdNotFound (String subnetId) {
+        super("InternalSubnetEntity: TunnelId Not Found. Subnet_id: " + subnetId);
     }
 
-    public List<NodeInfo> getNodeInfos() {
-        return nodeInfos;
-    }
-
-    public void setNodeInfos(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
-    }
 }

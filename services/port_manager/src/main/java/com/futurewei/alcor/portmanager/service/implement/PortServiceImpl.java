@@ -24,7 +24,7 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;

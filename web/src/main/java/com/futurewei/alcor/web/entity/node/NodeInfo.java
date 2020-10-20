@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity;
+package com.futurewei.alcor.web.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,12 +45,15 @@ public class NodeInfo implements Serializable {
     @JsonProperty("server_port")
     private int gRPCServerPort;
 
+    @JsonProperty("host_dvr_mac")
+    private String hostDvrMac;
+
     public NodeInfo() {
 
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
-        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort);
+        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac);
     }
 
     public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort) {
@@ -81,6 +84,11 @@ public class NodeInfo implements Serializable {
         }
         this.veth = "";
         this.gRPCServerPort = 0;
+    }
+
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac) {
+        this(id, name, localIp, macAddress, veth, gRPCServerPort);
+        this.hostDvrMac = host_dvr_mac;
     }
 
     public boolean validateMac(String mac) {
@@ -145,5 +153,13 @@ public class NodeInfo implements Serializable {
 
     public void setgRPCServerPort(int gRPCServerPort) {
         this.gRPCServerPort = gRPCServerPort;
+    }
+
+    public String getHostDvrMac() {
+        return hostDvrMac;
+    }
+
+    public void setHostDvrMac(String hostDvrMac) {
+        this.hostDvrMac = hostDvrMac;
     }
 }
