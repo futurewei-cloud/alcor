@@ -147,14 +147,17 @@ anchor:SubnetState_Post1[]
 * Request: `/project/{projectid}/subnets, /v4/{projectid}/subnets`
 * Request Parameter: `@PathVariable String projectid, @RequestBody SubnetWebJson resource`
 * Operation: Create a Subnet based on user's input.
-** If input body includes user-defined gateway ip address, this function needs to call Port Manager to create a port using
-the specified ip. If there is no user-defined gateway ip, this function use a default gateway ip address to request a port from
-Port Manager.
+** If both *gateway_ip* and *allocation_pools* are empty, this function needs automatically generate allocation_pools
+based on the input *cidr* and ask Port Manager to create a gateway port using .4 ip address.
+** If input body includes *gateway_ip*, this function needs to call Port Manager to create a port using
+the specified ip.
 ** If input body includes Host Route, this function needs to send these routing rules to Route Manager and
 ask Route Manage to create a routetable for the specified subnet.
+** If both the *allocation_pools* and *gateway_ip* attributes are specified, we must ensure that the gateway IP does not
+overlap with the allocation pools; otherwise, the call returns the *Conflict (409)* response code.
 * Response: subnet state
 * Normal response codes: 201
-* Error response codes: 400, 404, 500, 503
+* Error response codes: 400, 401, 404, 404, 409, 500, 503
 * Example
 
 ....
@@ -196,12 +199,14 @@ anchor:SubnetState_Put1[]
 * Request: `/project/{projectId}/subnets/{subnetId}, v4/{projectId}/subnets/{subnetId}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId, @RequestBody SubnetWebJson resource`
 * Operation: Update Subnet's state based on user's input.
+** IP version (ip_version), CIDR (cidr), and segment (segment_id) cannot be updated.
+Attempting to update these attributes results in a *400 Bad Request* error.
 ** If input body includes gateway ip address change, this function needs to ask Port Manager to update the specified ports.
 ** If input body includes Host Route, this function needs to send these routing rules to Route Manager and
 ask Route Manage to update routetable for the specified subnet.
 * Response: subnet state
-* Normal response codes: 201
-* Error response codes: 400, 404, 500, 503
+* Normal response codes: 200
+* Error response codes: 400, 401, 403, 404, 412, 500, 503
 * Example
 
 ....
@@ -267,7 +272,7 @@ anchor:SubnetState_Get2[]
 * Request Parameter: `@PathVariable String projectid`
 * Response: map
 * Normal response codes: 200
-* Error response codes: 400, 404, 500
+* Error response codes: 400, 401, 404, 500
 * Example
 
 ....
