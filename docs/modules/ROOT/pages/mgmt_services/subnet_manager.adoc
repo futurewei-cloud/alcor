@@ -58,9 +58,9 @@ We use a pub-sub model to maintain a point-to-point one way channel between Subn
 
 == Data Schema
 
-image::subnet_manager_subnet_entity.PNG[]
+image::subnet_manager_subnet_entity.PNG[SubnetEntity,600,400]
 
-image::subnet_manager_subnetports_and_other_contracts.PNG[]
+image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,400,200]
 
 == REST APIs
 
