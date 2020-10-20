@@ -91,7 +91,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
             vpcConfigBuilder.setName(vpcEntity.getName());
             vpcConfigBuilder.setCidr(vpcEntity.getCidr());
-            vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getSegmentationId() + ""));
+//            vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getSegmentationId() + ""));
 
             networkConfig.getSubnets().stream()
                     .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
@@ -154,9 +154,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             Gateway.Builder gatewayBuilder = Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
+//            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
-            subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+//            subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
             subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
             if (subnetEntity.getPrimaryDns() != null) {
                 subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
@@ -199,18 +199,22 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 portConfigBuilder.addFixedIps(fixedIpBuilder.build());
             });
 
-            portEntity.getAllowedAddressPairs().forEach(pair -> {
-                AllowAddressPair.Builder allowAddressPairBuilder = AllowAddressPair.newBuilder();
-                allowAddressPairBuilder.setIpAddress(pair.getIpAddress());
-                allowAddressPairBuilder.setMacAddress(pair.getMacAddress());
-                portConfigBuilder.addAllowAddressPairs(allowAddressPairBuilder.build());
-            });
+            if (portEntity.getAllowedAddressPairs() != null){
+                portEntity.getAllowedAddressPairs().forEach(pair -> {
+                    AllowAddressPair.Builder allowAddressPairBuilder = AllowAddressPair.newBuilder();
+                    allowAddressPairBuilder.setIpAddress(pair.getIpAddress());
+                    allowAddressPairBuilder.setMacAddress(pair.getMacAddress());
+                    portConfigBuilder.addAllowAddressPairs(allowAddressPairBuilder.build());
+                });
+            }
 
-            portEntity.getSecurityGroups().forEach(securityGroupId-> {
-                SecurityGroupId.Builder securityGroupIdBuilder = SecurityGroupId.newBuilder();
-                securityGroupIdBuilder.setId(securityGroupId);
-                portConfigBuilder.addSecurityGroupIds(securityGroupIdBuilder.build());
-            });
+            if (portEntity.getSecurityGroups() != null){
+                portEntity.getSecurityGroups().forEach(securityGroupId-> {
+                    SecurityGroupId.Builder securityGroupIdBuilder = SecurityGroupId.newBuilder();
+                    securityGroupIdBuilder.setId(securityGroupId);
+                    portConfigBuilder.addSecurityGroupIds(securityGroupIdBuilder.build());
+                });
+            }
 
             //PortState
             PortState.Builder portStateBuilder = PortState.newBuilder();
