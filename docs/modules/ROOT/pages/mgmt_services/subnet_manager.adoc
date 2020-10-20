@@ -66,7 +66,7 @@ image::subnet_manager_sidecar_cache_cluster.PNG[500,300]
 
 image::subnet_manager_subnet_entity.PNG[SubnetEntity,640,480]
 
-image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,500,300]
+image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,500,340]
 
 == REST APIs
 
