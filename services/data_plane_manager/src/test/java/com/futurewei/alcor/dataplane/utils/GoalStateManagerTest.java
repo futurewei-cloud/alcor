@@ -1,7 +1,7 @@
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
-import com.futurewei.alcor.dataplane.utils.entity.*;
+import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
