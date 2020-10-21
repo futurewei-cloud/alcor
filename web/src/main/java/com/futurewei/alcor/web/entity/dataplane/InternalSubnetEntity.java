@@ -20,7 +20,6 @@ import lombok.Data;
 @Data
 public class InternalSubnetEntity extends SubnetEntity {
     @JsonProperty("tunnel_id")
-    @SerializedName("tunnel_id")
     private Long tunnelId;
 
     public InternalSubnetEntity()

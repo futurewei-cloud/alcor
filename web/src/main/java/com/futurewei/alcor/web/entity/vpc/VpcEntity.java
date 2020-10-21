@@ -25,34 +25,27 @@ public class VpcEntity extends CustomerResource {
     private Router router;
 
     @JsonProperty("admin_state_up")
-    @SerializedName("admin_state_up")
     private boolean adminStateUp;
 
     @JsonProperty("dns_domain")
-    @SerializedName("dns_domain")
     private String dnsDomain;
 
     @JsonProperty("mtu")
     private Integer mtu;
 
     @JsonProperty("port_security_enabled")
-    @SerializedName("port_security_enabled")
     private boolean portSecurityEnabled;
 
     @JsonProperty("provider:network_type")
-    @SerializedName("provider:network_type")
     private String networkType;
 
     @JsonProperty("provider:physical_network")
-    @SerializedName("provider:physical_network")
     private String physicalNetwork;
 
     @JsonProperty("provider:segmentation_id")
-    @SerializedName("provider:segmentation_id")
     private Integer segmentationId;
 
     @JsonProperty("router:external")
-    @SerializedName("router:external")
     private boolean routerExternal;
 
     @JsonProperty("segments")
@@ -62,27 +55,21 @@ public class VpcEntity extends CustomerResource {
     private boolean shared;
 
     @JsonProperty("vlan_transparent")
-    @SerializedName("vlan_transparent")
     private boolean vlanTransparent;
 
     @JsonProperty("is_default")
-    @SerializedName("is_default")
     private boolean isDefault;
 
     @JsonProperty("availability_zone_hints")
-    @SerializedName("availability_zone_hints")
     private List<String> availabilityZoneHints;
 
     @JsonProperty("availability_zones")
-    @SerializedName("availability_zones")
     private List<String> availabilityZones;
 
     @JsonProperty("qos_policy_id")
-    @SerializedName("qos_policy_id")
     private List qosPolicyId;
 
     @JsonProperty("revision_number")
-    @SerializedName("revision_number")
     private Integer revisionNumber;
 
     @JsonProperty("status")
@@ -100,15 +87,12 @@ public class VpcEntity extends CustomerResource {
     private String updated_at;
 
     @JsonProperty("ipv4_address_scope")
-    @SerializedName("ipv4_address_scope")
     private String ipv4AddressScope;
 
     @JsonProperty("ipv6_address_scope")
-    @SerializedName("ipv6_address_scope")
     private String ipv6AddressScope;
 
     @JsonProperty("l2_adjacency")
-    @SerializedName("l2_adjacency")
     private String l2Adjacency;
 
     @JsonProperty("subnets")

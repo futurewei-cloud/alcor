@@ -23,11 +23,9 @@ import java.util.List;
 
 public class SecurityGroup extends CustomerResource {
     @JsonProperty("tenant_id")
-    @SerializedName("tenant_id")
     private String tenantId;
 
     @JsonProperty("security_group_rules")
-    @SerializedName("security_group_rules")
     private List<SecurityGroupRule> securityGroupRules;
 
     @JsonProperty("create_at")

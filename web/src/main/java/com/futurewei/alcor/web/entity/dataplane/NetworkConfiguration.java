@@ -31,31 +31,24 @@ public class NetworkConfiguration {
   private OperationType opType;
 
   @JsonProperty("ports_internal")
-  @SerializedName("ports_internal")
   private List<InternalPortEntity> portEntities;
 
   @JsonProperty("vpcs_internal")
-  @SerializedName("vpcs_internal")
   private List<VpcEntity> vpcs;
 
   @JsonProperty("subnets_internal")
-  @SerializedName("subnets_internal")
   private List<InternalSubnetEntity> subnets;
 
   @JsonProperty("security_groups_internal")
-  @SerializedName("security_groups_internal")
   private List<SecurityGroup> securityGroups;
 
   @JsonProperty("neighbor_info")
-  @SerializedName("neighbor_info")
   private List<NeighborInfo> neighborInfos;
 
   @JsonProperty("neighbor_table")
-  @SerializedName("neighbor_table")
   private List<NeighborEntry> neighborTable;
 
   @JsonProperty("routers_internal")
-  @SerializedName("routers_internal")
   private List<InternalRouterInfo> internalRouterInfos;
 
   @Override

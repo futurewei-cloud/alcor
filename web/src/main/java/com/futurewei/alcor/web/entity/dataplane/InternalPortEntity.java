@@ -29,7 +29,6 @@ public class InternalPortEntity extends PortEntity {
     private List<RouteEntity> routes;
 
     @JsonProperty("binding_host_ip")
-    @SerializedName("binding_host_ip")
     private String bindingHostIP;
 
     public List<RouteEntity> getRoutes() {

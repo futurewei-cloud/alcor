@@ -20,15 +20,12 @@ import com.google.gson.annotations.SerializedName;
 
 public class NeighborEntry {
     @JsonProperty("neighbor_type")
-    @SerializedName("neighbor_type")
     private NeighborType neighborType;
 
     @JsonProperty("local_ip")
-    @SerializedName("local_ip")
     private String localIp;
 
     @JsonProperty("neighbor_ip")
-    @SerializedName("neighbor_ip")
     private String neighborIp;
 
     public enum NeighborType {

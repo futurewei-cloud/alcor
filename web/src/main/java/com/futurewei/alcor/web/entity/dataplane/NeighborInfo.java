@@ -19,31 +19,24 @@ import lombok.Data;
 @Data
 public class NeighborInfo {
     @JsonProperty("host_ip")
-    @SerializedName("host_ip")
     private String hostIp;
 
     @JsonProperty("host_id")
-    @SerializedName("host_id")
     private String hostId;
 
     @JsonProperty("port_id")
-    @SerializedName("port_id")
     private String portId;
 
     @JsonProperty("port_mac")
-    @SerializedName("port_mac")
     private String portMac;
 
     @JsonProperty("port_ip")
-    @SerializedName("port_ip")
     private String portIp;
 
     @JsonProperty("vpc_id")
-    @SerializedName("vpc_id")
     private String vpcId;
 
     @JsonProperty("subnet_id")
-    @SerializedName("subnet_id")
     private String subnetId;
 
     public NeighborInfo() {
