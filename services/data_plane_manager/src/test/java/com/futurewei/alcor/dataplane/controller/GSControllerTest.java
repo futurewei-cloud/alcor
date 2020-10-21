@@ -18,7 +18,6 @@ package com.futurewei.alcor.dataplane.controller;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.config.UnitTestConfig;
 import com.futurewei.alcor.dataplane.utils.GoalStateManager;
-import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -48,6 +47,7 @@ public class GSControllerTest {
 
     @MockBean
     private Config config;
+
     @MockBean
     private GoalStateManager goalStateManager;
 
