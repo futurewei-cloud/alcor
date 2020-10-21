@@ -6,10 +6,10 @@ import lombok.Data;
 @Data
 public class AllocationPool {
 
-    @JsonProperty("start_ip")
+    @JsonProperty("start")
     private String start;
 
-    @JsonProperty("end_ip")
+    @JsonProperty("end")
     private String end;
 
     public AllocationPool () {}
