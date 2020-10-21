@@ -17,7 +17,6 @@ package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.google.gson.annotations.SerializedName;
 
 public class SecurityGroupRule extends CustomerResource {
 

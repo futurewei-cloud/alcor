@@ -5,7 +5,6 @@ import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.Router;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

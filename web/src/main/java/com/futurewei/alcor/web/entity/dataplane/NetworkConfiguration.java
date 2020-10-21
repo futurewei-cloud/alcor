@@ -18,7 +18,6 @@ import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import java.util.ArrayList;
