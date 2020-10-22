@@ -447,6 +447,7 @@ public class GoalStateManager {
                         .setVpcId(subnetEntity1.getVpcId())
                         .setProjectId(subnetEntity1.getProjectId())
                         .setCidr(subnetEntity1.getCidr())
+                            .setTunnelId(subnetEntity1.getTunnelId())
                         .setFormatVersion(FORMAT_REVISION_NUMBER)
                         .build();
                 Subnet.SubnetState subnetState =
