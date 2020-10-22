@@ -103,8 +103,8 @@ public class NetworkConfigurationUtil {
                 PortNeighbors portNeighbors = (PortNeighbors) entity;
                 portNeighborsMap.put(portNeighbors.getVpcId(), portNeighbors);
             } else if (entity instanceof RouteEntity) {
-                // NOTE: Router implementation is supported in the new control path in PM
-                //       Please check com.futurewei.alcor.portmanager.processor for lasted implementation
+                // NOTE: Router implementation is supported in the new control path in PM v2.0 implementation
+                //       Please check com.futurewei.alcor.portmanager.service.PortServiceImpl for PM v2.0 implementation
             }
         }
 
