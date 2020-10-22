@@ -59,7 +59,7 @@ public class GoalStateManager {
   Map<String, String> ipHostIpMap = new ConcurrentHashMap<>();
   Map<String, Set<String>> hostIpFixedIpsMap = new ConcurrentHashMap<>();
   Map<String, Set<String>> hostIpSubnetIdsMap = new ConcurrentHashMap<>();
-  Map<String, SubnetEntity> subnetIdSubnetsMap = new ConcurrentHashMap<>();
+  Map<String, InternalSubnetEntity> subnetIdSubnetsMap = new ConcurrentHashMap<>();
   Map<String, InternalPortEntity> portIdPortMap = new ConcurrentHashMap<>();
   Map<String, NeighborInfo> portIdNeighborInfoMap = new ConcurrentHashMap<>();
 
@@ -68,7 +68,7 @@ public class GoalStateManager {
     final List<NeighborInfo> neighborInfos = networkConfiguration.getNeighborInfos();
 
     final List<InternalPortEntity> portEntities = networkConfiguration.getPortEntities();
-    for (SubnetEntity s : networkConfiguration.getSubnets()) {
+    for (InternalSubnetEntity s : networkConfiguration.getSubnets()) {
       subnetIdSubnetsMap.put(s.getId(), s);
     }
     for (InternalPortEntity internalPortEntity : portEntities) {
@@ -440,7 +440,11 @@ public class GoalStateManager {
 
               // lookup subnet entity
               for (String sid : ipSubnetIdMap.values()) {
-                SubnetEntity subnetEntity1 = subnetIdSubnetsMap.get(sid);
+                InternalSubnetEntity subnetEntity1 = subnetIdSubnetsMap.get(sid);
+                Subnet.SubnetConfiguration.Gateway gateway= Subnet.SubnetConfiguration.Gateway.newBuilder()
+                        .setIpAddress(subnetEntity1.getGatewayIp())
+                        .setMacAddress(subnetEntity1.getGatewayMacAddress())
+                        .build();
                 Subnet.SubnetConfiguration subnetConfiguration =
                     Subnet.SubnetConfiguration.newBuilder()
                         .setId(subnetEntity1.getId())
@@ -448,6 +452,7 @@ public class GoalStateManager {
                         .setProjectId(subnetEntity1.getProjectId())
                         .setCidr(subnetEntity1.getCidr())
                             .setTunnelId(subnetEntity1.getTunnelId())
+.setGateway(gateway)
                         .setFormatVersion(FORMAT_REVISION_NUMBER)
                         .build();
                 Subnet.SubnetState subnetState =
