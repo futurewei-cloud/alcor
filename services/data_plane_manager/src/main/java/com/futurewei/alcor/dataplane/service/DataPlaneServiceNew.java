@@ -19,7 +19,31 @@ import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.refactor.NetworkConfiguration;
 
 public interface DataPlaneServiceNew {
+
+    /**
+     * process create network configuration message and send to ACA nodes
+     *
+     * @param networkConfiguration network configuration details
+     * @return InternalDPMResultList result list
+     * @throws Exception throw any Exception
+     */
     InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+
+    /**
+     * process update network configuration message and send to ACA nodes
+     *
+     * @param networkConfiguration network configuration details
+     * @return InternalDPMResultList result list
+     * @throws Exception throw any Exception
+     */
     InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+
+    /**
+     * process delete network configuration message and send to ACA nodes
+     *
+     * @param networkConfiguration network configuration details
+     * @return InternalDPMResultList result list
+     * @throws Exception throw any Exception
+     */
     InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
 }
