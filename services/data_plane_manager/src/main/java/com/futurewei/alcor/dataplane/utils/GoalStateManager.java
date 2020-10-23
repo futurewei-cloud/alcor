@@ -146,15 +146,15 @@ public class GoalStateManager {
    */
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
-    Map<String, String> ipPortIdMap = new ConcurrentHashMap<>();
-    Map<String, String> ipMacMap = new ConcurrentHashMap<>();
-    Map<String, String> ipSubnetIdMap = new ConcurrentHashMap<>();
-    Map<String, String> ipHostIpMap = new ConcurrentHashMap<>();
-    Map<String, Set<String>> hostIpFixedIpsMap = new ConcurrentHashMap<>();
-    Map<String, Set<String>> hostIpSubnetIdsMap = new ConcurrentHashMap<>();
-    Map<String, InternalSubnetEntity> subnetIdSubnetsMap = new ConcurrentHashMap<>();
-    Map<String, InternalPortEntity> portIdPortMap = new ConcurrentHashMap<>();
-    Map<String, NeighborInfo> portIdNeighborInfoMap = new ConcurrentHashMap<>();
+    ipPortIdMap = new ConcurrentHashMap<>();
+     ipMacMap = new ConcurrentHashMap<>();
+     ipSubnetIdMap = new ConcurrentHashMap<>();
+     ipHostIpMap = new ConcurrentHashMap<>();
+     hostIpFixedIpsMap = new ConcurrentHashMap<>();
+     hostIpSubnetIdsMap = new ConcurrentHashMap<>();
+    subnetIdSubnetsMap = new ConcurrentHashMap<>();
+    portIdPortMap = new ConcurrentHashMap<>();
+    portIdNeighborInfoMap = new ConcurrentHashMap<>();
 
     // print entry input
     printNetworkConfiguration(networkConfiguration);
