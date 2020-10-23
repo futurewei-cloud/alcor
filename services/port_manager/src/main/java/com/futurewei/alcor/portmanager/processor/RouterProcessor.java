@@ -19,6 +19,7 @@ import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
 import com.futurewei.alcor.portmanager.request.FetchRouterSubnetsRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.route.Router;
 
 import java.util.*;
 
@@ -29,9 +30,14 @@ public class RouterProcessor extends AbstractProcessor {
 
     private void fetchConnectedSubnetIdsCallback(IRestRequest request) {
         FetchRouterSubnetsRequest fetchRouterSubnetsRequest = ((FetchRouterSubnetsRequest) request);
+
         String vpcId = fetchRouterSubnetsRequest.getVpcId();
         List<String> subnetIds = fetchRouterSubnetsRequest.getSubnetIds();
         request.getContext().addRouterSubnetIds(vpcId, subnetIds);
+
+        Router router = fetchRouterSubnetsRequest.getRouter();
+        // Current implementation supports Neutron router. VPC router will be in next release.
+        request.getContext().addRouter(vpcId, router);
     }
 
     private void getRouterSubnetIds(PortContext context, String vpcId, String subnetId) {
@@ -44,7 +50,7 @@ public class RouterProcessor extends AbstractProcessor {
     private void getRouterSubnetIds(PortContext context, List<PortEntity> portEntities) throws Exception {
         Set<String> vpcIds = new HashSet<>();
         int tryTimes = TRY_TIMES;
-        for (PortEntity portEntity: portEntities) {
+        for (PortEntity portEntity : portEntities) {
             if (portEntity.getFixedIps() == null) {
                 continue;
             }

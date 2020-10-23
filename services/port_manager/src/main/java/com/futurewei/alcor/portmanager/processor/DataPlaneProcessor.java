@@ -25,6 +25,8 @@ import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.Router;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,6 +187,12 @@ public class DataPlaneProcessor extends AbstractProcessor {
                 }
             }
         }
+
+        for (VpcEntity vpcEntity: vpcEntities) {
+            Router router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
+            InternalRouterInfo internalRouter = new InternalRouterInfo();  // NOTE: THIS IS THE PLACE TO CHANGE
+            context.getNetworkConfig().addRouterEntry(internalRouter);
+        }
     }
 
     private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {
@@ -211,6 +219,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         networkConfiguration.setPortEntities(networkConfig.getPortEntities());
         networkConfiguration.setNeighborInfos(networkConfig.getNeighborInfos());
         networkConfiguration.setNeighborTable(networkConfig.getNeighborTable());
+        networkConfiguration.setInternalRouterInfos(networkConfig.getRouterInfos());
 
         LOG.info("Network configuration: {}", networkConfiguration);
 
