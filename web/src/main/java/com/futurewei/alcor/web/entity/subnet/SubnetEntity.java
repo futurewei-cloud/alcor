@@ -147,41 +147,6 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    @JsonProperty("tunnel_id")
-    private Integer tunnelId;
-
-    public String getGatewayPortId() {
-        return gatewayPortId;
-    }
-
-    public void setGatewayPortId(String gatewayPortId) {
-        this.gatewayPortId = gatewayPortId;
-    }
-
-    public String getAttachedRouterId() {
-        return attachedRouterId;
-    }
-
-    public void setAttachedRouterId(String attachedRouterId) {
-        this.attachedRouterId = attachedRouterId;
-    }
-
-    public PortEntity getPort() {
-        return port;
-    }
-
-    public void setPort(PortEntity port) {
-        this.port = port;
-    }
-
-    public Integer getTunnelId() {
-        return tunnelId;
-    }
-
-    public void setTunnelId(Integer tunnelId) {
-        this.tunnelId = tunnelId;
-    }
-
     public SubnetEntity() {
     }
 
