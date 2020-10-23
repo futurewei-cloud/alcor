@@ -49,5 +49,10 @@ public class DPMAutoUnitTestConstant {
     public static String availabilityZone = "uswest-1";
     public static String gatewayMacAddress = "96:ea:77:ad:52:55";
     public static String subnetName = "test_subnet";
+    public static String nextHopMac = "AA-BB-CC-B9-EE-F";
+    public static String priority = "100";
+    public static String routeRuleName = "rule";
+    public static String hostDvrMac = "AA-BB-CC-A9-0F-EC";
+    public static String routerConfigurationId = "64e339bb-1a6c-47bd-9ee7-a0cf81a35172";
 
 }
