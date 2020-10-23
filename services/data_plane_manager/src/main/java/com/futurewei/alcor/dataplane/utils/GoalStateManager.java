@@ -53,15 +53,15 @@ public class GoalStateManager {
   public static final int FORMAT_REVISION_NUMBER = 1;
   @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
-  Map<String, String> ipPortIdMap = new ConcurrentHashMap<>();
-  Map<String, String> ipMacMap = new ConcurrentHashMap<>();
-  Map<String, String> ipSubnetIdMap = new ConcurrentHashMap<>();
-  Map<String, String> ipHostIpMap = new ConcurrentHashMap<>();
-  Map<String, Set<String>> hostIpFixedIpsMap = new ConcurrentHashMap<>();
-  Map<String, Set<String>> hostIpSubnetIdsMap = new ConcurrentHashMap<>();
-  Map<String, InternalSubnetEntity> subnetIdSubnetsMap = new ConcurrentHashMap<>();
-  Map<String, InternalPortEntity> portIdPortMap = new ConcurrentHashMap<>();
-  Map<String, NeighborInfo> portIdNeighborInfoMap = new ConcurrentHashMap<>();
+  Map<String, String> ipPortIdMap = null;
+  Map<String, String> ipMacMap = null;
+  Map<String, String> ipSubnetIdMap = null;
+  Map<String, String> ipHostIpMap = null;
+  Map<String, Set<String>> hostIpFixedIpsMap = null;
+  Map<String, Set<String>> hostIpSubnetIdsMap = null;
+  Map<String, InternalSubnetEntity> subnetIdSubnetsMap = null;
+  Map<String, InternalPortEntity> portIdPortMap = null;
+  Map<String, NeighborInfo> portIdNeighborInfoMap = null;
 
   private void convert(NetworkConfiguration networkConfiguration) {
 
@@ -146,6 +146,16 @@ public class GoalStateManager {
    */
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
+    Map<String, String> ipPortIdMap = new ConcurrentHashMap<>();
+    Map<String, String> ipMacMap = new ConcurrentHashMap<>();
+    Map<String, String> ipSubnetIdMap = new ConcurrentHashMap<>();
+    Map<String, String> ipHostIpMap = new ConcurrentHashMap<>();
+    Map<String, Set<String>> hostIpFixedIpsMap = new ConcurrentHashMap<>();
+    Map<String, Set<String>> hostIpSubnetIdsMap = new ConcurrentHashMap<>();
+    Map<String, InternalSubnetEntity> subnetIdSubnetsMap = new ConcurrentHashMap<>();
+    Map<String, InternalPortEntity> portIdPortMap = new ConcurrentHashMap<>();
+    Map<String, NeighborInfo> portIdNeighborInfoMap = new ConcurrentHashMap<>();
+
     // print entry input
     printNetworkConfiguration(networkConfiguration);
     convert(networkConfiguration);
