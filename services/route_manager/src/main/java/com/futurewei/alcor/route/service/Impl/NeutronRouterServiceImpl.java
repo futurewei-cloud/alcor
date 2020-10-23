@@ -15,7 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.common.enumClass.MessageType;
+import com.futurewei.alcor.common.enumClass.OperationType;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
+import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
@@ -482,8 +485,52 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             return null;
         }
 
+        InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
+        InternalRouterConfiguration configuration = new InternalRouterConfiguration();
+        configuration.setId(router.getId());
+        configuration.setFormatVersion("1");
+        configuration.setMessageType(MessageType.FULL);
+        configuration.setRequestId("");
+        configuration.setHostDvrMac("");
+        configuration.setRevisionNumber("1");
+
+        List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
+        for (RouteTable subnetRouteTable : router.getNeutronSubnetRouteTables()) {
+            InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+            internalSubnetRoutingTable.setSubnetId(subnetRouteTable.getOwner());
+
+            List<InternalRoutingRule> routingRules = new ArrayList<>();
+            List<RouteEntry> routeEntities = subnetRouteTable.getRouteEntities();
+            for (RouteEntry routeEntry : routeEntities) {
+                InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
+                internalRoutingRule.setId(routeEntry.getId());
+                internalRoutingRule.setPriority(routeEntry.getPriority().toString());
+                internalRoutingRule.setNextHopIp(routeEntry.getNexthop());
+                internalRoutingRule.setName(routeEntry.getName());
+                internalRoutingRule.setDestination(routeEntry.getDestination());
+                internalRoutingRule.setOperationType(OperationType.CREATE);
+
+                InternalRoutingRuleExtraInfo routingRuleExtraInfo = new InternalRoutingRuleExtraInfo();
+                routingRuleExtraInfo.setNextHopMac("");
+                routingRuleExtraInfo.setDestinationType(VpcRouteTarget.LOCAL);
+
+                internalRoutingRule.setRoutingRuleExtraInfo(routingRuleExtraInfo);
+
+                routingRules.add(internalRoutingRule);
+            }
+
+            internalSubnetRoutingTable.setRoutingRules(routingRules);
+            subnetRoutingTables.add(internalSubnetRoutingTable);
+        }
+
+        configuration.setSubnetRoutingTables(subnetRoutingTables);
+
+        internalRouterInfo.setOperationType(OperationType.INFO);
+        internalRouterInfo.setRouterConfiguration(configuration);
+
+
         // construct result
-        connectedSubnetsWebResponse.setRouter(router);
+        connectedSubnetsWebResponse.setInternalRouterInfo(internalRouterInfo);
         connectedSubnetsWebResponse.setSubnetIds(subnetIds);
 
         return connectedSubnetsWebResponse;
