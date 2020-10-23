@@ -24,15 +24,11 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.dataplane.service.GoalStateService;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.schema.Port.PortState;
-import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
-import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
-import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -147,11 +143,11 @@ public class GoalStateManager {
   public Map<String, Goalstate.GoalState> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
     ipPortIdMap = new ConcurrentHashMap<>();
-     ipMacMap = new ConcurrentHashMap<>();
-     ipSubnetIdMap = new ConcurrentHashMap<>();
-     ipHostIpMap = new ConcurrentHashMap<>();
-     hostIpFixedIpsMap = new ConcurrentHashMap<>();
-     hostIpSubnetIdsMap = new ConcurrentHashMap<>();
+    ipMacMap = new ConcurrentHashMap<>();
+    ipSubnetIdMap = new ConcurrentHashMap<>();
+    ipHostIpMap = new ConcurrentHashMap<>();
+    hostIpFixedIpsMap = new ConcurrentHashMap<>();
+    hostIpSubnetIdsMap = new ConcurrentHashMap<>();
     subnetIdSubnetsMap = new ConcurrentHashMap<>();
     portIdPortMap = new ConcurrentHashMap<>();
     portIdNeighborInfoMap = new ConcurrentHashMap<>();
@@ -451,7 +447,8 @@ public class GoalStateManager {
               // lookup subnet entity
               for (String sid : ipSubnetIdMap.values()) {
                 InternalSubnetEntity subnetEntity1 = subnetIdSubnetsMap.get(sid);
-                Subnet.SubnetConfiguration.Gateway gateway= Subnet.SubnetConfiguration.Gateway.newBuilder()
+                Subnet.SubnetConfiguration.Gateway gateway =
+                    Subnet.SubnetConfiguration.Gateway.newBuilder()
                         .setIpAddress(subnetEntity1.getGatewayIp())
                         .setMacAddress(subnetEntity1.getGatewayMacAddress())
                         .build();
@@ -461,8 +458,8 @@ public class GoalStateManager {
                         .setVpcId(subnetEntity1.getVpcId())
                         .setProjectId(subnetEntity1.getProjectId())
                         .setCidr(subnetEntity1.getCidr())
-                            .setTunnelId(subnetEntity1.getTunnelId())
-.setGateway(gateway)
+                        .setTunnelId(subnetEntity1.getTunnelId())
+                        .setGateway(gateway)
                         .setFormatVersion(FORMAT_REVISION_NUMBER)
                         .build();
                 Subnet.SubnetState subnetState =
@@ -592,12 +589,22 @@ public class GoalStateManager {
       String ip,
       String currentGroupHostIp,
       Neighbor.NeighborType neighborType) {
-    if (currentGroupHostIp.equals(ipHostIpMap.get(ip))) {
-      for (InternalPortEntity i : portIdPortMap.values()) {
-        for (PortEntity.FixedIp ff : i.getFixedIps()) {
-          if (ff.getIpAddress().equals(ip)) return;
-        }
+    if (networkConfiguration.getNeighborTable() == null
+        && networkConfiguration.getNeighborInfos() == null) return;
+    if (currentGroupHostIp.equals(ipHostIpMap.get(ip))
+        && networkConfiguration.getNeighborInfos().size()
+            == networkConfiguration.getNeighborTable().size()
+        && networkConfiguration.getNeighborTable().size() > 1) {
+      Set<String> ss = new HashSet();
+      for (NeighborEntry n : networkConfiguration.getNeighborTable()) {
+        ss.add(ipHostIpMap.get(n.getNeighborIp()));
       }
+      if (ss.size() == 1)
+        for (InternalPortEntity i : portIdPortMap.values()) {
+          for (PortEntity.FixedIp ff : i.getFixedIps()) {
+            if (ff.getIpAddress().equals(ip)) return;
+          }
+        }
     }
     if (neighborStates.containsKey(ip + "#" + Neighbor.NeighborType.L3)) return;
     else if ((neighborStates.containsKey(ip + "#" + Neighbor.NeighborType.L2))
