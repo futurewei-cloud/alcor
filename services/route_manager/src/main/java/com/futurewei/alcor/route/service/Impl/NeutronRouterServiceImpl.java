@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.route.config.ConstantsConfig;
 import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
@@ -488,11 +489,11 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
         InternalRouterConfiguration configuration = new InternalRouterConfiguration();
         configuration.setId(router.getId());
-        configuration.setFormatVersion("1");
+        configuration.setFormatVersion(ConstantsConfig.formatVersion);
         configuration.setMessageType(MessageType.FULL);
         configuration.setRequestId("");
         configuration.setHostDvrMac("");
-        configuration.setRevisionNumber("1");
+        configuration.setRevisionNumber(ConstantsConfig.revisionNumber);
 
         List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
         for (RouteTable subnetRouteTable : router.getNeutronSubnetRouteTables()) {
