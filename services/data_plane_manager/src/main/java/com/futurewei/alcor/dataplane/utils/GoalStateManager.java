@@ -625,8 +625,10 @@ public class GoalStateManager {
                         .setVpcId(networkConfiguration.getVpcs().get(0).getId())
                         .build();
         Common.OperationType target = null;
-        if (networkConfiguration.getOpType().equals(Common.OperationType.CREATE)) {
+        if (Common.OperationType.CREATE.equals(networkConfiguration.getOpType()) || Common.OperationType.UPDATE.equals(networkConfiguration.getOpType())) {
             target = Common.OperationType.CREATE;
+        } else if (Common.OperationType.DELETE.equals(networkConfiguration.getOpType())) {
+            target = Common.OperationType.DELETE;
         }
         Neighbor.NeighborState neighborState =
                 Neighbor.NeighborState.newBuilder()
