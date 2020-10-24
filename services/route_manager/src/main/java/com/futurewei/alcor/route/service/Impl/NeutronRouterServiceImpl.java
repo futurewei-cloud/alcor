@@ -445,13 +445,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         String routeTableType = router.getNeutronRouteTable().getRouteTableType();
-        if (routeTableType.equals("neutron")) {
+        if (routeTableType.equals("neutron_router")) {
             boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetIds);
             if (!processedResult) {
                 logger.log(Level.WARNING, "Process failed for Neutron router | project id:" + projectId + "router id: " + router.getId());
                 return connectedSubnetsWebResponse;
             }
-        } else if (routeTableType.equals("vpc")) {
+        } else if (routeTableType.equals("vpc_router")) {
             // TODO: vpc route operation
             throw new UnsupportedOperationException();
         } else {
@@ -504,7 +504,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         List<String> ports = router.getPorts();
 
         // check ports
-        if (ports == null || ports.size() <= 1) {
+        if (ports == null || ports.size() == 0) {
             return false;
         }
 
