@@ -186,7 +186,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new CanNotFindRouter();
         }
         List<String> ports = router.getPorts();
-        if (ports == null){
+        if (ports == null) {
             ports = new ArrayList<>();
         }
 
@@ -198,7 +198,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
-        List<String> subnetIds = new ArrayList<>(){};
+        List<String> subnetIds = new ArrayList<>() {
+        };
         subnetIds.add(subnetid);
         return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetid, subnetIds, projectId, projectId, subnet.getTags());
     }
@@ -216,7 +217,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectid, subnetId);
             subnet = subnetWebJson.getSubnet();
             if (subnet == null) {
-                logger.log(Level.WARNING,"can not find subnet by subnet id :" + subnetId);
+                logger.log(Level.WARNING, "can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
             attachedPort = subnet.getGatewayPortId();
@@ -225,12 +226,12 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                     throw new AttachedPortsNotMatchPortId();
                 }
             } else {
-                logger.log(Level.WARNING,"There is no IP address on the port");
+                logger.log(Level.WARNING, "There is no IP address on the port");
                 return new RouterInterfaceResponse();
             }
             subnetid = subnetId;
 
-        }else if (portId != null && subnetId == null) {
+        } else if (portId != null && subnetId == null) {
             // get subnet by port id
             SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectid, portId);
             if (subnetsWebJson == null) {
@@ -245,16 +246,16 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             }
             subnet = subnets.get(0);
             subnetid = subnet.getId();
-        }else if (portId == null && subnetId != null) {
+        } else if (portId == null && subnetId != null) {
             // get subnet by subnet id
             SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectid, subnetId);
             subnet = subnetWebJson.getSubnet();
             if (subnet == null) {
-                logger.log(Level.WARNING,"can not find subnet by subnet id :" + subnetId);
+                logger.log(Level.WARNING, "can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
             subnetid = subnetId;
-        }else {
+        } else {
             return new RouterInterfaceResponse();
         }
 
@@ -288,7 +289,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         subnet.setAttachedRouterId("");
 
         List<String> ports = router.getPorts();
-        if (ports == null){
+        if (ports == null) {
             return new RouterInterfaceResponse();
         }
 
@@ -309,7 +310,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // TODO: may need to maintain the mapping for new added port and it's subnet in the Route Manager
 
         // Construct response
-        List<String> subnetIds = new ArrayList<>(){};
+        List<String> subnetIds = new ArrayList<>() {
+        };
         subnetIds.add(subnetid);
         return new RouterInterfaceResponse(routerId, subnet.getVpcId(), portId, subnetid, subnetIds, projectId, projectId, subnet.getTags());
 
@@ -396,7 +398,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 throw new DestinationOrNexthopCanNotBeNull();
             }
 
-            for (int i = 0; i < routeEntities.size(); i ++) {
+            for (int i = 0; i < routeEntities.size(); i++) {
                 RouteEntry routeEntry = routeEntities.get(i);
                 String destination = routeEntry.getDestination();
                 String nexthop = routeEntry.getNexthop();
@@ -425,68 +427,109 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public ConnectedSubnetsWebResponse getConnectedSubnets(String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId {
+    public ConnectedSubnetsWebResponse getConnectedSubnets(String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId, UnsupportedOperationException {
         List<String> subnetIds = new ArrayList<>();
-        ConnectedSubnetsWebResponse connectedSubnetsWebResponse = new ConnectedSubnetsWebResponse();
+        InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
+        ConnectedSubnetsWebResponse connectedSubnetsWebResponse = new ConnectedSubnetsWebResponse(internalRouterInfo, subnetIds);
+
+        SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectId, subnetId);
+        if (!this.ValidateSubnetAndConnectedRouter(subnetWebJson, subnetId)) {
+            logger.log(Level.WARNING, "Validation failed for SubnetAndConnectedRouter | subnet id:" + subnetId);
+            return connectedSubnetsWebResponse;
+        }
+
+        Router router = this.routerDatabaseService.getByRouterId(subnetWebJson.getSubnet().getAttachedRouterId());
+        if (!this.ValidateRouter(router)) {
+            logger.log(Level.WARNING, "Validation failed for router | router :" + router);
+            return connectedSubnetsWebResponse;
+        }
+
+        String routeTableType = router.getNeutronRouteTable().getRouteTableType();
+        if (routeTableType.equals("neutron")) {
+            boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetIds);
+            if (!processedResult) {
+                logger.log(Level.WARNING, "Process failed for Neutron router | project id:" + projectId + "router id: " + router.getId());
+                return connectedSubnetsWebResponse;
+            }
+        } else if (routeTableType.equals("vpc")) {
+            // TODO: vpc route operation
+            throw new UnsupportedOperationException();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
+        PopulateInternalRouterInfo(router, internalRouterInfo);
+        connectedSubnetsWebResponse.setInternalRouterInfo(internalRouterInfo);
         connectedSubnetsWebResponse.setSubnetIds(subnetIds);
 
+        return connectedSubnetsWebResponse;
+    }
+
+    private boolean ValidateSubnetAndConnectedRouter(SubnetWebJson subnetWebJson, String subnetId) {
         // get subnet
-        SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectId, subnetId);
         SubnetEntity subnet = subnetWebJson.getSubnet();
         if (subnet == null) {
-            logger.log(Level.WARNING,"can not find subnet by subnet id :" + subnetId);
-            return connectedSubnetsWebResponse;
+            logger.log(Level.WARNING, "can not find subnet by subnet id :" + subnetId);
+            return false;
         }
 
         // get subnet's route table type
-        String attachedRouterId = subnet.getAttachedRouterId();
-        if (attachedRouterId == null) {
-            return connectedSubnetsWebResponse;
+        String connectedRouterId = subnet.getAttachedRouterId();
+        if (connectedRouterId == null) {
+            return false;
         }
 
-        Router router = this.routerDatabaseService.getByRouterId(attachedRouterId);
+        return true;
+    }
+
+    private boolean ValidateRouter(Router router) {
         if (router == null) {
-            return connectedSubnetsWebResponse;
+            return false;
         }
+
         RouteTable routeTable = router.getNeutronRouteTable();
         if (routeTable == null) {
-            return connectedSubnetsWebResponse;
+            return false;
         }
+
         String routeTableType = routeTable.getRouteTableType();
-
         if (routeTableType == null) {
-            return connectedSubnetsWebResponse;
-        } else if(routeTableType.equals("neutron")){
-            List<String> ports = router.getPorts();
-            // check ports
-            if (ports == null || ports.size() <= 1) {
-                return connectedSubnetsWebResponse;
-            }
-            for (String portId : ports) {
-                // get subnet by port id
-                // TODO: could maintain subnet-port mapping
-                SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectId, portId);
-                if (subnetsWebJson == null) {
-                    return connectedSubnetsWebResponse;
-                }
-
-                ArrayList<SubnetEntity> subnets = subnetsWebJson.getSubnets();
-                if (subnets.size() == 0) {
-                    return connectedSubnetsWebResponse;
-                }
-                if (subnets.size() != 1) {
-                    throw new SubnetNotBindUniquePortId();
-                }
-                subnet = subnets.get(0);
-                subnetIds.add(subnet.getId());
-            }
-
-        } else {
-            // TODO: vpc route operation
-            return null;
+            return false;
         }
 
-        InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
+        return true;
+    }
+
+    private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<String> subnetIds) throws SubnetNotBindUniquePortId {
+        List<String> ports = router.getPorts();
+
+        // check ports
+        if (ports == null || ports.size() <= 1) {
+            return false;
+        }
+
+        for (String portId : ports) {
+            // get subnet by port id
+            // TODO: could maintain subnet-port mapping
+            SubnetsWebJson subnetsWebJson = this.routerToSubnetService.getSubnetsByPortId(projectId, portId);
+            if (subnetsWebJson == null) {
+                return false;
+            }
+
+            ArrayList<SubnetEntity> subnets = subnetsWebJson.getSubnets();
+            if (subnets.size() == 0) {
+                return false;
+            }
+            if (subnets.size() != 1) {
+                throw new SubnetNotBindUniquePortId();
+            }
+            subnetIds.add(subnets.get(0).getId());
+        }
+
+        return true;
+    }
+
+    private void PopulateInternalRouterInfo(Router router, InternalRouterInfo internalRouterInfo) {
         InternalRouterConfiguration configuration = new InternalRouterConfiguration();
         configuration.setId(router.getId());
         configuration.setFormatVersion(ConstantsConfig.formatVersion);
@@ -528,13 +571,5 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         internalRouterInfo.setOperationType(OperationType.INFO);
         internalRouterInfo.setRouterConfiguration(configuration);
-
-
-        // construct result
-        connectedSubnetsWebResponse.setInternalRouterInfo(internalRouterInfo);
-        connectedSubnetsWebResponse.setSubnetIds(subnetIds);
-
-        return connectedSubnetsWebResponse;
     }
-
 }
