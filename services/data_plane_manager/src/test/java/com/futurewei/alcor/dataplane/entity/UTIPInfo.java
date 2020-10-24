@@ -13,26 +13,35 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.dataplane.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+public class UTIPInfo {
 
-import java.util.List;
+    private String ip;
 
-@Data
-public class ConnectedSubnetsWebResponse {
+    private boolean isExist;
 
-    @JsonProperty("internal_router_info")
-    private InternalRouterInfo internalRouterInfo;
+    public UTIPInfo() {
+    }
 
-    @JsonProperty("subnets")
-    private List<String> subnetIds;
+    public UTIPInfo(String ip, boolean isExist) {
+        this.ip = ip;
+        this.isExist = isExist;
+    }
 
-    public ConnectedSubnetsWebResponse () {}
+    public String getIp() {
+        return ip;
+    }
 
-    public ConnectedSubnetsWebResponse(InternalRouterInfo internalRouterInfo, List<String> subnetIds) {
-        this.internalRouterInfo = internalRouterInfo;
-        this.subnetIds = subnetIds;
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public boolean isExist() {
+        return isExist;
+    }
+
+    public void setExist(boolean exist) {
+        isExist = exist;
     }
 }

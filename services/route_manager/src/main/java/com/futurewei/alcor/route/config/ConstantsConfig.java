@@ -13,26 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+public class ConstantsConfig {
 
-import java.util.List;
+    public static String formatVersion = "1";
+    public static String revisionNumber = "1";
 
-@Data
-public class ConnectedSubnetsWebResponse {
-
-    @JsonProperty("internal_router_info")
-    private InternalRouterInfo internalRouterInfo;
-
-    @JsonProperty("subnets")
-    private List<String> subnetIds;
-
-    public ConnectedSubnetsWebResponse () {}
-
-    public ConnectedSubnetsWebResponse(InternalRouterInfo internalRouterInfo, List<String> subnetIds) {
-        this.internalRouterInfo = internalRouterInfo;
-        this.subnetIds = subnetIds;
-    }
 }
