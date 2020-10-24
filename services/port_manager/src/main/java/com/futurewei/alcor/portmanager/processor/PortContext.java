@@ -19,7 +19,7 @@ import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +39,7 @@ public class PortContext {
     private PortEntity oldPortEntity; //For update
     private PortEntity newPortEntity; //For update
     private Map<String, List<String>> routerSubnetIds;
-    private Map<String, Router> routers;
+    private Map<String, InternalRouterInfo> routers;
     private List<NodeInfo> nodeInfos;
 
     public PortContext() {
@@ -165,15 +165,15 @@ public class PortContext {
         this.routerSubnetIds.put(vpcId, subnetIds);
     }
 
-    public Router getRouterByVpcOrSubnetId(String vpcOrSubnetId) {
+    public InternalRouterInfo getRouterByVpcOrSubnetId(String vpcOrSubnetId) {
         return (this.routers != null) ? this.routers.get(vpcOrSubnetId) : null;
     }
 
-    public void setRouters(Map<String, Router> routers) {
+    public void setRouters(Map<String, InternalRouterInfo> routers) {
         this.routers = routers;
     }
 
-    public void addRouter(String routerIdx, Router router) {
+    public void addRouter(String routerIdx, InternalRouterInfo router) {
         if (this.routers == null) {
             this.routers = new HashMap<>();
         }

@@ -189,9 +189,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         for (VpcEntity vpcEntity: vpcEntities) {
-            Router router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
-            InternalRouterInfo internalRouter = new InternalRouterInfo();  // NOTE: THIS IS THE PLACE TO CHANGE
-            context.getNetworkConfig().addRouterEntry(internalRouter);
+            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
+            context.getNetworkConfig().addRouterEntry(router);
         }
     }
 
