@@ -55,7 +55,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
             NeighborEntry neighborEntry = new NeighborEntry();
             neighborEntry.setNeighborType(neighborType);
             neighborEntry.setLocalIp(localInfo.getPortIp());
-            neighborEntry.setNeighborIp(neighbor.getPortId());
+            neighborEntry.setNeighborIp(neighbor.getPortIp());
             neighborTable.add(neighborEntry);
         }
 
