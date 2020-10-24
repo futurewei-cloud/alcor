@@ -17,7 +17,7 @@ package com.futurewei.alcor.route.config;
 
 public class ConstantsConfig {
 
-    public static String formatVersion = "1";
-    public static String revisionNumber = "1";
-
+    public static String FORMAT_VERSION = "1";
+    public static String REVISION_NUMBER = "1";
+    public static String HOST_DVR_MAC = "fe:16:11:00:00:00";
 }

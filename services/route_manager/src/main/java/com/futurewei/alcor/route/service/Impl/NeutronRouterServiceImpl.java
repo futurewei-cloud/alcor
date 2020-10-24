@@ -39,9 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 @Service
@@ -445,8 +443,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         String routeTableType = router.getNeutronRouteTable().getRouteTableType();
+        Map<String, String> gwPortToSubnetIdMap = new HashMap<>();
         if (routeTableType.equals("neutron_router")) {
-            boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetIds);
+            boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetIds, gwPortToSubnetIdMap);
             if (!processedResult) {
                 logger.log(Level.WARNING, "Process failed for Neutron router | project id:" + projectId + "router id: " + router.getId());
                 return connectedSubnetsWebResponse;
@@ -458,7 +457,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new UnsupportedOperationException();
         }
 
-        PopulateInternalRouterInfo(router, internalRouterInfo);
+        PopulateInternalRouterInfo(router, gwPortToSubnetIdMap, internalRouterInfo);
         connectedSubnetsWebResponse.setInternalRouterInfo(internalRouterInfo);
         connectedSubnetsWebResponse.setSubnetIds(subnetIds);
 
@@ -500,7 +499,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         return true;
     }
 
-    private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<String> subnetIds) throws SubnetNotBindUniquePortId {
+    private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<String> subnetIds, Map<String, String> gwPortToSubnetIdMap) throws SubnetNotBindUniquePortId {
         List<String> ports = router.getPorts();
 
         // check ports
@@ -520,31 +519,37 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             if (subnets.size() == 0) {
                 return false;
             }
-            if (subnets.size() != 1) {
+            if (subnets.size() > 1) {
                 throw new SubnetNotBindUniquePortId();
             }
-            subnetIds.add(subnets.get(0).getId());
+
+            String subnetId = subnets.get(0).getId();
+            subnetIds.add(subnetId);
+            gwPortToSubnetIdMap.put(portId, subnetId);
         }
 
         return true;
     }
 
-    private void PopulateInternalRouterInfo(Router router, InternalRouterInfo internalRouterInfo) {
+    private void PopulateInternalRouterInfo(Router router, Map<String, String> gwPortToSubnetIdMap, InternalRouterInfo internalRouterInfo) {
         InternalRouterConfiguration configuration = new InternalRouterConfiguration();
         configuration.setId(router.getId());
-        configuration.setFormatVersion(ConstantsConfig.formatVersion);
+        configuration.setFormatVersion(ConstantsConfig.FORMAT_VERSION);
         configuration.setMessageType(MessageType.FULL);
         configuration.setRequestId("");
-        configuration.setHostDvrMac("");
-        configuration.setRevisionNumber(ConstantsConfig.revisionNumber);
+        configuration.setHostDvrMac(ConstantsConfig.HOST_DVR_MAC);
+        configuration.setRevisionNumber(ConstantsConfig.REVISION_NUMBER);
 
         List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
-        for (RouteTable subnetRouteTable : router.getNeutronSubnetRouteTables()) {
+        for (Map.Entry<String,String> entry : gwPortToSubnetIdMap.entrySet()) {
+            // NOTE: We assume that Neutron router only has one route table here
+            RouteTable neutronRouteTable = router.getNeutronRouteTable();
+
             InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
-            internalSubnetRoutingTable.setSubnetId(subnetRouteTable.getOwner());
+            internalSubnetRoutingTable.setSubnetId(entry.getValue());
 
             List<InternalRoutingRule> routingRules = new ArrayList<>();
-            List<RouteEntry> routeEntities = subnetRouteTable.getRouteEntities();
+            List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
             for (RouteEntry routeEntry : routeEntities) {
                 InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
                 internalRoutingRule.setId(routeEntry.getId());
