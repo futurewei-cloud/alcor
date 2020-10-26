@@ -447,6 +447,10 @@ public class GoalStateManager {
               // lookup subnet entity
               for (String sid : ipSubnetIdMap.values()) {
                 InternalSubnetEntity subnetEntity1 = subnetIdSubnetsMap.get(sid);
+                if (subnetEntity1 == null) {
+                  LOG.log(Level.ERROR, sid+"subnet is MISSING");
+                  continue;
+                }
                 Subnet.SubnetConfiguration.Gateway gateway =
                     Subnet.SubnetConfiguration.Gateway.newBuilder()
                         .setIpAddress(subnetEntity1.getGatewayIp())
