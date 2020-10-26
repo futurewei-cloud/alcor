@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.route;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import lombok.Data;
 
 import java.util.List;
@@ -27,12 +28,12 @@ public class ConnectedSubnetsWebResponse {
     private InternalRouterInfo internalRouterInfo;
 
     @JsonProperty("subnets")
-    private List<String> subnetIds;
+    private List<SubnetEntity> subnetEntities;
 
     public ConnectedSubnetsWebResponse () {}
 
-    public ConnectedSubnetsWebResponse(InternalRouterInfo internalRouterInfo, List<String> subnetIds) {
+    public ConnectedSubnetsWebResponse(InternalRouterInfo internalRouterInfo, List<SubnetEntity> subnetEntities) {
         this.internalRouterInfo = internalRouterInfo;
-        this.subnetIds = subnetIds;
+        this.subnetEntities = subnetEntities;
     }
 }

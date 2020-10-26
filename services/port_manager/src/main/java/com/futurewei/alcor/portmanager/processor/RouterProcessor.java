@@ -20,6 +20,7 @@ import com.futurewei.alcor.portmanager.request.FetchRouterSubnetsRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 
 import java.util.*;
 
@@ -32,8 +33,8 @@ public class RouterProcessor extends AbstractProcessor {
         FetchRouterSubnetsRequest fetchRouterSubnetsRequest = ((FetchRouterSubnetsRequest) request);
 
         String vpcId = fetchRouterSubnetsRequest.getVpcId();
-        List<String> subnetIds = fetchRouterSubnetsRequest.getSubnetIds();
-        request.getContext().addRouterSubnetIds(vpcId, subnetIds);
+        List<SubnetEntity> associatedSubnetEntities = fetchRouterSubnetsRequest.getAssociatedSubnetEntities();
+        request.getContext().addRouterSubnetEntities(vpcId, associatedSubnetEntities);
 
         InternalRouterInfo router = fetchRouterSubnetsRequest.getRouter();
         // Current implementation supports Neutron router. VPC router will be in next release.

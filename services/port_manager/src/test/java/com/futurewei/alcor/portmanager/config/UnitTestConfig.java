@@ -58,6 +58,8 @@ public class UnitTestConfig {
     public static String subnetId2 = "3d53801c-32ce-4e97-9572-bb966fe82b1";
     public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f6ba29";
     public static String vpcCidr = "11.11.1.0/24";
+    public static String subnet1Cidr = "11.11.1.0/25";
+    public static String subnet2Cidr = "11.11.1.128/25";
     public static String ip1 = "11.11.11.100";
     public static String ip2 = "11.11.11.101";
     public static String ipv6Address = "2001:3CA1:310F:201A:121B:4231:2345:1010";

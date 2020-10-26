@@ -27,6 +27,7 @@ import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
 
     private PortEntity getPortEntity(List<PortEntity> portEntities, String portId) {
-        for (PortEntity portEntity: portEntities) {
+        for (PortEntity portEntity : portEntities) {
             if (portEntity.getId().equals(portId)) {
                 return portEntity;
             }
@@ -51,7 +52,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private List<NeighborEntry> buildNeighborTable(NeighborInfo localInfo, List<NeighborInfo> neighbors, NeighborEntry.NeighborType neighborType) {
         List<NeighborEntry> neighborTable = new ArrayList<>();
-        for (NeighborInfo neighbor: neighbors) {
+        for (NeighborInfo neighbor : neighbors) {
             NeighborEntry neighborEntry = new NeighborEntry();
             neighborEntry.setNeighborType(neighborType);
             neighborEntry.setLocalIp(localInfo.getPortIp());
@@ -69,7 +70,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         NeighborInfo neighborInfo = null;
-        for (NodeInfo nodeInfo: nodeInfos) {
+        for (NodeInfo nodeInfo : nodeInfos) {
             if (internalPortEntity.getBindingHostIP().equals(nodeInfo.getLocalIp())) {
                 neighborInfo = new NeighborInfo();
                 neighborInfo.setPortId(internalPortEntity.getId());
@@ -96,10 +97,10 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
         List<NeighborInfo> l3Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
-        for (NeighborInfo neighborInfo: neighborInfos) {
+        for (NeighborInfo neighborInfo : neighborInfos) {
             if (neighborInfo.getPortIp().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
-            }else if (routerSubnetIds.contains(neighborInfo.getSubnetId()) &&
+            } else if (routerSubnetIds.contains(neighborInfo.getSubnetId()) &&
                     !neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {
                 l3Neighbors.add(neighborInfo);
             }
@@ -119,10 +120,10 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
         List<NeighborInfo> l2Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
-        for (NeighborInfo neighborInfo: neighborInfos) {
+        for (NeighborInfo neighborInfo : neighborInfos) {
             if (neighborInfo.getPortId().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
-            }else if (neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {
+            } else if (neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {
                 l2Neighbors.add(neighborInfo);
             }
         }
@@ -144,19 +145,23 @@ public class DataPlaneProcessor extends AbstractProcessor {
             return;
         }
 
-        for (PortEntity.FixedIp fixedIp: internalPortEntity.getFixedIps()) {
-            List<String> routerSubnetIds = context.getRouterSubnetIds(internalPortEntity.getVpcId());
-            if (routerSubnetIds != null && routerSubnetIds.contains(fixedIp.getSubnetId())) {
-                buildL3Neighbors(context, internalPortEntity, fixedIp, routerSubnetIds);
-            }
+        for (PortEntity.FixedIp fixedIp : internalPortEntity.getFixedIps()) {
+            List<SubnetEntity> routerSubnetEntities = context.getRouterSubnetEntities(internalPortEntity.getVpcId());
+            if (routerSubnetEntities != null) {
+                List<String> routerSubnetIds = new ArrayList<>();
+                for (SubnetEntity entity : routerSubnetEntities) routerSubnetIds.add(entity.getId());
+                if (routerSubnetIds.contains(fixedIp.getSubnetId())) {
+                    buildL3Neighbors(context, internalPortEntity, fixedIp, routerSubnetIds);
+                }
 
-            buildL2Neighbors(context, internalPortEntity, fixedIp);
+                buildL2Neighbors(context, internalPortEntity, fixedIp);
+            }
         }
     }
 
     private void setTheMissingFields(PortContext context, List<PortEntity> portEntities) throws Exception {
         List<InternalPortEntity> internalPortEntities = context.getNetworkConfig().getPortEntities();
-        for (InternalPortEntity internalPortEntity: internalPortEntities) {
+        for (InternalPortEntity internalPortEntity : internalPortEntities) {
             PortEntity portEntity = getPortEntity(portEntities, internalPortEntity.getId());
             if (portEntity == null) {
                 LOG.error("Can not find port by id: {}", internalPortEntity.getId());
@@ -175,22 +180,32 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();
+        for (VpcEntity vpcEntity : vpcEntities) {
+            // Set router information
+            // NOTE: This implementation support Neutron scenario only
+            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
+            context.getNetworkConfig().addRouterEntry(router);
+
+            // Add associated subnet entities
+            List<SubnetEntity> associatedSubnetEntities = context.getRouterSubnetEntities(vpcEntity.getId());
+            for(SubnetEntity entity: associatedSubnetEntities){
+                InternalSubnetEntity internalEntity = new InternalSubnetEntity(entity, Long.MAX_VALUE);
+                context.getNetworkConfig().addSubnetEntity(internalEntity);
+            }
+        }
+
+        // Set Tunnel Ids in internal Subnet entities as assigned by control plane
         List<InternalSubnetEntity> internalSubnetEntities =
                 context.getNetworkConfig().getSubnetEntities();
 
-        for (InternalSubnetEntity internalSubnetEntity: internalSubnetEntities) {
-            for (VpcEntity vpcEntity: vpcEntities) {
+        for (InternalSubnetEntity internalSubnetEntity : internalSubnetEntities) {
+            for (VpcEntity vpcEntity : vpcEntities) {
                 if (vpcEntity.getId().equals(internalSubnetEntity.getVpcId())) {
                     Integer segmentationId = vpcEntity.getSegmentationId();
                     Long tunnelId = segmentationId != null ? Long.valueOf(segmentationId) : null;
                     internalSubnetEntity.setTunnelId(tunnelId);
                 }
             }
-        }
-
-        for (VpcEntity vpcEntity: vpcEntities) {
-            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
-            context.getNetworkConfig().addRouterEntry(router);
         }
     }
 

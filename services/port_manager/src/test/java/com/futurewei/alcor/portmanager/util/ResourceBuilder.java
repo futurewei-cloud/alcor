@@ -335,12 +335,14 @@ public class ResourceBuilder {
     }
 
     public static ConnectedSubnetsWebResponse buildRouterSubnets() {
-        List<String> subnetIds = new ArrayList<>();
-        subnetIds.add(UnitTestConfig.subnetId);
-        subnetIds.add(UnitTestConfig.subnetId2);
+        List<SubnetEntity> subnetEntities = new ArrayList<>();
+        SubnetEntity subnetEntity1 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId, "Subnet1", UnitTestConfig.subnet1Cidr);
+        SubnetEntity subnetEntity2 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId2, "Subnet2", UnitTestConfig.subnet2Cidr);
+        subnetEntities.add(subnetEntity1);
+        subnetEntities.add(subnetEntity1);
 
         InternalRouterInfo router = new InternalRouterInfo();
-        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetIds);
+        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetEntities);
         return routerSubnets;
     }
 }

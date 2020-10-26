@@ -85,6 +85,21 @@ public class NetworkConfig {
         this.subnetEntities = subnetEntities;
     }
 
+    public boolean addSubnetEntity(InternalSubnetEntity subnetEntity){
+        if(this.subnetEntities == null){
+            this.subnetEntities = new ArrayList<>();
+        }
+
+        for(InternalSubnetEntity entity: this.subnetEntities){
+            if(entity.getId().equals(subnetEntity.getId())){
+                return false;
+            }
+        }
+
+        this.subnetEntities.add(subnetEntity);
+        return true;
+    }
+
     public List<SecurityGroup> getSecurityGroups() {
         return this.securityGroups;
     }

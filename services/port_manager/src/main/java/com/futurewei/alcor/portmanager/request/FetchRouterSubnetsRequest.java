@@ -21,6 +21,7 @@ import com.futurewei.alcor.portmanager.exception.GetConnectedSubnetException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.restclient.RouterManagerRestClient;
 
 import java.util.ArrayList;
@@ -29,15 +30,16 @@ import java.util.List;
 public class FetchRouterSubnetsRequest extends AbstractRequest {
     private String vpcId;
     private String subnetId;
-    private List<String> subnetIds;
+    private List<SubnetEntity> associatedSubnetEntities;
     private InternalRouterInfo router;
+
     private RouterManagerRestClient routerManagerRestClient;
 
     public FetchRouterSubnetsRequest(PortContext context, String vpcId, String subnetId) {
         super(context);
         this.vpcId = vpcId;
         this.subnetId = subnetId;
-        this.subnetIds = new ArrayList<>();
+        this.associatedSubnetEntities = new ArrayList<>();
         this.routerManagerRestClient = SpringContextUtil.getBean(RouterManagerRestClient.class);
     }
 
@@ -45,8 +47,8 @@ public class FetchRouterSubnetsRequest extends AbstractRequest {
         return this.vpcId;
     }
 
-    public List<String> getSubnetIds() {
-        return this.subnetIds;
+    public List<SubnetEntity> getAssociatedSubnetEntities() {
+        return this.associatedSubnetEntities;
     }
 
     public InternalRouterInfo getRouter() { return this.router; }
@@ -54,13 +56,13 @@ public class FetchRouterSubnetsRequest extends AbstractRequest {
     @Override
     public void send() throws Exception {
         ConnectedSubnetsWebResponse connectedRouterInfo = routerManagerRestClient.getRouterSubnets(context.getProjectId(), vpcId, subnetId);
-        if (connectedRouterInfo == null || connectedRouterInfo.getSubnetIds() == null) {
+        if (connectedRouterInfo == null || connectedRouterInfo.getSubnetEntities() == null) {
             throw new GetConnectedSubnetException();
         } else if (connectedRouterInfo.getInternalRouterInfo() == null) {
             throw new GetConnectedRouterException();
         }
 
-        subnetIds.addAll(connectedRouterInfo.getSubnetIds());
+        associatedSubnetEntities.addAll(connectedRouterInfo.getSubnetEntities());
         router = new InternalRouterInfo(connectedRouterInfo.getInternalRouterInfo());
     }
 

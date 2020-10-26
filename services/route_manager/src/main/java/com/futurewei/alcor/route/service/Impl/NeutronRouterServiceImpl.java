@@ -426,9 +426,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
     @Override
     public ConnectedSubnetsWebResponse getConnectedSubnets(String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId, UnsupportedOperationException {
-        List<String> subnetIds = new ArrayList<>();
+        List<SubnetEntity> subnetEntities = new ArrayList<>();
         InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
-        ConnectedSubnetsWebResponse connectedSubnetsWebResponse = new ConnectedSubnetsWebResponse(internalRouterInfo, subnetIds);
+        ConnectedSubnetsWebResponse connectedSubnetsWebResponse = new ConnectedSubnetsWebResponse(internalRouterInfo, subnetEntities);
 
         SubnetWebJson subnetWebJson = this.routerToSubnetService.getSubnet(projectId, subnetId);
         if (!this.ValidateSubnetAndConnectedRouter(subnetWebJson, subnetId)) {
@@ -445,7 +445,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         String routeTableType = router.getNeutronRouteTable().getRouteTableType();
         Map<String, String> gwPortToSubnetIdMap = new HashMap<>();
         if (routeTableType.equals("neutron_router")) {
-            boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetIds, gwPortToSubnetIdMap);
+            boolean processedResult = this.ProcessNeutronRouterAndPopulateSubnetIds(projectId, router, subnetEntities, gwPortToSubnetIdMap);
             if (!processedResult) {
                 logger.log(Level.WARNING, "Process failed for Neutron router | project id:" + projectId + "router id: " + router.getId());
                 return connectedSubnetsWebResponse;
@@ -459,7 +459,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         PopulateInternalRouterInfo(router, gwPortToSubnetIdMap, internalRouterInfo);
         connectedSubnetsWebResponse.setInternalRouterInfo(internalRouterInfo);
-        connectedSubnetsWebResponse.setSubnetIds(subnetIds);
+        connectedSubnetsWebResponse.setSubnetEntities(subnetEntities);
 
         return connectedSubnetsWebResponse;
     }
@@ -499,7 +499,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         return true;
     }
 
-    private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<String> subnetIds, Map<String, String> gwPortToSubnetIdMap) throws SubnetNotBindUniquePortId {
+    private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<SubnetEntity> subnetEntities, Map<String, String> gwPortToSubnetIdMap) throws SubnetNotBindUniquePortId {
         List<String> ports = router.getPorts();
 
         // check ports
@@ -523,9 +523,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 throw new SubnetNotBindUniquePortId();
             }
 
-            String subnetId = subnets.get(0).getId();
-            subnetIds.add(subnetId);
-            gwPortToSubnetIdMap.put(portId, subnetId);
+            SubnetEntity subnetEntity = subnets.get(0);
+            subnetEntities.add(subnetEntity);
+            gwPortToSubnetIdMap.put(portId, subnetEntity.getId());
         }
 
         return true;
