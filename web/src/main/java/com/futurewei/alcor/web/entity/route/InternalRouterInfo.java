@@ -34,10 +34,22 @@ public class InternalRouterInfo {
         this.configuration = configuration;
     }
 
-    public OperationType getOperationType() { return this.operation_type; }
-    public void setOperationType(OperationType operation_type) { this.operation_type = operation_type; }
+    public InternalRouterInfo(InternalRouterInfo routerInfo) {
+        this(routerInfo.getOperationType(), routerInfo.getRouterConfiguration());
+    }
 
-    public InternalRouterConfiguration getRouterConfiguration() { return this.configuration; }
+    public OperationType getOperationType() {
+        return this.operation_type;
+    }
+
+    public void setOperationType(OperationType operation_type) {
+        this.operation_type = operation_type;
+    }
+
+    public InternalRouterConfiguration getRouterConfiguration() {
+        return this.configuration;
+    }
+
     public void setRouterConfiguration(InternalRouterConfiguration configuration) {
         this.configuration = configuration;
     }

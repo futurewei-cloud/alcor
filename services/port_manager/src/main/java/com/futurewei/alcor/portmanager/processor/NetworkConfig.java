@@ -19,6 +19,7 @@ import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
@@ -37,6 +38,8 @@ public class NetworkConfig {
     private List<NeighborInfo> neighborInfos;
 
     private List<NeighborEntry> neighborTable;
+
+    private List<InternalRouterInfo> routerInfos;
 
     public static class ExtendPortEntity extends InternalPortEntity {
         private String bindingHostId;
@@ -59,7 +62,7 @@ public class NetworkConfig {
     }
 
     public List<InternalPortEntity> getPortEntities() {
-        return portEntities;
+        return this.portEntities;
     }
 
     public void setPortEntities(List<InternalPortEntity> portEntities) {
@@ -67,7 +70,7 @@ public class NetworkConfig {
     }
 
     public List<VpcEntity> getVpcEntities() {
-        return vpcEntities;
+        return this.vpcEntities;
     }
 
     public void setVpcEntities(List<VpcEntity> vpcEntities) {
@@ -75,15 +78,30 @@ public class NetworkConfig {
     }
 
     public List<InternalSubnetEntity> getSubnetEntities() {
-        return subnetEntities;
+        return this.subnetEntities;
     }
 
     public void setSubnetEntities(List<InternalSubnetEntity> subnetEntities) {
         this.subnetEntities = subnetEntities;
     }
 
+    public boolean addSubnetEntity(InternalSubnetEntity subnetEntity){
+        if(this.subnetEntities == null){
+            this.subnetEntities = new ArrayList<>();
+        }
+
+        for(InternalSubnetEntity entity: this.subnetEntities){
+            if(entity.getId().equals(subnetEntity.getId())){
+                return false;
+            }
+        }
+
+        this.subnetEntities.add(subnetEntity);
+        return true;
+    }
+
     public List<SecurityGroup> getSecurityGroups() {
-        return securityGroups;
+        return this.securityGroups;
     }
 
     public void setSecurityGroups(List<SecurityGroup> securityGroups) {
@@ -91,7 +109,7 @@ public class NetworkConfig {
     }
 
     public List<NeighborInfo> getNeighborInfos() {
-        return neighborInfos;
+        return this.neighborInfos;
     }
 
     public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
@@ -99,7 +117,7 @@ public class NetworkConfig {
     }
 
     public List<NeighborEntry> getNeighborTable() {
-        return neighborTable;
+        return this.neighborTable;
     }
 
     public void addNeighborEntries(List<NeighborEntry> neighborEntries) {
@@ -107,5 +125,20 @@ public class NetworkConfig {
             this.neighborTable = new ArrayList<>();
         }
         this.neighborTable.addAll(neighborEntries);
+    }
+
+    public List<InternalRouterInfo> getRouterInfos() {
+        return this.routerInfos;
+    }
+
+    public void setRouterInfos(List<InternalRouterInfo> routerInfos) {
+        this.routerInfos = routerInfos;
+    }
+
+    public void addRouterEntry(InternalRouterInfo routerInfo) {
+        if (this.routerInfos == null) {
+            this.routerInfos = new ArrayList<>();
+        }
+        this.routerInfos.add(routerInfo);
     }
 }
