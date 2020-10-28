@@ -181,14 +181,16 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
         List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();
         for (VpcEntity vpcEntity : vpcEntities) {
+            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
+            if (router == null || router.getRouterConfiguration() == null) continue;
+
             // Set router information
             // NOTE: This implementation support Neutron scenario only
-            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
             context.getNetworkConfig().addRouterEntry(router);
 
             // Add associated subnet entities
             List<SubnetEntity> associatedSubnetEntities = context.getRouterSubnetEntities(vpcEntity.getId());
-            for(SubnetEntity entity: associatedSubnetEntities){
+            for (SubnetEntity entity : associatedSubnetEntities) {
                 InternalSubnetEntity internalEntity = new InternalSubnetEntity(entity, Long.MAX_VALUE);
                 context.getNetworkConfig().addSubnetEntity(internalEntity);
             }
