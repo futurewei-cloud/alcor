@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.enumClass.OperationType;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.dataplane.entity.*;
-import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
@@ -203,6 +202,8 @@ public class DataPlaneManagerUtil {
                 neighborEntry.setLocalIp(DPMAutoUnitTestConstant.L2localIp + IpAddressOffset);
                 neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L3neighborIp + NeighborIpAddressOffset);
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
+//                neighborEntry.setNeighborIp(DPMAutoUnitTestConstant.L2neighborIp + NeighborIpAddressOffset);
+//                neighborEntry.setNeighborType(NeighborEntry.NeighborType.L2);
                 neighborTable.add(neighborEntry);
             }
         }
@@ -256,8 +257,8 @@ public class DataPlaneManagerUtil {
         List<InternalSubnetEntity> subnets = new ArrayList<>();
         for (int i = 0; i < subnetNum; i ++) {
             int IpAddressOffSet = i + 2;
-            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, DPMAutoUnitTestConstant.subnetName + i, "", DPMAutoUnitTestConstant.vpcId,
-                    "192.168." + IpAddressOffSet + ".0/24", DPMAutoUnitTestConstant.availabilityZone, "192.168." + IpAddressOffSet + ".1", false, null,
+            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, null, "", DPMAutoUnitTestConstant.vpcId,
+                    "192.168." + IpAddressOffSet + ".0/24", null, "192.168." + IpAddressOffSet + ".1", false, null,
                     null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
                     null, null, null, null, null,
                     null, null, false, null, null,
@@ -415,31 +416,38 @@ public class DataPlaneManagerUtil {
      * @throws Exception
      */
     private void buildSubnetState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
-        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
-        if (portStates == null || portStates.size() == 0) {
+        List<InternalSubnetEntity> subnets = networkConfig.getSubnets();
+        if (subnets == null || subnets.size() == 0) {
             return;
         }
+//        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
+//        if (portStates == null || portStates.size() == 0) {
+//            return;
+//        }
+//
+//        List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
+//        List<String> subnetIdsInFixedIP = new ArrayList<>();
+//        for (Port.PortState portState: portStates) {
+//            for (Port.PortConfiguration.FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
+//                if (!subnetIdsInFixedIP.contains(fixedIp.getSubnetId())) {
+//                    InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
+//                            networkConfig, fixedIp.getSubnetId());
+//                    subnetEntities.add(internalSubnetEntity);
+//                    subnetIdsInFixedIP.add(fixedIp.getSubnetId());
+//                }
+//            }
+//        }
 
-        List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
-        List<String> subnetIdsInFixedIP = new ArrayList<>();
-        for (Port.PortState portState: portStates) {
-            for (Port.PortConfiguration.FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
-                if (!subnetIdsInFixedIP.contains(fixedIp.getSubnetId())) {
-                    InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
-                            networkConfig, fixedIp.getSubnetId());
-                    subnetEntities.add(internalSubnetEntity);
-                    subnetIdsInFixedIP.add(fixedIp.getSubnetId());
-                }
-            }
-        }
-
-        for (InternalSubnetEntity subnetEntity: subnetEntities) {
+        for (InternalSubnetEntity subnetEntity: subnets) {
             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+            subnetConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             subnetConfigBuilder.setId(subnetEntity.getId());
             subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
             subnetConfigBuilder.setProjectId(subnetEntity.getProjectId());
             subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
-            subnetConfigBuilder.setName(subnetEntity.getName());
+            if (subnetEntity.getName() != null) {
+                subnetConfigBuilder.setName(subnetEntity.getName());
+            }
             subnetConfigBuilder.setCidr(subnetEntity.getCidr());
             subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
 
@@ -448,7 +456,9 @@ public class DataPlaneManagerUtil {
             gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
-            subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
+            if (subnetEntity.getAvailabilityZone() != null) {
+                subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
+            }
             if (subnetEntity.getPrimaryDns() != null) {
                 subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
             }
@@ -457,8 +467,8 @@ public class DataPlaneManagerUtil {
                 subnetConfigBuilder.setSecondaryDns(subnetEntity.getSecondaryDns());
             }
             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
-            subnetStateBuilder.setOperationType(networkConfig.getOpType());
-            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+            subnetStateBuilder.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
+            subnetStateBuilder.setConfiguration(subnetConfigBuilder);
             goalStateBuilder.addSubnetStates(subnetStateBuilder.build());
         }
     }
@@ -472,6 +482,8 @@ public class DataPlaneManagerUtil {
     private void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities, Goalstate.GoalState.Builder goalStateBuilder) {
         for (InternalPortEntity portEntity: portEntities) {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
+            portConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
+            portConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
             portConfigBuilder.setId(portEntity.getId());
             portConfigBuilder.setMessageType(Common.MessageType.FULL);
             portConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
@@ -485,7 +497,7 @@ public class DataPlaneManagerUtil {
             hostInfoBuilder.setIpAddress(portEntity.getBindingHostIP());
             //TODO: Do we need mac address?
             //hostInfoBuilder.setMacAddress()
-            portConfigBuilder.setHostInfo(hostInfoBuilder.build());
+            //portConfigBuilder.setHostInfo(hostInfoBuilder.build());
             portEntity.getFixedIps().forEach(fixedIp -> {
                 Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
                 fixedIpBuilder.setSubnetId(fixedIp.getSubnetId());
@@ -526,11 +538,14 @@ public class DataPlaneManagerUtil {
      * @return
      * @throws Exception
      */
-    private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp) throws Exception {
+    private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp, boolean[] visited) throws Exception {
         NeighborInfo result = null;
-        for (NeighborInfo neighborInfo: networkConfig.getNeighborInfos()) {
-            if (neighborInfo.getHostIp().equals(hostIp)) {
+        List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        for (int i = 0; i < neighborInfos.size(); i ++) {
+            NeighborInfo neighborInfo = neighborInfos.get(i);
+            if (neighborInfo.getHostIp().equals(hostIp) && !visited[i]) {
                 result = neighborInfo;
+                visited[i] = true;
                 break;
             }
         }
@@ -555,28 +570,31 @@ public class DataPlaneManagerUtil {
         if (neighborInfos == null || neighborInfos.size() == 0) {
             return;
         }
+        boolean[] visited = new boolean[neighborInfos.size()];
 
         List<NeighborEntry> neighborTable = networkConfig.getNeighborTable();
         if (neighborTable == null || neighborTable.size() == 0) {
             return;
         }
 
-        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
-        if (portStates == null || portStates.size() == 0) {
-            return;
-        }
+//        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
+//        if (portStates == null || portStates.size() == 0) {
+//            return;
+//        }
 
         for (NeighborEntry neighborEntry: neighborTable) {
 
-            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, hostIp);
+            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, hostIp, visited);
             if (!hostIp.equals(neighborInfo.getHostIp())) {
                 continue;
             }
             Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
-            //neighborConfigBuilder.setId();
+            neighborConfigBuilder.setId(neighborInfo.getPortId());
             Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(neighborEntry.getNeighborType().getType());
             //neighborConfigBuilder.setNeighborType(neighborType);
-            //neighborConfigBuilder.setProjectId();
+            neighborConfigBuilder.setProjectId(DPMAutoUnitTestConstant.projectId);
+            neighborConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
+            neighborConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber2);
             neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
             //neighborConfigBuilder.setName();
             neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
@@ -586,6 +604,7 @@ public class DataPlaneManagerUtil {
             Neighbor.NeighborConfiguration.FixedIp.Builder fixedIpBuilder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
             fixedIpBuilder.setSubnetId(neighborInfo.getSubnetId());
             fixedIpBuilder.setIpAddress(neighborInfo.getPortIp());
+            fixedIpBuilder.setNeighborType(neighborType);
             neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
             //TODO:setAllowAddressPairs
             //neighborConfigBuilder.setAllowAddressPairs();
@@ -627,6 +646,7 @@ public class DataPlaneManagerUtil {
      * @throws Exception
      */
     private void buildSecurityGroupState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
+        List<SecurityGroup> securityGroups = networkConfig.getSecurityGroups();
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -640,9 +660,10 @@ public class DataPlaneManagerUtil {
                     .collect(Collectors.toList()));
         }
 
+        com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.Builder securityGroupStateBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.newBuilder();
+        com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Builder securityGroupConfigBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.newBuilder();
         for (String securityGroupId: securityGroupIds) {
             SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
-            com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Builder securityGroupConfigBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.newBuilder();
             securityGroupConfigBuilder.setId(securityGroup.getId());
             securityGroupConfigBuilder.setProjectId(securityGroup.getProjectId());
             //securityGroupConfigBuilder.setVpcId();
@@ -663,11 +684,10 @@ public class DataPlaneManagerUtil {
                 securityGroupConfigBuilder.addSecurityGroupRules(securityGroupRuleBuilder.build());
             }
 
-            com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.Builder securityGroupStateBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.newBuilder();
-            securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
-            securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder.build());
-            goalStateBuilder.addSecurityGroupStates(securityGroupStateBuilder.build());
         }
+        securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
+        securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder);
+        goalStateBuilder.addSecurityGroupStates(securityGroupStateBuilder.build());
     }
 
     /**
@@ -685,21 +705,28 @@ public class DataPlaneManagerUtil {
         for (Port.PortState portState: portStates) {
             String macAddress = portState.getConfiguration().getMacAddress();
             List<Port.PortConfiguration.FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
-            for (Port.PortConfiguration.FixedIp fixedIp: fixedIps) {
-                DHCP.DHCPConfiguration.Builder dhcpConfigBuilder = DHCP.DHCPConfiguration.newBuilder();
-                dhcpConfigBuilder.setMacAddress(macAddress);
-                dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
-                //TODO: support ipv6
-                //dhcpConfigBuilder.setIpv6Address();
-                //dhcpConfigBuilder.setPortHostName();
-                //dhcpConfigBuilder.setExtraDhcpOptions();
-                //dhcpConfigBuilder.setDnsEntryList();
-
-                DHCP.DHCPState.Builder dhcpStateBuilder = DHCP.DHCPState.newBuilder();
-                dhcpStateBuilder.setOperationType(networkConfig.getOpType());
-                dhcpStateBuilder.setConfiguration(dhcpConfigBuilder.build());
-                goalStateBuilder.addDhcpStates(dhcpStateBuilder.build());
+            if (fixedIps == null || fixedIps.size() == 0) {
+                continue;
             }
+
+            DHCP.DHCPConfiguration.Builder dhcpConfigBuilder = DHCP.DHCPConfiguration.newBuilder();
+            dhcpConfigBuilder.setMacAddress(macAddress);
+            dhcpConfigBuilder.setIpv4Address(fixedIps.get(0).getIpAddress());
+            dhcpConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
+            dhcpConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
+            dhcpConfigBuilder.setSubnetId(fixedIps.get(0).getSubnetId());
+            //TODO: support ipv6
+            //dhcpConfigBuilder.setIpv6Address();
+            //dhcpConfigBuilder.setPortHostName();
+            //dhcpConfigBuilder.setExtraDhcpOptions();
+            //dhcpConfigBuilder.setDnsEntryList();
+
+            DHCP.DHCPState.Builder dhcpStateBuilder = DHCP.DHCPState.newBuilder();
+            dhcpStateBuilder.setOperationType(networkConfig.getOpType());
+            dhcpStateBuilder.setConfiguration(dhcpConfigBuilder);
+            goalStateBuilder.addDhcpStates(dhcpStateBuilder.build());
+
+
         }
     }
 
@@ -710,24 +737,61 @@ public class DataPlaneManagerUtil {
      * @throws Exception
      */
     private void buildRouterState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
-        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
-        if (portStates == null || portStates.size() == 0) {
+        List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
+        if (internalRouterInfos == null || internalRouterInfos.size() == 0) {
             return;
         }
 
-        Set<String> subnetIds = new HashSet<>();
-        for (Port.PortState portState: portStates) {
-            List<Port.PortConfiguration.FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
-            for (Port.PortConfiguration.FixedIp fixedIp: fixedIps) {
-                InternalSubnetEntity internalSubnetEntity =
-                        getInternalSubnetEntity(networkConfig, fixedIp.getSubnetId());
-                subnetIds.add(internalSubnetEntity.getId());
+        Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
+        for (InternalRouterInfo routerInfo: internalRouterInfos) {
+            InternalRouterConfiguration configuration = routerInfo.getRouterConfiguration();
+            if (configuration == null) {
+                continue;
             }
+            routerConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
+            routerConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
+            if (configuration.getRequestId() != null) {
+                routerConfigBuilder.setRequestId(configuration.getRequestId());
+            }
+            routerConfigBuilder.setId(configuration.getId());
+            routerConfigBuilder.setMessageType(Common.MessageType.FULL);
+            routerConfigBuilder.setHostDvrMacAddress(configuration.getHostDvrMac());
+
+            List<InternalSubnetRoutingTable> subnetRoutingTables = configuration.getSubnetRoutingTables();
+
+            if (subnetRoutingTables != null && subnetRoutingTables.size() != 0) {
+                for (int i = 0 ; i < subnetRoutingTables.size(); i ++) {
+                    Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+                    InternalSubnetRoutingTable subnetRoutingTable = subnetRoutingTables.get(i);
+                    List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
+                    if (routingRules != null && routingRules.size() != 0) {
+                        for (int j = 0 ; j < routingRules.size(); j ++) {
+                            InternalRoutingRule internalRoutingRule = routingRules.get(j);
+                            Router.RouterConfiguration.RoutingRule.Builder routingRule = Router.RouterConfiguration.RoutingRule.newBuilder();
+                            routingRule.setDestination(internalRoutingRule.getDestination());
+                            routingRule.setId(internalRoutingRule.getId());
+                            routingRule.setName(internalRoutingRule.getName());
+                            routingRule.setPriority(Integer.parseInt(internalRoutingRule.getPriority()));
+                            routingRule.setNextHopIp(internalRoutingRule.getNextHopIp());
+
+                            InternalRoutingRuleExtraInfo internalRoutingRuleExtraInfo = internalRoutingRule.getRoutingRuleExtraInfo();
+                            Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routingRuleExtraInfo = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+                            routingRuleExtraInfo.setNextHopMac(internalRoutingRuleExtraInfo.getNextHopMac());
+                            routingRule.setRoutingRuleExtraInfo(routingRuleExtraInfo);
+
+                            subnetRoutingTableBuilder.addRoutingRules(routingRule);
+                        }
+                    }
+
+                    subnetRoutingTableBuilder.setSubnetId(subnetRoutingTable.getSubnetId());
+                    routerConfigBuilder.addSubnetRoutingTables(subnetRoutingTableBuilder);
+                }
+
+            }
+
         }
 
-        Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
-        //routerConfigBuilder.setHostDvrMacAddress();
-        //routerConfigBuilder.addAllSubnetIds(subnetIds);
+
 
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setOperationType(networkConfig.getOpType());
@@ -935,8 +999,8 @@ public class DataPlaneManagerUtil {
         List<InternalSubnetEntity> subnets = new ArrayList<>();
         for (int i = 0; i < UTSubnets.size(); i ++) {
             UTSubnetInfo subnetInfo = UTSubnets.get(i);
-            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, subnetInfo.getSubnetId(), subnetInfo.getSubnetName(), "", DPMAutoUnitTestConstant.vpcId,
-                    subnetInfo.getSubnetCidr(), DPMAutoUnitTestConstant.availabilityZone, subnetInfo.getSubnetGatewayIP(), false, null,
+            SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, subnetInfo.getSubnetId(), null, "", DPMAutoUnitTestConstant.vpcId,
+                    subnetInfo.getSubnetCidr(), null, subnetInfo.getSubnetGatewayIP(), false, null,
                     null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
                     null, null, null, null, null,
                     null, null, false, null, null,
@@ -981,13 +1045,14 @@ public class DataPlaneManagerUtil {
                                                                   Map<String, UTNeighborInfoDetail> neighborInfoDetails,
                                                                   boolean fastPath) throws Exception {
         Map<String, Goalstate.GoalState> goalStateHashMap = new HashMap<>();
-        for (Map.Entry<String, List<UTPortWithSubnetAndIPMapping>> entry : existPortsMap.entrySet()) {
+        NetworkConfiguration networkConfiguration = autoGenerateUTsInput_MoreCustomizableScenarios(operationType, resourceType, createPortsMap, UTSubnets, L3NeighborInfoMapping, hasInternalRouterInfo, hasInternalSubnetRoutingTable, hasInternalRoutingRule, hasNeighbor, neighborInfoDetails, fastPath);
+        for (Map.Entry<String, List<UTPortWithSubnetAndIPMapping>> entry : createPortsMap.entrySet()) {
             HostGoalState hostGoalState = new HostGoalState();
             List<InternalPortEntity> portEntities = new ArrayList<>();
             String hostIp = entry.getKey();
             Map<String, List<UTPortWithSubnetAndIPMapping>> portsMap = new HashMap<>();
             portsMap.put(entry.getKey(), entry.getValue());
-            NetworkConfiguration networkConfiguration = autoGenerateUTsInput_MoreCustomizableScenarios(operationType, resourceType, portsMap, UTSubnets, L3NeighborInfoMapping, hasInternalRouterInfo, hasInternalSubnetRoutingTable, hasInternalRoutingRule, hasNeighbor, neighborInfoDetails, fastPath);
+
             List<InternalPortEntity> allPortEntities = networkConfiguration.getPortEntities();
             for (InternalPortEntity port : allPortEntities) {
                 if (port.getBindingHostIP().equals(hostIp)) {

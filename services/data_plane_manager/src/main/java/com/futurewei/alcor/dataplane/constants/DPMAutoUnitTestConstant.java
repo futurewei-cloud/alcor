@@ -54,5 +54,8 @@ public class DPMAutoUnitTestConstant {
     public static String routeRuleName = "rule";
     public static String hostDvrMac = "AA-BB-CC-A9-0F-EC";
     public static String routerConfigurationId = "64e339bb-1a6c-47bd-9ee7-a0cf81a35172";
+    public static int formatVersion = 1;
+    public static int revisionNumber = 1;
+    public static int revisionNumber2 = 2;
 
 }
