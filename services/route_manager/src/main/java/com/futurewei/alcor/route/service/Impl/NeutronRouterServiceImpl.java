@@ -57,12 +57,12 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     private RouterExtraAttributeDatabaseService routerExtraAttributeDatabaseService;
 
     @Override
-    public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter {
+    public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable {
         NeutronRouterWebRequestObject neutronRouterWebRequestObject = new NeutronRouterWebRequestObject();
 
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {
-            throw new CanNotFindRouter();
+            throw new RouterUnavailable();
         }
         RouterExtraAttribute routerExtraAttribute = null;
         if (router.getRouterExtraAttributeId() != null) {
@@ -117,7 +117,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter, DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId {
+    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable, DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId {
         if (portId != null && subnetId != null) {
             throw new SpecifyBothSubnetIDAndPortID();
         }
@@ -161,7 +161,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {
-            throw new CanNotFindRouter();
+            throw new RouterUnavailable(routerId);
         }
 
         projectId = subnet.getProjectId();
