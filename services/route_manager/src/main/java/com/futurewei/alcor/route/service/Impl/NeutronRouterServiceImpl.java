@@ -159,6 +159,11 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         } else {
             return new RouterInterfaceResponse();
         }
+        Router router = this.routerDatabaseService.getByRouterId(routerId);
+        if (router == null) {
+            throw new CanNotFindRouter();
+        }
+
         projectId = subnet.getProjectId();
         portId = subnet.getGatewayPortId();
         attachedRouterId = subnet.getAttachedRouterId();
@@ -179,10 +184,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
         // TODO: may need to maintain the mapping for new added port and it's subnet in the Route Manager
 
-        Router router = this.routerDatabaseService.getByRouterId(routerId);
-        if (router == null) {
-            throw new CanNotFindRouter();
-        }
         List<String> ports = router.getPorts();
         if (ports == null) {
             ports = new ArrayList<>();

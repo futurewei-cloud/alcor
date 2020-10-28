@@ -101,7 +101,7 @@ public class RouteController {
 
         if (routes == null) {
             //TODO: REST error code
-            return new RoutesWebJson();
+            return new RoutesWebJson(new ArrayList<>());
         }
 
         return new RoutesWebJson(routes);

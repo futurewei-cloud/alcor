@@ -449,7 +449,7 @@ public class SubnetController {
                 return new ResponseId();
             }
 
-            //RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
+            this.subnetDatabaseService.deleteSubnet(subnetId);
 
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
