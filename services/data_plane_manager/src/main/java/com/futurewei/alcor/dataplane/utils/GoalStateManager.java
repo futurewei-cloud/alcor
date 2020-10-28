@@ -270,7 +270,8 @@ public class GoalStateManager {
               Set<Subnet.SubnetState> subnetStateSet = new HashSet();
               Set<Vpc.VpcState> vpcStateSet = new HashSet();
               Set<DHCP.DHCPState> dhcpStateList = new HashSet();
-
+               Neighbor.NeighborType l3 = Neighbor.NeighborType.L3;
+               Neighbor.NeighborType l2 = Neighbor.NeighborType.L2;
               final List<InternalPortEntity> internalPortEntitySet =
                   mapGroupedByHostIp.get(currentGroupHostIp);
               if (internalPortEntitySet != null) {
@@ -366,7 +367,7 @@ public class GoalStateManager {
                             brandNewIps,
                             ip,
                             currentGroupHostIp,
-                            Neighbor.NeighborType.L3);
+                                l3);
                       } // if contains ip in neighbor info
                     }
                   }
@@ -390,7 +391,7 @@ public class GoalStateManager {
                             brandNewIps,
                             ip,
                             currentGroupHostIp,
-                            Neighbor.NeighborType.L2);
+                            l2);
                       } else {
                         createNeighborState(
                             networkConfiguration,
@@ -398,7 +399,7 @@ public class GoalStateManager {
                             brandNewIps,
                             ip,
                             currentGroupHostIp,
-                            Neighbor.NeighborType.L3);
+                                l3);
                       } // end if internal size==1 sn>2
                       brandNewIps.add(ip);
                     }
@@ -419,7 +420,7 @@ public class GoalStateManager {
                           brandNewIps,
                           eip,
                           currentGroupHostIp,
-                          Neighbor.NeighborType.L3);
+                              l3);
                     } else if (!ipHostIpMap.get(eip).equals(currentGroupHostIp)
                         && (!ipSubnetIdMap.get(eip).equals(ipSubnetIdMap.get(nip)))) {
                       createNeighborState(
@@ -428,7 +429,7 @@ public class GoalStateManager {
                           brandNewIps,
                           eip,
                           currentGroupHostIp,
-                          Neighbor.NeighborType.L3);
+                              l3);
                     } else if (!ipHostIpMap.get(eip).equals(currentGroupHostIp)
                         && (ipSubnetIdMap.get(eip).equals(ipSubnetIdMap.get(nip)))) {
 
@@ -438,7 +439,7 @@ public class GoalStateManager {
                           brandNewIps,
                           eip,
                           currentGroupHostIp,
-                          Neighbor.NeighborType.L2);
+                          l2);
                     } // inner if end
                   } // 2nd loop end
                 } // current nip end
@@ -448,7 +449,7 @@ public class GoalStateManager {
               for (String sid : ipSubnetIdMap.values()) {
                 InternalSubnetEntity subnetEntity1 = subnetIdSubnetsMap.get(sid);
                 if (subnetEntity1 == null) {
-                  LOG.log(Level.ERROR, sid+"subnet is MISSING");
+                  LOG.log(Level.SEVERE, sid+"subnet is MISSING");
                   continue;
                 }
                 Subnet.SubnetConfiguration.Gateway gateway =
@@ -507,6 +508,65 @@ public class GoalStateManager {
                       new ArrayList<>();
                   for (InternalSubnetRoutingTable internalSubnetRoutingTable :
                       subnetRoutingTables) {
+
+
+
+                    boolean flag = false;
+
+                    if (neighborStates.size() > 0) {
+
+                      for (String s : neighborStates.keySet()) {
+
+                        if (s.indexOf("#" + Neighbor.NeighborType.L3) != -1) {
+                          flag = true;
+                          break;
+                        }
+                      }
+                    }
+                    if (flag) {
+                      final InternalSubnetEntity subnetEntity1 =
+                              subnetIdSubnetsMap.get(internalSubnetRoutingTable.getSubnetId());
+
+                      Subnet.SubnetConfiguration.Gateway gateway =
+                              Subnet.SubnetConfiguration.Gateway.newBuilder()
+                                      .setIpAddress(subnetEntity1.getGatewayIp())
+                                      .setMacAddress(subnetEntity1.getGatewayMacAddress())
+                                      .build();
+                      Subnet.SubnetConfiguration subnetConfiguration =
+                              Subnet.SubnetConfiguration.newBuilder()
+                                      .setId(subnetEntity1.getId())
+                                      .setVpcId(subnetEntity1.getVpcId())
+                                      .setProjectId(subnetEntity1.getProjectId())
+                                      .setCidr(subnetEntity1.getCidr())
+                                      .setTunnelId(subnetEntity1.getTunnelId())
+                                      .setGateway(gateway)
+                                      .setFormatVersion(FORMAT_REVISION_NUMBER)
+                                      .build();
+                      Subnet.SubnetState subnetState =
+                              Subnet.SubnetState.newBuilder()
+                                      .setConfiguration(subnetConfiguration)
+                                      .buildPartial();
+                      if (networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
+                        subnetState =
+                                subnetState
+                                        .toBuilder()
+                                        .setOperationType(Common.OperationType.INFO)
+                                        .build();
+                      else
+                        subnetState =
+                                subnetState
+                                        .toBuilder()
+                                        .setOperationType(Common.OperationType.CREATE)
+                                        .build();
+
+                      subnetStateSet.add(subnetState);
+                    }
+
+
+
+
+
+
                     Router.RouterConfiguration.SubnetRoutingTable subnetRoutingTable =
                         Router.RouterConfiguration.SubnetRoutingTable.newBuilder()
                             .setSubnetId(internalSubnetRoutingTable.getSubnetId())
