@@ -36,6 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+/*
+NOTE: This is PM v1.0 implementation and has been deprecated
+      Please check com.futurewei.alcor.portmanager.service.PortServiceImpl for PM v2.0 implementation
+ */
+
 //@Service
 //@ComponentScan(value = "com.futurewei.alcor.common.utils")
 //@ComponentScan(value = "com.futurewei.alcor.web.restclient")
@@ -428,7 +433,7 @@ public class PortServiceImpl implements PortService {
 
                 //disassociate with elastic ip if exist
                 ElasticIpManagerProxy elasticIpManagerProxy = new ElasticIpManagerProxy(newPortEntity.getProjectId());
-                for (PortEntity.FixedIp delIp: delFixedIps) {
+                for (PortEntity.FixedIp delIp : delFixedIps) {
                     executor.runAsync(elasticIpManagerProxy::portIpDeleteEventProcess,
                             newPortEntity.getId(), delIp.getIpAddress());
                 }
@@ -775,7 +780,7 @@ public class PortServiceImpl implements PortService {
             return result;
         }
 
-        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+        for (Map.Entry<String, PortEntity> entry : portEntityMap.entrySet()) {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 @Data
 public class MacAddress {
-    public static final String MAC_DELIMITER = "-";
+    public static final String MAC_DELIMITER = ":";
     public static final int MAC_LENGTH = 48;
 
     @JsonIgnore
