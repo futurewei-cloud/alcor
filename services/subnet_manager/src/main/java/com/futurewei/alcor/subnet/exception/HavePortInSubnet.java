@@ -18,12 +18,6 @@ package com.futurewei.alcor.subnet.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="RangeId is null or empty")
-public class RangeIdIsNullOrEmpty extends Exception{
-
-    public RangeIdIsNullOrEmpty(){}
-
-    public RangeIdIsNullOrEmpty(String message) {
-        super(message);
-    }
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="There is some ports in the subnet, we can Not delete subnet")
+public class HavePortInSubnet extends Exception {
 }

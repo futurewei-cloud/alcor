@@ -10,13 +10,11 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
-import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
-import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
-import com.futurewei.alcor.subnet.exception.SubnetIdIsNull;
-import com.futurewei.alcor.subnet.exception.UsedIpsIsNotCorrect;
+import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
+import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
@@ -360,6 +358,37 @@ public class SubnetServiceImp implements SubnetService {
 
         String vpcManagerServiceUrl = vpcUrl + projectId + "/vpcs/" + vpcId + "/subnetid/" + subnetId;
         restTemplate.put(vpcManagerServiceUrl, VpcWebJson.class);
+    }
+
+    @Override
+    public boolean checkIfAnyPortInSubnet(String rangeId) throws RangeIdIsNullOrEmpty {
+        if (rangeId == null) {
+            throw new RangeIdIsNullOrEmpty();
+        }
+        String ipManagerServiceUrl = ipUrl + rangeId;
+        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
+        if (ipAddrRangeRequest == null) {
+            return false;
+        }
+
+        // check usedIps
+        long usedIps = ipAddrRangeRequest.getUsedIps();
+        if (usedIps > ConstantsConfig.UsedIpThreshold) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean checkIfSubnetBindAnyRoutes(SubnetEntity subnetEntity) {
+
+        String attachedRouterId = subnetEntity.getAttachedRouterId();
+        if (attachedRouterId != null && !attachedRouterId.equals("")){
+            return true;
+        }
+
+        return false;
     }
 
     @Override
