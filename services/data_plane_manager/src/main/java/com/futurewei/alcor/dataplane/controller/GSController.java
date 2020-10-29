@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -162,7 +163,7 @@ public class GSController {
       result =
           goalStateManager
               .talkToACA(
-                  goalStateManager.transformNorthToSouth(gs),
+                  goalStateManager.transformNorthToSouth(gs).get(),
                   true,
                   Integer.parseInt(config.getPort()),
                   Boolean.valueOf(config.getOvs()))
@@ -181,28 +182,30 @@ public class GSController {
 
     } catch (ClientOfDPMFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Client of DPM sending invalid payload: " + e.getMessage());
-    }
-    catch (ACAFailureException e) {
+    } catch (ACAFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Alcor Agent Handle request failure reason: " + e.getMessage());
-    }
-    catch (DPMFailureException e) {
+    } catch (DPMFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
-      resultAll.setResultMessage("DataPlaneManager Handle request failure reason: " + e.getMessage());
-    }
-    catch (RuntimeException e) {
+      LOG.log(Level.SEVERE, e.getMessage());
+      resultAll.setResultMessage(
+          "DataPlaneManager Handle request failure reason: " + e.getMessage());
+    } catch (RuntimeException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Failure Handle request reason: " + e.getMessage());
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);
     resultAll.setOverrallTime(done - start);
-    LOG.log(Level.INFO,"DPM+ACA time cost: goalState= "+gs+" time: "+(done - start)+" ms");
+    LOG.log(Level.INFO, "DPM+ACA time cost: goalState= " + gs + " time: " + (done - start) + " ms");
     return resultAll;
   }
 
@@ -221,6 +224,4 @@ public class GSController {
   public void setGoalStateManager(GoalStateManager goalStateManager) {
     this.goalStateManager = goalStateManager;
   }
-
-
 }

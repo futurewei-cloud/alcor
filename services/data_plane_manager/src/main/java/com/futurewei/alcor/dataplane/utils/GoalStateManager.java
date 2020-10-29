@@ -34,11 +34,13 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Future;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
@@ -142,8 +144,9 @@ public class GoalStateManager {
    * @return Map<String, Goalstate.GoalState>
    * @throws RuntimeException Various exceptions that may occur during the send process
    */
+
   @Async
-  public Map<String, Goalstate.GoalState> transformNorthToSouth(
+  public Future<Map<String, Goalstate.GoalState>> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
     Map<String, String> ipPortIdMap = new ConcurrentHashMap<>();
     Map<String, String> ipMacMap = new ConcurrentHashMap<>();
@@ -746,7 +749,7 @@ public class GoalStateManager {
               goalStateConcurrentHashMap.put(currentGroupHostIp, goalState);
             });
     LOG.log(Level.INFO, goalStateConcurrentHashMap.entrySet().toString());
-    return goalStateConcurrentHashMap;
+    return  new AsyncResult<Map<String, Goalstate.GoalState>>(goalStateConcurrentHashMap);
   }
 
   private void createNeighborState(
