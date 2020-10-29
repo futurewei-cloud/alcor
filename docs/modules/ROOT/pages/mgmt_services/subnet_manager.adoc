@@ -38,7 +38,11 @@ image::subnet_manager_architecture.PNG[]
 image::subnet_manager_routing_rules_update_architecture.PNG[]
 
 === Contracts between Subnet Manager, Port Manager and Data Plane Manager
+==== Option 1
 image::subnet_manager_subnet_ports_mapping.PNG[]
+
+==== Option 2
+image::subnet_manager_mapping_cache.PNG[]
 
 === Concurrency Control
 
