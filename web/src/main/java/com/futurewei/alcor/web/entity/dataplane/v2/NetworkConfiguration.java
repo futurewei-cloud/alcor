@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.dataplane.refactor;
+package com.futurewei.alcor.web.entity.dataplane.v2;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.schema.Common.OperationType;
@@ -54,11 +54,6 @@ public class NetworkConfiguration {
 
   @JsonProperty("routers_internal")
   private List<InternalRouterInfo> internalRouterInfos;
-
-  @Override
-  public String toString() {
-    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerTable=" + internalRouterInfos + '}';
-  }
 
   public List<InternalRouterInfo> getInternalRouterInfos() {
     return internalRouterInfos;
@@ -164,4 +159,8 @@ public class NetworkConfiguration {
     this.neighborTable = neighborTable;
   }
 
+  @Override
+  public String toString() {
+    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerInfo=" + internalRouterInfos + '}';
+  }
 }

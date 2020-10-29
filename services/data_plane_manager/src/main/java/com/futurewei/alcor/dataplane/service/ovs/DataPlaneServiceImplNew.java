@@ -44,7 +44,7 @@ import com.futurewei.alcor.schema.Vpc.VpcConfiguration;
 import com.futurewei.alcor.schema.Vpc.VpcConfiguration.SubnetId;
 import com.futurewei.alcor.schema.Vpc.VpcState;
 import com.futurewei.alcor.web.entity.dataplane.*;
-import com.futurewei.alcor.web.entity.dataplane.refactor.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -52,7 +52,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
