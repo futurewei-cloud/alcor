@@ -18,6 +18,6 @@ package com.futurewei.alcor.subnet.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Subnet id is null")
-public class SubnetIdIsNull extends Exception {
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="Subnet bind routes, we can Not delete subnet")
+public class SubnetBindRoutes extends Exception {
 }

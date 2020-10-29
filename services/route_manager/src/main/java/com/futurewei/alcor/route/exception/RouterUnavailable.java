@@ -19,5 +19,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="can not find router by router id")
-public class CanNotFindRouter extends Exception{
+public class RouterUnavailable extends Exception{
+
+    public RouterUnavailable() {
+    }
+
+    public RouterUnavailable(String routerId) {
+        super(routerId);
+    }
 }
