@@ -17,7 +17,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.port.PortEntity;

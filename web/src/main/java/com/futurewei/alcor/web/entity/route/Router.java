@@ -68,7 +68,8 @@ public class Router extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public Router() {}
+    public Router() {
+    }
 
     public Router(String projectId, String Id, String name, String description, RouteTable neutronRouteTable) {
         super(projectId, Id, name, description);
@@ -80,7 +81,10 @@ public class Router extends CustomerResource {
         this.vpcRouteTable = vpcRouteTable;
     }
 
-    public Router(String projectId, String id, String name, String description, RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId, String vpcDefaultRouteTableId) {
+    public Router(String projectId, String id, String name, String description,
+                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports,
+                  String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId,
+                  String vpcDefaultRouteTableId) {
         super(projectId, id, name, description);
         this.neutronRouteTable = neutronRouteTable;
         this.vpcRouteTable = vpcRouteTable;
@@ -91,5 +95,12 @@ public class Router extends CustomerResource {
         this.status = status;
         this.routerExtraAttributeId = routerExtraAttributeId;
         this.vpcDefaultRouteTableId = vpcDefaultRouteTableId;
+    }
+
+    public Router(Router r) {
+        this(r.getProjectId(), r.getId(), r.getName(), r.getDescription(),
+                r.getNeutronRouteTable(), r.getVpcRouteTable(), r.getOwner(), r.getPorts(),
+                r.getTenantId(), true, r.getStatus(), r.getRouterExtraAttributeId(),
+                r.getVpcDefaultRouteTableId());
     }
 }

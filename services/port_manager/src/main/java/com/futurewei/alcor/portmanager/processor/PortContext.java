@@ -17,8 +17,10 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,8 @@ public class PortContext {
     private List<PortEntity> portEntities; //For add and delete
     private PortEntity oldPortEntity; //For update
     private PortEntity newPortEntity; //For update
-    private Map<String, List<String>> routerSubnetIds;
+    private Map<String, List<SubnetEntity>> routerSubnetEntities;
+    private Map<String, InternalRouterInfo> routers;
     private List<NodeInfo> nodeInfos;
 
     public PortContext() {
@@ -148,19 +151,34 @@ public class PortContext {
         this.newPortEntity = newPortEntity;
     }
 
-    public List<String> getRouterSubnetIds(String vpcId) {
-        return (this.routerSubnetIds != null) ? this.routerSubnetIds.get(vpcId) : null;
+    public List<SubnetEntity> getRouterSubnetEntities(String vpcId) {
+        return (this.routerSubnetEntities != null) ? this.routerSubnetEntities.get(vpcId) : null;
     }
 
-    public void setRouterSubnetIds(Map<String, List<String>> routerSubnetIds) {
-        this.routerSubnetIds = routerSubnetIds;
+    public void setRouterSubnetEntities(Map<String, List<SubnetEntity>> routerSubnetEntities) {
+        this.routerSubnetEntities = routerSubnetEntities;
     }
 
-    public void addRouterSubnetIds(String vpcId, List<String> subnetIds) {
-        if (this.routerSubnetIds == null) {
-            this.routerSubnetIds = new HashMap<>();
+    public void addRouterSubnetEntities(String vpcId, List<SubnetEntity> subnetEntities) {
+        if (this.routerSubnetEntities == null) {
+            this.routerSubnetEntities = new HashMap<>();
         }
-        this.routerSubnetIds.put(vpcId, subnetIds);
+        this.routerSubnetEntities.put(vpcId, subnetEntities);
+    }
+
+    public InternalRouterInfo getRouterByVpcOrSubnetId(String vpcOrSubnetId) {
+        return (this.routers != null) ? this.routers.get(vpcOrSubnetId) : null;
+    }
+
+    public void setRouters(Map<String, InternalRouterInfo> routers) {
+        this.routers = routers;
+    }
+
+    public void addRouter(String routerIdx, InternalRouterInfo router) {
+        if (this.routers == null) {
+            this.routers = new HashMap<>();
+        }
+        this.routers.put(routerIdx, router);
     }
 
     public List<NodeInfo> getNodeInfos() {

@@ -18,7 +18,7 @@ package com.futurewei.alcor.subnet.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR, reason="RangeId is null or empty")
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="RangeId is null or empty")
 public class RangeIdIsNullOrEmpty extends Exception{
 
     public RangeIdIsNullOrEmpty(){}
