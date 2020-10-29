@@ -13,26 +13,35 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.node;
+package com.futurewei.alcor.dataplane.entity;
 
-import java.util.List;
+public class UTIPInfo {
 
-public class NodesWebJson {
-    private List<NodeInfo> nodeInfos;
+    private String ip;
 
-    public NodesWebJson() {
+    private boolean isExist;
 
+    public UTIPInfo() {
     }
 
-    public NodesWebJson(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
+    public UTIPInfo(String ip, boolean isExist) {
+        this.ip = ip;
+        this.isExist = isExist;
     }
 
-    public List<NodeInfo> getNodeInfos() {
-        return nodeInfos;
+    public String getIp() {
+        return ip;
     }
 
-    public void setNodeInfos(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public boolean isExist() {
+        return isExist;
+    }
+
+    public void setExist(boolean exist) {
+        isExist = exist;
     }
 }

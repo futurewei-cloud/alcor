@@ -19,7 +19,7 @@ package com.futurewei.alcor.nodemanager.service.implement;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

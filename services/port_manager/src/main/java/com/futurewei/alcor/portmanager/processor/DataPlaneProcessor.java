@@ -22,7 +22,7 @@ import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;

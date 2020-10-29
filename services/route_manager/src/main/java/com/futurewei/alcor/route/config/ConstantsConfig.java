@@ -13,26 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.node;
+package com.futurewei.alcor.route.config;
 
-import java.util.List;
+public class ConstantsConfig {
 
-public class NodesWebJson {
-    private List<NodeInfo> nodeInfos;
+    public static String formatVersion = "1";
+    public static String revisionNumber = "1";
 
-    public NodesWebJson() {
-
-    }
-
-    public NodesWebJson(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
-    }
-
-    public List<NodeInfo> getNodeInfos() {
-        return nodeInfos;
-    }
-
-    public void setNodeInfos(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
-    }
 }

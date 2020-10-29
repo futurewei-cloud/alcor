@@ -13,21 +13,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.portmanager.entity;
+package com.futurewei.alcor.dataplane.entity;
 
-import com.futurewei.alcor.web.entity.node.NodeInfo;
+public class UTNeighborInfoDetail {
 
-public class PortBindingHost {
     private String portId;
-    private NodeInfo nodeInfo;
 
-    public PortBindingHost() {
+    private String portMac;
 
+    private String hostId;
+
+    private String hostIp;
+
+    public UTNeighborInfoDetail() {
     }
 
-    public PortBindingHost(String portId, NodeInfo nodeInfo) {
+    public UTNeighborInfoDetail(String portId, String portMac, String hostId, String hostIp) {
         this.portId = portId;
-        this.nodeInfo = nodeInfo;
+        this.portMac = portMac;
+        this.hostId = hostId;
+        this.hostIp = hostIp;
     }
 
     public String getPortId() {
@@ -38,11 +43,27 @@ public class PortBindingHost {
         this.portId = portId;
     }
 
-    public NodeInfo getNodeInfo() {
-        return nodeInfo;
+    public String getPortMac() {
+        return portMac;
     }
 
-    public void setNodeInfo(NodeInfo nodeInfo) {
-        this.nodeInfo = nodeInfo;
+    public void setPortMac(String portMac) {
+        this.portMac = portMac;
+    }
+
+    public String getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
+    }
+
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
     }
 }

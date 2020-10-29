@@ -23,11 +23,15 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.service.implement.SubnetServiceImp;
+import com.futurewei.alcor.web.entity.subnet.HostRoute;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequest;
 import org.apache.commons.net.util.SubnetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SubnetManagementUtil {
 
@@ -71,6 +75,34 @@ public class SubnetManagementUtil {
                 || Ipv6RaModeEnum.STATEFUL.getMode().equals(ipv6RaMode)
                 || Ipv6RaModeEnum.STATELESS.getMode().equals(ipv6RaMode)) ) {
             return false;
+        }
+
+        // tags
+        List<String> tags = subnet.getTags();
+        if (tags == null) {
+            tags = new ArrayList<String>(){};
+            subnet.setTags(tags);
+        }
+
+        // dns_nameservers
+        List<String> dnsNameservers = subnet.getDnsNameservers();
+        if (dnsNameservers == null) {
+            dnsNameservers = new ArrayList<String>(){};
+            subnet.setDnsNameservers(dnsNameservers);
+        }
+
+        // host_routes
+        List<HostRoute> hostRoutes = subnet.getHostRoutes();
+        if (hostRoutes == null) {
+            hostRoutes = new ArrayList<HostRoute>(){};
+            subnet.setHostRoutes(hostRoutes);
+        }
+
+        // service_types
+        List<String> serviceType = subnet.getServiceTypes();
+        if (serviceType == null) {
+            serviceType = new ArrayList<String>(){};
+            subnet.setServiceTypes(serviceType);
         }
 
         return true;
