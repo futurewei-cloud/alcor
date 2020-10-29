@@ -612,7 +612,7 @@ public class GoalStateManager {
 
               List<Router.RouterState> routerStateList = new ArrayList<>();
               if (networkConfiguration.getInternalRouterInfos() != null
-                      && neighborStates.keySet().stream().filter(e->e.indexOf("#L3")!=-1).count()>1) {
+                      && neighborStates.keySet().stream().filter(e->e.indexOf("#L3")!=-1).count()>0) {
                 for (InternalRouterInfo internalRouterInfo :
                     networkConfiguration.getInternalRouterInfos()) {
                   final List<InternalSubnetRoutingTable> subnetRoutingTables =
