@@ -384,11 +384,11 @@ public class SubnetServiceImp implements SubnetService {
     public boolean checkIfSubnetBindAnyRoutes(SubnetEntity subnetEntity) {
 
         String attachedRouterId = subnetEntity.getAttachedRouterId();
-        if (attachedRouterId != null && !attachedRouterId.equals("")){
-            return true;
+        if (attachedRouterId == null || attachedRouterId.equals("")){
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     @Override
