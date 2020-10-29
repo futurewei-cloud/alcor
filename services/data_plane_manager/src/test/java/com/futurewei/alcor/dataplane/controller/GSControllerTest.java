@@ -58,7 +58,7 @@ public class GSControllerTest {
     public void createPort_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 
@@ -83,7 +83,7 @@ public class GSControllerTest {
     public void updatePort_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 
@@ -108,7 +108,7 @@ public class GSControllerTest {
     public void deletePort_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 
@@ -133,7 +133,7 @@ public class GSControllerTest {
     public void createSubnet_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 
@@ -158,7 +158,7 @@ public class GSControllerTest {
     public void updateSubnet_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 
@@ -183,7 +183,7 @@ public class GSControllerTest {
     public void deleteSubnet_pass () throws Exception {
 
         Mockito.when(config.getPort())
-                .thenReturn("4");
+                .thenReturn(4);
         Mockito.when(config.getOvs())
                 .thenReturn("true");
 

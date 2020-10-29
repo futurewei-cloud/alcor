@@ -121,7 +121,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         List<NeighborInfo> l2Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
         for (NeighborInfo neighborInfo : neighborInfos) {
-            if (neighborInfo.getPortId().equals(fixedIp.getIpAddress())) {
+            if (neighborInfo.getPortIp().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
             } else if (neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {
                 l2Neighbors.add(neighborInfo);
@@ -146,16 +146,17 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         for (PortEntity.FixedIp fixedIp : internalPortEntity.getFixedIps()) {
+
             List<SubnetEntity> routerSubnetEntities = context.getRouterSubnetEntities(internalPortEntity.getVpcId());
-            if (routerSubnetEntities != null) {
+            if (routerSubnetEntities != null && routerSubnetEntities.size() > 0) {
                 List<String> routerSubnetIds = new ArrayList<>();
                 for (SubnetEntity entity : routerSubnetEntities) routerSubnetIds.add(entity.getId());
                 if (routerSubnetIds.contains(fixedIp.getSubnetId())) {
                     buildL3Neighbors(context, internalPortEntity, fixedIp, routerSubnetIds);
                 }
-
-                buildL2Neighbors(context, internalPortEntity, fixedIp);
             }
+
+            buildL2Neighbors(context, internalPortEntity, fixedIp);
         }
     }
 
@@ -181,14 +182,16 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
         List<VpcEntity> vpcEntities = context.getNetworkConfig().getVpcEntities();
         for (VpcEntity vpcEntity : vpcEntities) {
+            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
+            if (router == null || router.getRouterConfiguration() == null) continue;
+
             // Set router information
             // NOTE: This implementation support Neutron scenario only
-            InternalRouterInfo router = context.getRouterByVpcOrSubnetId(vpcEntity.getId());
             context.getNetworkConfig().addRouterEntry(router);
 
             // Add associated subnet entities
             List<SubnetEntity> associatedSubnetEntities = context.getRouterSubnetEntities(vpcEntity.getId());
-            for(SubnetEntity entity: associatedSubnetEntities){
+            for (SubnetEntity entity : associatedSubnetEntities) {
                 InternalSubnetEntity internalEntity = new InternalSubnetEntity(entity, Long.MAX_VALUE);
                 context.getNetworkConfig().addSubnetEntity(internalEntity);
             }

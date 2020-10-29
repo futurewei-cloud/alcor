@@ -21,7 +21,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
-import com.futurewei.alcor.route.exception.CanNotFindRouter;
+import com.futurewei.alcor.route.exception.RouterUnavailable;
 import com.futurewei.alcor.route.exception.RouterHasAttachedInterfaces;
 import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
@@ -90,7 +90,7 @@ public class NeutronRouterController {
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
-        } catch (CanNotFindRouter e) {
+        } catch (RouterUnavailable e) {
             logger.log(Level.WARNING, e.getMessage() + " : " + routerid);
             return new NeutronRouterWebJson();
         }
@@ -232,7 +232,7 @@ public class NeutronRouterController {
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
-        } catch (CanNotFindRouter e) {
+        } catch (RouterUnavailable e) {
             throw e;
         }
 

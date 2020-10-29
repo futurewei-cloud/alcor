@@ -6,15 +6,14 @@ import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
-import com.futurewei.alcor.subnet.exception.CidrNotWithinNetworkCidr;
-import com.futurewei.alcor.subnet.exception.CidrOverlapWithOtherSubnets;
-import com.futurewei.alcor.subnet.exception.UsedIpsIsNotCorrect;
+import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -62,6 +61,12 @@ public interface SubnetService {
 
     // delete subnet id in vpc
     public void deleteSubnetIdInVpc (String subnetId, String projectId, String vpcId) throws Exception;
+
+    // check if there is any port in this subnet
+    public boolean checkIfAnyPortInSubnet (String rangeId) throws RangeIdIsNullOrEmpty;
+
+    // check if subnet bind any routes
+    public boolean checkIfSubnetBindAnyRoutes (SubnetEntity subnetEntity);
 
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
