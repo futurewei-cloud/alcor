@@ -17,31 +17,33 @@ package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 public class DataPlaneController {
+
     @Autowired
     private DataPlaneService dataPlaneService;
 
     @PostMapping({"/port/", "v4/port/"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public NetworkConfiguration createNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList createNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.createNetworkConfiguration(networkConfiguration);
     }
 
     @PutMapping({"/port/", "v4/port/"})
     @DurationStatistics
-    public NetworkConfiguration updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.updateNetworkConfiguration(networkConfiguration);
     }
 
     @DeleteMapping({"/port/", "v4/port/"})
     @DurationStatistics
-    public NetworkConfiguration deleteNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+    public InternalDPMResultList deleteNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         return dataPlaneService.deleteNetworkConfiguration(networkConfiguration);
     }
 }

@@ -18,27 +18,33 @@ package com.futurewei.alcor.dataplane.client.kafka;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 
 import java.util.List;
+import java.util.Map;
 
 public class DataPlaneClientImpl implements DataPlaneClient {
     @Override
-    public void createGoalState(Goalstate.GoalState goalState, String hostIp) throws Exception {
-
+    public Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+    createGoalState(Goalstate.GoalState goalState, String hostIp) throws Exception {
+        return null;
     }
 
     @Override
-    public void createGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    createGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+        return null;
     }
 
     @Override
-    public void updateGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    updateGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+        return null;
     }
 
     @Override
-    public void deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+        return null;
     }
 }
