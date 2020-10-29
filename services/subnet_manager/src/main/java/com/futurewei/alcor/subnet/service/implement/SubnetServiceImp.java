@@ -365,7 +365,7 @@ public class SubnetServiceImp implements SubnetService {
         if (rangeId == null) {
             throw new RangeIdIsNullOrEmpty();
         }
-        String ipManagerServiceUrl = ipUrl + rangeId;
+        String ipManagerServiceUrl = ipUrl + "range/" + rangeId;
         IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
         if (ipAddrRangeRequest == null) {
             return false;
