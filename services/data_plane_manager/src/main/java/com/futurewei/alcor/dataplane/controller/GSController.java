@@ -164,7 +164,7 @@ public class GSController {
               .talkToACA(
                   goalStateManager.transformNorthToSouth(gs),
                   true,
-                  Integer.parseInt(config.getPort()),
+                  config.getPort(),
                   Boolean.valueOf(config.getOvs()))
               .stream()
               .flatMap(Collection::stream)

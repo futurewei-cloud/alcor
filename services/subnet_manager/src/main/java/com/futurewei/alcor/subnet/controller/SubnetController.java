@@ -449,7 +449,27 @@ public class SubnetController {
                 return new ResponseId();
             }
 
-            //RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
+            // check if there is any port in this subnet
+            String rangeId = null;
+            String ipV4RangeId = subnetEntity.getIpV4RangeId();
+            String ipV6RangeId = subnetEntity.getIpV6RangeId();
+            if (ipV4RangeId != null) {
+                rangeId = ipV4RangeId;
+            } else {
+                rangeId = ipV6RangeId;
+            }
+            Boolean checkIfAnyPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
+            if (checkIfAnyPortInSubnet) {
+                throw new HavePortInSubnet();
+            }
+
+            // check if subnet bind any routes
+            Boolean checkIfSubnetBindAnyRoutes = this.subnetService.checkIfSubnetBindAnyRoutes(subnetEntity);
+            if (checkIfSubnetBindAnyRoutes) {
+                throw new SubnetBindRoutes();
+            }
+
+            this.subnetDatabaseService.deleteSubnet(subnetId);
 
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());

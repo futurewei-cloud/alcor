@@ -16,9 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
+import com.futurewei.alcor.portmanager.exception.GetConnectedRouterException;
 import com.futurewei.alcor.portmanager.exception.GetConnectedSubnetException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.restclient.RouterManagerRestClient;
 
 import java.util.ArrayList;
@@ -27,33 +30,40 @@ import java.util.List;
 public class FetchRouterSubnetsRequest extends AbstractRequest {
     private String vpcId;
     private String subnetId;
-    private List<String> subnetIds;
+    private List<SubnetEntity> associatedSubnetEntities;
+    private InternalRouterInfo router;
+
     private RouterManagerRestClient routerManagerRestClient;
 
     public FetchRouterSubnetsRequest(PortContext context, String vpcId, String subnetId) {
         super(context);
         this.vpcId = vpcId;
         this.subnetId = subnetId;
-        this.subnetIds = new ArrayList<>();
+        this.associatedSubnetEntities = new ArrayList<>();
         this.routerManagerRestClient = SpringContextUtil.getBean(RouterManagerRestClient.class);
     }
 
     public String getVpcId() {
-        return vpcId;
+        return this.vpcId;
     }
 
-    public List<String> getSubnetIds() {
-        return subnetIds;
+    public List<SubnetEntity> getAssociatedSubnetEntities() {
+        return this.associatedSubnetEntities;
     }
+
+    public InternalRouterInfo getRouter() { return this.router; }
 
     @Override
     public void send() throws Exception {
-        ConnectedSubnetsWebResponse connectedSubnetIds = routerManagerRestClient.getRouterSubnets(context.getProjectId(), vpcId, subnetId);
-        if (connectedSubnetIds == null || connectedSubnetIds.getSubnetIds() == null) {
+        ConnectedSubnetsWebResponse connectedRouterInfo = routerManagerRestClient.getRouterSubnets(context.getProjectId(), vpcId, subnetId);
+        if (connectedRouterInfo == null || connectedRouterInfo.getSubnetEntities() == null) {
             throw new GetConnectedSubnetException();
+        } else if (connectedRouterInfo.getInternalRouterInfo() == null) {
+            throw new GetConnectedRouterException();
         }
 
-        subnetIds.addAll(connectedSubnetIds.getSubnetIds());
+        associatedSubnetEntities.addAll(connectedRouterInfo.getSubnetEntities());
+        router = new InternalRouterInfo(connectedRouterInfo.getInternalRouterInfo());
     }
 
     @Override

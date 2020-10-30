@@ -25,7 +25,7 @@ public class MacUtils {
 
     public static String hexToNic(String hex, int nNicLength) {
         int lengthDelimiter = Math.round(nNicLength / 2) - 1;
-        StringBuilder hexBuilder = new StringBuilder(hex.toUpperCase());
+        StringBuilder hexBuilder = new StringBuilder(hex.toLowerCase());
         while (hexBuilder.length() < nNicLength) {
             hexBuilder.insert(0, "0");
         }

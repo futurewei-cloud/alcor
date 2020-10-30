@@ -13,11 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.subnet.exception;
+package com.futurewei.alcor.route.config;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class ConstantsConfig {
 
-@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Subnet id is null")
-public class SubnetIdIsNull extends Exception {
+    public static String FORMAT_VERSION = "1";
+    public static String REVISION_NUMBER = "1";
+    public static String HOST_DVR_MAC = "fe:16:11:00:00:00";
 }

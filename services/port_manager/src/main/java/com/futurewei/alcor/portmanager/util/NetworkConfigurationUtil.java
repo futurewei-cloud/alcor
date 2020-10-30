@@ -102,6 +102,9 @@ public class NetworkConfigurationUtil {
             } else if (entity instanceof PortNeighbors) {
                 PortNeighbors portNeighbors = (PortNeighbors) entity;
                 portNeighborsMap.put(portNeighbors.getVpcId(), portNeighbors);
+            } else if (entity instanceof RouteEntity) {
+                // NOTE: Router implementation is supported in the new control path in PM v2.0 implementation
+                //       Please check com.futurewei.alcor.portmanager.service.PortServiceImpl for PM v2.0 implementation
             }
         }
 
@@ -127,6 +130,8 @@ public class NetworkConfigurationUtil {
             VpcEntity vpcEntity = vpcEntityMap.get(portEntity.getVpcId());
             if (vpcEntity == null) {
                 throw new VpcEntityNotFound();
+            } else if (vpcEntity.getSegmentationId() == null || vpcEntity.getSegmentationId() <= 0) {
+                throw new VpcTunnelIdInvalid(vpcEntity.getId(), vpcEntity.getSegmentationId());
             }
 
             if (!vpcUniqueIds.contains(portEntity.getVpcId())) {
@@ -143,8 +148,7 @@ public class NetworkConfigurationUtil {
                 }
 
                 if (!subnetUniqueIds.contains(subnetId)) {
-                    // FIXME ：subnetEntity.getVpcId().hashCode() need to be changed to segmentId
-                    Long tunnelId = getTunnelId(subnetEntity);
+                    Long tunnelId = vpcEntity.getSegmentationId().longValue();
                     InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, tunnelId);
                     networkConfigMessage.addSubnetEntity(internalSubnetEntity);
                     subnetUniqueIds.add(subnetId);
@@ -186,22 +190,22 @@ public class NetworkConfigurationUtil {
 
         return networkConfigMessage;
     }
-    
-    public static Long getTunnelId (SubnetEntity subnetEntity) {
-        if (subnetEntity.getTenantId() == null) {
-            return null;
-        }
 
-        return Long.valueOf(getHashCode(subnetEntity.getVpcId()));
-    }
+//    public static Long getTunnelId (SubnetEntity subnetEntity) {
+//        if (subnetEntity.getTenantId() == null) {
+//            return null;
+//        }
+//
+//        return Long.valueOf(getHashCode(subnetEntity.getVpcId()));
+//    }
 
-    public static int getHashCode (String vpcId) {
+    public static int getHashCode(String vpcId) {
         int hashcode = vpcId.hashCode();
         if (hashcode < 0) {
             hashcode = -hashcode;
         }
-        double num = (double)(4096 * 4096) / (double)Integer.MAX_VALUE;
-        hashcode = (int)(hashcode * num);
+        double num = (double) (4096 * 4096) / (double) Integer.MAX_VALUE;
+        hashcode = (int) (hashcode * num);
 
         return hashcode;
     }

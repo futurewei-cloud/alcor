@@ -20,5 +20,6 @@ public class ConstantsConfig {
     public static int HighIpInterval = 0;
     public static int LowIpInterval = 3;
     public static int BaseInterval = 0;
+    public static long UsedIpThreshold = 0;
 
 }
