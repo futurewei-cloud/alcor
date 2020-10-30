@@ -702,7 +702,9 @@ public class DataPlaneManagerUtil {
             return;
         }
 
-        for (Port.PortState portState: portStates) {
+        //for (int i = 0; i < portStates.size(); i ++) {
+        for (int i = portStates.size() - 1; i >= 0; i --) {
+            Port.PortState portState = portStates.get(i);
             String macAddress = portState.getConfiguration().getMacAddress();
             List<Port.PortConfiguration.FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
             if (fixedIps == null || fixedIps.size() == 0) {
@@ -725,7 +727,6 @@ public class DataPlaneManagerUtil {
             dhcpStateBuilder.setOperationType(networkConfig.getOpType());
             dhcpStateBuilder.setConfiguration(dhcpConfigBuilder);
             goalStateBuilder.addDhcpStates(dhcpStateBuilder.build());
-
 
         }
     }
@@ -895,8 +896,6 @@ public class DataPlaneManagerUtil {
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
 
 
-
-
         // set neighborTable
         // configure L3
         List<NeighborEntry> neighborTable = new ArrayList<>();
@@ -920,16 +919,18 @@ public class DataPlaneManagerUtil {
                     neighborInfoMap.put(localIP, neighborInfo);
                     continue;
                 }
-                for (int k = i + 1; k < L3NeighborInfoMapping.size(); k ++) {
-                    UTL3NeighborInfoMapping neighbor = L3NeighborInfoMapping.get(k);
-                    List<UTIPInfo> neighborIPsInSubnet = neighbor.getIPsInSubnet();
-                    for (int m = 0; m < neighborIPsInSubnet.size(); m ++) {
-                        String neighborIP = neighborIPsInSubnet.get(m).getIp();
-                        NeighborEntry neighborEntry = new NeighborEntry();
-                        neighborEntry.setLocalIp(localIP);
-                        neighborEntry.setNeighborIp(neighborIP);
-                        neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
-                        neighborTable.add(neighborEntry);
+                for (int k = 0; k < L3NeighborInfoMapping.size(); k ++) {
+                    if (k != i) {
+                        UTL3NeighborInfoMapping neighbor = L3NeighborInfoMapping.get(k);
+                        List<UTIPInfo> neighborIPsInSubnet = neighbor.getIPsInSubnet();
+                        for (int m = 0; m < neighborIPsInSubnet.size(); m ++) {
+                            String neighborIP = neighborIPsInSubnet.get(m).getIp();
+                            NeighborEntry neighborEntry = new NeighborEntry();
+                            neighborEntry.setLocalIp(localIP);
+                            neighborEntry.setNeighborIp(neighborIP);
+                            neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
+                            neighborTable.add(neighborEntry);
+                        }
                     }
                 }
             }
@@ -939,7 +940,7 @@ public class DataPlaneManagerUtil {
         for (int i = 0; i < L3NeighborInfoMapping.size(); i ++) {
             UTL3NeighborInfoMapping local = L3NeighborInfoMapping.get(i);
             List<UTIPInfo> localIPsInSubnet = local.getIPsInSubnet();
-            boolean[] isUsed = new boolean[L3NeighborInfoMapping.size() + 1];
+            boolean[] isUsed = new boolean[localIPsInSubnet.size() + 1];
             for (int j = 0; j < localIPsInSubnet.size(); j ++) {
                 String localIP = localIPsInSubnet.get(j).getIp();
                 boolean isExist = localIPsInSubnet.get(j).isExist();

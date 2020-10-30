@@ -51,107 +51,6 @@ public class GoalStateManagerTest {
     }
 
     /**
-     * Test Failure1 During Integration With Nova
-     */
-    @Test
-    public void testFailure1DuringIntegrationWithNova() {
-        String input = UnitTestConfig.testFailure1DuringIntegrationWithNova_input;
-        String output = UnitTestConfig.testFailure1DuringIntegrationWithNova_output;
-        check(input, output);
-    }
-
-    /**
-     * Test Failure2 During Integration With Nova
-     */
-    @Test
-    public void testFailure2DuringIntegrationWithNova() {
-        String input = UnitTestConfig.testFailure2DuringIntegrationWithNova_input;
-        String output = UnitTestConfig.testFailure2DuringIntegrationWithNova_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create first Port (P1) without neighbor at Host 1
-     */
-    @Test
-    public void scenario_createFirstPortP1AtHost1_FastPathOnly() {
-        String input = UnitTestConfig.scenario_createFirstPortP1AtHost1_FastPathOnly_input;
-        String output = UnitTestConfig.scenario_createFirstPortP1AtHost1_FastPathOnly_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create first Port (P1) with neighbor at Host 1
-     */
-    @Test
-    public void scenario_createFirstPortP1WithNeighborAtHost1_FastPathOnly() {
-        String input = UnitTestConfig.scenario_createFirstPortP1WithNeighborAtHost1_FastPathOnly_input;
-        String output = UnitTestConfig.scenario_createFirstPortP1WithNeighborAtHost1_FastPathOnly_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create two Ports (P1,P2) without neighbor at Host 1
-     */
-    @Test
-    public void scenario2v1_SingleFP() {
-        String input = UnitTestConfig.scenario2v1_SingleFP_input;
-        String output = UnitTestConfig.scenario2v1_SingleFP_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create two Ports (P2,P3) with neighbor (P1) at Host1
-     */
-    @Test
-    public void scenarioNeighbor2v1_SingleFP() {
-        String input = UnitTestConfig.scenarioNeighbor2v1_SingleFP_input;
-        String output = UnitTestConfig.scenarioNeighbor2v1_SingleFP_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create two Ports (P1,P2) without neighbor at Host1 and create two Ports (P3,P4) without neighbor at Host2 at same time
-     */
-    @Test
-    public void scenarioBulkCreate2v2_SingleFP() {
-        String input = UnitTestConfig.scenarioBulkCreate2v2_SingleFP_input;
-        String output = UnitTestConfig.scenarioBulkCreate2v2_SingleFP_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Create Port(P1) with neighbor(P3) and Port(P2) with neighbor(P4) at Host1
-     * and create Port(P3) with neighbor(P1) and Port(P4) with neighbor(P2)r at Host2 at same time
-     */
-    @Test
-    public void scenarioBulkNeighbor2v2_SingleFP() {
-        String input = UnitTestConfig.scenarioBulkNeighbor2v2_SingleFP_input;
-        String output = UnitTestConfig.scenarioBulkNeighbor2v2_SingleFP_output;
-        check(input, output);
-    }
-
-    /**
-     * Scenario: Resource Request With Updated All fields
-     */
-    @Test
-    public void scenarioResourceRequestWithUpdatedAllfields() {
-        String input = UnitTestConfig.scenarioResourceRequestWithUpdatedAllfields_input;
-        String output = UnitTestConfig.scenarioResourceRequestWithUpdatedAllfields_output;
-        check(input, output);
-    }
-
-    /**
-     * dhcp test
-     */
-    @Test
-    public void dhcpTest() {
-        String input = UnitTestConfig.dhcpTest_input;
-        String output = UnitTestConfig.dhcpTest_output;
-        check(input, output);
-    }
-
-    /**
      * Scenario: L3 - Create first Port (P1) without neighbor at Host 1
      */
     @Test
@@ -303,6 +202,7 @@ public class GoalStateManagerTest {
         mapping2.setVethName("veth0");
 
         mapList.add(mapping2);
+        //mapList.add(mapping1);
 
         createPortsMap.put("10.213.43.187", mapList);
 
@@ -324,23 +224,24 @@ public class GoalStateManagerTest {
 
         // configure List<UTL3NeighborInfoMapping>
         List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
-        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
-        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.20", false));add(new UTIPInfo("192.168.2.21", false));}});
-        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
+//        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
+//        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+//        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.20", false));add(new UTIPInfo("192.168.2.21", false));}});
+//        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
 
         // configure List<UTNeighborInfoDetail>
         Map<String, UTNeighborInfoDetail> neighborInfoDetails = new HashMap<>();
 
         NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap, UTSubnets, L3NeighborInfoMapping, true, true, true, false, neighborInfoDetails, true);
         Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap, existPortsMap, UTSubnets, L3NeighborInfoMapping, true,true, true, false, neighborInfoDetails, true);
-        L3Check_Second_Version(input, output, existPortsMap);
+        //L3Check_Second_Version(input, output, existPortsMap);
     }
 
     /**
      * Scenario: L3_Customize_Second_Version - Create Port P6 with neighbor at Host 1,
+     * Exist port : P1 - 2.2, P2 - 3.4, P3 - 2.3,3.3, P4 - 3.2
      * (P1, P2) are in Host 1, (P3, P4) are in Host 2
-     * (P1, P2) are associated with same subnet, (P3, P4) are associated with same subnet
+     * (P1, P3) are associated with same subnet, (P2, P4) are associated with same subnet
      * Host1: 2.2, 3.4; Host2: 2.3, 3.2, 3.3
      */
     @Test
@@ -457,13 +358,13 @@ public class GoalStateManagerTest {
         UTL3NeighborInfoMapping utl3NeighborInfoMapping1 = new UTL3NeighborInfoMapping();
         utl3NeighborInfoMapping1.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
         utl3NeighborInfoMapping1.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.2", true));
-            add(new UTIPInfo("192.168.3.4", true));add(new UTIPInfo("192.168.3.5", false));}});
+            add(new UTIPInfo("192.168.2.3", true));}});
         L3NeighborInfoMapping.add(utl3NeighborInfoMapping1);
 
         UTL3NeighborInfoMapping utl3NeighborInfoMapping2 = new UTL3NeighborInfoMapping();
         utl3NeighborInfoMapping2.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785941");
-        utl3NeighborInfoMapping2.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.3", true));
-            add(new UTIPInfo("192.168.3.2", true));add(new UTIPInfo("192.168.3.3", true)); }});
+        utl3NeighborInfoMapping2.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.3.4", true));
+            add(new UTIPInfo("192.168.3.2", true));add(new UTIPInfo("192.168.3.3", true)); add(new UTIPInfo("192.168.3.5", false));}});
         L3NeighborInfoMapping.add(utl3NeighborInfoMapping2);
 
         // configure Map<String, UTNeighborInfoDetail>, key - port_IP
@@ -498,34 +399,7 @@ public class GoalStateManagerTest {
 
         NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap, UTSubnets, L3NeighborInfoMapping, true, true, true, true, neighborInfoDetails, true);
         Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap, existPortsMap, UTSubnets, L3NeighborInfoMapping, true,true, true, true, neighborInfoDetails, true);
-        L3Check_Second_Version(input, output, existPortsMap);
-    }
-
-    private void check(String input, String output) {
-
-//        NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
-//        Map<String, Goalstate.GoalState> goalStateHashMap =
-//                new Gson().fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {
-//                }.getType());
-//
-//        Map<String, Goalstate.GoalState> goalStateHashMap1 =
-//                gson.fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {
-//                }.getType());
-//
-//        final Map<String, Goalstate.GoalState> stringGoalStateMap =
-//                goalStateManager.transformNorthToSouth(networkConfiguration);
-//
-//        assertEquals(goalStateHashMap.keySet().toString(), stringGoalStateMap.keySet().toString());
-//        assertEquals(goalStateHashMap.values().size(), stringGoalStateMap.values().size());
-//        assertEquals(
-//                goalStateHashMap
-//                        .get(goalStateHashMap.keySet().iterator().next())
-//                        .getPortStatesList()
-//                        .size(),
-//                stringGoalStateMap
-//                        .get(stringGoalStateMap.keySet().iterator().next())
-//                        .getPortStatesList()
-//                        .size());
+        //L3Check_Second_Version(input, output, existPortsMap);
     }
 
     private void L3Check(NetworkConfiguration input, Map<String, Goalstate.GoalState> output) {
@@ -556,17 +430,6 @@ public class GoalStateManagerTest {
         Map<String, Goalstate.GoalState> stringGoalStateMap =
                 goalStateManager.transformNorthToSouth(input);
 
-//        assertEquals(output.keySet().toString(), existPortsMap.keySet().toString());
-//        assertEquals(output.values().size(), existPortsMap.size());
-//        assertEquals(
-//                output
-//                        .get(output.keySet().iterator().next())
-//                        .getPortStatesList()
-//                        .size(),
-//                existPortsMap
-//                        .get(existPortsMap.keySet().iterator().next())
-//                        .size());
-
         assertEquals(output.keySet().toString(), stringGoalStateMap.keySet().toString());
         assertEquals(output.values().size(), stringGoalStateMap.values().size());
         assertEquals(
@@ -579,11 +442,11 @@ public class GoalStateManagerTest {
                         .getPortStatesList()
                         .size());
 
-//        for (Map.Entry<String, Goalstate.GoalState> outputEntry : output.entrySet()) {
-//            String outputKey = outputEntry.getKey();
-//            Goalstate.GoalState outputValue = outputEntry.getValue();
-//            Goalstate.GoalState dpmOutput = stringGoalStateMap.get(outputKey);
-//            assertEquals(outputValue, dpmOutput);
-//        }
+        for (Map.Entry<String, Goalstate.GoalState> outputEntry : output.entrySet()) {
+            String outputKey = outputEntry.getKey();
+            Goalstate.GoalState outputValue = outputEntry.getValue();
+            Goalstate.GoalState dpmOutput = stringGoalStateMap.get(outputKey);
+            assertEquals(outputValue, dpmOutput);
+        }
     }
 }
