@@ -17,7 +17,6 @@ package com.futurewei.alcor.dataplane.client.grpc;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
-import com.futurewei.alcor.dataplane.config.grpc.GoalStateProvisionerClient;
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
@@ -26,11 +25,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.catalina.Manager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -44,13 +41,10 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
     private int grpcPort;
 
-    @Autowired
-    private Config globalConfig;
-
     private final ExecutorService executor;
 
     @Autowired
-    public DataPlaneClientImpl() {
+    public DataPlaneClientImpl(Config globalConfig) {
         this.grpcPort = globalConfig.port;
         executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
                 globalConfig.grpcMaxThreads, 50, TimeUnit.SECONDS,
