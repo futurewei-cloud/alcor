@@ -2,6 +2,7 @@
 Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
 v0.1, 2020-09-18
 :toc: right
+:sectnums:
 :imagesdir: ../../images
 
 NOTE: This document is under development
@@ -54,7 +55,7 @@ Here are a few historical challenge before OpenStack Mitaka release on April 201
 1. Adds a Linux bridge between each VM port and OVS bridge (br-int)
 2. Uses Linux devices and linux kernel to support IP Tables implementation
 3. Update of single security group rule requires the whole security group to be pushed down to compute hosts,
-and requires the IP Tables chain to be recompiled (TBD: review Neutron Agent behavior)
+and requires the IP Tables chain to be recompiled
 4. This IP Tables implementation cannot be offloaded to hardware, except using a SoC/ARM based NIC which has capability to run the whole Linux OS
 
 [source,shell]
@@ -169,17 +170,18 @@ We will consider doing on-demand rule for L2 neighbors in the future if needed.
 
 === Conjunctive flows
 
-With a security group rule that is associated with a remote group ID, ingress rule will need to match on the "n" remote ports IP address (nw_src) and match on the mac addresses (dl_src) for all the ports "m" associated with this security group.
-It will result with n * m flows without using conjuctive flows.
+With a security group rule that is associated with a remote group ID, ingress rule will need to match on N IP addresses (nw_src) and M MAC addresses (dl_src) of all remote ports which are associated with the remote security group.
+It will result in N*M flows without using conjuctive flows.
 The situation is much worse when there are multiple (e.g. 10) security groups associated with a single port.
 
 We will use a conj_id for each combination of (remote SG_id, local port SG_id, ingress/egress, ethertype, flow priority).
 This rule is shared between security group rules and used by any flow that matches the same combo.
 
 Conjunctive flows can have 2 or more dimensions.
-We will use the first dimension to match the remote ports IP.
+
+. We will use the first dimension to match the remote ports IP.
 We want to merge the rules with when there are multiple IP address if possible.
-The second dimension will be used to match the local port mac addresses and also other portion of the rule other than its remote SG_id.
+. The second dimension will be used to match the local port mac addresses and also other portion of the rule other than its remote SG_id.
 With multiple security group rules associated with a single port, the openflow rules can overlap.
 To improve the situation, we want to consolidate and merge the second dimension rules.
 
@@ -241,7 +243,7 @@ In order to support remote SG rules, our neighbor configuration will be updated 
 
 This session list the proposed code change location and details:
 
-. update neighbor.proto to add "repeated SecurityGroupId security_group_ids;" to support remote_group rules - futurewei team will do that
+. update neighbor.proto to add "repeated SecurityGroupId security_group_ids;" to support remote_group rules
 . add the ignore logic when PortState::operation_type = INFO inside ACA_Dataplane_OVS::update_port_state_workitem similar to update_subnet_state_workitem
 . add a new directory under /src, namely /sg.
 . add the implementation files related to security group under the new /src/sg directory, the main file should be named aca_sg_state_handler.cpp, similar to aca_dhcp_state_handler.cpp. Note that we don't have an interface definition like dhcp_programming_if for security group.
