@@ -538,9 +538,11 @@ public class DataPlaneManagerUtil {
      * @return
      * @throws Exception
      */
-    private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp, boolean[] visited) throws Exception {
+    private NeighborInfo getNeighborInfo(NetworkConfiguration networkConfig, String hostIp, List<String> hostsHaveCreatedPort, boolean[] visited) throws Exception {
         NeighborInfo result = null;
+        List<NeighborEntry> neighborTable = networkConfig.getNeighborTable();
         List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
         for (int i = 0; i < neighborInfos.size(); i ++) {
             NeighborInfo neighborInfo = neighborInfos.get(i);
             if (neighborInfo.getHostIp().equals(hostIp) && !visited[i]) {
@@ -558,6 +560,44 @@ public class DataPlaneManagerUtil {
         return result;
     }
 
+    private List<NeighborInfo> getNeighborInfos(NetworkConfiguration networkConfig, String hostIp, List<String> hostsHaveCreatedPort) throws Exception {
+        List<NeighborInfo> result = new ArrayList<>();
+        List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        List<String> createdPortIPInHost = new ArrayList<>();
+
+        List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
+        for (InternalPortEntity port : portEntities) {
+            String bindingHostIP = port.getBindingHostIP();
+            List<PortEntity.FixedIp> fixedIps = port.getFixedIps();
+            String ipAddress = fixedIps.get(0).getIpAddress();
+            if (bindingHostIP.equals(hostIp)) {
+                createdPortIPInHost.add(ipAddress);
+            }
+            for (NeighborInfo neighborInfo : neighborInfos) {
+                String neighborHostIp = neighborInfo.getHostIp();
+                if (bindingHostIP.equals(neighborHostIp)) {
+                    neighborInfo.setPortIp(ipAddress);
+                    result.add(neighborInfo);
+                    break;
+                }
+            }
+        }
+
+        if (hostsHaveCreatedPort.contains(hostIp)){
+            for (NeighborInfo neighborInfo : neighborInfos) {
+                String neighborHostIp = neighborInfo.getHostIp();
+                String[] portIp = neighborInfo.getPortIp().split("\\.");
+                String[] createdPortIP = createdPortIPInHost.get(0).split("\\.");
+                if (neighborHostIp.equals(hostIp) && Integer.parseInt(portIp[portIp.length - 2]) < Integer.parseInt(createdPortIP[createdPortIP.length - 2])) {
+                    continue;
+                }
+                result.add(neighborInfo);
+            }
+        }
+
+        return result;
+    }
+
     /**
      * build NeighborState in GoalState
      * @param networkConfig
@@ -565,7 +605,7 @@ public class DataPlaneManagerUtil {
      * @param goalStateBuilder
      * @throws Exception
      */
-    private void buildNeighborState(NetworkConfiguration networkConfig, String hostIp, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
+    private void buildNeighborState(NetworkConfiguration networkConfig, String hostIp, List<InternalPortEntity> portEntities, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
         List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         if (neighborInfos == null || neighborInfos.size() == 0) {
             return;
@@ -577,20 +617,33 @@ public class DataPlaneManagerUtil {
             return;
         }
 
-//        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
-//        if (portStates == null || portStates.size() == 0) {
-//            return;
-//        }
+        List<String> hostsHaveCreatedPort = new ArrayList<>();
+        for (InternalPortEntity port : networkConfig.getPortEntities()) {
+            hostsHaveCreatedPort.add(port.getBindingHostIP());
+        }
 
-        for (NeighborEntry neighborEntry: neighborTable) {
+        List<NeighborInfo> neighborInfosInHost = getNeighborInfos(networkConfig, hostIp, hostsHaveCreatedPort);
 
-            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, hostIp, visited);
-            if (!hostIp.equals(neighborInfo.getHostIp())) {
-                continue;
-            }
+        for (NeighborInfo neighborInfo: neighborInfosInHost) {
+
+//            NeighborInfo neighborInfo = getNeighborInfo(networkConfig, hostIp, hostsHaveCreatedPort, visited);
+//            if (!hostIp.equals(neighborInfo.getHostIp())) {
+//                continue;
+//            }
             Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
             neighborConfigBuilder.setId(neighborInfo.getPortId());
-            Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(neighborEntry.getNeighborType().getType());
+            String neighborTypeStr = null;
+            for (NeighborEntry neighborEntry : neighborTable) {
+                String neighborIp = neighborEntry.getNeighborIp();
+                if (neighborIp.equals(neighborInfo.getPortIp())) {
+                    neighborTypeStr = neighborEntry.getNeighborType().getType();
+                    break;
+                }
+            }
+            Neighbor.NeighborType neighborType = null;
+            if (neighborTypeStr != null) {
+                neighborType = Neighbor.NeighborType.valueOf(neighborTypeStr);
+            }
             //neighborConfigBuilder.setNeighborType(neighborType);
             neighborConfigBuilder.setProjectId(DPMAutoUnitTestConstant.projectId);
             neighborConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
@@ -604,7 +657,9 @@ public class DataPlaneManagerUtil {
             Neighbor.NeighborConfiguration.FixedIp.Builder fixedIpBuilder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
             fixedIpBuilder.setSubnetId(neighborInfo.getSubnetId());
             fixedIpBuilder.setIpAddress(neighborInfo.getPortIp());
-            fixedIpBuilder.setNeighborType(neighborType);
+            if (neighborType != null) {
+                fixedIpBuilder.setNeighborType(neighborType);
+            }
             neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
             //TODO:setAllowAddressPairs
             //neighborConfigBuilder.setAllowAddressPairs();
@@ -818,7 +873,7 @@ public class DataPlaneManagerUtil {
 
         //buildVpcState(networkConfig, goalStateBuilder);
         buildSubnetState(networkConfig, goalStateBuilder);
-        buildNeighborState(networkConfig, hostIp, goalStateBuilder);
+        buildNeighborState(networkConfig, hostIp, portEntities, goalStateBuilder);
         buildSecurityGroupState(networkConfig, goalStateBuilder);
         buildDhcpState(networkConfig, goalStateBuilder);
         buildRouterState(networkConfig, goalStateBuilder);

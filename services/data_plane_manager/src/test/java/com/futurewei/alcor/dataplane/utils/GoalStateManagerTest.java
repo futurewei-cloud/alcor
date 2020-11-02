@@ -241,7 +241,6 @@ public class GoalStateManagerTest {
      * Scenario: L3_Customize_Second_Version - Create Port P6 with neighbor at Host 1,
      * Exist port : P1 - 2.2, P2 - 3.4, P3 - 2.3,3.3, P4 - 3.2
      * (P1, P2) are in Host 1, (P3, P4) are in Host 2
-     * (P1, P3) are associated with same subnet, (P2, P4) are associated with same subnet
      * Host1: 2.2, 3.4; Host2: 2.3, 3.2, 3.3
      */
     @Test
