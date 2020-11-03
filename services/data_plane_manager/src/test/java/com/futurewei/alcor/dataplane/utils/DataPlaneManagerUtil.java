@@ -420,23 +420,6 @@ public class DataPlaneManagerUtil {
         if (subnets == null || subnets.size() == 0) {
             return;
         }
-//        List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
-//        if (portStates == null || portStates.size() == 0) {
-//            return;
-//        }
-//
-//        List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
-//        List<String> subnetIdsInFixedIP = new ArrayList<>();
-//        for (Port.PortState portState: portStates) {
-//            for (Port.PortConfiguration.FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
-//                if (!subnetIdsInFixedIP.contains(fixedIp.getSubnetId())) {
-//                    InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
-//                            networkConfig, fixedIp.getSubnetId());
-//                    subnetEntities.add(internalSubnetEntity);
-//                    subnetIdsInFixedIP.add(fixedIp.getSubnetId());
-//                }
-//            }
-//        }
 
         for (InternalSubnetEntity subnetEntity: subnets) {
             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
@@ -564,6 +547,7 @@ public class DataPlaneManagerUtil {
         List<NeighborInfo> result = new ArrayList<>();
         List<NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         List<String> createdPortIPInHost = new ArrayList<>();
+        List<String> portIps = new ArrayList<>();
 
         List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
         for (InternalPortEntity port : portEntities) {
@@ -577,7 +561,11 @@ public class DataPlaneManagerUtil {
                 String neighborHostIp = neighborInfo.getHostIp();
                 if (bindingHostIP.equals(neighborHostIp)) {
                     neighborInfo.setPortIp(ipAddress);
-                    result.add(neighborInfo);
+                    if (!portIps.contains(neighborInfo.getPortIp())) {
+                        result.add(neighborInfo);
+                        portIps.add(neighborInfo.getPortIp());
+                    }
+
                     break;
                 }
             }
@@ -591,7 +579,10 @@ public class DataPlaneManagerUtil {
                 if (neighborHostIp.equals(hostIp) && Integer.parseInt(portIp[portIp.length - 2]) < Integer.parseInt(createdPortIP[createdPortIP.length - 2])) {
                     continue;
                 }
-                result.add(neighborInfo);
+                if (!portIps.contains(neighborInfo.getPortIp())) {
+                    result.add(neighborInfo);
+                    portIps.add(neighborInfo.getPortIp());
+                }
             }
         }
 
