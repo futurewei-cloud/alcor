@@ -17,14 +17,23 @@ package com.futurewei.alcor.dataplane.client;
 
 import com.futurewei.alcor.dataplane.entity.HostGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
+import com.futurewei.alcor.schema.Goalstateprovisioner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public interface DataPlaneClient {
-    void createGoalState(GoalState goalState, String hostIp) throws Exception;
-    void createGoalState(List<HostGoalState> hostGoalStates) throws Exception;
-    void updateGoalState(List<HostGoalState> hostGoalStates) throws Exception;
-    void deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+    Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
+    createGoalState(GoalState goalState, String hostIp) throws Exception;
+
+    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    createGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+
+    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    updateGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+
+    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
+    deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception;
 }

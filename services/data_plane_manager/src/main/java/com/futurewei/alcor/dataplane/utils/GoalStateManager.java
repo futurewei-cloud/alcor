@@ -187,7 +187,7 @@ public class GoalStateManager {
     com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr =
         networkConfiguration.getVpcs().toArray(new com.futurewei.alcor.web.entity.vpc.VpcEntity[0]);
 
-    // TODO need to refactor subnet and vpc part when logic is
+    // TODO need to v2 subnet and vpc part when logic is
     //  clear and integration done
     Map<String, List<InternalPortEntity>> mapGroupedByHostIp = new ConcurrentHashMap();
     Map<String, InternalSubnetEntity> subnetMap = new ConcurrentHashMap<>();

@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
-import com.futurewei.alcor.web.entity.NodeInfo;
-import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
@@ -33,10 +33,7 @@ import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
-import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
@@ -338,10 +335,14 @@ public class ResourceBuilder {
     }
 
     public static ConnectedSubnetsWebResponse buildRouterSubnets() {
-        List<String> subnetIds = new ArrayList<>();
-        subnetIds.add(UnitTestConfig.subnetId);
-        subnetIds.add(UnitTestConfig.subnetId2);
-        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(null, subnetIds);
+        List<SubnetEntity> subnetEntities = new ArrayList<>();
+        SubnetEntity subnetEntity1 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId, "Subnet1", UnitTestConfig.subnet1Cidr);
+        SubnetEntity subnetEntity2 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId2, "Subnet2", UnitTestConfig.subnet2Cidr);
+        subnetEntities.add(subnetEntity1);
+        subnetEntities.add(subnetEntity1);
+
+        InternalRouterInfo router = new InternalRouterInfo();
+        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetEntities);
         return routerSubnets;
     }
 }

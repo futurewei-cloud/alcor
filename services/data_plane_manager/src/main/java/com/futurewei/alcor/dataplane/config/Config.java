@@ -30,9 +30,18 @@ public class Config {
 
   public static final int SHUTDOWN_TIMEOUT = 5;
   @Value("${dataplane.isovs}")
-  private  String ovs;
+  private String ovs;
   @Value("${dataplane.grpc.port}")
-  public String port ;
+  public int port ;
+
+  @Value("${grpc.min-threads: 100}")
+  public int grpcMinThreads;
+
+  @Value("${grpc.max-threads: 200}")
+  public int grpcMaxThreads;
+
+  @Value("${grpc.threads-pool-name: grpc-thread-pool}")
+  public String grpThreadsName;
 
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;
@@ -62,11 +71,11 @@ public class Config {
     this.ovs = ovs;
   }
 
-  public String getPort() {
+  public int getPort() {
     return port;
   }
 
-  public void setPort(String port) {
+  public void setPort(int port) {
     this.port = port;
   }
 }

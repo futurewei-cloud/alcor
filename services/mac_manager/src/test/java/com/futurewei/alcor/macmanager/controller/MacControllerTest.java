@@ -85,13 +85,13 @@ public class MacControllerTest extends MockIgniteServer {
     @Test
     public void test_createMacState() throws Exception {
         String strRangeId = "range0";
-        String strMac = "AA-BB-CC-01-01-01";
+        String strMac = "aa:bb:cc:01:01:01";
         String strProjectId = "project1";
         String strVpc = "vpc1";
         String strPort = "port1";
         String strState = "Active";
 
-        MacRange macRange = new MacRange(strRangeId, "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
+        MacRange macRange = new MacRange(strRangeId, "aa:bb:cc:00:00:00", "aa:bb:cc:ff:ff:ff", "Active");
         MacState macState1 = new MacState("", strProjectId, strVpc, strPort, strState);
         MacStateJson macStateJson1 = new MacStateJson(macState1);
         String json = om.writeValueAsString(macStateJson1);
@@ -126,8 +126,8 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getMacStateByMacAddress() throws Exception {
-        MacState macState = new MacState("AA-BB-CC-01-01-01", "project1", "vpc1", "port2", "Active");
-        String strTestMac = "AA-BB-CC-01-01-01";
+        MacState macState = new MacState("aa:bb:cc:01:01:01", "project1", "vpc1", "port2", "Active");
+        String strTestMac = "aa:bb:cc:01:01:01";
         when(mockMacStateRepository.findItem(strTestMac)).thenReturn(macState);
         this.mockMvc.perform(get("/macs/" + strTestMac))
                 .andDo(print())
@@ -137,8 +137,8 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getMacStateByMacAddress_invalidMac() throws Exception {
-        MacState macState = new MacState("AA-BB-CC-01-01-01", "project1", "vpc1", "port2", "Active");
-        String strTestMac = "AA-BB-CC-010101";
+        MacState macState = new MacState("aa:bb:cc:01:01:01", "project1", "vpc1", "port2", "Active");
+        String strTestMac = "aa:bb:cc:010101";
         try {
             this.mockMvc.perform(get("/macs/" + strTestMac))
                     .andDo(print());
@@ -150,12 +150,12 @@ public class MacControllerTest extends MockIgniteServer {
     @Test
     public void test_releaseMacStateByMacAddress() throws Exception {
         String strRangeId = "range0";
-        String strMac = "AA-BB-CC-01-01-01";
+        String strMac = "aa:bb:cc:01:01:01";
         String strProjectId = "project1";
         String strVpc = "vpc1";
         String strPort = "port1";
         String strState = "Active";
-        MacRange macRange = new MacRange("range0", "AA-BB-CC-00-00-00", "AA-BB-CC-FF-FF-FF", "Active");
+        MacRange macRange = new MacRange("range0", "aa:bb:cc:00:00:00", "aa:bb:cc:ff:ff:ff", "Active");
         MacState macState = new MacState("", strProjectId, strVpc, strPort, strState);
         when(mockMacStateRepository.findItem(strMac)).thenReturn(macState);
         doNothing().when(mockMacStateRepository).deleteItem(strMac);
@@ -170,7 +170,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_activateMacState() throws Exception {
-        String strMac = "AA-BB-CC-01-01-04";
+        String strMac = "aa:bb:cc:01:01:04";
         String strProjectId = "project1";
         String strVpc = "vpc1";
         String strPort = "port4";
@@ -196,7 +196,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_deactivateMacState() throws Exception {
-        String strMac = "AA-BB-CC-01-01-05";
+        String strMac = "aa:bb:cc:01:01:05";
         String strProjectId = "project1";
         String strVpc = "vpc1";
         String strPort = "port5";
@@ -220,7 +220,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getMacRangeByMacRangeId() throws Exception {
-        MacRange macRange = new MacRange("range1", "00-AA-BB-11-11-11", "00-AA-BB-11-11-FF", "Active");
+        MacRange macRange = new MacRange("range1", "00:aa:bb:11:11:11", "00:aa:bb:11:11:ff", "Active");
         String strRangeId = macRange.getRangeId();
         when(mockMacRangeRepository.findItem(strRangeId)).thenReturn(macRange);
         this.mockMvc.perform(get("/macs/ranges/" + strRangeId))
@@ -230,8 +230,8 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_getAllMacRanges() throws Exception {
-        MacRange macRange2 = new MacRange("range2", "00-AA-BB-11-22-22", "00-AA-BB-11-22-FF", "Active");
-        MacRange macRange3 = new MacRange("range3", "00-AA-BB-11-33-33", "00-AA-BB-11-22-FF", "Active");
+        MacRange macRange2 = new MacRange("range2", "00:aa:bb:11:22:22", "00:aa:bb:11:22:ff", "Active");
+        MacRange macRange3 = new MacRange("range3", "00:aa:bb:11:33:33", "00:aa:bb:11:22:ff", "Active");
         Map<String, MacRange> map = new Hashtable<>();
         map.put(macRange2.getRangeId(), macRange2);
         map.put(macRange3.getRangeId(), macRange3);
@@ -244,7 +244,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void test_createMacRange() throws Exception {
-        MacRange macRange = new MacRange("range4", "00-AA-BB-11-00-11", "00-AA-BB-11-00-FF", "Active");
+        MacRange macRange = new MacRange("range4", "00:aa:bb:11:00:11", "00:aa:bb:11:00:ff", "Active");
         MacRangeJson macRangeJson = new MacRangeJson(macRange);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(macRangeJson);
@@ -258,7 +258,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void updateMacRange() throws Exception {
-        MacRange macRange = new MacRange("range5", "00-AA-BB-11-11-11", "00-AA-BB-55-55-55", "Inactive");
+        MacRange macRange = new MacRange("range5", "00:aa:bb:11:11:11", "00:aa:bb:55:55:55", "Inactive");
         MacRangeJson macRangeJson = new MacRangeJson(macRange);
         String json = om.writeValueAsString(macRangeJson);
         this.mockMvc.perform(put("/macs/ranges/range5")
@@ -270,7 +270,7 @@ public class MacControllerTest extends MockIgniteServer {
 
     @Test
     public void deleteMacRange() throws Exception {
-        MacRange macRange = new MacRange("range6", "00-AA-BB-11-22-22", "00-AA-BB-11-22-FF", "Active");
+        MacRange macRange = new MacRange("range6", "00:aa:bb:11:22:22", "00:aa:bb:11:22:ff", "Active");
         String strRangeId = macRange.getRangeId();
         doNothing().when(mockMacRangeRepository).deleteItem(strRangeId);
         this.mockMvc.perform(delete("/macs/ranges/" + strRangeId))

@@ -15,10 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service;
 
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 
 public interface DataPlaneService {
-    NetworkConfiguration createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
-    NetworkConfiguration updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
-    NetworkConfiguration deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+    InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+    InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
+    InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception;
 }
