@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         You may obtain a copy of the License at
 
         http://www.apache.org/licenses/LICENSE-2.0
-
+        
         Unless required by applicable law or agreed to in writing, software
         distributed under the License is distributed on an "AS IS" BASIS,
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -91,7 +91,7 @@ public class GoalStateManager {
         com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr =
                 networkConfiguration.getVpcs().toArray(new com.futurewei.alcor.web.entity.vpc.VpcEntity[0]);
 
-        // TODO need to refactor subnet and vpc part when logic is
+        // TODO need to v2 subnet and vpc part when logic is
         //  clear and integration done
         Map<String, List<InternalPortEntity>> mapGroupedByHostIp = new HashMap();
         Map<String, InternalSubnetEntity> subnetMap = new HashMap<>();
@@ -179,7 +179,7 @@ public class GoalStateManager {
                             internalPortEntitySet.stream()
                                     .forEach(
                                             portStateWithEverythingFilledNB -> {
-                                                Set<Port.PortConfiguration.HostInfo> neighborSB = null;
+                                                Set<Port.PortConfiguration.HostInfo> neighborSB = new HashSet();
                                                 if (portStateWithEverythingFilledNB.getInternalNeighborInfo1() != null) {
                                                     neighborSB = new HashSet();
                                                     for (NeighborInfo neighborInfo :
@@ -471,7 +471,6 @@ public class GoalStateManager {
         tempPorts.add(neighborInfo.getPortId());
       }
     }
-
      */
 
         portsInSameSubnetMap.put(fixedIp.getSubnetId(), tempPorts);
