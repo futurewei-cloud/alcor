@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -511,8 +513,14 @@ public class GoalStateManagerTest {
                 gson.fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {
                 }.getType());
 
-        final Map<String, Goalstate.GoalState> stringGoalStateMap =
-                goalStateManager.transformNorthToSouth(networkConfiguration);
+         Map<String, Goalstate.GoalState> stringGoalStateMap=null;
+        try {
+            stringGoalStateMap = goalStateManager.transformNorthToSouth(networkConfiguration).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(goalStateHashMap.keySet().toString(), stringGoalStateMap.keySet().toString());
         assertEquals(goalStateHashMap.values().size(), stringGoalStateMap.values().size());
@@ -529,8 +537,14 @@ public class GoalStateManagerTest {
 
     private void L3Check(NetworkConfiguration input, Map<String, Goalstate.GoalState> output) {
 
-        Map<String, Goalstate.GoalState> stringGoalStateMap =
-                goalStateManager.transformNorthToSouth(input);
+        Map<String, Goalstate.GoalState> stringGoalStateMap = null;
+        try {
+            stringGoalStateMap = goalStateManager.transformNorthToSouth(input).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(output.keySet().toString(), stringGoalStateMap.keySet().toString());
         assertEquals(output.values().size(), stringGoalStateMap.values().size());

@@ -30,8 +30,7 @@ import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -53,6 +52,20 @@ public class GoalStateManager {
   @Autowired private GoalStateService goalStateService;
   private static final Logger LOG = LoggerFactory.getLogger();
 
+  /**
+   * convert and parse dpm input to dpm internal data structure
+   *
+   * @param networkConfiguration msg to be parsed
+   * @param ipPortIdMap map of ip --> portId
+   * @param ipMacMap map of ip --> Mac
+   * @param ipSubnetIdMap map of ip --> SubnetId
+   * @param ipHostIpMap map of ip --> HostIp
+   * @param hostIpFixedIpsMap map of hostIp --> FixedIp
+   * @param hostIpSubnetIdsMap map of hostIp --> SubnetId
+   * @param subnetIdSubnetsMap map of subnetId --> Subnet
+   * @param portIdPortMap map of portId --> Port
+   * @param portIdNeighborInfoMap map of portId --> NeighborInfo
+   */
   private void convert(
       NetworkConfiguration networkConfiguration,
       Map<String, String> ipPortIdMap,
@@ -68,21 +81,22 @@ public class GoalStateManager {
     final List<NeighborInfo> neighborInfos = networkConfiguration.getNeighborInfos();
 
     final List<InternalPortEntity> portEntities = networkConfiguration.getPortEntities();
-    for (InternalSubnetEntity s : networkConfiguration.getSubnets()) {
-      subnetIdSubnetsMap.put(s.getId(), s);
-    }
+    for (InternalSubnetEntity internalSubnetEntity : networkConfiguration.getSubnets())
+      subnetIdSubnetsMap.put(internalSubnetEntity.getId(), internalSubnetEntity);
+
+    // for newly created ports
     for (InternalPortEntity internalPortEntity : portEntities) {
       portIdPortMap.put(internalPortEntity.getId(), internalPortEntity);
 
       for (PortEntity.FixedIp ip : internalPortEntity.getFixedIps()) {
-        Set<String> strings = hostIpFixedIpsMap.get(internalPortEntity.getBindingHostIP());
-        if (strings == null) strings = new TreeSet<>();
-        Set<String> strings2 = hostIpSubnetIdsMap.get(internalPortEntity.getBindingHostIP());
-        if (strings2 == null) strings2 = new TreeSet<>();
-        strings.add(ip.getIpAddress());
-        strings2.add(ip.getSubnetId());
-        hostIpFixedIpsMap.put(internalPortEntity.getBindingHostIP(), strings);
-        hostIpSubnetIdsMap.put(internalPortEntity.getBindingHostIP(), strings2);
+        Set<String> fixedIpsSet = hostIpFixedIpsMap.get(internalPortEntity.getBindingHostIP());
+        if (fixedIpsSet == null) fixedIpsSet = new TreeSet<>();
+        Set<String> subnetIdsSet = hostIpSubnetIdsMap.get(internalPortEntity.getBindingHostIP());
+        if (subnetIdsSet == null) subnetIdsSet = new TreeSet<>();
+        fixedIpsSet.add(ip.getIpAddress());
+        subnetIdsSet.add(ip.getSubnetId());
+        hostIpFixedIpsMap.put(internalPortEntity.getBindingHostIP(), fixedIpsSet);
+        hostIpSubnetIdsMap.put(internalPortEntity.getBindingHostIP(), subnetIdsSet);
 
         ipPortIdMap.put(ip.getIpAddress(), internalPortEntity.getId());
         ipHostIpMap.put(ip.getIpAddress(), internalPortEntity.getBindingHostIP());
@@ -90,50 +104,40 @@ public class GoalStateManager {
         ipMacMap.put(ip.getIpAddress(), internalPortEntity.getMacAddress());
       }
     }
-
+    // for neighbor infos
     if (neighborInfos != null) {
       for (NeighborInfo internalPortEntity : neighborInfos) {
         ipPortIdMap.put(internalPortEntity.getPortIp(), internalPortEntity.getPortId());
         ipHostIpMap.put(internalPortEntity.getPortIp(), internalPortEntity.getHostIp());
         portIdNeighborInfoMap.put(internalPortEntity.getPortIp(), internalPortEntity);
-        String ip = internalPortEntity.getPortIp();
-        Set<String> strings = hostIpFixedIpsMap.get(internalPortEntity.getHostIp());
-        if (strings == null) strings = new TreeSet<>();
-        Set<String> strings2 = hostIpSubnetIdsMap.get(internalPortEntity.getHostIp());
-        if (strings2 == null) strings2 = new TreeSet<>();
-        strings.add(ip);
-        strings2.add(internalPortEntity.getSubnetId());
-        hostIpFixedIpsMap.put(internalPortEntity.getHostIp(), strings);
-        hostIpSubnetIdsMap.put(internalPortEntity.getHostIp(), strings2);
-        ipPortIdMap.put(ip, internalPortEntity.getPortId());
-        ipHostIpMap.put(ip, internalPortEntity.getHostIp());
-        ipSubnetIdMap.put(ip, internalPortEntity.getSubnetId());
-        ipMacMap.put(ip, internalPortEntity.getPortMac());
+        String portIp = internalPortEntity.getPortIp();
+        Set<String> fixedIps = hostIpFixedIpsMap.get(internalPortEntity.getHostIp());
+        if (fixedIps == null) fixedIps = new TreeSet<>();
+        Set<String> subnetIds = hostIpSubnetIdsMap.get(internalPortEntity.getHostIp());
+        if (subnetIds == null) subnetIds = new TreeSet<>();
+        fixedIps.add(portIp);
+        subnetIds.add(internalPortEntity.getSubnetId());
+        hostIpFixedIpsMap.put(internalPortEntity.getHostIp(), fixedIps);
+        hostIpSubnetIdsMap.put(internalPortEntity.getHostIp(), subnetIds);
+        ipPortIdMap.put(portIp, internalPortEntity.getPortId());
+        ipHostIpMap.put(portIp, internalPortEntity.getHostIp());
+        ipSubnetIdMap.put(portIp, internalPortEntity.getSubnetId());
+        ipMacMap.put(portIp, internalPortEntity.getPortMac());
       }
     }
   }
-
+  /**
+   * print dpm input msg
+   *
+   * @param networkConfiguration msg
+   */
   private void printNetworkConfiguration(NetworkConfiguration networkConfiguration) {
-
-    ExclusionStrategy myExclusionStrategy =
-        new ExclusionStrategy() {
-          @Override
-          public boolean shouldSkipField(FieldAttributes fa) {
-            return fa.getName().equals("tenantId");
-          }
-
-          @Override
-          public boolean shouldSkipClass(Class<?> clazz) {
-            return false;
-          }
-        };
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       String json = objectMapper.writeValueAsString(networkConfiguration);
       LOG.log(Level.INFO, "@@@input json str: " + json);
 
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
       LOG.log(Level.SEVERE, e.getMessage());
     }
   }
@@ -144,10 +148,10 @@ public class GoalStateManager {
    * @return Map<String, Goalstate.GoalState>
    * @throws RuntimeException Various exceptions that may occur during the send process
    */
-
   @Async
   public Future<Map<String, Goalstate.GoalState>> transformNorthToSouth(
       NetworkConfiguration networkConfiguration) throws RuntimeException {
+
     Map<String, String> ipPortIdMap = new ConcurrentHashMap<>();
     Map<String, String> ipMacMap = new ConcurrentHashMap<>();
     Map<String, String> ipSubnetIdMap = new ConcurrentHashMap<>();
@@ -158,7 +162,7 @@ public class GoalStateManager {
     Map<String, InternalPortEntity> portIdPortMap = new ConcurrentHashMap<>();
     Map<String, NeighborInfo> portIdNeighborInfoMap = new ConcurrentHashMap<>();
 
-    // print entry input
+    // print entry input for debug usage
     printNetworkConfiguration(networkConfiguration);
     convert(
         networkConfiguration,
@@ -388,8 +392,6 @@ public class GoalStateManager {
                         }
                       }
 
-                      final InternalPortEntity portStateWithEverythingFilledNB =
-                          portIdPortMap.get(ipPortIdMap.get(ip));
                       if (!portIdNeighborInfoMap.containsKey(ip)) {
                         createNeighborState(
                             networkConfiguration,
@@ -481,8 +483,6 @@ public class GoalStateManager {
                 for (String nip : brandNewIps) {
                   if (!ipHostIpMap.get(nip).equals(currentGroupHostIp)) continue;
                   for (String eip : portIdNeighborInfoMap.keySet()) {
-                    final InternalPortEntity portStateWithEverythingFilledNB =
-                        portIdPortMap.get(ipPortIdMap.get(eip));
 
                     Neighbor.NeighborType l3 = Neighbor.NeighborType.L3;
                     Neighbor.NeighborType l2 = Neighbor.NeighborType.L2;
@@ -565,33 +565,7 @@ public class GoalStateManager {
                   LOG.log(Level.SEVERE, sid + "subnet is MISSING");
                   continue;
                 }
-                Subnet.SubnetConfiguration.Gateway gateway =
-                    Subnet.SubnetConfiguration.Gateway.newBuilder()
-                        .setIpAddress(subnetEntity1.getGatewayIp())
-                        .setMacAddress(subnetEntity1.getGatewayMacAddress())
-                        .build();
-                Subnet.SubnetConfiguration subnetConfiguration =
-                    Subnet.SubnetConfiguration.newBuilder()
-                        .setId(subnetEntity1.getId())
-                        .setVpcId(subnetEntity1.getVpcId())
-                        .setProjectId(subnetEntity1.getProjectId())
-                        .setCidr(subnetEntity1.getCidr())
-                        .setTunnelId(subnetEntity1.getTunnelId())
-                        .setGateway(gateway)
-                        .setFormatVersion(FORMAT_REVISION_NUMBER)
-                        .build();
-                Subnet.SubnetState subnetState =
-                    Subnet.SubnetState.newBuilder()
-                        .setConfiguration(subnetConfiguration)
-                        .buildPartial();
-                if (networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
-                  subnetState =
-                      subnetState.toBuilder().setOperationType(Common.OperationType.INFO).build();
-                else
-                  subnetState =
-                      subnetState.toBuilder().setOperationType(Common.OperationType.CREATE).build();
-
-                subnetStateSet.add(subnetState);
+                add2SubnetStates(networkConfiguration, subnetStateSet, subnetEntity1);
                 // lookup vpc entity
                 final VpcEntity vpcEntity = vpcMap.get(subnetEntity1.getVpcId());
                 Vpc.VpcConfiguration vpcConfiguration =
@@ -612,7 +586,8 @@ public class GoalStateManager {
 
               List<Router.RouterState> routerStateList = new ArrayList<>();
               if (networkConfiguration.getInternalRouterInfos() != null
-                      && neighborStates.keySet().stream().filter(e->e.indexOf("#L3")!=-1).count()>0) {
+                  && neighborStates.keySet().stream().filter(e -> e.indexOf("#L3") != -1).count()
+                      > 0) {
                 for (InternalRouterInfo internalRouterInfo :
                     networkConfiguration.getInternalRouterInfos()) {
                   final List<InternalSubnetRoutingTable> subnetRoutingTables =
@@ -621,56 +596,12 @@ public class GoalStateManager {
                       new ArrayList<>();
                   for (InternalSubnetRoutingTable internalSubnetRoutingTable :
                       subnetRoutingTables) {
-
-                    boolean flag = false;
-
-                    if (neighborStates.size() > 0) {
-
-                      for (String s : neighborStates.keySet()) {
-
-                        if (s.indexOf("#" + Neighbor.NeighborType.L3) != -1) {
-                          flag = true;
-                          break;
-                        }
-                      }
-                    }
-                    if (flag) {
+                    if (neighborStates.keySet().stream().filter(e -> e.indexOf("#L3") != -1).count()
+                        > 0) {
                       final InternalSubnetEntity subnetEntity1 =
                           subnetIdSubnetsMap.get(internalSubnetRoutingTable.getSubnetId());
 
-                      Subnet.SubnetConfiguration.Gateway gateway =
-                          Subnet.SubnetConfiguration.Gateway.newBuilder()
-                              .setIpAddress(subnetEntity1.getGatewayIp())
-                              .setMacAddress(subnetEntity1.getGatewayMacAddress())
-                              .build();
-                      Subnet.SubnetConfiguration subnetConfiguration =
-                          Subnet.SubnetConfiguration.newBuilder()
-                              .setId(subnetEntity1.getId())
-                              .setVpcId(subnetEntity1.getVpcId())
-                              .setProjectId(subnetEntity1.getProjectId())
-                              .setCidr(subnetEntity1.getCidr())
-                              .setTunnelId(subnetEntity1.getTunnelId())
-                              .setGateway(gateway)
-                              .setFormatVersion(FORMAT_REVISION_NUMBER)
-                              .build();
-                      Subnet.SubnetState subnetState =
-                          Subnet.SubnetState.newBuilder()
-                              .setConfiguration(subnetConfiguration)
-                              .buildPartial();
-                      if (networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
-                        subnetState =
-                            subnetState
-                                .toBuilder()
-                                .setOperationType(Common.OperationType.INFO)
-                                .build();
-                      else
-                        subnetState =
-                            subnetState
-                                .toBuilder()
-                                .setOperationType(Common.OperationType.CREATE)
-                                .build();
-
-                      subnetStateSet.add(subnetState);
+                      add2SubnetStates(networkConfiguration, subnetStateSet, subnetEntity1);
                     }
 
                     Router.RouterConfiguration.SubnetRoutingTable subnetRoutingTable =
@@ -688,15 +619,15 @@ public class GoalStateManager {
                               .setNextHopMac(
                                   internalRoutingRule.getRoutingRuleExtraInfo().getNextHopMac())
                               .build();
-                      Common.OperationType op = null;
-                      if (internalRoutingRule.getOperationType().equals(OperationType.CREATE))
-                        op = Common.OperationType.CREATE;
-                      else if (internalRoutingRule.getOperationType().equals(OperationType.INFO))
-                        op = Common.OperationType.INFO;
-                      else if (internalRoutingRule.getOperationType().equals(OperationType.DELETE))
-                        op = Common.OperationType.DELETE;
-                      else if (internalRoutingRule.getOperationType().equals(OperationType.UPDATE))
-                        op = Common.OperationType.UPDATE;
+                      Common.OperationType op =
+                          getOperationType(
+                              internalRoutingRule.getOperationType().equals(OperationType.CREATE),
+                              internalRoutingRule.getOperationType().equals(OperationType.INFO),
+                              Common.OperationType.INFO,
+                              internalRoutingRule.getOperationType().equals(OperationType.DELETE),
+                              Common.OperationType.DELETE,
+                              internalRoutingRule.getOperationType().equals(OperationType.UPDATE),
+                              Common.OperationType.UPDATE);
 
                       Router.RouterConfiguration.RoutingRule routingRule =
                           Router.RouterConfiguration.RoutingRule.newBuilder()
@@ -744,14 +675,57 @@ public class GoalStateManager {
                       .addSecurityGroupStates(0, securityGroupState)
                       .addAllRouterStates(routerStateList)
                       .addAllDhcpStates(dhcpStateList)
-                      //                      .addAllVpcStates(vpcStateSet)
                       .build();
               goalStateConcurrentHashMap.put(currentGroupHostIp, goalState);
             });
     LOG.log(Level.INFO, goalStateConcurrentHashMap.entrySet().toString());
-    return  new AsyncResult<Map<String, Goalstate.GoalState>>(goalStateConcurrentHashMap);
+    return new AsyncResult<Map<String, Goalstate.GoalState>>(goalStateConcurrentHashMap);
   }
 
+  private void add2SubnetStates(
+      NetworkConfiguration networkConfiguration,
+      Set<Subnet.SubnetState> subnetStateSet,
+      InternalSubnetEntity subnetEntity1) {
+    Subnet.SubnetConfiguration.Gateway gateway =
+        Subnet.SubnetConfiguration.Gateway.newBuilder()
+            .setIpAddress(subnetEntity1.getGatewayIp())
+            .setMacAddress(subnetEntity1.getGatewayMacAddress())
+            .build();
+    Subnet.SubnetConfiguration subnetConfiguration =
+        Subnet.SubnetConfiguration.newBuilder()
+            .setId(subnetEntity1.getId())
+            .setVpcId(subnetEntity1.getVpcId())
+            .setProjectId(subnetEntity1.getProjectId())
+            .setCidr(subnetEntity1.getCidr())
+            .setTunnelId(subnetEntity1.getTunnelId())
+            .setGateway(gateway)
+            .setFormatVersion(FORMAT_REVISION_NUMBER)
+            .build();
+    Subnet.SubnetState subnetState =
+        Subnet.SubnetState.newBuilder().setConfiguration(subnetConfiguration).buildPartial();
+    if (networkConfiguration.getRsType().equals(Common.ResourceType.PORT))
+      subnetState = subnetState.toBuilder().setOperationType(Common.OperationType.INFO).build();
+    else
+      subnetState = subnetState.toBuilder().setOperationType(Common.OperationType.CREATE).build();
+
+    subnetStateSet.add(subnetState);
+  }
+
+  @Async
+  /**
+   * create L3/L2 neighbors
+   *
+   * @param networkConfiguration msg to be parsed
+   * @param ipPortIdMap map of ip --> portId
+   * @param ipMacMap map of ip --> Mac
+   * @param ipSubnetIdMap map of ip --> SubnetId
+   * @param ipHostIpMap map of ip --> HostIp
+   * @param hostIpFixedIpsMap map of hostIp --> FixedIp
+   * @param hostIpSubnetIdsMap map of hostIp --> SubnetId
+   * @param subnetIdSubnetsMap map of subnetId --> Subnet
+   * @param portIdPortMap map of portId --> Port
+   * @param portIdNeighborInfoMap map of portId --> NeighborInfo
+   */
   private void createNeighborState(
       NetworkConfiguration networkConfiguration,
       Map<String, Neighbor.NeighborState> neighborStates,
@@ -769,6 +743,7 @@ public class GoalStateManager {
       Map<String, InternalPortEntity> portIdPortMap,
       Map<String, NeighborInfo> portIdNeighborInfoMap) {
 
+    // corner case check
     if (ipHostIpMap.get(ip).equals(currentGroupHostIp)) {
       for (InternalPortEntity it : networkConfiguration.getPortEntities()) {
         for (PortEntity.FixedIp f : it.getFixedIps()) {
@@ -777,24 +752,25 @@ public class GoalStateManager {
         }
       }
     }
-
+    // corner case check
     if (networkConfiguration.getNeighborTable() == null
         && networkConfiguration.getNeighborInfos() == null) return;
     if (currentGroupHostIp.equals(ipHostIpMap.get(ip))
         && networkConfiguration.getNeighborInfos().size()
             == networkConfiguration.getNeighborTable().size()
         && networkConfiguration.getNeighborTable().size() > 1) {
-      Set<String> ss = new HashSet();
+      Set<String> hostIps = new HashSet();
       for (NeighborEntry n : networkConfiguration.getNeighborTable()) {
-        ss.add(ipHostIpMap.get(n.getNeighborIp()));
+        hostIps.add(ipHostIpMap.get(n.getNeighborIp()));
       }
-      if (ss.size() == 1)
+      if (hostIps.size() == 1)
         for (InternalPortEntity i : portIdPortMap.values()) {
-          for (PortEntity.FixedIp ff : i.getFixedIps()) {
-            if (ff.getIpAddress().equals(ip)) return;
+          for (PortEntity.FixedIp fixedIp : i.getFixedIps()) {
+            if (fixedIp.getIpAddress().equals(ip)) return;
           }
         }
     }
+    // construct the L3/L2 neighbor
     if (neighborStates.containsKey(ip + "#" + Neighbor.NeighborType.L3)) return;
     else if ((neighborStates.containsKey(ip + "#" + Neighbor.NeighborType.L2))
         && (neighborType.equals(Neighbor.NeighborType.L3)))
@@ -816,16 +792,15 @@ public class GoalStateManager {
             .setProjectId(networkConfiguration.getVpcs().get(0).getProjectId())
             .setVpcId(networkConfiguration.getVpcs().get(0).getId())
             .build();
-    Common.OperationType target = null;
-    if (networkConfiguration.getOpType().equals(Common.OperationType.CREATE)) {
-      target = Common.OperationType.CREATE;
-    } else  if (networkConfiguration.getOpType().equals(Common.OperationType.DELETE)) {
-      target = Common.OperationType.DELETE;
-    } else  if (networkConfiguration.getOpType().equals(Common.OperationType.UPDATE)) {
-      target = Common.OperationType.UPDATE;
-    } else  if (networkConfiguration.getOpType().equals(Common.OperationType.INFO)) {
-      target = Common.OperationType.INFO;
-    }
+    Common.OperationType target =
+        getOperationType(
+            networkConfiguration.getOpType().equals(Common.OperationType.CREATE),
+            networkConfiguration.getOpType().equals(Common.OperationType.DELETE),
+            Common.OperationType.DELETE,
+            networkConfiguration.getOpType().equals(Common.OperationType.UPDATE),
+            Common.OperationType.UPDATE,
+            networkConfiguration.getOpType().equals(Common.OperationType.INFO),
+            Common.OperationType.INFO);
     Neighbor.NeighborState neighborState =
         Neighbor.NeighborState.newBuilder()
             .setConfiguration(neighborConfiguration)
@@ -833,6 +808,28 @@ public class GoalStateManager {
             .build();
     neighborStates.put(ip + "#" + neighborType, neighborState);
     brandNewIps.add(ip);
+  }
+
+  @Nullable
+  private Common.OperationType getOperationType(
+      boolean equals,
+      boolean equals2,
+      Common.OperationType delete,
+      boolean equals3,
+      Common.OperationType update,
+      boolean equals4,
+      Common.OperationType info) {
+    Common.OperationType target = null;
+    if (equals) {
+      target = Common.OperationType.CREATE;
+    } else if (equals2) {
+      target = delete;
+    } else if (equals3) {
+      target = update;
+    } else if (equals4) {
+      target = info;
+    }
+    return target;
   }
 
   /**
@@ -881,6 +878,7 @@ public class GoalStateManager {
    * @param neighborInfoInSameSubenetMap same subnet neighborInfo mapping
    * @param portsInSameSubnetMap same subnet portId mapping
    */
+  @Async
   private void fillSubnetAndVpcToPort(
       Map<String, InternalSubnetEntity> subnetMap,
       Map<String, VpcEntity> vpcMap,
@@ -944,6 +942,7 @@ public class GoalStateManager {
    * @param neighborInfoInSameSubenetMap same subnet neighborInfo mapping
    * @param portsInSameSubnetMap same subnet portId mapping
    */
+  @Async
   private void groupNeighborAndPortsBySubnet(
       InternalPortEntity currentPortEntity,
       PortEntity.FixedIp fixedIp,
