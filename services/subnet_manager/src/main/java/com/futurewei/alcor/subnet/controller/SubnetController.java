@@ -477,6 +477,10 @@ public class SubnetController {
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
             throw new Exception(e);
+        } catch (HavePortInSubnet e) {
+            throw e;
+        } catch (SubnetBindRoutes e) {
+            throw e;
         }
 
         return new ResponseId(subnetId);
