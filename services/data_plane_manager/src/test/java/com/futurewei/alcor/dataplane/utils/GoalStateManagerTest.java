@@ -259,125 +259,125 @@ public class GoalStateManagerTest {
      */
     @Test
     public void scenario_L3_Customize_Second_Version_createPortP1WithoutNeighborAtHost1_andThen_createPortP2AtHost1_andThen_createPortP3AtHost2_FastPathOnly() throws Exception {
-//        // Step 1
-//        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> createPortsMap
-//        Map<String, List<UTPortWithSubnetAndIPMapping>> createPortsMap = new HashMap<>();
-//        List<UTPortWithSubnetAndIPMapping> mapList = new ArrayList<>();
-//        UTPortWithSubnetAndIPMapping mapping = new UTPortWithSubnetAndIPMapping();
-//        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
-//        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.2");
-//        fixedIps.add(fixedIp);
-//
-//        mapping.setBindingHostId("ephost_0");
-//        mapping.setFixedIps(fixedIps);
-//        mapping.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
-//        mapping.setPortMacAddress("86:ea:77:ad:52:50");
-//        mapping.setPortName("test_cni_port1");
-//        mapping.setVethName("veth0");
-//
-//        mapList.add(mapping);
-//        createPortsMap.put("10.213.43.187", mapList);
-//
-//        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> existPortsMap
-//        Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap = new HashMap<>();
-//        List<UTPortWithSubnetAndIPMapping> existPortsMapList = new ArrayList<>();
-//        existPortsMap.put("10.213.43.187", existPortsMapList);
-//
-//        // configure List<UTSubnetInfo>
-//        List<UTSubnetInfo> UTSubnets = new ArrayList<>();
-//        UTSubnetInfo utSubnetInfo = new UTSubnetInfo();
-//        utSubnetInfo.setSubnetCidr("192.168.2.0/24");
-//        utSubnetInfo.setSubnetGatewayIP("192.168.2.20");
-//        utSubnetInfo.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-//        utSubnetInfo.setSubnetName("test_subnet0");
-//        utSubnetInfo.setTunnelId(Long.parseLong("88888"));
-//        UTSubnets.add(utSubnetInfo);
-//
-//        // configure List<UTL3NeighborInfoMapping>
-//        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
-//        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
-//        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-//        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.1", false));}});
-//        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
-//
-//        // configure List<UTNeighborInfoDetail>
-//        Map<String, UTNeighborInfoDetail> neighborInfoDetails = new HashMap<>();
-//
-//        // operationType = Create
-//        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap, UTSubnets, L3NeighborInfoMapping, true, true, true, false, neighborInfoDetails, true);
-//        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap, existPortsMap, UTSubnets, L3NeighborInfoMapping, true,true, true, false, neighborInfoDetails, true);
-//        //L3Check_Second_Version(input, output, existPortsMap);
-//
-//        // Step 2
-//        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> createPortsMap
-//        Map<String, List<UTPortWithSubnetAndIPMapping>> createPortsMap2 = new HashMap<>();
-//        List<UTPortWithSubnetAndIPMapping> mapList2 = new ArrayList<>();
-//        UTPortWithSubnetAndIPMapping mapping2 = new UTPortWithSubnetAndIPMapping();
-//        List<PortEntity.FixedIp> fixedIps2 = new ArrayList<>();
-//        PortEntity.FixedIp fixedIp2 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.2");
-//        fixedIps2.add(fixedIp2);
-//
-//        mapping2.setBindingHostId("ephost_0");
-//        mapping2.setFixedIps(fixedIps2);
-//        mapping2.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d1");
-//        mapping2.setPortMacAddress("86:ea:77:ad:52:50");
-//        mapping2.setPortName("test_cni_port2");
-//        mapping2.setVethName("veth0");
-//
-//        mapList2.add(mapping2);
-//        createPortsMap2.put("10.213.43.187", mapList2);
-//
-//        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> existPortsMap
-//        Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap2 = new HashMap<>();
-//        List<UTPortWithSubnetAndIPMapping> existPortsMapList2 = new ArrayList<>();
-//
-//        // P1 configuration
-//        UTPortWithSubnetAndIPMapping existMapping1 = new UTPortWithSubnetAndIPMapping();
-//        List<UTPortWithSubnetAndIPMapping> existPortsMapList1 = new ArrayList<>();
-//        List<PortEntity.FixedIp> existFixedIps1 = new ArrayList<>();
-//        PortEntity.FixedIp existFixedIp1 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.1");
-//        existFixedIps1.add(existFixedIp1);
-//
-//        existMapping1.setBindingHostId("ephost_0");
-//        existMapping1.setFixedIps(existFixedIps1);
-//        existMapping1.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
-//        existMapping1.setPortMacAddress("86:ea:77:ad:52:55");
-//        existMapping1.setPortName("test_cni_port1");
-//        existMapping1.setVethName("veth0");
-//        existPortsMapList1.add(existMapping1);
-//
-//        existPortsMap2.put("10.213.43.187", existPortsMapList2);
-//
-//        // configure List<UTSubnetInfo>
-//        List<UTSubnetInfo> UTSubnets2 = new ArrayList<>();
-//        UTSubnetInfo utSubnetInfo2 = new UTSubnetInfo();
-//        utSubnetInfo2.setSubnetCidr("192.168.2.0/24");
-//        utSubnetInfo2.setSubnetGatewayIP("192.168.2.20");
-//        utSubnetInfo2.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-//        utSubnetInfo2.setSubnetName("test_subnet0");
-//        utSubnetInfo2.setTunnelId(Long.parseLong("88888"));
-//        UTSubnets2.add(utSubnetInfo2);
-//
-//        // configure List<UTL3NeighborInfoMapping>
-//        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping2 = new ArrayList<>();
-//        UTL3NeighborInfoMapping utl3NeighborInfoMapping1 = new UTL3NeighborInfoMapping();
-//        utl3NeighborInfoMapping1.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
-//        utl3NeighborInfoMapping1.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.1", true));
-//            add(new UTIPInfo("192.168.2.2", false));}});
-//        L3NeighborInfoMapping2.add(utl3NeighborInfoMapping1);
-//
-//        // configure List<UTNeighborInfoDetail>
-//        Map<String, UTNeighborInfoDetail> neighborInfoDetails2 = new HashMap<>();
-//        UTNeighborInfoDetail detail1 = new UTNeighborInfoDetail("f37810eb-7f83-45fa-a4d4-1b31e75399d0",
-//                "86:ea:77:ad:52:55",
-//                "ephost_0",
-//                "10.213.43.187");
-//        neighborInfoDetails2.put( "192.168.2.1", detail1);
-//
-//        // operationType = Create
-//        NetworkConfiguration input2 = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap2, UTSubnets2, L3NeighborInfoMapping2, true, true, true, false, neighborInfoDetails2, true);
-//        Map<String, Goalstate.GoalState> output2 = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap2, existPortsMap2, UTSubnets2, L3NeighborInfoMapping2, true,true, true, false, neighborInfoDetails2, true);
-//        //L3Check_Second_Version(input, output, existPortsMap);
+        // Step 1
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> createPortsMap
+        Map<String, List<UTPortWithSubnetAndIPMapping>> createPortsMap = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> mapList = new ArrayList<>();
+        UTPortWithSubnetAndIPMapping mapping = new UTPortWithSubnetAndIPMapping();
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.2");
+        fixedIps.add(fixedIp);
+
+        mapping.setBindingHostId("ephost_0");
+        mapping.setFixedIps(fixedIps);
+        mapping.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
+        mapping.setPortMacAddress("86:ea:77:ad:52:50");
+        mapping.setPortName("test_cni_port1");
+        mapping.setVethName("veth0");
+
+        mapList.add(mapping);
+        createPortsMap.put("10.213.43.187", mapList);
+
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> existPortsMap
+        Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> existPortsMapList = new ArrayList<>();
+        existPortsMap.put("10.213.43.187", existPortsMapList);
+
+        // configure List<UTSubnetInfo>
+        List<UTSubnetInfo> UTSubnets = new ArrayList<>();
+        UTSubnetInfo utSubnetInfo = new UTSubnetInfo();
+        utSubnetInfo.setSubnetCidr("192.168.2.0/24");
+        utSubnetInfo.setSubnetGatewayIP("192.168.2.20");
+        utSubnetInfo.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utSubnetInfo.setSubnetName("test_subnet0");
+        utSubnetInfo.setTunnelId(Long.parseLong("88888"));
+        UTSubnets.add(utSubnetInfo);
+
+        // configure List<UTL3NeighborInfoMapping>
+        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping = new ArrayList<>();
+        UTL3NeighborInfoMapping utl3NeighborInfoMapping = new UTL3NeighborInfoMapping();
+        utl3NeighborInfoMapping.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utl3NeighborInfoMapping.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.1", false));}});
+        L3NeighborInfoMapping.add(utl3NeighborInfoMapping);
+
+        // configure List<UTNeighborInfoDetail>
+        Map<String, UTNeighborInfoDetail> neighborInfoDetails = new HashMap<>();
+
+        // operationType = Create
+        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap, UTSubnets, L3NeighborInfoMapping, true, true, true, false, neighborInfoDetails, true);
+        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap, existPortsMap, UTSubnets, L3NeighborInfoMapping, true,true, true, false, neighborInfoDetails, true);
+        //L3Check_Second_Version(input, output, existPortsMap);
+
+        // Step 2
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> createPortsMap
+        Map<String, List<UTPortWithSubnetAndIPMapping>> createPortsMap2 = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> mapList2 = new ArrayList<>();
+        UTPortWithSubnetAndIPMapping mapping2 = new UTPortWithSubnetAndIPMapping();
+        List<PortEntity.FixedIp> fixedIps2 = new ArrayList<>();
+        PortEntity.FixedIp fixedIp2 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.2");
+        fixedIps2.add(fixedIp2);
+
+        mapping2.setBindingHostId("ephost_0");
+        mapping2.setFixedIps(fixedIps2);
+        mapping2.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d1");
+        mapping2.setPortMacAddress("86:ea:77:ad:52:50");
+        mapping2.setPortName("test_cni_port2");
+        mapping2.setVethName("veth0");
+
+        mapList2.add(mapping2);
+        createPortsMap2.put("10.213.43.187", mapList2);
+
+        // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping> existPortsMap
+        Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap2 = new HashMap<>();
+        List<UTPortWithSubnetAndIPMapping> existPortsMapList2 = new ArrayList<>();
+
+        // P1 configuration
+        UTPortWithSubnetAndIPMapping existMapping1 = new UTPortWithSubnetAndIPMapping();
+        List<UTPortWithSubnetAndIPMapping> existPortsMapList1 = new ArrayList<>();
+        List<PortEntity.FixedIp> existFixedIps1 = new ArrayList<>();
+        PortEntity.FixedIp existFixedIp1 = new PortEntity.FixedIp("a87e0f87-a2d9-44ef-9194-9a62f1785940", "192.168.2.1");
+        existFixedIps1.add(existFixedIp1);
+
+        existMapping1.setBindingHostId("ephost_0");
+        existMapping1.setFixedIps(existFixedIps1);
+        existMapping1.setPortId("f37810eb-7f83-45fa-a4d4-1b31e75399d0");
+        existMapping1.setPortMacAddress("86:ea:77:ad:52:55");
+        existMapping1.setPortName("test_cni_port1");
+        existMapping1.setVethName("veth0");
+        existPortsMapList1.add(existMapping1);
+
+        existPortsMap2.put("10.213.43.187", existPortsMapList2);
+
+        // configure List<UTSubnetInfo>
+        List<UTSubnetInfo> UTSubnets2 = new ArrayList<>();
+        UTSubnetInfo utSubnetInfo2 = new UTSubnetInfo();
+        utSubnetInfo2.setSubnetCidr("192.168.2.0/24");
+        utSubnetInfo2.setSubnetGatewayIP("192.168.2.20");
+        utSubnetInfo2.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utSubnetInfo2.setSubnetName("test_subnet0");
+        utSubnetInfo2.setTunnelId(Long.parseLong("88888"));
+        UTSubnets2.add(utSubnetInfo2);
+
+        // configure List<UTL3NeighborInfoMapping>
+        List<UTL3NeighborInfoMapping> L3NeighborInfoMapping2 = new ArrayList<>();
+        UTL3NeighborInfoMapping utl3NeighborInfoMapping1 = new UTL3NeighborInfoMapping();
+        utl3NeighborInfoMapping1.setSubnetId("a87e0f87-a2d9-44ef-9194-9a62f1785940");
+        utl3NeighborInfoMapping1.setIPsInSubnet(new ArrayList<>(){{add(new UTIPInfo("192.168.2.1", true));
+            add(new UTIPInfo("192.168.2.2", false));}});
+        L3NeighborInfoMapping2.add(utl3NeighborInfoMapping1);
+
+        // configure List<UTNeighborInfoDetail>
+        Map<String, UTNeighborInfoDetail> neighborInfoDetails2 = new HashMap<>();
+        UTNeighborInfoDetail detail1 = new UTNeighborInfoDetail("f37810eb-7f83-45fa-a4d4-1b31e75399d0",
+                "86:ea:77:ad:52:55",
+                "ephost_0",
+                "10.213.43.187");
+        neighborInfoDetails2.put( "192.168.2.1", detail1);
+
+        // operationType = Create
+        NetworkConfiguration input2 = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap2, UTSubnets2, L3NeighborInfoMapping2, true, true, true, false, neighborInfoDetails2, true);
+        Map<String, Goalstate.GoalState> output2 = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap2, existPortsMap2, UTSubnets2, L3NeighborInfoMapping2, true,true, true, false, neighborInfoDetails2, true);
+        //L3Check_Second_Version(input, output, existPortsMap);
 
         // Step 3
         // configure Map<String(bindingHostIP), UTPortWithSubnetAndIPMapping>
@@ -474,11 +474,11 @@ public class GoalStateManagerTest {
         // configure Map<String, UTNeighborInfoDetail>, key - port_IP
         Map<String, UTNeighborInfoDetail> neighborInfoDetails3 = new HashMap<>();
 
-        UTNeighborInfoDetail detail1 = new UTNeighborInfoDetail("f37810eb-7f83-45fa-a4d4-1b31e75399d0",
+        UTNeighborInfoDetail detail13 = new UTNeighborInfoDetail("f37810eb-7f83-45fa-a4d4-1b31e75399d0",
                 "86:ea:77:ad:52:55",
                 "ephost_0",
                 "10.213.43.187");
-        neighborInfoDetails3.put( "192.168.2.1", detail1);
+        neighborInfoDetails3.put( "192.168.2.1", detail13);
         UTNeighborInfoDetail detail2 = new UTNeighborInfoDetail("f37810eb-7f83-45fa-a4d4-1b31e75399d1",
                 "86:ea:77:ad:52:57",
                 "ephost_0",
@@ -486,9 +486,9 @@ public class GoalStateManagerTest {
         neighborInfoDetails3.put( "192.168.2.2", detail2);
 
 
-        NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap3, UTSubnets3, L3NeighborInfoMapping3, true, true, true, true, neighborInfoDetails3, true);
-        Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap3, existPortsMap3, UTSubnets3, L3NeighborInfoMapping3, true,true, true, true, neighborInfoDetails3, true);
-        //L3Check_Second_Version(input, output, existPortsMap);
+        NetworkConfiguration input3 = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap3, UTSubnets3, L3NeighborInfoMapping3, true, true, true, true, neighborInfoDetails3, true);
+        Map<String, Goalstate.GoalState> output3 = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap3, existPortsMap3, UTSubnets3, L3NeighborInfoMapping3, true,true, true, true, neighborInfoDetails3, true);
+        //L3Check_Second_Version(input3, output3, existPortsMap);
     }
 
     /**
