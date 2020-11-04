@@ -31,6 +31,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -554,18 +555,21 @@ public class DataPlaneManagerUtil {
             String bindingHostIP = port.getBindingHostIP();
             List<PortEntity.FixedIp> fixedIps = port.getFixedIps();
             String ipAddress = fixedIps.get(0).getIpAddress();
+            String portId = port.getId();
             if (bindingHostIP.equals(hostIp)) {
                 createdPortIPInHost.add(ipAddress);
             }
             for (NeighborInfo neighborInfo : neighborInfos) {
-                String neighborHostIp = neighborInfo.getHostIp();
+                NeighborInfo newNeighborInfo = new NeighborInfo();
+                BeanUtils.copyProperties(neighborInfo, newNeighborInfo);
+                String neighborHostIp = newNeighborInfo.getHostIp();
                 if (bindingHostIP.equals(neighborHostIp)) {
-                    neighborInfo.setPortIp(ipAddress);
-                    if (!portIps.contains(neighborInfo.getPortIp())) {
-                        result.add(neighborInfo);
-                        portIps.add(neighborInfo.getPortIp());
+                    newNeighborInfo.setPortIp(ipAddress);
+                    newNeighborInfo.setPortId(portId);
+                    if (!portIps.contains(newNeighborInfo.getPortIp())) {
+                        result.add(newNeighborInfo);
+                        portIps.add(newNeighborInfo.getPortIp());
                     }
-
                     break;
                 }
             }
@@ -576,9 +580,9 @@ public class DataPlaneManagerUtil {
                 String neighborHostIp = neighborInfo.getHostIp();
                 String[] portIp = neighborInfo.getPortIp().split("\\.");
                 String[] createdPortIP = createdPortIPInHost.get(0).split("\\.");
-                if (neighborHostIp.equals(hostIp) && Integer.parseInt(portIp[portIp.length - 2]) < Integer.parseInt(createdPortIP[createdPortIP.length - 2])) {
-                    continue;
-                }
+//                if (neighborHostIp.equals(hostIp) && Integer.parseInt(portIp[portIp.length - 2]) < Integer.parseInt(createdPortIP[createdPortIP.length - 2])) {
+//                    continue;
+//                }
                 if (!portIps.contains(neighborInfo.getPortIp())) {
                     result.add(neighborInfo);
                     portIps.add(neighborInfo.getPortIp());
@@ -742,7 +746,11 @@ public class DataPlaneManagerUtil {
      * @param goalStateBuilder
      * @throws Exception
      */
-    private void buildDhcpState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
+    private void buildDhcpState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder, List<InternalPortEntity> portEntities) throws Exception {
+        if (portEntities == null || portEntities.size() == 0) {
+            return;
+        }
+
         List<Port.PortState> portStates = goalStateBuilder.getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -784,6 +792,11 @@ public class DataPlaneManagerUtil {
      * @throws Exception
      */
     private void buildRouterState(NetworkConfiguration networkConfig, Goalstate.GoalState.Builder goalStateBuilder) throws Exception {
+        List<InternalSubnetEntity> subnets = networkConfig.getSubnets();
+        if (subnets == null || subnets.size() < 2) {
+            return;
+        }
+
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         if (internalRouterInfos == null || internalRouterInfos.size() == 0) {
             return;
@@ -866,7 +879,7 @@ public class DataPlaneManagerUtil {
         buildSubnetState(networkConfig, goalStateBuilder);
         buildNeighborState(networkConfig, hostIp, portEntities, goalStateBuilder);
         buildSecurityGroupState(networkConfig, goalStateBuilder);
-        buildDhcpState(networkConfig, goalStateBuilder);
+        buildDhcpState(networkConfig, goalStateBuilder, portEntities);
         buildRouterState(networkConfig, goalStateBuilder);
 
         HostGoalState hostGoalState = new HostGoalState();
