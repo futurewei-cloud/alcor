@@ -40,8 +40,8 @@ message SubnetConfiguration {
     uint64 tunnel_id = 11;
 
     message Gateway {
-        string ip_address = 3;
-        string mac_address = 4;
+        string ip_address = 1;
+        string mac_address = 2;
     }
 
     Gateway gateway = 12;
@@ -49,6 +49,19 @@ message SubnetConfiguration {
     string availability_zone = 14;
     string primary_dns = 15;
     string secondary_dns = 16;
+
+    // default value of 0 means it is not zeta supported
+    // non zero means zeta supported for this subnet,
+    uint32 zeta_port_ibo = 17;
+
+    message ZetaGateway {
+        string ip_address = 1;
+        string mac_address = 2;
+    }
+
+    // if zeta supported, expect zeta_gateways_size > 0
+    // else zeta_gateways_size == 0
+    repeated ZetaGateway zeta_gateways = 18;
 }
 
 message SubnetState {
