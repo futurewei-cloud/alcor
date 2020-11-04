@@ -51,7 +51,7 @@ message SubnetConfiguration {
     string secondary_dns = 16;
 
     // default value of 0 means it is not zeta supported
-    // non zero means zeta supported for this subnet,
+    // for zeta supported subnet, set zeta_port_ibo > 0
     uint32 zeta_port_ibo = 17;
 
     message ZetaGateway {
@@ -59,8 +59,8 @@ message SubnetConfiguration {
         string mac_address = 2;
     }
 
-    // if zeta supported, expect zeta_gateways_size > 0
-    // else zeta_gateways_size == 0
+    // default zeta_gateways_size of 0 means it is not zeta supported
+    // for zeta supported subnet, expect zeta_gateways_size > 0
     repeated ZetaGateway zeta_gateways = 18;
 }
 
