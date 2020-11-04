@@ -1,7 +1,6 @@
 package com.futurewei.alcor.web.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.futurewei.alcor.web.entity.NodeInfo;
 
 import java.util.List;
 

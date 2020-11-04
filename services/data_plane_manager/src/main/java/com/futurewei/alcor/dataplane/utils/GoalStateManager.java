@@ -179,7 +179,7 @@ public class GoalStateManager {
               internalPortEntitySet.stream()
                   .forEach(
                       portStateWithEverythingFilledNB -> {
-                        Set<Port.PortConfiguration.HostInfo> neighborSB = null;
+                        Set<Port.PortConfiguration.HostInfo> neighborSB = new HashSet();
                         if (portStateWithEverythingFilledNB.getInternalNeighborInfo1() != null) {
                           neighborSB = new HashSet();
                           for (NeighborInfo neighborInfo :

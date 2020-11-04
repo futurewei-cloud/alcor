@@ -17,7 +17,7 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.request.FetchNodeRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 

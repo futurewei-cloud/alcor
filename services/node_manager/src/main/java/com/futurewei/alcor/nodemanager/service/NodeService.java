@@ -3,8 +3,7 @@ package com.futurewei.alcor.nodemanager.service;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
-import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

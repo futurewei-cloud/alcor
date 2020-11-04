@@ -18,8 +18,8 @@ package com.futurewei.alcor.portmanager.request;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.processor.PortContext;
-import com.futurewei.alcor.web.entity.NodeInfo;
-import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 
