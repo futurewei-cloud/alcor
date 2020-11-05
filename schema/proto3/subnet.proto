@@ -50,18 +50,22 @@ message SubnetConfiguration {
     string primary_dns = 15;
     string secondary_dns = 16;
 
-    // default value of 0 means it is not zeta supported
-    // for zeta supported subnet, set zeta_port_ibo > 0
-    uint32 zeta_port_ibo = 17;
+    // default value of empty string means not zeta supported
+    // for zeta supported subnet, expect it to be non empty string
+    string zgc_id = 17; // Zeta Gateway Cluster ID
+
+    // default value of 0 means not zeta supported
+    // for zeta supported subnet, expect zeta_port_ibo > 0
+    uint32 zeta_port_ibo = 18; // port for Zeta In-Band Operation
 
     message ZetaGateway {
         string ip_address = 1;
         string mac_address = 2;
     }
 
-    // default zeta_gateways_size of 0 means it is not zeta supported
+    // default zeta_gateways_size of 0 means not zeta supported
     // for zeta supported subnet, expect zeta_gateways_size > 0
-    repeated ZetaGateway zeta_gateways = 18;
+    repeated ZetaGateway zeta_gateways = 19;
 }
 
 message SubnetState {
