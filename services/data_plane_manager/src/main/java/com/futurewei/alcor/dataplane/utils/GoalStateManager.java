@@ -88,15 +88,15 @@ public class GoalStateManager {
         networkConfiguration.getPortEntities().toArray(new InternalPortEntity[0]);
     InternalSubnetEntity[] subnetArr =
         networkConfiguration.getSubnets().toArray(new InternalSubnetEntity[0]);
-    VpcEntity[] vpcArr =
-        networkConfiguration.getVpcs().toArray(new VpcEntity[0]);
+      com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr =
+        networkConfiguration.getVpcs().toArray(new com.futurewei.alcor.web.entity.vpc.VpcEntity[0]);
 
     // TODO need to v2 subnet and vpc part when logic is
     //  clear and integration done
     Map<String, List<InternalPortEntity>> mapGroupedByHostIp = new HashMap();
     Map<String, InternalSubnetEntity> subnetMap = new HashMap<>();
     Map<String, InternalPortEntity> portMap = new HashMap<>();
-    Map<String, VpcEntity> vpcMap = new HashMap<>();
+    Map<String, com.futurewei.alcor.web.entity.vpc.VpcEntity> vpcMap = new HashMap<>();
     // construct map from list
     for (InternalSubnetEntity s : subnetArr) {
       subnetMap.put(s.getId(), s);
@@ -397,7 +397,7 @@ public class GoalStateManager {
     Set<InternalSubnetEntity> allSubletsInOnePort = new HashSet<>();
     Set<VpcEntity> vpcEntityHashSet = new HashSet<>();
 
-    for (PortEntity.FixedIp fixedIp :
+    for (com.futurewei.alcor.web.entity.port.PortEntity.FixedIp fixedIp :
         currentPortEntity.getFixedIps()) {
 
       if (!portsInSameSubnetMap.containsKey(fixedIp.getSubnetId())) {
