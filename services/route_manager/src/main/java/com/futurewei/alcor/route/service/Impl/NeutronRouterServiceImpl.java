@@ -292,6 +292,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             return new RouterInterfaceResponse();
         }
 
+        if (portId == null) {
+            portId = subnet.getGatewayPortId();
+        }
+
         if (ports.contains(portId)) {
             ports.remove(portId);
         }

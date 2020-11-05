@@ -474,7 +474,7 @@ public class SubnetController {
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
-        } catch (ParameterNullOrEmptyException e) {
+        } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
             logger.error(e.getMessage());
             throw new Exception(e);
         }

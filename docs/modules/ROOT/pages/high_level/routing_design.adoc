@@ -16,7 +16,7 @@ image::example-configuration.jpg[]
 We want to have a design that is:
 
 . fast provision - port provision (enabling VMs <-> VMs within same or different subnet)
-. scalable - needs to handle 65,000 ports in a VPC, and 1,00,000 machines in a region
+. scalable - needs to handle 100,000 ports in a VPC, and 1,000,000 machines in a region
 . high performance - fast direct VM to VM communication (first packet may go through a gateway)
 . lean - minimal resource overhead on host (e.g. namespace, bridges)
 . fast migration - VMs migration should have network blackout time < a few seconds
@@ -39,7 +39,7 @@ The prefered design would be a DVR solution which provides direct VM to VM cross
 . Direct and not chatty Alcor controller to Alcor control agent communication
 . Using a much leaner openflow rules for routing instead of using namespace and TCP/IP stack (more detail below)
 . Openflow routing rules are installed on-demand and cleaned by after idle timer (e.g. 60s) which keeps the active openflow table entries small for fast look up
-. The design enable scale and performance from ground up, addressing the biggest pain point on neutron
+. Enable scale and performance from ground up, addressing the biggest pain point on neutron
 
 
 == Design Options 2 (Next: Gateway approach)
@@ -60,7 +60,7 @@ Challenge - we need the compute host to be able to measure the bandwidth used on
 
 == Route Rule implementation (iptables vs openflow)
 
-We will move away from neutron's which requires resources for the namespace which loads a complete TCP/IP stack with ARP and routing table, which will remove the latency and host CPU consumption of using linux devices and TCP/IP stack, and overhead of using iptables. 
+We will move away from neutron's implementation which requires resources for the namespace which loads a complete TCP/IP stack with ARP and routing table, which will remove the latency and host CPU consumption of using linux devices and TCP/IP stack, and overhead of using iptables. 
 
 We will use the more modern openflow rules + openflow controller application to implement our virtual router, which eliminates the usage of TCP/IP stack. It consumes much less resource and provides high routing performance by providing routing support using Openflow rules only.
 
@@ -482,6 +482,8 @@ It is an optional feature to prevent the flooding of ARP packet in the datacente
 
 For scenario with two local ports on the same compute host, connected to the same br-int. The current design is to let the arp packet flood to br-tun, using the prepopulated br-tun's arp responder openflow rule. 
 
+== Customer-facing APIs
+For the detailed design of customer-facing APIs, please refer to https://github.com/futurewei-cloud/alcor/blob/master/docs/modules/ROOT/pages/mgmt_services/route_manager.adoc
 
 == Pending Items
 
