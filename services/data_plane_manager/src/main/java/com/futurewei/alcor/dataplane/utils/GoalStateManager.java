@@ -88,7 +88,7 @@ public class GoalStateManager {
         networkConfiguration.getPortEntities().toArray(new InternalPortEntity[0]);
     InternalSubnetEntity[] subnetArr =
         networkConfiguration.getSubnets().toArray(new InternalSubnetEntity[0]);
-      com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr =
+    com.futurewei.alcor.web.entity.vpc.VpcEntity[] vpcArr =
         networkConfiguration.getVpcs().toArray(new com.futurewei.alcor.web.entity.vpc.VpcEntity[0]);
 
     // TODO need to v2 subnet and vpc part when logic is
