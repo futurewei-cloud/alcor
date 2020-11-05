@@ -482,6 +482,8 @@ It is an optional feature to prevent the flooding of ARP packet in the datacente
 
 For scenario with two local ports on the same compute host, connected to the same br-int. The current design is to let the arp packet flood to br-tun, using the prepopulated br-tun's arp responder openflow rule. 
 
+== Customer-facing APIs
+For the detailed design of customer-facing APIs, please refer to https://github.com/futurewei-cloud/alcor/blob/master/docs/modules/ROOT/pages/mgmt_services/route_manager.adoc
 
 == Pending Items
 
