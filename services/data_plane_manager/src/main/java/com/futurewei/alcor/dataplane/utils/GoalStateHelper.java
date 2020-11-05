@@ -1,3 +1,18 @@
+/*
+Copyright 2019 The Alcor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+*/
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.schema.Common;
@@ -7,7 +22,6 @@ import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.HashSet;
@@ -162,15 +176,7 @@ public class GoalStateHelper {
             .setProjectId(networkConfiguration.getVpcs().get(0).getProjectId())
             .setVpcId(networkConfiguration.getVpcs().get(0).getId())
             .build();
-    Common.OperationType target =
-        getOperationType(
-            networkConfiguration.getOpType().equals(Common.OperationType.CREATE),
-            networkConfiguration.getOpType().equals(Common.OperationType.DELETE),
-            Common.OperationType.DELETE,
-            networkConfiguration.getOpType().equals(Common.OperationType.UPDATE),
-            Common.OperationType.UPDATE,
-            networkConfiguration.getOpType().equals(Common.OperationType.INFO),
-            Common.OperationType.INFO);
+    Common.OperationType target = getOperationType(networkConfiguration.getOpType());
     Neighbor.NeighborState neighborState =
         Neighbor.NeighborState.newBuilder()
             .setConfiguration(neighborConfiguration)
@@ -180,25 +186,14 @@ public class GoalStateHelper {
     brandNewIps.add(ip);
   }
 
-  @Nullable
-  Common.OperationType getOperationType(
-      boolean equals,
-      boolean equals2,
-      Common.OperationType delete,
-      boolean equals3,
-      Common.OperationType update,
-      boolean equals4,
-      Common.OperationType info) {
+  Common.OperationType getOperationType(Common.OperationType info) {
+
     Common.OperationType target = null;
-    if (equals) {
-      target = Common.OperationType.CREATE;
-    } else if (equals2) {
-      target = delete;
-    } else if (equals3) {
-      target = update;
-    } else if (equals4) {
-      target = info;
-    }
+    if (info.equals(Common.OperationType.CREATE)) target = Common.OperationType.CREATE;
+    if (info.equals(Common.OperationType.DELETE)) target = Common.OperationType.DELETE;
+    if (info.equals(Common.OperationType.UPDATE)) target = Common.OperationType.UPDATE;
+    if (info.equals(Common.OperationType.INFO)) target = Common.OperationType.INFO;
+
     return target;
   }
 
