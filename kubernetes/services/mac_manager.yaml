@@ -14,7 +14,7 @@ data:
     #ignite.trust-store-path=truststore.jks
     #ignite.trust-store-password=123456
     logging.level.root=DEBUG
-    macmanager.oui = AA-BB-CC
+    macmanager.oui = aa:bb:cc
     macmanager.pool.size = 100
     macmanager.retrylimit = 10
 ---

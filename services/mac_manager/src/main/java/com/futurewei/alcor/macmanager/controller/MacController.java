@@ -17,16 +17,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.macmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
-import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.macmanager.service.MacService;
-import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
-import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
 import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -87,7 +83,7 @@ public class MacController {
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public MacStateBulkJson createMacStateBulk(@RequestBody MacStateBulkJson resource) throws Exception {
-        for(MacState macState: resource.getMacStates()){
+        for (MacState macState : resource.getMacStates()) {
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
             MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
         }
@@ -101,7 +97,7 @@ public class MacController {
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public MacStateBulkJson createMacStateBulkInRange(@PathVariable String rangeId, @RequestBody MacStateBulkJson resource) throws Exception {
-        for(MacState macState: resource.getMacStates()){
+        for (MacState macState : resource.getMacStates()) {
             MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macState);
             MacManagerRestPreconditionsUtil.verifyMacStateData(macState);
         }
@@ -198,7 +194,7 @@ public class MacController {
     @DurationStatistics
     public MacRangeJson updateMacRange(@PathVariable String rangeid, @RequestBody MacRangeJson resource) throws Exception {
         MacRange inMacRange = resource.getMacRange();
-        if(inMacRange.getRangeId() == null){
+        if (inMacRange.getRangeId() == null) {
             inMacRange.setRangeId(rangeid);
         }
         MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(inMacRange);

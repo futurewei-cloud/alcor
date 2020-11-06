@@ -12,22 +12,17 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.nodemanager.exception;
+package com.futurewei.alcor.nodemanager.utils;
 
-import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.web.entity.mac.MacAddress;
 
-public class NodeRepositoryException extends CacheException {
-    public NodeRepositoryException() {
-    }
-    public NodeRepositoryException(String message) {
-        super(message);
-    }
+public class MacAddrUtils {
+    public static boolean verifyMacAddress(String strMacAddress){
+        MacAddress macAddress = new MacAddress();
+        if (!macAddress.validateMac(strMacAddress)) {
+            return false;
+        }
 
-    public NodeRepositoryException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public NodeRepositoryException(Throwable cause) {
-        super(cause);
+        return true;
     }
 }

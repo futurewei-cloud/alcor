@@ -52,23 +52,15 @@ public class NodeInfo implements Serializable {
 
     }
 
-    public NodeInfo(NodeInfo nodeInfo) {
-        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac);
-    }
-
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort) {
-        this(id, name, localIp, macAddress);
-        this.veth = veth;
-        this.gRPCServerPort = gRPCServerPort;
-    }
-
-    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort) {
-        this(nodeId, nodeName, ipAddress, macAddress);
-        this.veth = "";
-        this.gRPCServerPort = gRPCServerPort;
-    }
-
     public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress) {
+        this(nodeId, nodeName, ipAddress, macAddress, "", 0, "");
+    }
+
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String veth, int gRPCServerPort) {
+        this(nodeId, nodeName, ipAddress, macAddress, veth, gRPCServerPort, "");
+    }
+
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String veth, int gRPCServerPort, String hostDvrMac) {
         this.id = nodeId;
         this.name = nodeName;
         if (this.validateIp(ipAddress)) {
@@ -82,14 +74,25 @@ public class NodeInfo implements Serializable {
         } else {
             this.macAddress = "";
         }
-        this.veth = "";
-        this.gRPCServerPort = 0;
+
+        this.veth = veth;
+        this.gRPCServerPort = gRPCServerPort;
+        if (this.validateMac(hostDvrMac)) {
+            this.hostDvrMac = hostDvrMac;
+        } else {
+            this.hostDvrMac = "";
+        }
     }
 
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac) {
-        this(id, name, localIp, macAddress, veth, gRPCServerPort);
-        this.hostDvrMac = host_dvr_mac;
+    public NodeInfo(NodeInfo nodeInfo) {
+        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac);
     }
+
+//    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort) {
+//        this(nodeId, nodeName, ipAddress, macAddress);
+//        this.veth = "";
+//        this.gRPCServerPort = gRPCServerPort;
+//    }
 
     public boolean validateMac(String mac) {
         Pattern p = Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$");
@@ -101,6 +104,10 @@ public class NodeInfo implements Serializable {
         Pattern p = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
         Matcher m = p.matcher(ip);
         return m.find();
+    }
+
+    public boolean validate(){
+        return this.validateMac(this.macAddress) && this.validateIp(this.localIp);
     }
 
     public static Logger getLogger() {

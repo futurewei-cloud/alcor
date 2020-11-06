@@ -4,6 +4,7 @@ metadata:
   name: node-configmap
 data:
   application.properties: |
+    host.dvr.mac.oui=fe:16:11
     ignite.thin.client.enable=true
     spring.redis.host=localhost
     spring.redis.port=6380

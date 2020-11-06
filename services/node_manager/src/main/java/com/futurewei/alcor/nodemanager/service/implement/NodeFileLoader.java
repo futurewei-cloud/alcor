@@ -42,24 +42,25 @@ public class NodeFileLoader {
     /**
      * make nodes' list from uploaded node file
      *
-     * @param reader file reader
-     * @return total nodes number
-     * @throws FileNotFoundException invalid file name, IOException file read exception, Parseexception json parsing exception
+     * @param fileReader file reader
+     * @return total number of nodes that got uploaded
+     * @throws FileNotFoundException invalid file name
+     * @throws IOException file read exception
+     * @throws ParseException json parsing exception
      */
     @DurationStatistics
-    public List<NodeInfo> getHostNodeListFromUpload(Reader reader) throws FileNotFoundException, IOException, ParseException{
+    public static List<NodeInfo> getHostNodeListFromUpload(Reader fileReader) throws FileNotFoundException, IOException, ParseException{
         String strMethodName = "getHostNodeListFromUpload";
         JSONParser jsonParser = new JSONParser();
         List<NodeInfo> nodeInfos = new ArrayList<>();
-        logger.info(this.getClass().getName(), strMethodName);
         try {
-            JSONObject obj = (JSONObject) jsonParser.parse(reader);
+            JSONObject obj = (JSONObject) jsonParser.parse(fileReader);
             JSONArray nodeList = (JSONArray) obj.get(NodeManagerConstant.JSON_HOSTS);
             if(nodeList != null){
                 nodeList.forEach(node -> {
                     NodeInfo hostNode = null;
                     try {
-                        hostNode = this.parseNodeObject((JSONObject) node);
+                        hostNode = NodeFileLoader.parseNodeObject((JSONObject) node);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -76,6 +77,7 @@ public class NodeFileLoader {
             logger.error(strMethodName+e.getMessage());
             throw e;
         }
+
         return nodeInfos;
     }
 
@@ -86,7 +88,7 @@ public class NodeFileLoader {
      * @return NodeInfo objects
      * @throws InvalidDataException invalid json data
      */
-    private NodeInfo parseNodeObject(JSONObject nodeJson) throws InvalidDataException {
+    private static NodeInfo parseNodeObject(JSONObject nodeJson) throws InvalidDataException {
         String strMethodName = "parseNodeObject";
         NodeInfo node = null;
         String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID1);
