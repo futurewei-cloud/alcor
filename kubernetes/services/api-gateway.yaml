@@ -4,19 +4,22 @@ metadata:
   name: api-configmap
 data:
   application.properties: |
-    ignite.thin.client.enable=true
     spring.application.name=alcor-api-gateway
+    spring.sleuth.sampler.probability=1.0
+    spring.sleuth.web.skipPattern=(^health.*)
+    server.max-header-size=65536
+
+    management.endpoints.web.exposure.include=health,prometheus
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud=DEBUG
     logging.level.com.github.tomakehurst.wiremock=TRACE
-    management.endpoints.web.exposure.include=health,prometheus
-    spring.sleuth.sampler.probability=1.0
-    spring.sleuth.web.skipPattern=(^health.*)
+    logging.level.root=DEBUG
+
+    ignite.thin.client.enable=true
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     #ignite.key-store-path=keystore.jks
     #ignite.key-store-password=123456
-    
     #ignite.trust-store-path=truststore.jks
     #ignite.trust-store-password=123456
 
@@ -27,6 +30,7 @@ data:
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/
     microservices.quota.service.url = http://quotamanager-service.default.svc.cluster.local:9012/
     microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011/
+    neutron.url_prefix=/v2.0
 
     keystone.enable=true
     keystone.project_domain_name=Default
@@ -38,9 +42,6 @@ data:
     keystone.password=alcor_pass
     keystone.auth_type=password
     keystone.auth_url=http://192.168.10.10:5000/v3
-    neutron.url_prefix=/v2.0
-    logging.level.root=DEBUG
-
 ---
 apiVersion: apps/v1
 kind: Deployment
