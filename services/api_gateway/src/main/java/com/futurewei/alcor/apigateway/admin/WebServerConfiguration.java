@@ -8,13 +8,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebServerConfiguration implements WebServerFactoryCustomizer<NettyReactiveWebServerFactory> {
 
-    // The default value is 8192 (8K) but may result in 413 when header is too large.
-    // Enlarge the header size to 65536 (64K) which is enough for most cases.
-    @Value("${server.max-header-size:65536}")
+    // In HttpRequestDecoderSpec, the default value of max header size is 8,192 bytes (8KB)
+    // but may result in 413 when header is too large.
+    // Make the header size configurable
+    @Value("${server.max-header-size:16384}")
     private int maxHeaderSize;
+
+    // In HttpRequestDecoderSpec, the default value of initial line length is 4096 bytes (4KB)
+    // but may result in 413 when header is too large.
+    // Make the line length configurable
+    @Value("${server.initial-line-length: 65536}")
+    private int maxInitialLineLength;
 
     public void customize(NettyReactiveWebServerFactory factory) {
         factory.addServerCustomizers(server ->
                 server.httpRequestDecoder(decoder -> decoder.maxHeaderSize(maxHeaderSize)));
+        factory.addServerCustomizers(server ->
+                server.httpRequestDecoder(decoder -> decoder.maxInitialLineLength(maxInitialLineLength)));
     }
 }
