@@ -11,8 +11,8 @@ public class WebServerConfiguration implements WebServerFactoryCustomizer<NettyR
     // In HttpRequestDecoderSpec, the default value of max header size is 8,192 bytes (8KB)
     // but may result in 413 when header is too large.
     // Make the header size configurable
-    @Value("${server.max-header-size:16384}")
-    private int maxHeaderSize;
+    @Value("${server.max-http-header-size:16384}")
+    private int maxHttpHeaderSize;
 
     // In HttpRequestDecoderSpec, the default value of initial line length is 4096 bytes (4KB)
     // but may result in 413 when header is too large.
@@ -22,7 +22,7 @@ public class WebServerConfiguration implements WebServerFactoryCustomizer<NettyR
 
     public void customize(NettyReactiveWebServerFactory factory) {
         factory.addServerCustomizers(server ->
-                server.httpRequestDecoder(decoder -> decoder.maxHeaderSize(maxHeaderSize)));
+                server.httpRequestDecoder(decoder -> decoder.maxHeaderSize(maxHttpHeaderSize)));
         factory.addServerCustomizers(server ->
                 server.httpRequestDecoder(decoder -> decoder.maxInitialLineLength(maxInitialLineLength)));
     }
