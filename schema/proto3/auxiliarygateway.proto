@@ -35,8 +35,7 @@ message AuxGateway {
     repeated destination destinations = 2;
 
     message zeta {
-    // default value of 0 means no auxiliary gateway supported
-    uint32 port_inband_operation = 1; // port for in-band operation, TBD: why called in-band?
+        uint32 port_inband_operation = 1; // port for in-band operation, TBD: why called in-band?
     }
 
     oneof extra_info {
