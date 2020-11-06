@@ -30,13 +30,14 @@ message SubnetConfiguration {
     string request_id = 3;
     string id = 4;
     MessageType message_type = 5; // DELTA (default) or FULL
-    NetworkType network_type = 6;
+    NetworkType network_type = 6; // DEPRECATING: use the one in VPCConfiguration
     string project_id = 7;
     string vpc_id = 8;
     string name = 9;
     string cidr = 10;
 
     // TODO: change to uint32 but that would require change in DPM
+    // DEPRECATING: use the tunnel_id in VPCConfiguration
     uint64 tunnel_id = 11;
 
     message Gateway {
@@ -49,23 +50,6 @@ message SubnetConfiguration {
     string availability_zone = 14;
     string primary_dns = 15;
     string secondary_dns = 16;
-
-    // default value of empty string means not zeta supported
-    // for zeta supported subnet, expect it to be non empty string
-    string zgc_id = 17; // Zeta Gateway Cluster ID
-
-    // default value of 0 means not zeta supported
-    // for zeta supported subnet, expect zeta_port_ibo > 0
-    uint32 zeta_port_ibo = 18; // port for Zeta In-Band Operation
-
-    message ZetaGateway {
-        string ip_address = 1;
-        string mac_address = 2;
-    }
-
-    // default zeta_gateways_size of 0 means not zeta supported
-    // for zeta supported subnet, expect zeta_gateways_size > 0
-    repeated ZetaGateway zeta_gateways = 19;
 }
 
 message SubnetState {

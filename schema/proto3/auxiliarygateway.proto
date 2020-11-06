@@ -19,33 +19,27 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Vpc";
+option java_outer_classname = "AuxiliaryGateway";
 
-import "common.proto";
-import "auxiliarygateway.proto";
 
-message VpcConfiguration {  
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+message AuxGateway {
+    // default value of empty string means no auxiliary gateway supported
+    string id = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType update_type = 5; // DELTA (default) or FULL
-    string project_id = 6;
-    string name = 7;
-    string cidr = 8;
-    uint32 tunnel_id = 9;
-
-    message SubnetId {
-        string id = 1;
+    message destination {
+        string ip_address = 1;
+        string mac_address = 2;
     }
 
-    repeated SubnetId subnet_ids = 10;
+    // default destinations_size of 0 means no auxiliary gateway supported
+    repeated destination destinations = 2;
 
-    AuxGateway auxiliary_gateway = 11;
-}
+    message zeta {
+    // default value of 0 means no auxiliary gateway supported
+    uint32 port_inband_operation = 1; // port for in-band operation, TBD: why called in-band?
+    }
 
-message VpcState {
-    OperationType operation_type = 1;
-    VpcConfiguration configuration = 2;
+    oneof extra_info {
+        zeta zeta_info = 3;
+    }
 }

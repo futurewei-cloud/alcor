@@ -91,7 +91,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
             vpcConfigBuilder.setName(vpcEntity.getName());
             vpcConfigBuilder.setCidr(vpcEntity.getCidr());
-            vpcConfigBuilder.setTunnelId(Long.parseLong(vpcEntity.getSegmentationId() + ""));
+            vpcConfigBuilder.setTunnelId(Integer.parseInt(vpcEntity.getSegmentationId() + ""));
 
             networkConfig.getSubnets().stream()
                     .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
