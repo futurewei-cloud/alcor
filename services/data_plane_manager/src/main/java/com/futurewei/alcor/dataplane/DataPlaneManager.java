@@ -19,12 +19,23 @@ package com.futurewei.alcor.dataplane;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 @EnableAutoConfiguration
+@EnableAsync
 public class DataPlaneManager {
 
   public static void main(String[] args) {
     SpringApplication.run(DataPlaneManager.class, args);
+  }
+
+  @Bean
+  public Executor getExecutor() {
+    return Executors.newCachedThreadPool();
   }
 }
