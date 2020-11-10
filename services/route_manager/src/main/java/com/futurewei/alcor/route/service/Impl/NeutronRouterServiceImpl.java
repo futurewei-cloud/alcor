@@ -582,6 +582,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route) {
+        if (route == null) {
+            return new InternalRoutingRule();
+        }
 
         InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
 
