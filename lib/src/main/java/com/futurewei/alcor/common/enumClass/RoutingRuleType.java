@@ -13,12 +13,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.route.config;
+package com.futurewei.alcor.common.enumClass;
 
-public class ConstantsConfig {
+public enum RoutingRuleType {
 
-    public static String FORMAT_VERSION = "1";
-    public static String REVISION_NUMBER = "1";
-    public static String HOST_DVR_MAC = "fe:16:11:00:00:00";
-    public static String ROUTINGRULETYPE = "neutron";
+    NEUTRON("neutron"),
+    STATIC("static"),
+    PREFIX_LISTS("prefix_lists"),
+    PROPAGATED("propagated");
+
+    private String routingRuleType;
+
+    RoutingRuleType(String env) {
+        this.routingRuleType = env;
+    }
+
+    public String getRoutingRuleType () {
+        return routingRuleType;
+    }
+
 }

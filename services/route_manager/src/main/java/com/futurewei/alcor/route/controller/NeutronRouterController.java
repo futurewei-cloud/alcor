@@ -331,6 +331,11 @@ public class NeutronRouterController {
 
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, router);
 
+        // sub-level routing rule update
+        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
+
+        // TODO: call SM for routing rule updating
+
         // TODO:  l3-neighbors-updating (waiting for PM)
 
         return routesToNeutronWebResponse;
@@ -353,6 +358,11 @@ public class NeutronRouterController {
         }
 
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesToNeutronRouter(routerid, router);
+
+        // sub-level routing rule update
+        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
+
+        // TODO: call SM for routing rule updating
 
         // TODO: call PM for routing rule updating (waiting for PM)
 

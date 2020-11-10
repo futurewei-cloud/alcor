@@ -15,10 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
-import com.futurewei.alcor.common.enumClass.MessageType;
-import com.futurewei.alcor.common.enumClass.OperationType;
-import com.futurewei.alcor.common.enumClass.RouteTableType;
-import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
+import com.futurewei.alcor.common.enumClass.*;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
@@ -467,6 +464,146 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         connectedSubnetsWebResponse.setSubnetEntities(subnetEntities);
 
         return connectedSubnetsWebResponse;
+    }
+
+    @Override
+    public InternalRouterInfo updateRoutingRule (String routerId, String subnetId, RoutesToNeutronRouterRequestObject routerObject) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable, RouterTableNotExist, DestinationOrNexthopCanNotBeNull, OwnerInNeutronRouteTableNotFound {
+        List<InternalRoutingRule> updateRoutes = new ArrayList<>();
+
+        List<RoutesToNeutronRouteObject> routes = routerObject.getRoutes();
+        if (routes == null || routes.size() == 0) {
+            return new InternalRouterInfo();
+        }
+
+        Router router = this.routerDatabaseService.getByRouterId(routerId);
+        if (router == null) {
+            throw new RouterUnavailable(routerId);
+        }
+
+        // find neutron routeTable
+        RouteTable neutronRouteTable = null;
+        if (subnetId == null) {
+            // call from RM (RM path)
+            neutronRouteTable = router.getNeutronRouteTable();
+            if (neutronRouteTable == null) {
+                throw new RouterTableNotExist();
+            }
+        } else {
+            // call from SM (SM path)
+            List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
+            for (RouteTable neutronSubnetRouteTable : neutronSubnetRouteTables) {
+                String owner = neutronSubnetRouteTable.getOwner();
+                if (owner == null) {
+                    throw new OwnerInNeutronRouteTableNotFound();
+                }
+                if (owner.equals(subnetId)) {
+                    neutronRouteTable = neutronSubnetRouteTable;
+                    break;
+                }
+            }
+            if (neutronRouteTable == null) {
+                throw new RouterTableNotExist();
+            }
+        }
+
+        List<RouteEntry> existRoutes = neutronRouteTable.getRouteEntities();
+
+        // Tracking operation type for each routing rule
+        for (RoutesToNeutronRouteObject newRoute : routes) {
+            RouteEntry route = null;
+            String newRouteDestination = newRoute.getDestination();
+            String newRouteNexthop = newRoute.getNexthop();
+            for (RouteEntry existRoute : existRoutes) {
+                String existRouteDestination = existRoute.getDestination();
+                if (existRouteDestination == null || newRouteDestination == null || newRouteNexthop == null) {
+                    throw new DestinationOrNexthopCanNotBeNull();
+                }
+                if (existRouteDestination.equals(newRouteDestination)) {
+                    route = existRoute;
+                    break;
+                }
+            }
+
+            if (route == null) {
+
+                InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.NEUTRON, route);
+
+                updateRoutes.add(internalRoutingRule);
+
+            } else {
+                // TODO: if it is vpc router, we need also compare with their 'target' field value
+                if (newRouteNexthop != route.getNexthop()) {
+
+                    InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.UPDATE, RoutingRuleType.NEUTRON, route);
+
+                    updateRoutes.add(internalRoutingRule);
+
+                    existRoutes.remove(route);
+
+                }
+            }
+        }
+
+        for (RouteEntry existRoute : existRoutes) {
+
+            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.NEUTRON, existRoute);
+
+            updateRoutes.add(internalRoutingRule);
+
+        }
+
+        // construct internalRouterInfo
+        String requestId = UUID.randomUUID().toString();
+        InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
+
+        InternalRouterConfiguration internalRouterConfiguration = new InternalRouterConfiguration();
+
+        List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
+
+        InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+        if (subnetId != null) {
+            internalSubnetRoutingTable.setSubnetId(subnetId);
+        }
+        internalSubnetRoutingTable.setRoutingRules(updateRoutes);
+        subnetRoutingTables.add(internalSubnetRoutingTable);
+
+
+        internalRouterConfiguration.setRevisionNumber(ConstantsConfig.REVISION_NUMBER);
+        internalRouterConfiguration.setFormatVersion(ConstantsConfig.FORMAT_VERSION);
+        internalRouterConfiguration.setRequestId(requestId);
+        internalRouterConfiguration.setHostDvrMac("");
+        internalRouterConfiguration.setMessageType(MessageType.FULL);
+        internalRouterConfiguration.setSubnetRoutingTables(subnetRoutingTables);
+
+        internalRouterInfo.setOperationType(OperationType.INFO);
+        internalRouterInfo.setRouterConfiguration(internalRouterConfiguration);
+
+        return internalRouterInfo;
+    }
+
+    private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route) {
+
+        InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
+
+        InternalRoutingRuleExtraInfo routingRuleExtraInfo = new InternalRoutingRuleExtraInfo();
+        //routingRuleExtraInfo.setNextHopMac();
+        // TODO: insert destination type - if it is vpc router, configure value according to target
+        routingRuleExtraInfo.setDestinationType(VpcRouteTarget.LOCAL);
+
+        internalRoutingRule.setId(route.getId());
+        internalRoutingRule.setName(route.getName());
+        internalRoutingRule.setDestination(route.getDestination());
+        // TODO: translate target to nextHop - it is vpc router operation
+        internalRoutingRule.setNextHopIp(route.getNexthop());
+        // TODO: set priority - configure priority according to RoutingRuleType
+        if (routingRuleType.getRoutingRuleType().equals(ConstantsConfig.ROUTINGRULETYPE)) {
+            internalRoutingRule.setPriority(String.valueOf(route.getPriority()));
+        }
+        internalRoutingRule.setOperationType(operationType);
+        internalRoutingRule.setRoutingRuleExtraInfo(routingRuleExtraInfo);
+
+        return internalRoutingRule;
+
     }
 
     private boolean ValidateSubnetAndConnectedRouter(SubnetWebJson subnetWebJson, String subnetId) {

@@ -21,6 +21,8 @@ import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.web.entity.route.*;
 
+import java.util.List;
+
 public interface NeutronRouterService {
 
     public NeutronRouterWebRequestObject getNeutronRouter (String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable;
@@ -30,5 +32,6 @@ public interface NeutronRouterService {
     public RoutesToNeutronWebResponse addRoutesToNeutronRouter (String routerid, RoutesToNeutronRouterRequestObject requestRouter) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, DatabasePersistenceException, DestinationOrNexthopCanNotBeNull;
     public RoutesToNeutronWebResponse removeRoutesToNeutronRouter (String routerid, RoutesToNeutronRouterRequestObject requestRouter) throws RouterOrSubnetAndPortNotExistOrNotVisible, ResourceNotFoundException, ResourcePersistenceException, DestinationOrNexthopCanNotBeNull, DatabasePersistenceException;
     public ConnectedSubnetsWebResponse getConnectedSubnets (String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId;
+    public InternalRouterInfo updateRoutingRule (String routerId, String subnetId, RoutesToNeutronRouterRequestObject router) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable, RouterTableNotExist, DestinationOrNexthopCanNotBeNull, OwnerInNeutronRouteTableNotFound;
 
 }
