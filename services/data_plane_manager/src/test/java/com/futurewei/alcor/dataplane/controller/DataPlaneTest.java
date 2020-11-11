@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.TestConfig;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
@@ -24,13 +23,18 @@ import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.route.InternalRouterConfiguration;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
+import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,13 +45,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.futurewei.alcor.common.enumClass.MessageType.FULL;
+import static com.futurewei.alcor.common.enumClass.OperationType.CREATE;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class DataPlaneTest {
+    private static final String FORMAT_REVISION_NUMBER = "1";
+    private static final String ROUTER_REQUEST_ID = "1";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -202,7 +210,7 @@ public class DataPlaneTest {
         return securityGroups;
     }
 
-    private NetworkConfiguration buildNetworkConfiguration() {
+    private NetworkConfiguration buildPortConfiguration() {
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setRsType(ResourceType.PORT);
         networkConfiguration.setOpType(OperationType.CREATE);
@@ -215,9 +223,109 @@ public class DataPlaneTest {
 
         return networkConfiguration;
     }
+
     @Test
-    public void createNetworkConfigurationTest() throws Exception {
-        NetworkConfiguration networkConfiguration = buildNetworkConfiguration();
+    public void createPortConfigurationTest() throws Exception {
+        NetworkConfiguration networkConfiguration = buildPortConfiguration();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(networkConfiguration);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post(TestConfig.url)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    private Map<String, InternalSubnetPorts> buildSubnetPorts() {
+        Map<String, InternalSubnetPorts> subnetPortsMap = new HashMap<>();
+
+        InternalSubnetPorts subnetPorts1 = new InternalSubnetPorts();
+        subnetPorts1.setSubnetId(TestConfig.subnetId1);
+        subnetPorts1.setGatewayPortId(TestConfig.portId1);
+        subnetPorts1.setGatewayPortIp(TestConfig.ip11);
+        subnetPorts1.setGatewayPortMac(TestConfig.mac1);
+        List<PortHostInfo> portHostInfos1 = new ArrayList<>();
+        PortHostInfo portHostInfo1 = new PortHostInfo();
+        portHostInfo1.setHostId(TestConfig.hostIp1);
+        portHostInfo1.setHostIp(TestConfig.hostIp1);
+        portHostInfo1.setPortId(TestConfig.portId1);
+        portHostInfo1.setPortIp(TestConfig.ip11);
+        portHostInfo1.setPortMac(TestConfig.mac1);
+        portHostInfos1.add(portHostInfo1);
+        subnetPorts1.setPorts(portHostInfos1);
+
+        InternalSubnetPorts subnetPorts2 = new InternalSubnetPorts();
+        subnetPorts2.setSubnetId(TestConfig.subnetId2);
+        subnetPorts2.setGatewayPortId(TestConfig.portId2);
+        subnetPorts2.setGatewayPortIp(TestConfig.ip21);
+        subnetPorts2.setGatewayPortMac(TestConfig.mac2);
+        List<PortHostInfo> portHostInfos2 = new ArrayList<>();
+        PortHostInfo portHostInfo2 = new PortHostInfo();
+        portHostInfo2.setHostId(TestConfig.hostIp2);
+        portHostInfo2.setHostIp(TestConfig.hostIp2);
+        portHostInfo2.setPortId(TestConfig.portId2);
+        portHostInfo2.setPortIp(TestConfig.ip21);
+        portHostInfo2.setPortMac(TestConfig.mac2);
+        portHostInfos2.add(portHostInfo2);
+        subnetPorts2.setPorts(portHostInfos2);
+
+        subnetPortsMap.put(TestConfig.subnetId1, subnetPorts1);
+        subnetPortsMap.put(TestConfig.subnetId2, subnetPorts2);
+
+        return subnetPortsMap;
+    }
+
+    private List<InternalRouterInfo> buildInternalRouterInfo() {
+        List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+
+        InternalRouterInfo routerInfo1 = new InternalRouterInfo();
+        routerInfo1.setOperationType(CREATE);
+
+        InternalRouterConfiguration routerConfig = new InternalRouterConfiguration();
+        routerConfig.setFormatVersion(FORMAT_REVISION_NUMBER);
+        routerConfig.setRevisionNumber(FORMAT_REVISION_NUMBER);
+        routerConfig.setHostDvrMac(TestConfig.hostDrvMac1);
+        routerConfig.setId(TestConfig.routerId1);
+        routerConfig.setMessageType(FULL);
+        routerConfig.setRequestId(ROUTER_REQUEST_ID);
+
+        List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
+        InternalSubnetRoutingTable subnetRoutingTable1 = new InternalSubnetRoutingTable();
+        subnetRoutingTable1.setSubnetId(TestConfig.subnetId1);
+        List<InternalRoutingRule> routingRules = new ArrayList<>();
+        InternalRoutingRule routingRule = new InternalRoutingRule();
+        routingRule.setDestination(TestConfig.destination);
+        routingRule.setId(TestConfig.routingRuleId1);
+        routingRule.setName("routingRule1");
+        routingRule.setNextHopIp(TestConfig.nextHop);
+        routingRule.setOperationType(CREATE);
+        routingRule.setPriority("100");
+        routingRule.setRoutingRuleExtraInfo(null);
+        routingRules.add(routingRule);
+        subnetRoutingTable1.setRoutingRules(routingRules);
+        subnetRoutingTables.add(subnetRoutingTable1);
+        routerConfig.setSubnetRoutingTables(subnetRoutingTables);
+
+        routerInfo1.setRouterConfiguration(routerConfig);
+        internalRouterInfos.add(routerInfo1);
+
+        return internalRouterInfos;
+    }
+
+    private NetworkConfiguration buildRouterConfiguration() {
+        NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+        networkConfiguration.setRsType(ResourceType.ROUTER);
+        networkConfiguration.setOpType(OperationType.CREATE);
+        networkConfiguration.setInternalRouterInfos(buildInternalRouterInfo());
+        networkConfiguration.setInternalSubnetPorts(buildSubnetPorts());
+
+        return networkConfiguration;
+    }
+
+    @Test
+    public void createRouterConfigurationTest() throws Exception {
+        NetworkConfiguration networkConfiguration = buildRouterConfiguration();
         ObjectMapper objectMapper = new ObjectMapper();
         String body = objectMapper.writeValueAsString(networkConfiguration);
 

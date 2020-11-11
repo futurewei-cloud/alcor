@@ -43,6 +43,14 @@ public class TestConfig {
     public static String hostIp2 = "192.168.131.131";
     public static long tunnelId = 100;
     public static String mac1 = "00:01:6C:06:A6:29";
+    public static String mac2 = "00:01:6C:06:A6:30";
+    public static String routerId1 = "3d53801c-32ce-4e97-9572-bb966f76bea";
+    public static String routerId2 = "3d53801c-32ce-4e97-9572-bb966f5ba42";
+    public static String routingRuleId1 = "3d53801c-32ce-4e97-9572-bb966f5eb21";
+    public static String destination = "13.13.13.0/24";
+    public static String nextHop = "100.100.100.1";
+    public static String hostDrvMac1 = "11:22:33:06:A6:29";
+    public static String hostDrvMac2 = "11:22:33:06:A6:30";
     public static String gatewayMacAddress1 = "00:01:6C:06:A6:29";
     public static String gatewayMacAddress2 = "00:01:6C:06:A6:30";
     public static String securityGroupId1 = "3d53801c-32ce-4e97-9572-bb966f4d45ca";

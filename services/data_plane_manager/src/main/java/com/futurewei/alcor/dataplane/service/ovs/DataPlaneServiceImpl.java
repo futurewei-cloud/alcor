@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.ovs;
 
+import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
@@ -27,6 +28,7 @@ import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.Protocol;
 import com.futurewei.alcor.schema.DHCP.DHCPConfiguration;
 import com.futurewei.alcor.schema.DHCP.DHCPState;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
 import com.futurewei.alcor.schema.Neighbor.NeighborConfiguration;
 import com.futurewei.alcor.schema.Neighbor.NeighborState;
@@ -37,8 +39,11 @@ import com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId;
 import com.futurewei.alcor.schema.Port.PortState;
+import com.futurewei.alcor.schema.Router.DestinationType;
 import com.futurewei.alcor.schema.Router.RouterConfiguration;
-import com.futurewei.alcor.schema.Router.RouterState;
+import com.futurewei.alcor.schema.Router.RouterConfiguration.SubnetRoutingTable;
+import com.futurewei.alcor.schema.Router.RouterConfiguration.RoutingRule;
+import com.futurewei.alcor.schema.Router.RouterConfiguration.RoutingRuleExtraInfo;
 import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration;
 import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState;
@@ -50,8 +55,13 @@ import com.futurewei.alcor.schema.Vpc.VpcConfiguration.SubnetId;
 import com.futurewei.alcor.schema.Vpc.VpcState;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
+import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -468,17 +478,27 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             }
         }
 
-        RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
-        routerConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
-        routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        //routerConfigBuilder.setHostDvrMacAddress();
-        //routerConfigBuilder.addAllSubnetIds(subnetIds);
+        List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
+        if (internalRouterInfos == null || internalRouterInfos.size() == 0) {
+            return;
+        }
 
-        RouterState.Builder routerStateBuilder = RouterState.newBuilder();
-        routerStateBuilder.setOperationType(networkConfig.getOpType());
-        routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-        unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
+        for (String subnetId: subnetIds) {
+            for (InternalRouterInfo routerInfo : internalRouterInfos) {
+                List<InternalSubnetRoutingTable> subnetRoutingTables =
+                        routerInfo.getRouterConfiguration().getSubnetRoutingTables();
+                if (subnetRoutingTables == null) {
+                    continue;
+                }
 
+                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
+                    if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
+                        addSubnetRoutingTable(routerInfo, subnetRoutingTable, unicastGoalState);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private UnicastGoalState buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
@@ -542,8 +562,123 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         return null;
     }
 
+    private OperationType getOperationType(com.futurewei.alcor.common.enumClass.OperationType operationType) {
+        switch (operationType) {
+            case CREATE:
+                return OperationType.CREATE;
+            case UPDATE:
+                return OperationType.UPDATE;
+            case INFO:
+                return OperationType.INFO;
+            case DELETE:
+                return OperationType.DELETE;
+            default:
+                return OperationType.UNRECOGNIZED;
+        }
+    }
+
+    private DestinationType getDestinationType(VpcRouteTarget vpcRouteTarget) {
+        switch (vpcRouteTarget) {
+            case LOCAL:
+                return DestinationType.INTERNET;
+            case INTERNET_GW:
+                return DestinationType.VPC_GW;
+            case NAT_GW:
+            default:
+                return DestinationType.UNRECOGNIZED;
+        }
+    }
+
+
+    private void addSubnetRoutingTable(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalState unicastGoalState) {
+        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+
+        int routerStatesCount = goalStateBuilder.getRouterStatesCount();
+        if (routerStatesCount == 0) {
+            RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
+            routerConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+            String hostDvrMac = routerInfo.getRouterConfiguration().getHostDvrMac();
+            if (hostDvrMac != null) {
+                routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
+            }
+        }
+
+        SubnetRoutingTable.Builder subnetRoutingTableBuilder = SubnetRoutingTable.newBuilder();
+        String subnetId = subnetRoutingTable.getSubnetId();
+        subnetRoutingTableBuilder.setSubnetId(subnetId);
+        for (InternalRoutingRule routingRule: subnetRoutingTable.getRoutingRules()) {
+            RoutingRule.Builder routingRuleBuilder = RoutingRule.newBuilder();
+            routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+            routingRuleBuilder.setId(routingRule.getId());
+            routingRuleBuilder.setName(routingRule.getName());
+            routingRuleBuilder.setDestination(routingRule.getDestination());
+            routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
+            routingRuleBuilder.setPriority(Integer.parseInt(routingRule.getPriority()));
+
+            if (routingRule.getRoutingRuleExtraInfo() != null) {
+                RoutingRuleExtraInfo.Builder extraInfoBuilder = RoutingRuleExtraInfo.newBuilder();
+                extraInfoBuilder.setDestinationType(getDestinationType(
+                        routingRule.getRoutingRuleExtraInfo().getDestinationType()));
+                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+            }
+
+            subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
+        }
+    }
+
     private List<Map<String, List<GoalStateOperationStatus>>> createRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        return null;
+        List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
+        Map<String, InternalSubnetPorts> internalSubnetPorts = networkConfig.getInternalSubnetPorts();
+
+        if (internalRouterInfos == null) {
+            throw new RouterInfoInvalid();
+        }
+
+        if (internalSubnetPorts == null) {
+            throw new SubnetPortsInvalid();
+        }
+
+        Map<String, UnicastGoalState> unicastGoalStateMap = new HashMap<>();
+        for (InternalRouterInfo routerInfo: internalRouterInfos) {
+            List<InternalSubnetRoutingTable> subnetRoutingTables =
+                    routerInfo.getRouterConfiguration().getSubnetRoutingTables();
+            if (subnetRoutingTables == null) {
+                throw new RouterInfoInvalid();
+            }
+
+            for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
+                String subnetId = subnetRoutingTable.getSubnetId();
+                if (!internalSubnetPorts.containsKey(subnetId)) {
+                    throw new SubnetPortsNotFound();
+                }
+
+                InternalSubnetPorts subnetPorts = internalSubnetPorts.get(subnetId);
+                if (subnetPorts == null) {
+                    throw new SubnetPortsInvalid();
+                }
+
+                for (PortHostInfo portHostInfo: subnetPorts.getPorts()) {
+                    String hostIp = portHostInfo.getHostIp();
+                    UnicastGoalState unicastGoalState = unicastGoalStateMap.get(hostIp);
+                    if (unicastGoalState == null) {
+                        unicastGoalState = new UnicastGoalState();
+                        unicastGoalState.setHostIp(hostIp);
+                        unicastGoalStateMap.put(hostIp, unicastGoalState);
+                    }
+
+                    addSubnetRoutingTable(routerInfo, subnetRoutingTable, unicastGoalState);
+                }
+            }
+        }
+
+        if (unicastGoalStateMap.size() == 0) {
+            throw new RouterInfoInvalid();
+        }
+
+        //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
+        return dataPlaneClient.createGoalStates(new ArrayList<>(unicastGoalStateMap.values()));
     }
 
     @Override
@@ -570,6 +705,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 throw new UnknownResourceType();
         }
 
+        //TODO:Return reasonable status information
         AtomicInteger failed = new AtomicInteger(0);
         resultAll.setOverrallTime(System.currentTimeMillis() - startTime);
         List<InternalDPMResult> result = statuses.stream()
