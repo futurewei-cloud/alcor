@@ -14,7 +14,7 @@ data:
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud=DEBUG
     logging.level.com.github.tomakehurst.wiremock=TRACE
-    logging.level.root=TRACE
+    logging.level.root=DEBUG
 
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
