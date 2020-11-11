@@ -81,9 +81,11 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
         path = path.replaceAll(neutronUrlPrefix, "/project/" + projectId)
                 .replaceAll(VPC_REPLACE_NAME, VPC_NAME)
                 .replaceAll(ELASTICIP_REPLACE_NAME, ELASTICIP_NAME);
+        LOG.debug("internal path:[{}]", path);
 
         ServerHttpRequest request = req.mutate().path(path).header(TOKEN_INFO_HEADER, tokenEntity.toJson()).build();
         exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
+        LOG.debug("internal header:[{}]", request.getHeaders().toString());
 
         // if log trace enable print the response info
         if(LOG.isTraceEnabled()){
