@@ -25,36 +25,33 @@ It also needs to dispatch routing update information from Route Manager to Distr
 == Design
 
 === Service Architecture
-Subnet Manager handles subnet resource management under a VPC and subnet level routing rules updating.
-It needs to interact with Route Manager, Port Manager and Data Plane Manager. The major functionalities
+Subnet Manager handles the resource management for a subnet related resources under a VPC, such as subnet ID,
+gateway information, dns nameservers, ip addresses allocation pool, and subnet level host routes.
+Subnet Manager needs to interact with Route Manager, Port Manager and Data Plane Manager. The major functionalities
 and architecture of Subnet Manager as follows:
 
-==== The relation between Subnet Manager and other managers
-image::subnet_manager_architecture.PNG[]
+image::subnet_manager_keyflow.PNG[]
+
+The major functionalities of Subnet Manager include:
+
+1. Maintain Subnet Entity information updating
+2. Handle Subnet level routing rules updating
+3. Handle Subnet Gateway port updating
 
 === Key Workflow
 
 ==== Subnet level routing rules update
 image::subnet_manager_routing_rules_update_architecture.PNG[]
 
-=== Contracts between Subnet Manager, Port Manager and Data Plane Manager
+==== Gateway port update
+image::subnet_manager_gatewayport_update.PNG[]
+
+=== Cache and contract design
+
 ==== Option 1
+
 image::subnet_manager_subnet_ports_mapping.PNG[]
 
-==== Option 2
-image::subnet_manager_mapping_cache.PNG[]
-
-=== Concurrency Control
-
-To handle concurrent Subnet creationg requests, the following three things should be considered:
-
-====== (1) Uniqueness
-The resources which is allocated to subnet should be unique when there are concurrent subnet creation requests.
-
-====== (2) Fallback
-In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
-
-=== Pub-sub point-to-point channel and sidecar cache pattern
 * Subnet Manager maintains subnet-ports mapping and keep tracking the updating of port information,
 including port-id, port-ip, port-mac, host-id and host-ip (refer to *SubnetPorts* entity in Data Schema).
 * The input data for subnet-ports mapping comes from Port Manager when there is a port updating event occur.
@@ -64,7 +61,19 @@ Whenever a port update event triggered in port Manager, the Port Manager needs t
 * The cache is implemented as a container attached to each Subnet Manager instance as a sidecar in the same POD.
 All sidecar caches are created as a cluster and synchronize the cache content all the time.
 
-image::subnet_manager_sidecar_cache_cluster.PNG[500,300]
+==== Option 2
+
+image::subnet_manager_mapping_cache.PNG[]
+
+We need a cache to maintain subnet-port-host mapping and node-nodeInfo mapping HashMap<subnet_id, HashMap<port_id, host_id>>HashMap<node_id, NODEINFO>
+Cache can be an ignite cache for PM, PM has subnet-port-host persistent info, it’s easy for PM to provide a fast-path API for the mappings.
+Cache can be an ignite cache for DPM, but DPM needs to ask PM when there is cache-miss, the cache synchronization is another issue.
+Local cache or external cache? Pros and cons?
+
+
+50 ports/subnet, 50x2M subnets = 100M x 20Byte  = 2GB
+200B x 1M nodes = 200MB
+
 
 == Data Schema
 
@@ -356,3 +365,13 @@ Body:
 Response:
 {"id": "f79bf3b0-fc8e-45df-93c7-f8a44de01c95"}
 ....
+
+=== Concurrency Control
+
+To handle concurrent Subnet creationg requests, the following three things should be considered:
+
+====== (1) Uniqueness
+The resources which is allocated to subnet should be unique when there are concurrent subnet creation requests.
+
+====== (2) Fallback
+In case for subnet creation fails, the resources (include route info, ip address, mac address) that it has allocated to the subnet should be released.
