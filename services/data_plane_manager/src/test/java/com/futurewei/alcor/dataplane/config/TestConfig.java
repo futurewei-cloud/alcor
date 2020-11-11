@@ -40,7 +40,7 @@ public class TestConfig {
     public static String ip21 = "10.10.2.2";
     public static String ip22 = "10.10.2.3";
     public static String hostIp1 = "192.168.131.131";
-    public static String hostIp2 = "192.168.131.132";
+    public static String hostIp2 = "192.168.131.131";
     public static long tunnelId = 100;
     public static String mac1 = "00:01:6C:06:A6:29";
     public static String gatewayMacAddress1 = "00:01:6C:06:A6:29";

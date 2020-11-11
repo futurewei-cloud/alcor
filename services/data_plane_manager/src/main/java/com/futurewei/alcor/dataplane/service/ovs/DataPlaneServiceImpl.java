@@ -62,6 +62,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataPlaneServiceImpl implements DataPlaneService {
+    private static final int FORMAT_REVISION_NUMBER = 1;
+
     @Autowired
     private DataPlaneClient dataPlaneClient;
 
@@ -89,6 +91,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         for (PortState portState: portStates) {
             VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getVpcId());
             VpcConfiguration.Builder vpcConfigBuilder = VpcConfiguration.newBuilder();
+            vpcConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+            vpcConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             vpcConfigBuilder.setId(vpcEntity.getId());
             vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
 
@@ -154,6 +158,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         for (InternalSubnetEntity subnetEntity: subnetEntities) {
             SubnetConfiguration.Builder subnetConfigBuilder = SubnetConfiguration.newBuilder();
+            subnetConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             subnetConfigBuilder.setId(subnetEntity.getId());
             subnetConfigBuilder.setNetworkType(NetworkType.VXLAN);
             subnetConfigBuilder.setProjectId(subnetEntity.getProjectId());
@@ -194,6 +200,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                                 UnicastGoalState unicastGoalState) {
         for (InternalPortEntity portEntity: portEntities) {
             PortConfiguration.Builder portConfigBuilder = PortConfiguration.newBuilder();
+            portConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+            portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             portConfigBuilder.setId(portEntity.getId());
             portConfigBuilder.setMessageType(Common.MessageType.FULL);
             portConfigBuilder.setNetworkType(NetworkType.VXLAN);
@@ -248,6 +256,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private NeighborState buildNeighborState(NeighborEntry neighborEntry, NeighborInfo neighborInfo, OperationType operationType) {
         NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
+        neighborConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+        neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         //neighborConfigBuilder.setId();
         //neighborConfigBuilder.setProjectId();
         neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
@@ -380,6 +390,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         for (String securityGroupId: securityGroupIds) {
             SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
             SecurityGroupConfiguration.Builder securityGroupConfigBuilder = SecurityGroupConfiguration.newBuilder();
+            securityGroupConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+            securityGroupConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             securityGroupConfigBuilder.setId(securityGroup.getId());
             securityGroupConfigBuilder.setProjectId(securityGroup.getProjectId());
             //securityGroupConfigBuilder.setVpcId();
@@ -422,6 +434,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
             for (FixedIp fixedIp: fixedIps) {
                 DHCPConfiguration.Builder dhcpConfigBuilder = DHCPConfiguration.newBuilder();
+                dhcpConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+                dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setMacAddress(macAddress);
                 dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
                 //TODO: support ipv6
@@ -455,6 +469,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
+        routerConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
+        routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         //routerConfigBuilder.setHostDvrMacAddress();
         //routerConfigBuilder.addAllSubnetIds(subnetIds);
 

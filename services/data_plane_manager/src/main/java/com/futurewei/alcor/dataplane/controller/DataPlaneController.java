@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.dataplane.service.DataPlaneServiceNew;
+import com.futurewei.alcor.dataplane.service.DataPlaneService;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import static com.futurewei.alcor.dataplane.utils.RestParameterValidator.checkNe
 public class DataPlaneController {
 
     @Autowired
-    private DataPlaneServiceNew dataPlaneService;
+    private DataPlaneService dataPlaneService;
 
     @PostMapping({"/network-configuration", "v4/network-configuration"})
     @ResponseStatus(HttpStatus.CREATED)
