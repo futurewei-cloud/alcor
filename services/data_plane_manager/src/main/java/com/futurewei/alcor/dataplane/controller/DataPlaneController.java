@@ -20,30 +20,38 @@ import com.futurewei.alcor.dataplane.service.DataPlaneServiceNew;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.futurewei.alcor.dataplane.utils.RestParameterValidator.checkNetworkConfiguration;
+
+@RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class DataPlaneController {
 
     @Autowired
     private DataPlaneServiceNew dataPlaneService;
 
-    @PostMapping({"/port/", "v4/port/"})
+    @PostMapping({"/network-configuration", "v4/network-configuration"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public InternalDPMResultList createNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+        checkNetworkConfiguration(networkConfiguration);
         return dataPlaneService.createNetworkConfiguration(networkConfiguration);
     }
 
-    @PutMapping({"/port/", "v4/port/"})
+    @PutMapping({"/network-configuration", "v4/network-configuration"})
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+        checkNetworkConfiguration(networkConfiguration);
         return dataPlaneService.updateNetworkConfiguration(networkConfiguration);
     }
 
-    @DeleteMapping({"/port/", "v4/port/"})
+    @DeleteMapping({"/network-configuration", "v4/network-configuration"})
     @DurationStatistics
     public InternalDPMResultList deleteNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
+        checkNetworkConfiguration(networkConfiguration);
         return dataPlaneService.deleteNetworkConfiguration(networkConfiguration);
     }
 }
