@@ -563,6 +563,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
         if (subnetId != null) {
             internalSubnetRoutingTable.setSubnetId(subnetId);
+        } else {
+            internalSubnetRoutingTable.setSubnetId(neutronRouteTable.getOwner());
         }
         internalSubnetRoutingTable.setRoutingRules(updateRoutes);
         subnetRoutingTables.add(internalSubnetRoutingTable);

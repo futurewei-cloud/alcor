@@ -294,6 +294,43 @@ public class RouterController {
     }
 
     /**
+     * Create neutron subnet routeTable
+     * @param projectid
+     * @param subnetid
+     * @param resource
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/subnets/{subnetid}/neutron-routetable"})
+    @DurationStatistics
+    public RouteTableWebJson createNeutronSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource) throws Exception {
+
+        RouteTable routeTable = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            // check resource
+            if (!RouteManagerUtil.checkCreateNeutronSubnetRouteTableWebJsonResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
+            }
+
+            routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        } catch (DatabasePersistenceException e) {
+            throw e;
+        }
+
+        return new RouteTableWebJson(routeTable);
+    }
+
+    /**
      * Update Subnet route table
      * @param projectid
      * @param subnetid
@@ -342,7 +379,7 @@ public class RouterController {
      */
     @RequestMapping(
             method = DELETE,
-            value = {"//project/{projectid}/subnets/{subnetid}/routetable"})
+            value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
     public ResponseId deleteSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid) throws Exception {
 

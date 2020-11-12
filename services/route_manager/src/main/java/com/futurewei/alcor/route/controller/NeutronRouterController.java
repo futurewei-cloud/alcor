@@ -334,7 +334,7 @@ public class NeutronRouterController {
         // sub-level routing rule update
         InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
 
-        // TODO: call SM for routing rule updating
+        // TODO: send InternalRouterInfo contract to DPM
 
         // TODO:  l3-neighbors-updating (waiting for PM)
 
@@ -362,7 +362,7 @@ public class NeutronRouterController {
         // sub-level routing rule update
         InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
 
-        // TODO: call SM for routing rule updating
+        // TODO: send InternalRouterInfo contract to DPM
 
         // TODO: call PM for routing rule updating (waiting for PM)
 

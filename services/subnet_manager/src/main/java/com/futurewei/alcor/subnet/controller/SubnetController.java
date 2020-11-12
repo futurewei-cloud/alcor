@@ -33,6 +33,7 @@ import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -357,6 +358,9 @@ public class SubnetController {
             // update to vpc with subnet id
             this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
 
+            // create subnet routing rule in route manager
+            this.subnetService.createSubnetRoutingRuleInRM(projectId, subnetId, inSubnetEntity);
+
             return new SubnetWebJson(inSubnetEntity);
 
         } catch (CompletionException e) {
@@ -417,6 +421,9 @@ public class SubnetController {
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
 
+            // update subnet routing rule in route manager
+            this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
+
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
             throw new Exception(e);
@@ -474,6 +481,9 @@ public class SubnetController {
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
+            // delete subnet routing rule in route manager
+            this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+
         } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
             logger.error(e.getMessage());
             throw new Exception(e);
@@ -514,6 +524,28 @@ public class SubnetController {
             subnetEntityList.add(tmp);
         }
         return new SubnetsWebJson(subnetEntityList);
+    }
+
+    @Rbac(resource ="subnet")
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectId}/subnets/{subnetId}/update_routes"})
+    @DurationStatistics
+    public ResponseId updateSubnetRoutes(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody InternalRouterInfo resource) throws Exception {
+
+        try {
+            Preconditions.checkNotNull(resource, "resource can not be null");
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
+            this.subnetService.updateSubnetHostRoutes(subnetId, resource);
+
+        } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+
+        return new ResponseId(subnetId);
     }
 
 

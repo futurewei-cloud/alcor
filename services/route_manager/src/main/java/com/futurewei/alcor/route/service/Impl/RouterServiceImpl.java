@@ -314,5 +314,30 @@ public class RouterServiceImpl implements RouterService {
         return routeTableId;
     }
 
+    @Override
+    public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource) throws DatabasePersistenceException {
+
+        // configure a new route table
+        RouteTable routeTable = new RouteTable();
+        String id = UUID.randomUUID().toString();
+        routeTable.setId(id);
+        routeTable.setDescription("");
+        routeTable.setName("subnet-" + id + "-routetable");
+        routeTable.setProjectId(projectId);
+        routeTable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
+        routeTable.setOwner(subnetId);
+
+        routeTable.setRouteEntities(new ArrayList<RouteEntry>());
+
+
+        RouteTable inRoutetable = resource.getRoutetable();
+
+        RouteManagerUtil.copyPropertiesIgnoreNull(inRoutetable, routeTable);
+        this.routeTableDatabaseService.addRouteTable(routeTable);
+
+        return routeTable;
+
+    }
+
 
 }

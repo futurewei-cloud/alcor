@@ -1,12 +1,10 @@
 package com.futurewei.alcor.subnet.service;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.exception.FallbackException;
-import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
+import com.futurewei.alcor.common.exception.*;
 
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.subnet.exception.*;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
@@ -70,4 +68,16 @@ public interface SubnetService {
 
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
+
+    // update subnet host routes in subnet manager
+    public void updateSubnetHostRoutes (String subnetId, InternalRouterInfo resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException;
+
+    // delete subnet routing rule in route manager
+    public void deleteSubnetRoutingRuleInRM (String projectId, String subnetId) throws SubnetIdIsNull;
+
+    // update subnet routing rule in route manager
+    public void updateSubnetRoutingRuleInRM (String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull;
+
+    // create subnet routing rule in route manager
+    public void createSubnetRoutingRuleInRM (String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull;
 }
