@@ -19,33 +19,33 @@ syntax = "proto3";
 package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Vpc";
+option java_outer_classname = "AuxiliaryGateway";
 
-import "common.proto";
-import "auxiliarygateway.proto";
-
-message VpcConfiguration {  
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
-
-    string request_id = 3;
-    string id = 4;
-    MessageType update_type = 5; // DELTA (default) or FULL
-    string project_id = 6;
-    string name = 7;
-    string cidr = 8;
-    uint32 tunnel_id = 9;
-
-    message SubnetId {
-        string id = 1;
-    }
-
-    repeated SubnetId subnet_ids = 10;
-
-    AuxGateway auxiliary_gateway = 11;
+enum AuxGatewayType {
+    NONE = 0;
+    ZETA = 1;
 }
 
-message VpcState {
-    OperationType operation_type = 1;
-    VpcConfiguration configuration = 2;
+message AuxGateway {
+    AuxGatewayType AuxGateway_type = 1;
+
+    // if AuxGateway_type == NONE, then id = empty string 
+    string id = 2;
+
+    message destination {
+        string ip_address = 1;
+        string mac_address = 2;
+    }
+
+    // if AuxGateway_type == NONE, then destinations_size = 0 
+    repeated destination destinations = 3;
+
+    message zeta {
+        // port for in-band (same NIC channel) operation
+        uint32 port_inband_operation = 1;
+    }
+
+    oneof extra_info {
+        zeta zeta_info = 4;
+    }
 }
