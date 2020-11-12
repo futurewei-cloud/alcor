@@ -21,24 +21,31 @@ package alcor.schema;
 option java_package = "com.futurewei.alcor.schema";
 option java_outer_classname = "AuxiliaryGateway";
 
+enum AuxGatewayType {
+    NONE = 0;
+    ZETA = 1;
+}
 
 message AuxGateway {
-    // default value of empty string means no auxiliary gateway supported
-    string id = 1;
+    AuxGatewayType AuxGateway_type = 1;
+
+    // if AuxGateway_type == NONE, then id = empty string 
+    string id = 2;
 
     message destination {
         string ip_address = 1;
         string mac_address = 2;
     }
 
-    // default destinations_size of 0 means no auxiliary gateway supported
-    repeated destination destinations = 2;
+    // if AuxGateway_type == NONE, then destinations_size = 0 
+    repeated destination destinations = 3;
 
     message zeta {
-        uint32 port_inband_operation = 1; // port for in-band operation, TBD: why called in-band?
+        // port for in-band (same NIC channel) operation
+        uint32 port_inband_operation = 1;
     }
 
     oneof extra_info {
-        zeta zeta_info = 3;
+        zeta zeta_info = 4;
     }
 }
