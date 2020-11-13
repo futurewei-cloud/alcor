@@ -70,7 +70,7 @@ public interface SubnetService {
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
 
     // update subnet host routes in subnet manager
-    public void updateSubnetHostRoutes (String subnetId, InternalRouterInfo resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException;
+    public void updateSubnetHostRoutes (String subnetId, InternalRouterInfo resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException, SubnetEntityNotFound, DestinationOrOperationTypeIsNull;
 
     // delete subnet routing rule in route manager
     public void deleteSubnetRoutingRuleInRM (String projectId, String subnetId) throws SubnetIdIsNull;

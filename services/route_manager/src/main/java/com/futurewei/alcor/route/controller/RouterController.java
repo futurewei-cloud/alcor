@@ -24,6 +24,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.exception.CanNotFindVpc;
 import com.futurewei.alcor.route.exception.OwnMultipleSubnetRouteTablesException;
 import com.futurewei.alcor.route.exception.VpcNonEmptyException;
+import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.RouteTableDatabaseService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.route.service.RouterService;
@@ -57,6 +58,9 @@ public class RouterController {
 
     @Autowired
     private RouteTableDatabaseService routeTableDatabaseService;
+
+    @Autowired
+    private NeutronRouterService neutronRouterService;
 
     /**
      * Get or Create VPC router
@@ -303,7 +307,7 @@ public class RouterController {
      */
     @RequestMapping(
             method = POST,
-            value = {"/project/{projectid}/subnets/{subnetid}/neutron-routetable"})
+            value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
     public RouteTableWebJson createNeutronSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource) throws Exception {
 
@@ -320,6 +324,22 @@ public class RouterController {
             }
 
             routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource);
+
+            // sub-level routing rule update
+            List<RouteEntry> routeEntities = routeTable.getRouteEntities();
+            NewRoutesWebRequest newRoutes = new NewRoutesWebRequest();
+            List<NewRoutesRequest> routes = new ArrayList<>();
+            for (RouteEntry routeEntry : routeEntities) {
+                String destination = routeEntry.getDestination();
+                String nexthop = routeEntry.getNexthop();
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
+                routes.add(newRoutesRequest);
+            }
+            newRoutes.setRoutes(routes);
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes);
+
+            // TODO: send InternalRouterInfo contract to DPM
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;

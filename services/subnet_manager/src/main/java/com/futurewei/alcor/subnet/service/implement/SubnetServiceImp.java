@@ -428,7 +428,7 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public void updateSubnetHostRoutes(String subnetId, InternalRouterInfo resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException {
+    public void updateSubnetHostRoutes(String subnetId, InternalRouterInfo resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException, SubnetEntityNotFound, DestinationOrOperationTypeIsNull {
 
         // get internal routing rule
         InternalRouterConfiguration configuration = resource.getRouterConfiguration();
@@ -454,12 +454,13 @@ public class SubnetServiceImp implements SubnetService {
         // get List<HostRoute> in subnet entity
         SubnetEntity subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
         if (subnetEntity == null) {
-            return;
+            logger.error("subnet id: " + subnetId);
+            throw new SubnetEntityNotFound();
         }
         List<HostRoute> hostRoutes = subnetEntity.getHostRoutes();
 
-        if (hostRoutes == null || routingRules == null) {
-            return;
+        if (hostRoutes == null) {
+            hostRoutes = new ArrayList<>();
         }
 
         // update subnet routes
@@ -468,7 +469,7 @@ public class SubnetServiceImp implements SubnetService {
             String destination = internalRoutingRule.getDestination();
             String nextHopIp = internalRoutingRule.getNextHopIp();
             if (destination == null || operationType == null) {
-                continue;
+                throw new DestinationOrOperationTypeIsNull();
             }
 
             if (operationType.equals(OperationType.CREATE.getOperationType())) {
@@ -482,7 +483,7 @@ public class SubnetServiceImp implements SubnetService {
                     HostRoute hostRoute = hostRoutes.get(i);
                     String subnetDestination = hostRoute.getDestination();
                     if (subnetDestination == null) {
-                        continue;
+                        throw new DestinationOrOperationTypeIsNull();
                     }
 
                     if (subnetDestination.equals(destination)) {
@@ -585,7 +586,7 @@ public class SubnetServiceImp implements SubnetService {
         routetable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
         routetable.setRouteEntities(routeEntities);
 
-        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/neutron-routetable";
+        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
         HttpEntity<RouteTableWebJson> routeRequest = new HttpEntity<>(new RouteTableWebJson(routetable));
         RouteTableWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
         // retry if routeResponse is null

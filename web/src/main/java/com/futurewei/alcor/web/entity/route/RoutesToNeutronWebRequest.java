@@ -20,11 +20,11 @@ import lombok.Data;
 @Data
 public class RoutesToNeutronWebRequest {
 
-    private RoutesToNeutronRouterRequestObject router;
+    private NewRoutesWebRequest router;
 
     public RoutesToNeutronWebRequest() {}
 
-    public RoutesToNeutronWebRequest(RoutesToNeutronRouterRequestObject router) {
+    public RoutesToNeutronWebRequest(NewRoutesWebRequest router) {
         this.router = router;
     }
 }

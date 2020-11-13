@@ -13,30 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.subnet.exception;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-
-@Data
-public class RoutesToNeutronRouterResponseObject {
-
-    @JsonProperty("id")
-    private String id;
-
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("routes")
-    private List<NewRoutesRequest> routes;
-
-    public RoutesToNeutronRouterResponseObject () {}
-
-    public RoutesToNeutronRouterResponseObject(String id, String name, List<NewRoutesRequest> routes) {
-        this.id = id;
-        this.name = name;
-        this.routes = routes;
-    }
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="Subnet entity not found")
+public class SubnetEntityNotFound extends Exception {
 }

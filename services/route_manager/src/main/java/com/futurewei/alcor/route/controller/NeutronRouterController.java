@@ -324,15 +324,15 @@ public class NeutronRouterController {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerid);
         RestPreconditionsUtil.verifyResourceFound(projectid);
 
-        RoutesToNeutronRouterRequestObject router = resource.getRouter();
-        if (router == null) {
+        NewRoutesWebRequest newRoutes = resource.getRouter();
+        if (newRoutes == null) {
             return new RoutesToNeutronWebResponse();
         }
 
-        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, router);
+        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, newRoutes);
 
         // sub-level routing rule update
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
+        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, newRoutes);
 
         // TODO: send InternalRouterInfo contract to DPM
 
@@ -352,7 +352,7 @@ public class NeutronRouterController {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerid);
         RestPreconditionsUtil.verifyResourceFound(projectid);
 
-        RoutesToNeutronRouterRequestObject router = resource.getRouter();
+        NewRoutesWebRequest router = resource.getRouter();
         if (router == null) {
             return new RoutesToNeutronWebResponse();
         }
@@ -360,7 +360,7 @@ public class NeutronRouterController {
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesToNeutronRouter(routerid, router);
 
         // sub-level routing rule update
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, null, router);
+        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, router);
 
         // TODO: send InternalRouterInfo contract to DPM
 

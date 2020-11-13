@@ -15,28 +15,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.entity.route;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class RoutesToNeutronRouterResponseObject {
+public class NewRoutesWebRequest {
 
-    @JsonProperty("id")
-    private String id;
-
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("routes")
     private List<NewRoutesRequest> routes;
 
-    public RoutesToNeutronRouterResponseObject () {}
+    public NewRoutesWebRequest() {}
 
-    public RoutesToNeutronRouterResponseObject(String id, String name, List<NewRoutesRequest> routes) {
-        this.id = id;
-        this.name = name;
+    public NewRoutesWebRequest(List<NewRoutesRequest> routes) {
         this.routes = routes;
     }
 }
