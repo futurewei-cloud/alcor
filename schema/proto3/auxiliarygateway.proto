@@ -27,9 +27,9 @@ enum AuxGatewayType {
 }
 
 message AuxGateway {
-    AuxGatewayType AuxGateway_type = 1;
+    AuxGatewayType aux_gateway_type = 1;
 
-    // if AuxGateway_type == NONE, then id = empty string 
+    // if aux_gateway_type == NONE, then id = empty string 
     string id = 2;
 
     message destination {
@@ -37,7 +37,7 @@ message AuxGateway {
         string mac_address = 2;
     }
 
-    // if AuxGateway_type == NONE, then destinations_size = 0 
+    // if aux_gateway_type == NONE, then destinations_size = 0 
     repeated destination destinations = 3;
 
     message zeta {
