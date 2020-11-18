@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Configuration
-@Data
 public class Config {
 
   public static final int SHUTDOWN_TIMEOUT = 5;

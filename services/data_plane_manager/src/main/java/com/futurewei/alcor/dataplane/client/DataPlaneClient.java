@@ -15,9 +15,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.client;
 
-import com.futurewei.alcor.dataplane.entity.HostGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,15 +26,15 @@ import java.util.Map;
 
 @Component
 public interface DataPlaneClient {
-    Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-    createGoalState(GoalState goalState, String hostIp) throws Exception;
+    Map<String, List<GoalStateOperationStatus>> createGoalStates(GoalState goalState, String hostIp) throws Exception;
 
-    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    createGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+    List<Map<String, List<GoalStateOperationStatus>>> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
 
-    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    updateGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+    List<Map<String, List<GoalStateOperationStatus>>> updateGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
 
-    List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception;
+    List<Map<String, List<GoalStateOperationStatus>>> deleteGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
+
+    List<Map<String, List<GoalStateOperationStatus>>> createGoalStates(
+            List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception;
+
 }

@@ -16,7 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.client.kafka;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
-import com.futurewei.alcor.dataplane.entity.HostGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 
@@ -24,27 +25,29 @@ import java.util.List;
 import java.util.Map;
 
 public class DataPlaneClientImpl implements DataPlaneClient {
+
     @Override
-    public Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-    createGoalState(Goalstate.GoalState goalState, String hostIp) throws Exception {
+    public Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> createGoalStates(Goalstate.GoalState goalState, String hostIp) throws Exception {
         return null;
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    createGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
         return null;
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    updateGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> updateGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
         return null;
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception {
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> deleteGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> createGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
         return null;
     }
 }
