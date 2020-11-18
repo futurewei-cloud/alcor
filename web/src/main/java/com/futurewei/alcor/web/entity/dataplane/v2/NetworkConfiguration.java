@@ -21,6 +21,7 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
@@ -54,6 +55,9 @@ public class NetworkConfiguration {
 
   @JsonProperty("routers_internal")
   private List<InternalRouterInfo> internalRouterInfos;
+
+  @JsonProperty("subnet_ports_internal")
+  private Map<String, InternalSubnetPorts> internalSubnetPorts;
 
   public List<InternalRouterInfo> getInternalRouterInfos() {
     return internalRouterInfos;
@@ -157,6 +161,14 @@ public class NetworkConfiguration {
 
   public void setNeighborTable(Map<String, List<NeighborEntry>> neighborTable) {
     this.neighborTable = neighborTable;
+  }
+
+  public Map<String, InternalSubnetPorts> getInternalSubnetPorts() {
+    return internalSubnetPorts;
+  }
+
+  public void setInternalSubnetPorts(Map<String, InternalSubnetPorts> internalSubnetPorts) {
+    this.internalSubnetPorts = internalSubnetPorts;
   }
 
   @Override

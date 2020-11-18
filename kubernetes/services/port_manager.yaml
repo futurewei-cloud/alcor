@@ -7,7 +7,12 @@ data:
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-port-service.ignite-alcor-port.svc.cluster.local
     ignite.port=10802
+
+    server.max-http-header-size=16384
+    server.max-initial-line-length=65536
+
     logging.level.root=DEBUG
+
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
     microservices.ip.service.url=http://ipmanager-service.default.svc.cluster.local:9004/ips
@@ -17,6 +22,7 @@ data:
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
     microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/v4/port/
     microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011
+
     alcor.vif_type=ovs
 ---
 apiVersion: apps/v1
