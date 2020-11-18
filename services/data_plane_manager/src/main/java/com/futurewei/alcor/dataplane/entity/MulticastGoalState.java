@@ -20,6 +20,15 @@ import com.futurewei.alcor.schema.Goalstate.GoalState;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MulticastGoalState represents the GoalState that needs to be sent by multicast,
+ * that is the same GoalState message needs to be sent to multiple host, MulticastGoalState
+ * including a goalState object and multiple destination host ip addresses to which
+ * the GoalState object is sent. It also contains a nextTopics field to support
+ * the hierarchical topic of pulsar, which is used by pulsar to decide which topics to
+ * send goalState to. The field goalStateBuilder is a temporary object that is used to
+ * construct a goalState object that must be cleared before the MulticastGoalState is sent.
+ */
 public class MulticastGoalState {
     private List<String> hostIps;
     private List<String> nextTopics;

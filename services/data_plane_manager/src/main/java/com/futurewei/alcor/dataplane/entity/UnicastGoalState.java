@@ -17,6 +17,13 @@ package com.futurewei.alcor.dataplane.entity;
 
 import com.futurewei.alcor.schema.Goalstate.GoalState;
 
+/**
+ * UnicastGoalState contains a goalState object and the destination host ip address hostIp,
+ * to which the GoalState object is sent. In order to support the hierarchical topic of pulsar,
+ * it also contains the nextTopic field, which is used by pulsar to determine which topic to
+ * send the goalState to. The field goalStateBuilder is a temporary object that is used to
+ * construct a goalState object that must be cleared before the UnicastGoalState is sent.
+ */
 public class UnicastGoalState {
     private String hostIp;
     private String nextTopic;
