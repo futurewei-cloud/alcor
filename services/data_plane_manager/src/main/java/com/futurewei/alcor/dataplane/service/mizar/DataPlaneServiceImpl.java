@@ -17,9 +17,10 @@ package com.futurewei.alcor.dataplane.service.mizar;
 
 import com.futurewei.alcor.dataplane.service.DataPlaneService;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 
 public class DataPlaneServiceImpl implements DataPlaneService {
+
     @Override
     public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
         return null;

@@ -34,8 +34,10 @@ message PortConfiguration {
     string project_id = 7;
     string vpc_id = 8;
     string name = 9;
-    string mac_address = 10;
-    bool admin_state_up = 11;
+    string device_id = 10;
+    string device_owner = 11;
+    string mac_address = 12;
+    bool admin_state_up = 13;
 
     message HostInfo {
         string ip_address = 1;
@@ -56,10 +58,10 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 12;
-    repeated FixedIp fixed_ips = 13;
-    repeated AllowAddressPair allow_address_pairs = 14;
-    repeated SecurityGroupId security_group_ids = 15;
+    HostInfo host_info = 14;
+    repeated FixedIp fixed_ips = 15;
+    repeated AllowAddressPair allow_address_pairs = 16;
+    repeated SecurityGroupId security_group_ids = 17;
 }
 
 message PortState {

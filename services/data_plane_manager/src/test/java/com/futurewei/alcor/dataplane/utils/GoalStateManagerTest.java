@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -652,13 +654,52 @@ public class GoalStateManagerTest {
 
         NetworkConfiguration input = util.autoGenerateUTsInput_MoreCustomizableScenarios(0, 2, createPortsMap, UTSubnets, L3NeighborInfoMapping, true, true, true, true, neighborInfoDetails, true);
         Map<String, Goalstate.GoalState> output = util.autoGenerateUTsOutput_MoreCustomizableScenarios(0, 2, createPortsMap, existPortsMap, UTSubnets, L3NeighborInfoMapping, true,true, true, true, neighborInfoDetails, true);
-        //L3Check_Second_Version(input, output, existPortsMap);
+        L3Check_Second_Version(input, output, existPortsMap);
+    }
+
+    private void check(String input, String output) {
+
+        NetworkConfiguration networkConfiguration = gson.fromJson(input, NetworkConfiguration.class);
+        Map<String, Goalstate.GoalState> goalStateHashMap =
+                new Gson().fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {
+                }.getType());
+
+        Map<String, Goalstate.GoalState> goalStateHashMap1 =
+                gson.fromJson(output, new TypeToken<Map<String, Goalstate.GoalState>>() {
+                }.getType());
+
+         Map<String, Goalstate.GoalState> stringGoalStateMap=null;
+        try {
+            stringGoalStateMap = goalStateManager.transformNorthToSouth(networkConfiguration).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(goalStateHashMap.keySet().toString(), stringGoalStateMap.keySet().toString());
+        assertEquals(goalStateHashMap.values().size(), stringGoalStateMap.values().size());
+        assertEquals(
+                goalStateHashMap
+                        .get(goalStateHashMap.keySet().iterator().next())
+                        .getPortStatesList()
+                        .size(),
+                stringGoalStateMap
+                        .get(stringGoalStateMap.keySet().iterator().next())
+                        .getPortStatesList()
+                        .size());
     }
 
     private void L3Check(NetworkConfiguration input, Map<String, Goalstate.GoalState> output) {
 
-        Map<String, Goalstate.GoalState> stringGoalStateMap =
-                goalStateManager.transformNorthToSouth(input);
+        Map<String, Goalstate.GoalState> stringGoalStateMap = null;
+        try {
+            stringGoalStateMap = goalStateManager.transformNorthToSouth(input).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(output.keySet().toString(), stringGoalStateMap.keySet().toString());
         assertEquals(output.values().size(), stringGoalStateMap.values().size());
@@ -678,10 +719,10 @@ public class GoalStateManagerTest {
                         .get(stringGoalStateMap.keySet().iterator().next()));
     }
 
-    private void L3Check_Second_Version(NetworkConfiguration input, Map<String, Goalstate.GoalState> output, Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap) {
+    private void L3Check_Second_Version(NetworkConfiguration input, Map<String, Goalstate.GoalState> output, Map<String, List<UTPortWithSubnetAndIPMapping>> existPortsMap) throws ExecutionException, InterruptedException {
 
         Map<String, Goalstate.GoalState> stringGoalStateMap =
-                goalStateManager.transformNorthToSouth(input);
+                goalStateManager.transformNorthToSouth(input).get();
 
 //        assertEquals(output.keySet().toString(), stringGoalStateMap.keySet().toString());
 //        assertEquals(output.values().size(), stringGoalStateMap.values().size());

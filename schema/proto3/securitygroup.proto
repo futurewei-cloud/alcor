@@ -29,7 +29,7 @@ message SecurityGroupConfiguration {
 
     string request_id = 3;
     string id = 4;
-    MessageType message_type = 5; // DELTA (default) or FULL
+    MessageType update_type = 5; // DELTA (default) or FULL
     string project_id = 6;
     string vpc_id = 7;
     string name = 8;
