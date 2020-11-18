@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+//@Component
 public class DataPlaneClientImpl implements DataPlaneClient {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
