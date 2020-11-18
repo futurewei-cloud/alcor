@@ -73,7 +73,7 @@ public class GoalStateHelper {
     Subnet.SubnetConfiguration.Gateway gateway =
         Subnet.SubnetConfiguration.Gateway.newBuilder()
             .setIpAddress(subnetEntity1.getGatewayIp())
-            .setMacAddress(subnetEntity1.getGatewayMacAddress())
+            .setMacAddress(subnetEntity1.getGatewayPortDetail().getGatewayMacAddress())
             .build();
     Subnet.SubnetConfiguration subnetConfiguration =
         Subnet.SubnetConfiguration.newBuilder()
