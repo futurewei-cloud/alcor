@@ -154,7 +154,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             Gateway.Builder gatewayBuilder = Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
+            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
             subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
