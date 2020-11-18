@@ -13,19 +13,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.route.service;
+package com.futurewei.alcor.web.entity.subnet;
 
-import com.futurewei.alcor.route.exception.CanNotFindSubnet;
 import com.futurewei.alcor.web.entity.subnet.HostRoute;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
+import lombok.Data;
 
 import java.util.List;
 
-public interface VpcRouterToSubnetService {
+@Data
+public class NewHostRoutes {
 
-    public SubnetWebJson getSubnet (String projectId, String subnetId) throws CanNotFindSubnet;
-    public SubnetsWebJson getSubnetsByVpcId (String projectId, String vpcId);
-    public void updateRoutingRuleInSubnetManager (String projectId, String subnetId, List<HostRoute> hostRouteToSubnet);
+    private List<HostRoute> hostRoutes;
 
+    public NewHostRoutes() {}
+
+    public NewHostRoutes(List<HostRoute> hostRoutes) {
+        this.hostRoutes = hostRoutes;
+    }
 }

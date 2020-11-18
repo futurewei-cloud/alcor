@@ -13,14 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.subnet.config;
+package com.futurewei.alcor.subnet.exception;
 
-public class ConstantsConfig {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public static int HighIpInterval = 0;
-    public static int LowIpInterval = 3;
-    public static int BaseInterval = 0;
-    public static long UsedIpThreshold = 0;
-    public static String DeviceOwner = "network:router_interface";
-
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="PortWebJson or PortEntity returned is null (GatewayPort)")
+public class PortWebJsonOrPortEntityIsNull extends Exception {
 }

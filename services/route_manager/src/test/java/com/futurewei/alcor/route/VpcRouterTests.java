@@ -18,8 +18,10 @@ package com.futurewei.alcor.route;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
+import com.futurewei.alcor.web.entity.route.NewRoutesWebRequest;
 import com.futurewei.alcor.web.entity.route.RouteTable;
 import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.route.UpdateRoutingRuleResponse;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -41,7 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,6 +72,9 @@ public class VpcRouterTests {
 
     @MockBean
     private RouteEntryDatabaseService routeEntryDatabaseService;
+
+    @MockBean
+    private NeutronRouterService neutronRouterService;
 
     private String vpcRouterUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/router";
     private String vpcRouteTableUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/vpcroutetable";
@@ -321,9 +326,12 @@ public class VpcRouterTests {
     public void updateSubnetRouteTable_pass () throws Exception {
         RouteTable routetable = new RouteTable();
         routetable.setId(UnitTestConfig.routeTableId);
+        routetable.setRouteEntities(new ArrayList<>());
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
         this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.subnetRouteTableResource))
                 .andDo(print())
@@ -338,6 +346,8 @@ public class VpcRouterTests {
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
         this.mockMvc.perform(delete(subnetRouteTableUri))
                 .andDo(print())
                 .andExpect(status().isOk())

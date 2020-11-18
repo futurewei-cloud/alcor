@@ -332,7 +332,8 @@ public class NeutronRouterController {
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, newRoutes);
 
         // sub-level routing rule update
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, newRoutes);
+        UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(routerid, newRoutes, true);
+        InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
 
         // TODO: send InternalRouterInfo contract to DPM
 
@@ -360,7 +361,8 @@ public class NeutronRouterController {
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesToNeutronRouter(routerid, router);
 
         // sub-level routing rule update
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.updateRoutingRule(routerid, router);
+        UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(routerid, router, true);
+        InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
 
         // TODO: send InternalRouterInfo contract to DPM
 

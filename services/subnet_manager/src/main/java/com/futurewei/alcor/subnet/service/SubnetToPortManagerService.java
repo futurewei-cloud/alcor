@@ -13,14 +13,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.subnet.config;
+package com.futurewei.alcor.subnet.service;
 
-public class ConstantsConfig {
+import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 
-    public static int HighIpInterval = 0;
-    public static int LowIpInterval = 3;
-    public static int BaseInterval = 0;
-    public static long UsedIpThreshold = 0;
-    public static String DeviceOwner = "network:router_interface";
+public interface SubnetToPortManagerService {
+
+    public GatewayPortDetail createGatewayPort (String projectId, PortEntity portEntity) throws Exception;
+    public void updateGatewayPort (String projectId, String portId, PortEntity portEntity) throws Exception;
+    public PortEntity getGatewayPortByPortID (String projectId, String portId) throws Exception;
+    public void deleteGatewayPort (String projectId, String portId) throws Exception;
 
 }

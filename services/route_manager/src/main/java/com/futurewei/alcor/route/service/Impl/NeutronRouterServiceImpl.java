@@ -27,6 +27,7 @@ import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
+import com.futurewei.alcor.web.entity.subnet.HostRoute;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
@@ -168,7 +169,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         projectId = subnet.getProjectId();
-        portId = subnet.getGatewayPortId();
+        portId = subnet.getGatewayPortDetail().getGatewayPortId();
         attachedRouterId = subnet.getAttachedRouterId();
 
         // check if port_id is used by other router
@@ -222,7 +223,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 logger.log(Level.WARNING, "can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
-            attachedPort = subnet.getGatewayPortId();
+            attachedPort = subnet.getGatewayPortDetail().getGatewayPortId();
             if (attachedPort != null) {
                 if (!attachedPort.equals(portId)) {
                     throw new AttachedPortsNotMatchPortId();
@@ -296,7 +297,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         if (portId == null) {
-            portId = subnet.getGatewayPortId();
+            portId = subnet.getGatewayPortDetail().getGatewayPortId();
         }
 
         if (ports.contains(portId)) {
@@ -473,12 +474,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public InternalRouterInfo updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable, RouterTableNotExist, DestinationOrNexthopCanNotBeNull, OwnerInNeutronRouteTableNotFound, CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique {
+    public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isNeutronOrVPCLevelRoutingRule) throws DestinationOrNexthopCanNotBeNull, CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique {
         List<InternalRoutingRule> updateRoutes = new ArrayList<>();
+        List<HostRoute> hostRouteToSubnet = new ArrayList<>();
 
         List<NewRoutesRequest> routes = newRouteEntry.getRoutes();
-        if (routes == null || routes.size() == 0) {
-            return new InternalRouterInfo();
+        if (routes == null) {
+            return new UpdateRoutingRuleResponse(new InternalRouterInfo(), hostRouteToSubnet);
         }
 
         // find routeTable
@@ -521,17 +523,19 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
             if (route == null) {
 
-                InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.NEUTRON, route);
+                InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.NEUTRON, route, newRoute);
 
                 updateRoutes.add(internalRoutingRule);
+                hostRouteToSubnet.add(new HostRoute(){{setNexthop(internalRoutingRule.getNextHopIp());setDestination(internalRoutingRule.getDestination());}});
 
             } else {
                 // TODO: if it is vpc router, we need also compare with their 'target' field value
                 if (newRouteNexthop != route.getNexthop()) {
 
-                    InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.UPDATE, RoutingRuleType.NEUTRON, route);
+                    InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.UPDATE, RoutingRuleType.NEUTRON, route, newRoute);
 
                     updateRoutes.add(internalRoutingRule);
+                    hostRouteToSubnet.add(new HostRoute(){{setNexthop(internalRoutingRule.getNextHopIp());setDestination(internalRoutingRule.getDestination());}});
 
                     existRoutes.remove(route);
 
@@ -541,7 +545,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         for (RouteEntry existRoute : existRoutes) {
 
-            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.NEUTRON, existRoute);
+            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.NEUTRON, existRoute, null);
 
             updateRoutes.add(internalRoutingRule);
 
@@ -553,32 +557,42 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         InternalRouterConfiguration internalRouterConfiguration = new InternalRouterConfiguration();
 
-        List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
+        if (isNeutronOrVPCLevelRoutingRule) {
 
-        InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
-        if (owner != null) {
-            internalSubnetRoutingTable.setSubnetId(owner);
+            // set updateRoutes as default routing rule
+            internalRouterConfiguration.setDefaultRoutingTable(updateRoutes);
+
         } else {
-            internalSubnetRoutingTable.setSubnetId(existRouteTable.getOwner());
-        }
-        internalSubnetRoutingTable.setRoutingRules(updateRoutes);
-        subnetRoutingTables.add(internalSubnetRoutingTable);
+            List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
 
+            InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+            if (owner != null) {
+                internalSubnetRoutingTable.setSubnetId(owner);
+            } else {
+                internalSubnetRoutingTable.setSubnetId(existRouteTable.getOwner());
+            }
+            internalSubnetRoutingTable.setRoutingRules(updateRoutes);
+            subnetRoutingTables.add(internalSubnetRoutingTable);
+
+            internalRouterConfiguration.setSubnetRoutingTables(subnetRoutingTables);
+        }
 
         internalRouterConfiguration.setRevisionNumber(ConstantsConfig.REVISION_NUMBER);
         internalRouterConfiguration.setFormatVersion(ConstantsConfig.FORMAT_VERSION);
         internalRouterConfiguration.setRequestId(requestId);
         internalRouterConfiguration.setHostDvrMac("");
         internalRouterConfiguration.setMessageType(MessageType.FULL);
-        internalRouterConfiguration.setSubnetRoutingTables(subnetRoutingTables);
 
         internalRouterInfo.setOperationType(OperationType.INFO);
         internalRouterInfo.setRouterConfiguration(internalRouterConfiguration);
 
-        return internalRouterInfo;
+        // construct UpdateRoutingRuleResponse
+        UpdateRoutingRuleResponse updateRoutingRuleResponse = new UpdateRoutingRuleResponse(internalRouterInfo, hostRouteToSubnet);
+
+        return updateRoutingRuleResponse;
     }
 
-    private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route) {
+    private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route, NewRoutesRequest newRoute) {
         if (route == null) {
             return new InternalRoutingRule();
         }
@@ -592,9 +606,17 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         internalRoutingRule.setId(route.getId());
         internalRoutingRule.setName(route.getName());
-        internalRoutingRule.setDestination(route.getDestination());
+        if (newRoute != null) {
+            internalRoutingRule.setDestination(newRoute.getDestination());
+        } else {
+            internalRoutingRule.setDestination(route.getDestination());
+        }
         // TODO: translate target to nextHop - it is vpc router operation
-        internalRoutingRule.setNextHopIp(route.getNexthop());
+        if (newRoute != null) {
+            internalRoutingRule.setNextHopIp(newRoute.getNexthop());
+        } else {
+            internalRoutingRule.setNextHopIp(route.getNexthop());
+        }
         // TODO: set priority - configure priority according to RoutingRuleType
         if (routingRuleType.getRoutingRuleType().equals(ConstantsConfig.ROUTINGRULETYPE)) {
             internalRoutingRule.setPriority(String.valueOf(route.getPriority()));
