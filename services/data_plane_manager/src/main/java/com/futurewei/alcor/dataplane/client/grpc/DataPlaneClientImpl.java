@@ -36,7 +36,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
 public class DataPlaneClientImpl implements DataPlaneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);

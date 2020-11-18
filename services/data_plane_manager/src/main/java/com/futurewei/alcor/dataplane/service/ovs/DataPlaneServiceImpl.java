@@ -39,6 +39,7 @@ import com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp;
 import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId;
 import com.futurewei.alcor.schema.Port.PortState;
+import com.futurewei.alcor.schema.Router;
 import com.futurewei.alcor.schema.Router.DestinationType;
 import com.futurewei.alcor.schema.Router.RouterConfiguration;
 import com.futurewei.alcor.schema.Router.RouterConfiguration.SubnetRoutingTable;
@@ -626,6 +627,13 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
         }
+        Router.RouterState.Builder routerStateBuilder;
+        if (routerStatesCount == 0) {
+            routerStateBuilder = Router.RouterState.newBuilder();
+        } else {
+            routerStateBuilder = goalStateBuilder.getRouterStatesBuilder(0);
+        }
+        routerStateBuilder.getConfigurationBuilder().addSubnetRoutingTables(subnetRoutingTableBuilder.build());
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> createRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -678,7 +686,12 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        return dataPlaneClient.createGoalStates(new ArrayList<>(unicastGoalStateMap.values()));
+        List<UnicastGoalState> unicastGoalStateList = new ArrayList<>();
+        for (UnicastGoalState unicastGoalState : unicastGoalStateMap.values()) {
+            unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
+            unicastGoalStateList.add(unicastGoalState);
+        }
+        return dataPlaneClient.createGoalStates(unicastGoalStateList);
     }
 
     @Override
