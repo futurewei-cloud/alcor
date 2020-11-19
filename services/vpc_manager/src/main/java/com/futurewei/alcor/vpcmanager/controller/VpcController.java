@@ -45,6 +45,16 @@ import java.util.*;
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
+import feign.Client;
+import feign.Feign;
+import feign.auth.BasicAuthRequestInterceptor;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.opentracing.TracingClient;
+import io.opentracing.Tracer;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class VpcController {
@@ -57,6 +67,16 @@ public class VpcController {
 
     @Autowired
     private HttpServletRequest request;
+    private CallerProxy greetingFeignClient;
+
+    public VpcController(
+            Decoder decoder, Encoder encoder, Client client, Tracer tracer) {
+        this.greetingFeignClient = Feign.builder().client(new TracingClient(client, tracer))
+                .encoder(encoder)
+                .decoder(decoder)
+                .requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+                .target(CallerProxy.class, "http://localhost:8080");
+    }
 
     /**
      * hows details for a network
@@ -66,7 +86,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -104,6 +124,10 @@ public class VpcController {
         return new VpcsWebJson();
     }
 
+    VpcController() {
+
+    }
+
     /**
      * Creates a network
      *
@@ -112,7 +136,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -120,6 +144,7 @@ public class VpcController {
     @DurationStatistics
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         VpcEntity inVpcState = new VpcEntity();
+        greetingFeignClient.greeting();
 
         if (StringUtils.isEmpty(resource.getNetwork().getId())) {
             UUID vpcId = UUID.randomUUID();
@@ -189,7 +214,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -247,7 +272,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -282,7 +307,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -290,8 +315,8 @@ public class VpcController {
     @DurationStatistics
     public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
-        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
-        requestParams = requestParams == null ? request.getParameterMap():requestParams;
+        Map<String, String[]> requestParams = (Map<String, String[]>) request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap() : requestParams;
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(requestParams, VpcEntity.class);
 
@@ -331,6 +356,7 @@ public class VpcController {
 
     /**
      * Updates a network with subnet id
+     *
      * @param projectid
      * @param vpcid
      * @param subnetid
@@ -378,6 +404,7 @@ public class VpcController {
 
     /**
      * delete subnet id in a network
+     *
      * @param projectid
      * @param vpcid
      * @param subnetid

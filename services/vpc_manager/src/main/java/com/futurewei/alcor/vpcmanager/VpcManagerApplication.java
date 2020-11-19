@@ -20,10 +20,14 @@ import com.futurewei.alcor.common.db.DbBaseConfiguration;
 import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
 import com.futurewei.alcor.web.rbac.aspect.RbacConfiguration;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication()
+@EnableAutoConfiguration
+@ComponentScan({"com.futurewei.alcor.vpcmanager"})
 @Import({DbBaseConfiguration.class, JsonHandlerConfiguration.class, RbacConfiguration.class})
 public class VpcManagerApplication {
 

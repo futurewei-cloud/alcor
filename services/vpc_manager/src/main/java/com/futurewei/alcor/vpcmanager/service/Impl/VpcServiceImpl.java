@@ -16,8 +16,24 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import feign.Client;
+import feign.Feign;
+import feign.auth.BasicAuthRequestInterceptor;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.opentracing.TracingClient;
+import io.opentracing.Tracer;
+
 import java.util.List;
 import java.util.UUID;
+
+//import com.linecorp.armeria.client.WebClient;
+//import com.linecorp.armeria.client.brave.BraveClient;
+//import com.linecorp.armeria.server.Server;
+//import com.linecorp.armeria.server.brave.BraveService;
+//import com.linecorp.armeria.server.logging.LoggingService;
+
+//import brave.Tracing;
 
 @Service
 public class VpcServiceImpl implements VpcService {
@@ -43,9 +59,64 @@ public class VpcServiceImpl implements VpcService {
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
         String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes";
         HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
+//        send(routeManagerServiceUrl);
         RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
         return response;
     }
+
+//    @Autowired
+//    public void test(
+//            Decoder decoder, Encoder encoder, Client client, Tracer tracer) {
+//        Feign.builder().client(new TracingClient(client, tracer))
+//                .encoder(encoder)
+//                .decoder(decoder)
+//                .requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+//                .target(GreetingProxy.class, "http://localhost:8080");
+//    }
+
+
+//    private void send(String url)
+//    {
+//        final Tracing tracing = TracingFactory.create("vpc1");
+//
+//        final WebClient backendClient =
+//                WebClient.builder(url)
+//                        .decorator(BraveClient.newDecorator(tracing, "route1"))
+//                        .build();
+//
+//        final Server server =
+//                Server.builder()
+//                        .http(8081)
+//                        .service("/", (ctx, req) -> backendClient.get("/api"))
+//                        .decorator(BraveService.newDecorator(tracing))
+//                        .decorator(LoggingService.newDecorator())
+//                        .build();
+//
+//        server.start().join();
+//
+//    }
+//    private void send()
+//    {
+//        Sender sender = OkHttpSender.create("http://localhost:9411/api/v2/spans");
+//        AsyncReporter asyncReporter = AsyncReporter.create(sender);
+//        Tracing tracing = Tracing.newBuilder()
+//                .localServiceName("my-service")
+//                .spanReporter(asyncReporter)
+//                .build();
+//        Tracer tracer = tracing.tracer();
+//
+//        Span parentSpan = tracer.newTrace().name("parent span").start();
+//
+//        Span childSpan1 = tracer.newChild(parentSpan.context()).name("child span1").start();
+//        sleep(500);
+//        childSpan1.finish();
+//
+//        Span childSpan2 = tracer.newChild(parentSpan.context()).name("child span2").start();
+//        sleep(500);
+//        childSpan2.finish();
+//
+//        parentSpan.finish();
+//    }
 
     /**
      * Allocate a segment for the network
