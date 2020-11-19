@@ -671,11 +671,9 @@ anchor:neutron_router_add_routes[]
 ** When (destinationA, nexthopA) is to be added but it is already present that is accepted and the request succeeds.
 ** Two or more routes with the same destination but with different nexthops are all accepted.
 ** A route whose destination overlaps the destination of existing routes (e.g. 192.168.1.0/24 and 192.168.1.0/22) can be added and existing routes are left untouched.
-** This operation needs to call an inner function _routing_rule_update_ to process the updating for routing rules
-in the specified subnet's routing table, create a *routerinfo* contract.
-The function then needs to send the contract to Subnet Manager via Subnet Manager's _update_routes_ API.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 (refer to case #6 in the key workflow).
-** The _routing_rule_update_ function needs to call
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 412, 500
@@ -718,10 +716,10 @@ anchor:neutron_router_rm_routes[]
 * Operation: Atomically removes a set of extra routes from the router’s already existing extra routes.
 ** An extra route is only removed if there is an exact match (including the destination and nexthop) between the route sent and the route already present.
 ** When (destinationA, nexthopA) is to be removed but it is already missing that is accepted and the request succeeds.
-** This operation needs to call an inner function _routing_rule_update_ to process the updating for routing rules
-in the specified subnet's routing table, create a *routerinfo* contract.
-The function then needs to send the contract to Subnet Manager via Subnet Manager's _update_routes_ API.
-(refer to case #6 in the key workflow).* Response: Router's state
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
+* Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 412, 500
 * Example
@@ -858,8 +856,8 @@ anchor:vpc_update_routetable[]
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
 *** If the same routing rule with different priority, the operation just need to update the priroity for the specified routing rules.
 ** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
-** This operation needs to call an inner function _routing_rule_update_ to process the routing rules update
-for the specified subnet's routing table, create a *routerinfo* contract and send the contract to Subnet Manager for routing rule updating to DPM and ACA.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 * Response: VPC routing rules
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409, 412, 500
@@ -997,9 +995,8 @@ anchor:subnet_get_vpc_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Get or Create a VPC subnet routing table.
 ** If the routing table doesn't exist, this operation will create a routing table for the subnet.
-** This operation needs to call an inner function _routing_rule_update_ to process the updating for routing rules
-in the specified subnet's routing table, create a *routerinfo* contract.
-The function then needs to send the contract to Subnet Manager via Subnet Manager's _update_routes_ API.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 (refer to case #6 in the key workflow).
 * Response: Routing table state
 * Normal response codes: 200
@@ -1075,9 +1072,8 @@ anchor:subnet_add_neutron_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Create a Neutron subnet routing table.
 ** Assign *neutron-subnet* for *type* in the route table.
-** This operation needs to call an inner function _routing_rule_update_ to process the updating for routing rules
-in the specified subnet's routing table, create a *routerinfo* contract.
-The function then needs to send the contract to Subnet Manager via Subnet Manager's _update_routes_ API.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 (refer to case #6 in the key workflow).
 * Response: Routing table state
 * Normal response codes: 200
@@ -1130,9 +1126,8 @@ anchor:subnet_update_routetable[]
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
 ** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
 ** For new routing rules, this operation will create new routing rule entities and insert them into routing table.
-** This operation needs to call an inner function _routing_rule_update_ to process the updating for routing rules
-in the specified subnet's routing table, create a *routerinfo* contract.
-The function then needs to send the contract to Subnet Manager via Subnet Manager's _update_routes_ API.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 (refer to case #6 in the key workflow).
 * Response: Subnet routing table state
 * Normal response codes: 200
