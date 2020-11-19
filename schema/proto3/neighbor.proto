@@ -29,17 +29,15 @@ enum NeighborType {
 }
 
 message NeighborConfiguration {
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+    uint32 revision_number = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType message_type = 5; // DELTA (default) or FULL
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
-    string mac_address = 9;
-    string host_ip_address = 10;
+    string request_id = 2;
+    string id = 3;
+    MessageType message_type = 4; // DELTA (default) or FULL
+    string vpc_id = 5;
+    string name = 6;
+    string mac_address = 7;
+    string host_ip_address = 8;
 
     message FixedIp {
         NeighborType neighbor_type = 1;
@@ -52,8 +50,8 @@ message NeighborConfiguration {
         string mac_address = 2;
     }
 
-    repeated FixedIp fixed_ips = 11;
-    repeated AllowAddressPair allow_address_pairs = 12;
+    repeated FixedIp fixed_ips = 9;
+    repeated AllowAddressPair allow_address_pairs = 10;
 }
 
 message NeighborState {

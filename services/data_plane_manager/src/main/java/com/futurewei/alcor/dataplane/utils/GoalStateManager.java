@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 
 @Component
 public class GoalStateManager {
+  public static final int GOAL_STATE_MESSAGE_FORMAT_VERSION = 101;
   public static final int FORMAT_REVISION_NUMBER = 1;
   private final GoalStateHelper goalStateHelper = new GoalStateHelper();
   private final GoalStatePreparer DPMPreparer = new GoalStatePreparer();

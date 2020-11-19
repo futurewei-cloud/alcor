@@ -29,13 +29,12 @@ enum DestinationType {
 }
 
 message RouterConfiguration {
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+    uint32 revision_number = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType message_type = 5; // DELTA (default) or FULL
-    string host_dvr_mac_address = 6;
+    string request_id = 2;
+    string id = 3;
+    MessageType message_type = 4; // DELTA (default) or FULL
+    string host_dvr_mac_address = 5;
 
     message RoutingRuleExtraInfo{
         DestinationType destination_type = 1;
@@ -51,18 +50,13 @@ message RouterConfiguration {
         uint32 priority = 6;
         RoutingRuleExtraInfo routing_rule_extra_info = 7;
     }
-
-    message DefaultRoutingTable {
-        repeated RoutingRule routing_rules = 1;
-    }
     
     message SubnetRoutingTable {
         string subnet_id = 1;
         repeated RoutingRule routing_rules = 2;
     }
-   
-    DefaultRoutingTable default_routing_table = 7;
-    repeated SubnetRoutingTable subnet_routing_tables = 8;
+
+    repeated SubnetRoutingTable subnet_routing_tables = 6;
 }
 
 message RouterState {
