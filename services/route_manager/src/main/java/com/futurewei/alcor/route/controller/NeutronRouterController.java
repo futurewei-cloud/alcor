@@ -26,8 +26,10 @@ import com.futurewei.alcor.route.exception.RouterHasAttachedInterfaces;
 import com.futurewei.alcor.route.service.NeutronRouterService;
 import com.futurewei.alcor.route.service.RouterDatabaseService;
 import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
+import com.futurewei.alcor.route.service.RouterToDPMService;
 import com.futurewei.alcor.route.utils.RouteManagerUtil;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.common.logging.*;
 import org.springframework.beans.BeanUtils;
@@ -62,6 +64,9 @@ public class NeutronRouterController {
 
     @Autowired
     private NeutronRouterService neutronRouterService;
+
+    @Autowired
+    private RouterToDPMService routerToDPMService;
 
     @Autowired
     private HttpServletRequest request;
@@ -335,7 +340,8 @@ public class NeutronRouterController {
         UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(routerid, newRoutes, true);
         InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
 
-        // TODO: send InternalRouterInfo contract to DPM
+        // send InternalRouterInfo contract to DPM
+        this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         // TODO:  l3-neighbors-updating (waiting for PM)
 
@@ -364,7 +370,8 @@ public class NeutronRouterController {
         UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(routerid, router, true);
         InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
 
-        // TODO: send InternalRouterInfo contract to DPM
+        // send InternalRouterInfo contract to DPM
+        this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         // TODO: call PM for routing rule updating (waiting for PM)
 

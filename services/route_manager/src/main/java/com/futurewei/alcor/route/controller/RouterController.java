@@ -64,6 +64,9 @@ public class RouterController {
     @Autowired
     private VpcRouterToSubnetService vpcRouterToSubnetService;
 
+    @Autowired
+    private RouterToDPMService routerToDPMService;
+
     /**
      * Get or Create VPC router
      * @param projectid
@@ -343,7 +346,8 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
-            // TODO: send InternalRouterInfo contract to DPM
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
@@ -404,7 +408,8 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
-            // TODO: send InternalRouterInfo contract to DPM
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
@@ -454,7 +459,8 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
-            // TODO: send InternalRouterInfo contract to DPM
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {

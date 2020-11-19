@@ -76,6 +76,9 @@ public class VpcRouterTests {
     @MockBean
     private NeutronRouterService neutronRouterService;
 
+    @MockBean
+    private RouterToDPMService routerToDPMService;
+
     private String vpcRouterUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/router";
     private String vpcRouteTableUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/vpcroutetable";
     private String getVpcRouteTablesUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/routetables";

@@ -24,10 +24,7 @@ import static org.junit.Assert.*;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.route.config.UnitTestConfig;
-import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
-import com.futurewei.alcor.route.service.RouteTableDatabaseService;
-import com.futurewei.alcor.route.service.RouterDatabaseService;
-import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
+import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.web.entity.route.RouteEntry;
 import com.futurewei.alcor.web.entity.route.RouteTable;
 import com.futurewei.alcor.web.entity.route.Router;
@@ -74,6 +71,9 @@ public class NeutronRouterTests {
 
     @MockBean
     private RouteTableDatabaseService routeTableDatabaseService;
+
+    @MockBean
+    private RouterToDPMService routerToDPMService;
 
     private String getNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String createNeutronRoutersUri = "/project/" + UnitTestConfig.projectId + "/routers";
