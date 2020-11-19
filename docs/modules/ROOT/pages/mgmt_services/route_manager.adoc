@@ -49,9 +49,11 @@ image::route_manager_l3_neighbors_update_5.PNG[]
 
 image::route_manager_routing_rule_update_6.PNG[]
 
-== Database Schema
+== Data Schema
 
 image::route_manager_data_schemas.PNG[]
+
+=== InternalRouterInfo Contract for RM, PM, and DPM
 
 image::route_manager_routerinfo_contract.PNG[]
 
