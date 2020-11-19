@@ -35,15 +35,29 @@ image::subnet_manager_keyflow.PNG[]
 The major functionalities of Subnet Manager include:
 
 1. Maintain Subnet Entity information updating
-2. Handle Subnet level routing rules updating
+2. Handle Subnet routing rules updating
 3. Handle Subnet Gateway port updating
 
 === Key Workflow
 
-==== Subnet level routing rules update
+==== Subnet routing rules update
+Routing rules update can be initiated by three APIs:
+
+1. Neutron routers add or remove extra routes
+2. Neutron subnet's host routes update
+3. Subnet's routing table update in a VPC
+
+The following figure shows how workflows for these three APIs call:
+
 image::subnet_manager_routing_rules_update_architecture.PNG[]
 
 ==== Gateway port update
+When a subnet created, user can assign a custom gateway IP address or use subnet's default gateway IP address.
+User can also update gateway IP address anytime. Subnet Manager needs to send request to Port Manager for
+the gateway port updating.
+
+The following figure shows the workflow from Subnet Manager to Port Manager when there is a gateway port updating:
+
 image::subnet_manager_gatewayport_update.PNG[]
 
 === Cache and contract design
@@ -52,34 +66,43 @@ image::subnet_manager_gatewayport_update.PNG[]
 
 image::subnet_manager_subnet_ports_mapping.PNG[]
 
-* Subnet Manager maintains subnet-ports mapping and keep tracking the updating of port information,
+* Subnet Manager maintains subnet-ports mapping and keep tracking the information update for a port,
 including port-id, port-ip, port-mac, host-id and host-ip (refer to *SubnetPorts* entity in Data Schema).
 * The input data for subnet-ports mapping comes from Port Manager when there is a port updating event occur.
-We use a pub-sub model to maintain a point-to-point one way channel between Subnet Manager and Port Manager.
+This option uses a pub-sub model to maintain a point-to-point one way channel between Subnet Manager and Port Manager.
 Whenever a port update event triggered in port Manager, the Port Manager needs to post updating message (*UpdatePorts*) to the channel.
 * Subnet Manager as a subscriber to receive the port updating message and update the *SubnetPorts* entity in the cache.
 * The cache is implemented as a container attached to each Subnet Manager instance as a sidecar in the same POD.
 All sidecar caches are created as a cluster and synchronize the cache content all the time.
+* This option requires a dedicated channel between Subnet Manager and Port Manager for the subnet, port and host mapping information update.
+* Subnet Manager also need to maintain extra structure to hold subnet, port and host information.
 
 ==== Option 2
+* A better option is to create a cache on Data Plane Manager to hold subnet, port and host mapping information.
+* The cache is responsible for maintaining _subnet-port-host_ mapping and _nodeID-nodeInfo_ mapping with hashmap:
+** HashMap<subnet_id, HashMap<port_id, host_id>>
+** HashMap<node_id, NODEINFO>
+* The _subnet-port-host_ mapping information comes from Port Manager when there is L2/L3 neighbor information update.
+So, the cache should always contain the most updated information.
+* The _nodeID-nodeInfo_ mapping information comes from Node Manager when Data Plane Manager needs the information.
 
 image::subnet_manager_mapping_cache.PNG[]
 
-We need a cache to maintain subnet-port-host mapping and node-nodeInfo mapping HashMap<subnet_id, HashMap<port_id, host_id>>HashMap<node_id, NODEINFO>
-Cache can be an ignite cache for PM, PM has subnet-port-host persistent info, it’s easy for PM to provide a fast-path API for the mappings.
-Cache can be an ignite cache for DPM, but DPM needs to ask PM when there is cache-miss, the cache synchronization is another issue.
-Local cache or external cache? Pros and cons?
+The cache can be implemented in two places:
 
-
-50 ports/subnet, 50x2M subnets = 100M x 20Byte  = 2GB
-200B x 1M nodes = 200MB
-
+* As an ignite cache on PM. PM has subnet-port-host persistent information, but DPM needs to ask PM to provide the mappings.
+It easily makes PM overloaded.
+* As an ignite cache on DPM. DPM is the crossroad for service layer and all agents on each compute node.
+Therefore, DPM is the beat place to maintain the host-related mapping information.
+* The cache capacity estimation:
+** If we have 50 ports/subnet, 2M subnets, and each port-mapping requires 20Byte memory,
+then the total size of port-mapping information requires 50 x 2M subnets = 100M x 20Byte  = 2GB.
+** If we have 1M hosts, each host requires 200Byte memory,
+the total size of node info requires 200 x 1M = 200MB.
 
 == Data Schema
 
 image::subnet_manager_subnet_entity.PNG[SubnetEntity,640,480]
-
-image::subnet_manager_subnetports_and_other_contracts.PNG[SubnetPorts,500,340]
 
 == REST APIs
 
@@ -343,11 +366,8 @@ anchor:SubnetState_Update_routing[]
 * Method: `PUT`
 * Request: `/project/{projectId}/subnets/{subnetId}/update_routes`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetId`
-* Operation: Insert subnet, port and host mapping information to *InternalRouterInfo* entity from Route Manager.
-This operation has three major tasks.
-** Extract subnet ids from *InternalRouterInfo*.
-** Query *SubnetPorts* cache for the subnet ids and create a list of *SubnetsPorts* into *InternalSubnetsPorts*.
-** Send down the *InternalRouterInfo* and *InternalSubnetsPorts* to Data Plane Manager.
+* Operation: Update host route information in a subnet entity.
+** This API will be invoked by Route Manager for subnet's host route
 * Response: Response Id
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -358,8 +378,10 @@ http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/9192a4d4
 
 Body:
 {
-   "router_info" : InternalRouterInfo
-   "subnets_ports": InternalSubnetsPorts
+   "subnet_id" : f79bf3b0-fc8e-45df-93c7-f8a44de01c95,
+   "host_routes": [
+         { "destination" : "10.0.1.0/24", "nexthop" : "10.0.0.11" }
+    ]
 }
 
 Response:
