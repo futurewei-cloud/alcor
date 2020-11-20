@@ -72,6 +72,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataPlaneServiceImpl implements DataPlaneService {
+    private static final int GOAL_STATE_MESSAGE_FORMAT_VERSION = 101;
     private static final int FORMAT_REVISION_NUMBER = 1;
 
     @Autowired
@@ -487,6 +488,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                                                    MulticastGoalState multicastGoalState) throws Exception {
         UnicastGoalState unicastGoalState = new UnicastGoalState();
         unicastGoalState.setHostIp(hostIp);
+
+        unicastGoalState.getGoalStateBuilder().setFormatVersion(GOAL_STATE_MESSAGE_FORMAT_VERSION);
 
         if (portEntities != null && portEntities.size() > 0) {
             buildPortState(networkConfig, portEntities, unicastGoalState);
