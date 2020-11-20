@@ -253,7 +253,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
     private NeighborState buildNeighborState(NeighborEntry neighborEntry, NeighborInfo neighborInfo, OperationType operationType) {
         NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        //neighborConfigBuilder.setId(); // !!!We are going to need this per latest ACA change!!!
+        //neighborConfigBuilder.setId(); // TODO: We are going to need this per latest ACA change
         neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());

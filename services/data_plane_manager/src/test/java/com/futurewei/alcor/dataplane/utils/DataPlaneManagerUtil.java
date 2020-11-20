@@ -438,6 +438,8 @@ public class DataPlaneManagerUtil {
             gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+
+            // TODO: need to set DNS based on latest contract
             if (subnetEntity.getAvailabilityZone() != null) {
                 subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
             }
