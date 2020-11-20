@@ -42,6 +42,9 @@ public class Config {
   @Value("${grpc.threads-pool-name: grpc-thread-pool}")
   public String grpThreadsName;
 
+  @Value("${protobuf.goal-state-message.version}")
+  public int goalStateMessageVersion;
+
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;
   public static String LOG_FILE_PATH = "timestamp.log";

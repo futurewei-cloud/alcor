@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.ovs;
 
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
@@ -72,8 +73,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataPlaneServiceImpl implements DataPlaneService {
-    private static final int GOAL_STATE_MESSAGE_FORMAT_VERSION = 101;
+    private int goalStateMessageVersion;
     private static final int FORMAT_REVISION_NUMBER = 1;
+
+    @Autowired
+    private DataPlaneServiceImpl(Config globalConfig) {
+        this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
+    }
 
     @Autowired
     private DataPlaneClient dataPlaneClient;
@@ -185,6 +191,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
             }
 
+            // TODO: need to set DNS based on latest contract
+            
             if (subnetEntity.getAvailabilityZone() != null) {
                 subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
             }
@@ -489,7 +497,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         UnicastGoalState unicastGoalState = new UnicastGoalState();
         unicastGoalState.setHostIp(hostIp);
 
-        unicastGoalState.getGoalStateBuilder().setFormatVersion(GOAL_STATE_MESSAGE_FORMAT_VERSION);
+        unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
         if (portEntities != null && portEntities.size() > 0) {
             buildPortState(networkConfig, portEntities, unicastGoalState);
