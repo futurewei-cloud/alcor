@@ -461,7 +461,7 @@ public class DataPlaneManagerUtil {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
             portConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
             portConfigBuilder.setId(portEntity.getId());
-            portConfigBuilder.setMessageType(Common.MessageType.FULL);
+            portConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             portConfigBuilder.setVpcId(portEntity.getVpcId());
             portConfigBuilder.setName(portEntity.getName());
             portConfigBuilder.setMacAddress(portEntity.getMacAddress());
@@ -799,7 +799,7 @@ public class DataPlaneManagerUtil {
                 routerConfigBuilder.setRequestId(configuration.getRequestId());
             }
             routerConfigBuilder.setId(configuration.getId());
-            routerConfigBuilder.setMessageType(Common.MessageType.FULL);
+            routerConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             routerConfigBuilder.setHostDvrMacAddress(configuration.getHostDvrMac());
 
             List<InternalSubnetRoutingTable> subnetRoutingTables = configuration.getSubnetRoutingTables();

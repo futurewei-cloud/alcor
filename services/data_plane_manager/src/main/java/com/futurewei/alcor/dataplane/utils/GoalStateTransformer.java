@@ -149,7 +149,7 @@ public class GoalStateTransformer {
                     }
                     String name = portStateWithEverythingFilledNB.getName() == null ? "" : portStateWithEverythingFilledNB.getName();
 
-                    Port.PortConfiguration portConfiguration = Port.PortConfiguration.newBuilder().setName(name).setVpcId(portStateWithEverythingFilledNB.getVpcEntities().iterator().next().getId()).setAdminStateUp(true).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllFixedIps(fixedIps).setId(portStateWithEverythingFilledNB.getId()).setMessageTypeValue(Common.MessageType.FULL_VALUE).build();
+                    Port.PortConfiguration portConfiguration = Port.PortConfiguration.newBuilder().setName(name).setVpcId(portStateWithEverythingFilledNB.getVpcEntities().iterator().next().getId()).setAdminStateUp(true).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllFixedIps(fixedIps).setId(portStateWithEverythingFilledNB.getId()).setUpdateTypeValue(Common.UpdateType.FULL_VALUE).build();
 
                     final Port.PortState portStateSB = Port.PortState.newBuilder().setConfiguration(portConfiguration).setOperationType(Common.OperationType.CREATE).build();
 
@@ -277,7 +277,7 @@ public class GoalStateTransformer {
                         subnetRoutingTables2.add(subnetRoutingTable.toBuilder().addAllRoutingRules(routingRuleList).build());
                     }
 
-                    Router.RouterConfiguration routerConfiguration = Router.RouterConfiguration.newBuilder().setHostDvrMacAddress(internalRouterInfo.getRouterConfiguration().getHostDvrMac()).setId(internalRouterInfo.getRouterConfiguration().getId()).setMessageType(Common.MessageType.FULL).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllSubnetRoutingTables(subnetRoutingTables2).build();
+                    Router.RouterConfiguration routerConfiguration = Router.RouterConfiguration.newBuilder().setHostDvrMacAddress(internalRouterInfo.getRouterConfiguration().getHostDvrMac()).setId(internalRouterInfo.getRouterConfiguration().getId()).setUpdateType(Common.UpdateType.FULL).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllSubnetRoutingTables(subnetRoutingTables2).build();
                     Router.RouterState routerState = Router.RouterState.newBuilder().setConfiguration(routerConfiguration).build();
                     routerStateList.add(routerState);
                 }

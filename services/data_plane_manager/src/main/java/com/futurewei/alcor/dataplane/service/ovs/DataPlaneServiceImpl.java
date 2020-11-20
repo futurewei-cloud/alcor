@@ -192,7 +192,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             }
 
             // TODO: need to set DNS based on latest contract
-            
+
             if (subnetEntity.getAvailabilityZone() != null) {
                 subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
             }
@@ -210,7 +210,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             PortConfiguration.Builder portConfigBuilder = PortConfiguration.newBuilder();
             portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             portConfigBuilder.setId(portEntity.getId());
-            portConfigBuilder.setMessageType(Common.MessageType.FULL);
+            portConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             portConfigBuilder.setVpcId(portEntity.getVpcId());
 
             if (portEntity.getName() != null) {

@@ -28,7 +28,7 @@ message SubnetConfiguration {
 
     string request_id = 2;
     string id = 3;
-    MessageType message_type = 4; // DELTA (default) or FULL
+    UpdateType update_type = 4; // DELTA (default) or FULL
     NetworkType network_type = 5; // DEPRECATING: use the one in VPCConfiguration
     string vpc_id = 6;
     string name = 7;

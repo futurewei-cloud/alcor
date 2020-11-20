@@ -33,7 +33,7 @@ message RouterConfiguration {
 
     string request_id = 2;
     string id = 3;
-    MessageType message_type = 4; // DELTA (default) or FULL
+    UpdateType update_type = 4; // DELTA (default) or FULL
     string host_dvr_mac_address = 5;
 
     message RoutingRuleExtraInfo{
