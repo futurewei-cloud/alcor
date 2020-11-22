@@ -24,15 +24,13 @@ option java_outer_classname = "SecurityGroup";
 import "common.proto";
 
 message SecurityGroupConfiguration {
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+    uint32 revision_number = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType update_type = 5; // DELTA (default) or FULL
-    string project_id = 6;
-    string vpc_id = 7;
-    string name = 8;
+    string request_id = 2;
+    string id = 3;
+    UpdateType update_type = 4; // DELTA (default) or FULL
+    string vpc_id = 5;
+    string name = 6;
 
     enum Direction {
         EGRESS = 0;
@@ -52,7 +50,7 @@ message SecurityGroupConfiguration {
         string remote_group_id = 10;
     }
 
-    repeated SecurityGroupRule security_group_rules = 9;
+    repeated SecurityGroupRule security_group_rules = 7;
 }
 
 message SecurityGroupState {

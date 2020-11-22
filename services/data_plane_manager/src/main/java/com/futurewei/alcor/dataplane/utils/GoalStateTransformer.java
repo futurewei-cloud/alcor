@@ -142,14 +142,14 @@ public class GoalStateTransformer {
                     for (PortEntity.FixedIp fixedIp : fixedIps1) {
                         fixedIps.add(Port.PortConfiguration.FixedIp.newBuilder().setSubnetId(fixedIp.getSubnetId()).setIpAddress(fixedIp.getIpAddress()).build());
                         if (portIdNeighborInfoMap.values().stream().filter(e -> e.getPortId().equals(ipPortIdMap.get(fixedIp.getIpAddress()))).count() == 0) {
-                            DHCP.DHCPConfiguration dhcpConfiguration = DHCP.DHCPConfiguration.newBuilder().setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER).setSubnetId(fixedIp.getSubnetId()).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setIpv4Address(fixedIp.getIpAddress()).build();
+                            DHCP.DHCPConfiguration dhcpConfiguration = DHCP.DHCPConfiguration.newBuilder().setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).setSubnetId(fixedIp.getSubnetId()).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setIpv4Address(fixedIp.getIpAddress()).build();
                             DHCP.DHCPState dhcpState = DHCP.DHCPState.newBuilder().setConfiguration(dhcpConfiguration).build();
                             dhcpStateList.add(dhcpState);
                         }
                     }
                     String name = portStateWithEverythingFilledNB.getName() == null ? "" : portStateWithEverythingFilledNB.getName();
 
-                    Port.PortConfiguration portConfiguration = Port.PortConfiguration.newBuilder().setName(name).setProjectId(portStateWithEverythingFilledNB.getProjectId()).setVpcId(portStateWithEverythingFilledNB.getVpcEntities().iterator().next().getId()).setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER).setAdminStateUp(true).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllFixedIps(fixedIps).setId(portStateWithEverythingFilledNB.getId()).setNetworkTypeValue(Common.NetworkType.VXLAN_VALUE).setMessageTypeValue(Common.MessageType.FULL_VALUE).build();
+                    Port.PortConfiguration portConfiguration = Port.PortConfiguration.newBuilder().setName(name).setVpcId(portStateWithEverythingFilledNB.getVpcEntities().iterator().next().getId()).setAdminStateUp(true).setMacAddress(portStateWithEverythingFilledNB.getMacAddress()).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllFixedIps(fixedIps).setId(portStateWithEverythingFilledNB.getId()).setUpdateTypeValue(Common.UpdateType.FULL_VALUE).build();
 
                     final Port.PortState portStateSB = Port.PortState.newBuilder().setConfiguration(portConfiguration).setOperationType(Common.OperationType.CREATE).build();
 
@@ -247,7 +247,7 @@ public class GoalStateTransformer {
                 goalStateManager.getGoalStateHelper().add2SubnetStates(networkConfiguration, subnetStateSet, subnetEntity1);
                 // lookup vpc entity
                 final VpcEntity vpcEntity = vpcMap.get(subnetEntity1.getVpcId());
-                Vpc.VpcConfiguration vpcConfiguration = Vpc.VpcConfiguration.newBuilder().setId(vpcEntity.getId()).setCidr(vpcEntity.getCidr()).setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).build();
+                Vpc.VpcConfiguration vpcConfiguration = Vpc.VpcConfiguration.newBuilder().setId(vpcEntity.getId()).setCidr(vpcEntity.getCidr()).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).build();
                 Vpc.VpcState vpcState = Vpc.VpcState.newBuilder().setConfiguration(vpcConfiguration).setOperationTypeValue(Common.OperationType.CREATE_VALUE).setOperationType(Common.OperationType.CREATE).build();
                 vpcStateSet.add(vpcState);
             }
@@ -277,7 +277,7 @@ public class GoalStateTransformer {
                         subnetRoutingTables2.add(subnetRoutingTable.toBuilder().addAllRoutingRules(routingRuleList).build());
                     }
 
-                    Router.RouterConfiguration routerConfiguration = Router.RouterConfiguration.newBuilder().setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER).setHostDvrMacAddress(internalRouterInfo.getRouterConfiguration().getHostDvrMac()).setId(internalRouterInfo.getRouterConfiguration().getId()).setMessageType(Common.MessageType.FULL).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllSubnetRoutingTables(subnetRoutingTables2).build();
+                    Router.RouterConfiguration routerConfiguration = Router.RouterConfiguration.newBuilder().setHostDvrMacAddress(internalRouterInfo.getRouterConfiguration().getHostDvrMac()).setId(internalRouterInfo.getRouterConfiguration().getId()).setUpdateType(Common.UpdateType.FULL).setRevisionNumber(GoalStateManager.FORMAT_REVISION_NUMBER).addAllSubnetRoutingTables(subnetRoutingTables2).build();
                     Router.RouterState routerState = Router.RouterState.newBuilder().setConfiguration(routerConfiguration).build();
                     routerStateList.add(routerState);
                 }
@@ -285,7 +285,7 @@ public class GoalStateTransformer {
             // leave a dummy security group value since for now there is no impl for sg
             SecurityGroup.SecurityGroupConfiguration securityGroupConfiguration = SecurityGroup.SecurityGroupConfiguration.newBuilder().build();
             final SecurityGroup.SecurityGroupState securityGroupState = SecurityGroup.SecurityGroupState.newBuilder().setConfiguration(securityGroupConfiguration).build();
-            final Goalstate.GoalState goalState = Goalstate.GoalState.newBuilder().addAllPortStates(portStateHashSet).addAllNeighborStates(neighborStates.values()).addAllSubnetStates(subnetStateSet).addSecurityGroupStates(0, securityGroupState).addAllRouterStates(routerStateList).addAllDhcpStates(dhcpStateList).build();
+            final Goalstate.GoalState goalState = Goalstate.GoalState.newBuilder().setFormatVersion(GoalStateManager.GOAL_STATE_MESSAGE_FORMAT_VERSION).addAllPortStates(portStateHashSet).addAllNeighborStates(neighborStates.values()).addAllSubnetStates(subnetStateSet).addSecurityGroupStates(0, securityGroupState).addAllRouterStates(routerStateList).addAllDhcpStates(dhcpStateList).build();
             goalStateConcurrentHashMap.put(currentGroupHostIp, goalState);
         });
         GoalStateManager.LOG.log(Level.INFO, goalStateConcurrentHashMap.entrySet().toString());

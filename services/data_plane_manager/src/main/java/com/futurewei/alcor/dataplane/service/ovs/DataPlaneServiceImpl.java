@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.ovs;
 
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
@@ -72,7 +73,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataPlaneServiceImpl implements DataPlaneService {
+    private int goalStateMessageVersion;
     private static final int FORMAT_REVISION_NUMBER = 1;
+
+    @Autowired
+    private DataPlaneServiceImpl(Config globalConfig) {
+        this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
+    }
 
     @Autowired
     private DataPlaneClient dataPlaneClient;
@@ -101,7 +108,6 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         for (PortState portState: portStates) {
             VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getVpcId());
             VpcConfiguration.Builder vpcConfigBuilder = VpcConfiguration.newBuilder();
-            vpcConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             vpcConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             vpcConfigBuilder.setId(vpcEntity.getId());
             vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
@@ -168,11 +174,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         for (InternalSubnetEntity subnetEntity: subnetEntities) {
             SubnetConfiguration.Builder subnetConfigBuilder = SubnetConfiguration.newBuilder();
-            subnetConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             subnetConfigBuilder.setId(subnetEntity.getId());
             subnetConfigBuilder.setNetworkType(NetworkType.VXLAN);
-            subnetConfigBuilder.setProjectId(subnetEntity.getProjectId());
             subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
             subnetConfigBuilder.setName(subnetEntity.getName());
             subnetConfigBuilder.setCidr(subnetEntity.getCidr());
@@ -187,16 +191,10 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
             }
 
+            // TODO: need to set DNS based on latest contract
+
             if (subnetEntity.getAvailabilityZone() != null) {
                 subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
-            }
-
-            if (subnetEntity.getPrimaryDns() != null) {
-                subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
-            }
-
-            if (subnetEntity.getSecondaryDns() != null) {
-                subnetConfigBuilder.setSecondaryDns(subnetEntity.getSecondaryDns());
             }
 
             SubnetState.Builder subnetStateBuilder = SubnetState.newBuilder();
@@ -210,12 +208,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                                 UnicastGoalState unicastGoalState) {
         for (InternalPortEntity portEntity: portEntities) {
             PortConfiguration.Builder portConfigBuilder = PortConfiguration.newBuilder();
-            portConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             portConfigBuilder.setId(portEntity.getId());
-            portConfigBuilder.setMessageType(Common.MessageType.FULL);
-            portConfigBuilder.setNetworkType(NetworkType.VXLAN);
-            portConfigBuilder.setProjectId(portEntity.getProjectId());
+            portConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             portConfigBuilder.setVpcId(portEntity.getVpcId());
 
             if (portEntity.getName() != null) {
@@ -266,10 +261,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private NeighborState buildNeighborState(NeighborEntry neighborEntry, NeighborInfo neighborInfo, OperationType operationType) {
         NeighborConfiguration.Builder neighborConfigBuilder = NeighborConfiguration.newBuilder();
-        neighborConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        //neighborConfigBuilder.setId();
-        //neighborConfigBuilder.setProjectId();
+        //neighborConfigBuilder.setId(); // TODO: We are going to need this per latest ACA change
         neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
@@ -400,10 +393,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         for (String securityGroupId: securityGroupIds) {
             SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
             SecurityGroupConfiguration.Builder securityGroupConfigBuilder = SecurityGroupConfiguration.newBuilder();
-            securityGroupConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             securityGroupConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             securityGroupConfigBuilder.setId(securityGroup.getId());
-            securityGroupConfigBuilder.setProjectId(securityGroup.getProjectId());
             //securityGroupConfigBuilder.setVpcId();
             securityGroupConfigBuilder.setName(securityGroup.getName());
 
@@ -444,7 +435,6 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
             for (FixedIp fixedIp: fixedIps) {
                 DHCPConfiguration.Builder dhcpConfigBuilder = DHCPConfiguration.newBuilder();
-                dhcpConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setMacAddress(macAddress);
                 dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
@@ -506,6 +496,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                                                    MulticastGoalState multicastGoalState) throws Exception {
         UnicastGoalState unicastGoalState = new UnicastGoalState();
         unicastGoalState.setHostIp(hostIp);
+
+        unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
         if (portEntities != null && portEntities.size() > 0) {
             buildPortState(networkConfig, portEntities, unicastGoalState);
@@ -596,7 +588,6 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         int routerStatesCount = goalStateBuilder.getRouterStatesCount();
         if (routerStatesCount == 0) {
             RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
-            routerConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             String hostDvrMac = routerInfo.getRouterConfiguration().getHostDvrMac();
             if (hostDvrMac != null) {

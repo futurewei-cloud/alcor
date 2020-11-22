@@ -70,7 +70,7 @@ enum NetworkType {
     VXLAN_GPE = 4;
 }
 
-enum MessageType { 
+enum UpdateType { 
     DELTA = 0; // the default type
     FULL = 1;
 }
