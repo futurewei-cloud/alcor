@@ -20,6 +20,11 @@ public class ConstantsConfig {
     public static String FORMAT_VERSION = "1";
     public static String REVISION_NUMBER = "1";
     public static String HOST_DVR_MAC = "fe:16:11:00:00:00";
-    public static String ROUTINGRULETYPE = "neutron";
+    public static String DEFAULT_ROUTINGRULETYPE = "default";
+    public static String STATIC_ROUTINGRULETYPE = "static";
     public static String DPMFailedHandleRequest = "Failed Handle request !!";
+    public static String LOW_PRIORITY = "low_priority";
+    public static String MEDIUM_PRIORITY = "medium_priority";
+    public static String HIGH_PRIORITY = "high_priority";
+
 }

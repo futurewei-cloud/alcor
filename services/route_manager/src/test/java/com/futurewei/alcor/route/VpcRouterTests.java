@@ -145,7 +145,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -166,7 +166,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
 
         SubnetsWebJson subnetsWebJson = new SubnetsWebJson();
         ArrayList<SubnetEntity> subnets = new ArrayList<>(){{add(new SubnetEntity());add(new SubnetEntity());}};
@@ -199,7 +199,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -222,7 +222,7 @@ public class VpcRouterTests {
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
         router.setVpcDefaultRouteTableId(UnitTestConfig.routeTableId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -247,7 +247,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});

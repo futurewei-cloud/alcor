@@ -198,6 +198,39 @@ public class RouterController {
 
             routetable = this.routerService.updateVpcRouteTable(projectid, vpcid, resource);
 
+            RouteTable newRoutetable = resource.getRoutetable();
+            List<RouteEntry> routeEntities = newRoutetable.getRouteEntities();
+            if (routeEntities == null) {
+                return new RouteTableWebJson(routetable);
+            }
+            NewRoutesWebRequest newRouteEntry = new NewRoutesWebRequest();
+            List<NewRoutesRequest> routes = new ArrayList<>();
+            for (RouteEntry routeEntry : routeEntities) {
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest();
+                newRoutesRequest.setDestination(routeEntry.getDestination());
+                newRoutesRequest.setNexthop(routeEntry.getNexthop());
+                routes.add(newRoutesRequest);
+            }
+            newRouteEntry.setRoutes(routes);
+
+            // find subnets related to this vpc (getVpcRouteTables)
+            Router router = this.routerService.getOrCreateVpcRouter(projectid, vpcid);
+            List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
+
+            // sub-level routing rule update
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
+            for (RouteTable routeTable : vpcRouteTables) {
+                String subnetId = routeTable.getOwner();
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRouteEntry, true);
+                List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+                internalSubnetRoutingTableList.addAll(internalSubnetRoutingTables);
+            }
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+
         } catch (ParameterNullOrEmptyException e) {
             throw e;
         } catch (CanNotFindVpc e) {
@@ -343,7 +376,8 @@ public class RouterController {
             newRoutes.setRoutes(routes);
 
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
@@ -405,7 +439,8 @@ public class RouterController {
             newRoutes.setRoutes(routes);
 
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
@@ -456,7 +491,8 @@ public class RouterController {
             List<NewRoutesRequest> routes = new ArrayList<>();
             newRoutes.setRoutes(routes);
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            InternalRouterInfo internalRouterInfo = updateRoutingRuleResponse.getInternalRouterInfo();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM

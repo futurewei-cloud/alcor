@@ -13,23 +13,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.common.enumClass;
+package com.futurewei.alcor.route.exception;
 
-public enum RoutingRuleType {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    DEFAULT("default"),
-    STATIC("static"),
-    PREFIX_LISTS("prefix_lists"),
-    PROPAGATED("propagated");
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="destination is invalid")
+public class DestinationInvalid extends Exception {
 
-    private String routingRuleType;
+    public DestinationInvalid () {}
 
-    RoutingRuleType(String env) {
-        this.routingRuleType = env;
-    }
-
-    public String getRoutingRuleType () {
-        return routingRuleType;
+    public DestinationInvalid (String message) {
+        super(message);
     }
 
 }

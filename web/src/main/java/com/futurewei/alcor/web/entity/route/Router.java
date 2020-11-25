@@ -33,7 +33,7 @@ public class Router extends CustomerResource {
     private List<RouteTable> neutronSubnetRouteTables;
 
     @JsonProperty("routetables")
-    private List<RouteTable> vpcRouteTable;
+    private List<RouteTable> vpcRouteTables;
 
     // store vpc_default_route_table_id
     @JsonProperty("vpc_default_route_table_id")
@@ -48,7 +48,7 @@ public class Router extends CustomerResource {
     private String routerExtraAttributeId;
 
     // store subnet_gateway_port_id
-    @JsonProperty("ports")
+    @JsonProperty("gateway_ports")
     private List<String> ports;
 
     @JsonProperty("tenant_id")
@@ -76,18 +76,18 @@ public class Router extends CustomerResource {
         this.neutronRouteTable = neutronRouteTable;
     }
 
-    public Router(String projectId, String Id, String name, String description, List<RouteTable> vpcRouteTable) {
+    public Router(String projectId, String Id, String name, String description, List<RouteTable> vpcRouteTables) {
         super(projectId, Id, name, description);
-        this.vpcRouteTable = vpcRouteTable;
+        this.vpcRouteTables = vpcRouteTables;
     }
 
     public Router(String projectId, String id, String name, String description,
-                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports,
+                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTables, String owner, List<String> ports,
                   String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId,
                   String vpcDefaultRouteTableId) {
         super(projectId, id, name, description);
         this.neutronRouteTable = neutronRouteTable;
-        this.vpcRouteTable = vpcRouteTable;
+        this.vpcRouteTables = vpcRouteTables;
         this.owner = owner;
         this.ports = ports;
         this.tenantId = tenantId;
@@ -99,7 +99,7 @@ public class Router extends CustomerResource {
 
     public Router(Router r) {
         this(r.getProjectId(), r.getId(), r.getName(), r.getDescription(),
-                r.getNeutronRouteTable(), r.getVpcRouteTable(), r.getOwner(), r.getPorts(),
+                r.getNeutronRouteTable(), r.getVpcRouteTables(), r.getOwner(), r.getPorts(),
                 r.getTenantId(), true, r.getStatus(), r.getRouterExtraAttributeId(),
                 r.getVpcDefaultRouteTableId());
     }

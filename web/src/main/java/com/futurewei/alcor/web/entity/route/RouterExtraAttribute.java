@@ -24,7 +24,7 @@ import java.util.List;
 @Data
 public class RouterExtraAttribute extends CustomerResource {
 
-    @JsonProperty("status")
+    @JsonProperty("external_gateway_info")
     private ExternalGateway external_gateway_info;
 
     @JsonProperty("revision_number")
