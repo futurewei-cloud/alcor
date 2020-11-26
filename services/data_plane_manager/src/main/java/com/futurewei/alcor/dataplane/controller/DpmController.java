@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.dataplane.service.DpmService;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,30 +28,30 @@ import static com.futurewei.alcor.dataplane.utils.RestParameterValidator.checkNe
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
-public class DataPlaneController {
+public class DpmController {
 
     @Autowired
-    private DataPlaneService dataPlaneService;
+    private DpmService dpmService;
 
     @PostMapping({"/network-configuration", "v4/network-configuration"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public InternalDPMResultList createNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         checkNetworkConfiguration(networkConfiguration);
-        return dataPlaneService.createNetworkConfiguration(networkConfiguration);
+        return dpmService.createNetworkConfiguration(networkConfiguration);
     }
 
     @PutMapping({"/network-configuration", "v4/network-configuration"})
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         checkNetworkConfiguration(networkConfiguration);
-        return dataPlaneService.updateNetworkConfiguration(networkConfiguration);
+        return dpmService.updateNetworkConfiguration(networkConfiguration);
     }
 
     @DeleteMapping({"/network-configuration", "v4/network-configuration"})
     @DurationStatistics
     public InternalDPMResultList deleteNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         checkNetworkConfiguration(networkConfiguration);
-        return dataPlaneService.deleteNetworkConfiguration(networkConfiguration);
+        return dpmService.deleteNetworkConfiguration(networkConfiguration);
     }
 }

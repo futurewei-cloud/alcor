@@ -15,11 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.mizar;
 
-import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.dataplane.service.DpmService;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 
-public class DataPlaneServiceImpl implements DataPlaneService {
+public class DpmServiceImpl implements DpmService {
 
     @Override
     public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {

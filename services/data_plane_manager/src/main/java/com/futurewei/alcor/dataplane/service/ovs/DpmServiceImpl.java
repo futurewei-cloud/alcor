@@ -21,7 +21,8 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.dataplane.service.DataPlaneService;
+import com.futurewei.alcor.dataplane.cache.LocalCache;
+import com.futurewei.alcor.dataplane.service.DpmService;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Common.EtherType;
 import com.futurewei.alcor.schema.Common.NetworkType;
@@ -41,6 +42,7 @@ import com.futurewei.alcor.schema.Port.PortConfiguration.HostInfo;
 import com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId;
 import com.futurewei.alcor.schema.Port.PortState;
 import com.futurewei.alcor.schema.Router;
+import com.futurewei.alcor.schema.Router.RouterState;
 import com.futurewei.alcor.schema.Router.DestinationType;
 import com.futurewei.alcor.schema.Router.RouterConfiguration;
 import com.futurewei.alcor.schema.Router.RouterConfiguration.SubnetRoutingTable;
@@ -75,7 +77,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class DataPlaneServiceImpl implements DataPlaneService {
+public class DpmServiceImpl implements DpmService {
     private int goalStateMessageVersion;
     private static final int FORMAT_REVISION_NUMBER = 1;
 
@@ -86,7 +88,10 @@ public class DataPlaneServiceImpl implements DataPlaneService {
     private DataPlaneClient pulsarDataPlaneClient;
   
     @Autowired
-    private DataPlaneServiceImpl(Config globalConfig) {
+    private LocalCache localCache;
+
+    @Autowired
+    private DpmServiceImpl(Config globalConfig) {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
 
@@ -535,6 +540,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                     networkConfig, hostIp, portEntities, multicastGoalState));
         }
 
+        localCache.addSubnetPorts(networkConfig);
+
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
 
@@ -616,23 +623,16 @@ public class DataPlaneServiceImpl implements DataPlaneService {
     }
 
 
-    private void addSubnetRoutingTable(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalState unicastGoalState) {
-        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-
-        int routerStatesCount = goalStateBuilder.getRouterStatesCount();
-        if (routerStatesCount == 0) {
-            RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
-            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-            String hostDvrMac = routerInfo.getRouterConfiguration().getHostDvrMac();
-            if (hostDvrMac != null) {
-                routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-            }
-        }
-
-        SubnetRoutingTable.Builder subnetRoutingTableBuilder = SubnetRoutingTable.newBuilder();
+    private void addSubnetRoutingTable(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalState unicastGoalState) { SubnetRoutingTable.Builder subnetRoutingTableBuilder = SubnetRoutingTable.newBuilder();
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
-        for (InternalRoutingRule routingRule : subnetRoutingTable.getRoutingRules()) {
+
+        List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
+        if (routingRules == null || routingRules.size() == 0) {
+            return;
+        }
+
+        for (InternalRoutingRule routingRule: routingRules) {
             RoutingRule.Builder routingRuleBuilder = RoutingRule.newBuilder();
             routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
             routingRuleBuilder.setId(routingRule.getId());
@@ -651,25 +651,36 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
         }
-        Router.RouterState.Builder routerStateBuilder;
-        if (routerStatesCount == 0) {
-            routerStateBuilder = Router.RouterState.newBuilder();
-        } else {
-            routerStateBuilder = goalStateBuilder.getRouterStatesBuilder(0);
+
+        List<SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
+
+        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+        List<RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
+        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+            subnetRoutingTablesList.addAll(goalStateBuilder.
+                    getRouterStatesBuilder(0).
+                    getConfiguration().
+                    getSubnetRoutingTablesList());
+            goalStateBuilder.removeRouterStates(0);
         }
-        routerStateBuilder.getConfigurationBuilder().addSubnetRoutingTables(subnetRoutingTableBuilder.build());
+
+        RouterConfiguration.Builder routerConfigBuilder = RouterConfiguration.newBuilder();
+        routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+
+        //TODO: where does the hostDvrMacAddress come from ?
+        routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
+
+        routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
+        RouterState.Builder routerStateBuilder = RouterState.newBuilder();
+        routerStateBuilder.setConfiguration(routerConfigBuilder.build());
+        goalStateBuilder.addRouterStates(0,routerStateBuilder.build());
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> createRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
-        Map<String, InternalSubnetPorts> internalSubnetPorts = networkConfig.getInternalSubnetPorts();
-
         if (internalRouterInfos == null) {
             throw new RouterInfoInvalid();
-        }
-
-        if (internalSubnetPorts == null) {
-            throw new SubnetPortsInvalid();
         }
 
         Map<String, UnicastGoalState> unicastGoalStateMap = new HashMap<>();
@@ -682,13 +693,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                 String subnetId = subnetRoutingTable.getSubnetId();
-                if (!internalSubnetPorts.containsKey(subnetId)) {
-                    throw new SubnetPortsNotFound();
-                }
-
-                InternalSubnetPorts subnetPorts = internalSubnetPorts.get(subnetId);
+                InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                 if (subnetPorts == null) {
-                    throw new SubnetPortsInvalid();
+                    throw new SubnetPortsNotFound();
                 }
 
                 for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
@@ -709,21 +716,15 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             throw new RouterInfoInvalid();
         }
 
+        List<UnicastGoalState> unicastGoalStates = unicastGoalStateMap.values()
+                .stream().filter(gs -> {
+                    gs.setGoalState(gs.getGoalStateBuilder().build());
+                    gs.setGoalStateBuilder(null);
+                    return true;
+                }).collect(Collectors.toList());
+
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        List<UnicastGoalState> unicastGoalStateList = new ArrayList<>();
-        for (UnicastGoalState unicastGoalState : unicastGoalStateMap.values()) {
-            unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
-            unicastGoalStateList.add(unicastGoalState);
-        }
-
-
-        // TODO: Find a field to decide client
-        boolean isFastPath = false;
-        if (isFastPath) {
-            return grpcDataPlaneClient.createGoalStates(unicastGoalStateList);
-        } else {
-            return pulsarDataPlaneClient.createGoalStates(unicastGoalStateList);
-        }
+        return dataPlaneClient.createGoalStates(unicastGoalStates);
     }
 
     @Override
