@@ -177,9 +177,9 @@ public class GSController {
                   f -> {
                     return new InternalDPMResult(
                         f.getResourceId(),
-                        f.getResourceType().toString(),
+                        null,
                         f.getOperationStatus().toString(),
-                        f.getStateElapseTime());
+                        f.getStateElapseTime(),null);
                   })
               .collect(Collectors.toList());
       resultAll.setResultMessage("Successfully Handle request !!");

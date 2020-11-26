@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 //@Component
 @Service("grpc")
 public class DataPlaneClientImpl implements DataPlaneClient {
-
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     private int grpcPort;
@@ -59,31 +58,13 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     @Override
-    public Map<String, List<GoalStateOperationStatus>> createGoalStates(
-            Goalstate.GoalState goalState, String hostIp) throws Exception {
-        return sendGoalState(goalState, hostIp);
-    }
-
-    @Override
-    public List<Map<String, List<GoalStateOperationStatus>>> createGoalStates(
+    public List<String> createGoalStates(
             List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return sendGoalState(unicastGoalStates);
+        return sendGoalStates(unicastGoalStates);
     }
 
     @Override
-    public List<Map<String, List<GoalStateOperationStatus>>> updateGoalStates(
-            List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return sendGoalState(unicastGoalStates);
-    }
-
-    @Override
-    public List<Map<String, List<GoalStateOperationStatus>>> deleteGoalStates(
-            List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return sendGoalState(unicastGoalStates);
-    }
-
-    @Override
-    public List<Map<String, List<GoalStateOperationStatus>>> createGoalStates(
+    public List<String> createGoalStates(
             List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
         if (unicastGoalStates == null) {
             unicastGoalStates = new ArrayList<>();
@@ -108,41 +89,43 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         return null;
     }
 
-    private List<Map<String, List<GoalStateOperationStatus>>> sendGoalState(
-            List<UnicastGoalState> unicastGoalStates) throws Exception {
-        List<Future<Map<String, List<GoalStateOperationStatus>>>>
+    private List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) {
+        List<Future<UnicastGoalState>>
                 futures = new ArrayList<>(unicastGoalStates.size());
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            Future<Map<String, List<GoalStateOperationStatus>>> future =
+            Future<UnicastGoalState> future =
                     executor.submit(() -> {
                 try {
-                    return sendGoalState(unicastGoalState);
+                    sendGoalState(unicastGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    return unicastGoalState;
                 }
+
                 return null;
             });
+
             futures.add(future);
         }
 
-        return futures.parallelStream().map(future -> {
+        //Handle all failed hosts
+        return futures.parallelStream().filter(Objects::nonNull).map(future -> {
             try {
-                return future.get();
+                return future.get().getHostIp();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+
             return null;
         }).collect(Collectors.toList());
     }
 
-    private Map<String, List<GoalStateOperationStatus>> sendGoalState(
-            UnicastGoalState unicastGoalState) throws InterruptedException {
-        return sendGoalState(unicastGoalState.getGoalState(), unicastGoalState.getHostIp());
+    private void sendGoalState(UnicastGoalState unicastGoalState) throws InterruptedException {
+        doSendGoalState(unicastGoalState.getGoalState(), unicastGoalState.getHostIp());
     }
 
-    private Map<String, List<GoalStateOperationStatus>> sendGoalState(
-            Goalstate.GoalState goalState, String hostIp) throws InterruptedException {
+    private void doSendGoalState(Goalstate.GoalState goalState, String hostIp) {
 
         Map<String, List<GoalStateOperationStatus>> result = new HashMap<>();
 
@@ -158,7 +141,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         result.put(hostIp, statuses);
 
         shutdown(channel);
-        return result;
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> asyncSendGoalStates(
@@ -201,8 +183,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         asyncSendGoalState(unicastGoalState.getGoalState(), unicastGoalState.getHostIp(), observer);
     }
 
-    private void
-    asyncSendGoalState(Goalstate.GoalState goalState, String hostIp,
+    private void asyncSendGoalState(Goalstate.GoalState goalState, String hostIp,
                        StreamObserver<GoalStateOperationReply> observer) {
         ManagedChannel channel = newChannel(hostIp, grpcPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub =

@@ -52,7 +52,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private TopicManager topicManager;
 
     @Override
-    public Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> createGoalStates(Goalstate.GoalState goalState, String hostIp) throws Exception {
+    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
         return null;
     }
 
