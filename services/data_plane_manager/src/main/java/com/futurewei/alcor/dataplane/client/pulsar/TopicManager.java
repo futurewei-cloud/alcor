@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.client.pulsar;
 
+import com.futurewei.alcor.dataplane.exception.TopicParseFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class TopicManager {
             this.hostIpToGroupTopic = parseTopicConfig(configuration.getHostIpToGroupTopicMap());
             this.groupTopicToMulticastTopic = parseTopicConfig(configuration.getGroupTopicToMulticastTopicMap());
         }catch (Exception e) {
-            throw new Exception("Parse topic config error: " + e);
+            throw new TopicParseFailureException("Parse topic config error: " + e);
         }
 
         LOG.info("Host ip to group topic map: {}", this.hostIpToGroupTopic);

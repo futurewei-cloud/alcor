@@ -65,8 +65,10 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -75,8 +77,11 @@ import java.util.stream.Collectors;
 public class DataPlaneServiceImpl implements DataPlaneService {
     private static final int FORMAT_REVISION_NUMBER = 1;
 
-    @Autowired
-    private DataPlaneClient dataPlaneClient;
+    @Resource(name = "grpc")
+    private DataPlaneClient grpcDataPlaneClient;
+
+    @Resource(name = "pulsar")
+    private DataPlaneClient pulsarDataPlaneClient;
 
     private VpcEntity getVpcEntity(NetworkConfiguration networkConfig, String vpcId) throws Exception {
         VpcEntity result = null;
@@ -552,7 +557,14 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
 
-        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        // TODO: Find a field to decide client
+        if (true){
+            return pulsarDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        }
+        else {
+            return grpcDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        }
+
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> createNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -691,7 +703,15 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
             unicastGoalStateList.add(unicastGoalState);
         }
-        return dataPlaneClient.createGoalStates(unicastGoalStateList);
+
+
+        // TODO: Find a field to decide client
+        if (true){
+            return pulsarDataPlaneClient.createGoalStates(unicastGoalStateList);
+        }
+        else {
+            return grpcDataPlaneClient.createGoalStates(unicastGoalStateList);
+        }
     }
 
     @Override
