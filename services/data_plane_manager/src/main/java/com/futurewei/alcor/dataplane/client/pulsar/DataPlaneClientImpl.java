@@ -56,14 +56,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         return null;
     }
 
-    private UnicastGoalStateByte buildUnicastGoalStateByte(UnicastGoalState unicastGoalState) {
-        UnicastGoalStateByte unicastGoalStateByte = new UnicastGoalStateByte();
-        unicastGoalStateByte.setNextTopic(unicastGoalState.getNextTopic());
-        unicastGoalStateByte.setGoalStateByte(unicastGoalState.getGoalState().toByteArray());
-
-        return unicastGoalStateByte;
-    }
-
     private List<String> getGroupTopics(List<String> hostIps) throws Exception {
         List<String> groupTopics = new ArrayList<>();
 
@@ -101,14 +93,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         return multicastTopics;
     }
 
-    private MulticastGoalStateByte buildMulticastGoalStateByte(MulticastGoalState multicastGoalState) {
-        MulticastGoalStateByte multicastGoalStateByte = new MulticastGoalStateByte();
-        multicastGoalStateByte.setNextTopics(multicastGoalState.getNextTopics());
-        multicastGoalStateByte.setGoalStateByte(multicastGoalState.getGoalState().toByteArray());
-
-        return multicastGoalStateByte;
-    }
-
     private void createGoalState(MulticastGoalState multicastGoalState) throws Exception {
         Map<String, List<String>> multicastTopics = getMulticastTopics(multicastGoalState.getHostIps());
 
@@ -124,7 +108,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
                     .enableBatching(false)
                     .create();
 
-            producer.send(buildMulticastGoalStateByte(multicastGoalState));
+            producer.send(multicastGoalState.getMulticastGoalStateByte());
 
             LOG.info("Send multicastGoalState to topic:{} success, " +
                             "groupTopics: {}, unicastGoalStates: {}",
@@ -153,7 +137,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
                     .topic(topic)
                     .enableBatching(false)
                     .create();
-            producer.send(buildUnicastGoalStateByte(unicastGoalState));
+            producer.send(unicastGoalState.getUnicastGoalStateByte());
 
             LOG.info("Send unicastGoalStates to topic:{} success, " +
                     "unicastGoalStates: {}", nextTopic, unicastGoalState);

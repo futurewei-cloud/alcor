@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.entity;
 
 import com.futurewei.alcor.schema.Goalstate.GoalState;
+import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
 
 /**
  * UnicastGoalState contains a goalState object and the destination host ip address hostIp,
@@ -69,5 +70,13 @@ public class UnicastGoalState {
 
     public void setGoalState(GoalState goalState) {
         this.goalState = goalState;
+    }
+
+    public UnicastGoalStateByte getUnicastGoalStateByte() {
+        UnicastGoalStateByte unicastGoalStateByte = new UnicastGoalStateByte();
+        unicastGoalStateByte.setNextTopic(this.nextTopic);
+        unicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
+
+        return unicastGoalStateByte;
     }
 }
