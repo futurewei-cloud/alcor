@@ -557,12 +557,11 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
 
-        // TODO: Find a field to decide client
-        if (true){
-            return pulsarDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        if (networkConfig.getPortEntities().get(0).isFastPath()){
+            return grpcDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
         }
         else {
-            return grpcDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+            return pulsarDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
         }
 
     }
@@ -706,11 +705,12 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
 
         // TODO: Find a field to decide client
-        if (true){
-            return pulsarDataPlaneClient.createGoalStates(unicastGoalStateList);
+        boolean isFastPath = false;
+        if (isFastPath){
+            return grpcDataPlaneClient.createGoalStates(unicastGoalStateList);
         }
         else {
-            return grpcDataPlaneClient.createGoalStates(unicastGoalStateList);
+            return pulsarDataPlaneClient.createGoalStates(unicastGoalStateList);
         }
     }
 
