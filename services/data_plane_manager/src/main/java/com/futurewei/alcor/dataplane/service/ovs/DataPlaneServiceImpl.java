@@ -85,7 +85,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private VpcEntity getVpcEntity(NetworkConfiguration networkConfig, String vpcId) throws Exception {
         VpcEntity result = null;
-        for (VpcEntity vpcEntity: networkConfig.getVpcs()) {
+        for (VpcEntity vpcEntity : networkConfig.getVpcs()) {
             if (vpcEntity.getId().equals(vpcId)) {
                 result = vpcEntity;
             }
@@ -104,7 +104,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             return;
         }
 
-        for (PortState portState: portStates) {
+        for (PortState portState : portStates) {
             VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getVpcId());
             VpcConfiguration.Builder vpcConfigBuilder = VpcConfiguration.newBuilder();
             vpcConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
@@ -144,7 +144,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private InternalSubnetEntity getInternalSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
         InternalSubnetEntity result = null;
-        for (InternalSubnetEntity internalSubnetEntity: networkConfig.getSubnets()) {
+        for (InternalSubnetEntity internalSubnetEntity : networkConfig.getSubnets()) {
             if (internalSubnetEntity.getId().equals(subnetId)) {
                 result = internalSubnetEntity;
             }
@@ -164,15 +164,15 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
-        for (PortState portState: portStates) {
-            for (FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
+        for (PortState portState : portStates) {
+            for (FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
                         networkConfig, fixedIp.getSubnetId());
                 subnetEntities.add(internalSubnetEntity);
             }
         }
 
-        for (InternalSubnetEntity subnetEntity: subnetEntities) {
+        for (InternalSubnetEntity subnetEntity : subnetEntities) {
             SubnetConfiguration.Builder subnetConfigBuilder = SubnetConfiguration.newBuilder();
             subnetConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -214,7 +214,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
                                 UnicastGoalState unicastGoalState) {
-        for (InternalPortEntity portEntity: portEntities) {
+        for (InternalPortEntity portEntity : portEntities) {
             PortConfiguration.Builder portConfigBuilder = PortConfiguration.newBuilder();
             portConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
             portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -255,7 +255,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             }
 
             if (portEntity.getSecurityGroups() != null) {
-                portEntity.getSecurityGroups().forEach(securityGroupId-> {
+                portEntity.getSecurityGroups().forEach(securityGroupId -> {
                     SecurityGroupId.Builder securityGroupIdBuilder = SecurityGroupId.newBuilder();
                     securityGroupIdBuilder.setId(securityGroupId);
                     portConfigBuilder.addSecurityGroupIds(securityGroupIdBuilder.build());
@@ -318,19 +318,19 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         List<NeighborEntry> multicastNeighborEntries = new ArrayList<>();
-        for (PortState portState: portStates) {
+        for (PortState portState : portStates) {
             List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
             if (fixedIps == null) {
                 throw new PortFixedIpNotFound();
             }
 
-            for (FixedIp fixedIp: fixedIps) {
+            for (FixedIp fixedIp : fixedIps) {
                 List<NeighborEntry> neighborEntries = neighborTable.get(fixedIp.getIpAddress());
                 if (neighborEntries == null) {
                     throw new NeighborInfoNotFound();
                 }
 
-                for (NeighborEntry neighborEntry: neighborEntries) {
+                for (NeighborEntry neighborEntry : neighborEntries) {
                     NeighborInfo neighborInfo = neighborInfos.get(neighborEntry.getNeighborIp());
                     if (neighborInfo == null) {
                         throw new NeighborInfoNotFound();
@@ -349,7 +349,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         Set<NeighborInfo> neighborInfoSet = new HashSet<>();
-        for (NeighborEntry neighborEntry: multicastNeighborEntries) {
+        for (NeighborEntry neighborEntry : multicastNeighborEntries) {
             String localIp = neighborEntry.getLocalIp();
             String neighborIp = neighborEntry.getNeighborIp();
             NeighborInfo neighborInfo1 = neighborInfos.get(localIp);
@@ -372,7 +372,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private SecurityGroup getSecurityGroup(NetworkConfiguration networkConfig, String securityGroupId) throws Exception {
         SecurityGroup result = null;
-        for (SecurityGroup securityGroup: networkConfig.getSecurityGroups()) {
+        for (SecurityGroup securityGroup : networkConfig.getSecurityGroups()) {
             if (securityGroup.getId().equals(securityGroupId)) {
                 result = securityGroup;
                 break;
@@ -394,16 +394,16 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         Set<String> securityGroupIds = new HashSet<>();
-        for (PortState portState: portStates) {
-            List<SecurityGroupId> securityGroupIdList= portState.getConfiguration().getSecurityGroupIdsList();
-            if (securityGroupIdList != null && securityGroupIdList.size() >0) {
+        for (PortState portState : portStates) {
+            List<SecurityGroupId> securityGroupIdList = portState.getConfiguration().getSecurityGroupIdsList();
+            if (securityGroupIdList != null && securityGroupIdList.size() > 0) {
                 securityGroupIds.addAll(securityGroupIdList.stream()
                         .map(SecurityGroupId::getId)
                         .collect(Collectors.toList()));
             }
         }
 
-        for (String securityGroupId: securityGroupIds) {
+        for (String securityGroupId : securityGroupIds) {
             SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
             SecurityGroupConfiguration.Builder securityGroupConfigBuilder = SecurityGroupConfiguration.newBuilder();
             securityGroupConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
@@ -417,7 +417,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                 throw new SecurityGroupRuleNotFound();
             }
 
-            for (SecurityGroupRule securityGroupRule: securityGroup.getSecurityGroupRules()) {
+            for (SecurityGroupRule securityGroupRule : securityGroup.getSecurityGroupRules()) {
                 SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
                         SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
                 securityGroupRuleBuilder.setSecurityGroupId(securityGroup.getId());
@@ -445,10 +445,10 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             return;
         }
 
-        for (PortState portState: portStates) {
+        for (PortState portState : portStates) {
             String macAddress = portState.getConfiguration().getMacAddress();
             List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
-            for (FixedIp fixedIp: fixedIps) {
+            for (FixedIp fixedIp : fixedIps) {
                 DHCPConfiguration.Builder dhcpConfigBuilder = DHCPConfiguration.newBuilder();
                 dhcpConfigBuilder.setFormatVersion(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -475,9 +475,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         Set<String> subnetIds = new HashSet<>();
-        for (PortState portState: portStates) {
+        for (PortState portState : portStates) {
             List<FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
-            for (FixedIp fixedIp: fixedIps) {
+            for (FixedIp fixedIp : fixedIps) {
                 InternalSubnetEntity internalSubnetEntity =
                         getInternalSubnetEntity(networkConfig, fixedIp.getSubnetId());
                 subnetIds.add(internalSubnetEntity.getId());
@@ -489,7 +489,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             return;
         }
 
-        for (String subnetId: subnetIds) {
+        for (String subnetId : subnetIds) {
             for (InternalRouterInfo routerInfo : internalRouterInfos) {
                 List<InternalSubnetRoutingTable> subnetRoutingTables =
                         routerInfo.getRouterConfiguration().getSubnetRoutingTables();
@@ -530,40 +530,104 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         return unicastGoalState;
     }
 
-    private List<Map<String, List<GoalStateOperationStatus>>> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
-        MulticastGoalState multicastGoalState = new MulticastGoalState();
+//    TODO: Delete an implementation. (Not sure whether the design is reasonable and temporarily retain the original design)
 
-        Map<String, List<InternalPortEntity>> hostPortEntities = new HashMap<>();
-        for (InternalPortEntity portEntity: networkConfig.getPortEntities()) {
+//    private List<Map<String, List<GoalStateOperationStatus>>> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+//        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
+//        MulticastGoalState multicastGoalState = new MulticastGoalState();
+//
+//        Map<String, List<InternalPortEntity>> hostPortEntities = new HashMap<>();
+//        for (InternalPortEntity portEntity: networkConfig.getPortEntities()) {
+//            if (portEntity.getBindingHostIP() == null) {
+//                throw new PortBindingHostIpNotFound();
+//            }
+//
+//            if (!hostPortEntities.containsKey(portEntity.getBindingHostIP())) {
+//                hostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+//            }
+//
+//            hostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
+//        }
+//
+//        for (Map.Entry<String, List<InternalPortEntity>> entry: hostPortEntities.entrySet()) {
+//            String hostIp = entry.getKey();
+//            List<InternalPortEntity> portEntities = entry.getValue();
+//            unicastGoalStates.add(buildUnicastGoalState(
+//                    networkConfig, hostIp, portEntities, multicastGoalState));
+//        }
+//
+//        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
+//        multicastGoalState.setGoalStateBuilder(null);
+//
+//        if (networkConfig.getPortEntities().get(0).isFastPath()){
+//            return grpcDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+//        }
+//        else {
+//            return pulsarDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+//        }
+//
+//    }
+
+    private List<Map<String, List<GoalStateOperationStatus>>> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        List<UnicastGoalState> pulsarUnicastGoalStates = new ArrayList<>();
+        MulticastGoalState pulsarMulticastGoalState = new MulticastGoalState();
+        Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
+
+        List<UnicastGoalState> grpcUnicastGoalStates = new ArrayList<>();
+        MulticastGoalState grpcMulticastGoalState = new MulticastGoalState();
+        Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
+
+        for (InternalPortEntity portEntity : networkConfig.getPortEntities()) {
             if (portEntity.getBindingHostIP() == null) {
                 throw new PortBindingHostIpNotFound();
             }
+            if (portEntity.isFastPath()) {
+                if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
+                    grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+                }
 
-            if (!hostPortEntities.containsKey(portEntity.getBindingHostIP())) {
-                hostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+                grpcHostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
+            } else {
+                if (!pulsarHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
+                    pulsarHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+                }
+
+                pulsarHostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
             }
 
-            hostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
         }
 
-        for (Map.Entry<String, List<InternalPortEntity>> entry: hostPortEntities.entrySet()) {
-            String hostIp = entry.getKey();
-            List<InternalPortEntity> portEntities = entry.getValue();
-            unicastGoalStates.add(buildUnicastGoalState(
-                    networkConfig, hostIp, portEntities, multicastGoalState));
+        List<Map<String, List<GoalStateOperationStatus>>> statusList = new ArrayList<>();
+
+        if (grpcHostPortEntities.size() != 0) {
+            for (Map.Entry<String, List<InternalPortEntity>> entry : grpcHostPortEntities.entrySet()) {
+                String hostIp = entry.getKey();
+                List<InternalPortEntity> portEntities = entry.getValue();
+                grpcUnicastGoalStates.add(buildUnicastGoalState(
+                        networkConfig, hostIp, portEntities, grpcMulticastGoalState));
+            }
+
+            grpcMulticastGoalState.setGoalState(grpcMulticastGoalState.getGoalStateBuilder().build());
+            grpcMulticastGoalState.setGoalStateBuilder(null);
+
+
+            statusList.addAll(grpcDataPlaneClient.createGoalStates(grpcUnicastGoalStates, grpcMulticastGoalState));
         }
 
-        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
-        multicastGoalState.setGoalStateBuilder(null);
+        if (pulsarHostPortEntities.size() != 0) {
+            for (Map.Entry<String, List<InternalPortEntity>> entry : pulsarHostPortEntities.entrySet()) {
+                String hostIp = entry.getKey();
+                List<InternalPortEntity> portEntities = entry.getValue();
+                grpcUnicastGoalStates.add(buildUnicastGoalState(
+                        networkConfig, hostIp, portEntities, pulsarMulticastGoalState));
+            }
 
-        if (networkConfig.getPortEntities().get(0).isFastPath()){
-            return grpcDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
-        }
-        else {
-            return pulsarDataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
-        }
+            pulsarMulticastGoalState.setGoalState(pulsarMulticastGoalState.getGoalStateBuilder().build());
+            pulsarMulticastGoalState.setGoalStateBuilder(null);
 
+            statusList.addAll(pulsarDataPlaneClient.createGoalStates(pulsarUnicastGoalStates, pulsarMulticastGoalState));
+        }
+        return statusList;
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> createNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -619,7 +683,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         SubnetRoutingTable.Builder subnetRoutingTableBuilder = SubnetRoutingTable.newBuilder();
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
-        for (InternalRoutingRule routingRule: subnetRoutingTable.getRoutingRules()) {
+        for (InternalRoutingRule routingRule : subnetRoutingTable.getRoutingRules()) {
             RoutingRule.Builder routingRuleBuilder = RoutingRule.newBuilder();
             routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
             routingRuleBuilder.setId(routingRule.getId());
@@ -660,14 +724,14 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         }
 
         Map<String, UnicastGoalState> unicastGoalStateMap = new HashMap<>();
-        for (InternalRouterInfo routerInfo: internalRouterInfos) {
+        for (InternalRouterInfo routerInfo : internalRouterInfos) {
             List<InternalSubnetRoutingTable> subnetRoutingTables =
                     routerInfo.getRouterConfiguration().getSubnetRoutingTables();
             if (subnetRoutingTables == null) {
                 throw new RouterInfoInvalid();
             }
 
-            for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
+            for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                 String subnetId = subnetRoutingTable.getSubnetId();
                 if (!internalSubnetPorts.containsKey(subnetId)) {
                     throw new SubnetPortsNotFound();
@@ -678,7 +742,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
                     throw new SubnetPortsInvalid();
                 }
 
-                for (PortHostInfo portHostInfo: subnetPorts.getPorts()) {
+                for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
                     String hostIp = portHostInfo.getHostIp();
                     UnicastGoalState unicastGoalState = unicastGoalStateMap.get(hostIp);
                     if (unicastGoalState == null) {
@@ -706,10 +770,9 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         // TODO: Find a field to decide client
         boolean isFastPath = false;
-        if (isFastPath){
+        if (isFastPath) {
             return grpcDataPlaneClient.createGoalStates(unicastGoalStateList);
-        }
-        else {
+        } else {
             return pulsarDataPlaneClient.createGoalStates(unicastGoalStateList);
         }
     }
