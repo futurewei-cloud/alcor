@@ -31,6 +31,12 @@ import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.SubscriptionType;
+import org.apache.pulsar.client.impl.schema.JSONSchema;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -59,8 +65,8 @@ public class DataPlaneTest {
     @Autowired
     private MockMvc mockMvc;
 
-    //@MockBean
-    //private DataPlaneClient dataPlaneClient;
+    @Autowired
+    private PulsarClient pulsarClient;
 
     private List<VpcEntity> buildVpcEntities() {
         VpcEntity vpcEntity = new VpcEntity();
@@ -235,6 +241,21 @@ public class DataPlaneTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+
+        Consumer<MulticastGoalStateByte> multicastConsumer = pulsarClient.newConsumer(JSONSchema.of(MulticastGoalStateByte.class))
+                .topic("multicast-topic2")
+                .subscriptionName("my-subscription")
+                .subscriptionType(SubscriptionType.Shared)
+                .subscribe();
+
+        Message<MulticastGoalStateByte> msg = multicastConsumer.receive();
+        try {
+            multicastConsumer.acknowledge(msg);
+        } catch (Exception e) {
+            System.err.printf("Unable to consume message: %s", e.getMessage());
+            multicastConsumer.negativeAcknowledge(msg);
+        }
+        Assert.assertNotNull(msg.getValue().getGoalStateByte());
     }
 
     private Map<String, InternalSubnetPorts> buildSubnetPorts() {
@@ -334,5 +355,7 @@ public class DataPlaneTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+
+
     }
 }

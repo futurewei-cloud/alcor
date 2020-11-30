@@ -31,12 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
+@Service("grpc")
 public class DataPlaneClientImpl implements DataPlaneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);

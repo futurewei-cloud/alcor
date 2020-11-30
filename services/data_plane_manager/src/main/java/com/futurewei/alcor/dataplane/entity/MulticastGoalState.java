@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.entity;
 
 import com.futurewei.alcor.schema.Goalstate.GoalState;
+import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,5 +76,13 @@ public class MulticastGoalState {
 
     public void setGoalState(GoalState goalState) {
         this.goalState = goalState;
+    }
+
+    public MulticastGoalStateByte getMulticastGoalStateByte() {
+        MulticastGoalStateByte multicastGoalStateByte = new MulticastGoalStateByte();
+        multicastGoalStateByte.setNextTopics(this.nextTopics);
+        multicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
+
+        return multicastGoalStateByte;
     }
 }
