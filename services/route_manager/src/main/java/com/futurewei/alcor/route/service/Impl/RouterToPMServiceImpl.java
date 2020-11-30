@@ -15,10 +15,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
 import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
 import com.futurewei.alcor.route.service.RouterToPMService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -35,24 +36,32 @@ public class RouterToPMServiceImpl implements RouterToPMService {
     private RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public List<String> getSubnetIdsFromPM(String projectid, List<String> gatewayPorts) throws PortWebJsonOrPortEntityIsNull {
+    public List<String> getSubnetIdsFromPM(String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull {
         if (gatewayPorts == null) {
             return null;
         }
 
         List<String> subnetIds = new ArrayList<>();
-        for (String gatewayPortId : gatewayPorts) {
-            String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports/" + gatewayPortId;
-            PortWebJson portResponse = restTemplate.getForObject(portManagerServiceUrl, PortWebJson.class);
-            if (portResponse == null) {
-                throw new PortWebJsonOrPortEntityIsNull();
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports?id=";
+        for (int i = 0 ; i < gatewayPorts.size(); i ++) {
+            String gatewayPortId = gatewayPorts.get(i);
+            if (i != gatewayPorts.size() - 1) {
+                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId + ",";
+            } else {
+                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId;
             }
+        }
+        PortWebBulkJson portResponse = restTemplate.getForObject(portManagerServiceUrl, PortWebBulkJson.class);
+        if (portResponse == null) {
+            throw new PortWebBulkJsonOrPortEntitiesListIsNull();
+        }
 
-            PortEntity portEntityResponse = portResponse.getPortEntity();
-            if (portEntityResponse == null) {
-                throw new PortWebJsonOrPortEntityIsNull();
-            }
-            List<PortEntity.FixedIp> fixedIps = portEntityResponse.getFixedIps();
+        List<PortEntity> portEntitiesResponse = portResponse.getPortEntities();
+        if (portEntitiesResponse == null) {
+            throw new PortWebBulkJsonOrPortEntitiesListIsNull();
+        }
+        for (PortEntity portEntity : portEntitiesResponse) {
+            List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
             if (fixedIps != null) {
                 for (PortEntity.FixedIp fixedIp : fixedIps) {
                     String subnetId = fixedIp.getSubnetId();
@@ -60,6 +69,7 @@ public class RouterToPMServiceImpl implements RouterToPMService {
                 }
             }
         }
+
 
         return subnetIds;
     }

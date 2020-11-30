@@ -22,13 +22,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.Assert.*;
 
 import com.futurewei.alcor.common.enumClass.RouteTableType;
-import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
-import com.futurewei.alcor.web.entity.route.RouteEntry;
-import com.futurewei.alcor.web.entity.route.RouteTable;
-import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.route.RouterExtraAttribute;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
@@ -73,7 +69,12 @@ public class NeutronRouterTests {
     private RouteTableDatabaseService routeTableDatabaseService;
 
     @MockBean
+    private RouterToPMService routerToPMService;
+
+    @MockBean
     private RouterToDPMService routerToDPMService;
+
+
 
     private String getNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String createNeutronRoutersUri = "/project/" + UnitTestConfig.projectId + "/routers";
@@ -340,7 +341,8 @@ public class NeutronRouterTests {
     @Test
     public void removeInterfaceToNeutronRouter_onlyPassInPortId_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -362,7 +364,8 @@ public class NeutronRouterTests {
     @Test
     public void removeInterfaceToNeutronRouter_onlyPassInSubnetId_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -384,7 +387,8 @@ public class NeutronRouterTests {
     @Test
     public void removeInterfaceToNeutronRouter_passInBothSubnetIdAndPortId_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -406,7 +410,8 @@ public class NeutronRouterTests {
     @Test
     public void removeInterfaceToNeutronRouter_passInBothSubnetIdAndPortId_SubnetNotBindUniquePortId_notPass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});add(new SubnetEntity());}});}});
@@ -427,7 +432,8 @@ public class NeutronRouterTests {
     @Test
     public void removeInterfaceToNeutronRouter_passInBothSubnetIdAndPortId_AttachedPortsNotMatchPortId_notPass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -471,8 +477,12 @@ public class NeutronRouterTests {
         Map<String, RouteTable> routeTableMap = new HashMap<>();
         routeTableMap.put(UnitTestConfig.routeTableId, new RouteTable(){{setRouteEntities(new ArrayList<>(){{add(new RouteEntry(){{setDestination(UnitTestConfig.routeId);setNexthop(UnitTestConfig.routeId);}});}});}});
 
+        Mockito.when(routerToPMService.getSubnetIdsFromPM(anyString(), anyList()))
+                .thenReturn(new ArrayList<>());
+        Mockito.doNothing().when(routerToDPMService).sendInternalRouterInfoToDPM(any(InternalRouterInfo.class));
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -524,8 +534,12 @@ public class NeutronRouterTests {
         Map<String, RouteTable> routeTableMap = new HashMap<>();
         routeTableMap.put(UnitTestConfig.routeTableId, new RouteTable(){{setRouteEntities(new ArrayList<>(){{add(new RouteEntry(){{setDestination(UnitTestConfig.routeId);setNexthop(UnitTestConfig.routeId);}});}});}});
 
+        Mockito.when(routerToPMService.getSubnetIdsFromPM(anyString(), anyList()))
+                .thenReturn(new ArrayList<>());
+        Mockito.doNothing().when(routerToDPMService).sendInternalRouterInfoToDPM(any(InternalRouterInfo.class));
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
@@ -568,7 +582,8 @@ public class NeutronRouterTests {
     @Test
     public void getConnectedSubnets_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setPorts(new ArrayList<>());
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);
+                    setGatewayPorts(new ArrayList<>());
                     setNeutronRouteTable(new RouteTable(){{setRouteEntities(new ArrayList<>());setRouteTableType(RouteTableType.NEUTRON_ROUTER.getRouteTableType());}});}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});

@@ -49,7 +49,7 @@ public class Router extends CustomerResource {
 
     // store subnet_gateway_port_id
     @JsonProperty("gateway_ports")
-    private List<String> ports;
+    private List<String> gatewayPorts;
 
     @JsonProperty("tenant_id")
     private String tenantId;
@@ -82,14 +82,14 @@ public class Router extends CustomerResource {
     }
 
     public Router(String projectId, String id, String name, String description,
-                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTables, String owner, List<String> ports,
+                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTables, String owner, List<String> gatewayPorts,
                   String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId,
                   String vpcDefaultRouteTableId) {
         super(projectId, id, name, description);
         this.neutronRouteTable = neutronRouteTable;
         this.vpcRouteTables = vpcRouteTables;
         this.owner = owner;
-        this.ports = ports;
+        this.gatewayPorts = gatewayPorts;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
         this.status = status;
@@ -99,7 +99,7 @@ public class Router extends CustomerResource {
 
     public Router(Router r) {
         this(r.getProjectId(), r.getId(), r.getName(), r.getDescription(),
-                r.getNeutronRouteTable(), r.getVpcRouteTables(), r.getOwner(), r.getPorts(),
+                r.getNeutronRouteTable(), r.getVpcRouteTables(), r.getOwner(), r.getGatewayPorts(),
                 r.getTenantId(), true, r.getStatus(), r.getRouterExtraAttributeId(),
                 r.getVpcDefaultRouteTableId());
     }

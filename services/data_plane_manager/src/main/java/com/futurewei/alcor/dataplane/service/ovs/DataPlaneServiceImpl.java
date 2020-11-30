@@ -614,7 +614,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             routingRuleBuilder.setName(routingRule.getName());
             routingRuleBuilder.setDestination(routingRule.getDestination());
             routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-            routingRuleBuilder.setPriority(Integer.parseInt(routingRule.getPriority()));
+            routingRuleBuilder.setPriority(routingRule.getPriority());
 
             if (routingRule.getRoutingRuleExtraInfo() != null) {
                 RoutingRuleExtraInfo.Builder extraInfoBuilder = RoutingRuleExtraInfo.newBuilder();

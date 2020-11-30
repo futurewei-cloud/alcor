@@ -271,7 +271,7 @@ public class GoalStateTransformer {
                                     Router.DestinationType.INTERNET;
                             Router.RouterConfiguration.RoutingRuleExtraInfo routingRuleExtraInfo = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder().setDestinationType(destinationType).setNextHopMac(internalRoutingRule.getRoutingRuleExtraInfo().getNextHopMac()).build();
                             Common.OperationType op = goalStateManager.getGoalStateHelper().getOperationType(networkConfiguration.getOpType());
-                            Router.RouterConfiguration.RoutingRule routingRule = Router.RouterConfiguration.RoutingRule.newBuilder().setDestination(internalRoutingRule.getDestination()).setId(internalRoutingRule.getId()).setName(internalRoutingRule.getName()).setNextHopIp(internalRoutingRule.getNextHopIp()).setPriority(Integer.parseInt(internalRoutingRule.getPriority())).setOperationType(op).setRoutingRuleExtraInfo(routingRuleExtraInfo).build();
+                            Router.RouterConfiguration.RoutingRule routingRule = Router.RouterConfiguration.RoutingRule.newBuilder().setDestination(internalRoutingRule.getDestination()).setId(internalRoutingRule.getId()).setName(internalRoutingRule.getName()).setNextHopIp(internalRoutingRule.getNextHopIp()).setPriority(internalRoutingRule.getPriority()).setOperationType(op).setRoutingRuleExtraInfo(routingRuleExtraInfo).build();
                             routingRuleList.add(routingRule);
                         }
                         subnetRoutingTables2.add(subnetRoutingTable.toBuilder().addAllRoutingRules(routingRuleList).build());

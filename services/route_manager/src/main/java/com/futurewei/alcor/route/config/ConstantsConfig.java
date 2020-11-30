@@ -23,8 +23,8 @@ public class ConstantsConfig {
     public static String DEFAULT_ROUTINGRULETYPE = "default";
     public static String STATIC_ROUTINGRULETYPE = "static";
     public static String DPMFailedHandleRequest = "Failed Handle request !!";
-    public static String LOW_PRIORITY = "low_priority";
-    public static String MEDIUM_PRIORITY = "medium_priority";
-    public static String HIGH_PRIORITY = "high_priority";
+    public static Integer LOW_PRIORITY = 500;
+    public static Integer MEDIUM_PRIORITY = 300;
+    public static Integer HIGH_PRIORITY = 100;
 
 }

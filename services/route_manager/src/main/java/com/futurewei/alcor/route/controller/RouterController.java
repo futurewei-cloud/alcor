@@ -208,7 +208,8 @@ public class RouterController {
             for (RouteEntry routeEntry : routeEntities) {
                 NewRoutesRequest newRoutesRequest = new NewRoutesRequest();
                 newRoutesRequest.setDestination(routeEntry.getDestination());
-                newRoutesRequest.setNexthop(routeEntry.getNexthop());
+                // TODO: need to use target to get real IP address from GM
+                newRoutesRequest.setNexthop(routeEntry.getTarget());
                 routes.add(newRoutesRequest);
             }
             newRouteEntry.setRoutes(routes);
@@ -222,8 +223,8 @@ public class RouterController {
             for (RouteTable routeTable : vpcRouteTables) {
                 String subnetId = routeTable.getOwner();
                 UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRouteEntry, true);
-                List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
-                internalSubnetRoutingTableList.addAll(internalSubnetRoutingTables);
+                InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+                internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
@@ -376,7 +377,9 @@ public class RouterController {
             newRoutes.setRoutes(routes);
 
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
+            internalSubnetRoutingTables.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
@@ -384,10 +387,10 @@ public class RouterController {
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
-            if (hostRouteToSubnet == null) {
-                throw new HostRoutesToSubnetIsNull();
-            }
-            this.vpcRouterToSubnetService.updateRoutingRuleInSubnetManager(projectid, subnetid, hostRouteToSubnet);
+//            if (hostRouteToSubnet == null) {
+//                throw new HostRoutesToSubnetIsNull();
+//            }
+//            this.vpcRouterToSubnetService.updateRoutingRuleInSubnetManager(projectid, subnetid, hostRouteToSubnet);
 
         } catch (ParameterNullOrEmptyException | HostRoutesToSubnetIsNull e) {
             throw e;
@@ -432,14 +435,16 @@ public class RouterController {
             List<NewRoutesRequest> routes = new ArrayList<>();
             for (RouteEntry routeEntry : routeEntities) {
                 String destination = routeEntry.getDestination();
-                String nexthop = routeEntry.getNexthop();
-                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
+                String target = routeEntry.getTarget();
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, target);
                 routes.add(newRoutesRequest);
             }
             newRoutes.setRoutes(routes);
 
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
+            internalSubnetRoutingTables.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
@@ -491,7 +496,9 @@ public class RouterController {
             List<NewRoutesRequest> routes = new ArrayList<>();
             newRoutes.setRoutes(routes);
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetid, newRoutes, false);
-            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = updateRoutingRuleResponse.getInternalSubnetRoutingTables();
+            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
+            internalSubnetRoutingTables.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 

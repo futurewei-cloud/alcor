@@ -24,25 +24,25 @@ import java.util.List;
 @Data
 public class UpdateRoutingRuleResponse {
 
-    @JsonProperty("internalRouterInfo")
-    private List<InternalSubnetRoutingTable> internalSubnetRoutingTables;
+    @JsonProperty("internalSubnetRoutingTable")
+    private InternalSubnetRoutingTable internalSubnetRoutingTable;
 
     @JsonProperty("hostRouteToSubnet")
     private List<HostRoute> hostRouteToSubnet;
 
     public UpdateRoutingRuleResponse() {}
 
-    public UpdateRoutingRuleResponse(List<InternalSubnetRoutingTable> internalSubnetRoutingTables, List<HostRoute> hostRouteToSubnet) {
-        this.internalSubnetRoutingTables = internalSubnetRoutingTables;
+    public UpdateRoutingRuleResponse(InternalSubnetRoutingTable internalSubnetRoutingTable, List<HostRoute> hostRouteToSubnet) {
+        this.internalSubnetRoutingTable = internalSubnetRoutingTable;
         this.hostRouteToSubnet = hostRouteToSubnet;
     }
 
-    public List<InternalSubnetRoutingTable> getInternalSubnetRoutingTables() {
-        return internalSubnetRoutingTables;
+    public InternalSubnetRoutingTable getInternalSubnetRoutingTable() {
+        return internalSubnetRoutingTable;
     }
 
-    public void setInternalSubnetRoutingTables(List<InternalSubnetRoutingTable> internalSubnetRoutingTables) {
-        this.internalSubnetRoutingTables = internalSubnetRoutingTables;
+    public void setInternalSubnetRoutingTable(InternalSubnetRoutingTable internalSubnetRoutingTable) {
+        this.internalSubnetRoutingTable = internalSubnetRoutingTable;
     }
 
     public List<HostRoute> getHostRouteToSubnet() {

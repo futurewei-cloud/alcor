@@ -38,9 +38,6 @@ public class InternalRouterConfiguration {
     @JsonProperty("host_dvr_mac")
     private String host_dvr_mac;
 
-    @JsonProperty("default_routing_table")
-    private List<InternalRoutingRule> default_routing_table;
-
     @JsonProperty("subnet_routing_tables")
     private List<InternalSubnetRoutingTable> subnet_routing_tables;
 
@@ -99,13 +96,5 @@ public class InternalRouterConfiguration {
     }
     public void setSubnetRoutingTables(List<InternalSubnetRoutingTable> subnet_routing_tables) {
         this.subnet_routing_tables = subnet_routing_tables;
-    }
-
-    public List<InternalRoutingRule> getDefaultRoutingTable() {
-        return default_routing_table;
-    }
-
-    public void setDefaultRoutingTable(List<InternalRoutingRule> default_routing_table) {
-        this.default_routing_table = default_routing_table;
     }
 }

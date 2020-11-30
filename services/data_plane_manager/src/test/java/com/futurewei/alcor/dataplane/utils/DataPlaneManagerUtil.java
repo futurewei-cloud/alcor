@@ -832,7 +832,7 @@ public class DataPlaneManagerUtil {
                             routingRule.setDestination(internalRoutingRule.getDestination());
                             routingRule.setId(internalRoutingRule.getId());
                             routingRule.setName(internalRoutingRule.getName());
-                            routingRule.setPriority(Integer.parseInt(internalRoutingRule.getPriority()));
+                            routingRule.setPriority(internalRoutingRule.getPriority());
                             routingRule.setNextHopIp(internalRoutingRule.getNextHopIp());
 
                             InternalRoutingRuleExtraInfo internalRoutingRuleExtraInfo = internalRoutingRule.getRoutingRuleExtraInfo();

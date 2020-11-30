@@ -302,7 +302,7 @@ public class DataPlaneTest {
         routingRule.setName("routingRule1");
         routingRule.setNextHopIp(TestConfig.nextHop);
         routingRule.setOperationType(CREATE);
-        routingRule.setPriority("100");
+        routingRule.setPriority(100);
         routingRule.setRoutingRuleExtraInfo(null);
         routingRules.add(routingRule);
         subnetRoutingTable1.setRoutingRules(routingRules);

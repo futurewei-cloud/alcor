@@ -15,12 +15,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service;
 
+import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
 import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
 
 import java.util.List;
 
 public interface RouterToPMService {
 
-    public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebJsonOrPortEntityIsNull;
+    public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull;
 
 }
