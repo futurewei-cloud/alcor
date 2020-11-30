@@ -424,10 +424,8 @@ public class DataPlaneManagerUtil {
 
         for (InternalSubnetEntity subnetEntity: subnets) {
             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
-            subnetConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             subnetConfigBuilder.setId(subnetEntity.getId());
             subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
-            subnetConfigBuilder.setProjectId(subnetEntity.getProjectId());
             subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
             if (subnetEntity.getName() != null) {
                 subnetConfigBuilder.setName(subnetEntity.getName());
@@ -440,15 +438,10 @@ public class DataPlaneManagerUtil {
             gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+
+            // TODO: need to set DNS based on latest contract
             if (subnetEntity.getAvailabilityZone() != null) {
                 subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
-            }
-            if (subnetEntity.getPrimaryDns() != null) {
-                subnetConfigBuilder.setPrimaryDns(subnetEntity.getPrimaryDns());
-            }
-
-            if (subnetEntity.getSecondaryDns() != null) {
-                subnetConfigBuilder.setSecondaryDns(subnetEntity.getSecondaryDns());
             }
             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
             subnetStateBuilder.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
@@ -466,12 +459,9 @@ public class DataPlaneManagerUtil {
     private void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities, Goalstate.GoalState.Builder goalStateBuilder) {
         for (InternalPortEntity portEntity: portEntities) {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
-            portConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             portConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
             portConfigBuilder.setId(portEntity.getId());
-            portConfigBuilder.setMessageType(Common.MessageType.FULL);
-            portConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
-            portConfigBuilder.setProjectId(portEntity.getProjectId());
+            portConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             portConfigBuilder.setVpcId(portEntity.getVpcId());
             portConfigBuilder.setName(portEntity.getName());
             portConfigBuilder.setMacAddress(portEntity.getMacAddress());
@@ -640,8 +630,6 @@ public class DataPlaneManagerUtil {
                 neighborType = Neighbor.NeighborType.valueOf(neighborTypeStr);
             }
             //neighborConfigBuilder.setNeighborType(neighborType);
-            neighborConfigBuilder.setProjectId(DPMAutoUnitTestConstant.projectId);
-            neighborConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             neighborConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber2);
             neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
             //neighborConfigBuilder.setName();
@@ -715,7 +703,6 @@ public class DataPlaneManagerUtil {
         for (String securityGroupId: securityGroupIds) {
             SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
             securityGroupConfigBuilder.setId(securityGroup.getId());
-            securityGroupConfigBuilder.setProjectId(securityGroup.getProjectId());
             //securityGroupConfigBuilder.setVpcId();
             securityGroupConfigBuilder.setName(securityGroup.getName());
 
@@ -768,7 +755,6 @@ public class DataPlaneManagerUtil {
             DHCP.DHCPConfiguration.Builder dhcpConfigBuilder = DHCP.DHCPConfiguration.newBuilder();
             dhcpConfigBuilder.setMacAddress(macAddress);
             dhcpConfigBuilder.setIpv4Address(fixedIps.get(0).getIpAddress());
-            dhcpConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             dhcpConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
             dhcpConfigBuilder.setSubnetId(fixedIps.get(0).getSubnetId());
             //TODO: support ipv6
@@ -808,13 +794,12 @@ public class DataPlaneManagerUtil {
             if (configuration == null) {
                 continue;
             }
-            routerConfigBuilder.setFormatVersion(DPMAutoUnitTestConstant.formatVersion);
             routerConfigBuilder.setRevisionNumber(DPMAutoUnitTestConstant.revisionNumber);
             if (configuration.getRequestId() != null) {
                 routerConfigBuilder.setRequestId(configuration.getRequestId());
             }
             routerConfigBuilder.setId(configuration.getId());
-            routerConfigBuilder.setMessageType(Common.MessageType.FULL);
+            routerConfigBuilder.setUpdateType(Common.UpdateType.FULL);
             routerConfigBuilder.setHostDvrMacAddress(configuration.getHostDvrMac());
 
             List<InternalSubnetRoutingTable> subnetRoutingTables = configuration.getSubnetRoutingTables();
