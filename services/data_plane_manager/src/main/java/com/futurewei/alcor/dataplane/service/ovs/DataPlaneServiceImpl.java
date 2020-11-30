@@ -530,10 +530,11 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         return unicastGoalState;
     }
 
-    private void convertHostPortEntities2GoalStates(NetworkConfiguration networkConfig,
+    private List<Map<String, List<GoalStateOperationStatus>>> doCreatePortConfiguration(NetworkConfiguration networkConfig,
                                                     Map<String, List<InternalPortEntity>> hostPortEntities,
                                                     List<UnicastGoalState> unicastGoalStates,
-                                                    MulticastGoalState multicastGoalState) throws Exception {
+                                                    MulticastGoalState multicastGoalState,
+                                                    DataPlaneClient dataPlaneClient) throws Exception {
         for (Map.Entry<String, List<InternalPortEntity>> entry : hostPortEntities.entrySet()) {
             String hostIp = entry.getKey();
             List<InternalPortEntity> portEntities = entry.getValue();
@@ -543,6 +544,8 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
+
+        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
     }
 
     private List<Map<String, List<GoalStateOperationStatus>>> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -575,13 +578,11 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         List<Map<String, List<GoalStateOperationStatus>>> statusList = new ArrayList<>();
 
         if (grpcHostPortEntities.size() != 0) {
-            convertHostPortEntities2GoalStates(networkConfig, grpcHostPortEntities, grpcUnicastGoalStates, grpcMulticastGoalState);
-            statusList.addAll(grpcDataPlaneClient.createGoalStates(grpcUnicastGoalStates, grpcMulticastGoalState));
+            statusList.addAll(doCreatePortConfiguration(networkConfig, grpcHostPortEntities, grpcUnicastGoalStates, grpcMulticastGoalState, grpcDataPlaneClient));
         }
 
         if (pulsarHostPortEntities.size() != 0) {
-            convertHostPortEntities2GoalStates(networkConfig, pulsarHostPortEntities, pulsarUnicastGoalStates, pulsarMulticastGoalState);
-            statusList.addAll(pulsarDataPlaneClient.createGoalStates(pulsarUnicastGoalStates, pulsarMulticastGoalState));
+            statusList.addAll(doCreatePortConfiguration(networkConfig, pulsarHostPortEntities, pulsarUnicastGoalStates, pulsarMulticastGoalState, pulsarDataPlaneClient));
         }
         return statusList;
     }
