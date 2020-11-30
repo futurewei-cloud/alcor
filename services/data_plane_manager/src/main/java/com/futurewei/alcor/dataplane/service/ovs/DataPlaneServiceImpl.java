@@ -532,9 +532,10 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
     private List<Map<String, List<GoalStateOperationStatus>>> doCreatePortConfiguration(NetworkConfiguration networkConfig,
                                                     Map<String, List<InternalPortEntity>> hostPortEntities,
-                                                    List<UnicastGoalState> unicastGoalStates,
-                                                    MulticastGoalState multicastGoalState,
                                                     DataPlaneClient dataPlaneClient) throws Exception {
+        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
+        MulticastGoalState multicastGoalState = new MulticastGoalState();
+
         for (Map.Entry<String, List<InternalPortEntity>> entry : hostPortEntities.entrySet()) {
             String hostIp = entry.getKey();
             List<InternalPortEntity> portEntities = entry.getValue();
@@ -578,11 +579,11 @@ public class DataPlaneServiceImpl implements DataPlaneService {
         List<Map<String, List<GoalStateOperationStatus>>> statusList = new ArrayList<>();
 
         if (grpcHostPortEntities.size() != 0) {
-            statusList.addAll(doCreatePortConfiguration(networkConfig, grpcHostPortEntities, grpcUnicastGoalStates, grpcMulticastGoalState, grpcDataPlaneClient));
+            statusList.addAll(doCreatePortConfiguration(networkConfig, grpcHostPortEntities, grpcDataPlaneClient));
         }
 
         if (pulsarHostPortEntities.size() != 0) {
-            statusList.addAll(doCreatePortConfiguration(networkConfig, pulsarHostPortEntities, pulsarUnicastGoalStates, pulsarMulticastGoalState, pulsarDataPlaneClient));
+            statusList.addAll(doCreatePortConfiguration(networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
         return statusList;
     }
