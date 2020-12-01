@@ -340,18 +340,20 @@ public class NeutronRouterController {
 
         List<String> gatewayPorts = router.getGatewayPorts();
         List<String> subnetIds = this.routerToPMService.getSubnetIdsFromPM(projectid, gatewayPorts);
-        // sub-level routing rule update
-        List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
-        for (String subnetId : subnetIds) {
-            UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
-            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
-            internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+        if (subnetIds != null) {
+            // sub-level routing rule update
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
+            for (String subnetId : subnetIds) {
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+                internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+            }
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
         }
-
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
-
-        // send InternalRouterInfo contract to DPM
-        this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         return routesToNeutronWebResponse;
 
@@ -378,20 +380,20 @@ public class NeutronRouterController {
 
         List<String> gatewayPorts = router.getGatewayPorts();
         List<String> subnetIds = this.routerToPMService.getSubnetIdsFromPM(projectid, gatewayPorts);
-        // sub-level routing rule update
-        List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
-        for (String subnetId : subnetIds) {
-            UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
-            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
-            internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+        if (subnetIds != null) {
+            // sub-level routing rule update
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
+            for (String subnetId : subnetIds) {
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+                internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+            }
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
         }
-
-        InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
-
-        // send InternalRouterInfo contract to DPM
-        this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
-
-        // TODO: call PM for routing rule updating (waiting for PM)
 
         return routesToNeutronWebResponse;
 

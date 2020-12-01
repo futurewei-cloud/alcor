@@ -427,7 +427,7 @@ public class SubnetController {
             String newGatewayIp = inSubnetWebResponseObject.getGatewayIp();
             if (newGatewayIp == null) {// disable gatewayIP
                 subnetEntity.setGatewayIp(newGatewayIp);
-            } else {
+            } else if(!newGatewayIp.equals(oldGatewayIp)){
 
                 // check if updated gatewayIp is valid
                 boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(newGatewayIp, subnetEntity.getCidr());
