@@ -1,0 +1,65 @@
+= Integration with Data Center SDN Gateway
+Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>, Eric Li <sze.li@futurewei.com>
+v0.1, 2020-11-30
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+In today's data center network architectures, many business processes require to traverse various network domains, e.g.,
+from one VPC to the other, from DC network to on-premise, from VPC internal to Internet, or vice verse.
+Customer VMs under different tenants or network domains need to communicate seamless across these boundaries.
+To enable these customer scenarios, SDN-based gateways are widely used in existing DC networks
+to link individual network endpoints, perform source or destination network address translation (SNAT),
+or build virtual tunnel endpoint (VTEP) to bridge various tunneling technologies such as VxLan and VLAN.
+
+Typical SDN-based gateways (GW) include Internet GW, NAT GW, VPC virtual routers, VPN GW, ExpressRoute GW, and among others.
+A common requirement is that a cloud networking management/control plane such as Alcor needs to
+drive network configurations or customer-specific configurations to a gateway based on customer scenario
+so that gateways could handle traffic sent to/from customer VMs.
+The purpose of this document is to outline general requirements and workflows for Alcor to integrate with SDN gateways.
+As the first step, we will focus on the integration with Zeta GW.
+
+== Service Requirements
+
+[arabic]
+. As an SDN gateway are related to a specific data plane implementation, the integration logics is handled by
+Data-Plane Manager (DPM).
+. DPM adopts a plug-in model to support various SDN gateways. Each SDN gateway is handled by one separate DPM plugin.
+. Other Alcor microservices including all resource management microservices are agnostic to a specific gateway implementation.
+For example, when creating a port, Port Manager doesn't need to know the new port is a regular port plumbed into a compute node,
+or a port with gateway enabled.
+
+== High-Level Architecture
+
+== Design of Key Worfklows
+
+This section outline three key workflows in gateway-related integration, namely, VPC creation, Port creation and
+Gateway cluster maintenance.
+Each workflow includes at least one proposal and compare the pros and cons of each proposal.
+
+=== VPC Creation
+
+Proposal A:
+
+image::gateway_integration_vpc_workflow.PNG[]
+
+Proposal B:
+
+image::gateway_integration_vpc_workflow_B.PNG[]
+
+=== Port Creation
+
+Proposal A:
+
+image::gateway_integration_port_workflow.PNG[]
+
+Proposal B:
+
+image::gateway_integration_port_workflow_B.PNG[]
+
+=== Gateway Cluster Maintenance
+
+== API Reference
+
+Please find the details of Gateway Manager (GWM) API in xref:../mgmt_services/gateway_manager.adoc[Gateway Manager]
