@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.cache;
 
+import com.futurewei.alcor.dataplane.client.grpc.DataPlaneClientImpl;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
@@ -23,6 +24,8 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +36,8 @@ import java.util.Map;
 
 @Repository
 public class LocalCacheImpl implements LocalCache {
+    private static final Logger LOG = LoggerFactory.getLogger(LocalCacheImpl.class);
+
     @Autowired
     private SubnetPortsCache subnetPortsCache;
 
@@ -47,6 +52,7 @@ public class LocalCacheImpl implements LocalCache {
         for (InternalPortEntity portEntity: portEntities) {
             List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
             if (fixedIps == null) {
+                LOG.error("Fixed ip of port entity not found");
                 continue;
             }
 
@@ -65,11 +71,9 @@ public class LocalCacheImpl implements LocalCache {
                     SubnetEntity subnetEntity = getSubnetEntity(networkConfig, fixedIp.getSubnetId());
                     subnetPorts = new InternalSubnetPorts();
                     subnetPorts.setSubnetId(subnetId);
-                    subnetPorts.setGatewayPortMac(subnetEntity.getGatewayMacAddress());
+                    subnetPorts.setGatewayPortMac(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
                     subnetPorts.setGatewayPortIp(subnetEntity.getGatewayIp());
-
-                    //FIXME: get the gateway port id
-                    subnetPorts.setGatewayPortId(null);
+                    subnetPorts.setGatewayPortId(subnetEntity.getGatewayPortDetail().getGatewayPortId());
                     subnetPorts.setPorts(new ArrayList<>());
 
                     subnetPortsMap.put(subnetId, subnetPorts);

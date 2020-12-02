@@ -63,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ComponentScan(value = "com.futurewei.alcor.common.test.config")
+//@ComponentScan(value = "com.futurewei.alcor.common.test.config")
 public class DpmTest {
     private static final String FORMAT_REVISION_NUMBER = "1";
     private static final String ROUTER_REQUEST_ID = "1";

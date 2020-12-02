@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.service.ovs;
+package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
@@ -65,7 +65,7 @@ public class RouterService extends ResourceService {
             routingRuleBuilder.setName(routingRule.getName());
             routingRuleBuilder.setDestination(routingRule.getDestination());
             routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-            routingRuleBuilder.setPriority(Integer.parseInt(routingRule.getPriority()));
+            routingRuleBuilder.setPriority(routingRule.getPriority());
 
             if (routingRule.getRoutingRuleExtraInfo() != null) {
                 Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();

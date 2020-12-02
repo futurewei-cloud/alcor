@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.service.ovs;
+package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
@@ -19,7 +19,6 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.service.DpmService;
-import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +39,10 @@ public class DpmServiceImpl implements DpmService {
     private LocalCache localCache;
 
     @Autowired
-    private DataPlaneClient dataPlaneClient;
+    private DataPlaneClient grpcDataPlaneClient;
+
+    @Autowired
+    private DataPlaneClient pulsarDataPlaneClient;;
 
     @Autowired
     private VpcService vpcService;
@@ -94,36 +95,58 @@ public class DpmServiceImpl implements DpmService {
         return unicastGoalState;
     }
 
-    private List<String> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,
+                                                   Map<String, List<InternalPortEntity>> hostPortEntities,
+                                                   DataPlaneClient dataPlaneClient) throws Exception {
         List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
         MulticastGoalState multicastGoalState = new MulticastGoalState();
 
-        Map<String, List<InternalPortEntity>> hostPortEntities = new HashMap<>();
-        for (InternalPortEntity portEntity: networkConfig.getPortEntities()) {
-            if (portEntity.getBindingHostIP() == null) {
-                throw new PortBindingHostIpNotFound();
-            }
-
-            if (!hostPortEntities.containsKey(portEntity.getBindingHostIP())) {
-                hostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
-            }
-
-            hostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
-        }
-
-        for (Map.Entry<String, List<InternalPortEntity>> entry: hostPortEntities.entrySet()) {
+        for (Map.Entry<String, List<InternalPortEntity>> entry : hostPortEntities.entrySet()) {
             String hostIp = entry.getKey();
             List<InternalPortEntity> portEntities = entry.getValue();
             unicastGoalStates.add(buildUnicastGoalState(
                     networkConfig, hostIp, portEntities, multicastGoalState));
         }
 
+        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+    }
+
+    private List<String> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
+        Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
+
+        for (InternalPortEntity portEntity : networkConfig.getPortEntities()) {
+            if (portEntity.getBindingHostIP() == null) {
+                throw new PortBindingHostIpNotFound();
+            }
+            if (portEntity.isFastPath()) {
+                if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
+                    grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+                }
+                grpcHostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
+            } else {
+                if (!pulsarHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
+                    pulsarHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
+                }
+                pulsarHostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
+            }
+        }
+
+        List<String> statusList = new ArrayList<>();
+
+        if (grpcHostPortEntities.size() != 0) {
+            statusList.addAll(doCreatePortConfiguration(
+                    networkConfig, grpcHostPortEntities, grpcDataPlaneClient));
+        }
+
+        if (pulsarHostPortEntities.size() != 0) {
+            statusList.addAll(doCreatePortConfiguration(
+                    networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
+        }
+
         localCache.addSubnetPorts(networkConfig);
 
-        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
-        multicastGoalState.setGoalStateBuilder(null);
-
-        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        return statusList;
     }
 
     private List<String> createNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -180,7 +203,7 @@ public class DpmServiceImpl implements DpmService {
                 }).collect(Collectors.toList());
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        return dataPlaneClient.createGoalStates(unicastGoalStates);
+        return grpcDataPlaneClient.createGoalStates(unicastGoalStates);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {

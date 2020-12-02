@@ -20,18 +20,14 @@ import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
-
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.impl.schema.JSONSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -50,11 +46,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
     @Autowired
     private TopicManager topicManager;
-
-    @Override
-    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return null;
-    }
 
     private List<String> getGroupTopics(List<String> hostIps) throws Exception {
         List<String> groupTopics = new ArrayList<>();
@@ -93,7 +84,9 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         return multicastTopics;
     }
 
-    private void createGoalState(MulticastGoalState multicastGoalState) throws Exception {
+    private List<String> createGoalState(MulticastGoalState multicastGoalState) throws Exception {
+        List<String> failedHosts = new ArrayList<>();
+
         Map<String, List<String>> multicastTopics = getMulticastTopics(multicastGoalState.getHostIps());
 
         for (Map.Entry<String, List<String>> entry: multicastTopics.entrySet()) {
@@ -102,22 +95,32 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
             multicastGoalState.setNextTopics(groupTopics);
 
-            Producer<MulticastGoalStateByte> producer = pulsarClient
-                    .newProducer(JSONSchema.of(MulticastGoalStateByte.class))
-                    .topic(multicastTopic)
-                    .enableBatching(false)
-                    .create();
+            try {
+                Producer<MulticastGoalStateByte> producer = pulsarClient
+                        .newProducer(JSONSchema.of(MulticastGoalStateByte.class))
+                        .topic(multicastTopic)
+                        .enableBatching(false)
+                        .create();
 
-            producer.send(multicastGoalState.getMulticastGoalStateByte());
+                producer.send(multicastGoalState.getMulticastGoalStateByte());
+            } catch (Exception e) {
+                LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
+                failedHosts.addAll(multicastGoalState.getHostIps());
+                continue;
+            }
 
             LOG.info("Send multicastGoalState to topic:{} success, " +
                             "groupTopics: {}, unicastGoalStates: {}",
                     multicastTopic, groupTopics, multicastGoalState);
         }
+
+        return failedHosts;
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+        List<String> failedHosts = new ArrayList<>();
+
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
             String nextTopic = topicManager.getGroupTopicByHostIp(unicastGoalState.getHostIp());
             if (StringUtils.isEmpty(nextTopic)) {
@@ -132,46 +135,33 @@ public class DataPlaneClientImpl implements DataPlaneClient {
                 topic = unicastTopic;
             }
 
-            Producer<UnicastGoalStateByte> producer = pulsarClient
-                    .newProducer(JSONSchema.of(UnicastGoalStateByte.class))
-                    .topic(topic)
-                    .enableBatching(false)
-                    .create();
-            producer.send(unicastGoalState.getUnicastGoalStateByte());
+            try {
+                Producer<UnicastGoalStateByte> producer = pulsarClient
+                        .newProducer(JSONSchema.of(UnicastGoalStateByte.class))
+                        .topic(topic)
+                        .enableBatching(false)
+                        .create();
+                producer.send(unicastGoalState.getUnicastGoalStateByte());
+            } catch (Exception e) {
+                LOG.error("Send unicastGoalStates to topic:{} failed: ", topic, e);
+                failedHosts.add(unicastGoalState.getHostIp());
+                continue;
+            }
 
             LOG.info("Send unicastGoalStates to topic:{} success, " +
                     "unicastGoalStates: {}", nextTopic, unicastGoalState);
         }
 
-        List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> tempList = new ArrayList<>();
-        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> tempMap = new HashMap<>();
-        List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> tempResult = new ArrayList<>();
-        tempMap.put("temp", tempList);
-        tempResult.add(tempMap);
-        return tempResult;
+        return failedHosts;
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> updateGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return null;
-    }
+    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        List<String> failedHosts = new ArrayList<>();
 
-    @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> deleteGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return null;
-    }
+        failedHosts.addAll(createGoalStates(unicastGoalStates));
+        failedHosts.addAll(createGoalState(multicastGoalState));
 
-    @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> createGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
-        createGoalStates(unicastGoalStates);
-        createGoalState(multicastGoalState);
-
-
-        List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> tempList = new ArrayList<>();
-        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> tempMap = new HashMap<>();
-        List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> tempResult = new ArrayList<>();
-        tempMap.put("temp", tempList);
-        tempResult.add(tempMap);
-        return tempResult;
+        return failedHosts;
     }
 }

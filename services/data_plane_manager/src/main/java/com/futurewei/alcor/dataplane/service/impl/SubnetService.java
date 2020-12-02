@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.service.ovs;
+package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
@@ -71,7 +71,7 @@ public class SubnetService extends ResourceService {
 
             Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
+            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
 
             if (subnetEntity.getDhcpEnable() != null) {
