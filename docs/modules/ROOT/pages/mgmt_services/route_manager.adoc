@@ -1230,4 +1230,3 @@ Response:
 
 == Concurrency Handling
 
-//include::../../../services/vpc_manager/target/swagger/swagger.adoc[]
