@@ -13,18 +13,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.web.entity.subnet;
 
+import com.futurewei.alcor.web.entity.subnet.HostRoute;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class RoutesToNeutronWebRequest {
+public class NewHostRoutes {
 
-    private NewRoutesWebRequest newRoutesWebRequest;
+    private List<HostRoute> hostRoutes;
 
-    public RoutesToNeutronWebRequest() {}
+    public NewHostRoutes() {}
 
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
+    public NewHostRoutes(List<HostRoute> hostRoutes) {
+        this.hostRoutes = hostRoutes;
     }
 }

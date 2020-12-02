@@ -13,26 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.exception;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Data
-public class RoutesToNeutronRouteObject {
-
-    @JsonProperty("destination")
-    private String destination;
-
-    // gateway_ip_address
-    @JsonProperty("nexthop")
-    private String nexthop;
-
-    public RoutesToNeutronRouteObject() {}
-
-    public RoutesToNeutronRouteObject(String destination, String nexthop) {
-        this.destination = destination;
-        this.nexthop = nexthop;
-    }
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="RouteTable is not unique found by owner")
+public class RouteTableNotUnique extends Exception {
 }

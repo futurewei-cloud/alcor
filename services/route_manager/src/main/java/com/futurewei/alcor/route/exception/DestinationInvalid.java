@@ -13,20 +13,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.exception;
 
-import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="destination is invalid")
+public class DestinationInvalid extends Exception {
 
-@Data
-public class RoutesToNeutronRouterRequestObject {
+    public DestinationInvalid () {}
 
-    private List<RoutesToNeutronRouteObject> routes;
-
-    public RoutesToNeutronRouterRequestObject() {}
-
-    public RoutesToNeutronRouterRequestObject(List<RoutesToNeutronRouteObject> routes) {
-        this.routes = routes;
+    public DestinationInvalid (String message) {
+        super(message);
     }
+
 }

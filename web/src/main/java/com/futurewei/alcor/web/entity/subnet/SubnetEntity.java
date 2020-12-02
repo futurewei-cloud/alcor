@@ -41,9 +41,8 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("gateway_ip")
     private String gatewayIp = "";
 
-    // subnet_gateway_port_id
-    @JsonProperty("port_id")
-    private String gatewayPortId;
+    @JsonProperty("gateway_port_detail")
+    private GatewayPortDetail gatewayPortDetail;
 
     @JsonProperty("attached_router_id")
     private String attachedRouterId;
@@ -62,10 +61,6 @@ public class SubnetEntity extends CustomerResource {
 
     @JsonProperty("routes")
     private List<RouteEntity> routeEntities;
-
-    // TODO: considering to put into port
-    @JsonProperty("gateway_macAddress")
-    private String gatewayMacAddress;
 
     @JsonProperty("dns_list")
     private List<String> dnsList;
@@ -165,7 +160,7 @@ public class SubnetEntity extends CustomerResource {
 
     public SubnetEntity(String projectId, String id, String name, String description, String vpcId,
                         String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns,
-                        String secondaryDns, List<RouteEntity> routeEntities, String gatewayMacAddress, List<String> dnsList,
+                        String secondaryDns, List<RouteEntity> routeEntities, GatewayPortDetail gatewayPortDetail, List<String> dnsList,
                         Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode,
                         Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey,
                         String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny,
@@ -181,7 +176,7 @@ public class SubnetEntity extends CustomerResource {
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
         this.routeEntities = routeEntities;
-        this.gatewayMacAddress = gatewayMacAddress;
+        this.gatewayPortDetail = gatewayPortDetail;
         this.dnsList = dnsList;
         this.ipVersion = ipVersion;
         this.ipV4RangeId = ipV4RangeId;
@@ -213,7 +208,7 @@ public class SubnetEntity extends CustomerResource {
     public SubnetEntity(SubnetEntity subnetEntity) {
         this(subnetEntity.getProjectId(), subnetEntity.getId(), subnetEntity.getName(), subnetEntity.getDescription(), subnetEntity.getVpcId(),
                 subnetEntity.getCidr(), subnetEntity.getAvailabilityZone(), subnetEntity.getGatewayIp(), subnetEntity.getDhcpEnable(), subnetEntity.getPrimaryDns(),
-                subnetEntity.getSecondaryDns(), subnetEntity.getRouteEntities(), subnetEntity.getGatewayMacAddress(), subnetEntity.getDnsList(),
+                subnetEntity.getSecondaryDns(), subnetEntity.getRouteEntities(), subnetEntity.getGatewayPortDetail(), subnetEntity.getDnsList(),
                 subnetEntity.getIpVersion(), subnetEntity.getIpV4RangeId(), subnetEntity.getIpV6RangeId(), subnetEntity.getIpv6AddressMode(), subnetEntity.getIpv6RaMode(),
                 subnetEntity.getRevisionNumber(), subnetEntity.getSegmentId(), subnetEntity.getShared(), subnetEntity.getSortDir(), subnetEntity.getSortKey(),
                 subnetEntity.getSubnetpoolId(), subnetEntity.dnsPublishFixedIp, subnetEntity.getTags(), subnetEntity.getTagsAny(),
@@ -286,12 +281,28 @@ public class SubnetEntity extends CustomerResource {
         this.routeEntities = routeEntities;
     }
 
-    public String getGatewayMacAddress() {
-        return gatewayMacAddress;
+    public GatewayPortDetail getGatewayPortDetail() {
+        return gatewayPortDetail;
     }
 
-    public void setGatewayMacAddress(String gatewayMacAddress) {
-        this.gatewayMacAddress = gatewayMacAddress;
+    public void setGatewayPortDetail(GatewayPortDetail gatewayPortDetail) {
+        this.gatewayPortDetail = gatewayPortDetail;
+    }
+
+    public String getAttachedRouterId() {
+        return attachedRouterId;
+    }
+
+    public void setAttachedRouterId(String attachedRouterId) {
+        this.attachedRouterId = attachedRouterId;
+    }
+
+    public PortEntity getPort() {
+        return port;
+    }
+
+    public void setPort(PortEntity port) {
+        this.port = port;
     }
 
     public List<String> getDnsList() {

@@ -13,18 +13,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.service;
 
-import lombok.Data;
+import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
+import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
 
-@Data
-public class RoutesToNeutronWebRequest {
+import java.util.List;
 
-    private NewRoutesWebRequest newRoutesWebRequest;
+public interface RouterToPMService {
 
-    public RoutesToNeutronWebRequest() {}
+    public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull;
 
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
-    }
 }

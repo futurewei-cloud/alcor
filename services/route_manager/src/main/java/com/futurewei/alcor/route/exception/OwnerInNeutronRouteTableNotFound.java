@@ -13,18 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.exception;
 
-import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Data
-public class RoutesToNeutronWebRequest {
-
-    private NewRoutesWebRequest newRoutesWebRequest;
-
-    public RoutesToNeutronWebRequest() {}
-
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
-    }
+@ResponseStatus(code= HttpStatus.NOT_FOUND, reason="can not find owner in neutron subnet route table")
+public class OwnerInNeutronRouteTableNotFound extends Exception{
 }

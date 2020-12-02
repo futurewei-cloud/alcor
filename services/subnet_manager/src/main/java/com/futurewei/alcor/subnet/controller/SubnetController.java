@@ -23,16 +23,20 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
+import com.futurewei.alcor.subnet.service.SubnetToPortManagerService;
 import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
+import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -73,6 +77,9 @@ public class SubnetController {
 
     @Autowired
     private SubnetService subnetService;
+
+    @Autowired
+    private SubnetToPortManagerService subnetToPortManagerService;
 
     @RequestMapping(
             method = GET,
@@ -167,7 +174,7 @@ public class SubnetController {
         long start = System.currentTimeMillis();
         SubnetEntity inSubnetEntity = new SubnetEntity();
         RouteWebJson routeResponse = null;
-        MacStateJson macResponse = null;
+        //MacStateJson macResponse = null;
         IpAddrRequest ipResponse = null;
         AtomicReference<RouteWebJson> routeResponseAtomic = new AtomicReference<>();
         AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
@@ -214,19 +221,19 @@ public class SubnetController {
             this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
             //Allocate Gateway Mac
-            CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return this.subnetService.allocateMacAddressForGatewayPort(projectId, vpcId, portId);
-                } catch (Exception e) {
-                    throw new CompletionException(e);
-                }
-            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
-                macResponseAtomic.set(s);
-                if (e != null) {
-                    throw new CompletionException(e);
-                }
-                return s;
-            });
+//            CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
+//                try {
+//                    return this.subnetService.allocateMacAddressForGatewayPort(projectId, vpcId, portId);
+//                } catch (Exception e) {
+//                    throw new CompletionException(e);
+//                }
+//            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+//                macResponseAtomic.set(s);
+//                if (e != null) {
+//                    throw new CompletionException(e);
+//                }
+//                return s;
+//            });
 
             // Verify VPC ID
             CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
@@ -270,10 +277,11 @@ public class SubnetController {
             });
 
             // Synchronous blocking
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
+            //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
             allFuture.join();
 
-            macResponse = macFuture.join();
+            //macResponse = macFuture.join();
             routeResponse = routeFuture.join();
             ipResponse = ipFuture.join();
 
@@ -284,18 +292,24 @@ public class SubnetController {
             routeEntities.add(routeResponse.getRoute());
             inSubnetEntity.setRouteEntities(routeEntities);
 
-            MacState macState = macResponse.getMacState();
-            if (macState != null) {
-                inSubnetEntity.setGatewayMacAddress(macState.getMacAddress());
-            }
+//            MacState macState = macResponse.getMacState();
+//            if (macState != null) {
+//                inSubnetEntity.setGatewayMacAddress(macState.getMacAddress());
+//            }
             if (gatewayIpIsInAllocatedRange) {
+                PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, ipResponse.getIp(), ConstantsConfig.DeviceOwner);
+                GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
+
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
-                inSubnetEntity.setGatewayPortId(portId);
+                inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
+                    PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, gatewayIP, ConstantsConfig.DeviceOwner);
+                    GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
+
                     inSubnetEntity.setGatewayIp(gatewayIP);
-                    inSubnetEntity.setGatewayPortId(portId);
+                    inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
                 }
             }
             if (ipResponse != null && ipResponse.getIpVersion() == 4) {
@@ -357,6 +371,9 @@ public class SubnetController {
             // update to vpc with subnet id
             this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
 
+            // create subnet routing rule in route manager
+            this.subnetService.createSubnetRoutingRuleInRM(projectId, subnetId, inSubnetEntity);
+
             return new SubnetWebJson(inSubnetEntity);
 
         } catch (CompletionException e) {
@@ -379,6 +396,7 @@ public class SubnetController {
     public SubnetWebJson updateSubnetState(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody SubnetWebRequestJson resource) throws Exception {
 
         SubnetEntity subnetEntity = null;
+        String newPortId = UUID.randomUUID().toString();
 
         try {
 
@@ -398,14 +416,40 @@ public class SubnetController {
             if (subnetEntity == null) {
                 throw new ResourceNotFoundException("Subnet not found : " + subnetId);
             }
+            String oldGatewayIp = subnetEntity.getGatewayIp();
+            String oldPortId = subnetEntity.getGatewayPortDetail().getGatewayPortId();
+            String vpcId = subnetEntity.getVpcId();
 
             RestPreconditionsUtil.verifyParameterEqual(subnetEntity.getProjectId(), projectId);
             BeanUtils.copyProperties(inSubnetWebResponseObject, subnetEntity,
                     CommonUtil.getBeanNullPropertyNames(inSubnetWebResponseObject));
-            String gatewayIp = inSubnetWebResponseObject.getGatewayIp();
-            if (gatewayIp == null) {
-                subnetEntity.setGatewayIp(gatewayIp);
+
+            String newGatewayIp = inSubnetWebResponseObject.getGatewayIp();
+            if (newGatewayIp == null) {// disable gatewayIP
+                subnetEntity.setGatewayIp(newGatewayIp);
+            } else if(!newGatewayIp.equals(oldGatewayIp)){
+
+                // check if updated gatewayIp is valid
+                boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(newGatewayIp, subnetEntity.getCidr());
+                if (!gatewayIpIsValid) {
+                    throw new GatewayIpUnsupported();
+                }
+                boolean gatewayIpIsInAllocatedRange = SubnetManagementUtil.checkGatewayIpIsInAllocatedRange(newGatewayIp, subnetEntity.getCidr());
+                if (gatewayIpIsInAllocatedRange) {
+                    // Use the new gateway port ip to create a new port in the PM and update the GatewayPortDetail and GatewayPortIP of the SubnetEntity
+                    PortEntity portEntity = this.subnetService.constructPortEntity(newPortId, vpcId, subnetId, newGatewayIp, ConstantsConfig.DeviceOwner);
+                    GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
+                    subnetEntity.setGatewayPortDetail(gatewayPortDetail);
+                    subnetEntity.setGatewayIp(newGatewayIp);
+
+                    // delete port with old gateway port IP & port Id
+                    this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
+                } else {
+                    throw new GatewayIpUnsupported();
+                }
+
             }
+
             Integer revisionNumber = subnetEntity.getRevisionNumber();
             if (revisionNumber == null || revisionNumber < 1) {
                 subnetEntity.setRevisionNumber(1);
@@ -416,6 +460,9 @@ public class SubnetController {
 
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
+
+            // update subnet routing rule in route manager
+            this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
 
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
@@ -474,6 +521,15 @@ public class SubnetController {
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
+            // delete subnet routing rule in route manager
+            this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+
+            // delete gateway port in port manager
+            GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
+            if (gatewayPortDetail != null) {
+                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+            }
+
         } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
             logger.error(e.getMessage());
             throw new Exception(e);
@@ -514,6 +570,28 @@ public class SubnetController {
             subnetEntityList.add(tmp);
         }
         return new SubnetsWebJson(subnetEntityList);
+    }
+
+    @Rbac(resource ="subnet")
+    @RequestMapping(
+            method = PUT,
+            value = {"/project/{projectId}/subnets/{subnetId}/update_routes"})
+    @DurationStatistics
+    public ResponseId updateSubnetRoutes(@PathVariable String projectId, @PathVariable String subnetId, @RequestBody NewHostRoutes resource) throws Exception {
+
+        try {
+            Preconditions.checkNotNull(resource, "resource can not be null");
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+
+            this.subnetService.updateSubnetHostRoutes(subnetId, resource);
+
+        } catch (ParameterNullOrEmptyException e) {
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+
+        return new ResponseId(subnetId);
     }
 
 

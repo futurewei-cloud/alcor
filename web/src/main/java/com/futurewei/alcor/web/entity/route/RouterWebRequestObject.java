@@ -30,7 +30,7 @@ public class RouterWebRequestObject extends CustomerResource {
     @JsonProperty("admin_state_up")
     private boolean adminStateUp;
 
-    @JsonProperty("status")
+    @JsonProperty("external_gateway_info")
     private ExternalGateway external_gateway_info;
 
     @JsonProperty("distributed")

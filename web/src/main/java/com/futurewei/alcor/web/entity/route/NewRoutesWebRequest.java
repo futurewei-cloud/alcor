@@ -17,14 +17,16 @@ package com.futurewei.alcor.web.entity.route;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class RoutesToNeutronWebRequest {
+public class NewRoutesWebRequest {
 
-    private NewRoutesWebRequest newRoutesWebRequest;
+    private List<NewRoutesRequest> routes;
 
-    public RoutesToNeutronWebRequest() {}
+    public NewRoutesWebRequest() {}
 
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
+    public NewRoutesWebRequest(List<NewRoutesRequest> routes) {
+        this.routes = routes;
     }
 }

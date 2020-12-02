@@ -68,7 +68,7 @@ public class RestParameterValidator {
                     throw new SubnetGatewayIpRequired();
                 }
 
-                if (StringUtils.isEmpty(subnetEntity.getGatewayMacAddress())) {
+                if (StringUtils.isEmpty(subnetEntity.getGatewayPortDetail().getGatewayMacAddress())) {
                     throw new SubnetGatewayMacRequired();
                 }
             }

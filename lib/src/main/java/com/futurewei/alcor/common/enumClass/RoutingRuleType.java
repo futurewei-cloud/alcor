@@ -13,18 +13,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.common.enumClass;
 
-import lombok.Data;
+public enum RoutingRuleType {
 
-@Data
-public class RoutesToNeutronWebRequest {
+    DEFAULT("default"),
+    STATIC("static"),
+    PREFIX_LISTS("prefix_lists"),
+    PROPAGATED("propagated");
 
-    private NewRoutesWebRequest newRoutesWebRequest;
+    private String routingRuleType;
 
-    public RoutesToNeutronWebRequest() {}
-
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
+    RoutingRuleType(String env) {
+        this.routingRuleType = env;
     }
+
+    public String getRoutingRuleType () {
+        return routingRuleType;
+    }
+
 }

@@ -17,6 +17,7 @@ package com.futurewei.alcor.dataplane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.dataplane.config.TestConfig;
+import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.web.entity.dataplane.*;
@@ -29,6 +30,7 @@ import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.apache.pulsar.client.api.Consumer;
@@ -91,7 +93,7 @@ public class DataPlaneTest {
         internalSubnetEntity1.setCidr(TestConfig.subnetCidr1);
         internalSubnetEntity1.setTunnelId(TestConfig.tunnelId);
         internalSubnetEntity1.setGatewayIp(TestConfig.gatewayIp1);
-        internalSubnetEntity1.setGatewayMacAddress(TestConfig.gatewayMacAddress1);
+        internalSubnetEntity1.setGatewayPortDetail(new GatewayPortDetail(TestConfig.gatewayMacAddress1, null));
         internalSubnetEntity1.setDhcpEnable(true);
         internalSubnetEntity1.setAvailabilityZone(TestConfig.availabilityZone);
         internalSubnetEntity1.setPrimaryDns(TestConfig.primaryDns);
@@ -105,7 +107,7 @@ public class DataPlaneTest {
         internalSubnetEntity2.setCidr(TestConfig.subnetCidr2);
         internalSubnetEntity2.setTunnelId(TestConfig.tunnelId);
         internalSubnetEntity2.setGatewayIp(TestConfig.gatewayIp2);
-        internalSubnetEntity2.setGatewayMacAddress(TestConfig.gatewayMacAddress2);
+        internalSubnetEntity2.setGatewayPortDetail(new GatewayPortDetail(TestConfig.gatewayMacAddress2, null));
         internalSubnetEntity2.setDhcpEnable(true);
         internalSubnetEntity2.setAvailabilityZone(TestConfig.availabilityZone);
         internalSubnetEntity2.setPrimaryDns(TestConfig.primaryDns);
@@ -321,7 +323,7 @@ public class DataPlaneTest {
         routingRule.setName("routingRule1");
         routingRule.setNextHopIp(TestConfig.nextHop);
         routingRule.setOperationType(CREATE);
-        routingRule.setPriority("100");
+        routingRule.setPriority(100);
         routingRule.setRoutingRuleExtraInfo(null);
         routingRules.add(routingRule);
         subnetRoutingTable1.setRoutingRules(routingRules);

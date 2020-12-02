@@ -13,18 +13,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.web.entity.route;
+package com.futurewei.alcor.route.service;
 
-import lombok.Data;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 
-@Data
-public class RoutesToNeutronWebRequest {
+public interface RouterToDPMService {
 
-    private NewRoutesWebRequest newRoutesWebRequest;
+    public void sendInternalRouterInfoToDPM (InternalRouterInfo internalRouterInfo) throws Exception;
 
-    public RoutesToNeutronWebRequest() {}
-
-    public RoutesToNeutronWebRequest(NewRoutesWebRequest newRoutesWebRequest) {
-        this.newRoutesWebRequest = newRoutesWebRequest;
-    }
 }

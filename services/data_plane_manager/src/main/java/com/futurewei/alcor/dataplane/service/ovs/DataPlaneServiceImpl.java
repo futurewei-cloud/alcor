@@ -190,7 +190,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
 
             Gateway.Builder gatewayBuilder = Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
+            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
 
             if (subnetEntity.getDhcpEnable() != null) {
@@ -639,7 +639,7 @@ public class DataPlaneServiceImpl implements DataPlaneService {
             routingRuleBuilder.setName(routingRule.getName());
             routingRuleBuilder.setDestination(routingRule.getDestination());
             routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-            routingRuleBuilder.setPriority(Integer.parseInt(routingRule.getPriority()));
+            routingRuleBuilder.setPriority(routingRule.getPriority());
 
             if (routingRule.getRoutingRuleExtraInfo() != null) {
                 RoutingRuleExtraInfo.Builder extraInfoBuilder = RoutingRuleExtraInfo.newBuilder();

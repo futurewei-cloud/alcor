@@ -29,6 +29,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.BeanUtils;
@@ -260,7 +261,7 @@ public class DataPlaneManagerUtil {
             int IpAddressOffSet = i + 2;
             SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, null, "", DPMAutoUnitTestConstant.vpcId,
                     "192.168." + IpAddressOffSet + ".0/24", null, "192.168." + IpAddressOffSet + ".1", false, null,
-                    null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
+                    null, null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null, false, null, null,
@@ -435,7 +436,7 @@ public class DataPlaneManagerUtil {
 
             Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayMacAddress());
+            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
             subnetConfigBuilder.setGateway(gatewayBuilder.build());
             subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
 
@@ -816,7 +817,7 @@ public class DataPlaneManagerUtil {
                             routingRule.setDestination(internalRoutingRule.getDestination());
                             routingRule.setId(internalRoutingRule.getId());
                             routingRule.setName(internalRoutingRule.getName());
-                            routingRule.setPriority(Integer.parseInt(internalRoutingRule.getPriority()));
+                            routingRule.setPriority(internalRoutingRule.getPriority());
                             routingRule.setNextHopIp(internalRoutingRule.getNextHopIp());
 
                             InternalRoutingRuleExtraInfo internalRoutingRuleExtraInfo = internalRoutingRule.getRoutingRuleExtraInfo();
@@ -1046,7 +1047,7 @@ public class DataPlaneManagerUtil {
             UTSubnetInfo subnetInfo = UTSubnets.get(i);
             SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, subnetInfo.getSubnetId(), null, "", DPMAutoUnitTestConstant.vpcId,
                     subnetInfo.getSubnetCidr(), null, subnetInfo.getSubnetGatewayIP(), false, null,
-                    null, null, DPMAutoUnitTestConstant.gatewayMacAddress, null,
+                    null, null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null, false, null, null,
