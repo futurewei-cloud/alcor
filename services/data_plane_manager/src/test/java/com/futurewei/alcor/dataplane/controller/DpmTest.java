@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.TestConfig;
 import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.schema.Common.OperationType;
@@ -43,6 +44,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +63,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DataPlaneTest {
+//@ComponentScan(value = "com.futurewei.alcor.common.test.config")
+public class DpmTest {
     private static final String FORMAT_REVISION_NUMBER = "1";
     private static final String ROUTER_REQUEST_ID = "1";
 
@@ -69,6 +73,9 @@ public class DataPlaneTest {
 
     @Autowired
     private PulsarClient pulsarClient;
+
+    @MockBean
+    private DataPlaneClient dataPlaneClient;
 
     private List<VpcEntity> buildVpcEntities() {
         VpcEntity vpcEntity = new VpcEntity();
@@ -341,13 +348,15 @@ public class DataPlaneTest {
         networkConfiguration.setRsType(ResourceType.ROUTER);
         networkConfiguration.setOpType(OperationType.CREATE);
         networkConfiguration.setInternalRouterInfos(buildInternalRouterInfo());
-        networkConfiguration.setInternalSubnetPorts(buildSubnetPorts());
+        //networkConfiguration.setInternalSubnetPorts(buildSubnetPorts());
 
         return networkConfiguration;
     }
 
     @Test
     public void createRouterConfigurationTest() throws Exception {
+        createPortConfigurationTest();
+
         NetworkConfiguration networkConfiguration = buildRouterConfiguration();
         ObjectMapper objectMapper = new ObjectMapper();
         String body = objectMapper.writeValueAsString(networkConfiguration);

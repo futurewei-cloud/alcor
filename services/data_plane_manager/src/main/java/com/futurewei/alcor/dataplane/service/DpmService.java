@@ -18,7 +18,7 @@ package com.futurewei.alcor.dataplane.service;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 
-public interface DataPlaneService {
+public interface DpmService {
 
     /**
      * process create network configuration message and send to ACA nodes
