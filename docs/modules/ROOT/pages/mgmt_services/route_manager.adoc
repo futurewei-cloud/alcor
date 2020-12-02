@@ -55,7 +55,7 @@ image::route_manager_data_schemas.PNG[]
 
 === InternalRouterInfo Contract for RM, PM, and DPM
 
-image::route_manager_routerinfo_contract.PNG[]
+image::route_manager_internalrouterinfo.PNG[]
 
 == REST APIs
 
