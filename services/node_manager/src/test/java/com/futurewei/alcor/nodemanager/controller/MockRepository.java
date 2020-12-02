@@ -2,6 +2,7 @@ package com.futurewei.alcor.nodemanager.controller;
 
 import com.futurewei.alcor.nodemanager.config.UnitTestConfig;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
+import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,9 @@ import java.util.Map;
 public class MockRepository {
     @MockBean
     private NodeRepository nodeRepository;
+
+    @MockBean
+    protected NodeService nodeService;
 
     @BeforeEach
     protected void mockRepositoryOperations() throws Exception {
@@ -43,8 +47,6 @@ public class MockRepository {
         Mockito.when(nodeRepository.findItem(UnitTestConfig.node2Id)).thenReturn(node2Info);
 
         Mockito.when(nodeRepository.findAllItems()).thenReturn(nodeInfos);
-
-//        Mockito.when(nodeRepository.addItem(nodeInfo));
     }
 
     public static NodeInfoJson buildNodeInfoJson(String nodeId, String ipAddress, String portMacAddr, String hostDvrMacAddr) {

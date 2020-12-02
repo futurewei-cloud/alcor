@@ -116,7 +116,9 @@ public class NodeController {
             value = {"/nodes", "/v4/nodes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public void createNodeInfo(@RequestBody NodeInfoJson resource) throws Exception {
+    public NodeInfoJson createNodeInfo(@RequestBody NodeInfoJson resource) throws Exception {
+
+        NodeInfo nodeInfo;
 
         try {
             NodeInfo inNodeInfo = resource.getNodeInfo();
@@ -125,7 +127,7 @@ public class NodeController {
             if (!inNodeInfo.validate())
                 throw new InvalidDataException(NodeManagerConstant.NODE_CONTENT_INVALID_EXCEPTION + inNodeInfo.getId());
 
-            service.createNodeInfo(inNodeInfo);
+            nodeInfo = service.createNodeInfo(inNodeInfo);
         } catch (ParameterNullOrEmptyException | InvalidDataException e) {
             LOG.log(Level.INFO, e.getMessage());
             throw e;
@@ -136,6 +138,8 @@ public class NodeController {
             LOG.log(Level.SEVERE, e.getMessage());
             throw new UnsupportedOperationException(e);
         }
+
+        return new NodeInfoJson(nodeInfo);
     }
 
     @RequestMapping(

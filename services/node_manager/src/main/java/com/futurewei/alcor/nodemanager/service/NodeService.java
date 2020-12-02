@@ -60,9 +60,10 @@ public interface NodeService {
      * create a new node information
      *
      * @param nodeInfo new node's information
+     * @return NodeInfo
      * @throws CacheException exception caused by Repository
      */
-    void createNodeInfo(NodeInfo nodeInfo) throws CacheException;
+    NodeInfo createNodeInfo(NodeInfo nodeInfo) throws CacheException;
 
     /**
      * create new nodes information in bulk

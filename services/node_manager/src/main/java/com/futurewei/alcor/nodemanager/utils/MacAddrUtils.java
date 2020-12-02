@@ -19,10 +19,6 @@ import com.futurewei.alcor.web.entity.mac.MacAddress;
 public class MacAddrUtils {
     public static boolean verifyMacAddress(String strMacAddress){
         MacAddress macAddress = new MacAddress();
-        if (!macAddress.validateMac(strMacAddress)) {
-            return false;
-        }
-
-        return true;
+        return macAddress.validateMac(strMacAddress);
     }
 }

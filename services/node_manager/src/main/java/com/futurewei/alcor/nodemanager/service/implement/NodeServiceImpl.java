@@ -87,9 +87,9 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     @DurationStatistics
-    public void createNodeInfo(NodeInfo nodeInfo) throws CacheException {
+    public NodeInfo createNodeInfo(NodeInfo nodeInfo) throws CacheException {
         String strMethodName = "createNodeInfo";
-        this.setNodeInfo(nodeInfo, strMethodName);
+        return this.setNodeInfo(nodeInfo, strMethodName);
     }
 
     @Override
@@ -122,10 +122,12 @@ public class NodeServiceImpl implements NodeService {
         nodeRepository.deleteItem(nodeId);
     }
 
-    private void setNodeInfo(NodeInfo nodeInfo, String strMethodName) throws CacheException {
+    private NodeInfo setNodeInfo(NodeInfo nodeInfo, String strMethodName) throws CacheException {
         try {
             this.populateHostDvrMacAddr(nodeInfo);
             nodeRepository.addItem(nodeInfo);
+
+            return nodeInfo;
         } catch (CacheException e) {
             logger.error(strMethodName + e.getMessage());
             throw e;
@@ -137,8 +139,8 @@ public class NodeServiceImpl implements NodeService {
             return;
         }
 
-        String inputMac = nodeInfo.getHostDvrMac();
-        if (MacAddrUtils.verifyMacAddress(inputMac)) {
+        String originalMacAddr = nodeInfo.getHostDvrMac();
+        if (MacAddrUtils.verifyMacAddress(originalMacAddr)) {
             return;
         }
 

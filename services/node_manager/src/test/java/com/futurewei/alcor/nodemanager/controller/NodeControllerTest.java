@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,16 +54,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"httpbin=http://localhost:${wiremock.server.port}"})
 @AutoConfigureMockMvc
-public class NodeControllerTest extends MockIgniteServer {
+public class NodeControllerTest extends MockRepository {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     CacheFactory cacheFactor;
-
-    @MockBean
-    private NodeService nodeService ;
 
     @Autowired
     WebApplicationContext context;
@@ -148,6 +146,7 @@ public class NodeControllerTest extends MockIgniteServer {
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
+        Mockito.when(nodeService.createNodeInfo(nodeInfo)).thenReturn(nodeInfo);
         mockMvc.perform(post("/nodes")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -305,7 +304,7 @@ public class NodeControllerTest extends MockIgniteServer {
             MvcResult result = this.mockMvc.perform(delete("/nodes/" + strNodeId))
                     .andDo(print())
                     .andReturn();
-            assertEquals(19, result.getResponse().getContentAsString().length());
+            assertEquals(13, result.getResponse().getContentAsString().length());
         } catch (Exception e) {
             assertTrue(e.getCause().getClass().getSimpleName().contains("ParameterNullOrEmptyException"));
         }
