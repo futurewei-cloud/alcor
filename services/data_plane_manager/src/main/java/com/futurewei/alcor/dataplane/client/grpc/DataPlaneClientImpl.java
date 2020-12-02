@@ -17,10 +17,12 @@ package com.futurewei.alcor.dataplane.client.grpc;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
-import com.futurewei.alcor.dataplane.entity.HostGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
+import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -28,15 +30,15 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
+@Service("grpc")
 public class DataPlaneClientImpl implements DataPlaneClient {
-
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     private int grpcPort;
@@ -46,98 +48,113 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     @Autowired
     public DataPlaneClientImpl(Config globalConfig) {
         this.grpcPort = globalConfig.port;
-        executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
-                globalConfig.grpcMaxThreads, 50, TimeUnit.SECONDS,
+        this.executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
+                globalConfig.grpcMaxThreads,
+                50,
+                TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
                 new DefaultThreadFactory(globalConfig.grpThreadsName));
     }
 
     @Override
-    public Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-    createGoalState(Goalstate.GoalState goalState, String hostIp) throws Exception {
-        return sendGoalState(goalState, hostIp);
+    public List<String> createGoalStates(
+            List<UnicastGoalState> unicastGoalStates) throws Exception {
+        return sendGoalStates(unicastGoalStates);
     }
 
     @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    createGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-        return sendGoalState(hostGoalStates);
+    public List<String> createGoalStates(
+            List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        if (unicastGoalStates == null) {
+            unicastGoalStates = new ArrayList<>();
+        }
+
+        if (multicastGoalState != null &&
+                multicastGoalState.getHostIps() != null &&
+                multicastGoalState.getGoalState() != null) {
+            for (String hostIp: multicastGoalState.getHostIps()) {
+                UnicastGoalState unicastGoalState = new UnicastGoalState();
+                unicastGoalState.setHostIp(hostIp);
+                unicastGoalState.setGoalState(multicastGoalState.getGoalState());
+
+                unicastGoalStates.add(unicastGoalState);
+            }
+        }
+
+        if (unicastGoalStates.size() > 0) {
+            return createGoalStates(unicastGoalStates);
+        }
+
+        return null;
     }
 
-    @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    updateGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-        return sendGoalState(hostGoalStates);
-    }
+    private List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) {
+        List<Future<UnicastGoalState>>
+                futures = new ArrayList<>(unicastGoalStates.size());
 
-    @Override
-    public List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    deleteGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-        return sendGoalState(hostGoalStates);
-    }
-
-    private List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    sendGoalState(List<HostGoalState> hostGoalStates) throws Exception {
-        List<Future<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>>
-                futures = new ArrayList<>(hostGoalStates.size());
-        for (HostGoalState hostGoalState: hostGoalStates) {
-            Future<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> future =
+        for (UnicastGoalState unicastGoalState: unicastGoalStates) {
+            Future<UnicastGoalState> future =
                     executor.submit(() -> {
                 try {
-                    return sendGoalState(hostGoalState);
+                    sendGoalState(unicastGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    return unicastGoalState;
                 }
+
                 return null;
             });
+
             futures.add(future);
         }
-        return futures.parallelStream().map(future -> {
+
+        //Handle all failed hosts
+        return futures.parallelStream().filter(Objects::nonNull).map(future -> {
             try {
-                return future.get();
+                return future.get().getHostIp();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+
             return null;
         }).collect(Collectors.toList());
     }
 
-    private Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-    sendGoalState(HostGoalState hostGoalState) throws InterruptedException {
-        return sendGoalState(hostGoalState.getGoalState(), hostGoalState.getHostIp());
+    private void sendGoalState(UnicastGoalState unicastGoalState) throws InterruptedException {
+        doSendGoalState(unicastGoalState.getGoalState(), unicastGoalState.getHostIp());
     }
 
-    private Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>
-    sendGoalState(Goalstate.GoalState goalState, String hostIp) throws InterruptedException {
+    private void doSendGoalState(Goalstate.GoalState goalState, String hostIp) {
 
-        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
+        Map<String, List<GoalStateOperationStatus>> result = new HashMap<>();
 
         ManagedChannel channel = newChannel(hostIp, grpcPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub =
                 GoalStateProvisionerGrpc.newBlockingStub(channel);
-        Goalstateprovisioner.GoalStateOperationReply reply =
+
+        GoalStateOperationReply reply =
                 blockingStub.pushNetworkResourceStates(goalState);
-        List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> statuses =
+        List<GoalStateOperationStatus> statuses =
                 reply.getOperationStatusesList();
 
         result.put(hostIp, statuses);
 
         shutdown(channel);
-        return result;
     }
 
-    private List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>>
-    asyncSendGoalStates(List<HostGoalState> hostGoalStates) {
-        List<Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>>> result =
+    private List<Map<String, List<GoalStateOperationStatus>>> asyncSendGoalStates(
+            List<UnicastGoalState> unicastGoalStates) {
+        List<Map<String, List<GoalStateOperationStatus>>> result =
                 new ArrayList<>();
 
-        CountDownLatch finished = new CountDownLatch(hostGoalStates.size());
+        CountDownLatch finished = new CountDownLatch(unicastGoalStates.size());
 
-        for (HostGoalState hostGoalState: hostGoalStates) {
-            asyncSendGoalState(hostGoalState, new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+        for (UnicastGoalState unicastGoalState: unicastGoalStates) {
+            asyncSendGoalState(unicastGoalState, new StreamObserver<GoalStateOperationReply>() {
                 @Override
-                public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
-                    result.add(Collections.singletonMap(hostGoalState.getHostIp(), value.getOperationStatusesList()));
+                public void onNext(GoalStateOperationReply value) {
+                    result.add(Collections.singletonMap(unicastGoalState.getHostIp(),
+                            value.getOperationStatusesList()));
                 }
 
                 @Override
@@ -160,15 +177,13 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         return result;
     }
 
-    private void
-    asyncSendGoalState(HostGoalState hostGoalState,
-                       StreamObserver<Goalstateprovisioner.GoalStateOperationReply> observer) {
-        asyncSendGoalState(hostGoalState.getGoalState(), hostGoalState.getHostIp(), observer);
+    private void asyncSendGoalState(UnicastGoalState unicastGoalState,
+                       StreamObserver<GoalStateOperationReply> observer) {
+        asyncSendGoalState(unicastGoalState.getGoalState(), unicastGoalState.getHostIp(), observer);
     }
 
-    private void
-    asyncSendGoalState(Goalstate.GoalState goalState, String hostIp,
-                       StreamObserver<Goalstateprovisioner.GoalStateOperationReply> observer) {
+    private void asyncSendGoalState(Goalstate.GoalState goalState, String hostIp,
+                       StreamObserver<GoalStateOperationReply> observer) {
         ManagedChannel channel = newChannel(hostIp, grpcPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub =
                 GoalStateProvisionerGrpc.newStub(channel).withExecutor(executor);

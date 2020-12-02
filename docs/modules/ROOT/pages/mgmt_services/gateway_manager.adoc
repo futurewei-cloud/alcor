@@ -1,0 +1,24 @@
+= Gateway Manager Design Specification
+v0.1, 2020-11-30
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Overview
+
+
+== Service Requirements
+
+
+== Design
+
+=== Service Architecture
+
+=== Key Workflow
+
+== REST APIs
+
+=== API Snapshot
+
+=== API Specification

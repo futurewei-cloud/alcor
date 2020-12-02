@@ -18,8 +18,9 @@ package com.futurewei.alcor.subnet.config;
 public class ConstantsConfig {
 
     public static int HighIpInterval = 0;
-    public static int LowIpInterval = 3;
+    public static int LowIpInterval = 0;
     public static int BaseInterval = 0;
     public static long UsedIpThreshold = 0;
+    public static String DeviceOwner = "network:router_interface";
 
 }

@@ -32,7 +32,7 @@ public class InternalRoutingRule {
     private String next_hop_ip;
 
     @JsonProperty("priority")
-    private String priority;
+    private Integer priority;
 
     @JsonProperty("operation_type")
     private OperationType operation_type;
@@ -48,7 +48,7 @@ public class InternalRoutingRule {
                                String name,
                                String destination,
                                String next_hop_ip,
-                               String priority,
+                               Integer priority,
                                OperationType operation_type,
                                InternalRoutingRuleExtraInfo routing_rule_extra_info) {
         this.id = id;
@@ -72,8 +72,8 @@ public class InternalRoutingRule {
     public String getNextHopIp() { return this.next_hop_ip; }
     public void setNextHopIp(String next_hop_ip) { this.next_hop_ip = next_hop_ip; }
 
-    public String getPriority() { return this.priority; }
-    public void setPriority(String priority) { this.priority = priority; }
+    public Integer getPriority() { return this.priority; }
+    public void setPriority(Integer priority) { this.priority = priority; }
 
     public OperationType getOperationType() { return this.operation_type; }
     public void setOperationType(OperationType operation_type) { this.operation_type = operation_type; }

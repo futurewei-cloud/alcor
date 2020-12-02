@@ -40,7 +40,7 @@ autonumber 10
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, new port\n output: {host_ip, local_host_dvr_mac (new)}
 "Port Manager" -> "Node Manager": Get node info input: {host_id}, L3 neighbor\n output {neighbor host_ip} May merge with above
 "Port Manager" -> "Data Plane Manager": POST /port sync with RequestBody NetworkConfiguration=\n {[P1 port w/ L2_neighbor_Id=NULL \n L3_neighbor_Id=NULL],[GREEN Subnet],[VPC],[SG]}
-"Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1\n DHCP: CREATE (FULL) P1
+"Data Plane Manager" -> "ACA on \n Host 1": Port: CREATE (FULL) P1\n DHCP: CREATE (FULL) P1, Subnet: INFO
 
 ==Scenario A2: Setup RED subnet P2 on Host 2 ==
 autonumber 20

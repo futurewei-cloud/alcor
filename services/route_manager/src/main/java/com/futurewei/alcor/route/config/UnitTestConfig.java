@@ -31,7 +31,7 @@ public class UnitTestConfig {
     public static String routerInterfaceRequest_port = "{\"port_id\":\"80b5cce3-3bca-4d23-a8b6-71df44833ac0\"}";
     public static String routerInterfaceRequest_subnet = "{\"subnet_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\"}";
     public static String routerInterfaceRequest_subnetAndPort = "{\"port_id\":\"80b5cce3-3bca-4d23-a8b6-71df44833ac0\", \"subnet_id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88000\"}";
-    public static String routesToNeutronRouterRequest = "{\"router\":{\"routes\":[{\"destination\":\"10.0.3.0/24\", \"nexthop\":\"10.0.0.13\"}]}}";
+    public static String routesToNeutronRouterRequest = "{\"newRoutesWebRequest\":{\"routes\":[{\"destination\":\"10.0.3.0/24\", \"nexthop\":\"10.0.0.13\"}]}}";
     public static String vpcRouteTableResource = "{\"routetable\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"90b5cce3-3bca-4d23-a8b6-71df44833ac3\",\"route_table_type\":\"vpc\",\"owner\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\"}}";
     public static String subnetRouteTableResource = "{\"routetable\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"90b5cce3-3bca-4d23-a8b6-71df44833ac3\",\"route_table_type\":\"private_subnet\",\"owner\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\"}}";
     public static String vpcRouteTableExceptionResource = "{\"routetable\":{\"project_id\":\"3dda2801-d675-4688-a63f-dcda8d327f50\",\"id\":\"90b5cce3-3bca-4d23-a8b6-71df44833ac0\",\"route_table_type\":\"subnet\",\"owner\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\"}}";

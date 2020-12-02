@@ -30,11 +30,11 @@ public class RoutesToNeutronRouterResponseObject {
     private String name;
 
     @JsonProperty("routes")
-    private List<RoutesToNeutronRouteObject> routes;
+    private List<NewRoutesRequest> routes;
 
     public RoutesToNeutronRouterResponseObject () {}
 
-    public RoutesToNeutronRouterResponseObject(String id, String name, List<RoutesToNeutronRouteObject> routes) {
+    public RoutesToNeutronRouterResponseObject(String id, String name, List<NewRoutesRequest> routes) {
         this.id = id;
         this.name = name;
         this.routes = routes;

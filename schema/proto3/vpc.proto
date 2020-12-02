@@ -22,32 +22,26 @@ option java_package = "com.futurewei.alcor.schema";
 option java_outer_classname = "Vpc";
 
 import "common.proto";
+import "auxiliarygateway.proto";
 
-// Not used based on the current design including router E2E
-// To be removed once we complete the design for all major features
 message VpcConfiguration {  
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+    uint32 revision_number = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType message_type = 5; // DELTA (default) or FULL
-    string project_id = 6;
-    string name = 7;
-    string cidr = 8;
-    int64 tunnel_id = 9;
+    string request_id = 2;
+    string id = 3;
+    UpdateType update_type = 4; // DELTA (default) or FULL
+    string project_id = 5;
+    string name = 6;
+    string cidr = 7;
+    uint32 tunnel_id = 8;
 
     message SubnetId {
         string id = 1;
     }
 
-    message Route {
-        string destination = 1;
-        string next_hop = 2;
-    }
+    repeated SubnetId subnet_ids = 9;
 
-    repeated SubnetId subnet_ids = 10;
-    repeated Route routes = 11;
+    AuxGateway auxiliary_gateway = 10;
 }
 
 message VpcState {

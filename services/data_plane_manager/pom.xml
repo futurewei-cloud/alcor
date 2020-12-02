@@ -18,6 +18,7 @@
         <java.version>11</java.version>
         <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
         <snippets>${project.basedir}/target/generated-snippets/</snippets>
+        <pulsar.version>2.6.1</pulsar.version>
     </properties>
 
     <dependencies>
@@ -69,6 +70,22 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client</artifactId>
+            <version>${pulsar.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client-admin</artifactId>
+            <version>${pulsar.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-functions-api</artifactId>
+            <version>${pulsar.version}</version>
         </dependency>
     </dependencies>
 

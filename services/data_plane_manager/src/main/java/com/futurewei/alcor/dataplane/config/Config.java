@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Configuration
-@Data
 public class Config {
 
   public static final int SHUTDOWN_TIMEOUT = 5;
@@ -43,6 +42,9 @@ public class Config {
 
   @Value("${grpc.threads-pool-name: grpc-thread-pool}")
   public String grpThreadsName;
+
+  @Value("${protobuf.goal-state-message.version}")
+  public int goalStateMessageVersion;
 
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;

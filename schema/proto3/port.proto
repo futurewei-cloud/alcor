@@ -24,18 +24,17 @@ option java_outer_classname = "Port";
 import "common.proto";
 
 message PortConfiguration {
-    uint32 format_version = 1;
-    uint32 revision_number = 2;
+    uint32 revision_number = 1;
 
-    string request_id = 3;
-    string id = 4;
-    MessageType message_type = 5; // DELTA (default) or FULL
-    NetworkType network_type = 6; // to be removed, will use the one in subnet
-    string project_id = 7;
-    string vpc_id = 8;
-    string name = 9;
-    string mac_address = 10;
-    bool admin_state_up = 11;
+    string request_id = 2;
+    string id = 3;
+    UpdateType update_type = 4; // DELTA (default) or FULL
+    string vpc_id = 5;
+    string name = 6;
+    string device_id = 7;
+    string device_owner = 8;
+    string mac_address = 9;
+    bool admin_state_up = 10;
 
     message HostInfo {
         string ip_address = 1;
@@ -56,10 +55,10 @@ message PortConfiguration {
         string id = 1;
     }
 
-    HostInfo host_info = 12;
-    repeated FixedIp fixed_ips = 13;
-    repeated AllowAddressPair allow_address_pairs = 14;
-    repeated SecurityGroupId security_group_ids = 15;
+    HostInfo host_info = 11;
+    repeated FixedIp fixed_ips = 12;
+    repeated AllowAddressPair allow_address_pairs = 13;
+    repeated SecurityGroupId security_group_ids = 14;
 }
 
 message PortState {

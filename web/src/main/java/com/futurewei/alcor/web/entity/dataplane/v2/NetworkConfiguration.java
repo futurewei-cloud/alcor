@@ -21,6 +21,7 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
