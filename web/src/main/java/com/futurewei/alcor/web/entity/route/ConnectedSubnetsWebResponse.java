@@ -23,16 +23,16 @@ import java.util.List;
 @Data
 public class ConnectedSubnetsWebResponse {
 
-    @JsonProperty("router")
-    private Router router;
+    @JsonProperty("internal_router_info")
+    private InternalRouterInfo internalRouterInfo;
 
     @JsonProperty("subnets")
     private List<String> subnetIds;
 
     public ConnectedSubnetsWebResponse () {}
 
-    public ConnectedSubnetsWebResponse(Router router, List<String> subnetIds) {
-        this.router = router;
+    public ConnectedSubnetsWebResponse(InternalRouterInfo internalRouterInfo, List<String> subnetIds) {
+        this.internalRouterInfo = internalRouterInfo;
         this.subnetIds = subnetIds;
     }
 }

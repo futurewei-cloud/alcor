@@ -1093,7 +1093,7 @@ public class UnitTestConfig {
             "{\n" +
             "   \"rsType\":\"PORT\",\n" +
             "   \"opType\":\"CREATE\",\n" +
-            "   \"portEntities\":[\n" +
+            "   \"ports_internal\":[\n" +
             "      {\n" +
             "         \"bindingHostIP\":\"10.213.43.187\",\n" +
             "         \"adminStateUp\":true,\n" +
@@ -1187,7 +1187,7 @@ public class UnitTestConfig {
             "         \"id\":\"f37810eb-7f83-45fa-a4d4-1b31e75399d7\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"vpcs\":[\n" +
+            "   \"vpcs_internal\":[\n" +
             "      {\n" +
             "         \"cidr\":\"192.168.0.0/16\",\n" +
             "         \"adminStateUp\":false,\n" +
@@ -1202,7 +1202,7 @@ public class UnitTestConfig {
             "         \"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"subnets\":[\n" +
+            "   \"subnets_internal\":[\n" +
             "      {\n" +
             "         \"tunnelId\":88889,\n" +
             "         \"vpcId\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
@@ -1217,7 +1217,7 @@ public class UnitTestConfig {
             "         \"id\":\"a87e0f87-a2d9-44ef-9194-9a62f178594f\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"securityGroups\":[\n" +
+            "   \"security_groups_internal\":[\n" +
             "      {\n" +
             "\n" +
             "      },\n" +

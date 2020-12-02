@@ -37,23 +37,25 @@ image::route_manager_service_architecture.PNG[]
 
 === Key Workflow
 
-** For case #4, add or delete a non-gateway port.
+==== For case #4, add or delete a non-gateway port.
 
 image::route_manager_l3_neighbors_update_4.PNG[]
 
-** For case #5, add or delete a gateway port (for Neutron only).
+==== For case #5, add or delete a gateway port (for Neutron only).
 
 image::route_manager_l3_neighbors_update_5.PNG[]
 
-** For case #6, update subnet's routing rules.
+==== For case #6, update routing rules.
 
-image::route_manager_subnet_routing_rules_update_6.PNG[]
+image::route_manager_routing_rule_update_6.PNG[]
 
-=== Sequence Diagram
-
-== Database Schema
+== Data Schema
 
 image::route_manager_data_schemas.PNG[]
+
+=== InternalRouterInfo Contract for RM, PM, and DPM
+
+image::route_manager_routerinfo_contract.PNG[]
 
 == REST APIs
 
@@ -572,7 +574,7 @@ If a port with the same network ID does not exist, this operation will ask Subne
 ** If you specify both subnet ID and port ID, this operation returns the Bad Request (400) response code.
 ** If the port is already in use (ask Subnet Manager), this operation returns the Conflict (409) response code.
 ** If no error, the same ID that is passed in the request body when a port is specified or
-the ID of a port that this operation creates to attach the subnet to the router will be returned.
+the ID of a port that this operation created to attach the subnet to the router will be returned.
 ** This operation needs to notify Port Manager or Subnet Manager to update L3 neighbors information for all ports in the
 same subnet and all ports in the connected subnets (refer to case #5 in the key workflow).
 * Response: Router's state
@@ -671,6 +673,9 @@ anchor:neutron_router_add_routes[]
 ** When (destinationA, nexthopA) is to be added but it is already present that is accepted and the request succeeds.
 ** Two or more routes with the same destination but with different nexthops are all accepted.
 ** A route whose destination overlaps the destination of existing routes (e.g. 192.168.1.0/24 and 192.168.1.0/22) can be added and existing routes are left untouched.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 412, 500
@@ -713,6 +718,9 @@ anchor:neutron_router_rm_routes[]
 * Operation: Atomically removes a set of extra routes from the router’s already existing extra routes.
 ** An extra route is only removed if there is an exact match (including the destination and nexthop) between the route sent and the route already present.
 ** When (destinationA, nexthopA) is to be removed but it is already missing that is accepted and the request succeeds.
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
 * Response: Router's state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 412, 500
@@ -846,16 +854,12 @@ anchor:vpc_update_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String vpcid`
 * Operation: Update routing rules for VPC's default routing table.
 ** The existing routing rules in VPC's default routing table will be replaced by new routing rules.
-** If the existing routing rules are not included in the request body :
-*** If those exisitng rules didn't used by any subnet's routing table (#may not need to check#),
-the operation will delete those rules from routing rule entity.
-*** If those existing rules are currently used by other subnet's routing table,
-the opratoin returns the Conflict (409) response code. (#may not need to check#)
+** If the existing routing rules are not included in the request body, the operation will delete those rules from routing rule entity.
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
 *** If the same routing rule with different priority, the operation just need to update the priroity for the specified routing rules.
 ** For new routing rules, this operation will create new routing rule entities and insert them into VPC's default routing table.
-** #This operation will impact all subnets that currently using VPC default routing rules. After updating,
-Route Manager may need to push new VPC default routing rules to those subnets in DPM/ACA.#
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
 * Response: VPC routing rules
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409, 412, 500
@@ -993,9 +997,9 @@ anchor:subnet_get_vpc_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Get or Create a VPC subnet routing table.
 ** If the routing table doesn't exist, this operation will create a routing table for the subnet.
-** (_How to assign public or private subnet?_) **
-** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
-(_Pending Item: the contract and API from Subnet Manager_)
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -1070,8 +1074,9 @@ anchor:subnet_add_neutron_routetable[]
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
 * Operation: Create a Neutron subnet routing table.
 ** Assign *neutron-subnet* for *type* in the route table.
-** This operation needs to send new created routing rules to Subnet Manager and update routing rules to DPM/ACA.
-(_Pending Item: the contract and API from Subnet Manager__)
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
 * Response: Routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -1123,8 +1128,9 @@ anchor:subnet_update_routetable[]
 ** If the existing routing rules are included in the request body, those routing rules remains in the routing table.
 ** If the same routing rule with different priority, the operation just update the priroity for the specified routing rules.
 ** For new routing rules, this operation will create new routing rule entities and insert them into routing table.
-** #This operation needs to notify Subnet Manager to update L3 neighbor for all ports in the same subnet.#
-(refer to case #6 in the key workflow)
+** This operation needs to call an internal function _routing_rule_update_ to process the routing rules update
+for the specified subnet's routing table, create a *InternalRouterInfo* contract and then send the contract to Data Plane Manager for routing rule updating.
+(refer to case #6 in the key workflow).
 * Response: Subnet routing table state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 409, 412, 500
@@ -1172,7 +1178,7 @@ anchor:subnet_rm_routetable[]
 * Method: `DELETE`
 * Request: `/project/{projectid}/subnets/{subnetid}/routetable`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String subnetid`
-* Operation: Deletes a subnet routing table. (#May not needed.#)
+* Operation: Deletes a subnet routing table.
 * Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 404, 500
