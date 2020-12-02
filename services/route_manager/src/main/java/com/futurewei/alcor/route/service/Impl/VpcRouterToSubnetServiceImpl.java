@@ -15,13 +15,20 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.route.exception.CanNotFindSubnet;
 import com.futurewei.alcor.route.service.VpcRouterToSubnetService;
+import com.futurewei.alcor.web.entity.route.RouteTableWebJson;
+import com.futurewei.alcor.web.entity.subnet.HostRoute;
+import com.futurewei.alcor.web.entity.subnet.NewHostRoutes;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 public class VpcRouterToSubnetServiceImpl implements VpcRouterToSubnetService {
@@ -46,5 +53,12 @@ public class VpcRouterToSubnetServiceImpl implements VpcRouterToSubnetService {
         String subnetManagerServiceUrl = subnetUrl+ "/project/" + projectId + "/subnets?network_id=" + vpcId;
         SubnetsWebJson response = restTemplate.getForObject(subnetManagerServiceUrl, SubnetsWebJson.class);
         return response;
+    }
+
+    @Override
+    public void updateRoutingRuleInSubnetManager(String projectId, String subnetId, List<HostRoute> hostRouteToSubnet) {
+        String subnetManagerServiceUrl = subnetUrl+ "/project/" + projectId + "/subnets/" + subnetId + "/update_routes";
+        HttpEntity<NewHostRoutes> routeRequest = new HttpEntity<>(new NewHostRoutes(hostRouteToSubnet));
+        restTemplate.put(subnetManagerServiceUrl, routeRequest, ResponseId.class);
     }
 }

@@ -38,6 +38,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
@@ -154,7 +155,7 @@ public class ResourceBuilder {
         subnetEntity.setVpcId(UnitTestConfig.vpcId);
         subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
         subnetEntity.setGatewayIp(UnitTestConfig.ip1);
-        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+        subnetEntity.setGatewayPortDetail(new GatewayPortDetail(UnitTestConfig.mac1, UnitTestConfig.portId1));
 
         return new SubnetWebJson(subnetEntity);
     }
@@ -168,7 +169,7 @@ public class ResourceBuilder {
         subnetEntity.setVpcId(UnitTestConfig.vpcId);
         subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
         subnetEntity.setGatewayIp(UnitTestConfig.ip1);
-        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+        subnetEntity.setGatewayPortDetail(new GatewayPortDetail(UnitTestConfig.mac1, UnitTestConfig.portId1));
 
         return new SubnetsWebJson(Collections.singletonList(subnetEntity));
     }

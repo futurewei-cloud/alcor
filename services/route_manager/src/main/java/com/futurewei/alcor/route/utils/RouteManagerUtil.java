@@ -156,4 +156,18 @@ public class RouteManagerUtil {
         return true;
     }
 
+    public static boolean checkCreateNeutronSubnetRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
+        if (resource == null) {
+            return false;
+        }
+
+        RouteTable routetable = resource.getRoutetable();
+        if (routetable == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 }

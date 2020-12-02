@@ -15,21 +15,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.route.service.Impl;
 
-import com.futurewei.alcor.common.enumClass.MessageType;
-import com.futurewei.alcor.common.enumClass.OperationType;
-import com.futurewei.alcor.common.enumClass.RouteTableType;
-import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
-import com.futurewei.alcor.common.exception.DatabasePersistenceException;
-import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.common.exception.ResourcePersistenceException;
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.enumClass.*;
+import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.route.config.ConstantsConfig;
 import com.futurewei.alcor.route.exception.*;
-import com.futurewei.alcor.route.service.NeutronRouterService;
-import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
-import com.futurewei.alcor.route.service.RouterDatabaseService;
-import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
+import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
+import com.futurewei.alcor.web.entity.subnet.HostRoute;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
@@ -55,6 +50,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
     @Autowired
     private RouterExtraAttributeDatabaseService routerExtraAttributeDatabaseService;
+
+    @Autowired
+    private RouteTableDatabaseService routeTableDatabaseService;
 
     @Override
     public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable {
@@ -100,6 +98,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             routeTable = new RouteTable();
             List<RouteEntry> routeEntities = new ArrayList<>();
             String routeTableId = UUID.randomUUID().toString();
+            routeTable.setOwner(neutronRouter.getId());
             routeTable.setId(routeTableId);
             routeTable.setRouteEntities(routeEntities);
             routeTable.setRouteTableType(RouteTableType.NEUTRON_ROUTER.getRouteTableType());
@@ -165,7 +164,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         projectId = subnet.getProjectId();
-        portId = subnet.getGatewayPortId();
+        portId = subnet.getGatewayPortDetail().getGatewayPortId();
         attachedRouterId = subnet.getAttachedRouterId();
 
         // check if port_id is used by other router
@@ -184,7 +183,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
         // TODO: may need to maintain the mapping for new added port and it's subnet in the Route Manager
 
-        List<String> ports = router.getPorts();
+        List<String> ports = router.getGatewayPorts();
         if (ports == null) {
             ports = new ArrayList<>();
         }
@@ -193,7 +192,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new PortIDIsAlreadyExist();
         }
         ports.add(portId);
-        router.setPorts(ports);
+        router.setGatewayPorts(ports);
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
@@ -219,7 +218,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 logger.log(Level.WARNING, "can not find subnet by subnet id :" + subnetId);
                 return new RouterInterfaceResponse();
             }
-            attachedPort = subnet.getGatewayPortId();
+            attachedPort = subnet.getGatewayPortDetail().getGatewayPortId();
             if (attachedPort != null) {
                 if (!attachedPort.equals(portId)) {
                     throw new AttachedPortsNotMatchPortId();
@@ -287,19 +286,19 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // remove interface
         subnet.setAttachedRouterId("");
 
-        List<String> ports = router.getPorts();
+        List<String> ports = router.getGatewayPorts();
         if (ports == null) {
             return new RouterInterfaceResponse();
         }
 
         if (portId == null) {
-            portId = subnet.getGatewayPortId();
+            portId = subnet.getGatewayPortDetail().getGatewayPortId();
         }
 
         if (ports.contains(portId)) {
             ports.remove(portId);
         }
-        router.setPorts(ports);
+        router.setGatewayPorts(ports);
         this.routerDatabaseService.addRouter(router);
 
         // update device_id and device_owner
@@ -321,9 +320,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RoutesToNeutronWebResponse addRoutesToNeutronRouter(String routerid, RoutesToNeutronRouterRequestObject requestRouter) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, DatabasePersistenceException, DestinationOrNexthopCanNotBeNull {
+    public RoutesToNeutronWebResponse addRoutesToNeutronRouter(String routerid, NewRoutesWebRequest requestRouter) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, DatabasePersistenceException, DestinationOrNexthopCanNotBeNull {
         RoutesToNeutronRouterResponseObject responseRouter = new RoutesToNeutronRouterResponseObject();
-        List<RoutesToNeutronRouteObject> responseRoutes = new ArrayList<>();
+        List<NewRoutesRequest> responseRoutes = new ArrayList<>();
 
         Router router = this.routerDatabaseService.getByRouterId(routerid);
         if (router == null) {
@@ -333,8 +332,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         List<RouteEntry> routeEntities = routeTable.getRouteEntities();
 
 
-        List<RoutesToNeutronRouteObject> requestRoutes = requestRouter.getRoutes();
-        for (RoutesToNeutronRouteObject requestRoute : requestRoutes) {
+        List<NewRoutesRequest> requestRoutes = requestRouter.getRoutes();
+        for (NewRoutesRequest requestRoute : requestRoutes) {
             boolean isExit = false;
             String requestDestination = requestRoute.getDestination();
             String requestNexthop = requestRoute.getNexthop();
@@ -357,8 +356,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 routeEntry.setNexthop(requestNexthop);
                 routeEntities.add(routeEntry);
 
-                RoutesToNeutronRouteObject routesToNeutronRouteObject = new RoutesToNeutronRouteObject(requestDestination, requestNexthop);
-                responseRoutes.add(routesToNeutronRouteObject);
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(requestDestination, requestNexthop);
+                responseRoutes.add(newRoutesRequest);
             }
         }
         routeTable.setRouteEntities(routeEntities);
@@ -369,8 +368,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         for (RouteEntry routeEntry : routeEntities) {
             String destination = routeEntry.getDestination();
             String nexthop = routeEntry.getNexthop();
-            RoutesToNeutronRouteObject routesToNeutronRouteObject = new RoutesToNeutronRouteObject(destination, nexthop);
-            responseRoutes.add(routesToNeutronRouteObject);
+            NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
+            responseRoutes.add(newRoutesRequest);
         }
         responseRouter.setId(routerid);
         responseRouter.setName(router.getName());
@@ -380,9 +379,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RoutesToNeutronWebResponse removeRoutesToNeutronRouter(String routerid, RoutesToNeutronRouterRequestObject requestRouter) throws RouterOrSubnetAndPortNotExistOrNotVisible, ResourceNotFoundException, ResourcePersistenceException, DestinationOrNexthopCanNotBeNull, DatabasePersistenceException {
+    public RoutesToNeutronWebResponse removeRoutesFromNeutronRouter(String routerid, NewRoutesWebRequest requestRouter) throws RouterOrSubnetAndPortNotExistOrNotVisible, ResourceNotFoundException, ResourcePersistenceException, DestinationOrNexthopCanNotBeNull, DatabasePersistenceException {
         RoutesToNeutronRouterResponseObject responseRouter = new RoutesToNeutronRouterResponseObject();
-        List<RoutesToNeutronRouteObject> responseRoutes = new ArrayList<>();
+        List<NewRoutesRequest> responseRoutes = new ArrayList<>();
 
         Router router = this.routerDatabaseService.getByRouterId(routerid);
         if (router == null) {
@@ -391,9 +390,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         RouteTable routeTable = router.getNeutronRouteTable();
         List<RouteEntry> routeEntities = routeTable.getRouteEntities();
 
-        List<RoutesToNeutronRouteObject> requestRoutes = requestRouter.getRoutes();
+        List<NewRoutesRequest> requestRoutes = requestRouter.getRoutes();
         // TODO: time complexity O(n^2), check if it effect performance
-        for (RoutesToNeutronRouteObject requestRoute : requestRoutes) {
+        for (NewRoutesRequest requestRoute : requestRoutes) {
             String requestDestination = requestRoute.getDestination();
             String requestNexthop = requestRoute.getNexthop();
 
@@ -419,8 +418,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         for (RouteEntry routeEntry : routeEntities) {
             String destination = routeEntry.getDestination();
             String nexthop = routeEntry.getNexthop();
-            RoutesToNeutronRouteObject routesToNeutronRouteObject = new RoutesToNeutronRouteObject(destination, nexthop);
-            responseRoutes.add(routesToNeutronRouteObject);
+            NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
+            responseRoutes.add(newRoutesRequest);
         }
         responseRouter.setId(routerid);
         responseRouter.setName(router.getName());
@@ -469,6 +468,189 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         return connectedSubnetsWebResponse;
     }
 
+    @Override
+    public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isDefaultRoutingRules) throws CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique, DestinationInvalid {
+        List<InternalRoutingRule> updateRoutes = new ArrayList<>();
+        List<HostRoute> hostRouteToSubnet = new ArrayList<>();
+
+        List<NewRoutesRequest> routes = newRouteEntry.getRoutes();
+        if (routes == null) {
+            return new UpdateRoutingRuleResponse(new InternalSubnetRoutingTable(), hostRouteToSubnet);
+        }
+
+        // find routeTable
+        Map<String, String[]> requestParams =  new HashMap<>();
+        String[] value = new String[1];
+        value[0] = owner;
+        requestParams.put("owner", value);
+
+        Map<String, Object[]> queryParams =
+                ControllerUtil.transformUrlPathParams(requestParams, RouteTable.class);
+        Map<String, RouteTable> routeTableMap = this.routeTableDatabaseService.getAllRouteTables(queryParams);
+        List<RouteTable> routeTables = new ArrayList<>(routeTableMap.values());
+        if (routeTables == null || routeTables.size() == 0) {
+            logger.log(Level.WARNING, "owner: " + owner);
+            throw new CanNotFindRouteTableByOwner();
+        } else if (routeTables.size() >= 2) {
+            logger.log(Level.WARNING, "owner: " + owner);
+            throw new RouteTableNotUnique();
+        }
+
+        RouteTable existRouteTable = routeTables.get(0);
+
+        List<RouteEntry> existRoutes = existRouteTable.getRouteEntities();
+        // TODO: existRoutes -> MAP: key - des(/前面的), value - nexthop, "10.0.0.0/16"
+        Map<String, RouteEntry> existRoutesMap = new HashMap<>();
+        for (RouteEntry existRoute : existRoutes) {
+            String[] existDes = existRoute.getDestination().split("\\/");
+            String existNetworkIP = existDes[0];
+            existRoutesMap.put(existNetworkIP, existRoute);
+        }
+        // TODO: existRoutes replaced with map
+        // Tracking operation type for each routing rule
+        for (NewRoutesRequest newRouteRequest : routes) {
+            //RouteEntry route = null;
+            // TODO: 1. check new-des if it is valid
+            String newRouteDestination = newRouteRequest.getDestination();
+            String newRouteNexthop = newRouteRequest.getNexthop();
+            boolean isDestinationValid = verifyCidrBlock(newRouteDestination);
+            if (!isDestinationValid) {
+                throw new DestinationInvalid("destination is invalid : " + newRouteDestination);
+            }
+            String[] newRouteDes = newRouteDestination.split("\\/");
+            String newNetworkIP = newRouteDes[0];
+            String newBitmask = newRouteDes[1];
+            int newBitmaskInt = Integer.parseInt(newBitmask);
+            // TODO: 2. flag check if it is from vpc/Neutron(lower priority) or subnet.
+            RouteEntry existRoute = existRoutesMap.get(newNetworkIP);
+            // dont find: Create (both)
+            if (existRoute == null) {
+                InternalRoutingRule internalRoutingRule = null;
+                if (isDefaultRoutingRules) {
+                    internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
+                } else {
+                    internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.STATIC, existRoute, newRouteRequest);
+                }
+                String Des = internalRoutingRule.getDestination();
+                String Nexthop = internalRoutingRule.getNextHopIp();
+
+                updateRoutes.add(internalRoutingRule);
+                hostRouteToSubnet.add(new HostRoute(){{setNexthop(Nexthop);setDestination(Des);}});
+
+            } else { // could find:
+                // compare which one cover the other one
+                if (isDefaultRoutingRules) { // VPC/Neutron
+                    String[] existDes = existRoute.getDestination().split("\\/");
+                    String existBitmask = existDes[1];
+                    int existBitmaskInt = Integer.parseInt(existBitmask);
+                    if (newBitmaskInt <= existBitmaskInt) { // new routing rule bitmask is smaller or equal than old one, drop it
+                        continue;
+                    } else { // new routing rule bitmask is larger than old one, Create new rule with low priority
+
+                        InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
+
+                        updateRoutes.add(internalRoutingRule);
+
+                    }
+                } else { // Subnet
+                    // new routing rule update old one without checking bitmask
+                    InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.UPDATE, RoutingRuleType.STATIC, existRoute, newRouteRequest);
+
+                    updateRoutes.add(internalRoutingRule);
+                    hostRouteToSubnet.add(new HostRoute(){{setNexthop(internalRoutingRule.getNextHopIp());setDestination(internalRoutingRule.getDestination());}});
+
+                }
+                existRoutesMap.remove(newNetworkIP);
+            }
+
+        }
+
+        for (Map.Entry<String, RouteEntry> existRouteEntry : existRoutesMap.entrySet()) {
+            RouteEntry existRoute = (RouteEntry)existRouteEntry.getValue();
+            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.DEFAULT, existRoute, null);
+
+            updateRoutes.add(internalRoutingRule);
+
+        }
+
+        // construct List<InternalSubnetRoutingTable>
+        InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+        internalSubnetRoutingTable.setSubnetId(owner);
+
+        internalSubnetRoutingTable.setRoutingRules(updateRoutes);
+
+        // construct UpdateRoutingRuleResponse
+        UpdateRoutingRuleResponse updateRoutingRuleResponse = new UpdateRoutingRuleResponse(internalSubnetRoutingTable, hostRouteToSubnet);
+
+        return updateRoutingRuleResponse;
+    }
+
+    @Override
+    public InternalRouterInfo constructInternalRouterInfo (List<InternalSubnetRoutingTable> internalSubnetRoutingTableList) {
+
+        String requestId = UUID.randomUUID().toString();
+        InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
+
+        InternalRouterConfiguration internalRouterConfiguration = new InternalRouterConfiguration();
+
+        internalRouterConfiguration.setSubnetRoutingTables(internalSubnetRoutingTableList);
+
+        internalRouterConfiguration.setRevisionNumber(ConstantsConfig.REVISION_NUMBER);
+        internalRouterConfiguration.setFormatVersion(ConstantsConfig.FORMAT_VERSION);
+        internalRouterConfiguration.setRequestId(requestId);
+        internalRouterConfiguration.setHostDvrMac("");
+        internalRouterConfiguration.setMessageType(MessageType.FULL);
+
+        internalRouterInfo.setOperationType(OperationType.INFO);
+        internalRouterInfo.setRouterConfiguration(internalRouterConfiguration);
+
+        return internalRouterInfo;
+
+    }
+
+    private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route, NewRoutesRequest newRouteRequest) {
+        if (route == null && newRouteRequest == null) {
+            return new InternalRoutingRule();
+        }
+
+        InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
+
+        InternalRoutingRuleExtraInfo routingRuleExtraInfo = new InternalRoutingRuleExtraInfo();
+        //routingRuleExtraInfo.setNextHopMac();
+        // TODO: insert destination type - if it is vpc router, configure value according to target
+        routingRuleExtraInfo.setDestinationType(VpcRouteTarget.LOCAL);
+
+        if (route == null) {
+            internalRoutingRule.setId(UUID.randomUUID().toString());
+        } else {
+            internalRoutingRule.setId(route.getId());
+            internalRoutingRule.setName(route.getName());
+        }
+
+        if (newRouteRequest != null) {
+            internalRoutingRule.setDestination(newRouteRequest.getDestination());
+        } else {
+            internalRoutingRule.setDestination(route.getDestination());
+        }
+        // TODO: translate target to nextHop - it is vpc router operation
+        if (newRouteRequest != null) {
+            internalRoutingRule.setNextHopIp(newRouteRequest.getNexthop());
+        } else {
+            internalRoutingRule.setNextHopIp(route.getNexthop());
+        }
+        // TODO: set priority - configure priority according to RoutingRuleType
+        if (routingRuleType.getRoutingRuleType().equals(ConstantsConfig.DEFAULT_ROUTINGRULETYPE)) {
+            internalRoutingRule.setPriority(ConstantsConfig.LOW_PRIORITY);
+        } else if (routingRuleType.getRoutingRuleType().equals(ConstantsConfig.STATIC_ROUTINGRULETYPE)) {
+            internalRoutingRule.setPriority(ConstantsConfig.HIGH_PRIORITY);
+        }
+        internalRoutingRule.setOperationType(operationType);
+        internalRoutingRule.setRoutingRuleExtraInfo(routingRuleExtraInfo);
+
+        return internalRoutingRule;
+
+    }
+
     private boolean ValidateSubnetAndConnectedRouter(SubnetWebJson subnetWebJson, String subnetId) {
         // get subnet
         SubnetEntity subnet = subnetWebJson.getSubnet();
@@ -505,7 +687,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     private boolean ProcessNeutronRouterAndPopulateSubnetIds(String projectId, Router router, List<SubnetEntity> subnetEntities, Map<String, String> gwPortToSubnetIdMap) throws SubnetNotBindUniquePortId {
-        List<String> ports = router.getPorts();
+        List<String> ports = router.getGatewayPorts();
 
         // check ports
         if (ports == null || ports.size() == 0) {
@@ -558,7 +740,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             for (RouteEntry routeEntry : routeEntities) {
                 InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
                 internalRoutingRule.setId(routeEntry.getId());
-                internalRoutingRule.setPriority(routeEntry.getPriority().toString());
+                internalRoutingRule.setPriority(routeEntry.getPriority());
                 internalRoutingRule.setNextHopIp(routeEntry.getNexthop());
                 internalRoutingRule.setName(routeEntry.getName());
                 internalRoutingRule.setDestination(routeEntry.getDestination());
@@ -581,5 +763,42 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         internalRouterInfo.setOperationType(OperationType.INFO);
         internalRouterInfo.setRouterConfiguration(configuration);
+    }
+
+    public boolean verifyCidrBlock(String cidr) {
+        if (cidr == null) {
+            return false;
+        }
+        String[] cidrs = cidr.split("\\/", -1);
+        // verify cidr suffix
+        if (cidrs.length > 2 || cidrs.length == 0) {
+            return false;
+        } else if (cidrs.length == 2) {
+            if (!ControllerUtil.isPositive(cidrs[1])) {
+                return false;
+            }
+            int suffix = Integer.parseInt(cidrs[1]);
+            if (suffix < 16 || suffix > 28) {
+                return false;
+            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
+                return false;
+            }
+        }
+        // verify cidr prefix
+        String[] addr = cidrs[0].split("\\.", -1);
+        if (addr.length != 4) {
+            return false;
+        }
+        for (String f : addr) {
+            if (!ControllerUtil.isPositive(f)) {
+                return false;
+            }
+            int n = Integer.parseInt(f);
+            if (n < 0 || n > 255) {
+                return false;
+            }
+        }
+        return true;
+
     }
 }

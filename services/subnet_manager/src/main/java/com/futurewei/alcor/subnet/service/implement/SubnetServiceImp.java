@@ -3,6 +3,8 @@ package com.futurewei.alcor.subnet.service.implement;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.enumClass.RouteTableType;
+import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
@@ -14,10 +16,10 @@ import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.web.entity.subnet.*;
@@ -32,6 +34,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -420,5 +424,193 @@ public class SubnetServiceImp implements SubnetService {
         }
 
         return false;
+    }
+
+    @Override
+    public void updateSubnetHostRoutes(String subnetId, NewHostRoutes resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException, SubnetEntityNotFound, DestinationOrOperationTypeIsNull {
+
+        // get internal routing rule
+//        InternalRouterConfiguration configuration = resource.getRouterConfiguration();
+//        if (configuration == null) {
+//            return;
+//        }
+//
+//        List<InternalSubnetRoutingTable> subnetRoutingTables = configuration.getSubnetRoutingTables();
+//        if (subnetRoutingTables == null) {
+//            return;
+//        }
+//
+//        List<InternalRoutingRule> routingRules = null;
+//        for (InternalSubnetRoutingTable internalSubnetRoutingTable : subnetRoutingTables) {
+//            String internalSubnetId = internalSubnetRoutingTable.getSubnetId();
+//            List<InternalRoutingRule> internalRoutingRules = internalSubnetRoutingTable.getRoutingRules();
+//            if (subnetId.equals(internalSubnetId)) {
+//                routingRules = internalRoutingRules;
+//                break;
+//            }
+//        }
+
+        // get List<HostRoute> in subnet entity
+        SubnetEntity subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
+        if (subnetEntity == null) {
+            logger.error("subnet id: " + subnetId);
+            throw new SubnetEntityNotFound();
+        }
+        //List<HostRoute> hostRoutes = subnetEntity.getHostRoutes();
+        List<HostRoute> hostRoutes = resource.getHostRoutes();
+
+        if (hostRoutes == null) {
+            hostRoutes = new ArrayList<>();
+        }
+
+        // update subnet routes
+//        for (InternalRoutingRule internalRoutingRule : routingRules) {
+//            String operationType = internalRoutingRule.getOperationType().getOperationType();
+//            String destination = internalRoutingRule.getDestination();
+//            String nextHopIp = internalRoutingRule.getNextHopIp();
+//            if (destination == null || operationType == null) {
+//                throw new DestinationOrOperationTypeIsNull();
+//            }
+//
+//            if (operationType.equals(OperationType.CREATE.getOperationType())) {
+//
+//                HostRoute newHostRoute = new HostRoute(destination, nextHopIp);
+//                hostRoutes.add(newHostRoute);
+//
+//            } else if (operationType.equals(OperationType.UPDATE.getOperationType())) {
+//
+//                for (int i = 0 ; i < hostRoutes.size(); i ++) {
+//                    HostRoute hostRoute = hostRoutes.get(i);
+//                    String subnetDestination = hostRoute.getDestination();
+//                    if (subnetDestination == null) {
+//                        throw new DestinationOrOperationTypeIsNull();
+//                    }
+//
+//                    if (subnetDestination.equals(destination)) {
+//                        hostRoute.setDestination(destination);
+//                        hostRoute.setNexthop(nextHopIp);
+//                    }
+//                }
+//
+//            } else if (operationType.equals(OperationType.DELETE.getOperationType())) {
+//
+//                Iterator<HostRoute> iterator = hostRoutes.iterator();
+//                while (iterator.hasNext()) {
+//                    HostRoute hostRoute = iterator.next();
+//                    String subnetDestination = hostRoute.getDestination();
+//                    if (subnetDestination == null) {
+//                        continue;
+//                    }
+//
+//                    if (subnetDestination.equals(destination)) {
+//                        iterator.remove();
+//                    }
+//                }
+//
+//            }
+//
+//        }
+
+        subnetEntity.setHostRoutes(hostRoutes);
+        this.subnetDatabaseService.addSubnet(subnetEntity);
+
+    }
+
+
+    @Override
+    public void deleteSubnetRoutingRuleInRM(String projectId, String subnetId) throws SubnetIdIsNull {
+
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
+        restTemplate.delete(routeManagerServiceUrl, ResponseId.class);
+
+    }
+
+    @Override
+    public void updateSubnetRoutingRuleInRM(String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull {
+
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        if (subnetEntity == null) {
+            return;
+        }
+        List<HostRoute> hostRoutes = subnetEntity.getHostRoutes();
+        List<RouteEntry> routeEntities = new ArrayList<>();
+        for (HostRoute hostRoute : hostRoutes) {
+            String destination = hostRoute.getDestination();
+            String nexthop = hostRoute.getNexthop();
+            RouteEntry routeEntry = new RouteEntry(null, null, null, null,
+                    destination, null, null, null, nexthop);
+            routeEntities.add(routeEntry);
+        }
+
+        RouteTable routetable = new RouteTable();
+        routetable.setOwner(subnetId);
+        routetable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
+        routetable.setRouteEntities(routeEntities);
+
+
+        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
+        HttpEntity<RouteTableWebJson> routeRequest = new HttpEntity<>(new RouteTableWebJson(routetable));
+        restTemplate.put(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
+
+    }
+
+    @Override
+    public void createSubnetRoutingRuleInRM(String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull {
+
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
+        }
+
+        if (subnetEntity == null) {
+            return;
+        }
+        List<HostRoute> hostRoutes = subnetEntity.getHostRoutes();
+        List<RouteEntry> routeEntities = new ArrayList<>();
+        for (HostRoute hostRoute : hostRoutes) {
+            String destination = hostRoute.getDestination();
+            String nexthop = hostRoute.getNexthop();
+            RouteEntry routeEntry = new RouteEntry(null, null, null, null,
+                    destination, null, null, null, nexthop);
+            routeEntities.add(routeEntry);
+        }
+
+        RouteTable routetable = new RouteTable();
+        routetable.setOwner(subnetId);
+        routetable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
+        routetable.setRouteEntities(routeEntities);
+
+        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
+        HttpEntity<RouteTableWebJson> routeRequest = new HttpEntity<>(new RouteTableWebJson(routetable));
+        RouteTableWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
+        // retry if routeResponse is null
+        if (routeResponse == null) {
+            routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
+        }
+//        if (routeResponse == null) {
+//            throw new FallbackException("fallback request");
+//        }
+
+    }
+
+    @Override
+    public PortEntity constructPortEntity(String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner) {
+        PortEntity portEntity = new PortEntity();
+        List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
+        PortEntity.FixedIp fixedIp = new PortEntity.FixedIp(subnetId, gatewayIP);
+        fixedIps.add(fixedIp);
+
+        portEntity.setId(portId);
+        portEntity.setVpcId(vpcId);
+        portEntity.setFixedIps(fixedIps);
+        portEntity.setDeviceOwner(deviceOwner);
+
+        return portEntity;
     }
 }

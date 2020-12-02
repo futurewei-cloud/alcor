@@ -16,7 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.TestConfig;
+import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.web.entity.dataplane.*;
@@ -29,12 +31,21 @@ import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.SubscriptionType;
+import org.apache.pulsar.client.impl.schema.JSONSchema;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,15 +63,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DataPlaneTest {
+//@ComponentScan(value = "com.futurewei.alcor.common.test.config")
+public class DpmTest {
     private static final String FORMAT_REVISION_NUMBER = "1";
     private static final String ROUTER_REQUEST_ID = "1";
 
     @Autowired
     private MockMvc mockMvc;
 
-    //@MockBean
-    //private DataPlaneClient dataPlaneClient;
+    @Autowired
+    private PulsarClient pulsarClient;
+
+    @MockBean
+    private DataPlaneClient dataPlaneClient;
 
     private List<VpcEntity> buildVpcEntities() {
         VpcEntity vpcEntity = new VpcEntity();
@@ -85,7 +100,7 @@ public class DataPlaneTest {
         internalSubnetEntity1.setCidr(TestConfig.subnetCidr1);
         internalSubnetEntity1.setTunnelId(TestConfig.tunnelId);
         internalSubnetEntity1.setGatewayIp(TestConfig.gatewayIp1);
-        internalSubnetEntity1.setGatewayMacAddress(TestConfig.gatewayMacAddress1);
+        internalSubnetEntity1.setGatewayPortDetail(new GatewayPortDetail(TestConfig.gatewayMacAddress1, null));
         internalSubnetEntity1.setDhcpEnable(true);
         internalSubnetEntity1.setAvailabilityZone(TestConfig.availabilityZone);
         internalSubnetEntity1.setPrimaryDns(TestConfig.primaryDns);
@@ -99,7 +114,7 @@ public class DataPlaneTest {
         internalSubnetEntity2.setCidr(TestConfig.subnetCidr2);
         internalSubnetEntity2.setTunnelId(TestConfig.tunnelId);
         internalSubnetEntity2.setGatewayIp(TestConfig.gatewayIp2);
-        internalSubnetEntity2.setGatewayMacAddress(TestConfig.gatewayMacAddress2);
+        internalSubnetEntity2.setGatewayPortDetail(new GatewayPortDetail(TestConfig.gatewayMacAddress2, null));
         internalSubnetEntity2.setDhcpEnable(true);
         internalSubnetEntity2.setAvailabilityZone(TestConfig.availabilityZone);
         internalSubnetEntity2.setPrimaryDns(TestConfig.primaryDns);
@@ -235,6 +250,21 @@ public class DataPlaneTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+
+        Consumer<MulticastGoalStateByte> multicastConsumer = pulsarClient.newConsumer(JSONSchema.of(MulticastGoalStateByte.class))
+                .topic("multicast-topic2")
+                .subscriptionName("my-subscription")
+                .subscriptionType(SubscriptionType.Shared)
+                .subscribe();
+
+        Message<MulticastGoalStateByte> msg = multicastConsumer.receive();
+        try {
+            multicastConsumer.acknowledge(msg);
+        } catch (Exception e) {
+            System.err.printf("Unable to consume message: %s", e.getMessage());
+            multicastConsumer.negativeAcknowledge(msg);
+        }
+        Assert.assertNotNull(msg.getValue().getGoalStateByte());
     }
 
     private Map<String, InternalSubnetPorts> buildSubnetPorts() {
@@ -300,7 +330,7 @@ public class DataPlaneTest {
         routingRule.setName("routingRule1");
         routingRule.setNextHopIp(TestConfig.nextHop);
         routingRule.setOperationType(CREATE);
-        routingRule.setPriority("100");
+        routingRule.setPriority(100);
         routingRule.setRoutingRuleExtraInfo(null);
         routingRules.add(routingRule);
         subnetRoutingTable1.setRoutingRules(routingRules);
@@ -318,13 +348,15 @@ public class DataPlaneTest {
         networkConfiguration.setRsType(ResourceType.ROUTER);
         networkConfiguration.setOpType(OperationType.CREATE);
         networkConfiguration.setInternalRouterInfos(buildInternalRouterInfo());
-        networkConfiguration.setInternalSubnetPorts(buildSubnetPorts());
+        //networkConfiguration.setInternalSubnetPorts(buildSubnetPorts());
 
         return networkConfiguration;
     }
 
     @Test
     public void createRouterConfigurationTest() throws Exception {
+        createPortConfigurationTest();
+
         NetworkConfiguration networkConfiguration = buildRouterConfiguration();
         ObjectMapper objectMapper = new ObjectMapper();
         String body = objectMapper.writeValueAsString(networkConfiguration);
@@ -334,5 +366,7 @@ public class DataPlaneTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+
+
     }
 }

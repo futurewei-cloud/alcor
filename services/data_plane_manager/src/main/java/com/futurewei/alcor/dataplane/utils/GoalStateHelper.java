@@ -73,17 +73,15 @@ public class GoalStateHelper {
     Subnet.SubnetConfiguration.Gateway gateway =
         Subnet.SubnetConfiguration.Gateway.newBuilder()
             .setIpAddress(subnetEntity1.getGatewayIp())
-            .setMacAddress(subnetEntity1.getGatewayMacAddress())
+            .setMacAddress(subnetEntity1.getGatewayPortDetail().getGatewayMacAddress())
             .build();
     Subnet.SubnetConfiguration subnetConfiguration =
         Subnet.SubnetConfiguration.newBuilder()
             .setId(subnetEntity1.getId())
             .setVpcId(subnetEntity1.getVpcId())
-            .setProjectId(subnetEntity1.getProjectId())
             .setCidr(subnetEntity1.getCidr())
             .setTunnelId(subnetEntity1.getTunnelId())
             .setGateway(gateway)
-            .setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER)
             .build();
     Subnet.SubnetState subnetState =
         Subnet.SubnetState.newBuilder().setConfiguration(subnetConfiguration).buildPartial();
@@ -170,10 +168,8 @@ public class GoalStateHelper {
             .addFixedIps(fixedIp)
             .setHostIpAddress(ipHostIpMap.get(ip))
             .setMacAddress(ipMacMap.get(ip))
-            .setFormatVersion(GoalStateManager.FORMAT_REVISION_NUMBER)
             .setRevisionNumber(Port.PortConfiguration.REVISION_NUMBER_FIELD_NUMBER)
             .setId(ipPortIdMap.get(ip))
-            .setProjectId(networkConfiguration.getVpcs().get(0).getProjectId())
             .setVpcId(networkConfiguration.getVpcs().get(0).getId())
             .build();
     Common.OperationType target = getOperationType(networkConfiguration.getOpType());

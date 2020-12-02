@@ -201,15 +201,18 @@ public class DataPlaneProcessor extends AbstractProcessor {
         List<InternalSubnetEntity> internalSubnetEntities =
                 context.getNetworkConfig().getSubnetEntities();
 
-        for (InternalSubnetEntity internalSubnetEntity : internalSubnetEntities) {
-            for (VpcEntity vpcEntity : vpcEntities) {
-                if (vpcEntity.getId().equals(internalSubnetEntity.getVpcId())) {
-                    Integer segmentationId = vpcEntity.getSegmentationId();
-                    Long tunnelId = segmentationId != null ? Long.valueOf(segmentationId) : null;
-                    internalSubnetEntity.setTunnelId(tunnelId);
+        if (internalSubnetEntities != null) {
+            for (InternalSubnetEntity internalSubnetEntity : internalSubnetEntities) {
+                for (VpcEntity vpcEntity : vpcEntities) {
+                    if (vpcEntity.getId().equals(internalSubnetEntity.getVpcId())) {
+                        Integer segmentationId = vpcEntity.getSegmentationId();
+                        Long tunnelId = segmentationId != null ? Long.valueOf(segmentationId) : null;
+                        internalSubnetEntity.setTunnelId(tunnelId);
+                    }
                 }
             }
         }
+
     }
 
     private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {

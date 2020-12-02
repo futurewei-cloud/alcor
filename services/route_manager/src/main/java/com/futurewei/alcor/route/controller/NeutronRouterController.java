@@ -23,9 +23,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.route.exception.RouterUnavailable;
 import com.futurewei.alcor.route.exception.RouterHasAttachedInterfaces;
-import com.futurewei.alcor.route.service.NeutronRouterService;
-import com.futurewei.alcor.route.service.RouterDatabaseService;
-import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
+import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.route.utils.RouteManagerUtil;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.web.entity.route.*;
@@ -62,6 +60,12 @@ public class NeutronRouterController {
 
     @Autowired
     private NeutronRouterService neutronRouterService;
+
+    @Autowired
+    private RouterToDPMService routerToDPMService;
+
+    @Autowired
+    private RouterToPMService routerToPMService;
 
     @Autowired
     private HttpServletRequest request;
@@ -253,7 +257,7 @@ public class NeutronRouterController {
         if (router == null) {
             return new ResponseId();
         }
-        List<String> ports = router.getPorts();
+        List<String> ports = router.getGatewayPorts();
         if (ports != null && ports.size() != 0) {
             throw new RouterHasAttachedInterfaces();
         }
@@ -324,14 +328,32 @@ public class NeutronRouterController {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerid);
         RestPreconditionsUtil.verifyResourceFound(projectid);
 
-        RoutesToNeutronRouterRequestObject router = resource.getRouter();
-        if (router == null) {
+        NewRoutesWebRequest newRoutes = resource.getNewRoutesWebRequest();
+        if (newRoutes == null) {
             return new RoutesToNeutronWebResponse();
         }
 
-        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, router);
+        // List<String> ports -> port entity -> subnet id
+        Router router = this.routerDatabaseService.getByRouterId(routerid);
 
-        // TODO:  l3-neighbors-updating (waiting for PM)
+        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, newRoutes);
+
+        List<String> gatewayPorts = router.getGatewayPorts();
+        List<String> subnetIds = this.routerToPMService.getSubnetIdsFromPM(projectid, gatewayPorts);
+        if (subnetIds != null) {
+            // sub-level routing rule update
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
+            for (String subnetId : subnetIds) {
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+                internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+            }
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+        }
 
         return routesToNeutronWebResponse;
 
@@ -341,20 +363,37 @@ public class NeutronRouterController {
             method = PUT,
             value = {"/project/{projectid}/routers/{routerid}/remove_extra_routes"})
     @DurationStatistics
-    public RoutesToNeutronWebResponse removeRoutesToNeutronRouter(@PathVariable String projectid, @PathVariable String routerid, @RequestBody RoutesToNeutronWebRequest resource) throws Exception {
+    public RoutesToNeutronWebResponse removeRoutesFromNeutronRouter(@PathVariable String projectid, @PathVariable String routerid, @RequestBody RoutesToNeutronWebRequest resource) throws Exception {
 
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(routerid);
         RestPreconditionsUtil.verifyResourceFound(projectid);
 
-        RoutesToNeutronRouterRequestObject router = resource.getRouter();
-        if (router == null) {
+        NewRoutesWebRequest newRoutes = resource.getNewRoutesWebRequest();
+        if (newRoutes == null) {
             return new RoutesToNeutronWebResponse();
         }
+        // List<String> ports -> port entity -> subnet id
+        Router router = this.routerDatabaseService.getByRouterId(routerid);
 
-        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesToNeutronRouter(routerid, router);
+        RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.removeRoutesFromNeutronRouter(routerid, newRoutes);
 
-        // TODO: call PM for routing rule updating (waiting for PM)
+        List<String> gatewayPorts = router.getGatewayPorts();
+        List<String> subnetIds = this.routerToPMService.getSubnetIdsFromPM(projectid, gatewayPorts);
+        if (subnetIds != null) {
+            // sub-level routing rule update
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
+            for (String subnetId : subnetIds) {
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+                internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+            }
+
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+
+            // send InternalRouterInfo contract to DPM
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+        }
 
         return routesToNeutronWebResponse;
 

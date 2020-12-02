@@ -5,6 +5,7 @@
 * xref:high_level/high_level_design.adoc[High Level Design]
 ** xref:high_level/system_flow.adoc[Key System Flows]
 ** xref:high_level/key_diff.adoc[Key Differences Compared with Neutron]
+** xref:high_level/gateway_integration.adoc[Integration with Data Center SDN Gateway]
 * xref:controller.adoc[Alcor Controller]
 //** xref:../apis/index.adoc[API Spec]
 ** API Gateway
@@ -19,6 +20,7 @@
 *** xref:mgmt_services/node_metadata_manager.adoc[Node Metadata Manager]
 *** Security Group Manager
 *** Virtual IP Manager
+*** xref:mgmt_services/gateway_manager.adoc[Gateway Manager]
 //*** xref:private_ip_manager.adoc[Private IP Manager]
 //*** Private IP Manager
 ** xref:db_services/data_store.adoc[Database and Cache Services]
@@ -26,7 +28,6 @@
 *** xref:infra_services/data_plane_manager.adoc[Data-Plane Manager]
 *** xref:infra_services/network_health_monitor.adoc[Network Health Monitor]
 ** xref:mq_services/message_queue_system.adoc[Message Queue Services]
-//*** Gateway Manager
 * https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/table_of_content.adoc[Alcor Control Agent]
 ** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/high_level_design.adoc[High Level Design]
 ** https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/major_components.adoc[Alcor Control Agent Major Components]
