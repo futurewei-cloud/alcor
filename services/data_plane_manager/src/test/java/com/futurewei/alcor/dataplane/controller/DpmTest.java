@@ -18,7 +18,6 @@ package com.futurewei.alcor.dataplane.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.TestConfig;
-import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.web.entity.dataplane.*;
