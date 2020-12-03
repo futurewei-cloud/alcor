@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 //@Component
-@Service("pulsar")
+@Service("pulsarDataPlaneClient")
 public class DataPlaneClientImpl implements DataPlaneClient {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
