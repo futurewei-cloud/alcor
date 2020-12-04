@@ -284,7 +284,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
             subnetIds.add(fixedIp.getSubnetId());
         }
 
-        //getSubnetAndRoute(context, new ArrayList<>(subnetIds));
+        getSubnetAndRoute(context, new ArrayList<>(subnetIds));
     }
 
     private void allocateFixedIpsProcess(PortContext context, List<PortEntity> portEntities, CallbackFunction fetchSubnetCallback) {
@@ -297,9 +297,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
         for (PortEntity portEntity: portEntities){
             List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
-            if (portEntity.isGatewayPort()) {
-                continue;
-            }
+
             if (fixedIps != null) {
                 for (PortEntity.FixedIp fixedIp: fixedIps) {
                     if (fixedIp.getSubnetId() != null) {
@@ -330,13 +328,13 @@ public class FixedIpsProcessor extends AbstractProcessor {
         context.setHasSubnetFixedIps(hasSubnetFixedIps);
         context.setUnassignedIpPorts(noAssignedIpPorts);
 
-        if (subnetIds.size() > 0) {
-            //Get subnet
-            getSubnetEntities(context, new ArrayList<>(subnetIds), true, this::fetchSubnetForAddCallBack);
 
-            //Get subnet route
-            getSubnetRoutes(context, new ArrayList<>(subnetIds));
-        }
+        //Get subnet
+        getSubnetEntities(context, new ArrayList<>(subnetIds), true, this::fetchSubnetForAddCallBack);
+
+        //Get subnet route
+        getSubnetRoutes(context, new ArrayList<>(subnetIds));
+
 
         //Allocate fixed ip addresses
         allocateIpAddresses(context, fixedIpAddresses, this::allocateFixedIpCallback);

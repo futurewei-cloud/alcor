@@ -479,13 +479,11 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
 
         // find routeTable
-        Map<String, String[]> requestParams =  new HashMap<>();
-        String[] value = new String[1];
+        Map<String, Object[]> queryParams =  new HashMap<>();
+        Object[] value = new Object[1];
         value[0] = owner;
-        requestParams.put("owner", value);
+        queryParams.put("owner", value);
 
-        Map<String, Object[]> queryParams =
-                ControllerUtil.transformUrlPathParams(requestParams, RouteTable.class);
         Map<String, RouteTable> routeTableMap = this.routeTableDatabaseService.getAllRouteTables(queryParams);
         List<RouteTable> routeTables = new ArrayList<>(routeTableMap.values());
         if (routeTables == null || routeTables.size() == 0) {
