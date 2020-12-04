@@ -302,6 +302,7 @@ public class SubnetController {
 
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
                 inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
+                inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
@@ -310,8 +311,10 @@ public class SubnetController {
 
                     inSubnetEntity.setGatewayIp(gatewayIP);
                     inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
+                    inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
                 }
             }
+
             if (ipResponse != null && ipResponse.getIpVersion() == 4) {
                 inSubnetEntity.setIpV4RangeId(ipResponse.getRangeId());
             }else if (ipResponse != null &&  ipResponse.getIpVersion() == 6) {
@@ -441,6 +444,7 @@ public class SubnetController {
                     GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
                     subnetEntity.setGatewayPortDetail(gatewayPortDetail);
                     subnetEntity.setGatewayIp(newGatewayIp);
+                    subnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
 
                     // delete port with old gateway port IP & port Id
                     this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
@@ -457,12 +461,11 @@ public class SubnetController {
                 subnetEntity.setRevisionNumber(revisionNumber + 1);
             }
 
+            // update subnet routing rule in route manager
+            this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
 
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
-
-            // update subnet routing rule in route manager
-            this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
 
         } catch (ParameterNullOrEmptyException e) {
             logger.error(e.getMessage());
@@ -516,19 +519,19 @@ public class SubnetController {
                 throw new SubnetBindRoutes();
             }
 
-            this.subnetDatabaseService.deleteSubnet(subnetId);
-
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
             // delete subnet routing rule in route manager
             this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
 
-            // delete gateway port in port manager
-            GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
-            if (gatewayPortDetail != null) {
-                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
-            }
+            // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
+//            GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
+//            if (gatewayPortDetail != null) {
+//                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+//            }
+
+            this.subnetDatabaseService.deleteSubnet(subnetId);
 
         } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
             logger.error(e.getMessage());

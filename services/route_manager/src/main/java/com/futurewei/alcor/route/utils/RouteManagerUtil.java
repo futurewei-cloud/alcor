@@ -148,7 +148,7 @@ public class RouteManagerUtil {
 
         // routeTableType
         String routeTableTypeStr = resource.getRoutetable().getRouteTableType();
-        if (routeTableTypeStr != null && !routeTableTypeStr.equals("public_subnet") && !routeTableTypeStr.equals("private_subnet")) {
+        if (routeTableTypeStr != null && !routeTableTypeStr.equals("public_subnet") && !routeTableTypeStr.equals("private_subnet") && !routeTableTypeStr.equals("neutron_subnet")) {
             return false;
         }
 

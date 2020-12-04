@@ -120,7 +120,7 @@ public class PortEntity extends CustomerResource {
     private boolean macLearningEnabled;
 
     public boolean isGatewayPort () {
-        return deviceOwner != null;
+        return deviceOwner.equals("network:router_interface");
     }
 
     public PortEntity() {
