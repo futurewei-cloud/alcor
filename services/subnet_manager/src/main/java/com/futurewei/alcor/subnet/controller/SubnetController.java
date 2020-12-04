@@ -296,13 +296,15 @@ public class SubnetController {
 //            if (macState != null) {
 //                inSubnetEntity.setGatewayMacAddress(macState.getMacAddress());
 //            }
+            this.subnetDatabaseService.addSubnet(inSubnetEntity);
+
             if (gatewayIpIsInAllocatedRange) {
                 PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, ipResponse.getIp(), ConstantsConfig.DeviceOwner);
                 GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
 
                 inSubnetEntity.setGatewayIp(ipResponse.getIp());
                 inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
-                inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
+                inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
             } else {
                 String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
                 if (gatewayIp != null) {
@@ -311,7 +313,7 @@ public class SubnetController {
 
                     inSubnetEntity.setGatewayIp(gatewayIP);
                     inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
-                    inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
+                    inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
                 }
             }
 
