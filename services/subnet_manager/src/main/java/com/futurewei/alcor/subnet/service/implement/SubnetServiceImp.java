@@ -614,17 +614,4 @@ public class SubnetServiceImp implements SubnetService {
         return portEntity;
     }
 
-    @Override
-    public void removeOldGatewayPortInRM(String projectId, String portId, String routerId) {
-        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/routers/" + routerId + "/remove_router_interface";
-        HttpEntity<RouterInterfaceRequest> routeRequest = new HttpEntity<>(new RouterInterfaceRequest(null, portId));
-        restTemplate.put(routeManagerServiceUrl, routeRequest, RouterInterfaceResponse.class);
-    }
-
-    @Override
-    public void addNewGatewayPortInRM(String projectId, String portId, String routerId) {
-        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/routers/" + routerId + "/add_router_interface";
-        HttpEntity<RouterInterfaceRequest> routeRequest = new HttpEntity<>(new RouterInterfaceRequest(null, portId));
-        restTemplate.put(routeManagerServiceUrl, routeRequest, RouterInterfaceResponse.class);
-    }
 }

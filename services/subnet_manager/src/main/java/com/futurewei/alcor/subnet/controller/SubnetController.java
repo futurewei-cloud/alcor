@@ -432,7 +432,18 @@ public class SubnetController {
             String newGatewayIp = inSubnetWebResponseObject.getGatewayIp();
             if (newGatewayIp == null) {// disable gatewayIP
                 subnetEntity.setGatewayIp(newGatewayIp);
+
+                // delete old gateway port
+                if (oldGatewayIp != null) {
+                    this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
+                }
+
             } else if(!newGatewayIp.equals(oldGatewayIp)){
+
+                String routerId = subnetEntity.getAttachedRouterId();
+                if (routerId == null) {
+                    throw new CanNotUpdateGatewayPort();
+                }
 
                 // check if updated gatewayIp is valid
                 boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(newGatewayIp, subnetEntity.getCidr());
@@ -463,15 +474,6 @@ public class SubnetController {
                 subnetEntity.setRevisionNumber(1);
             } else {
                 subnetEntity.setRevisionNumber(revisionNumber + 1);
-            }
-
-            String routerId = subnetEntity.getAttachedRouterId();
-            if (routerId != null) {
-                // remove old gateway port in RM
-                this.subnetService.removeOldGatewayPortInRM(projectId, oldPortId, routerId);
-
-                // add new gateway port in RM
-                this.subnetService.addNewGatewayPortInRM(projectId, newPortId, routerId);
             }
 
             // update subnet routing rule in route manager

@@ -85,10 +85,4 @@ public interface SubnetService {
 
     // construct port entity passed in PM
     public PortEntity constructPortEntity (String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner);
-
-    // remove old gateway port in RM
-    public void removeOldGatewayPortInRM (String projectId, String portId, String routerId);
-
-    // add new gateway port in RM
-    public void addNewGatewayPortInRM (String projectId, String portId, String routerId);
 }
