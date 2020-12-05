@@ -441,7 +441,7 @@ public class SubnetController {
             } else if(!newGatewayIp.equals(oldGatewayIp)){
 
                 String routerId = subnetEntity.getAttachedRouterId();
-                if (routerId == null) {
+                if (routerId != null) {
                     throw new CanNotUpdateGatewayPort();
                 }
 
