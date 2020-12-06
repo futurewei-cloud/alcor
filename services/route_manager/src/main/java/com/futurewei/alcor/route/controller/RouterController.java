@@ -230,7 +230,7 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
 
             // send InternalRouterInfo contract to DPM
-            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -451,7 +451,7 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
-            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
@@ -491,8 +491,6 @@ public class RouterController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            routerId = this.routerService.deleteSubnetRouteTable(projectid, subnetid);
-
             // sub-level routing rule update
             NewRoutesWebRequest newRoutes = new NewRoutesWebRequest();
             List<NewRoutesRequest> routes = new ArrayList<>();
@@ -505,13 +503,15 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
-            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
                 throw new HostRoutesToSubnetIsNull();
             }
             this.vpcRouterToSubnetService.updateRoutingRuleInSubnetManager(projectid, subnetid, hostRouteToSubnet);
+
+            routerId = this.routerService.deleteSubnetRouteTable(projectid, subnetid);
 
         } catch (ParameterNullOrEmptyException | HostRoutesToSubnetIsNull e) {
             throw e;

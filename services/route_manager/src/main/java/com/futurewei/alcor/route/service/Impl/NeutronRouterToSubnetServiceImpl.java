@@ -44,7 +44,7 @@ public class NeutronRouterToSubnetServiceImpl implements NeutronRouterToSubnetSe
 
     @Override
     public SubnetsWebJson getSubnetsByPortId(String projectid, String portId) {
-        String subnetManagerServiceUrl = subnetUrl + "/project/" + projectid + "/subnets?port_id=" + portId;
+        String subnetManagerServiceUrl = subnetUrl + "/project/" + projectid + "/subnets?gatewayPortId=" + portId;
         SubnetsWebJson response = restTemplate.getForObject(subnetManagerServiceUrl, SubnetsWebJson.class);
         return response;
     }
