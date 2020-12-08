@@ -432,7 +432,18 @@ public class SubnetController {
             String newGatewayIp = inSubnetWebResponseObject.getGatewayIp();
             if (newGatewayIp == null) {// disable gatewayIP
                 subnetEntity.setGatewayIp(newGatewayIp);
+
+                // delete old gateway port
+                if (oldGatewayIp != null) {
+                    this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
+                }
+
             } else if(!newGatewayIp.equals(oldGatewayIp)){
+
+                String routerId = subnetEntity.getAttachedRouterId();
+                if (routerId != null) {
+                    throw new CanNotUpdateGatewayPort();
+                }
 
                 // check if updated gatewayIp is valid
                 boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(newGatewayIp, subnetEntity.getCidr());
@@ -449,7 +460,9 @@ public class SubnetController {
                     subnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId()); // -tem
 
                     // delete port with old gateway port IP & port Id
-                    this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
+                    if (oldGatewayIp != null) {
+                        this.subnetToPortManagerService.deleteGatewayPort(projectId,oldPortId);
+                    }
                 } else {
                     throw new GatewayIpUnsupported();
                 }
@@ -510,10 +523,10 @@ public class SubnetController {
             } else {
                 rangeId = ipV6RangeId;
             }
-            Boolean checkIfAnyPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
-            if (checkIfAnyPortInSubnet) {
-                throw new HavePortInSubnet();
-            }
+//            Boolean checkIfAnyPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
+//            if (checkIfAnyPortInSubnet) {
+//                throw new HavePortInSubnet();
+//            }
 
             // check if subnet bind any routes
             Boolean checkIfSubnetBindAnyRoutes = this.subnetService.checkIfSubnetBindAnyRoutes(subnetEntity);
@@ -528,10 +541,10 @@ public class SubnetController {
             this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
 
             // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
-//            GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
-//            if (gatewayPortDetail != null) {
-//                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
-//            }
+            GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
+            if (gatewayPortDetail != null) {
+                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+            }
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 

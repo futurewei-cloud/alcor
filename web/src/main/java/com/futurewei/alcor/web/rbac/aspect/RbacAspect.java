@@ -124,12 +124,12 @@ public class RbacAspect {
             } catch (ResourceNotFoundException e) {
                 throw new NotFoundException(e.getMessage());
             }
-        } else if (GET_METHDO_NAME.equals(methodType)){
-            String uri = request.getRequestURI();
-            String projectId =  uri.split("/")[2];
-            TokenEntity tokenEntity = new TokenEntity();
-            tokenEntity.setProjectId(projectId);
-            processAdminQuery(resourceName, tokenEntity);
+//        } else if (GET_METHDO_NAME.equals(methodType)){
+//            String uri = request.getRequestURI();
+//            String projectId =  uri.split("/")[2];
+//            TokenEntity tokenEntity = new TokenEntity();
+//            tokenEntity.setProjectId(projectId);
+//            processAdminQuery(resourceName, tokenEntity);
         }
 
         // execute real controller method

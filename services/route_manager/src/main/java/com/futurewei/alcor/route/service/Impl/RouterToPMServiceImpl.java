@@ -16,11 +16,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
-import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
 import com.futurewei.alcor.route.service.RouterToPMService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
+import com.futurewei.alcor.web.entity.port.PortWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -72,5 +73,12 @@ public class RouterToPMServiceImpl implements RouterToPMService {
 
 
         return subnetIds;
+    }
+
+    @Override
+    public void updatePort(String projectid, String portId, PortEntity portEntity) {
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports/" + portId;
+        HttpEntity<PortWebJson> request = new HttpEntity<>(new PortWebJson(portEntity));
+        restTemplate.put(portManagerServiceUrl, request, PortWebJson.class);
     }
 }
