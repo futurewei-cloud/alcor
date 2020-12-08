@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
+import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -116,6 +117,8 @@ public class SubnetControllerTests {
                 .thenReturn(new String[2]);
         Mockito.when(subnetToPortManagerService.createGatewayPort(anyString(), any(PortEntity.class)))
                 .thenReturn(new GatewayPortDetail(UnitTestConfig.macAddress, UnitTestConfig.gatewayPortId));
+        Mockito.when(subnetService.constructPortEntity(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new PortEntity());
 
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.resource))
@@ -268,6 +271,8 @@ public class SubnetControllerTests {
                 .thenThrow(new FallbackException("fallback request"));
         Mockito.when(subnetToPortManagerService.createGatewayPort(anyString(), any(PortEntity.class)))
                 .thenReturn(new GatewayPortDetail(UnitTestConfig.macAddress, UnitTestConfig.gatewayPortId));
+        Mockito.when(subnetService.constructPortEntity(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new PortEntity());
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.resource))
@@ -311,6 +316,8 @@ public class SubnetControllerTests {
                 .thenReturn(new String[2]);
         Mockito.when(subnetToPortManagerService.createGatewayPort(anyString(), any(PortEntity.class)))
                 .thenReturn(new GatewayPortDetail(UnitTestConfig.macAddress, UnitTestConfig.gatewayPortId));
+        Mockito.when(subnetService.constructPortEntity(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new PortEntity());
         try {
             this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
                     .content(UnitTestConfig.invalidCidrResource))

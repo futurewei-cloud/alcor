@@ -37,7 +37,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 //@Component
-@Service("grpc")
+@Service("grpcDataPlaneClient")
 public class DataPlaneClientImpl implements DataPlaneClient {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 

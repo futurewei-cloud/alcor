@@ -18,8 +18,6 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.util.List;
 
@@ -34,8 +32,8 @@ public class NeutronRouterWebRequestObject extends CustomerResource {
     private String owner;
 
     // store subnet_gateway_port_id / interface
-    @JsonProperty("ports")
-    private List<String> ports;
+    @JsonProperty("gateway_ports")
+    private List<String> gatewayPorts;
 
     @JsonProperty("tenant_id")
     private String tenantId;
@@ -78,11 +76,11 @@ public class NeutronRouterWebRequestObject extends CustomerResource {
 
     public NeutronRouterWebRequestObject () {}
 
-    public NeutronRouterWebRequestObject(String projectId, String id, String name, String description, RouteTable routeTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, ExternalGateway external_gateway_info, Integer revisionNumber, boolean distributed, boolean ha, List<String> availabilityZoneHints, List<String> availabilityZones, String serviceTypeId, String flavorId, List<String> tags, List<String> conntrackHelpers) {
+    public NeutronRouterWebRequestObject(String projectId, String id, String name, String description, RouteTable routeTable, String owner, List<String> gatewayPorts, String tenantId, boolean adminStateUp, String status, ExternalGateway external_gateway_info, Integer revisionNumber, boolean distributed, boolean ha, List<String> availabilityZoneHints, List<String> availabilityZones, String serviceTypeId, String flavorId, List<String> tags, List<String> conntrackHelpers) {
         super(projectId, id, name, description);
         this.routeTable = routeTable;
         this.owner = owner;
-        this.ports = ports;
+        this.gatewayPorts = gatewayPorts;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
         this.status = status;

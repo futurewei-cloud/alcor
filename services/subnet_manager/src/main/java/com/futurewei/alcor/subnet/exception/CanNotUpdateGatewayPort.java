@@ -13,27 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
+package com.futurewei.alcor.subnet.exception;
 
-package com.futurewei.alcor.dataplane;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-@SpringBootApplication
-@EnableAsync
-public class DataPlaneManager {
-
-  public static void main(String[] args) {
-    SpringApplication.run(DataPlaneManager.class, args);
-  }
-
-  @Bean
-  public Executor getExecutor() {
-    return Executors.newCachedThreadPool();
-  }
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Can not update gateway port, since attached_router_id in the subnet is null")
+public class CanNotUpdateGatewayPort extends Exception {
 }

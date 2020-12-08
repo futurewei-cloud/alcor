@@ -119,10 +119,6 @@ public class PortEntity extends CustomerResource {
     @JsonProperty("mac_learning_enabled")
     private boolean macLearningEnabled;
 
-    public boolean isGatewayPort () {
-        return deviceOwner != null;
-    }
-
     public PortEntity() {
     }
 

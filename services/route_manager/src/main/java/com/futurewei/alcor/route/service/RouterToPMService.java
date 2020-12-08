@@ -17,11 +17,13 @@ package com.futurewei.alcor.route.service;
 
 import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
 import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.List;
 
 public interface RouterToPMService {
 
     public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull;
+    public void updatePort (String projectid, String portId, PortEntity portEntity);
 
 }
