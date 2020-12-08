@@ -54,6 +54,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     @Autowired
     private RouteTableDatabaseService routeTableDatabaseService;
 
+    @Autowired
+    private RouterToPMService routerToPMService;
+
+
     @Override
     public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable {
         NeutronRouterWebRequestObject neutronRouterWebRequestObject = new NeutronRouterWebRequestObject();
@@ -173,11 +177,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         subnet.setAttachedRouterId(routerId);
 
-        // update device_id and device_owner
+        // update device_id and device_owner in PM
         PortEntity portEntity = new PortEntity();
         portEntity.setDeviceId(routerId);
         portEntity.setDeviceOwner("network:router_interface");
         subnet.setPort(portEntity);
+
+        this.routerToPMService.updatePort(projectid, portId, portEntity);
 
         // update subnet
         this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
@@ -306,6 +312,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         portEntity.setDeviceId(null);
         portEntity.setDeviceOwner(null);
         subnet.setPort(portEntity);
+
+        this.routerToPMService.updatePort(projectid, portId, portEntity);
 
         // update subnet
         this.routerToSubnetService.updateSubnet(projectId, subnetid, subnet);
