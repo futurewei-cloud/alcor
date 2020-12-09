@@ -81,4 +81,10 @@ public class RouterToPMServiceImpl implements RouterToPMService {
         HttpEntity<PortWebJson> request = new HttpEntity<>(new PortWebJson(portEntity));
         restTemplate.put(portManagerServiceUrl, request, PortWebJson.class);
     }
+
+    @Override
+    public void updateL3Neighbors(String projectid, List<String> gatewayPorts) {
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/update-l3-neighbors";
+        //restTemplate.put(portManagerServiceUrl, request, PortWebJson.class);
+    }
 }

@@ -523,8 +523,10 @@ public class SubnetController {
             } else {
                 rangeId = ipV6RangeId;
             }
-//            Boolean checkIfAnyPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
-//            if (checkIfAnyPortInSubnet) {
+
+            // TODO: check if there is any gateway / non-gateway port for the subnet, waiting for PM new API
+//            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
+//            if (checkIfAnyNoneGatewayPortInSubnet) {
 //                throw new HavePortInSubnet();
 //            }
 
