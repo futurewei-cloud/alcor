@@ -108,10 +108,10 @@ public class DpmServiceImpl implements DpmService {
                     networkConfig, hostIp, portEntities, multicastGoalState));
         }
 
-        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
-    private List<String> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
 
@@ -144,20 +144,20 @@ public class DpmServiceImpl implements DpmService {
                     networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
 
-        localCache.addSubnetPorts(networkConfig);
+        localCache.updateLocalCache(networkConfig);
 
         return statusList;
     }
 
-    private List<String> createNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
         return null;
     }
 
-    private List<String> createSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
         return null;
     }
 
-    private List<String> createRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         if (internalRouterInfos == null) {
             throw new RouterInfoInvalid();
@@ -203,7 +203,7 @@ public class DpmServiceImpl implements DpmService {
                 }).collect(Collectors.toList());
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        return grpcDataPlaneClient.createGoalStates(unicastGoalStates);
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
@@ -231,23 +231,22 @@ public class DpmServiceImpl implements DpmService {
         return result;
     }
 
-    @Override
-    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts;
 
         switch (networkConfig.getRsType()) {
             case PORT:
-                failedHosts = createPortConfiguration(networkConfig);
+                failedHosts = processPortConfiguration(networkConfig);
                 break;
             case NEIGHBOR:
-                failedHosts = createNeighborConfiguration(networkConfig);
+                failedHosts = processNeighborConfiguration(networkConfig);
                 break;
             case SECURITYGROUP:
-                failedHosts = createSecurityGroupConfiguration(networkConfig);
+                failedHosts = processSecurityGroupConfiguration(networkConfig);
                 break;
             case ROUTER:
-                failedHosts = createRouterConfiguration(networkConfig);
+                failedHosts = processRouterConfiguration(networkConfig);
                 break;
             default:
                 throw new UnknownResourceType();
@@ -257,12 +256,17 @@ public class DpmServiceImpl implements DpmService {
     }
 
     @Override
-    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
     }
 
     @Override
-    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
+    }
+
+    @Override
+    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
     }
 }

@@ -8,4 +8,5 @@ public interface LocalCache {
     void updateSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
     void deleteSubnetPorts(NetworkConfiguration networkConfig);
     InternalSubnetPorts getSubnetPorts(String subnetId) throws Exception;
+    void updateLocalCache(NetworkConfiguration networkConfig) throws Exception;
 }

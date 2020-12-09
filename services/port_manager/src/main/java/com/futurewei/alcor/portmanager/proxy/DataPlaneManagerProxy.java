@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.CreateNetworkConfigRollback;
 import com.futurewei.alcor.portmanager.rollback.DeleteNetworkConfigRollback;
 import com.futurewei.alcor.portmanager.rollback.Rollback;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import java.util.Stack;
 

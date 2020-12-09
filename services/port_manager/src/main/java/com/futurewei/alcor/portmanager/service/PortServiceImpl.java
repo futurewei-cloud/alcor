@@ -24,7 +24,7 @@ import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
@@ -208,22 +208,26 @@ public class PortServiceImpl implements PortService {
         return result;
     }
 
-    private List<NeighborEntry> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
-        List<NeighborEntry> neighborTable = new ArrayList<>();
+    private Map<String, List<NeighborEntry>> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
+        Map<String, List<NeighborEntry>> neighborTable = new HashMap<>();
         for (NeighborInfo localNeighborInfo: localNeighborInfos) {
+            List<NeighborEntry> neighborEntries = new ArrayList<>();
             for (NeighborInfo l3Neighbor: l3Neighbors) {
                 NeighborEntry neighborEntry = new NeighborEntry();
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
                 neighborEntry.setLocalIp(localNeighborInfo.getPortIp());
                 neighborEntry.setNeighborIp(l3Neighbor.getPortIp());
-                neighborTable.add(neighborEntry);
+                neighborEntries.add(neighborEntry);
             }
+
+            String portIp = localNeighborInfo.getPortIp();
+            neighborTable.put(portIp, neighborEntries);
         }
 
         return neighborTable;
     }
 
-    private List<NeighborEntry> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, List<NeighborInfo> neighborInfos) throws CacheException {
+    private Map<String, List<NeighborEntry>> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, Map<String, NeighborInfo> neighborInfos) throws CacheException {
         String vpcId = routerUpdateInfo.getVpcId();
         String subnetId = routerUpdateInfo.getSubnetId();
         List<String> oldSubnetIds = routerUpdateInfo.getOldSubnetIds();
@@ -237,10 +241,10 @@ public class PortServiceImpl implements PortService {
             NeighborInfo neighborInfo = entry.getValue();
             if (subnetId.equals(neighborInfo.getSubnetId())) {
                 localNeighborInfos.add(neighborInfo);
-                neighborInfos.add(neighborInfo);
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
             }else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
                 l3Neighbors.add(neighborInfo);
-                neighborInfos.add(neighborInfo);
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
             }
         }
 
@@ -250,8 +254,8 @@ public class PortServiceImpl implements PortService {
     @Override
     @DurationStatistics
     public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
-        List<NeighborInfo> neighborInfos = new ArrayList<>();
-        List<NeighborEntry> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
+        Map<String, NeighborInfo> neighborInfos = new HashMap<>();
+        Map<String, List<NeighborEntry>> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
 
         if (neighborTable.size() > 0) {
             NetworkConfiguration networkConfiguration = new NetworkConfiguration();
