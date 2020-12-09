@@ -29,8 +29,8 @@ public class RouterUpdateInfo {
     @JsonProperty("operation_type")
     private String operationType;
 
-    @JsonProperty("old_subnet_ids")
-    private List<String> oldSubnetIds;
+    @JsonProperty("gateway_port_ids")
+    private List<String> gatewayPortIds;
 
     public enum OperationType {
         ADD("add"),
@@ -55,11 +55,11 @@ public class RouterUpdateInfo {
 
     }
 
-    public RouterUpdateInfo(String vpcId, String subnetId, String operationType, List<String> oldSubnetIds) {
+    public RouterUpdateInfo(String vpcId, String subnetId, String operationType, List<String> gatewayPortIds) {
         this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.operationType = operationType;
-        this.oldSubnetIds = oldSubnetIds;
+        this.gatewayPortIds = gatewayPortIds;
     }
 
     public String getVpcId() {
@@ -86,11 +86,11 @@ public class RouterUpdateInfo {
         this.operationType = operationType;
     }
 
-    public List<String> getOldSubnetIds() {
-        return oldSubnetIds;
+    public List<String> getGatewayPortIds() {
+        return gatewayPortIds;
     }
 
-    public void setOldSubnetIds(List<String> oldSubnetIds) {
-        this.oldSubnetIds = oldSubnetIds;
+    public void setGatewayPortIds(List<String> gatewayPortIds) {
+        this.gatewayPortIds = gatewayPortIds;
     }
 }

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -230,7 +231,29 @@ public class PortServiceImpl implements PortService {
     private Map<String, List<NeighborEntry>> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, Map<String, NeighborInfo> neighborInfos) throws CacheException {
         String vpcId = routerUpdateInfo.getVpcId();
         String subnetId = routerUpdateInfo.getSubnetId();
-        List<String> oldSubnetIds = routerUpdateInfo.getOldSubnetIds();
+        List<String> gatewayPortIds = routerUpdateInfo.getGatewayPortIds();
+        List<String> gatewaySubnetIds = new ArrayList<>();
+
+        Map<String, Object[]> filterParams = new HashMap<>();
+        filterParams.put("id", gatewayPortIds.toArray());
+        Map<String, PortEntity> gatewayPortEntities = portRepository.findAllPortEntities(filterParams);
+        if (gatewayPortEntities != null) {
+            for (Map.Entry<String, PortEntity> entry: gatewayPortEntities.entrySet()) {
+                PortEntity portEntity = entry.getValue();
+                List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
+                if (fixedIps == null) {
+                    LOG.warn("Can not find fixedIp of gateway port: {}", portEntity);
+                    continue;
+                }
+
+                for (PortEntity.FixedIp fixedIp: fixedIps) {
+                    String subnetId1 = fixedIp.getSubnetId();
+                    if (!StringUtils.isEmpty(subnetId1)) {
+                        gatewaySubnetIds.add(subnetId1);
+                    }
+                }
+            }
+        }
 
         Map<String, NeighborInfo> neighbors = portRepository.getNeighbors(vpcId);
 
@@ -242,7 +265,7 @@ public class PortServiceImpl implements PortService {
             if (subnetId.equals(neighborInfo.getSubnetId())) {
                 localNeighborInfos.add(neighborInfo);
                 neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
-            }else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
+            }else if (gatewaySubnetIds.contains(neighborInfo.getSubnetId())) {
                 l3Neighbors.add(neighborInfo);
                 neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
             }
