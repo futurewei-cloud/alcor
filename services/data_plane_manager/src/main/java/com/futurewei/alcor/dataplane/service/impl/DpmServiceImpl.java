@@ -19,12 +19,16 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.service.DpmService;
+import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.web.entity.dataplane.*;
+import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class DpmServiceImpl implements DpmService {
+    private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImpl.class);
+    private static final boolean USE_PULSAR_CLIENT = false;
+
     private int goalStateMessageVersion;
 
     @Autowired
@@ -91,6 +98,8 @@ public class DpmServiceImpl implements DpmService {
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
+        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
+        multicastGoalState.setGoalStateBuilder(null);
 
         return unicastGoalState;
     }
@@ -150,7 +159,79 @@ public class DpmServiceImpl implements DpmService {
     }
 
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        return null;
+        Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
+        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
+        MulticastGoalState multicastGoalState = new MulticastGoalState();
+
+        if (neighborTable == null || neighborInfos == null) {
+            throw new NeighborInfoNotFound();
+        }
+
+        Map<String, List<NeighborInfo>> hostNeighbors = new HashMap<>();
+        for (Map.Entry<String, List<NeighborEntry>> entry: neighborTable.entrySet()) {
+            String portIp = entry.getKey();
+            NeighborInfo localInfo = neighborInfos.get(portIp);
+            if (localInfo == null) {
+                throw new NeighborInfoNotFound();
+            }
+
+            String hostIp = localInfo.getHostIp();
+            if (!hostNeighbors.containsKey(hostIp)) {
+                hostNeighbors.put(hostIp, new ArrayList<>());
+            }
+
+            List<NeighborEntry> neighborEntries = entry.getValue();
+            for (NeighborEntry neighborEntry: neighborEntries) {
+                String neighborIp = neighborEntry.getNeighborIp();
+                NeighborInfo neighborInfo = neighborInfos.get(neighborIp);
+                if (neighborInfo == null) {
+                    throw new NeighborInfoNotFound();
+                }
+
+                hostNeighbors.get(hostIp).add(neighborInfo);
+                multicastGoalState.getHostIps().add(neighborInfo.getHostIp());
+            }
+
+            //Add neighborInfo to multicastGoalState
+            Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
+                    NeighborType.L3, localInfo, networkConfig.getOpType());
+            multicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+        }
+
+        for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
+            String hostIp = entry.getKey();
+            List<NeighborInfo> hostNeighborInfos = entry.getValue();
+
+            /**
+             * At present, there are only L3 neighbors in the neighbor table,
+             * and the processing of L2 neighbors should be considered in the future.
+             */
+            for (NeighborInfo neighborInfo: hostNeighborInfos) {
+                Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
+                        NeighborType.L3,
+                        neighborInfo,
+                        networkConfig.getOpType());
+
+                UnicastGoalState unicastGoalState = new UnicastGoalState();
+                unicastGoalState.setHostIp(neighborInfo.getHostIp());
+                unicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+                unicastGoalStates.add(unicastGoalState);
+            }
+        }
+
+        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
+        multicastGoalState.setGoalStateBuilder(null);
+        unicastGoalStates.stream().forEach(u -> {
+            u.setGoalState(u.getGoalStateBuilder().build());
+            u.setGoalStateBuilder(null);
+        });
+
+        if (USE_PULSAR_CLIENT) {
+            return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        }
+
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {

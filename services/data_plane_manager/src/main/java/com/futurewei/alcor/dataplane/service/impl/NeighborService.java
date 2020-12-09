@@ -31,7 +31,7 @@ import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
-    public Neighbor.NeighborState buildNeighborState(NeighborEntry neighborEntry, NeighborInfo neighborInfo, Common.OperationType operationType) {
+    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         //neighborConfigBuilder.setId(); // TODO: We are going to need this per latest ACA change
@@ -39,7 +39,7 @@ public class NeighborService extends ResourceService {
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
         neighborConfigBuilder.setHostIpAddress(neighborInfo.getHostIp());
-        Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(neighborEntry.getNeighborType().getType());
+        Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(type.getType());
 
         //TODO:setNeighborHostDvrMac
         //neighborConfigBuilder.setNeighborHostDvrMac();
@@ -100,7 +100,7 @@ public class NeighborService extends ResourceService {
                     }
 
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
-                            neighborEntry, neighborInfo, networkConfig.getOpType()));
+                            neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
                 }
 
                 multicastNeighborEntries.addAll(neighborEntries);
@@ -123,7 +123,7 @@ public class NeighborService extends ResourceService {
 
             if (!neighborInfoSet.contains(neighborInfo1)) {
                 multicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
-                        neighborEntry, neighborInfo1, networkConfig.getOpType()));
+                        neighborEntry.getNeighborType(), neighborInfo1, networkConfig.getOpType()));
                 neighborInfoSet.add(neighborInfo1);
             }
         }
