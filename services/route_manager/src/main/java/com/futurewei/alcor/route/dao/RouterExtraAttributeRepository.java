@@ -71,25 +71,29 @@ public class RouterExtraAttributeRepository implements ICacheRepository<RouterEx
 
     @Override
     @DurationStatistics
-    public void addItem(RouterExtraAttribute routerExtraAttribute) throws Exception {
+    public void addItem(RouterExtraAttribute routerExtraAttribute) throws CacheException {
         try (Transaction tx = cache.getTransaction().start()) {
 
             logger.log(Level.INFO, "Add router extra attribute, router extra attribute Id:" + routerExtraAttribute.getId());
             cache.put(routerExtraAttribute.getId(), routerExtraAttribute);
 
             tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
         }
     }
 
     @Override
     @DurationStatistics
-    public void deleteItem(String id) throws Exception {
+    public void deleteItem(String id) throws CacheException {
         try (Transaction tx = cache.getTransaction().start()) {
 
             logger.log(Level.INFO, "Delete router extra attribute, router extra attribute Id:" + id);
             cache.remove(id);
 
             tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
         }
     }
 }
