@@ -118,7 +118,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     @Override
-    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
@@ -156,10 +156,10 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     @Override
-    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        failedHosts.addAll(createGoalStates(unicastGoalStates));
+        failedHosts.addAll(sendGoalStates(unicastGoalStates));
         failedHosts.addAll(createGoalState(multicastGoalState));
 
         return failedHosts;

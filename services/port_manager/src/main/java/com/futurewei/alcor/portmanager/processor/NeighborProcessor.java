@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
-import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.request.FetchPortNeighborRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -27,19 +26,15 @@ import java.util.stream.Collectors;
 @AfterProcessor(PortProcessor.class)
 public class NeighborProcessor extends AbstractProcessor {
     private void fetchPortNeighborCallback(IRestRequest request) {
-        List<PortNeighbors> portNeighborsList = ((FetchPortNeighborRequest) request).getPortNeighborsList();
-        if (portNeighborsList == null || portNeighborsList.size() == 0) {
+        Map<String, NeighborInfo> neighborInfoMap = ((FetchPortNeighborRequest) request).getNeighborInfos();
+        if (neighborInfoMap == null || neighborInfoMap.size() == 0) {
             return;
         }
 
-        List<NeighborInfo> neighborInfos = new ArrayList<>();
-        for (PortNeighbors portNeighbors: portNeighborsList) {
-            if (portNeighbors.getNeighbors() == null ||
-                    portNeighbors.getNeighbors().size() == 0) {
-                continue;
-            }
-
-            neighborInfos.addAll(portNeighbors.getNeighbors().values());
+        Map<String, NeighborInfo> neighborInfos = new HashMap<>();
+        for (Map.Entry<String, NeighborInfo> entry: neighborInfoMap.entrySet()) {
+            NeighborInfo neighborInfo = entry.getValue();
+            neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
         }
 
         NetworkConfig networkConfig = request.getContext().getNetworkConfig();

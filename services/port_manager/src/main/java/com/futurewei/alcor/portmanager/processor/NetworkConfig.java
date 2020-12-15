@@ -24,7 +24,9 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NetworkConfig {
     private List<InternalPortEntity> portEntities;
@@ -35,9 +37,11 @@ public class NetworkConfig {
 
     private List<SecurityGroup> securityGroups;
 
-    private List<NeighborInfo> neighborInfos;
+    //Key: portIp, value: Neighbor information for port
+    private Map<String, NeighborInfo> neighborInfos;
 
-    private List<NeighborEntry> neighborTable;
+    //Key: portIp, value: All neighbor information for port
+    private Map<String, List<NeighborEntry>> neighborTable;
 
     private List<InternalRouterInfo> routerInfos;
 
@@ -108,23 +112,28 @@ public class NetworkConfig {
         this.securityGroups = securityGroups;
     }
 
-    public List<NeighborInfo> getNeighborInfos() {
+    public Map<String, NeighborInfo> getNeighborInfos() {
         return this.neighborInfos;
     }
 
-    public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+    public void setNeighborInfos(Map<String, NeighborInfo> neighborInfos) {
         this.neighborInfos = neighborInfos;
     }
 
-    public List<NeighborEntry> getNeighborTable() {
+    public Map<String, List<NeighborEntry>> getNeighborTable() {
         return this.neighborTable;
     }
 
-    public void addNeighborEntries(List<NeighborEntry> neighborEntries) {
+    public void addNeighborEntries(String portIp, List<NeighborEntry> neighborEntries) {
         if (this.neighborTable == null) {
-            this.neighborTable = new ArrayList<>();
+            this.neighborTable = new HashMap<>();
         }
-        this.neighborTable.addAll(neighborEntries);
+
+        if (!this.neighborTable.containsKey(portIp)) {
+            this.neighborTable.put(portIp, new ArrayList<>());
+        }
+
+        this.neighborTable.get(portIp).addAll(neighborEntries);
     }
 
     public List<InternalRouterInfo> getRouterInfos() {
