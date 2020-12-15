@@ -15,26 +15,25 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.request;
 
-import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.processor.PortContext;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FetchPortNeighborRequest extends AbstractRequest {
     private List<String> vpcIds;
-    private List<PortNeighbors> portNeighborsList;
+    private Map<String, NeighborInfo> neighborInfos;
 
     public FetchPortNeighborRequest(PortContext context, List<String> vpcIds) {
         super(context);
         this.vpcIds = vpcIds;
-        this.portNeighborsList = new ArrayList<>();
+        this.neighborInfos = new HashMap<>();
     }
 
-    public List<PortNeighbors> getPortNeighborsList() {
-        return portNeighborsList;
+    public Map<String, NeighborInfo> getNeighborInfos() {
+        return neighborInfos;
     }
 
     @Override
@@ -42,8 +41,7 @@ public class FetchPortNeighborRequest extends AbstractRequest {
         for (String vpcId: vpcIds) {
             Map<String, NeighborInfo> neighbors = context.getPortRepository().getNeighbors(vpcId);
             if (neighbors != null && neighbors.size() > 0) {
-                PortNeighbors portNeighbors = new PortNeighbors(vpcId, neighbors);
-                portNeighborsList.add(portNeighbors);
+                neighborInfos.putAll(neighbors);
             }
         }
     }

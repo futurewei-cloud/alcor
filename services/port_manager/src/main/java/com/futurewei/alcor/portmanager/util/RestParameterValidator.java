@@ -144,8 +144,8 @@ public class RestParameterValidator {
             throw new OperationTypeInvalid();
         }
 
-        if (routerUpdateInfo.getOldSubnetIds() == null) {
-            routerUpdateInfo.setOldSubnetIds(new ArrayList<>());
+        if (routerUpdateInfo.getGatewayPortIds() == null) {
+            routerUpdateInfo.setGatewayPortIds(new ArrayList<>());
         }
     }
 }

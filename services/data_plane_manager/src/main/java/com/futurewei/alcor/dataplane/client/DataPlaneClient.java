@@ -26,7 +26,7 @@ import java.util.Map;
 
 @Component
 public interface DataPlaneClient {
-    List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
-    List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates,
-                                  MulticastGoalState multicastGoalState) throws Exception;
+    List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
+    List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates,
+                                MulticastGoalState multicastGoalState) throws Exception;
 }
