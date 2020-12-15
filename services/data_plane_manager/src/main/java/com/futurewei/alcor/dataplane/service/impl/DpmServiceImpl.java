@@ -120,6 +120,19 @@ public class DpmServiceImpl implements DpmService {
         return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
+    /**
+     * This method processes the network configuration where the resource type is PORT.
+     * The NetworkConfiguration may contain multiple port entities, and these port
+     * entities may need to be sent to multiple hosts, Other configurations related to port
+     * also need to be processed, such as routing configuration and neighbor configuration.
+     * Here we build one UnicastGoalState for each host and put the information that it needs
+     * into it. If the same information needs to be sent to multiple host, in order to
+     * improve the transmission performance, only one MulticastGoalState is constructed and
+     * broadcast it to the all target  hosts.
+     * @param networkConfig The networkConfig may contain multiple port entities and related Configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
     private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
@@ -158,6 +171,14 @@ public class DpmServiceImpl implements DpmService {
         return statusList;
     }
 
+    /**
+     * This method get neighbor information from NetworkConfiguration, then build one
+     * UnicastGoalState for each host and fill in the neighbor information it needs,
+     * and finally send all UnicastGoalState to the relevant hosts.
+     * @param networkConfig Network configuration with neighbor configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
@@ -238,6 +259,16 @@ public class DpmServiceImpl implements DpmService {
         return null;
     }
 
+    /**
+     * This method get the subnet routing configuration from the NetworkConfiguration,
+     * then find the host information of all the virtual machines under the subnet from
+     * the local cache according to the subnet id, build one UnicastGoalState for each
+     * host and fill it with the routing information it needs, and finally send all the
+     * UnicastGoalState to the relevant hosts.
+     * @param networkConfig Network configuration with router configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
     private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         if (internalRouterInfos == null) {
