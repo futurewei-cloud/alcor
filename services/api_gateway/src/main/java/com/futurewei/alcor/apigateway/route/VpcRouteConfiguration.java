@@ -57,26 +57,11 @@ public class VpcRouteConfiguration {
     @Value("${microservices.vpc.service.url}")
     private String vpcUrl;
 
-    @Autowired
-    HttpServletRequest request;
-
     @Bean
     public RouteLocator vpcRouteLocator(RouteLocatorBuilder builder){
         String serviceName="ApiGW";
         Map<String,String> headers=new HashMap();
-        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-        while(stringIterator.hasNext())
-        {
-            String name = stringIterator.next();
-            String value=request.getHeader(name);
-            headers.put(name,value);
-        }
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-            headers.put(header, request.getHeader(header));
-        }
         Tracer.SpanBuilder spanBuilder = null;
         SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
         if (null == parentSpanContext) {
@@ -122,3 +107,4 @@ public class VpcRouteConfiguration {
         return null;
     }
 }
+
