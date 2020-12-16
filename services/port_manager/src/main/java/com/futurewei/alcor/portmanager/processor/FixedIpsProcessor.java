@@ -357,8 +357,6 @@ public class FixedIpsProcessor extends AbstractProcessor {
         List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
 
         if (newFixedIps != null && newFixedIps.size() > 0) {
-            oldPortEntity.setFixedIps(newFixedIps);
-
             List<PortEntity.FixedIp> commonFixedIps = ArrayUtil.findCommonItems(newFixedIps, oldFixedIps);
 
             //Allocate new ip addresses

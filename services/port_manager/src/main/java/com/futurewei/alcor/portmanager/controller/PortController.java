@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.web.entity.port.SubnetPortIds;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
@@ -220,5 +221,17 @@ public class PortController {
                                               @RequestBody RouterUpdateInfo routerUpdateInfo) throws Exception {
         checkRouterSubnetUpdateInfo(routerUpdateInfo);
         return portService.updateL3Neighbors(projectId, routerUpdateInfo);
+    }
+
+    @Rbac(resource ="port")
+    @GetMapping({"/project/{project_id}/get-subnet-ports/{subnet_id}", "v4/{project_id}/get-subnet-ports/{subnet_id}"})
+    @DurationStatistics
+    public SubnetPortIds getSubnetPorts(@PathVariable("project_id") String projectId,
+                                        @PathVariable("subnet_id") String subnetId) throws Exception {
+        if (StringUtil.isNullOrEmpty(subnetId)) {
+            throw new SubnetIdInvalid();
+        }
+
+        return portService.getSubnetPorts(projectId, subnetId);
     }
 }
