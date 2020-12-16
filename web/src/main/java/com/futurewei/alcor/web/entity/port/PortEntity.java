@@ -536,7 +536,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingHostId(String bindingHostId) {
-        this.bindingHostId = bindingHostId;
+        if (bindingHostId == null) {
+            this.bindingHostId = "";
+        } else {
+            this.bindingHostId = bindingHostId;
+        }
     }
 
     public BindingProfile getBindingProfile() {
@@ -560,7 +564,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingVifType(String bindingVifType) {
-        this.bindingVifType = bindingVifType;
+        if (bindingVifType == null) {
+            this.bindingVifType = "";
+        } else {
+            this.bindingVifType = bindingVifType;
+        }
     }
 
     public String getBindingVnicType() {
@@ -568,7 +576,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingVnicType(String bindingVnicType) {
-        this.bindingVnicType = bindingVnicType;
+        if (bindingVnicType == null) {
+            this.bindingVnicType = "";
+        } else {
+            this.bindingVnicType = bindingVnicType;
+        }
     }
 
     public String getNetworkNamespace() {
