@@ -17,11 +17,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.privateipmanager.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.exception.*;
 import com.futurewei.alcor.privateipmanager.service.implement.IpAddrServiceImpl;
 import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
+import com.futurewei.alcor.web.entity.ip.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
@@ -237,5 +237,21 @@ public class IpAddrController {
     @DurationStatistics
     public List<IpAddrRangeRequest> listIpAddrRange() {
         return ipAddrService.listIpAddrRange();
+    }
+
+    @PostMapping("/ips/update")
+    @ResponseBody
+    @DurationStatistics
+    public IpAddrUpdateRequest updateIpAddr(@RequestBody IpAddrUpdateRequest request) throws Exception {
+        for (IpAddrRequest oldIpAddrRequest : request.getOldIpAddrRequests()) {
+            checkRangeId(oldIpAddrRequest.getRangeId());
+            checkIpAddr(oldIpAddrRequest.getIp());
+        }
+        for (IpAddrRequest newIpAddrRequest : request.getNewIpAddrRequests()) checkIpRequest(newIpAddrRequest);
+
+        List<IpAddrRequest> ipAddrRequests = ipAddrService.updateIpAddr(request);
+        IpAddrUpdateRequest ipAddrUpdateRequest = new IpAddrUpdateRequest();
+        ipAddrUpdateRequest.setOldIpAddrRequests(ipAddrRequests);
+        return ipAddrUpdateRequest;
     }
 }
