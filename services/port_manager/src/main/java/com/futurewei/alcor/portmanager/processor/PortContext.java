@@ -42,6 +42,9 @@ public class PortContext {
     private Map<String, List<SubnetEntity>> routerSubnetEntities;
     private Map<String, InternalRouterInfo> routers;
     private List<NodeInfo> nodeInfos;
+    private List<PortEntity.FixedIp> newFixedIps;
+    private List<PortEntity.FixedIp> oldFixedIps;
+
 
     public PortContext() {
 
@@ -187,5 +190,21 @@ public class PortContext {
 
     public void setNodeInfos(List<NodeInfo> nodeInfos) {
         this.nodeInfos = nodeInfos;
+    }
+
+    public List<PortEntity.FixedIp> getNewFixedIps() {
+        return newFixedIps;
+    }
+
+    public void setNewFixedIps(List<PortEntity.FixedIp> newFixedIps) {
+        this.newFixedIps = newFixedIps;
+    }
+
+    public List<PortEntity.FixedIp> getOldFixedIps() {
+        return oldFixedIps;
+    }
+
+    public void setOldFixedIps(List<PortEntity.FixedIp> oldFixedIps) {
+        this.oldFixedIps = oldFixedIps;
     }
 }

@@ -289,4 +289,73 @@ public class IpAddrServiceImpl implements IpAddrService {
 
         return result;
     }
+
+    @Override
+    @DurationStatistics
+    public List<IpAddrRequest> updateIpAddr(IpAddrUpdateRequest request) throws Exception {
+
+        Map<String, List<String>> rangeToIpAddrList = null;
+
+        Map<String, List<IpAddrRequest>> rangeRequests = null;
+        Map<String, List<IpAddrRequest>> vpcIpv4Requests = null;
+        Map<String, List<IpAddrRequest>> vpcIpv6Requests = null;
+
+        if (request.getOldIpAddrRequests().size()>0){
+            if (request.getOldIpAddrRequests().size()>1){
+                rangeToIpAddrList = new HashMap<>();
+                for (IpAddrRequest ipAddrRequest: request.getOldIpAddrRequests()) {
+                    List<String> ipAddrList = rangeToIpAddrList.computeIfAbsent(ipAddrRequest.getRangeId(), k -> new ArrayList<>());
+                    ipAddrList.add(ipAddrRequest.getIp());
+                    ipAddrRequest.setState(IpAddrState.FREE.getState());
+                }
+            }
+        }
+
+        if (request.getNewIpAddrRequests().size()>0){
+            if (request.getNewIpAddrRequests().size()>1){
+
+                rangeRequests = new HashMap<>();
+                vpcIpv4Requests = new HashMap<>();
+                vpcIpv6Requests = new HashMap<>();
+
+                for (IpAddrRequest ipAddrRequest: request.getNewIpAddrRequests()) {
+                    if (ipAddrRequest.getRangeId() != null) {
+                        if (!rangeRequests.containsKey(ipAddrRequest.getRangeId())) {
+                            rangeRequests.put(ipAddrRequest.getRangeId(), new ArrayList<>());
+                        }
+                        rangeRequests.get(ipAddrRequest.getRangeId()).add(ipAddrRequest);
+                    } else if (ipAddrRequest.getVpcId() != null) {
+                        if (IpVersion.IPV4.getVersion() == ipAddrRequest.getIpVersion()) {
+                            if (!vpcIpv4Requests.containsKey(ipAddrRequest.getVpcId())) {
+                                vpcIpv4Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                            }
+                            vpcIpv4Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                        } else {
+                            if (!vpcIpv6Requests.containsKey(ipAddrRequest.getVpcId())) {
+                                vpcIpv6Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                            }
+                            vpcIpv6Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                        }
+                    }
+                }
+            }
+        }
+
+        List<IpAddrAlloc> ipAddrAllocList = ipAddrRangeRepo.updateIpAddr(request, rangeToIpAddrList, rangeRequests, vpcIpv4Requests, vpcIpv6Requests);
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        if(ipAddrAllocList!=null){
+            for (IpAddrAlloc ipAddrAlloc: ipAddrAllocList) {
+                IpAddrRequest ipAddrRequest = new IpAddrRequest();
+                ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
+                ipAddrRequest.setSubnetId(ipAddrAlloc.getSubnetId());
+                ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
+                ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
+                ipAddrRequest.setState(ipAddrAlloc.getState());
+                ipAddrRequests.add(ipAddrRequest);
+            }
+        }
+
+        return ipAddrRequests;
+    }
 }
