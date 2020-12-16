@@ -1,5 +1,7 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
+import com.futurewei.alcor.common.config.RequestBuilderCarrier;
+import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
@@ -8,16 +10,31 @@ import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import io.jaegertracing.internal.JaegerTracer;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
+import okhttp3.*;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 @Service
 public class VpcServiceImpl implements VpcService {
@@ -40,11 +57,50 @@ public class VpcServiceImpl implements VpcService {
      */
     @Override
     @DurationStatistics
-    public RouteWebJson getRoute(String vpcId, VpcEntity vpcState) {
-        String routeManagerServiceUrl = routeUrl + "vpcs/" + vpcId + "/routes";
-        HttpEntity<VpcWebJson> request = new HttpEntity<>(new VpcWebJson(vpcState));
-        RouteWebJson response = restTemplate.postForObject(routeManagerServiceUrl, request, RouteWebJson.class);
-        return response;
+    public RouteWebJson getRoute(String vpcId, VpcEntity vpcState, Map<String,String> httpHeaders) throws IOException {
+        String vpcService = "VpcService";
+        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(vpcService)) {
+
+            String vpcServiceImpl = "VPCServiceImpl";
+            Span span = Tracing.startServerSpan(tracer, httpHeaders, vpcServiceImpl);
+            try (Scope op = tracer.scopeManager().activate(span)) {
+                String routeManagerServiceUrl2 = routeUrl + "vpcs/" + vpcId + "/routes";
+                OkHttpClient okHttpClient = new OkHttpClient();
+                ExclusionStrategy myExclusionStrategy =
+                        new ExclusionStrategy() {
+                            @Override
+                            public boolean shouldSkipField(FieldAttributes fa) {
+                                String ignoreField = "tenantId";
+                                return fa.getName().equals(ignoreField);
+                            }
+
+                            @Override
+                            public boolean shouldSkipClass(Class<?> clazz) {
+                                return false;
+                            }
+                        };
+                Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+                String jsonString = gson.toJson(new VpcWebJson(vpcState));
+                Request.Builder request = new Request.Builder().url(routeManagerServiceUrl2).post(RequestBody.create(MediaType.parse("application/json;charset=utf-8"), jsonString));
+                Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
+                Tags.HTTP_METHOD.set(span, "POST");
+                Tags.HTTP_URL.set(span, routeManagerServiceUrl2);
+                tracer.activateSpan(span);
+                tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new RequestBuilderCarrier(request));
+                Response response = okHttpClient.newCall(request.build()).execute();
+                String rs = response.body().string();
+                RouteWebJson rwj = gson.fromJson(rs, RouteWebJson.class);
+                return rwj;
+
+            }catch (IOException e)
+            {
+                logger.error("create route error, {}", e.getMessage());
+                throw e;
+            }
+            finally {
+                span.finish();
+            }
+        }
     }
 
     /**

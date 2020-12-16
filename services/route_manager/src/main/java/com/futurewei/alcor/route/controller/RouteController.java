@@ -16,19 +16,28 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.route.controller;
 
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.route.entity.*;
+import com.futurewei.alcor.route.entity.RouteConstant;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.*;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
+import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +45,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -139,7 +147,34 @@ public class RouteController {
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public RouteWebJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
+    public RouteWebJson createVpcDefaultRoute(HttpServletRequest request, @PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
+
+        String serviceName="route";
+        Map<String,String> headers=new HashMap();
+        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+        while(stringIterator.hasNext())
+        {
+            String name = stringIterator.next();
+            String value=request.getHeader(name);
+            headers.put(name,value);
+        }
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            headers.put(header, request.getHeader(header));
+        }
+        Tracer.SpanBuilder builder = null;
+        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
+        System.out.println("parentSpanContext "+parentSpanContext);
+        if (null == parentSpanContext) {
+            builder = tracer.buildSpan(serviceName);
+        } else {
+            builder = tracer.buildSpan("routeMgr").asChildOf(parentSpanContext);
+        }
+        Span span = builder.start();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+
         RouteEntity routeEntity = null;
 
         try {
@@ -163,6 +198,17 @@ public class RouteController {
         }
 
         return new RouteWebJson(routeEntity);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        finally
+        {
+            span.finish();
+        }
+
+        return null;
     }
 
     @RequestMapping(
