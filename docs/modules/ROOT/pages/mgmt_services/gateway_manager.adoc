@@ -12,8 +12,16 @@ NOTE: This document is under development
 
 
 == Design
+=== Data Schema
+image::gateway_manager_data_schema.PNG[]
 
 === Service Architecture
+
+==== VPC and Zeta Gateway Creation
+image::gateway_manager_vpc_zetagateway_creation.PNG[]
+
+==== Port Creation
+image::gateway_manager_zeta_port_creation.PNG[]
 
 === Key Workflow
 
