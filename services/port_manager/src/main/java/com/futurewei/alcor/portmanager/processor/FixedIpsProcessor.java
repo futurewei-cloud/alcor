@@ -126,6 +126,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
         context.getRequestManager().sendRequest(updatePortIpAddressRequest);
 
         List<IpAddrUpdateRequest> result = updatePortIpAddressRequest.getResult();
+        context.setResult(result);
 
         List<String> filterIpsHasSubnet = context.getHasSubnetFixedIps().stream()
                 .map(PortEntity.FixedIp::getIpAddress)

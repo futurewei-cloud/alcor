@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
+import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -44,6 +45,7 @@ public class PortContext {
     private List<NodeInfo> nodeInfos;
     private List<PortEntity.FixedIp> newFixedIps;
     private List<PortEntity.FixedIp> oldFixedIps;
+    private List<IpAddrUpdateRequest> result;
 
 
     public PortContext() {
@@ -206,5 +208,13 @@ public class PortContext {
 
     public void setOldFixedIps(List<PortEntity.FixedIp> oldFixedIps) {
         this.oldFixedIps = oldFixedIps;
+    }
+
+    public List<IpAddrUpdateRequest> getResult() {
+        return result;
+    }
+
+    public void setResult(List<IpAddrUpdateRequest> result) {
+        this.result = result;
     }
 }
