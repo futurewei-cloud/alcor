@@ -141,7 +141,7 @@ public class DpmServiceImpl implements DpmService {
             if (portEntity.getBindingHostIP() == null) {
                 throw new PortBindingHostIpNotFound();
             }
-            if (portEntity.isFastPath()) {
+            if (portEntity.getFastPath()) {
                 if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
                 }
