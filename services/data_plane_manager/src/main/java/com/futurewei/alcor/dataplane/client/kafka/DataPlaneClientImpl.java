@@ -27,12 +27,12 @@ import java.util.Map;
 public class DataPlaneClientImpl implements DataPlaneClient {
 
     @Override
-    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
         return null;
     }
 
     @Override
-    public List<String> createGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
         return null;
     }
 }

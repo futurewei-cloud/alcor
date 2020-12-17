@@ -24,9 +24,9 @@ import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.*;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
-import com.futurewei.alcor.web.entity.route.Router;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         return null;
     }
 
-    private List<NeighborEntry> buildNeighborTable(NeighborInfo localInfo, List<NeighborInfo> neighbors, NeighborEntry.NeighborType neighborType) {
+    private List<NeighborEntry> buildNeighborEntries(NeighborInfo localInfo, List<NeighborInfo> neighbors, NeighborEntry.NeighborType neighborType) {
         List<NeighborEntry> neighborTable = new ArrayList<>();
         for (NeighborInfo neighbor : neighbors) {
             NeighborEntry neighborEntry = new NeighborEntry();
@@ -90,14 +90,15 @@ public class DataPlaneProcessor extends AbstractProcessor {
     }
 
     private void buildL3Neighbors(PortContext context, InternalPortEntity internalPortEntity, PortEntity.FixedIp fixedIp, List<String> routerSubnetIds) throws Exception {
-        List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
+        Map<String, NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
         if (neighborInfos == null) {
             return;
         }
 
         List<NeighborInfo> l3Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
-        for (NeighborInfo neighborInfo : neighborInfos) {
+        for (Map.Entry<String, NeighborInfo> entry : neighborInfos.entrySet()) {
+            NeighborInfo neighborInfo = entry.getValue();
             if (neighborInfo.getPortIp().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
             } else if (routerSubnetIds.contains(neighborInfo.getSubnetId()) &&
@@ -110,17 +111,19 @@ public class DataPlaneProcessor extends AbstractProcessor {
             localNeighborInfo = getNeighborInfo(context, internalPortEntity, fixedIp);
         }
 
-        List<NeighborEntry> neighborTable = buildNeighborTable(
+        String portIp = localNeighborInfo.getPortIp();
+        List<NeighborEntry> neighborEntries = buildNeighborEntries(
                 localNeighborInfo, l3Neighbors, NeighborEntry.NeighborType.L3);
-        context.getNetworkConfig().addNeighborEntries(neighborTable);
+        context.getNetworkConfig().addNeighborEntries(portIp, neighborEntries);
     }
 
     private void buildL2Neighbors(PortContext context, InternalPortEntity internalPortEntity, PortEntity.FixedIp fixedIp) throws Exception {
-        List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
+        Map<String, NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
 
         List<NeighborInfo> l2Neighbors = new ArrayList<>();
         NeighborInfo localNeighborInfo = null;
-        for (NeighborInfo neighborInfo : neighborInfos) {
+        for (Map.Entry<String, NeighborInfo> entry : neighborInfos.entrySet()) {
+            NeighborInfo neighborInfo = entry.getValue();
             if (neighborInfo.getPortIp().equals(fixedIp.getIpAddress())) {
                 localNeighborInfo = neighborInfo;
             } else if (neighborInfo.getSubnetId().equals(fixedIp.getSubnetId())) {
@@ -132,13 +135,14 @@ public class DataPlaneProcessor extends AbstractProcessor {
             localNeighborInfo = getNeighborInfo(context, internalPortEntity, fixedIp);
         }
 
-        List<NeighborEntry> neighborTable = buildNeighborTable(
+        String portIp = localNeighborInfo.getPortIp();
+        List<NeighborEntry> neighborTable = buildNeighborEntries(
                 localNeighborInfo, l2Neighbors, NeighborEntry.NeighborType.L2);
-        context.getNetworkConfig().addNeighborEntries(neighborTable);
+        context.getNetworkConfig().addNeighborEntries(portIp, neighborTable);
     }
 
     private void setNeighborInfos(PortContext context, InternalPortEntity internalPortEntity) throws Exception {
-        List<NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
+        Map<String, NeighborInfo> neighborInfos = context.getNetworkConfig().getNeighborInfos();
         if (internalPortEntity.getFixedIps() == null ||
                 neighborInfos == null ||
                 internalPortEntity.getBindingHostId() == null) {
@@ -146,11 +150,13 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         for (PortEntity.FixedIp fixedIp : internalPortEntity.getFixedIps()) {
-
             List<SubnetEntity> routerSubnetEntities = context.getRouterSubnetEntities(internalPortEntity.getVpcId());
             if (routerSubnetEntities != null && routerSubnetEntities.size() > 0) {
                 List<String> routerSubnetIds = new ArrayList<>();
-                for (SubnetEntity entity : routerSubnetEntities) routerSubnetIds.add(entity.getId());
+                for (SubnetEntity entity : routerSubnetEntities) {
+                    routerSubnetIds.add(entity.getId());
+                }
+
                 if (routerSubnetIds.contains(fixedIp.getSubnetId())) {
                     buildL3Neighbors(context, internalPortEntity, fixedIp, routerSubnetIds);
                 }

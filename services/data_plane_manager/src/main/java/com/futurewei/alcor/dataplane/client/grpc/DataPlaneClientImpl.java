@@ -57,13 +57,13 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     @Override
-    public List<String> createGoalStates(
+    public List<String> sendGoalStates(
             List<UnicastGoalState> unicastGoalStates) throws Exception {
-        return sendGoalStates(unicastGoalStates);
+        return doSendGoalStates(unicastGoalStates);
     }
 
     @Override
-    public List<String> createGoalStates(
+    public List<String> sendGoalStates(
             List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
         if (unicastGoalStates == null) {
             unicastGoalStates = new ArrayList<>();
@@ -82,13 +82,13 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         }
 
         if (unicastGoalStates.size() > 0) {
-            return createGoalStates(unicastGoalStates);
+            return sendGoalStates(unicastGoalStates);
         }
 
         return null;
     }
 
-    private List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) {
+    private List<String> doSendGoalStates(List<UnicastGoalState> unicastGoalStates) {
         List<Future<UnicastGoalState>>
                 futures = new ArrayList<>(unicastGoalStates.size());
 

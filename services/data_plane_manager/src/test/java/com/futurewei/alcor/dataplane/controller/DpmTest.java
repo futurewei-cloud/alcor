@@ -17,8 +17,8 @@ package com.futurewei.alcor.dataplane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
+import com.futurewei.alcor.dataplane.client.grpc.DataPlaneClientImpl;
 import com.futurewei.alcor.dataplane.config.TestConfig;
-import com.futurewei.alcor.dataplane.constants.DPMAutoUnitTestConstant;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
 import com.futurewei.alcor.web.entity.dataplane.*;
@@ -75,7 +75,7 @@ public class DpmTest {
     private PulsarClient pulsarClient;
 
     @MockBean
-    private DataPlaneClient dataPlaneClient;
+    private DataPlaneClientImpl grpcDataPlaneClient;
 
     private List<VpcEntity> buildVpcEntities() {
         VpcEntity vpcEntity = new VpcEntity();
@@ -366,7 +366,29 @@ public class DpmTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+    }
 
+    private NetworkConfiguration buildNeighborConfiguration() {
+        NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+        networkConfiguration.setRsType(ResourceType.NEIGHBOR);
+        networkConfiguration.setOpType(OperationType.CREATE);
 
+        networkConfiguration.setNeighborInfos(buildNeighborInfos());
+        networkConfiguration.setNeighborTable(buildNeighborTable());
+
+        return networkConfiguration;
+    }
+
+    @Test
+    public void createNeighborConfigurationTest() throws Exception {
+        NetworkConfiguration networkConfiguration = buildNeighborConfiguration();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(networkConfiguration);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post(TestConfig.url)
+                .content(body)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 }
