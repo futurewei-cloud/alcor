@@ -20,7 +20,7 @@ data:
     microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
-    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/v4/port/
+    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/network-configuration
     microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011
 
     alcor.vif_type=ovs

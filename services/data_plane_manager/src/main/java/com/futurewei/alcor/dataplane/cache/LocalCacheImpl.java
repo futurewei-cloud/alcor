@@ -15,8 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.cache;
 
-import com.futurewei.alcor.dataplane.client.grpc.DataPlaneClientImpl;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
+import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -116,5 +116,23 @@ public class LocalCacheImpl implements LocalCache {
     @Override
     public InternalSubnetPorts getSubnetPorts(String subnetId) throws Exception {
         return subnetPortsCache.getSubnetPorts(subnetId);
+    }
+
+    @Override
+    public void updateLocalCache(NetworkConfiguration networkConfig) throws Exception {
+        OperationType opType = networkConfig.getOpType();
+        switch (opType) {
+            case CREATE:
+                addSubnetPorts(networkConfig);
+                break;
+            case UPDATE:
+                updateSubnetPorts(networkConfig);
+                break;
+            case DELETE:
+                deleteSubnetPorts(networkConfig);
+                break;
+            default:
+                LOG.error("Update SubnetPorts failed: Unknown operation type");
+        }
     }
 }

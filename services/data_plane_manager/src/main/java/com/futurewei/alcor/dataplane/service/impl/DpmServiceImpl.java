@@ -19,12 +19,16 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.service.DpmService;
+import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.web.entity.dataplane.*;
+import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class DpmServiceImpl implements DpmService {
+    private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImpl.class);
+    private static final boolean USE_PULSAR_CLIENT = false;
+
     private int goalStateMessageVersion;
 
     @Autowired
@@ -91,6 +98,8 @@ public class DpmServiceImpl implements DpmService {
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
+        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
+        multicastGoalState.setGoalStateBuilder(null);
 
         return unicastGoalState;
     }
@@ -108,10 +117,23 @@ public class DpmServiceImpl implements DpmService {
                     networkConfig, hostIp, portEntities, multicastGoalState));
         }
 
-        return dataPlaneClient.createGoalStates(unicastGoalStates, multicastGoalState);
+        return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
-    private List<String> createPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    /**
+     * This method processes the network configuration where the resource type is PORT.
+     * The NetworkConfiguration may contain multiple port entities, and these port
+     * entities may need to be sent to multiple hosts, Other configurations related to port
+     * also need to be processed, such as routing configuration and neighbor configuration.
+     * Here we build one UnicastGoalState for each host and put the information that it needs
+     * into it. If the same information needs to be sent to multiple host, in order to
+     * improve the transmission performance, only one MulticastGoalState is constructed and
+     * broadcast it to the all target  hosts.
+     * @param networkConfig The networkConfig may contain multiple port entities and related Configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
+    private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
 
@@ -144,20 +166,110 @@ public class DpmServiceImpl implements DpmService {
                     networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
 
-        localCache.addSubnetPorts(networkConfig);
+        localCache.updateLocalCache(networkConfig);
 
         return statusList;
     }
 
-    private List<String> createNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    /**
+     * This method get neighbor information from NetworkConfiguration, then build one
+     * UnicastGoalState for each host and fill in the neighbor information it needs,
+     * and finally send all UnicastGoalState to the relevant hosts.
+     * @param networkConfig Network configuration with neighbor configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
+    private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
+        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
+        MulticastGoalState multicastGoalState = new MulticastGoalState();
+
+        if (neighborTable == null || neighborInfos == null) {
+            throw new NeighborInfoNotFound();
+        }
+
+        Map<String, List<NeighborInfo>> hostNeighbors = new HashMap<>();
+        for (Map.Entry<String, List<NeighborEntry>> entry: neighborTable.entrySet()) {
+            String portIp = entry.getKey();
+            NeighborInfo localInfo = neighborInfos.get(portIp);
+            if (localInfo == null) {
+                throw new NeighborInfoNotFound();
+            }
+
+            String hostIp = localInfo.getHostIp();
+            if (!hostNeighbors.containsKey(hostIp)) {
+                hostNeighbors.put(hostIp, new ArrayList<>());
+            }
+
+            List<NeighborEntry> neighborEntries = entry.getValue();
+            for (NeighborEntry neighborEntry: neighborEntries) {
+                String neighborIp = neighborEntry.getNeighborIp();
+                NeighborInfo neighborInfo = neighborInfos.get(neighborIp);
+                if (neighborInfo == null) {
+                    throw new NeighborInfoNotFound();
+                }
+
+                hostNeighbors.get(hostIp).add(neighborInfo);
+                multicastGoalState.getHostIps().add(neighborInfo.getHostIp());
+            }
+
+            //Add neighborInfo to multicastGoalState
+            Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
+                    NeighborType.L3, localInfo, networkConfig.getOpType());
+            multicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+        }
+
+        for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
+            String hostIp = entry.getKey();
+            List<NeighborInfo> hostNeighborInfos = entry.getValue();
+
+            /**
+             * At present, there are only L3 neighbors in the neighbor table,
+             * and the processing of L2 neighbors should be considered in the future.
+             */
+            for (NeighborInfo neighborInfo: hostNeighborInfos) {
+                Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
+                        NeighborType.L3,
+                        neighborInfo,
+                        networkConfig.getOpType());
+
+                UnicastGoalState unicastGoalState = new UnicastGoalState();
+                unicastGoalState.setHostIp(neighborInfo.getHostIp());
+                unicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+                unicastGoalStates.add(unicastGoalState);
+            }
+        }
+
+        multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
+        multicastGoalState.setGoalStateBuilder(null);
+        unicastGoalStates.stream().forEach(u -> {
+            u.setGoalState(u.getGoalStateBuilder().build());
+            u.setGoalStateBuilder(null);
+        });
+
+        if (USE_PULSAR_CLIENT) {
+            return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        }
+
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+    }
+
+    private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
         return null;
     }
 
-    private List<String> createSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        return null;
-    }
-
-    private List<String> createRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    /**
+     * This method get the subnet routing configuration from the NetworkConfiguration,
+     * then find the host information of all the virtual machines under the subnet from
+     * the local cache according to the subnet id, build one UnicastGoalState for each
+     * host and fill it with the routing information it needs, and finally send all the
+     * UnicastGoalState to the relevant hosts.
+     * @param networkConfig Network configuration with router configuration
+     * @return Hosts that failed to send GoalState
+     * @throws Exception Process exceptions and send exceptions
+     */
+    private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         if (internalRouterInfos == null) {
             throw new RouterInfoInvalid();
@@ -203,7 +315,7 @@ public class DpmServiceImpl implements DpmService {
                 }).collect(Collectors.toList());
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        return grpcDataPlaneClient.createGoalStates(unicastGoalStates);
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
@@ -231,23 +343,22 @@ public class DpmServiceImpl implements DpmService {
         return result;
     }
 
-    @Override
-    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+    private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts;
 
         switch (networkConfig.getRsType()) {
             case PORT:
-                failedHosts = createPortConfiguration(networkConfig);
+                failedHosts = processPortConfiguration(networkConfig);
                 break;
             case NEIGHBOR:
-                failedHosts = createNeighborConfiguration(networkConfig);
+                failedHosts = processNeighborConfiguration(networkConfig);
                 break;
             case SECURITYGROUP:
-                failedHosts = createSecurityGroupConfiguration(networkConfig);
+                failedHosts = processSecurityGroupConfiguration(networkConfig);
                 break;
             case ROUTER:
-                failedHosts = createRouterConfiguration(networkConfig);
+                failedHosts = processRouterConfiguration(networkConfig);
                 break;
             default:
                 throw new UnknownResourceType();
@@ -257,12 +368,17 @@ public class DpmServiceImpl implements DpmService {
     }
 
     @Override
-    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList createNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
     }
 
     @Override
-    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfiguration) throws Exception {
-        return null;
+    public InternalDPMResultList updateNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
+    }
+
+    @Override
+    public InternalDPMResultList deleteNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        return processNetworkConfiguration(networkConfig);
     }
 }
