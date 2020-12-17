@@ -18,7 +18,6 @@ package com.futurewei.alcor.portmanager.service.implement;
 import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
-import com.futurewei.alcor.web.entity.port.SubnetPortIds;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
@@ -795,7 +794,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @Override
-    public SubnetPortIds getSubnetPorts(String projectId, String subnetId) throws Exception {
-        return null;
+    public int getSubnetPortNumber(String projectId, String subnetId) throws Exception {
+        return 0;
     }
 }

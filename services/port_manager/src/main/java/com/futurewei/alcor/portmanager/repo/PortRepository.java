@@ -21,7 +21,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
-import com.futurewei.alcor.web.entity.port.SubnetPortIds;
+import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
 import com.futurewei.alcor.portmanager.exception.FixedIpsInvalid;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -267,6 +267,10 @@ public class PortRepository {
     private List<SubnetPortIds> getSubnetPortIds(List<PortEntity> portEntities) {
         Map<String, SubnetPortIds> subnetPortIdsMap = new HashMap<>();
         for (PortEntity portEntity: portEntities) {
+            if ("network:router_interface".equals(portEntity.getDeviceOwner())) {
+                continue;
+            }
+
             List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
             if (fixedIps == null) {
                 LOG.warn("Port:{} has no ip address", portEntity.getId());
@@ -419,7 +423,12 @@ public class PortRepository {
     }
 
     @DurationStatistics
-    public SubnetPortIds getSubnetPortIds(String subnetId) throws CacheException {
-        return subnetPortIdsCache.get(subnetId);
+    public int getSubnetPortNumber(String subnetId) throws CacheException {
+        SubnetPortIds subnetPortIds = subnetPortIdsCache.get(subnetId);
+        if (subnetPortIds == null) {
+            return 0;
+        }
+
+        return subnetPortIds.getPortIds().size();
     }
 }

@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.service;
 
-import com.futurewei.alcor.web.entity.port.SubnetPortIds;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
@@ -44,5 +43,5 @@ public interface PortService {
 
     RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception;
 
-    SubnetPortIds getSubnetPorts(String projectId, String subnetId) throws Exception;
+    int getSubnetPortNumber(String projectId, String subnetId) throws Exception;
 }
