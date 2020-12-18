@@ -34,6 +34,7 @@ public class ArrayUtil {
                 T item2 = iterator2.next();
                 if (item1.equals(item2)) {
                     commonItems.add(item1);
+                    break;
                 }
             }
         }
