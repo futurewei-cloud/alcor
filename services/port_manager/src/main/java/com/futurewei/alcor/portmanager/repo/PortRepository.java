@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 public class PortRepository {
     private static final Logger LOG = LoggerFactory.getLogger(PortRepository.class);
     private static final String NEIGHBOR_CACHE_NAME_PREFIX = "neighborCache-";
+    private static final String GATEWAY_PORT_DEVICE_OWNER = "network:router_interface";
 
     private ICache<String, PortEntity> portCache;
     private ICache<String, PortNeighbors> neighborCache;
@@ -267,7 +268,7 @@ public class PortRepository {
     private List<SubnetPortIds> getSubnetPortIds(List<PortEntity> portEntities) {
         Map<String, SubnetPortIds> subnetPortIdsMap = new HashMap<>();
         for (PortEntity portEntity: portEntities) {
-            if ("network:router_interface".equals(portEntity.getDeviceOwner())) {
+            if (GATEWAY_PORT_DEVICE_OWNER.equals(portEntity.getDeviceOwner())) {
                 continue;
             }
 
