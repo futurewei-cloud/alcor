@@ -6,16 +6,27 @@ v0.1, 2020-11-30
 NOTE: This document is under development
 
 == Overview
-
+The Gateway Manager is an Alcor microservice which manages the internal gateway and external gateway resources for a VPC.
+The external gateways are responsible for forwarding traffic to/from external networks, such as another VPC, Internet, on-premise datacenter.
+The external gateway including Internet Gateway, NAT Gateway, VPN Gateway and Transit Gateway.
+The internal gateway handles internal traffic within a VPC. Zeta Gateway is the only internal gateway in the current Gateway Manager.
+Gateway Manager's responsibilities include but are not limited to create, update, delete, and search gateway resources for VPC.
+It interacts with VPC Manager, Port Manager, Data Plane Manager, and Gateway Clusters.
 
 == Service Requirements
-
+[arabic]
+. Manage different types of gateways for a VPC, including internal and external gateways, such as Zeta Gateway, Internet Gateway, NAT Gateway, VPN Gateway and Transit Gateway.
+. Expose CURD APIs to register, update, query and delete VPC's gateway mappings.
+. Define a health model, data schema and APIs for the health status of gateway resources.
+. Working together with other services including VPC, Route, Port, Data Plane managers.
+. Rollback is supported when CRUD operation occurs exception or the exceptions from gateway resources.
 
 == Design
+=== Service Architecture
+image::gateway_manager_service_architecture.PNG[]
+
 === Data Schema
 image::gateway_manager_data_schema.PNG[]
-
-=== Service Architecture
 
 ==== VPC and Zeta Gateway Creation
 image::gateway_manager_vpc_zetagateway_creation.PNG[]
@@ -26,7 +37,44 @@ image::gateway_manager_zeta_port_creation.PNG[]
 === Key Workflow
 
 == REST APIs
+[width="100%",cols="32%,12%,40%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+|List VPC's Available Gateway
+|GET
+|/project/{projectid}/vpcs/{vpc_id}/gateways
+|All gateways' state
+<<gws_get_all,[sample]>>
 
-=== API Snapshot
+|Register a VPC
+|POST
+|/project/{projectid}/vpcs/{vpc_id}/gateway
+|VPC's gateway state
+<<vpc_gw_post,[sample]>>
+
+|Query gateway's state
+|GET
+|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|Gateway state
+<<gw_get,[sample]>>
+
+|Update a gateway
+|PUT
+|/project/{projectid}/vpcs/{vpc_id}/gateway
+|Gateway state
+<<gw_put,[sample]>>
+
+|Update a gateway by ID
+|PUT
+|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|Gateway state
+<<gw_put_id,[sample]>>
+
+|Delete a gateway
+|DELETE
+|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|ResponseId
+<<gw_del,[sample]>>
+|===
 
 === API Specification
