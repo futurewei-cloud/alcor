@@ -37,6 +37,7 @@ public class GetPortTest extends MockRestClientAndRepository {
 
     private String listPortUrl = "/project/" + UnitTestConfig.projectId + "/ports";
     private String getPortUrl = "/project/" + UnitTestConfig.projectId + "/ports/" + UnitTestConfig.portId1;
+    private String getSubnetPortsUrl = "/project/" + UnitTestConfig.projectId + "/subnet-port-count/" + UnitTestConfig.subnetId;
 
     @Test
     public void getPortTest() throws Exception {
@@ -58,5 +59,12 @@ public class GetPortTest extends MockRestClientAndRepository {
                         .jsonPath("$.ports[0].id")
                         .value(UnitTestConfig.portId1)
                 );
+    }
+
+    @Test
+    public void getSubnetPortsTest() throws Exception {
+        this.mockMvc.perform(get(getSubnetPortsUrl))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
