@@ -561,7 +561,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
             oldPortEntity.setFixedIps(newFixedIpsCopy);
 
-            List<PortEntity.FixedIp> commonFixedIps = ArrayUtil.findCommonItems(newFixedIps, oldFixedIps);
+            List<PortEntity.FixedIp> commonFixedIps = ArrayUtil.findCommonItemsNew(newFixedIps, oldFixedIps);
 
             updateFixedIpsProcess(context);
 

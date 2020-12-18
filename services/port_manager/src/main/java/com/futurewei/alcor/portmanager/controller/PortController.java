@@ -221,4 +221,16 @@ public class PortController {
         checkRouterSubnetUpdateInfo(routerUpdateInfo);
         return portService.updateL3Neighbors(projectId, routerUpdateInfo);
     }
+
+    @Rbac(resource ="port")
+    @GetMapping({"/project/{project_id}/subnet-port-count/{subnet_id}", "v4/{project_id}/subnet-port-count/{subnet_id}"})
+    @DurationStatistics
+    public int getSubnetPortCount(@PathVariable("project_id") String projectId,
+                                  @PathVariable("subnet_id") String subnetId) throws Exception {
+        if (StringUtil.isNullOrEmpty(subnetId)) {
+            throw new SubnetIdInvalid();
+        }
+
+        return portService.getSubnetPortCount(projectId, subnetId);
+    }
 }

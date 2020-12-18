@@ -284,7 +284,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
     @Override
     void updateProcess(PortContext context) throws Exception {
         updateNetworkConfig(context, buildNetworkConfig(context,
-                Collections.singletonList(context.getOldPortEntity())));
+                Collections.singletonList(context.getNewPortEntity())));
     }
 
     @Override

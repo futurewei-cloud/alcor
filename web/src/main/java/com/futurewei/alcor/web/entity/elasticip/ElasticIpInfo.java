@@ -17,8 +17,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.elasticip;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 
@@ -46,7 +44,7 @@ public class ElasticIpInfo extends ElasticIp {
         this(eip);
         if (port != null) {
             ElasticIpPortDetails portDetails = new ElasticIpPortDetails();
-            portDetails.setAdminStateUp(port.isAdminStateUp());
+            portDetails.setAdminStateUp(port.getAdminStateUp());
             portDetails.setDeviceId(port.getDeviceId());
             portDetails.setDeviceOwner(port.getDeviceOwner());
             portDetails.setMacAddress(port.getMacAddress());

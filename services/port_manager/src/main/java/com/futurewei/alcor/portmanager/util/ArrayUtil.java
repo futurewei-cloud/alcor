@@ -34,6 +34,27 @@ public class ArrayUtil {
                 T item2 = iterator2.next();
                 if (item1.equals(item2)) {
                     commonItems.add(item1);
+                }
+            }
+        }
+
+        return commonItems;
+    }
+
+    public static <T> List<T> findCommonItemsNew(List<T> array1, List<T> array2) {
+        List<T> commonItems = new ArrayList<>();
+        if (array1 == null || array2 == null) {
+            return commonItems;
+        }
+
+        Iterator<T> iterator1 = array1.iterator();
+        while (iterator1.hasNext()) {
+            T item1 = iterator1.next();
+            Iterator<T> iterator2 = array2.iterator();
+            while (iterator2.hasNext()) {
+                T item2 = iterator2.next();
+                if (item1.equals(item2)) {
+                    commonItems.add(item1);
                     iterator1.remove();
                     iterator2.remove();
                 }

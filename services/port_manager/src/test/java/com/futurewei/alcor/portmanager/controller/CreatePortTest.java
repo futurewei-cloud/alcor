@@ -95,8 +95,7 @@ public class CreatePortTest extends MockRestClientAndRepository {
                 .content(UnitTestConfig.portEntityWithoutSecurityGroup))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.port.security_groups").isEmpty());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.port.id").value(UnitTestConfig.portId1));
     }
 
     @Test
