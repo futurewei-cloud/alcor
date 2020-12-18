@@ -127,7 +127,7 @@ public class SubnetPortsRepository {
         }
     }
 
-    public void deleteSubnetPortId(PortEntity portEntity) throws Exception {
+    public void deleteSubnetPortIds(PortEntity portEntity) throws Exception {
         if (portEntity.getFixedIps() == null) {
             LOG.error("Can not find fixed ip in port entity");
             throw new FixedIpsInvalid();

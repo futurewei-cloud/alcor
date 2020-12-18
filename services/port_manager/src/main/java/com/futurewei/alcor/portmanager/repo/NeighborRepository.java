@@ -46,7 +46,7 @@ public class NeighborRepository {
         return NEIGHBOR_CACHE_NAME_PREFIX + suffix;
     }
 
-    public void createNeighborBulk(Map<String, List<NeighborInfo>> neighbors) throws Exception {
+    public void createNeighbors(Map<String, List<NeighborInfo>> neighbors) throws Exception {
         for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
             Map<String, NeighborInfo> neighborMap = entry.getValue()
                     .stream()
@@ -58,7 +58,7 @@ public class NeighborRepository {
         }
     }
 
-    public void updateNeighbor(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
+    public void updateNeighbors(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, getNeighborCacheName(oldPortEntity.getVpcId()));
 
@@ -82,7 +82,7 @@ public class NeighborRepository {
         }
     }
 
-    public void deleteNeighbor(PortEntity portEntity) throws Exception {
+    public void deleteNeighbors(PortEntity portEntity) throws Exception {
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, getNeighborCacheName(portEntity.getVpcId()));
 

@@ -267,7 +267,7 @@ public class PortRepository {
                     .stream()
                     .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
             portCache.putAll(portEntityMap);
-            neighborRepository.createNeighborBulk(neighbors);
+            neighborRepository.createNeighbors(neighbors);
             subnetPortsRepository.addSubnetPortIds(portEntities);
             tx.commit();
         }
@@ -277,7 +277,7 @@ public class PortRepository {
     public synchronized void updatePort(PortEntity oldPortEntity, PortEntity newPortEntity, List<NeighborInfo> neighborInfos) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             portCache.put(newPortEntity.getId(), newPortEntity);
-            neighborRepository.updateNeighbor(oldPortEntity, neighborInfos);
+            neighborRepository.updateNeighbors(oldPortEntity, neighborInfos);
             subnetPortsRepository.updateSubnetPortIds(oldPortEntity, newPortEntity);
             tx.commit();
         }
@@ -287,8 +287,8 @@ public class PortRepository {
     public synchronized void deletePort(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             portCache.remove(portEntity.getId());
-            neighborRepository.deleteNeighbor(portEntity);
-            subnetPortsRepository.deleteSubnetPortId(portEntity);
+            neighborRepository.deleteNeighbors(portEntity);
+            subnetPortsRepository.deleteSubnetPortIds(portEntity);
             tx.commit();
         }
     }
@@ -299,7 +299,7 @@ public class PortRepository {
     }
 
     @DurationStatistics
-    public int getSubnetPortNumber(String subnetId) throws CacheException {
+    public int getSubnetPortCount(String subnetId) throws CacheException {
         return subnetPortsRepository.getSubnetPortNumber(subnetId);
     }
 }
