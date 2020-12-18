@@ -60,6 +60,9 @@ public class SubnetServiceImp implements SubnetService {
     @Value("${microservices.ip.service.url}")
     private String ipUrl;
 
+    @Value("${microservices.port.service.url}")
+    private String portUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
 
     @Async
@@ -365,19 +368,13 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public boolean checkIfAnyPortInSubnet(String rangeId) throws RangeIdIsNullOrEmpty {
-        if (rangeId == null) {
-            throw new RangeIdIsNullOrEmpty();
+    public boolean checkIfAnyPortInSubnet(String projectId, String subnetId) throws SubnetIdIsNull {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
         }
-        String ipManagerServiceUrl = ipUrl + "range/" + rangeId;
-        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
-        if (ipAddrRangeRequest == null) {
-            return false;
-        }
-
-        // check usedIps
-        long usedIps = ipAddrRangeRequest.getUsedIps();
-        if (usedIps > ConstantsConfig.UsedIpThreshold) {
+        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-number/" + subnetId;
+        int  portNumber = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
+        if (portNumber == 0) {
             return true;
         }
 
