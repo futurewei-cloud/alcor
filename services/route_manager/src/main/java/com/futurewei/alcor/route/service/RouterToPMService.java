@@ -25,6 +25,6 @@ public interface RouterToPMService {
 
     public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull;
     public void updatePort (String projectid, String portId, PortEntity portEntity);
-    public void updateL3Neighbors (String projectid, List<String> gatewayPorts);
+    public void updateL3Neighbors (String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts);
 
 }

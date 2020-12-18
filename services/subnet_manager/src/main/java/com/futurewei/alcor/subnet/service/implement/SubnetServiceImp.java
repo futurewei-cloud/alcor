@@ -372,17 +372,17 @@ public class SubnetServiceImp implements SubnetService {
         if (subnetId == null) {
             throw new SubnetIdIsNull();
         }
-        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-number/" + subnetId;
-        int  portNumber = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
-        if (portNumber == 0) {
-            return true;
+        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-count/" + subnetId;
+        int  portCount = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
+        if (portCount == 0) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     @Override
-    public boolean checkIfSubnetBindAnyRoutes(SubnetEntity subnetEntity) {
+    public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity) {
 
         String attachedRouterId = subnetEntity.getAttachedRouterId();
         if (attachedRouterId == null || attachedRouterId.equals("")){

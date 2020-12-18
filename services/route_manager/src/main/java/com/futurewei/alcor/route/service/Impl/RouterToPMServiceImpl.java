@@ -84,11 +84,15 @@ public class RouterToPMServiceImpl implements RouterToPMService {
     }
 
     @Override
-    public void updateL3Neighbors(String projectid, List<String> gatewayPorts) {
+    public void updateL3Neighbors(String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts) {
         String portManagerServiceUrl = portUrl + "/project/" + projectid + "/update-l3-neighbors";
         RouterUpdateInfo routerUpdateInfo = new RouterUpdateInfo();
         routerUpdateInfo.setGatewayPortIds(gatewayPorts);
+        routerUpdateInfo.setSubnetId(subnetId);
+        routerUpdateInfo.setOperationType(operationType);
+        routerUpdateInfo.setVpcId(vpcId);
+
         HttpEntity<RouterUpdateInfo> request = new HttpEntity<>(routerUpdateInfo);
-        //restTemplate.put(portManagerServiceUrl, request, RouterUpdateInfo.class);
+        restTemplate.put(portManagerServiceUrl, request, RouterUpdateInfo.class);
     }
 }

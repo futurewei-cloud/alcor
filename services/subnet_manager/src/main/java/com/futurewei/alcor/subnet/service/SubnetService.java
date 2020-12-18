@@ -66,7 +66,7 @@ public interface SubnetService {
     public boolean checkIfAnyPortInSubnet (String projectId, String subnetId) throws SubnetIdIsNull;
 
     // check if subnet bind any routes
-    public boolean checkIfSubnetBindAnyRoutes (SubnetEntity subnetEntity);
+    public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity);
 
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;

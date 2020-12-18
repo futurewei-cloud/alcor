@@ -33,10 +33,8 @@ import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -514,30 +512,17 @@ public class SubnetController {
                 return new ResponseId();
             }
 
-            // check if there is any port in this subnet
-            String rangeId = null;
-            String ipV4RangeId = subnetEntity.getIpV4RangeId();
-            String ipV6RangeId = subnetEntity.getIpV6RangeId();
-            if (ipV4RangeId != null) {
-                rangeId = ipV4RangeId;
-            } else {
-                rangeId = ipV6RangeId;
-            }
-
             // TODO: check if there is any gateway / non-gateway port for the subnet, waiting for PM new API
-//            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(rangeId);
-//            if (checkIfAnyNoneGatewayPortInSubnet) {
-//                throw new HavePortInSubnet();
-//            }
-
-            // check if subnet bind any routes
-            Boolean checkIfSubnetBindAnyRoutes = this.subnetService.checkIfSubnetBindAnyRoutes(subnetEntity);
-            if (checkIfSubnetBindAnyRoutes) {
-                throw new SubnetBindRoutes();
+            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(projectId, subnetId);
+            if (checkIfAnyNoneGatewayPortInSubnet) {
+                throw new HavePortInSubnet();
             }
 
-            // delete subnet id in vpc
-            this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
+            // check if subnet bind any router
+            Boolean checkIfSubnetBindAnyRouter = this.subnetService.checkIfSubnetBindAnyRouter(subnetEntity);
+            if (checkIfSubnetBindAnyRouter) {
+                throw new SubnetBindRouter();
+            }
 
             // delete subnet routing rule in route manager
             this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
@@ -548,9 +533,12 @@ public class SubnetController {
                 this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
             }
 
+            // delete subnet id in vpc
+            this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
+
             this.subnetDatabaseService.deleteSubnet(subnetId);
 
-        } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
+        } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRouter e) {
             logger.error(e.getMessage());
             throw new Exception(e);
         }
