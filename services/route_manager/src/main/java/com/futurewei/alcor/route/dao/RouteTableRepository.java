@@ -18,6 +18,7 @@ package com.futurewei.alcor.route.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -71,15 +72,28 @@ public class RouteTableRepository implements ICacheRepository<RouteTable> {
     @Override
     @DurationStatistics
     public void addItem(RouteTable routeTable) throws CacheException {
-        logger.log(Level.INFO, "Add route table, route table Id:" + routeTable.getId());
-        cache.put(routeTable.getId(), routeTable);
+        try (Transaction tx = cache.getTransaction().start()) {
 
+            logger.log(Level.INFO, "Add route table, route table Id:" + routeTable.getId());
+            cache.put(routeTable.getId(), routeTable);
+
+            tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
+        }
     }
 
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
-        logger.log(Level.INFO, "Delete route table, route table Id:" + id);
-        cache.remove(id);
+        try (Transaction tx = cache.getTransaction().start()) {
+
+            logger.log(Level.INFO, "Delete route table, route table Id:" + id);
+            cache.remove(id);
+
+            tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
+        }
     }
 }
