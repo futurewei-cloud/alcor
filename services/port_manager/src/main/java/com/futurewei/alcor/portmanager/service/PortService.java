@@ -43,5 +43,5 @@ public interface PortService {
 
     RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception;
 
-    int getSubnetPortNumber(String projectId, String subnetId) throws Exception;
+    int getSubnetPortCount(String projectId, String subnetId) throws Exception;
 }

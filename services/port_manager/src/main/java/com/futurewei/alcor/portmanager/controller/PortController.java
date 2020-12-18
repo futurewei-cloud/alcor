@@ -223,14 +223,14 @@ public class PortController {
     }
 
     @Rbac(resource ="port")
-    @GetMapping({"/project/{project_id}/subnet-port-number/{subnet_id}", "v4/{project_id}/subnet-port-number/{subnet_id}"})
+    @GetMapping({"/project/{project_id}/subnet-port-count/{subnet_id}", "v4/{project_id}/subnet-port-count/{subnet_id}"})
     @DurationStatistics
-    public int getSubnetPortNumber(@PathVariable("project_id") String projectId,
-                                             @PathVariable("subnet_id") String subnetId) throws Exception {
+    public int getSubnetPortCount(@PathVariable("project_id") String projectId,
+                                  @PathVariable("subnet_id") String subnetId) throws Exception {
         if (StringUtil.isNullOrEmpty(subnetId)) {
             throw new SubnetIdInvalid();
         }
 
-        return portService.getSubnetPortNumber(projectId, subnetId);
+        return portService.getSubnetPortCount(projectId, subnetId);
     }
 }
