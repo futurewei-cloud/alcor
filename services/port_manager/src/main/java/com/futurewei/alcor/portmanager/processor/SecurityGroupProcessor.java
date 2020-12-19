@@ -112,8 +112,6 @@ public class SecurityGroupProcessor extends AbstractProcessor {
         List<String> oldSecurityGroups = oldPortEntity.getSecurityGroups();
 
         if (newSecurityGroups != null && !newSecurityGroups.equals(oldSecurityGroups)) {
-            oldPortEntity.setSecurityGroups(newSecurityGroups);
-
             List<String> commonSecurityGroups = ArrayUtil.findCommonItems(
                     newSecurityGroups, oldSecurityGroups);
 

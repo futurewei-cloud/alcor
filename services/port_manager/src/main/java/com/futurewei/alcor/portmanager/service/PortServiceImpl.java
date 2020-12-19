@@ -118,8 +118,6 @@ public class PortServiceImpl implements PortService {
             handleException(context, e);
         }
 
-        portWebJson.setPortEntity(portEntity);
-
         LOG.info("Update port success, projectId: {}, portId: {}, PortWebJson: {}",
                 projectId, portId, portWebJson);
 
@@ -295,5 +293,10 @@ public class PortServiceImpl implements PortService {
         }
 
         return routerUpdateInfo;
+    }
+
+    @Override
+    public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
+        return portRepository.getSubnetPortNumber(subnetId);
     }
 }
