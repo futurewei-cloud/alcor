@@ -40,7 +40,7 @@ public class PortService extends ResourceService {
             }
 
             portConfigBuilder.setMacAddress(portEntity.getMacAddress());
-            portConfigBuilder.setAdminStateUp(portEntity.isAdminStateUp());
+            portConfigBuilder.setAdminStateUp(portEntity.getAdminStateUp());
 
             Port.PortConfiguration.HostInfo.Builder hostInfoBuilder = Port.PortConfiguration.HostInfo.newBuilder();
             hostInfoBuilder.setIpAddress(portEntity.getBindingHostIP());

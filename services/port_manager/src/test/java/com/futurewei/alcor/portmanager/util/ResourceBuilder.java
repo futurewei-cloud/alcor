@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
+import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -345,5 +346,17 @@ public class ResourceBuilder {
         InternalRouterInfo router = new InternalRouterInfo();
         ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetEntities);
         return routerSubnets;
+    }
+
+    public static int buildSubnetPorts() {
+        SubnetPortIds subnetPortIds = new SubnetPortIds();
+        subnetPortIds.setSubnetId(UnitTestConfig.subnetId);
+
+        Set<String> portIds = new HashSet<>();
+        portIds.add(UnitTestConfig.portId1);
+        portIds.add(UnitTestConfig.portId2);
+        subnetPortIds.setPortIds(portIds);
+
+        return subnetPortIds.getPortIds().size();
     }
 }

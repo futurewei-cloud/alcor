@@ -81,8 +81,8 @@ public class RouterProcessor extends AbstractProcessor {
 
     @Override
     void updateProcess(PortContext context) throws Exception {
-        PortEntity oldPortEntity = context.getOldPortEntity();
-        getRouterSubnetIds(context, Collections.singletonList(oldPortEntity));
+        PortEntity portEntity = context.getNewPortEntity();
+        getRouterSubnetIds(context, Collections.singletonList(portEntity));
     }
 
     @Override

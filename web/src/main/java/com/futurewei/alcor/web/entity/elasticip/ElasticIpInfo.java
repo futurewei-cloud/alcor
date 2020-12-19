@@ -46,7 +46,7 @@ public class ElasticIpInfo extends ElasticIp {
         this(eip);
         if (port != null) {
             ElasticIpPortDetails portDetails = new ElasticIpPortDetails();
-            portDetails.setAdminStateUp(port.isAdminStateUp());
+            portDetails.setAdminStateUp(port.getAdminStateUp());
             portDetails.setDeviceId(port.getDeviceId());
             portDetails.setDeviceOwner(port.getDeviceOwner());
             portDetails.setMacAddress(port.getMacAddress());

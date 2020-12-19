@@ -96,8 +96,6 @@ public class MacProcessor extends AbstractProcessor {
 
             IRestRequest updateMacRequest = new UpdateMacAddressRequest(context, newMacState, oldMacState);
             context.getRequestManager().sendRequestAsync(updateMacRequest, null);
-
-            oldPortEntity.setMacAddress(newMacAddress);
         }
     }
 
