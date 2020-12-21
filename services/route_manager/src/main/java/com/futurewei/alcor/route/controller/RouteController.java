@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -150,30 +151,9 @@ public class RouteController {
     public RouteWebJson createVpcDefaultRoute(HttpServletRequest request, @PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
 
         String serviceName="route";
-        Map<String,String> headers=new HashMap();
-        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-        while(stringIterator.hasNext())
-        {
-            String name = stringIterator.next();
-            String value=request.getHeader(name);
-            headers.put(name,value);
-        }
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-            headers.put(header, request.getHeader(header));
-        }
-        Tracer.SpanBuilder builder = null;
-        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
-        System.out.println("parentSpanContext "+parentSpanContext);
-        if (null == parentSpanContext) {
-            builder = tracer.buildSpan(serviceName);
-        } else {
-            builder = tracer.buildSpan("routeMgr").asChildOf(parentSpanContext);
-        }
-        Span span = builder.start();
-        try (Scope op= tracer.scopeManager().activate(span)) {
+
+        try (Scope op= tracer.scopeManager().activate(Tracing.startSpan(request))) {
 
         RouteEntity routeEntity = null;
 

@@ -17,6 +17,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.config.RequestBuilderCarrier;
+import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -129,30 +130,8 @@ public class VpcController {
     @DurationStatistics
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         String serviceName="VpcService";
-        Map<String,String> headers=new HashMap();
-        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-        while(stringIterator.hasNext())
-        {
-            String name = stringIterator.next();
-            String value=request.getHeader(name);
-            headers.put(name,value);
-        }
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-            headers.put(header, request.getHeader(header));
-        }
-        Tracer.SpanBuilder builder = null;
-        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
-        if (null == parentSpanContext) {
-            builder = tracer.buildSpan(serviceName);
-        } else {
-            builder = tracer.buildSpan("createVpcSingle").asChildOf(parentSpanContext);
-        }
-        Span span = builder.start();
-
-        try (Scope op= tracer.scopeManager().activate(span)) {
+        try (Scope op= tracer.scopeManager().activate(Tracing.startSpan(request))) {
         VpcEntity inVpcState = new VpcEntity();
 
         if (StringUtils.isEmpty(resource.getNetwork().getId())) {
@@ -221,7 +200,6 @@ public class VpcController {
         {
             span.finish();
         }
-
         return null;
     }
 
