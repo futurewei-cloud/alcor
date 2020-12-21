@@ -1,6 +1,5 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
-import com.futurewei.alcor.common.config.RequestBuilderCarrier;
 import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
@@ -29,11 +28,7 @@ import java.util.UUID;
 import io.jaegertracing.internal.JaegerTracer;
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.tag.Tags;
 import okhttp3.*;
-import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 @Service
@@ -60,12 +55,10 @@ public class VpcServiceImpl implements VpcService {
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState, Map<String,String> httpHeaders) throws IOException {
         String vpcService = "VpcService";
         try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(vpcService)) {
-
             String vpcServiceImpl = "VPCServiceImpl";
             Span span = Tracing.startServerSpan(tracer, httpHeaders, vpcServiceImpl);
             try (Scope op = tracer.scopeManager().activate(span)) {
                 String routeManagerServiceUrl2 = routeUrl + "vpcs/" + vpcId + "/routes";
-                OkHttpClient okHttpClient = new OkHttpClient();
                 ExclusionStrategy myExclusionStrategy =
                         new ExclusionStrategy() {
                             @Override
@@ -81,13 +74,7 @@ public class VpcServiceImpl implements VpcService {
                         };
                 Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
                 String jsonString = gson.toJson(new VpcWebJson(vpcState));
-                Request.Builder request = new Request.Builder().url(routeManagerServiceUrl2).post(RequestBody.create(MediaType.parse("application/json;charset=utf-8"), jsonString));
-                Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-                Tags.HTTP_METHOD.set(span, "POST");
-                Tags.HTTP_URL.set(span, routeManagerServiceUrl2);
-                tracer.activateSpan(span);
-                tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new RequestBuilderCarrier(request));
-                Response response = okHttpClient.newCall(request.build()).execute();
+                Response response=Tracing.StartImpl(routeManagerServiceUrl2,jsonString,span,tracer,"POST");
                 String rs = response.body().string();
                 RouteWebJson rwj = gson.fromJson(rs, RouteWebJson.class);
                 return rwj;
