@@ -307,18 +307,18 @@ public class FixedIpsProcessor extends AbstractProcessor {
         boolean allocateIpAddress = !((FetchSubnetRequest) (request)).isAllocateIpAddress();
         PortContext context = request.getContext();
         IpAddrRequestFunction function;
-        PortEntity portEntity;
+        List<PortEntity.FixedIp> fixedIps;
 
         if (allocateIpAddress) {
             addSubnetEntities(context, subnetEntities);
             function = this::allocateFixedIpAddress;
-            portEntity = request.getContext().getNewPortEntity();
+            fixedIps = request.getContext().getNewFixedIps();
         } else {
             function = this::releaseFixedIpAddress;
-            portEntity = request.getContext().getOldPortEntity();
+            fixedIps = request.getContext().getOldFixedIps();
         }
 
-        postFetchSubnet(context, subnetEntities, portEntity.getFixedIps(), function);
+        postFetchSubnet(context, subnetEntities, fixedIps, function);
     }
 
     /**
@@ -540,8 +540,8 @@ public class FixedIpsProcessor extends AbstractProcessor {
         PortEntity newPortEntity = context.getNewPortEntity();
         PortEntity oldPortEntity = context.getOldPortEntity();
 
-        List<PortEntity.FixedIp> newFixedIps = newPortEntity.getFixedIps();
-        List<PortEntity.FixedIp> oldFixedIps = oldPortEntity.getFixedIps();
+        List<PortEntity.FixedIp> newFixedIps = new ArrayList<>(newPortEntity.getFixedIps());
+        List<PortEntity.FixedIp> oldFixedIps = new ArrayList<>(oldPortEntity.getFixedIps());
 
         if(newFixedIps != null){
             context.setNewFixedIps(newFixedIps);
@@ -568,12 +568,17 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
             //Allocate new ip addresses
             /*if (newFixedIps.size() > 0) {
+            newFixedIps.removeAll(commonFixedIps);
+            if (newFixedIps.size() > 0) {
+                context.setNewFixedIps(newFixedIps);
                 allocateFixedIpsProcess(context, Collections.singletonList(newPortEntity),
                         this::fetchSubnetForUpdateCallBack);
             }
 
             //Delete old ip addresses
+            oldFixedIps.removeAll(commonFixedIps);
             if (oldFixedIps.size() > 0) {
+                context.setOldFixedIps(oldFixedIps);
                 List<String> subnetIds = oldFixedIps.stream()
                         .map(PortEntity.FixedIp::getSubnetId)
                         .collect(Collectors.toList());
