@@ -20,10 +20,7 @@ import com.futurewei.alcor.web.entity.port.BindingProfile;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PortProcessor extends AbstractProcessor {
     private InternalPortEntity buildInternalPortEntity(PortEntity portEntity) {
@@ -68,9 +65,14 @@ public class PortProcessor extends AbstractProcessor {
          * Fields with values of null in the new port entity are populated
          * with the corresponding fields in the old port entity.
          */
-        Class<? extends PortEntity> portEntityClass = PortEntity.class;
-        Field[] declaredFields = portEntityClass.getDeclaredFields();
-        for (Field field: declaredFields) {
+        List<Field> allFields = new ArrayList<>();
+        Class entityClass = PortEntity.class;
+        while (entityClass != null) {
+            allFields.addAll(Arrays.asList(entityClass.getDeclaredFields()));
+            entityClass = entityClass.getSuperclass();
+        }
+
+        for (Field field: allFields) {
             field.setAccessible(true);
             Object oldValue = field.get(oldPortEntity);
             Object newValue = field.get(newPortEntity);
