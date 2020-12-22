@@ -206,6 +206,8 @@ public class SubnetController {
             String vpcId = inSubnetEntity.getVpcId();
             String cidr = inSubnetEntity.getCidr();
             String gatewayIp = inSubnetEntity.getGatewayIp();
+            // TODO: if it didn't give gateway ip, we should allocate the first ip in cidr as gateway ip
+
             boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(gatewayIp, cidr);
             if (!gatewayIpIsValid) {
                 throw new GatewayIpUnsupported();
@@ -512,6 +514,15 @@ public class SubnetController {
                 return new ResponseId();
             }
 
+            String rangeId = null;
+            String ipV4RangeId = subnetEntity.getIpV4RangeId();
+            String ipV6RangeId = subnetEntity.getIpV6RangeId();
+            if (ipV4RangeId != null) {
+                rangeId = ipV4RangeId;
+            } else {
+                rangeId = ipV6RangeId;
+            }
+
             // TODO: check if there is any gateway / non-gateway port for the subnet, waiting for PM new API
             Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(projectId, subnetId);
             if (checkIfAnyNoneGatewayPortInSubnet) {
@@ -535,6 +546,9 @@ public class SubnetController {
 
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
+
+            // delete ip range in Private IP Manager
+            this.subnetService.deleteIPRangeInPIM(rangeId);
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 
