@@ -286,11 +286,13 @@ public class RouterServiceImpl implements RouterService {
         RouteTable inRoutetable = resource.getRoutetable();
         // Get or create a router for a Subnet
         routeTable = getSubnetRouteTable(projectId, subnetId);
+        if (routeTable != null) {
+            RouteManagerUtil.copyPropertiesIgnoreNull(inRoutetable, routeTable);
+            this.routeTableDatabaseService.addRouteTable(routeTable);
 
-        RouteManagerUtil.copyPropertiesIgnoreNull(inRoutetable, routeTable);
-        this.routeTableDatabaseService.addRouteTable(routeTable);
+            // TODO: notify Subnet Manager to update L3 neighbor for all ports in the same subnet
 
-        // TODO: notify Subnet Manager to update L3 neighbor for all ports in the same subnet
+        }
 
         return routeTable;
     }

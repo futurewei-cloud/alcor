@@ -413,6 +413,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
             SubnetWebRequest inSubnetWebResponseObject = resource.getSubnet();
+            List<HostRoute> hostRoutes = inSubnetWebResponseObject.getHostRoutes();
             Preconditions.checkNotNull(inSubnetWebResponseObject, "Empty resource");
 //            RestPreconditionsUtil.verifyResourceNotNull(inSubnetWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(inSubnetWebResponseObject, projectId);
@@ -477,7 +478,10 @@ public class SubnetController {
             }
 
             // update subnet routing rule in route manager
-            this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
+            if (hostRoutes != null && hostRoutes.size() > 0) {
+                this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
+            }
+
 
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
