@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.restclient;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,4 +51,12 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);
     }
+
+    @DurationStatistics
+    public void createNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
+    }
+
+
 }

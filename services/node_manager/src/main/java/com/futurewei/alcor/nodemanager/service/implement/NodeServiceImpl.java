@@ -19,9 +19,11 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
+import com.futurewei.alcor.nodemanager.proxy.DataPlaneManagerProxy;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,6 +167,10 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
+
+                NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
+                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy();
+                dataPlaneManagerProxy.creatNodeInfo(nodeInfoJson);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
