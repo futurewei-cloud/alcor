@@ -16,40 +16,45 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.route.controller;
 
-import com.futurewei.alcor.common.config.JaegerTracerHelper;
 import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.route.entity.RouteConstant;
+import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+import java.util.*;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-
-import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -143,6 +148,27 @@ public class RouteController {
 
     }
 
+    @RequestMapping(produces = "application/json", method = RequestMethod.GET, value = {"/vpcs/abc"})
+    @ResponseBody
+    public ResponseEntity getData(HttpServletRequest request, @RequestParam(value = "ID", defaultValue = "") String id) {
+        Tracer tracer = new JaegerTracerHelper().initTracer("route1");
+       TracingObj tracingObj =  Tracing.startSpan(request);
+       Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+            String helloStr = String.format("Hello, %s!", "helloTo");
+            span.log(ImmutableMap.of("event", "string-format", "value", helloStr));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        finally
+        {
+            span.finish();
+        }
+        return null;
+    }
+
     @RequestMapping(
             method = POST,
             value = {"/vpcs/{vpcId}/routes"})
@@ -152,32 +178,32 @@ public class RouteController {
 
         String serviceName="route";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+            RouteEntity routeEntity = null;
 
-        try (Scope op= tracer.scopeManager().activate(Tracing.startSpan(request))) {
+            try {
+                RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
+                VpcEntity vpcEntity = resource.getNetwork();
+                RestPreconditionsUtil.verifyResourceNotNull(vpcEntity);
 
-        RouteEntity routeEntity = null;
+                String id = UUID.randomUUID().toString();
+                String projectId = vpcEntity.getProjectId();
+                String destination = vpcEntity.getCidr();
+                String routeTableId = UUID.randomUUID().toString();
 
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-            VpcEntity vpcEntity = resource.getNetwork();
-            RestPreconditionsUtil.verifyResourceNotNull(vpcEntity);
+                routeEntity = new RouteEntity(projectId, id, "default_route_rule", "",
+                        destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
 
-            String id = UUID.randomUUID().toString();
-            String projectId = vpcEntity.getProjectId();
-            String destination = vpcEntity.getCidr();
-            String routeTableId = UUID.randomUUID().toString();
+                this.routeDatabaseService.addRoute(routeEntity);
 
-            routeEntity = new RouteEntity(projectId, id, "default_route_rule", "",
-                    destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
+                this.routeWithVpcMapperService.addMapperByRouteEntity(vpcId, routeEntity);
+            } catch (ParameterNullOrEmptyException e) {
+                throw new Exception(e);
+            }
 
-            this.routeDatabaseService.addRoute(routeEntity);
-
-            this.routeWithVpcMapperService.addMapperByRouteEntity(vpcId, routeEntity);
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
-        }
-
-        return new RouteWebJson(routeEntity);
+            return new RouteWebJson(routeEntity);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -188,7 +214,7 @@ public class RouteController {
             span.finish();
         }
 
-        return null;
+       return null;
     }
 
     @RequestMapping(
@@ -196,31 +222,50 @@ public class RouteController {
             value = {"/subnets/{subnetId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public RouteWebJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
-        RouteEntity routeEntity = null;
+    public RouteWebJson createSubnetRoute(HttpServletRequest request,@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
 
-        try {
-            RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
+        String serviceName="route";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
 
-            SubnetEntity inSubnetState = resource.getSubnet();
-            RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
+            RouteEntity routeEntity = null;
 
-            String id = UUID.randomUUID().toString();
-            String projectId = inSubnetState.getProjectId();
-            String destination = inSubnetState.getCidr();
-            String routeTableId = UUID.randomUUID().toString();
+            try {
+                RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetId);
 
-            routeEntity = new RouteEntity(projectId, id, "default_route_rule", "",
-                    destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
+                SubnetEntity inSubnetState = resource.getSubnet();
+                RestPreconditionsUtil.verifyResourceNotNull(inSubnetState);
 
-            this.routeDatabaseService.addRoute(routeEntity);
+                String id = UUID.randomUUID().toString();
+                String projectId = inSubnetState.getProjectId();
+                String destination = inSubnetState.getCidr();
+                String routeTableId = UUID.randomUUID().toString();
 
-            this.routeWithSubnetMapperService.addMapperByRouteEntity(subnetId, routeEntity);
-        } catch (ParameterNullOrEmptyException e) {
-            throw new Exception(e);
+                routeEntity = new RouteEntity(projectId, id, "default_route_rule", "",
+                        destination, RouteConstant.DEFAULT_TARGET, RouteConstant.DEFAULT_PRIORITY, RouteConstant.DEFAULT_ROUTE_TABLE_TYPE, routeTableId);
+
+                this.routeDatabaseService.addRoute(routeEntity);
+
+                this.routeWithSubnetMapperService.addMapperByRouteEntity(subnetId, routeEntity);
+            } catch (ParameterNullOrEmptyException e) {
+                throw new Exception(e);
+            }
+
+            return new RouteWebJson(routeEntity);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-        return new RouteWebJson(routeEntity);
+        finally
+        {
+            span.finish();
+        }
+
+        return null;
     }
 
     @RequestMapping(

@@ -16,6 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.controller;
 
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.privateipmanager.exception.*;
@@ -24,11 +27,27 @@ import com.futurewei.alcor.privateipmanager.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.privateipmanager.utils.Ipv6AddrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+import java.util.*;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -36,6 +55,9 @@ import java.util.List;
 public class IpAddrController {
     @Autowired
     IpAddrServiceImpl ipAddrService;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     private void checkVpcId(String vpcId) throws VpcIdInvalidException {
         if (vpcId == null || "".equals(vpcId)) {
@@ -187,33 +209,49 @@ public class IpAddrController {
         return ipAddrService.getIpAddrBulk(rangeId);
     }
 
+
     @PostMapping("/ips/range")
     @ResponseBody
     @DurationStatistics
     @ResponseStatus(HttpStatus.CREATED)
     public IpAddrRangeRequest createIpAddrRange(@RequestBody IpAddrRangeRequest request) throws Exception {
-        checkVpcId(request.getVpcId());
-        checkSubnetId(request.getSubnetId());
-        checkIpAddr(request.getFirstIp());
-        checkIpAddr(request.getLastIp());
-        checkIpVersion(request.getIpVersion());
+        String serviceName="ip";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request1);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+//            checkVpcId(request.getVpcId());
+//            checkSubnetId(request.getSubnetId());
+//            checkIpAddr(request.getFirstIp());
+//            checkIpAddr(request.getLastIp());
+//            checkIpVersion(request.getIpVersion());
 
-        //Check if first < last
-        if (request.getIpVersion() == IpVersion.IPV4.getVersion()) {
-            long firstIpLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstIp());
-            long lastIpLong = Ipv4AddrUtil.ipv4ToLong(request.getLastIp());
-            if (firstIpLong >= lastIpLong) {
-                throw new IpAddrRangeInvalidException();
+            //Check if first < last
+            if (request.getIpVersion() == IpVersion.IPV4.getVersion()) {
+                long firstIpLong = Ipv4AddrUtil.ipv4ToLong(request.getFirstIp());
+                long lastIpLong = Ipv4AddrUtil.ipv4ToLong(request.getLastIp());
+                if (firstIpLong >= lastIpLong) {
+                    throw new IpAddrRangeInvalidException();
+                }
+            } else {
+                BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getFirstIp());
+                BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getLastIp());
+                if (firstIpBigInt.compareTo(lastIpBigInt) > 0) {
+                    throw new IpAddrRangeInvalidException();
+                }
             }
-        } else {
-            BigInteger firstIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getFirstIp());
-            BigInteger lastIpBigInt = Ipv6AddrUtil.ipv6ToBitInt(request.getLastIp());
-            if (firstIpBigInt.compareTo(lastIpBigInt) > 0) {
-                throw new IpAddrRangeInvalidException();
-            }
+
+            return ipAddrService.createIpAddrRange(request);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-        return ipAddrService.createIpAddrRange(request);
+        finally
+        {
+            span.finish();
+        }
+        return null;
     }
 
     @DeleteMapping("/ips/range/{range_id}")

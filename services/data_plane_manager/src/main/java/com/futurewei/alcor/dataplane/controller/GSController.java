@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.dataplane.controller;
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -36,11 +38,22 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -49,6 +62,8 @@ public class GSController {
 
   @Autowired private Config config;
   @Autowired private GoalStateManager goalStateManager;
+  @Autowired
+  private HttpServletRequest request;
 
   /**
    * Accept north bound calls then transfer to ACA calls in southbound
@@ -63,9 +78,24 @@ public class GSController {
   @ResponseStatus(HttpStatus.CREATED)
   @DurationStatistics
   public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs) throws Exception {
-    gs.setOpType(Common.OperationType.CREATE);
-    gs.setRsType(Common.ResourceType.PORT);
-    return program(gs).get();
+    String serviceName="dpm";
+    Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+    TracingObj tracingObj =  Tracing.startSpan(request);
+    Span span=tracingObj.getSpan();
+    try (Scope op= tracer.scopeManager().activate(span)) {
+      gs.setOpType(Common.OperationType.CREATE);
+      gs.setRsType(Common.ResourceType.PORT);
+      return program(gs).get();
+    } catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+
+    finally
+    {
+      span.finish();
+    }
+    return null;
   }
 
   /**

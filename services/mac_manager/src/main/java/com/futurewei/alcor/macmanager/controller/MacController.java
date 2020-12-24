@@ -16,6 +16,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.macmanager.controller;
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
@@ -26,10 +28,13 @@ import com.futurewei.alcor.macmanager.service.MacService;
 import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
 import com.futurewei.alcor.macmanager.exception.MacRepositoryTransactionErrorException;
 import com.futurewei.alcor.macmanager.utils.MacManagerRestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +44,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
+import java.util.*;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -56,16 +69,30 @@ public class MacController {
 
     @DurationStatistics
     public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
+        String serviceName="mac";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+            MacState macState = null;
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
 
-        MacState macState = null;
-        MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-        MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
+            MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
+            MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
+            macState = service.getMacStateByMacAddress(macaddress);
 
-        MacManagerRestPreconditionsUtil.verifyParameterNotNullorEmpty(macaddress);
-        MacManagerRestPreconditionsUtil.verifyMacAddressFormat(macaddress);
-        macState = service.getMacStateByMacAddress(macaddress);
+            return new MacStateJson(macState);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        return new MacStateJson(macState);
+        finally
+        {
+            span.finish();
+        }
+       return null;
     }
 
     @RequestMapping(

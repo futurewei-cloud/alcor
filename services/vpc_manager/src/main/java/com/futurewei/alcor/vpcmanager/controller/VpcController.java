@@ -18,6 +18,7 @@ package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.config.RequestBuilderCarrier;
 import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -131,7 +132,8 @@ public class VpcController {
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         String serviceName="VpcService";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        try (Scope op= tracer.scopeManager().activate(Tracing.startSpan(request))) {
+        TracingObj tracingObj=Tracing.startSpan(request);
+        try (Scope op= tracer.scopeManager().activate(tracingObj.getSpan())) {
         VpcEntity inVpcState = new VpcEntity();
 
         if (StringUtils.isEmpty(resource.getNetwork().getId())) {
@@ -167,7 +169,7 @@ public class VpcController {
             }
 
             // get route info
-            RouteWebJson response = this.vpcService.getRoute(inVpcState.getId(), inVpcState,headers);
+            RouteWebJson response = this.vpcService.getRoute(inVpcState.getId(), inVpcState,tracingObj.getHeaders());
 
             // add RouteWebObject
             if (response != null) {
@@ -198,7 +200,7 @@ public class VpcController {
 
         finally
         {
-            span.finish();
+            tracingObj.getSpan().finish();
         }
         return null;
     }

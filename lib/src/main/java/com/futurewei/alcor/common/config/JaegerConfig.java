@@ -5,13 +5,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JaegerConfig {
-    @Value("${jaeger.host}")
+    @Value("${jaeger.host:127.0.0.1}")
     public String jaegerHost;
-    @Value("${jaeger.port}")
+    @Value("${jaeger.port:5775}")
     public String jaegerPort;
-    @Value("${jaeger.flush}")
+    @Value("${jaeger.flush:1000}")
     public String jaegerFlush;
-    @Value("${jaeger.maxQsize}")
+    @Value("${jaeger.maxQsize:1000}")
     public String jaegerMaxQsize;
 
     public String getJaegerHost() {

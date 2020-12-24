@@ -15,6 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.controller;
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.portmanager.exception.*;
@@ -38,6 +40,14 @@ import java.util.stream.Collectors;
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkPort;
 import static com.futurewei.alcor.portmanager.util.RestParameterValidator.checkRouterSubnetUpdateInfo;
+import java.util.*;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -69,18 +79,34 @@ public class PortController {
     @DurationStatistics
     public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebJson portWebJson) throws Exception {
-        PortEntity portEntity = portWebJson.getPortEntity();
-        if (StringUtil.isNullOrEmpty(portEntity.getVpcId())) {
-            throw new NetworkIdRequired();
+        String serviceName="port";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+            PortEntity portEntity = portWebJson.getPortEntity();
+            if (StringUtil.isNullOrEmpty(portEntity.getVpcId())) {
+                throw new NetworkIdRequired();
+            }
+
+            checkPort(portEntity);
+
+            if(portEntity.getBindingVifType() == null){
+                portEntity.setBindingVifType(vifType);
+            }
+
+            return portService.createPort(projectId, portWebJson);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-        checkPort(portEntity);
-
-        if(portEntity.getBindingVifType() == null){
-            portEntity.setBindingVifType(vifType);
+        finally
+        {
+            span.finish();
         }
 
-        return portService.createPort(projectId, portWebJson);
+       return null;
     }
 
     /**

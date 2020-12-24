@@ -1,6 +1,8 @@
 package com.futurewei.alcor.subnet.service.implement;
 
 
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
@@ -24,6 +26,10 @@ import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.mac.*;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +40,20 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import com.google.common.collect.ImmutableMap;
+import io.jaegertracing.internal.JaegerTracer;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
+import okhttp3.*;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class SubnetServiceImp implements SubnetService {
@@ -59,6 +74,9 @@ public class SubnetServiceImp implements SubnetService {
 
     @Value("${microservices.ip.service.url}")
     private String ipUrl;
+
+    @Autowired
+    private HttpServletRequest request;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -141,18 +159,79 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
-        String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
-        RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
-        // retry if routeResponse is null
-        if (routeResponse == null) {
-            routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
-        }
-        if (routeResponse == null) {
-            throw new FallbackException("fallback request");
-        }
-        return routeResponse;
+    public RouteWebJson createRouteRules(JaegerTracer tracer,Span span,String subnetId, SubnetEntity subnetEntity,Map<String,String> httpHeaders) throws FallbackException {
+//        try (JaegerTracer tracer = JaegerTracerHelper.initTracer("subnet1")) {
+//
+//            Span span = Tracing.startServerSpan1(tracer, httpHeaders, "subnet1-span");
+            try (Scope op = tracer.scopeManager().activate(span)) {
+                String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
+//                String routeManagerServiceUrl = routeUrl + "vpcs/" + subnetEntity.getVpcId() + "/routes";
+
+
+                String routeManagerServiceUrl1 = routeUrl + "/vpcs/abc";
+
+
+
+
+
+                Request.Builder requestBuilder = new Request.Builder().url(routeManagerServiceUrl1);
+
+                Span activeSpan = tracer.activeSpan();
+
+                Tags.SPAN_KIND.set(activeSpan, Tags.SPAN_KIND_CLIENT);
+                Tags.HTTP_METHOD.set(activeSpan, "GET");
+                Tags.HTTP_URL.set(activeSpan, routeManagerServiceUrl1.toString());
+
+                tracer.inject(activeSpan.context(), Format.Builtin.HTTP_HEADERS,
+                        Tracing.requestBuilderCarrier(requestBuilder));
+                OkHttpClient client = new OkHttpClient();
+                Request request = requestBuilder.build();
+                Response response = client.newCall(request).execute();
+
+
+
+
+                Request.Builder requestBuilder1 = new Request.Builder().url(routeManagerServiceUrl);
+                Span activeSpan1 = tracer.activeSpan();
+                Tags.SPAN_KIND.set(activeSpan1, Tags.SPAN_KIND_CLIENT);
+                Tags.HTTP_METHOD.set(activeSpan1, "POST");
+                Tags.HTTP_URL.set(activeSpan1, routeManagerServiceUrl.toString());
+                tracer.inject(activeSpan1.context(), Format.Builtin.HTTP_HEADERS,
+                        Tracing.requestBuilderCarrier(requestBuilder1));
+                OkHttpClient client1 = new OkHttpClient();
+                MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+                ExclusionStrategy myExclusionStrategy =
+                        new ExclusionStrategy() {
+                            @Override
+                            public boolean shouldSkipField(FieldAttributes fa) {
+                                return fa.getName().equals("tenantId");
+                            }
+                            @Override
+                            public boolean shouldSkipClass(Class<?> clazz) {
+                                return false;
+                            }
+                        };
+                Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+                String jsonString=gson.toJson(new SubnetWebJson(subnetEntity));
+                RequestBody requestBody = FormBody.create(mediaType, jsonString);
+                Request request1 = new Request.Builder()
+                        .url(routeManagerServiceUrl)
+                        .post(requestBody)
+                        .build();
+                Call call = client1.newCall(request1);
+                Response response1 = call.execute();
+                System.out.println(response1);
+                String rs=response1.body().string();
+                System.out.println("@@# "+rs);
+                RouteWebJson rwj=gson.fromJson(rs,RouteWebJson.class);
+                return rwj;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                span.finish();
+            }
+//        }
+        return null;
     }
 
     @Override
@@ -178,7 +257,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws FallbackException {
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated,Map<String,String> httpHeaders) throws FallbackException {
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
@@ -203,55 +282,149 @@ public class SubnetServiceImp implements SubnetService {
         ipAddrRangeRequest.setVpcId(vpcId);
 
 
-        HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
-                ipAddrRangeRequest.getId(),
-                ipAddrRangeRequest.getVpcId(),
-                ipAddrRangeRequest.getSubnetId(),
-                ipAddrRangeRequest.getIpVersion(),
-                ipAddrRangeRequest.getFirstIp(),
-                ipAddrRangeRequest.getLastIp()));
-        IpAddrRangeRequest ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
-        // retry if ipRangeResponse is null
-        if (ipRangeResponse == null) {
-            ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
-        }
-        if (ipRangeResponse == null) {
-            throw new FallbackException("fallback request");
+//        HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
+//                ipAddrRangeRequest.getId(),
+//                ipAddrRangeRequest.getVpcId(),
+//                ipAddrRangeRequest.getSubnetId(),
+//                ipAddrRangeRequest.getIpVersion(),
+//                ipAddrRangeRequest.getFirstIp(),
+//                ipAddrRangeRequest.getLastIp()));
+
+        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer("subnet1")) {
+
+            Span span = Tracing.startServerSpan(tracer, httpHeaders, "subnet1-span");
+            try (Scope op = tracer.scopeManager().activate(span)) {
+                Request.Builder requestBuilder1 = new Request.Builder().url(ipManagerCreateRangeUrl);
+                Span activeSpan1 = tracer.activeSpan();
+                Tags.SPAN_KIND.set(activeSpan1, Tags.SPAN_KIND_CLIENT);
+                Tags.HTTP_METHOD.set(activeSpan1, "POST");
+                Tags.HTTP_URL.set(activeSpan1, ipManagerCreateRangeUrl.toString());
+                tracer.inject(activeSpan1.context(), Format.Builtin.HTTP_HEADERS,
+                        Tracing.requestBuilderCarrier(requestBuilder1));
+                OkHttpClient client1 = new OkHttpClient();
+                MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+                ExclusionStrategy myExclusionStrategy =
+                        new ExclusionStrategy() {
+                            @Override
+                            public boolean shouldSkipField(FieldAttributes fa) {
+                                return fa.getName().equals("tenantId");
+                            }
+                            @Override
+                            public boolean shouldSkipClass(Class<?> clazz) {
+                                return false;
+                            }
+                        };
+                Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+                String jsonString=gson.toJson(new IpAddrRangeRequest(
+                        ipAddrRangeRequest.getId(),
+                        ipAddrRangeRequest.getVpcId(),
+                        ipAddrRangeRequest.getSubnetId(),
+                        ipAddrRangeRequest.getIpVersion(),
+                        ipAddrRangeRequest.getFirstIp(),
+                        ipAddrRangeRequest.getLastIp()));
+                RequestBody requestBody = FormBody.create(mediaType, jsonString);
+                Request request1 = new Request.Builder()
+                        .url(ipManagerCreateRangeUrl)
+                        .post(requestBody)
+                        .build();
+                Call call = client1.newCall(request1);
+                Response response1 = call.execute();
+                System.out.println(response1);
+                String rs=response1.body().string();
+                System.out.println("@@# "+rs);
+                IpAddrRangeRequest ipRangeResponse=gson.fromJson(rs,IpAddrRangeRequest.class);
+
+
+                if (!isOpenToBeAllocated) {
+                    IpAddrRequest ipAddrRequest = new IpAddrRequest();
+                    ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+                    ipAddrRequest.setRangeId(ipRangeResponse.getId());
+                    return ipAddrRequest;
+                }
+
+                Request.Builder requestBuilder2 = new Request.Builder().url(ipManagerServiceUrl);
+                Span activeSpan2 = tracer.activeSpan();
+                Tags.SPAN_KIND.set(activeSpan2, Tags.SPAN_KIND_CLIENT);
+                Tags.HTTP_METHOD.set(activeSpan2, "POST");
+                Tags.HTTP_URL.set(activeSpan2, ipManagerServiceUrl.toString());
+                tracer.inject(activeSpan2.context(), Format.Builtin.HTTP_HEADERS,
+                        Tracing.requestBuilderCarrier(requestBuilder2));
+
+                // Allocate Ip Address
+                IpAddrRequest ipAddrRequest = new IpAddrRequest();
+                ipAddrRequest.setRangeId(ipRangeResponse.getId());
+                ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
+                ipAddrRequest.setIp(gatewayIp);
+                ipAddrRequest.setVpcId(vpcId);
+                ipAddrRequest.setSubnetId(subnetId);
+
+
+                String jsonString1=gson.toJson(new IpAddrRequest(
+                        ipAddrRequest.getIpVersion(),
+                        ipAddrRequest.getVpcId(),
+                        ipAddrRequest.getSubnetId(),
+                        ipAddrRequest.getRangeId(),
+                        ipAddrRequest.getIp(),
+                        ipAddrRequest.getState()));
+                RequestBody requestBody1 = FormBody.create(mediaType, jsonString1);
+                Request request2 = new Request.Builder()
+                        .url(ipManagerServiceUrl)
+                        .post(requestBody1)
+                        .build();
+                Call call1 = client1.newCall(request2);
+                Response response2 = call1.execute();
+                System.out.println(response2);
+                String rs1=response2.body().string();
+                System.out.println("@@# "+rs1);
+                IpAddrRequest ipRangeResponse1=gson.fromJson(rs1,IpAddrRequest.class);
+                return ipRangeResponse1;
+//                return rwj;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                span.finish();
+            }
         }
 
-        if (!isOpenToBeAllocated) {
-            IpAddrRequest ipAddrRequest = new IpAddrRequest();
-            ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
-            ipAddrRequest.setRangeId(ipRangeResponse.getId());
-            return ipAddrRequest;
-        }
-
-        // Allocate Ip Address
-        IpAddrRequest ipAddrRequest = new IpAddrRequest();
-        ipAddrRequest.setRangeId(ipRangeResponse.getId());
-        ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
-        ipAddrRequest.setIp(gatewayIp);
-        ipAddrRequest.setVpcId(vpcId);
-        ipAddrRequest.setSubnetId(subnetId);
-
-        HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
-                ipAddrRequest.getIpVersion(),
-                ipAddrRequest.getVpcId(),
-                ipAddrRequest.getSubnetId(),
-                ipAddrRequest.getRangeId(),
-                ipAddrRequest.getIp(),
-                ipAddrRequest.getState()));
-        IpAddrRequest ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
-        // retry if ipResponse is null
-        if (ipResponse == null) {
-            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
-        }
-        if (ipResponse == null) {
-            throw new FallbackException("fallback request");
-        }
 
 
-        return ipResponse;
+
+
+
+
+
+
+
+//        IpAddrRangeRequest ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+//        // retry if ipRangeResponse is null
+//        if (ipRangeResponse == null) {
+//            ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+//        }
+//        if (ipRangeResponse == null) {
+//            throw new FallbackException("fallback request");
+//        }
+
+
+
+//        HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
+//                ipAddrRequest.getIpVersion(),
+//                ipAddrRequest.getVpcId(),
+//                ipAddrRequest.getSubnetId(),
+//                ipAddrRequest.getRangeId(),
+//                ipAddrRequest.getIp(),
+//                ipAddrRequest.getState()));
+//        IpAddrRequest ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
+//        // retry if ipResponse is null
+//        if (ipResponse == null) {
+//            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
+//        }
+//        if (ipResponse == null) {
+//            throw new FallbackException("fallback request");
+//        }
+//
+//
+//        return ipResponse;
+        return null;
     }
 
     @Override
@@ -615,3 +788,4 @@ public class SubnetServiceImp implements SubnetService {
     }
 
 }
+

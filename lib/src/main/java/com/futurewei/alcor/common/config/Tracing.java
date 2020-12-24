@@ -54,8 +54,9 @@ public final class Tracing {
         };
     }
 
-    public static Span startSpan(HttpServletRequest request)
+    public static TracingObj startSpan(HttpServletRequest request)
     {
+
         String serviceName="VpcService";
         Map<String,String> headers=new HashMap();
         Iterator<String> stringIterator = request.getHeaderNames().asIterator();
@@ -78,7 +79,7 @@ public final class Tracing {
         } else {
             builder = tracer.buildSpan("createVpcSingle").asChildOf(parentSpanContext);
         }
-        return builder.start();
+        return new TracingObj(builder.start(),headers);
     }
     public static Response StartImpl(String url, String jsonStr, Span span, Tracer tracer, String method) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient();

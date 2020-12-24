@@ -14,6 +14,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.nodemanager.controller;
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ParameterUnexpectedValueException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
@@ -43,6 +45,14 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import java.util.*;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -114,31 +124,48 @@ public class NodeController {
                                     @ApiParam(value = "node_id") @RequestParam(required = false) String id,
                                     @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
                                     @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
-        List<NodeInfo> nodes = null;
-        try {
-            Map<String, Object[]> queryParams =
-                    ControllerUtil.transformUrlPathParams(request.getParameterMap(), NodeInfo.class);
-            if (name != null) {
-                queryParams.put("name", new String[]{name});
-            }
-            if (id != null) {
-                queryParams.put("id", new String[]{id});
-            }
-            if (mac_address != null) {
-                queryParams.put("macAddress", new String[]{mac_address});
-            }
-            if (local_ip != null) {
-                queryParams.put("localIp", new String[]{local_ip});
-            }
 
-            nodes = service.getAllNodes(queryParams);
-        } catch (ParameterNullOrEmptyException e) {
-            throw e;
+        String serviceName="node";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
+        TracingObj tracingObj =  Tracing.startSpan(request);
+        Span span=tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
+            List<NodeInfo> nodes = null;
+            try {
+                Map<String, Object[]> queryParams =
+                        ControllerUtil.transformUrlPathParams(request.getParameterMap(), NodeInfo.class);
+                if (name != null) {
+                    queryParams.put("name", new String[]{name});
+                }
+                if (id != null) {
+                    queryParams.put("id", new String[]{id});
+                }
+                if (mac_address != null) {
+                    queryParams.put("macAddress", new String[]{mac_address});
+                }
+                if (local_ip != null) {
+                    queryParams.put("localIp", new String[]{local_ip});
+                }
+
+                nodes = service.getAllNodes(queryParams);
+            } catch (ParameterNullOrEmptyException e) {
+                throw e;
+            }
+            if (nodes == null) {
+                return new NodesWebJson();
+            }
+            return new NodesWebJson(nodes);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
-        if (nodes == null) {
-            return new NodesWebJson();
+
+        finally
+        {
+            span.finish();
         }
-        return new NodesWebJson(nodes);
+
+        return null;
     }
 
     @RequestMapping(
