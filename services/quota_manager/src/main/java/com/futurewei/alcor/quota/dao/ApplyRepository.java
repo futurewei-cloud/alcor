@@ -26,9 +26,12 @@ import com.futurewei.alcor.web.entity.quota.ApplyInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class ApplyRepository implements ICacheRepositoryEx<ApplyInfo> {
@@ -78,6 +81,12 @@ public class ApplyRepository implements ICacheRepositoryEx<ApplyInfo> {
     @Override
     public void addItem(ApplyInfo newItem) throws CacheException {
         cache.put(newItem.getApplyId(), newItem);
+    }
+
+    @Override
+    public void addItems(List<ApplyInfo> items) throws CacheException {
+        Map<String, ApplyInfo> applyInfoMap = items.stream().collect(Collectors.toMap(ApplyInfo::getApplyId, Function.identity()));
+        cache.putAll(applyInfoMap);
     }
 
     @Override

@@ -28,8 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouterExtraAttributeRepository implements ICacheRepository<RouterExtraAttribute> {
@@ -80,6 +83,21 @@ public class RouterExtraAttributeRepository implements ICacheRepository<RouterEx
             tx.commit();
         } catch (Exception e) {
             throw new CacheException();
+        }
+    }
+
+    @Override
+    public void addItems(List<RouterExtraAttribute> items) throws CacheException {
+        logger.log(Level.INFO, "Add router extra attribute batch: {}",items);
+        try (Transaction tx = cache.getTransaction().start()) {
+            Map<String, RouterExtraAttribute> routerExtraAttributeMap = items.stream().collect(Collectors.toMap(RouterExtraAttribute::getId, Function.identity()));
+            cache.putAll(routerExtraAttributeMap);
+            tx.commit();
+        } catch (CacheException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.log(Level.FINE, "Add router extra attribute batch error",e);
+            e.printStackTrace();
         }
     }
 

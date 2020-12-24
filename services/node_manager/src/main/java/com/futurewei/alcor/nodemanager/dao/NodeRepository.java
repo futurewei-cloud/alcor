@@ -28,6 +28,8 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class NodeRepository implements ICacheRepository<NodeInfo> {
@@ -100,6 +102,19 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
             throw e;
         } catch (Exception e) {
             logger.error("Add a node error: "+e.getMessage());
+        }
+    }
+
+    @Override
+    public void addItems(List<NodeInfo> items) throws CacheException {
+        try(Transaction tx =cache.getTransaction().start()){
+            Map<String, NodeInfo> nodeInfoMap = items.stream().collect(Collectors.toMap(NodeInfo::getId, Function.identity()));
+            cache.putAll(nodeInfoMap);
+            tx.commit();
+        } catch (CacheException e) {
+            throw e;
+        } catch (Exception e){
+            logger.error("Add items error: {}",e.getMessage());
         }
     }
 

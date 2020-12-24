@@ -19,19 +19,20 @@ package com.futurewei.alcor.subnet.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.common.db.repo.ICacheRepository;
-
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class SubnetRepository implements ICacheRepository<SubnetEntity> {
@@ -79,6 +80,14 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
         cache.put(subnet.getId(), subnet);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<SubnetEntity> items) throws CacheException {
+        logger.log(Level.INFO, "Add subnet batch: {}",items);
+        Map<String, SubnetEntity> subnetEntityMap = items.stream().collect(Collectors.toMap(SubnetEntity::getId, Function.identity()));
+        cache.putAll(subnetEntityMap);
     }
 
     @Override

@@ -7,22 +7,24 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
+import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
+import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
+import com.futurewei.alcor.vpcmanager.entity.NetworkVlanRange;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
-import com.futurewei.alcor.vpcmanager.entity.NetworkVlanRange;
-import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
-import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
 import com.futurewei.alcor.vpcmanager.exception.RangeNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
@@ -87,6 +89,20 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
         } catch (CacheException e) {
             e.printStackTrace();
             logger.error("VlanRangeRepository addItem() exception:", e);
+        }
+    }
+
+    @Override
+    @DurationStatistics
+    public synchronized void addItems(List<NetworkVlanRange> items) throws CacheException {
+        logger.info("Add networkVlanRange batch: {}", items);
+
+        try {
+            Map<String, NetworkVlanRange> networkVlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVlanRange::getId, Function.identity()));
+            cache.putAll(networkVlanRangeMap);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            logger.error("VlanRangeRepository addItems() exception:", e);
         }
     }
 

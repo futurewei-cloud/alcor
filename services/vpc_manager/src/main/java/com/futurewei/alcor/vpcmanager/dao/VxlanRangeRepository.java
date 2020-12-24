@@ -7,22 +7,24 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
-import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
-import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
-import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
 import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
 import com.futurewei.alcor.vpcmanager.entity.NetworkVxlanRange;
+import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
+import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
 import com.futurewei.alcor.vpcmanager.exception.RangeNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange> {
@@ -88,6 +90,20 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
         } catch (CacheException e) {
             e.printStackTrace();
             logger.error("VxlanRangeRepository addItem() exception:", e);
+        }
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<NetworkVxlanRange> items) throws CacheException {
+        logger.error("Add networkVxlanRange batch: {}",items);
+
+        try {
+            Map<String, NetworkVxlanRange> networkVxlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVxlanRange::getId, Function.identity()));
+            cache.putAll(networkVxlanRangeMap);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            logger.error("VxlanRangeRepository addItems() exception:", e);
         }
     }
 

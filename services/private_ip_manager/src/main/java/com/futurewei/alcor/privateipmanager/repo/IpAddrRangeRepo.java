@@ -37,6 +37,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -119,6 +120,18 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("IpRangeRepository addItem() exception:", e);
+        }
+    }
+
+    @Override
+    public synchronized void addItems(List<IpAddrRange> items) {
+        LOG.error("Add ipAddrRange Batch:{}", items);
+        Map<String, IpAddrRange> ipAddrRangeMap = items.stream().collect(Collectors.toMap(IpAddrRange::getId, Function.identity()));
+        try {
+            ipAddrRangeCache.putAll(ipAddrRangeMap);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("IpRangeRepository addItems() exception:", e);
         }
     }
 

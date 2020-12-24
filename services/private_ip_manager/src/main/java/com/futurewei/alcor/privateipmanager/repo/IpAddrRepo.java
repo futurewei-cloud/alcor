@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.privateipmanager.repo;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
@@ -23,12 +24,13 @@ import com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
-import com.futurewei.alcor.common.db.CacheException;
+
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
@@ -90,6 +92,20 @@ public class IpAddrRepo implements ICacheRepository<IpAddrAlloc> {
         } catch (CacheException e) {
             e.printStackTrace();
             LOG.error("IpAddrRepo addItem() exception:", e);
+        }
+    }
+
+    @Override
+    public void addItems(List<IpAddrAlloc> items) {
+        LOG.error("Add ipAllocation batch:{}", items);
+
+        try {
+            Map<String, IpAddrAlloc> ipAddrAllocMap = items.stream().collect(
+                    Collectors.toMap(item -> item.getRangeId() + item.getIpAddr(), item -> item));
+            cache.putAll(ipAddrAllocMap);
+        } catch (CacheException e) {
+            e.printStackTrace();
+            LOG.error("IpAddrRepo addItems() exception:", e);
         }
     }
 

@@ -28,8 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
@@ -79,6 +82,20 @@ public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
 
             tx.commit();
         } catch (Exception e) {
+            throw new CacheException();
+        }
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<RouteEntry> items) throws CacheException {
+        logger.log(Level.INFO, "Add route entry batch: {}",items);
+        try (Transaction tx = cache.getTransaction().start()) {
+            Map<String, RouteEntry> routeEntryMap = items.stream().collect(Collectors.toMap(RouteEntry::getId, Function.identity()));
+            cache.putAll(routeEntryMap);
+            tx.commit();
+        } catch (Exception e) {
+            logger.log(Level.FINE,"Add route entry batch error");
             throw new CacheException();
         }
     }

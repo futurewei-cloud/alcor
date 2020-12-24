@@ -25,10 +25,12 @@ import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacRangePartition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class MacRangePartitionRepository implements ICacheRepository<MacRangePartition> {
@@ -62,6 +64,13 @@ public class MacRangePartitionRepository implements ICacheRepository<MacRangePar
     @DurationStatistics
     public void addItem(MacRangePartition macRangePartition) throws CacheException {
         cache.put(macRangePartition.getId(), macRangePartition);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<MacRangePartition> items) throws CacheException {
+        Map<String, MacRangePartition> macRangePartitionMap = items.stream().collect(Collectors.toMap(MacRangePartition::getId, Function.identity()));
+        cache.putAll(macRangePartitionMap);
     }
 
     @Override
