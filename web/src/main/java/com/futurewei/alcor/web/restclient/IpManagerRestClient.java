@@ -120,8 +120,8 @@ public class IpManagerRestClient extends AbstractRestClient {
     public IpAddrUpdateRequest updateIpAddress(IpAddrUpdateRequest ipAddrUpdateRequest) throws Exception {
         HttpEntity<IpAddrUpdateRequest> request = new HttpEntity<>(ipAddrUpdateRequest);
         IpAddrUpdateRequest result = restTemplate.postForObject(ipManagerUrl + "/update", request, IpAddrUpdateRequest.class);
-        if(result != null && result.getOldIpAddrRequests().size() > 0){
-            for (IpAddrRequest ipAddrRequest : result.getOldIpAddrRequests()) {
+        if(result != null && result.getNewIpAddrRequests().size() > 0){
+            for (IpAddrRequest ipAddrRequest : result.getNewIpAddrRequests()) {
                 verifyAllocatedIpAddr(ipAddrRequest);
             }
         }

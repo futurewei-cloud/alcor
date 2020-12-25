@@ -270,6 +270,12 @@ public class PortEntity extends CustomerResource {
             this.ipAddress = ipAddress;
         }
 
+        public FixedIp(String subnetId, String ipV4RangeId, String ipAddress) {
+            this.subnetId = subnetId;
+            this.ipV4RangeId = ipV4RangeId;
+            this.ipAddress = ipAddress;
+        }
+
         public String getSubnetId() {
             return subnetId;
         }

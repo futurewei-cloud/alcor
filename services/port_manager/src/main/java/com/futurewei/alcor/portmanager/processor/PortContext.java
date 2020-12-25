@@ -45,7 +45,7 @@ public class PortContext {
     private List<NodeInfo> nodeInfos;
     private List<PortEntity.FixedIp> newFixedIps;
     private List<PortEntity.FixedIp> oldFixedIps;
-    private List<IpAddrUpdateRequest> result;
+    private List<IpAddrUpdateRequest> fixedIpsresult;
 
 
     public PortContext() {
@@ -210,11 +210,11 @@ public class PortContext {
         this.oldFixedIps = oldFixedIps;
     }
 
-    public List<IpAddrUpdateRequest> getResult() {
-        return result;
+    public List<IpAddrUpdateRequest> getFixedIpsresult() {
+        return fixedIpsresult;
     }
 
-    public void setResult(List<IpAddrUpdateRequest> result) {
-        this.result = result;
+    public void setFixedIpsresult(List<IpAddrUpdateRequest> fixedIpsresult) {
+        this.fixedIpsresult = fixedIpsresult;
     }
 }

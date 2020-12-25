@@ -316,7 +316,7 @@ public class IpAddrServiceImpl implements IpAddrService {
 
         if (request.getNewIpAddrRequests().size()>0){
             if (request.getNewIpAddrRequests().size()>1){
-                LOG.debug("Allocate ip address bulk, requestBulk: {}", request.getOldIpAddrRequests());
+                LOG.debug("Allocate ip address bulk, requestBulk: {}", request.getNewIpAddrRequests());
                 rangeRequests = new HashMap<>();
                 vpcIpv4Requests = new HashMap<>();
                 vpcIpv6Requests = new HashMap<>();

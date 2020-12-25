@@ -249,9 +249,10 @@ public class IpAddrController {
         }
         for (IpAddrRequest newIpAddrRequest : request.getNewIpAddrRequests()) checkIpRequest(newIpAddrRequest);
 
-        List<IpAddrRequest> ipAddrRequests = ipAddrService.updateIpAddr(request);
+        List<IpAddrRequest> newIpAddrRequests = ipAddrService.updateIpAddr(request);
         IpAddrUpdateRequest ipAddrUpdateRequest = new IpAddrUpdateRequest();
-        ipAddrUpdateRequest.setOldIpAddrRequests(ipAddrRequests);
+        ipAddrUpdateRequest.setOldIpAddrRequests(request.getOldIpAddrRequests());
+        ipAddrUpdateRequest.setNewIpAddrRequests(newIpAddrRequests);
         return ipAddrUpdateRequest;
     }
 }
