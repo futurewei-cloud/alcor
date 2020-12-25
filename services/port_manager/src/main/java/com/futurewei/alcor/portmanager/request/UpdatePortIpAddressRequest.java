@@ -41,9 +41,9 @@ public class UpdatePortIpAddressRequest extends AbstractRequest{
     @Override
     public void rollback() throws Exception {
         log.info("UpdatePortIpAddressRequest rollback,oldIpAddrRequests is {}, newIpAddrRequests is {}",
-                ipAddrUpdateRequest.getOldIpAddrRequests(),context.getResult().get(0).getOldIpAddrRequests());
-        List<IpAddrRequest> oldIpAddrRequests = ipAddrUpdateRequest.getOldIpAddrRequests();
-        List<IpAddrRequest> newIpAddrRequests = context.getResult().get(0).getOldIpAddrRequests();
+                context.getResult().get(0).getOldIpAddrRequests(),context.getResult().get(0).getNewIpAddrRequests());
+        List<IpAddrRequest> oldIpAddrRequests = context.getResult().get(0).getOldIpAddrRequests();
+        List<IpAddrRequest> newIpAddrRequests = context.getResult().get(0).getNewIpAddrRequests();
 
         if(newIpAddrRequests.size() > 0){
             if(newIpAddrRequests.size() == 1){
