@@ -1,5 +1,5 @@
 = Gateway Manager Design Specification
-v0.1, 2020-11-30
+v0.1, 2020-12-20
 :toc: right
 :imagesdir: ../../images
 
