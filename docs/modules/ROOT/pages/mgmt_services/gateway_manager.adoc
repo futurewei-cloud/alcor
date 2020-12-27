@@ -29,22 +29,38 @@ image::gateway_manager_service_architecture.PNG[]
 image::gateway_manager_data_schema.PNG[]
 
 === Key Workflow
+We have two options here for VPC and gateway resource creation.
+The major difference of these two option is in A1 and B1.
+The VPC registration for gateway resource in A1 is going through DPM
+while the same process in B1 is going through GM. Both A2 and B2 workflows are pretty much the same.
+The detail workflows of two options are below:
 
 *OPTION A*
 
-==== VPC and Zeta Gateway Creation
+==== A1. VPC and Zeta Gateway Creation
+1. The benefit of A1: GM can be decoupled from major components of Alcor, we can consider GM is a non-major component.
+2. The drawback of A1: DPM becomes a proactive component and it needs to update GM actively.
+
 image::gateway_manager_vpc_zetagateway_creation_A.PNG[]
 
-==== Port Creation
+==== A2. Port Creation
 image::gateway_manager_zeta_port_creation_A.PNG[]
 
 *OPTION B*
 
-==== VPC and Zeta Gateway Creation
+==== B1. VPC and Zeta Gateway Creation
+1. The benefit of B1: DPM becomes a passive component, it just needs to wait for the status update of gateway resources from GM.
+GM is the major resource holder for gateway resources.
+
 image::gateway_manager_vpc_zetagateway_creation_B.PNG[]
 
-==== Port Creation
+==== B2. Port Creation
 image::gateway_manager_zeta_port_creation_B.PNG[]
+
+*FINAL DECISION*
+Option A has more benefit for managing gateway resources.
+GM will become an important microservice in Alcor to manage all types of gateways in the future.
+Therefore, Option A is the design choice for GM.
 
 == REST APIs
 [width="100%",cols="32%,12%,40%,17%"]
