@@ -28,13 +28,17 @@ image::gateway_manager_service_architecture.PNG[]
 === Data Schema
 image::gateway_manager_data_schema.PNG[]
 
+=== Key Workflow
+
+*OPTION A*
+
 ==== VPC and Zeta Gateway Creation
 image::gateway_manager_vpc_zetagateway_creation.PNG[]
 
 ==== Port Creation
 image::gateway_manager_zeta_port_creation.PNG[]
 
-=== Key Workflow
+*OPTION B*
 
 == REST APIs
 [width="100%",cols="32%,12%,40%,17%"]
