@@ -33,12 +33,18 @@ image::gateway_manager_data_schema.PNG[]
 *OPTION A*
 
 ==== VPC and Zeta Gateway Creation
-image::gateway_manager_vpc_zetagateway_creation.PNG[]
+image::gateway_manager_vpc_zetagateway_creation_A.PNG[]
 
 ==== Port Creation
-image::gateway_manager_zeta_port_creation.PNG[]
+image::gateway_manager_zeta_port_creation_A.PNG[]
 
 *OPTION B*
+
+==== VPC and Zeta Gateway Creation
+image::gateway_manager_vpc_zetagateway_creation_B.PNG[]
+
+==== Port Creation
+image::gateway_manager_zeta_port_creation_B.PNG[]
 
 == REST APIs
 [width="100%",cols="32%,12%,40%,17%"]
