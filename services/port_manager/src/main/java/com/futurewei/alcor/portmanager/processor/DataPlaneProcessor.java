@@ -22,6 +22,7 @@ import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -239,6 +240,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         setTheMissingFields(context, portEntities);
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+        networkConfiguration.setRsType(Common.ResourceType.PORT);
         networkConfiguration.setVpcs(networkConfig.getVpcEntities());
         networkConfiguration.setSubnets(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
@@ -254,6 +256,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private void createNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
         if (networkConfig != null) {
+            networkConfig.setOpType(Common.OperationType.CREATE);
             IRestRequest createNetworkConfigRequest =
                     new CreateNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, null);
@@ -262,6 +265,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private void updateNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
         if (networkConfig != null) {
+            networkConfig.setOpType(Common.OperationType.UPDATE);
             IRestRequest updateNetworkConfigRequest =
                     new UpdateNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, null);
@@ -270,6 +274,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     private void deleteNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
         if (networkConfig != null) {
+            networkConfig.setOpType(Common.OperationType.DELETE);
             IRestRequest deleteNetworkConfigRequest =
                     new DeleteNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);
@@ -284,7 +289,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
     @Override
     void updateProcess(PortContext context) throws Exception {
         updateNetworkConfig(context, buildNetworkConfig(context,
-                Collections.singletonList(context.getOldPortEntity())));
+                Collections.singletonList(context.getNewPortEntity())));
     }
 
     @Override

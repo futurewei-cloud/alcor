@@ -342,8 +342,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update admin_state
-        boolean newAdminState = newPortEntity.isAdminStateUp();
-        boolean oldAdminState = oldPortEntity.isAdminStateUp();
+        Boolean newAdminState = newPortEntity.getAdminStateUp();
+        Boolean oldAdminState = oldPortEntity.getAdminStateUp();
         if (newAdminState != oldAdminState) {
             oldPortEntity.setAdminStateUp(newAdminState);
             needNotifyDpm = true;
@@ -466,8 +466,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update port_security_enabled
-        boolean newPortSecurityEnabled = newPortEntity.isPortSecurityEnabled();
-        boolean oldPortSecurityEnabled = oldPortEntity.isPortSecurityEnabled();
+        Boolean newPortSecurityEnabled = newPortEntity.getPortSecurityEnabled();
+        Boolean oldPortSecurityEnabled = oldPortEntity.getPortSecurityEnabled();
         if (newPortSecurityEnabled != oldPortSecurityEnabled) {
             oldPortEntity.setPortSecurityEnabled(newPortSecurityEnabled);
             needNotifyDpm = true;
@@ -494,8 +494,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update mac_learning_enabled
-        boolean newMacLearningEnabled = newPortEntity.isMacLearningEnabled();
-        boolean oldMacLearningEnabled = oldPortEntity.isMacLearningEnabled();
+        Boolean newMacLearningEnabled = newPortEntity.getMacLearningEnabled();
+        Boolean oldMacLearningEnabled = oldPortEntity.getMacLearningEnabled();
         if (newMacLearningEnabled != oldMacLearningEnabled) {
             oldPortEntity.setMacLearningEnabled(newMacLearningEnabled);
             needNotifyDpm = true;
@@ -791,5 +791,10 @@ public class PortServiceImpl implements PortService {
     @Override
     public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
+        return 0;
     }
 }

@@ -79,11 +79,10 @@ public class DatabaseProcessor extends AbstractProcessor {
             neighborInfos = buildNeighborInfos(internalPortEntities.get(0));
         }
 
-        PortEntity oldPortEntity = context.getOldPortEntity();
+        PortEntity oldPortEntity = context.getNewPortEntity();
+        PortEntity newPortEntity = context.getNewPortEntity();
 
-        //TODO: A port may have more than one ip address,
-        // for one ip address we should create one neighborInfo
-        context.getPortRepository().updatePort(oldPortEntity, neighborInfos != null ? neighborInfos.get(0) : null);
+        context.getPortRepository().updatePort(oldPortEntity, newPortEntity, neighborInfos);
     }
 
     @Override
