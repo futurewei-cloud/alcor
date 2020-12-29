@@ -78,14 +78,14 @@ public class VpcControllerTests {
         assertEquals("{\"network\":null}", response);
     }
 
-//    @Test
+    @Test
     public void createVpcState_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
-        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class),new HashMap<String,String>()))
+        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class),Mockito.anyMap()))
                 .thenReturn(routeWebJson);
         Mockito.when(vpcService.allocateSegmentForNetwork(any(VpcEntity.class)))
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
@@ -97,18 +97,19 @@ public class VpcControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.id").value(UnitTestConfig.vpcId));
     }
 
-//    @Test
+    @Test
     public void createVpcState_canNotFindRoute_notPass () throws Exception {
         List<RouteEntity> routeEntityList = new ArrayList<>();
         RouteEntity routeEntity = new RouteEntity();
 //        routeEntity.setDestination(UnitTestConfig.cidr);
+
         routeEntityList.add(routeEntity);
 
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, routeEntityList));
-        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class),new HashMap<String,String>()))
+        Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class),Mockito.anyMap()))
                 .thenReturn(null);
 
         String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
