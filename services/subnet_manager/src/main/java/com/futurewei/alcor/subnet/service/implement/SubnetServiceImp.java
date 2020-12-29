@@ -160,11 +160,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity, JaegerConfig config) throws FallbackException {
-        String serviceName = "subnetImpl";
-        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
-            TracingObj tracingObj = Tracing.startSpan(null, tracer, serviceName);
-            Span span = tracingObj.getSpan();
+    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity, JaegerConfig config,Span span,Tracer tracer) throws FallbackException {
             try (Scope op = tracer.scopeManager().activate(span)) {
                 String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
                 ExclusionStrategy myExclusionStrategy =
@@ -194,7 +190,6 @@ public class SubnetServiceImp implements SubnetService {
         } finally {
             span.finish();
         }
-    }
         return null;
     }
 

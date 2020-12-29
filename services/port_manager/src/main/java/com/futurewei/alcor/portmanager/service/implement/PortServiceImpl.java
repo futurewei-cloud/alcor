@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.portmanager.config.JaegerConfig;
 import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
@@ -29,12 +30,21 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
 import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
+import io.opentracing.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 /*
 NOTE: This is PM v1.0 implementation and has been deprecated
@@ -202,9 +212,9 @@ public class PortServiceImpl implements PortService {
      */
     @Override
     @DurationStatistics
-    public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
-        LOG.debug("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
-
+    public PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config,Span span,Tracer tracer) throws Exception {
+        try (Scope op = tracer.scopeManager().activate(span)) {
+            LOG.debug("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
         Stack<Rollback> rollbacks = new Stack<>();
         AsyncExecutor executor = new AsyncExecutor();
 
@@ -237,7 +247,13 @@ public class PortServiceImpl implements PortService {
 
         LOG.info("Create port success, projectId: {}, portWebJson: {}", projectId, portWebJson);
 
-        return portWebJson;
+            return portWebJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            span.finish();
+        }
+        return null;
     }
 
     /**

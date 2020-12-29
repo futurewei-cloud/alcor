@@ -14,10 +14,14 @@ import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import io.jaegertracing.internal.JaegerTracer;
+import io.opentracing.Tracer;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicReference;
+import io.opentracing.Span;
+
 
 public interface SubnetService {
 
@@ -41,7 +45,7 @@ public interface SubnetService {
     public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity, JaegerConfig config) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity, JaegerConfig config, Span span, Tracer tracer) throws Exception;
 
     // Allocate Gateway Mac
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;

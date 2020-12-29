@@ -24,9 +24,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
 @Service
 public interface PortService {
-    PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config) throws Exception;
+    PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config,Span span,Tracer tracer) throws Exception;
 
     PortWebBulkJson createPortBulk(String projectId, PortWebBulkJson portWebBulkJson) throws Exception;
 

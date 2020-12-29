@@ -101,7 +101,7 @@ public class PortController {
                 portEntity.setBindingVifType(vifType);
             }
 
-            return portService.createPort(projectId, portWebJson);
+            return portService.createPort(projectId, portWebJson,config,span,tracer);
         } catch (Exception e)
         {
             e.printStackTrace();

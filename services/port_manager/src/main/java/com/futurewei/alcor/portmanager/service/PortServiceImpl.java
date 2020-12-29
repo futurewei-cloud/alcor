@@ -39,6 +39,14 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
 @Service
 @ComponentScan(value = "com.futurewei.alcor.common.utils")
 @ComponentScan(value = "com.futurewei.alcor.web.restclient")
@@ -73,14 +81,22 @@ public class PortServiceImpl implements PortService {
 
     @Override
     @DurationStatistics
-    public PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config) throws Exception {
-        LOG.debug("Create port enter, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+    public PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config, Span span, Tracer tracer) throws Exception {
+        try (Scope op = tracer.scopeManager().activate(span)) {
 
-        createPortEntities(projectId, Collections.singletonList(portWebJson.getPortEntity()));
+            LOG.debug("Create port enter, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
-        LOG.info("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+            createPortEntities(projectId, Collections.singletonList(portWebJson.getPortEntity()));
 
-        return portWebJson;
+            LOG.info("Create port, projectId: {}, PortWebJson: {}", projectId, portWebJson);
+
+            return portWebJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            span.finish();
+        }
+        return null;
     }
 
     @Override
@@ -198,7 +214,7 @@ public class PortServiceImpl implements PortService {
             return result;
         }
 
-        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+        for (Map.Entry<String, PortEntity> entry : portEntityMap.entrySet()) {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }
@@ -210,9 +226,9 @@ public class PortServiceImpl implements PortService {
 
     private Map<String, List<NeighborEntry>> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
         Map<String, List<NeighborEntry>> neighborTable = new HashMap<>();
-        for (NeighborInfo localNeighborInfo: localNeighborInfos) {
+        for (NeighborInfo localNeighborInfo : localNeighborInfos) {
             List<NeighborEntry> neighborEntries = new ArrayList<>();
-            for (NeighborInfo l3Neighbor: l3Neighbors) {
+            for (NeighborInfo l3Neighbor : l3Neighbors) {
                 NeighborEntry neighborEntry = new NeighborEntry();
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
                 neighborEntry.setLocalIp(localNeighborInfo.getPortIp());
@@ -237,7 +253,7 @@ public class PortServiceImpl implements PortService {
         filterParams.put("id", gatewayPortIds.toArray());
         Map<String, PortEntity> gatewayPortEntities = portRepository.findAllPortEntities(filterParams);
         if (gatewayPortEntities != null) {
-            for (Map.Entry<String, PortEntity> entry: gatewayPortEntities.entrySet()) {
+            for (Map.Entry<String, PortEntity> entry : gatewayPortEntities.entrySet()) {
                 PortEntity portEntity = entry.getValue();
                 List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
                 if (fixedIps == null) {
@@ -245,7 +261,7 @@ public class PortServiceImpl implements PortService {
                     continue;
                 }
 
-                for (PortEntity.FixedIp fixedIp: fixedIps) {
+                for (PortEntity.FixedIp fixedIp : fixedIps) {
                     String subnetId1 = fixedIp.getSubnetId();
                     if (!StringUtils.isEmpty(subnetId1)) {
                         gatewaySubnetIds.add(subnetId1);
@@ -259,12 +275,12 @@ public class PortServiceImpl implements PortService {
         List<NeighborInfo> localNeighborInfos = new ArrayList<>();
         List<NeighborInfo> l3Neighbors = new ArrayList<>();
 
-        for (Map.Entry<String, NeighborInfo> entry: neighbors.entrySet()) {
+        for (Map.Entry<String, NeighborInfo> entry : neighbors.entrySet()) {
             NeighborInfo neighborInfo = entry.getValue();
             if (subnetId.equals(neighborInfo.getSubnetId())) {
                 localNeighborInfos.add(neighborInfo);
                 neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
-            }else if (gatewaySubnetIds.contains(neighborInfo.getSubnetId())) {
+            } else if (gatewaySubnetIds.contains(neighborInfo.getSubnetId())) {
                 l3Neighbors.add(neighborInfo);
                 neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
             }
