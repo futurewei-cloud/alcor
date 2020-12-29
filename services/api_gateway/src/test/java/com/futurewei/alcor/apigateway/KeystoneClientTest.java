@@ -214,19 +214,19 @@ public class KeystoneClientTest {
         when(restTemplate.exchange(Mockito.eq(url),
                 Mockito.eq(HttpMethod.GET), any(HttpEntity.class), Mockito.eq(String.class))).then(new Answer<ResponseEntity<String>>() {
             public ResponseEntity<String> answer(InvocationOnMock invocation) throws Throwable {
-                HttpEntity<String> httpEntity = (HttpEntity<String>)invocation.getArguments()[2];
-                String authToken = httpEntity.getHeaders().getFirst(AUTH_TOKEN_HEADER);
-                String validateAuthToken = httpEntity.getHeaders().getFirst(VALIDATE_TOKEN_HEADER);
-                if (TEST_LOCAL_TOKEN.equals(authToken)){
-                    if(TEST_TOKEN.equals(validateAuthToken) || TEST_NOCACHE_TOKEN.equals(validateAuthToken)){
-                        return ResponseEntity.ok(customerTokenResponse);
-                    }else if (TEST_INVALID_TOKEN.equals(validateAuthToken)){
-                        return ResponseEntity.badRequest().build();
-                    }else{
-                        return ResponseEntity.notFound().build();
-                    }
-                }
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+               HttpEntity<String> httpEntity = (HttpEntity<String>)invocation.getArguments()[2];
+               String authToken = httpEntity.getHeaders().getFirst(AUTH_TOKEN_HEADER);
+               String validateAuthToken = httpEntity.getHeaders().getFirst(VALIDATE_TOKEN_HEADER);
+               if (TEST_LOCAL_TOKEN.equals(authToken)){
+                   if(TEST_TOKEN.equals(validateAuthToken) || TEST_NOCACHE_TOKEN.equals(validateAuthToken)){
+                       return ResponseEntity.ok(customerTokenResponse);
+                   }else if (TEST_INVALID_TOKEN.equals(validateAuthToken)){
+                       return ResponseEntity.badRequest().build();
+                   }else{
+                       return ResponseEntity.notFound().build();
+                   }
+               }
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         });
 
@@ -281,8 +281,8 @@ public class KeystoneClientTest {
     @Test
     public void testJson2Map(){
         String testJson = "{" +
-                "\"keyA\": \"keya\", " +
-                "\"listB\": [\"b1\", \"b2\", \"b3\"]" +
+                     "\"keyA\": \"keya\", " +
+                     "\"listB\": [\"b1\", \"b2\", \"b3\"]" +
                 "}";
         JsonNode testNode = ReflectionTestUtils.invokeMethod(keystoneClient, "json2Map", testJson);
         assertEquals("keya", testNode.path("keyA").asText());
@@ -432,3 +432,4 @@ public class KeystoneClientTest {
         return c.getTime();
     }
 }
+
