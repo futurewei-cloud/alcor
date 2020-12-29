@@ -58,17 +58,18 @@ public final class Tracing {
     {
 
         Map<String,String> headers=new HashMap();
-        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-        while(stringIterator.hasNext())
-        {
-            String name = stringIterator.next();
-            String value=request.getHeader(name);
-            headers.put(name,value);
-        }
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-            headers.put(header, request.getHeader(header));
+        if(request!=null) {
+            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+            while (stringIterator.hasNext()) {
+                String name = stringIterator.next();
+                String value = request.getHeader(name);
+                headers.put(name, value);
+            }
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String header = headerNames.nextElement();
+                headers.put(header, request.getHeader(header));
+            }
         }
         Tracer.SpanBuilder builder = null;
         SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));

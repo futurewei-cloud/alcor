@@ -1,6 +1,8 @@
 package com.futurewei.alcor.subnet.service.implement;
 
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
@@ -12,6 +14,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.IpVersionConfig;
+import com.futurewei.alcor.subnet.config.JaegerConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -24,6 +27,12 @@ import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.entity.ip.*;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.mac.*;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.jaegertracing.internal.JaegerTracer;
+import okhttp3.Response;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +48,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapAdapter;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class SubnetServiceImp implements SubnetService {
@@ -141,18 +160,42 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
-        String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
-        RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
-        // retry if routeResponse is null
-        if (routeResponse == null) {
-            routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
+    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity, JaegerConfig config) throws FallbackException {
+        String serviceName = "subnetImpl";
+        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
+            TracingObj tracingObj = Tracing.startSpan(null, tracer, serviceName);
+            Span span = tracingObj.getSpan();
+            try (Scope op = tracer.scopeManager().activate(span)) {
+                String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
+                ExclusionStrategy myExclusionStrategy =
+                        new ExclusionStrategy() {
+                            @Override
+                            public boolean shouldSkipField(FieldAttributes fa) {
+                                String ignoreField = "tenantId";
+                                return fa.getName().equals(ignoreField);
+                            }
+
+                            @Override
+                            public boolean shouldSkipClass(Class<?> clazz) {
+                                return false;
+                            }
+                        };
+                Gson gson = new GsonBuilder().setExclusionStrategies(myExclusionStrategy).create();
+                String jsonString = gson.toJson(new SubnetWebJson(subnetEntity));
+                Response response=Tracing.StartImpl(routeManagerServiceUrl,jsonString,span,tracer,"POST");
+                if(response==null)
+                    throw new FallbackException("fallback request");
+                String rs = response.body().string();
+                RouteWebJson rwj = gson.fromJson(rs, RouteWebJson.class);
+                return rwj;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            span.finish();
         }
-        if (routeResponse == null) {
-            throw new FallbackException("fallback request");
-        }
-        return routeResponse;
+    }
+        return null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.futurewei.alcor.subnet.service;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
 
+import com.futurewei.alcor.subnet.config.JaegerConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -15,6 +16,7 @@ import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicReference;
 
 public interface SubnetService {
@@ -39,7 +41,7 @@ public interface SubnetService {
     public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity, JaegerConfig config) throws Exception;
 
     // Allocate Gateway Mac
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;

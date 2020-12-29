@@ -64,7 +64,6 @@ public class VpcServiceImpl implements VpcService {
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState, Map<String,String> httpHeaders) throws IOException {
         String serviceName = "VpcService";
         try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
-            String vpcServiceImpl = "VPCServiceImpl";
             TracingObj tracingObj = Tracing.startSpan(request1,tracer, serviceName);
             Span span=tracingObj.getSpan();
             try (Scope op = tracer.scopeManager().activate(span)) {

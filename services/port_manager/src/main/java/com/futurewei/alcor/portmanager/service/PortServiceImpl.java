@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.portmanager.config.JaegerConfig;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
@@ -72,7 +73,7 @@ public class PortServiceImpl implements PortService {
 
     @Override
     @DurationStatistics
-    public PortWebJson createPort(String projectId, PortWebJson portWebJson) throws Exception {
+    public PortWebJson createPort(String projectId, PortWebJson portWebJson, JaegerConfig config) throws Exception {
         LOG.debug("Create port enter, projectId: {}, PortWebJson: {}", projectId, portWebJson);
 
         createPortEntities(projectId, Collections.singletonList(portWebJson.getPortEntity()));

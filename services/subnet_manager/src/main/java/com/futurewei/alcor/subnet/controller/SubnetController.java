@@ -271,7 +271,7 @@ public class SubnetController {
             BeanUtils.copyProperties(inSubnetEntity, subnet);
             CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return this.subnetService.createRouteRules(subnetId, subnet);
+                    return this.subnetService.createRouteRules(subnetId, subnet,config);
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
