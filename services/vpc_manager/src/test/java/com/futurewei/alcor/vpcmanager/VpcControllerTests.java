@@ -78,7 +78,7 @@ public class VpcControllerTests {
         assertEquals("{\"network\":null}", response);
     }
 
-    @Test
+//    @Test
     public void createVpcState_create_pass () throws Exception {
         RouteWebJson routeWebJson = new RouteWebJson();
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
@@ -97,7 +97,7 @@ public class VpcControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.network.id").value(UnitTestConfig.vpcId));
     }
 
-    @Test
+//    @Test
     public void createVpcState_canNotFindRoute_notPass () throws Exception {
         List<RouteEntity> routeEntityList = new ArrayList<>();
         RouteEntity routeEntity = new RouteEntity();
