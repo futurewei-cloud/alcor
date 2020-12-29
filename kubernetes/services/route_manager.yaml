@@ -4,6 +4,10 @@ metadata:
   name: route-configmap
 data:
   application.properties: |
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+    microservices.dpm.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010
+    microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
@@ -11,6 +15,13 @@ data:
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
+    management.health.redis.enabled=false
+    
+    spring.sleuth.sampler.probability=1.0
+    spring.application.name=route-manager
+    # the zipkin host should be YOURS
+    spring.zipkin.base-url=http://10.213.43.187:9411
+    
 ---
 apiVersion: apps/v1
 kind: Deployment

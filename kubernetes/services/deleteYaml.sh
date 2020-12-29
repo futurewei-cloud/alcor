@@ -60,6 +60,10 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl delete configmap port-configmap
   kubectl delete services portmanager-service
   kubectl delete deployment portmanager
+  
+  kubectl delete configmap quota-configmap
+  kubectl delete services quotamanager-service
+  kubectl delete deployment quotamanager
 
   kubectl delete configmap node-configmap
   kubectl delete services nodemanager-service

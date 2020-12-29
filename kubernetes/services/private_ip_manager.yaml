@@ -8,6 +8,11 @@ data:
     ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
     ignite.port=10801
     logging.level.root=DEBUG
+    
+    spring.sleuth.sampler.probability=1.0
+    spring.application.name=ip-manager
+    # the zipkin host should be YOURS
+    spring.zipkin.base-url=http://10.213.43.187:9411
 ---
 apiVersion: apps/v1
 kind: Deployment
