@@ -432,4 +432,3 @@ public class KeystoneClientTest {
         return c.getTime();
     }
 }
-
