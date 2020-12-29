@@ -18,9 +18,6 @@ package com.futurewei.alcor.subnet.controller;
 
 import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.config.TracingObj;
-import com.futurewei.alcor.subnet.config.JaegerConfig;
-import io.jaegertracing.internal.JaegerTracer;
-
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
 
@@ -29,6 +26,7 @@ import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
+import com.futurewei.alcor.subnet.config.JaegerConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -67,7 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
-import java.util.*;
+
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -91,13 +89,13 @@ public class SubnetController {
     @Autowired
     private SubnetService subnetService;
 
-    @Autowired
-    private SubnetToPortManagerService subnetToPortManagerService;
-
     @Autowired private JaegerConfig config;
 
     @Autowired
     private HttpServletRequest request1;
+
+    @Autowired
+    private SubnetToPortManagerService subnetToPortManagerService;
 
     @RequestMapping(
             method = GET,
@@ -195,56 +193,56 @@ public class SubnetController {
         Span span=tracingObj.getSpan();
 
         try (Scope op= tracer.scopeManager().activate(span)) {
-            long start = System.currentTimeMillis();
-            SubnetEntity inSubnetEntity = new SubnetEntity();
-            RouteWebJson routeResponse = null;
-            //MacStateJson macResponse = null;
-            IpAddrRequest ipResponse = null;
-            AtomicReference<RouteWebJson> routeResponseAtomic = new AtomicReference<>();
-            AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
-            AtomicReference<IpAddrRequest> ipResponseAtomic = new AtomicReference<>();
-            String portId = UUID.randomUUID().toString();
+        long start = System.currentTimeMillis();
+        SubnetEntity inSubnetEntity = new SubnetEntity();
+        RouteWebJson routeResponse = null;
+        //MacStateJson macResponse = null;
+        IpAddrRequest ipResponse = null;
+        AtomicReference<RouteWebJson> routeResponseAtomic = new AtomicReference<>();
+        AtomicReference<MacStateJson> macResponseAtomic = new AtomicReference<>();
+        AtomicReference<IpAddrRequest> ipResponseAtomic = new AtomicReference<>();
+        String portId = UUID.randomUUID().toString();
 
-            if(StringUtils.isEmpty(resource.getSubnet().getId())){
-                String subnetId = UUID.randomUUID().toString();
-                resource.getSubnet().setId(subnetId);
+        if(StringUtils.isEmpty(resource.getSubnet().getId())){
+            String subnetId = UUID.randomUUID().toString();
+            resource.getSubnet().setId(subnetId);
+        }
+
+        try {
+            if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
+                throw new ResourceNotValidException("request resource is invalid");
             }
 
-            try {
-                if (!SubnetManagementUtil.checkSubnetRequestResourceIsValid(resource)) {
-                    throw new ResourceNotValidException("request resource is invalid");
-                }
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
 
-                RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-                RestPreconditionsUtil.verifyResourceNotNull(resource.getSubnet());
+            // Short-term fix: set gateway_ip = "" if its value is null
+            String gateway_Ip = resource.getSubnet().getGatewayIp();
+            if (gateway_Ip == null) {
+                resource.getSubnet().setGatewayIp("");
+            }
 
-                // Short-term fix: set gateway_ip = "" if its value is null
-                String gateway_Ip = resource.getSubnet().getGatewayIp();
-                if (gateway_Ip == null) {
-                    resource.getSubnet().setGatewayIp("");
-                }
+            // TODO: Create a verification framework for all resources
+            SubnetWebRequest subnetWebRequest = resource.getSubnet();
+            BeanUtils.copyProperties(subnetWebRequest, inSubnetEntity);
 
-                // TODO: Create a verification framework for all resources
-                SubnetWebRequest subnetWebRequest = resource.getSubnet();
-                BeanUtils.copyProperties(subnetWebRequest, inSubnetEntity);
+            String subnetId = inSubnetEntity.getId();
+            String vpcId = inSubnetEntity.getVpcId();
+            String cidr = inSubnetEntity.getCidr();
+            String gatewayIp = inSubnetEntity.getGatewayIp();
+            boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(gatewayIp, cidr);
+            if (!gatewayIpIsValid) {
+                throw new GatewayIpUnsupported();
+            }
+            boolean gatewayIpIsInAllocatedRange = SubnetManagementUtil.checkGatewayIpIsInAllocatedRange(gatewayIp, cidr);
 
-                String subnetId = inSubnetEntity.getId();
-                String vpcId = inSubnetEntity.getVpcId();
-                String cidr = inSubnetEntity.getCidr();
-                String gatewayIp = inSubnetEntity.getGatewayIp();
-                boolean gatewayIpIsValid = SubnetManagementUtil.checkGatewayIpInputSupported(gatewayIp, cidr);
-                if (!gatewayIpIsValid) {
-                    throw new GatewayIpUnsupported();
-                }
-                boolean gatewayIpIsInAllocatedRange = SubnetManagementUtil.checkGatewayIpIsInAllocatedRange(gatewayIp, cidr);
+            RestPreconditionsUtil.verifyResourceFound(vpcId);
+            RestPreconditionsUtil.populateResourceProjectId(inSubnetEntity, projectId);
 
-                RestPreconditionsUtil.verifyResourceFound(vpcId);
-                RestPreconditionsUtil.populateResourceProjectId(inSubnetEntity, projectId);
+            // check if cidr overlap
+            this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
-                // check if cidr overlap
-                this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
-
-                //Allocate Gateway Mac
+            //Allocate Gateway Mac
 //            CompletableFuture<MacStateJson> macFuture = CompletableFuture.supplyAsync(() -> {
 //                try {
 //                    return this.subnetService.allocateMacAddressForGatewayPort(projectId, vpcId, portId);
@@ -259,163 +257,163 @@ public class SubnetController {
 //                return s;
 //            });
 
-                // Verify VPC ID
-                CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return this.subnetService.verifyVpcId(projectId, vpcId);
-                    } catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
+            // Verify VPC ID
+            CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.verifyVpcId(projectId, vpcId);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
 
-                //Prepare Route Rule(IPv4/6) for Subnet
-                SubnetEntity subnet = new SubnetEntity();
-                BeanUtils.copyProperties(inSubnetEntity, subnet);
-                CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return this.subnetService.createRouteRules(tracer,span,subnetId, subnet,headers);
-                    } catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
-                    routeResponseAtomic.set(s);
-                    if (e != null) {
-                        throw new CompletionException(e);
-                    }
-                    return s;
-                });
+            //Prepare Route Rule(IPv4/6) for Subnet
+            SubnetEntity subnet = new SubnetEntity();
+            BeanUtils.copyProperties(inSubnetEntity, subnet);
+            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.createRouteRules(subnetId, subnet);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+                routeResponseAtomic.set(s);
+                if (e != null) {
+                    throw new CompletionException(e);
+                }
+                return s;
+            });
 
-                // Verify/Allocate Gateway IP
-                CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId, gatewayIp, gatewayIpIsInAllocatedRange,headers);
-                    } catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
-                    ipResponseAtomic.set(s);
-                    if (e != null) {
-                        throw new CompletionException(e);
-                    }
-                    return s;
-                });
+            // Verify/Allocate Gateway IP
+            CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId, gatewayIp, gatewayIpIsInAllocatedRange);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+                ipResponseAtomic.set(s);
+                if (e != null) {
+                    throw new CompletionException(e);
+                }
+                return s;
+            });
 
-                // Synchronous blocking
-                //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
-                CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
-                allFuture.join();
+            // Synchronous blocking
+            //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
+            allFuture.join();
 
-                //macResponse = macFuture.join();
-                routeResponse = routeFuture.join();
-                ipResponse = ipFuture.join();
+            //macResponse = macFuture.join();
+            routeResponse = routeFuture.join();
+            ipResponse = ipFuture.join();
 
-                logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
+            logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
-                // set up value of properties for subnetState
-                List<RouteEntity> routeEntities = new ArrayList<>();
-                routeEntities.add(routeResponse.getRoute());
-                inSubnetEntity.setRouteEntities(routeEntities);
+            // set up value of properties for subnetState
+            List<RouteEntity> routeEntities = new ArrayList<>();
+            routeEntities.add(routeResponse.getRoute());
+            inSubnetEntity.setRouteEntities(routeEntities);
 
 //            MacState macState = macResponse.getMacState();
 //            if (macState != null) {
 //                inSubnetEntity.setGatewayMacAddress(macState.getMacAddress());
 //            }
-                this.subnetDatabaseService.addSubnet(inSubnetEntity);
+            this.subnetDatabaseService.addSubnet(inSubnetEntity);
 
-                if (gatewayIpIsInAllocatedRange) {
-                    PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, ipResponse.getIp(), ConstantsConfig.DeviceOwner);
+            if (gatewayIpIsInAllocatedRange) {
+                PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, ipResponse.getIp(), ConstantsConfig.DeviceOwner);
+                GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
+
+                inSubnetEntity.setGatewayIp(ipResponse.getIp());
+                inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
+                inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
+            } else {
+                String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
+                if (gatewayIp != null) {
+                    PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, gatewayIP, ConstantsConfig.DeviceOwner);
                     GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
 
-                    inSubnetEntity.setGatewayIp(ipResponse.getIp());
+                    inSubnetEntity.setGatewayIp(gatewayIP);
                     inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
                     inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
-                } else {
-                    String gatewayIP = SubnetManagementUtil.setGatewayIpValue(gatewayIp, cidr);
-                    if (gatewayIp != null) {
-                        PortEntity portEntity = this.subnetService.constructPortEntity(portId, vpcId, subnetId, gatewayIP, ConstantsConfig.DeviceOwner);
-                        GatewayPortDetail gatewayPortDetail = this.subnetToPortManagerService.createGatewayPort(projectId, portEntity);
-
-                        inSubnetEntity.setGatewayIp(gatewayIP);
-                        inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
-                        inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
-                    }
                 }
+            }
 
-                if (ipResponse != null && ipResponse.getIpVersion() == 4) {
-                    inSubnetEntity.setIpV4RangeId(ipResponse.getRangeId());
-                }else if (ipResponse != null &&  ipResponse.getIpVersion() == 6) {
-                    inSubnetEntity.setIpV6RangeId(ipResponse.getRangeId());
-                }
+            if (ipResponse != null && ipResponse.getIpVersion() == 4) {
+                inSubnetEntity.setIpV4RangeId(ipResponse.getRangeId());
+            }else if (ipResponse != null &&  ipResponse.getIpVersion() == 6) {
+                inSubnetEntity.setIpV6RangeId(ipResponse.getRangeId());
+            }
 
-                // create_at and update_at
-                Date currentTime = new Date();
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String dateString = formatter.format(currentTime);
-                String utc = DateUtil.localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
-                inSubnetEntity.setCreated_at(utc);
-                inSubnetEntity.setUpdated_at(utc);
+            // create_at and update_at
+            Date currentTime = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateString = formatter.format(currentTime);
+            String utc = DateUtil.localToUTC(dateString, "yyyy-MM-dd HH:mm:ss");
+            inSubnetEntity.setCreated_at(utc);
+            inSubnetEntity.setUpdated_at(utc);
 
-                // tenant_id
-                String tenantId = inSubnetEntity.getTenantId();
-                if (tenantId == null) {
-                    inSubnetEntity.setTenantId(inSubnetEntity.getProjectId());
-                }
+            // tenant_id
+            String tenantId = inSubnetEntity.getTenantId();
+            if (tenantId == null) {
+                inSubnetEntity.setTenantId(inSubnetEntity.getProjectId());
+            }
 
-                // enable_dhcp
-                Boolean dhcpEnable = inSubnetEntity.getDhcpEnable();
-                if (dhcpEnable == null) {
-                    inSubnetEntity.setDhcpEnable(true);
-                }
+            // enable_dhcp
+            Boolean dhcpEnable = inSubnetEntity.getDhcpEnable();
+            if (dhcpEnable == null) {
+                inSubnetEntity.setDhcpEnable(true);
+            }
 
-                // allocation_pools
-                List<AllocationPool> allocationPoolList = inSubnetEntity.getAllocationPools();
-                if (allocationPoolList == null || allocationPoolList.size() == 0) {
-                    String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
-                    List<AllocationPool> allocationPools = new ArrayList<>();
-                    AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
-                    allocationPools.add(allocationPool);
-                    inSubnetEntity.setAllocationPools(allocationPools);
-                }
+            // allocation_pools
+            List<AllocationPool> allocationPoolList = inSubnetEntity.getAllocationPools();
+            if (allocationPoolList == null || allocationPoolList.size() == 0) {
+                String[] ips = this.subnetService.cidrToFirstIpAndLastIp(cidr);
+                List<AllocationPool> allocationPools = new ArrayList<>();
+                AllocationPool allocationPool = new AllocationPool(ips[0], ips[1]);
+                allocationPools.add(allocationPool);
+                inSubnetEntity.setAllocationPools(allocationPools);
+            }
 
-                // tags
+            // tags
 ////            List<String> tags = inSubnetWebResponseObject.getTags();
 ////            if (tags == null) {
 ////                tags = new ArrayList<String>(){{add("tag1,tag2");}};
 ////                inSubnetWebResponseObject.setTags(tags);
 ////            }
 
-                // revision_number
-                Integer revisionNumber = inSubnetEntity.getRevisionNumber();
-                if (revisionNumber == null || revisionNumber < 1) {
-                    inSubnetEntity.setRevisionNumber(1);
-                }
+            // revision_number
+            Integer revisionNumber = inSubnetEntity.getRevisionNumber();
+            if (revisionNumber == null || revisionNumber < 1) {
+                inSubnetEntity.setRevisionNumber(1);
+            }
 
-                this.subnetDatabaseService.addSubnet(inSubnetEntity);
+            this.subnetDatabaseService.addSubnet(inSubnetEntity);
 
 //            SubnetWebObject subnet = this.subnetDatabaseService.getBySubnetId(subnetId);
 //            if (subnet == null) {
 //                throw new ResourcePersistenceException();
 //            }
 
-                // update to vpc with subnet id
-                this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
+            // update to vpc with subnet id
+            this.subnetService.addSubnetIdToVpc(subnetId, projectId, vpcId);
 
-                // create subnet routing rule in route manager
-                this.subnetService.createSubnetRoutingRuleInRM(projectId, subnetId, inSubnetEntity);
+            // create subnet routing rule in route manager
+            this.subnetService.createSubnetRoutingRuleInRM(projectId, subnetId, inSubnetEntity);
 
-                return new SubnetWebJson(inSubnetEntity);
+            return new SubnetWebJson(inSubnetEntity);
 
-            } catch (CompletionException e) {
-                this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
-                throw new Exception(e);
-            } catch (DatabasePersistenceException e) {
-                this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
-                throw new Exception(e);
-            } catch (NullPointerException e) {
-                logger.error(e.getMessage());
-                throw new Exception(e);
-            }
-        } catch (Exception e)
+        } catch (CompletionException e) {
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
+            throw new Exception(e);
+        } catch (DatabasePersistenceException e) {
+            this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
+            throw new Exception(e);
+        } catch (NullPointerException e) {
+            logger.error(e.getMessage());
+            throw new Exception(e);
+        }
+        }catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -424,7 +422,6 @@ public class SubnetController {
         {
             span.finish();
         }
-
         return null;
     }
 

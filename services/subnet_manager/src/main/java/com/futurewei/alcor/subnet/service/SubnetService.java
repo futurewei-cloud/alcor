@@ -15,18 +15,7 @@ import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import com.google.common.collect.ImmutableMap;
-import io.jaegertracing.internal.JaegerTracer;
-import io.opentracing.Scope;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.tag.Tags;
-import okhttp3.*;
-import com.futurewei.alcor.common.config.Tracing;
-import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
 public interface SubnetService {
 
@@ -50,13 +39,13 @@ public interface SubnetService {
     public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
     // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (JaegerTracer tracer,Span span,String subnetId, SubnetEntity subnetEntity, Map<String,String> httpHeaders) throws Exception;
+    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity) throws Exception;
 
     // Allocate Gateway Mac
     public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
 
     // Verify/Allocate Gateway IP
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated,Map<String,String> httpHeaders) throws Exception;
+    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws Exception;
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);

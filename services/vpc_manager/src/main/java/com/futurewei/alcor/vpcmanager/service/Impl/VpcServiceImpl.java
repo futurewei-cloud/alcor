@@ -1,7 +1,9 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
+import com.futurewei.alcor.vpcmanager.config.JaegerConfig;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -31,6 +33,8 @@ import io.opentracing.Span;
 import okhttp3.*;
 import com.futurewei.alcor.common.config.JaegerTracerHelper;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Service
 public class VpcServiceImpl implements VpcService {
 
@@ -41,6 +45,11 @@ public class VpcServiceImpl implements VpcService {
 
     @Value("${microservices.route.service.url}")
     private String routeUrl;
+
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -53,10 +62,11 @@ public class VpcServiceImpl implements VpcService {
     @Override
     @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState, Map<String,String> httpHeaders) throws IOException {
-        String vpcService = "VpcService";
-        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(vpcService)) {
+        String serviceName = "VpcService";
+        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
             String vpcServiceImpl = "VPCServiceImpl";
-            Span span = Tracing.startServerSpan(tracer, httpHeaders, vpcServiceImpl);
+            TracingObj tracingObj = Tracing.startSpan(request1,tracer, serviceName);
+            Span span=tracingObj.getSpan();
             try (Scope op = tracer.scopeManager().activate(span)) {
                 String routeManagerServiceUrl2 = routeUrl + "vpcs/" + vpcId + "/routes";
                 ExclusionStrategy myExclusionStrategy =
