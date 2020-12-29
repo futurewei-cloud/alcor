@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,16 +107,10 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
     }
 
     @Override
+    @DurationStatistics
     public void addItems(List<NodeInfo> items) throws CacheException {
-        try(Transaction tx =cache.getTransaction().start()){
-            Map<String, NodeInfo> nodeInfoMap = items.stream().collect(Collectors.toMap(NodeInfo::getId, Function.identity()));
-            cache.putAll(nodeInfoMap);
-            tx.commit();
-        } catch (CacheException e) {
-            throw e;
-        } catch (Exception e){
-            logger.error("Add items error: {}",e.getMessage());
-        }
+        Map<String, NodeInfo> nodeInfoMap = items.stream().collect(Collectors.toMap(NodeInfo::getId, Function.identity()));
+        cache.putAll(nodeInfoMap);
     }
 
     /**

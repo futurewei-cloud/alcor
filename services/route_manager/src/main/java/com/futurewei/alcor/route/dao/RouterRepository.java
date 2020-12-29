@@ -89,17 +89,8 @@ public class RouterRepository implements ICacheRepository<Router> {
     @Override
     @DurationStatistics
     public void addItems(List<Router> items) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            logger.log(Level.INFO, "Add router Batch: {}",items);
-            Map<String, Router> routerMap = items.stream().collect(Collectors.toMap(Router::getId, Function.identity()));
-            cache.putAll(routerMap);
-            tx.commit();
-        } catch (CacheException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.log(Level.FINE, "Add router Batch error",e);
-            e.printStackTrace();
-        }
+        Map<String, Router> routerMap = items.stream().collect(Collectors.toMap(Router::getId, Function.identity()));
+        cache.putAll(routerMap);
     }
 
     @Override

@@ -89,15 +89,8 @@ public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
     @Override
     @DurationStatistics
     public void addItems(List<RouteEntry> items) throws CacheException {
-        logger.log(Level.INFO, "Add route entry batch: {}",items);
-        try (Transaction tx = cache.getTransaction().start()) {
-            Map<String, RouteEntry> routeEntryMap = items.stream().collect(Collectors.toMap(RouteEntry::getId, Function.identity()));
-            cache.putAll(routeEntryMap);
-            tx.commit();
-        } catch (Exception e) {
-            logger.log(Level.FINE,"Add route entry batch error");
-            throw new CacheException();
-        }
+        Map<String, RouteEntry> routeEntryMap = items.stream().collect(Collectors.toMap(RouteEntry::getId, Function.identity()));
+        cache.putAll(routeEntryMap);
     }
 
     @Override

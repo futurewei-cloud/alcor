@@ -124,15 +124,10 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @Override
-    public synchronized void addItems(List<IpAddrRange> items) {
-        LOG.error("Add ipAddrRange Batch:{}", items);
+    @DurationStatistics
+    public void addItems(List<IpAddrRange> items) throws CacheException {
         Map<String, IpAddrRange> ipAddrRangeMap = items.stream().collect(Collectors.toMap(IpAddrRange::getId, Function.identity()));
-        try {
-            ipAddrRangeCache.putAll(ipAddrRangeMap);
-        } catch (CacheException e) {
-            e.printStackTrace();
-            LOG.error("IpRangeRepository addItems() exception:", e);
-        }
+        ipAddrRangeCache.putAll(ipAddrRangeMap);
     }
 
     @Override

@@ -95,15 +95,8 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     @Override
     @DurationStatistics
     public synchronized void addItems(List<NetworkVlanRange> items) throws CacheException {
-        logger.info("Add networkVlanRange batch: {}", items);
-
-        try {
-            Map<String, NetworkVlanRange> networkVlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVlanRange::getId, Function.identity()));
-            cache.putAll(networkVlanRangeMap);
-        } catch (CacheException e) {
-            e.printStackTrace();
-            logger.error("VlanRangeRepository addItems() exception:", e);
-        }
+        Map<String, NetworkVlanRange> networkVlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVlanRange::getId, Function.identity()));
+        cache.putAll(networkVlanRangeMap);
     }
 
     @Override

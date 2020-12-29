@@ -96,15 +96,8 @@ public class VxlanRangeRepository implements ICacheRepository<NetworkVxlanRange>
     @Override
     @DurationStatistics
     public void addItems(List<NetworkVxlanRange> items) throws CacheException {
-        logger.error("Add networkVxlanRange batch: {}",items);
-
-        try {
-            Map<String, NetworkVxlanRange> networkVxlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVxlanRange::getId, Function.identity()));
-            cache.putAll(networkVxlanRangeMap);
-        } catch (CacheException e) {
-            e.printStackTrace();
-            logger.error("VxlanRangeRepository addItems() exception:", e);
-        }
+        Map<String, NetworkVxlanRange> networkVxlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVxlanRange::getId, Function.identity()));
+        cache.putAll(networkVxlanRangeMap);
     }
 
     @Override

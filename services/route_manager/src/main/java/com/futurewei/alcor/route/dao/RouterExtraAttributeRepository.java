@@ -87,18 +87,10 @@ public class RouterExtraAttributeRepository implements ICacheRepository<RouterEx
     }
 
     @Override
+    @DurationStatistics
     public void addItems(List<RouterExtraAttribute> items) throws CacheException {
-        logger.log(Level.INFO, "Add router extra attribute batch: {}",items);
-        try (Transaction tx = cache.getTransaction().start()) {
-            Map<String, RouterExtraAttribute> routerExtraAttributeMap = items.stream().collect(Collectors.toMap(RouterExtraAttribute::getId, Function.identity()));
-            cache.putAll(routerExtraAttributeMap);
-            tx.commit();
-        } catch (CacheException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.log(Level.FINE, "Add router extra attribute batch error",e);
-            e.printStackTrace();
-        }
+        Map<String, RouterExtraAttribute> routerExtraAttributeMap = items.stream().collect(Collectors.toMap(RouterExtraAttribute::getId, Function.identity()));
+        cache.putAll(routerExtraAttributeMap);
     }
 
     @Override

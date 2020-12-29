@@ -87,18 +87,10 @@ public class RouteTableRepository implements ICacheRepository<RouteTable> {
     }
 
     @Override
+    @DurationStatistics
     public void addItems(List<RouteTable> items) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-            logger.log(Level.INFO, "Add route table batch: {}",items);
-            Map<String, RouteTable> routeTableMap = items.stream().collect(Collectors.toMap(RouteTable::getId, Function.identity()));
-            cache.putAll(routeTableMap);
-            tx.commit();
-        } catch (CacheException e) {
-            throw e;
-        } catch (Exception e){
-            logger.log(Level.FINE,"Add route table batch error",e);
-            e.printStackTrace();
-        }
+        Map<String, RouteTable> routeTableMap = items.stream().collect(Collectors.toMap(RouteTable::getId, Function.identity()));
+        cache.putAll(routeTableMap);
     }
 
     @Override
