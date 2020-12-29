@@ -45,6 +45,15 @@ public class Config {
   @Value("${protobuf.goal-state-message.version}")
   public int goalStateMessageVersion;
 
+  @Value("${jaeger.host:127.0.0.1}")
+  public String jaegerHost;
+  @Value("${jaeger.port:5775}")
+  public String jaegerPort;
+  @Value("${jaeger.flush:1000}")
+  public String jaegerFlush;
+  @Value("${jaeger.maxQsize:1000}")
+  public String jaegerMaxQsize;
+
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;
   public static String LOG_FILE_PATH = "timestamp.log";
@@ -61,6 +70,38 @@ public class Config {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public String getJaegerHost() {
+    return jaegerHost;
+  }
+
+  public void setJaegerHost(String jaegerHost) {
+    this.jaegerHost = jaegerHost;
+  }
+
+  public String getJaegerPort() {
+    return jaegerPort;
+  }
+
+  public void setJaegerPort(String jaegerPort) {
+    this.jaegerPort = jaegerPort;
+  }
+
+  public String getJaegerFlush() {
+    return jaegerFlush;
+  }
+
+  public void setJaegerFlush(String jaegerFlush) {
+    this.jaegerFlush = jaegerFlush;
+  }
+
+  public String getJaegerMaxQsize() {
+    return jaegerMaxQsize;
+  }
+
+  public void setJaegerMaxQsize(String jaegerMaxQsize) {
+    this.jaegerMaxQsize = jaegerMaxQsize;
   }
 
   public static String PRODUCER_CLIENT_ID = "vpc_controller_p2";

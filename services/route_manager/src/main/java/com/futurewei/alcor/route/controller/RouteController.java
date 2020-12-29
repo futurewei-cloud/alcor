@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.route.config.JaegerConfig;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
@@ -70,6 +71,11 @@ public class RouteController {
 
     @Autowired
     private RouteWithSubnetMapperService routeWithSubnetMapperService;
+
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     @RequestMapping(
             method = GET,
@@ -151,8 +157,9 @@ public class RouteController {
     @RequestMapping(produces = "application/json", method = RequestMethod.GET, value = {"/vpcs/abc"})
     @ResponseBody
     public ResponseEntity getData(HttpServletRequest request, @RequestParam(value = "ID", defaultValue = "") String id) {
-        Tracer tracer = new JaegerTracerHelper().initTracer("route1");
-       TracingObj tracingObj =  Tracing.startSpan(request);
+        String serviceName="route1";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+       TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
        Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             String helloStr = String.format("Hello, %s!", "helloTo");
@@ -177,8 +184,8 @@ public class RouteController {
     public RouteWebJson createVpcDefaultRoute(HttpServletRequest request, @PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
 
         String serviceName="route";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj =  Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             RouteEntity routeEntity = null;
@@ -225,8 +232,8 @@ public class RouteController {
     public RouteWebJson createSubnetRoute(HttpServletRequest request,@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
 
         String serviceName="route";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj =  Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
 

@@ -23,6 +23,7 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.macmanager.config.JaegerConfig;
 import com.futurewei.alcor.web.entity.mac.*;
 import com.futurewei.alcor.macmanager.service.MacService;
 import com.futurewei.alcor.macmanager.exception.MacAddressInvalidException;
@@ -63,6 +64,9 @@ public class MacController {
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired
+    private JaegerConfig config;
+
     @RequestMapping(
             method = GET,
             value = {"/macs/{macaddress}", "/v4/macs/{macaddress}"})
@@ -70,8 +74,8 @@ public class MacController {
     @DurationStatistics
     public MacStateJson getMacStateByMacAddress(@PathVariable String macaddress) throws Exception {
         String serviceName="mac";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj =  Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             MacState macState = null;

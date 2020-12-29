@@ -54,10 +54,9 @@ public final class Tracing {
         };
     }
 
-    public static TracingObj startSpan(HttpServletRequest request)
+    public static TracingObj startSpan(HttpServletRequest request, Tracer tracer,String serviceName)
     {
 
-        String serviceName="VpcService";
         Map<String,String> headers=new HashMap();
         Iterator<String> stringIterator = request.getHeaderNames().asIterator();
         while(stringIterator.hasNext())
@@ -66,7 +65,6 @@ public final class Tracing {
             String value=request.getHeader(name);
             headers.put(name,value);
         }
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String header = headerNames.nextElement();
@@ -77,7 +75,7 @@ public final class Tracing {
         if (null == parentSpanContext) {
             builder = tracer.buildSpan(serviceName);
         } else {
-            builder = tracer.buildSpan("createVpcSingle").asChildOf(parentSpanContext);
+            builder = tracer.buildSpan(serviceName).asChildOf(parentSpanContext);
         }
         return new TracingObj(builder.start(),headers);
     }

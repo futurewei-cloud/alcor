@@ -25,6 +25,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.vpcmanager.config.JaegerConfig;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
@@ -68,6 +69,11 @@ public class VpcController {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     /**
      * hows details for a network
@@ -131,8 +137,8 @@ public class VpcController {
     @DurationStatistics
     public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         String serviceName="VpcService";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj=Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj=Tracing.startSpan(request,tracer,serviceName);
         try (Scope op= tracer.scopeManager().activate(tracingObj.getSpan())) {
         VpcEntity inVpcState = new VpcEntity();
 

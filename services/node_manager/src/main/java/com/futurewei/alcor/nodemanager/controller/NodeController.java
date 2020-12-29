@@ -24,6 +24,7 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.nodemanager.config.JaegerConfig;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
@@ -47,12 +48,8 @@ import java.util.logging.Level;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapAdapter;
 import com.futurewei.alcor.common.config.JaegerTracerHelper;
-import java.util.*;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -64,6 +61,11 @@ public class NodeController {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     @RequestMapping(
             method = POST,
@@ -126,8 +128,8 @@ public class NodeController {
                                     @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
 
         String serviceName="node";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj =  Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             List<NodeInfo> nodes = null;

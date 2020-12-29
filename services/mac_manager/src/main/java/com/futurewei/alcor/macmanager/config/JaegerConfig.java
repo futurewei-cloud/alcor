@@ -19,16 +19,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class Config {
+public class JaegerConfig {
 
   @Value("${jaeger.host:127.0.0.1}")
   public String jaegerHost;
   @Value("${jaeger.port:5775}")
-  public String jaegerPort;
+  public int jaegerPort;
   @Value("${jaeger.flush:1000}")
-  public String jaegerFlush;
+  public int jaegerFlush;
   @Value("${jaeger.maxQsize:1000}")
-  public String jaegerMaxQsize;
+  public int jaegerMaxQsize;
 
   public String getJaegerHost() {
     return jaegerHost;
@@ -38,27 +38,27 @@ public class Config {
     this.jaegerHost = jaegerHost;
   }
 
-  public String getJaegerPort() {
+  public int getJaegerPort() {
     return jaegerPort;
   }
 
-  public void setJaegerPort(String jaegerPort) {
+  public void setJaegerPort(int jaegerPort) {
     this.jaegerPort = jaegerPort;
   }
 
-  public String getJaegerFlush() {
+  public int getJaegerFlush() {
     return jaegerFlush;
   }
 
-  public void setJaegerFlush(String jaegerFlush) {
+  public void setJaegerFlush(int jaegerFlush) {
     this.jaegerFlush = jaegerFlush;
   }
 
-  public String getJaegerMaxQsize() {
+  public int getJaegerMaxQsize() {
     return jaegerMaxQsize;
   }
 
-  public void setJaegerMaxQsize(String jaegerMaxQsize) {
+  public void setJaegerMaxQsize(int jaegerMaxQsize) {
     this.jaegerMaxQsize = jaegerMaxQsize;
   }
 }

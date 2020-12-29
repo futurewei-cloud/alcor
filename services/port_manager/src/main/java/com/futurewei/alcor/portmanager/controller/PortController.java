@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.config.Tracing;
 import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.portmanager.config.JaegerConfig;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.web.entity.port.*;
@@ -59,6 +60,11 @@ public class PortController {
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
+
     @Value("${alcor.vif_type}")
     private String vifType;
 
@@ -80,8 +86,8 @@ public class PortController {
     public PortWebJson createPort(@PathVariable("project_id") String projectId,
                                          @RequestBody PortWebJson portWebJson) throws Exception {
         String serviceName="port";
-        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        TracingObj tracingObj =  Tracing.startSpan(request);
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request1,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             PortEntity portEntity = portWebJson.getPortEntity();

@@ -31,6 +31,7 @@ import com.futurewei.alcor.web.entity.dataplane.InternalDPMResult;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -65,22 +66,23 @@ public class GSController {
   @Autowired
   private HttpServletRequest request;
 
-  /**
-   * Accept north bound calls then transfer to ACA calls in southbound
-   *
-   * @param gs Encapsulation of NetworkConfiguration message
-   * @return RestOperationResult in String
-   * @throws Exception Various exceptions that may occur during the create process
-   * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
-   *     /pages/infra_services/data_plane_manager.adoc
-   */
+
+    /**
+     * Accept north bound calls then transfer to ACA calls in southbound
+     *
+     * @param gs Encapsulation of NetworkConfiguration message
+     * @return RestOperationResult in String
+     * @throws Exception Various exceptions that may occur during the create process
+     * @link https://github.com/haboy52581/alcor/blob/master/docs/modules/ROOT
+     *     /pages/infra_services/data_plane_manager.adoc
+     */
   @PostMapping({"/port/", "v4/port/"})
   @ResponseStatus(HttpStatus.CREATED)
   @DurationStatistics
   public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs) throws Exception {
     String serviceName="dpm";
-    Tracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-    TracingObj tracingObj =  Tracing.startSpan(request);
+    Tracer tracer = new JaegerTracerHelper().initTracer(serviceName,config.getJaegerHost(),config.getPort(),Integer.parseInt(config.getJaegerFlush()),Integer.parseInt(config.getJaegerMaxQsize()));
+    TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
     Span span=tracingObj.getSpan();
     try (Scope op= tracer.scopeManager().activate(span)) {
       gs.setOpType(Common.OperationType.CREATE);
