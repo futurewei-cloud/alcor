@@ -16,6 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.controller;
 
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
+import com.futurewei.alcor.subnet.config.JaegerConfig;
 import io.jaegertracing.internal.JaegerTracer;
 
 import com.futurewei.alcor.common.exception.*;
@@ -90,6 +93,11 @@ public class SubnetController {
 
     @Autowired
     private SubnetToPortManagerService subnetToPortManagerService;
+
+    @Autowired private JaegerConfig config;
+
+    @Autowired
+    private HttpServletRequest request1;
 
     @RequestMapping(
             method = GET,
@@ -181,33 +189,11 @@ public class SubnetController {
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebRequestJson resource) throws Exception {
-        System.out.println("start span creating and headers = "+request.getHeaderNames());
-        String serviceName="subnet1";
-        Map<String,String> headers=new HashMap();
-        Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-        while(stringIterator.hasNext())
-        {
-            String name = stringIterator.next();
-            String value=request.getHeader(name);
-            headers.put(name,value);
-        }
-        System.out.println("enter getData and headers = "+headers.size());
-        JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName);
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-            headers.put(header, request.getHeader(header));
-        }
-        System.out.println(headers);
-        Tracer.SpanBuilder builder = null;
-        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
-        System.out.println("parentSpanContext "+parentSpanContext);
-        if (null == parentSpanContext) {
-            builder = tracer.buildSpan(serviceName);
-        } else {
-            builder = tracer.buildSpan("emptyParent").asChildOf(parentSpanContext);
-        }
-        Span span = builder.start();
+        String serviceName="subnet";
+        Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
+        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
+        Span span=tracingObj.getSpan();
+
         try (Scope op= tracer.scopeManager().activate(span)) {
             long start = System.currentTimeMillis();
             SubnetEntity inSubnetEntity = new SubnetEntity();
