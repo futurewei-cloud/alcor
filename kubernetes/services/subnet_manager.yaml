@@ -22,8 +22,6 @@ data:
     spring.application.name=subnet-manager
     rbac.policy.type=Enforced
     management.health.redis.enabled=false
-    # the zipkin host should be YOURS
-    spring.zipkin.base-url=http://10.213.43.187:9411
 ---
 apiVersion: apps/v1
 kind: Deployment

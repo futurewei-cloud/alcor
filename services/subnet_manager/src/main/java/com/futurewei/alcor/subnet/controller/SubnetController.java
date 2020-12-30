@@ -245,21 +245,21 @@ public class SubnetController {
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            SubnetEntity subnet = new SubnetEntity();
-            BeanUtils.copyProperties(inSubnetEntity, subnet);
-            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return this.subnetService.createRouteRules(subnetId, subnet);
-                } catch (Exception e) {
-                    throw new CompletionException(e);
-                }
-            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
-                routeResponseAtomic.set(s);
-                if (e != null) {
-                    throw new CompletionException(e);
-                }
-                return s;
-            });
+//            SubnetEntity subnet = new SubnetEntity();
+//            BeanUtils.copyProperties(inSubnetEntity, subnet);
+//            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
+//                try {
+//                    return this.subnetService.createRouteRules(subnetId, subnet);
+//                } catch (Exception e) {
+//                    throw new CompletionException(e);
+//                }
+//            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+//                routeResponseAtomic.set(s);
+//                if (e != null) {
+//                    throw new CompletionException(e);
+//                }
+//                return s;
+//            });
 
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
@@ -278,19 +278,19 @@ public class SubnetController {
 
             // Synchronous blocking
             //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture);
             allFuture.join();
 
             //macResponse = macFuture.join();
-            routeResponse = routeFuture.join();
+            //routeResponse = routeFuture.join();
             ipResponse = ipFuture.join();
 
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
-            List<RouteEntity> routeEntities = new ArrayList<>();
-            routeEntities.add(routeResponse.getRoute());
-            inSubnetEntity.setRouteEntities(routeEntities);
+//            List<RouteEntity> routeEntities = new ArrayList<>();
+//            routeEntities.add(routeResponse.getRoute());
+//            inSubnetEntity.setRouteEntities(routeEntities);
 
 //            MacState macState = macResponse.getMacState();
 //            if (macState != null) {

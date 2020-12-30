@@ -12,7 +12,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 #  mvn compile
 #  mvn install
 
-  cd ..
+  cd /root/alcor
 
   echo "Clean build schema project"
   cd schema

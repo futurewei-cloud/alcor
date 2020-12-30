@@ -4,7 +4,6 @@ metadata:
   name: api-configmap
 data:
   application.properties: |
-    ignite.thin.client.enable=true
     spring.application.name=alcor-api-gateway
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud=DEBUG
@@ -14,6 +13,7 @@ data:
     spring.sleuth.web.skipPattern=(^health.*)
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
+    ignite.thin.client.enable=true
     #ignite.key-store-path=keystore.jks
     #ignite.key-store-password=123456
     
@@ -47,8 +47,6 @@ data:
     
     spring.sleuth.sampler.probability=1.0
     spring.application.name=api-gateway
-    # the zipkin host should be YOURS
-    spring.zipkin.base-url=http://10.213.43.187:9411
 
 ---
 apiVersion: apps/v1
@@ -61,7 +59,7 @@ spec:
   selector:
     matchLabels:
       app: apimanager
-  replicas: 10
+  replicas: 5
   #replicas: 3
   template:
     metadata:
