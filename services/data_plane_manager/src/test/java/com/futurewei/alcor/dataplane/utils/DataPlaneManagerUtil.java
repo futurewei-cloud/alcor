@@ -261,7 +261,7 @@ public class DataPlaneManagerUtil {
             int IpAddressOffSet = i + 2;
             SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, DPMAutoUnitTestConstant.subnetId + i, null, "", DPMAutoUnitTestConstant.vpcId,
                     "192.168." + IpAddressOffSet + ".0/24", null, "192.168." + IpAddressOffSet + ".1", false, null,
-                    null, null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
+                    null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null, false, null, null,
@@ -1047,7 +1047,7 @@ public class DataPlaneManagerUtil {
             UTSubnetInfo subnetInfo = UTSubnets.get(i);
             SubnetEntity subnetEntity = new SubnetEntity(DPMAutoUnitTestConstant.projectId, subnetInfo.getSubnetId(), null, "", DPMAutoUnitTestConstant.vpcId,
                     subnetInfo.getSubnetCidr(), null, subnetInfo.getSubnetGatewayIP(), false, null,
-                    null, null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
+                    null, new GatewayPortDetail(DPMAutoUnitTestConstant.gatewayMacAddress, null), null,
                     null, null, null, null, null,
                     null, null, false, null, null,
                     null, false, null, null,
