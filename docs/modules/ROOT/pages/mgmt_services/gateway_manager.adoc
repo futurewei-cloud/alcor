@@ -26,7 +26,22 @@ It interacts with VPC Manager, Port Manager, Data Plane Manager, and Gateway Clu
 image::gateway_manager_service_architecture.PNG[]
 
 === Data Schema
+Two options for gateway data schema design: coupled and de-coupled.
+Option A is a coupled design, gateway entity is coupled with a VPC. Option B is a de-coupled design.
+Gateway, VPC and routing table resources are all de-coupled.
+Option B is more flexible design, it fits to all different types of gateways.
+
+*OPTION A*
+
 image::gateway_manager_data_schema.PNG[]
+
+*OPTION B*
+
+image::gateway_manager_data_schema_decoupled.PNG[]
+
+*Zeta Gateway Example*
+
+image::gateway_manager_zeta_gateway_example_schema.PNG[]
 
 === Key Workflow
 We have two options here for VPC and gateway resource creation.
@@ -39,7 +54,7 @@ The detail workflows of two options are below:
 
 ==== A1. VPC and Zeta Gateway Creation
 1. The benefit of A1: GM can be decoupled from major components of Alcor, we can consider GM is a non-major component.
-2. The drawback of A1: DPM becomes a proactive component and it needs to update GM actively.
+2. The drawback of A1: DPM becomes a proactive component, and it needs to update GM actively.
 
 image::gateway_manager_vpc_zetagateway_creation_A.PNG[]
 
@@ -66,7 +81,7 @@ Therefore, Option A is the design choice for GM.
 [width="100%",cols="32%,12%,40%,17%"]
 |===
 |*API Name* |*Method* |*Request*|*Response*
-|List VPC's Available Gateway
+|List VPC's Available Gateways
 |GET
 |/project/{projectid}/vpcs/{vpc_id}/gateways
 |All gateways' state
@@ -75,7 +90,7 @@ Therefore, Option A is the design choice for GM.
 |Register a VPC
 |POST
 |/project/{projectid}/vpcs/{vpc_id}/gateway
-|VPC's gateway state
+|VPC's GatewayInfo ID
 <<vpc_gw_post,[sample]>>
 
 |Query gateway's state
@@ -104,3 +119,122 @@ Therefore, Option A is the design choice for GM.
 |===
 
 === API Specification
+anchor:gws_get_all[]
+**(1) List VPC's Available Gateways**
+
+* Method: `GET`
+* Request: `/project/{projectid}/vpcs/{vpc_id}/gateways`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
+* Action: Lists all available gateway resources for a VPC.
+* Response: All gateways' state
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/gateways
+
+Response:
+{
+    "gateways": [
+        {
+            "gateway_id": true,
+            "gateway_type": "zeta",
+            "name": "",
+            "description": "",
+            "status": "ACTIVE",
+            "created_at": "2018-03-19T19:17:04Z",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "tags": ["tag1,tag2"],
+            "ips": [
+                {
+                    "ip": "10.1.0.1",
+                    "mac": "aa:bb:cc:dd:00:01"
+                },
+                {
+                    "ip": "10.1.0.2",
+                    "mac": "aa:bb:cc:dd:00:02"
+                }
+            ],
+            "routetables": [
+                {
+                    "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+                    "type" : "propagated",
+                    "name" : "",
+                    "description" : "",
+                    "routes": [
+                        {
+                            "destination": "179.24.1.0/24",
+                            "nexthop": "172.24.3.99"
+                        }
+                    ]
+                }
+            ],
+            "external_id": "zeta-gateway_id",
+            "external_port": "zeta_ibo_port"
+        }
+    ]
+}
+....
+
+anchor:vpc_gw_post[]
+**(2) Register a VPC**
+
+* Method: `POST`
+* Request: `/project/{projectid}/vpcs/{vpc_id}/gateway`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
+* Action: Create a GatewayInfo entity
+* Response: VPC's GatewayInfo ID
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/gateway
+
+Body:
+{
+    "vpcinfo": [
+        {
+            "vpc_vni": true,
+            "gateway_type": "zeta",
+            "name": "",
+            "description": "",
+            "status": "ACTIVE",
+            "created_at": "2018-03-19T19:17:04Z",
+            "updated_at": "2018-03-19T19:17:22Z",
+            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+            "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+            "tags": ["tag1,tag2"],
+            "ips": [
+                {
+                    "ip": "10.1.0.1",
+                    "mac": "aa:bb:cc:dd:00:01"
+                },
+                {
+                    "ip": "10.1.0.2",
+                    "mac": "aa:bb:cc:dd:00:02"
+                }
+            ],
+            "routetables": [
+                {
+                    "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
+                    "type" : "propagated",
+                    "name" : "",
+                    "description" : "",
+                    "routes": [
+                        {
+                            "destination": "179.24.1.0/24",
+                            "nexthop": "172.24.3.99"
+                        }
+                    ]
+                }
+            ],
+            "gateway_external_id": "zeta-gateway_id",
+            "gateway_external_port": "zeta_ibo_port"
+        }
+    ]
+}
+....
