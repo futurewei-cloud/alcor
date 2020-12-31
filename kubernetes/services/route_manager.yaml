@@ -17,9 +17,6 @@ data:
     logging.type=file
     management.health.redis.enabled=false
     
-    spring.sleuth.sampler.probability=1.0
-    spring.application.name=route-manager
-    
 ---
 apiVersion: apps/v1
 kind: Deployment

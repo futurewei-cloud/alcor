@@ -16,8 +16,6 @@ data:
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
     
     rbac.policy.type=Enforced
-    spring.sleuth.sampler.probability=1.0
-    spring.application.name=vpc-manager
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -6,8 +6,6 @@ data:
   application.properties: |
     dataplane.grpc.port = 50001
     dataplane.isovs=true
-    spring.sleuth.sampler.probability=1.0
-    spring.application.name=dataplane-service
     # the zipkin host should be YOURS
     spring.zipkin.base-url=http://10.213.43.187:9411
     

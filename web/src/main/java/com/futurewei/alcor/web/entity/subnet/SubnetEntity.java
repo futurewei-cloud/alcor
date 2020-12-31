@@ -63,9 +63,6 @@ public class SubnetEntity extends CustomerResource {
     @JsonProperty("secondary_dns")
     private String secondaryDns;
 
-//    @JsonProperty("routes")
-//    private List<RouteEntity> routeEntities;
-
     @JsonProperty("dns_list")
     private List<String> dnsList;
 
