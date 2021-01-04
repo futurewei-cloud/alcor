@@ -98,19 +98,13 @@ spec:
             - name: JVM_OPTS
               value: "-Djava.net.preferIPv4Stack=true"
             #- name: JVM_OPTS
-              #value: "-Djava.net.preferIPv4Stack=true \
-                      #-XX:+PrintGCDetails \
-                      #-XX:+PrintGCTimeStamps \
-                      #-XX:+PrintGCDateStamps \
-                      #-XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 \
-                      #-XX:GCLogFileSize=100M \
-                      #-Xloggc:/opt/ignite/apache-ignite/work/log/ignite-gc.log \
-                      #-server \ 
-                      #-Xms50g \
-                      #-Xmx50g \
-                      #-XX:+AlwaysPreTouch \
-                      #-XX:+UseG1GC \
-                      #-XX:+ScavengeBeforeFullGC \
+              #value: "-Djava.net.preferIPv4Stack=true
+                      #-server 
+                      #-Xms20g
+                      #-Xmx20g
+                      #-XX:+AlwaysPreTouch
+                      #-XX:+UseG1GC
+                      #-XX:+ScavengeBeforeFullGC
                       #-XX:+DisableExplicitGC"
           ports:
             - name: port8080

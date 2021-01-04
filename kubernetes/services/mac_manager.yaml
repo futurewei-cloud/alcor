@@ -4,19 +4,20 @@ metadata:
   name: mac-configmap
 data:
   application.properties: |
-    ignite.thin.client.enable=true
     spring.redis.host=localhost
     spring.redis.port=6380
     ignite.host=ignite-alcor-mac-service.ignite-alcor-mac.svc.cluster.local
     ignite.port=10803
+    ignite.thin.client.enable=true
     #ignite.key-store-path=keystore.jks
     #ignite.key-store-password=123456
     #ignite.trust-store-path=truststore.jks
     #ignite.trust-store-password=123456
     logging.level.root=DEBUG
-    macmanager.oui = AA-BB-CC
+    macmanager.oui = aa:bb:cc
     macmanager.pool.size = 100
     macmanager.retrylimit = 10
+
 ---
 apiVersion: apps/v1
 kind: Deployment
