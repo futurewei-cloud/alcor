@@ -1,7 +1,5 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
-import com.futurewei.alcor.common.config.Tracing;
-import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.config.JaegerConfig;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
@@ -15,6 +13,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.opentracing.log.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +32,8 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import okhttp3.*;
 import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,8 +65,9 @@ public class VpcServiceImpl implements VpcService {
     @DurationStatistics
     public RouteWebJson getRoute(String vpcId, VpcEntity vpcState, Map<String,String> httpHeaders) throws IOException {
         String serviceName = "VpcService";
+        HashMap<String,Object> ex=new HashMap<>();
         try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
-            TracingObj tracingObj = Tracing.startSpan(request1,tracer, serviceName);
+            TracingObj tracingObj = Tracing.startSpan(httpHeaders,tracer, serviceName);
             Span span=tracingObj.getSpan();
             try (Scope op = tracer.scopeManager().activate(span)) {
                 String routeManagerServiceUrl2 = routeUrl + "vpcs/" + vpcId + "/routes";
@@ -91,6 +94,8 @@ public class VpcServiceImpl implements VpcService {
             }catch (IOException e)
             {
                 logger.error("create route error, {}", e.getMessage());
+                ex.put(Fields.ERROR_OBJECT, e);
+                span.log(ex);
                 throw e;
             }
             finally {

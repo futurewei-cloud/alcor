@@ -33,6 +33,7 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.google.common.collect.ImmutableMap;
+import io.opentracing.log.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,7 +160,21 @@ public class RouteController {
     public ResponseEntity getData(HttpServletRequest request, @RequestParam(value = "ID", defaultValue = "") String id) {
         String serviceName="route1";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
-       TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
+        Map<String,String> headers=new HashMap();
+        if(request!=null) {
+            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+            while (stringIterator.hasNext()) {
+                String name = stringIterator.next();
+                String value = request.getHeader(name);
+                headers.put(name, value);
+            }
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String header = headerNames.nextElement();
+                headers.put(header, request.getHeader(header));
+            }
+        }
+       TracingObj tracingObj =  Tracing.startSpan(headers,tracer,serviceName);
        Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             String helloStr = String.format("Hello, %s!", "helloTo");
@@ -185,7 +200,22 @@ public class RouteController {
 
         String serviceName="route";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
-        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
+        Map<String,String> headers=new HashMap();
+        Map<String,Object> ex=new HashMap();
+        if(request!=null) {
+            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+            while (stringIterator.hasNext()) {
+                String name = stringIterator.next();
+                String value = request.getHeader(name);
+                headers.put(name, value);
+            }
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String header = headerNames.nextElement();
+                headers.put(header, request.getHeader(header));
+            }
+        }
+        TracingObj tracingObj =  Tracing.startSpan(headers,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
             RouteEntity routeEntity = null;
@@ -207,12 +237,16 @@ public class RouteController {
 
                 this.routeWithVpcMapperService.addMapperByRouteEntity(vpcId, routeEntity);
             } catch (ParameterNullOrEmptyException e) {
+                ex.put(Fields.ERROR_OBJECT, e);
+                span.log(ex);
                 throw new Exception(e);
             }
 
             return new RouteWebJson(routeEntity);
         } catch (Exception e)
         {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             e.printStackTrace();
         }
 
@@ -233,7 +267,21 @@ public class RouteController {
 
         String serviceName="route";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
-        TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
+        Map<String,String> headers=new HashMap();
+        if(request!=null) {
+            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+            while (stringIterator.hasNext()) {
+                String name = stringIterator.next();
+                String value = request.getHeader(name);
+                headers.put(name, value);
+            }
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String header = headerNames.nextElement();
+                headers.put(header, request.getHeader(header));
+            }
+        }
+        TracingObj tracingObj =  Tracing.startSpan(headers,tracer,serviceName);
         Span span=tracingObj.getSpan();
         try (Scope op= tracer.scopeManager().activate(span)) {
 

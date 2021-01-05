@@ -36,6 +36,7 @@ import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
+import io.opentracing.log.Fields;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -135,11 +136,27 @@ public class VpcController {
             value = {"/project/{projectid}/vpcs"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public VpcWebJson createVpcState(@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
+    public VpcWebJson createVpcState(HttpServletRequest request,@PathVariable String projectid, @RequestBody VpcWebRequestJson resource) throws Exception {
         String serviceName="VpcService";
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
-        TracingObj tracingObj=Tracing.startSpan(request,tracer,serviceName);
-        try (Scope op= tracer.scopeManager().activate(tracingObj.getSpan())) {
+        Map<String,String> headers=new HashMap();
+        Map<String,Object> ex =new HashMap();
+        if(request!=null) {
+            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+            while (stringIterator.hasNext()) {
+                String name = stringIterator.next();
+                String value = request.getHeader(name);
+                headers.put(name, value);
+            }
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String header = headerNames.nextElement();
+                headers.put(header, request.getHeader(header));
+            }
+        }
+        TracingObj tracingObj=Tracing.startSpan(headers,tracer,serviceName);
+        final Span span = tracingObj.getSpan();
+        try (Scope op= tracer.scopeManager().activate(span)) {
         VpcEntity inVpcState = new VpcEntity();
 
         if (StringUtils.isEmpty(resource.getNetwork().getId())) {
@@ -193,20 +210,26 @@ public class VpcController {
             this.vpcDatabaseService.addVpc(inVpcState);
 
         } catch (ParameterNullOrEmptyException e) {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             throw new Exception(e);
         } catch (ResourceNullException e) {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             throw new Exception(e);
         }
 
         return new VpcWebJson(inVpcState);
         } catch (Exception e)
         {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             e.printStackTrace();
         }
 
         finally
         {
-            tracingObj.getSpan().finish();
+            span.finish();
         }
         return null;
     }
