@@ -54,7 +54,19 @@ public final class Tracing {
         };
     }
 
-    public static TracingObj startSpan(HttpServletRequest request, Tracer tracer,String serviceName)
+    public static TracingObj startSpan(Map<String,String> headers, Tracer tracer,String serviceName)
+    {
+        Tracer.SpanBuilder builder = null;
+        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
+        if (null == parentSpanContext) {
+            builder = tracer.buildSpan(serviceName);
+        } else {
+            builder = tracer.buildSpan(serviceName).asChildOf(parentSpanContext);
+        }
+        return new TracingObj(builder.start(),headers);
+    }
+
+    public static TracingObj startSpan(HttpServletRequest request, Tracer tracer, String serviceName)
     {
 
         Map<String,String> headers=new HashMap();

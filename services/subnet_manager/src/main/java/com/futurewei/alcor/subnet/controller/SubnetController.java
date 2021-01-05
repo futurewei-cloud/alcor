@@ -300,19 +300,19 @@ public class SubnetController {
 
             // Synchronous blocking
             //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture);
             allFuture.join();
 
             //macResponse = macFuture.join();
-            routeResponse = routeFuture.join();
+            //routeResponse = routeFuture.join();
             ipResponse = ipFuture.join();
 
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
-            List<RouteEntity> routeEntities = new ArrayList<>();
-            routeEntities.add(routeResponse.getRoute());
-            inSubnetEntity.setRouteEntities(routeEntities);
+//            List<RouteEntity> routeEntities = new ArrayList<>();
+//            routeEntities.add(routeResponse.getRoute());
+//            inSubnetEntity.setRouteEntities(routeEntities);
 
 //            MacState macState = macResponse.getMacState();
 //            if (macState != null) {

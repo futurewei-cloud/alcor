@@ -59,6 +59,7 @@ import com.futurewei.alcor.common.config.JaegerTracerHelper;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
+@Deprecated
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class RouteController {
 

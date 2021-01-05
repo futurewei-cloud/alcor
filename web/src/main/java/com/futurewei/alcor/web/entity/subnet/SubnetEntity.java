@@ -23,6 +23,8 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -62,9 +64,6 @@ public class SubnetEntity extends CustomerResource {
 
     @JsonProperty("secondary_dns")
     private String secondaryDns;
-
-    @JsonProperty("routes")
-    private List<RouteEntity> routeEntities;
 
     @JsonProperty("dns_list")
     private List<String> dnsList;
@@ -155,16 +154,9 @@ public class SubnetEntity extends CustomerResource {
         this.cidr = cidr;
     }
 
-    public SubnetEntity(String projectId, String vpcId, String id, String name, String cidr, List<RouteEntity> routeEntities) {
-        super(projectId, id, name, null);
-        this.vpcId = vpcId;
-        this.cidr = cidr;
-        this.routeEntities = routeEntities;
-    }
-
     public SubnetEntity(String projectId, String id, String name, String description, String vpcId,
                         String cidr, String availabilityZone, String gatewayIp, Boolean dhcpEnable, String primaryDns,
-                        String secondaryDns, List<RouteEntity> routeEntities, GatewayPortDetail gatewayPortDetail, List<String> dnsList,
+                        String secondaryDns, GatewayPortDetail gatewayPortDetail, List<String> dnsList,
                         Integer ipVersion, String ipV4RangeId, String ipV6RangeId, String ipv6AddressMode, String ipv6RaMode,
                         Integer revisionNumber, String segmentId, Boolean shared, String sortDir, String sortKey,
                         String subnetpoolId, boolean dnsPublishFixedIp, List<String> tags, String tagsAny,
@@ -179,7 +171,6 @@ public class SubnetEntity extends CustomerResource {
         this.dhcpEnable = dhcpEnable;
         this.primaryDns = primaryDns;
         this.secondaryDns = secondaryDns;
-        this.routeEntities = routeEntities;
         this.gatewayPortDetail = gatewayPortDetail;
         this.dnsList = dnsList;
         this.ipVersion = ipVersion;
@@ -212,13 +203,51 @@ public class SubnetEntity extends CustomerResource {
     public SubnetEntity(SubnetEntity subnetEntity) {
         this(subnetEntity.getProjectId(), subnetEntity.getId(), subnetEntity.getName(), subnetEntity.getDescription(), subnetEntity.getVpcId(),
                 subnetEntity.getCidr(), subnetEntity.getAvailabilityZone(), subnetEntity.getGatewayIp(), subnetEntity.getDhcpEnable(), subnetEntity.getPrimaryDns(),
-                subnetEntity.getSecondaryDns(), subnetEntity.getRouteEntities(), subnetEntity.getGatewayPortDetail(), subnetEntity.getDnsList(),
+                subnetEntity.getSecondaryDns(), subnetEntity.getGatewayPortDetail(), subnetEntity.getDnsList(),
                 subnetEntity.getIpVersion(), subnetEntity.getIpV4RangeId(), subnetEntity.getIpV6RangeId(), subnetEntity.getIpv6AddressMode(), subnetEntity.getIpv6RaMode(),
                 subnetEntity.getRevisionNumber(), subnetEntity.getSegmentId(), subnetEntity.getShared(), subnetEntity.getSortDir(), subnetEntity.getSortKey(),
                 subnetEntity.getSubnetpoolId(), subnetEntity.dnsPublishFixedIp, subnetEntity.getTags(), subnetEntity.getTagsAny(),
                 subnetEntity.getNotTags(), subnetEntity.getNotTagsAny(), subnetEntity.getFields(), subnetEntity.getDnsNameservers(), subnetEntity.getAllocationPools(),
                 subnetEntity.getHostRoutes(), subnetEntity.getPrefixlen(), subnetEntity.useDefaultSubnetpool, subnetEntity.getServiceTypes(), subnetEntity.getCreated_at(),
                 subnetEntity.getUpdated_at());
+    }
+
+    public SubnetEntity(String projectId, String vpcId, String subnetId, String name, String cidr, ArrayList<RouteEntity> routeEntities) {
+        super(projectId, subnetId, name, "description");
+        this.vpcId = vpcId;
+        this.cidr = cidr;
+        this.availabilityZone = availabilityZone;
+        this.gatewayIp = gatewayIp;
+        this.dhcpEnable = dhcpEnable;
+        this.primaryDns = primaryDns;
+        this.secondaryDns = secondaryDns;
+        this.gatewayPortDetail = gatewayPortDetail;
+        this.dnsList = dnsList;
+        this.ipVersion = ipVersion;
+        this.ipV4RangeId = ipV4RangeId;
+        this.ipV6RangeId = ipV6RangeId;
+        this.ipv6AddressMode = ipv6AddressMode;
+        this.ipv6RaMode = ipv6RaMode;
+        this.revisionNumber = revisionNumber;
+        this.segmentId = segmentId;
+        this.shared = shared;
+        this.sortDir = sortDir;
+        this.sortKey = sortKey;
+        this.subnetpoolId = subnetpoolId;
+        this.dnsPublishFixedIp = dnsPublishFixedIp;
+        this.tags = tags;
+        this.tagsAny = tagsAny;
+        this.notTags = notTags;
+        this.notTagsAny = notTagsAny;
+        this.fields = fields;
+        this.dnsNameservers = dnsNameservers;
+        this.allocationPools = allocationPools;
+        this.hostRoutes = hostRoutes;
+        this.prefixlen = prefixlen;
+        this.useDefaultSubnetpool = useDefaultSubnetpool;
+        this.serviceTypes = serviceTypes;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
     public String getVpcId() {
@@ -275,14 +304,6 @@ public class SubnetEntity extends CustomerResource {
 
     public void setSecondaryDns(String secondaryDns) {
         this.secondaryDns = secondaryDns;
-    }
-
-    public List<RouteEntity> getRouteEntities() {
-        return routeEntities;
-    }
-
-    public void setRouteEntities(List<RouteEntity> routeEntities) {
-        this.routeEntities = routeEntities;
     }
 
     public GatewayPortDetail getGatewayPortDetail() {
