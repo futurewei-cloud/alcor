@@ -218,8 +218,8 @@ public class RouteController {
         }
         TracingObj tracingObj =  Tracing.startSpan(headers,tracer,serviceName);
         Span span=tracingObj.getSpan();
+        RouteEntity routeEntity = null;
         try (Scope op= tracer.scopeManager().activate(span)) {
-            RouteEntity routeEntity = null;
 
             try {
                 RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
@@ -256,7 +256,7 @@ public class RouteController {
             span.finish();
         }
 
-       return null;
+        return new RouteWebJson(routeEntity);
     }
 
     @RequestMapping(

@@ -156,8 +156,8 @@ public class VpcController {
         }
         TracingObj tracingObj=Tracing.startSpan(headers,tracer,serviceName);
         final Span span = tracingObj.getSpan();
-        try (Scope op= tracer.scopeManager().activate(span)) {
         VpcEntity inVpcState = new VpcEntity();
+        try (Scope op= tracer.scopeManager().activate(span)) {
 
         if (StringUtils.isEmpty(resource.getNetwork().getId())) {
             UUID vpcId = UUID.randomUUID();
@@ -231,7 +231,7 @@ public class VpcController {
         {
             span.finish();
         }
-        return null;
+        return new VpcWebJson(inVpcState);
     }
 
     /**

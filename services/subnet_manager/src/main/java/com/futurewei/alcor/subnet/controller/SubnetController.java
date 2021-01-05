@@ -47,6 +47,7 @@ import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import com.google.common.base.Preconditions;
+import io.opentracing.log.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -188,13 +189,14 @@ public class SubnetController {
     @DurationStatistics
     public SubnetWebJson createSubnetState(@PathVariable String projectId, @RequestBody SubnetWebRequestJson resource) throws Exception {
         String serviceName="subnet";
+        Map<String,Object> ex =new HashMap();
         Tracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize());
         TracingObj tracingObj =  Tracing.startSpan(request,tracer,serviceName);
         Span span=tracingObj.getSpan();
+        SubnetEntity inSubnetEntity = new SubnetEntity();
 
         try (Scope op= tracer.scopeManager().activate(span)) {
         long start = System.currentTimeMillis();
-        SubnetEntity inSubnetEntity = new SubnetEntity();
         RouteWebJson routeResponse = null;
         //MacStateJson macResponse = null;
         IpAddrRequest ipResponse = null;
@@ -262,6 +264,8 @@ public class SubnetController {
                 try {
                     return this.subnetService.verifyVpcId(projectId, vpcId);
                 } catch (Exception e) {
+                    ex.put(Fields.ERROR_OBJECT, e);
+                    span.log(ex);
                     throw new CompletionException(e);
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
@@ -273,11 +277,15 @@ public class SubnetController {
                 try {
                     return this.subnetService.createRouteRules(subnetId, subnet,config,span,tracer);
                 } catch (Exception e) {
+                    ex.put(Fields.ERROR_OBJECT, e);
+                    span.log(ex);
                     throw new CompletionException(e);
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
                 routeResponseAtomic.set(s);
                 if (e != null) {
+                    ex.put(Fields.ERROR_OBJECT, e);
+                    span.log(ex);
                     throw new CompletionException(e);
                 }
                 return s;
@@ -288,11 +296,15 @@ public class SubnetController {
                 try {
                     return this.subnetService.allocateIpAddressForGatewayPort(subnetId, cidr, vpcId, gatewayIp, gatewayIpIsInAllocatedRange);
                 } catch (Exception e) {
+                    ex.put(Fields.ERROR_OBJECT, e);
+                    span.log(ex);
                     throw new CompletionException(e);
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
                 ipResponseAtomic.set(s);
                 if (e != null) {
+                    ex.put(Fields.ERROR_OBJECT, e);
+                    span.log(ex);
                     throw new CompletionException(e);
                 }
                 return s;
@@ -404,17 +416,25 @@ public class SubnetController {
             return new SubnetWebJson(inSubnetEntity);
 
         } catch (CompletionException e) {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (DatabasePersistenceException e) {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             this.subnetService.fallbackOperation(routeResponseAtomic, macResponseAtomic, ipResponseAtomic, resource, e.getMessage());
             throw new Exception(e);
         } catch (NullPointerException e) {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             logger.error(e.getMessage());
             throw new Exception(e);
         }
         }catch (Exception e)
         {
+            ex.put(Fields.ERROR_OBJECT, e);
+            span.log(ex);
             e.printStackTrace();
         }
 
@@ -422,7 +442,7 @@ public class SubnetController {
         {
             span.finish();
         }
-        return null;
+        return new SubnetWebJson(inSubnetEntity);
     }
 
     @Rbac(resource ="subnet")
