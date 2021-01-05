@@ -48,6 +48,11 @@ image::gateway_manager_zeta_gateway_example_schema.PNG[]
 image::gateway_manager_transit_gateway_example1_figure.PNG[]
 image::gateway_manager_transit_gateway_example1_schema.PNG[]
 
+*Transit Gateway Example 2*
+
+image::gateway_manager_transit_gateway_example2_figure.PNG[]
+image::gateway_manager_transit_gateway_example2_schema.PNG[]
+
 === Key Workflow
 We have two options here for VPC and gateway resource creation.
 The major difference of these two option is in A1 and B1.
@@ -203,42 +208,8 @@ Body:
 {
     "vpcinfo": [
         {
-            "vpc_vni": true,
-            "gateway_type": "zeta",
-            "name": "",
-            "description": "",
-            "status": "ACTIVE",
-            "created_at": "2018-03-19T19:17:04Z",
-            "updated_at": "2018-03-19T19:17:22Z",
-            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-            "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
-            "tags": ["tag1,tag2"],
-            "ips": [
-                {
-                    "ip": "10.1.0.1",
-                    "mac": "aa:bb:cc:dd:00:01"
-                },
-                {
-                    "ip": "10.1.0.2",
-                    "mac": "aa:bb:cc:dd:00:02"
-                }
-            ],
-            "routetables": [
-                {
-                    "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
-                    "type" : "propagated",
-                    "name" : "",
-                    "description" : "",
-                    "routes": [
-                        {
-                            "destination": "179.24.1.0/24",
-                            "nexthop": "172.24.3.99"
-                        }
-                    ]
-                }
-            ],
-            "gateway_external_id": "zeta-gateway_id",
-            "gateway_external_port": "zeta_ibo_port"
+            "vpc_vni": 1233,
+            "owner": 3dda2801-d675-4688-a63f-dcda8d327f50
         }
     ]
 }
