@@ -43,6 +43,11 @@ image::gateway_manager_data_schema_decoupled.PNG[]
 
 image::gateway_manager_zeta_gateway_example_schema.PNG[]
 
+*Transit Gateway Example 1*
+
+image::gateway_manager_transit_gateway_example1_figure.PNG[]
+image::gateway_manager_transit_gateway_example1_schema.PNG[]
+
 === Key Workflow
 We have two options here for VPC and gateway resource creation.
 The major difference of these two option is in A1 and B1.
@@ -125,7 +130,7 @@ anchor:gws_get_all[]
 * Method: `GET`
 * Request: `/project/{projectid}/vpcs/{vpc_id}/gateways`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
-* Action: Lists all available gateway resources for a VPC.
+* Action: Lists all gateway resources for a VPC.
 * Response: All gateways' state
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
