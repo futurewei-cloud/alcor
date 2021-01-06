@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.client.pulsar;
 
+import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
@@ -45,35 +46,14 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private PulsarClient pulsarClient;
 
     @Autowired
-    private TopicManager topicManager;
-
-    private List<String> getGroupTopics(List<String> hostIps) throws Exception {
-        List<String> groupTopics = new ArrayList<>();
-
-        for (String hostIp: hostIps) {
-            String groupTopic = topicManager.getGroupTopicByHostIp(hostIp);
-            if (StringUtils.isEmpty(groupTopic)) {
-                LOG.error("Can not find group topic by host ip:{}", hostIp);
-                throw new GroupTopicNotFound();
-            }
-
-            groupTopics.add(groupTopic);
-        }
-
-        return groupTopics;
-    }
+    LocalCache localCache;
 
     private Map<String, List<String>> getMulticastTopics(List<String> hostIps) throws Exception {
         Map<String, List<String>> multicastTopics = new HashMap<>();
 
-        List<String> groupTopics = this.getGroupTopics(hostIps);
-        for (String groupTopic: groupTopics) {
-            String multicastTopic = topicManager.getMulticastTopicByGroupTopic(groupTopic);
-            if (StringUtils.isEmpty(multicastTopic)) {
-                LOG.error("Can not find multicast topic by group topic:{}", groupTopic);
-                throw new MulticastTopicNotFound();
-            }
-
+        for (String hostIp : hostIps) {
+            String groupTopic = localCache.getNodeInfo(hostIp).getGroupTopic();
+            String multicastTopic = localCache.getNodeInfo(hostIp).getMulticastTopic();
             if (!multicastTopics.containsKey(multicastTopic)) {
                 multicastTopics.put(multicastTopic, new ArrayList<>());
             }
@@ -122,14 +102,14 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            String nextTopic = topicManager.getGroupTopicByHostIp(unicastGoalState.getHostIp());
+            String nextTopic = localCache.getNodeInfo(unicastGoalState.getHostIp()).getGroupTopic();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
                 throw new GroupTopicNotFound();
             }
 
             String topic = nextTopic;
-            String unicastTopic = topicManager.getUnicastTopic();
+            String unicastTopic = localCache.getNodeInfo(unicastGoalState.getHostIp()).getUnicastTopic();
             if (!StringUtils.isEmpty(unicastTopic)) {
                 unicastGoalState.setNextTopic(nextTopic);
                 topic = unicastTopic;

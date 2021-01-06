@@ -54,17 +54,31 @@ public class NodeServiceImpl implements NodeService {
             processorChain.createNode(nodeContext);
             nodeContext.getRequestManager().waitAllRequestsFinish();
         } catch (Exception e) {
-
+            logger.error("Catch exception: ", e);
         }
 
     }
 
     private void handleUpdateNodeRequest(NodeInfo nodeInfo) {
-
+        NodeContext nodeContext = new NodeContext(nodeInfo);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.updateNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
     }
 
     private void handleDeleteNodeRequest(String nodeId) {
-
+        NodeContext nodeContext = new NodeContext(nodeId);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.deleteNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
     }
 
     private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfo) {

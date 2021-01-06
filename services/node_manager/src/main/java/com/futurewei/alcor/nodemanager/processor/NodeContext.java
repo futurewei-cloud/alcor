@@ -6,17 +6,27 @@ import com.futurewei.alcor.web.entity.node.NodeInfo;
 import java.util.List;
 
 public class NodeContext {
+    private String nodeId;
     private NodeInfo nodeInfo;
     private List<NodeInfo> nodeInfos;
     private RequestManager requestManager;
 
+    public NodeContext(String nodeId) {
+        this.nodeId = nodeId;
+        this.nodeInfo = null;
+        this.nodeInfos = null;
+        this.requestManager = new RequestManager();
+    }
+
     public NodeContext(NodeInfo nodeInfo) {
+        this.nodeId = nodeInfo.getId();
         this.nodeInfo = nodeInfo;
         this.nodeInfos = null;
         this.requestManager = new RequestManager();
     }
 
     public NodeContext(List<NodeInfo> nodeInfos) {
+        this.nodeId = null;
         this.nodeInfo = null;
         this.nodeInfos = nodeInfos;
         this.requestManager = new RequestManager();

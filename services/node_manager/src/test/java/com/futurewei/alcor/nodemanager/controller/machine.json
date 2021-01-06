@@ -8,6 +8,7 @@
         "veth":"eth1",
         "server_port":8080,
         "unicast_topic":"unicast-topic-1",
+        "multicast_topic":"multicast-topic-1",
         "group_topic": "group-topic-1"
      },
      {
@@ -18,6 +19,7 @@
         "veth":"eth1",
         "server_port":8080,
         "unicast_topic":"unicast-topic-2",
+        "multicast_topic":"multicast-topic-2",
         "group_topic": "group-topic-1"
      }
   ]
