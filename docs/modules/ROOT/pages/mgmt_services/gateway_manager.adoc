@@ -91,17 +91,24 @@ Therefore, Option A is the design choice for GM.
 [width="100%",cols="32%,12%,40%,17%"]
 |===
 |*API Name* |*Method* |*Request*|*Response*
-|List VPC's Available Gateways
-|GET
-|/project/{projectid}/vpcs/{vpc_id}/gateways
-|All gateways' state
-<<gws_get_all,[sample]>>
 
-|Register a VPC
+|Register a VPC for Zeta Gateway
 |POST
-|/project/{projectid}/vpcs/{vpc_id}/gateway
+|/project/{projectid}/vpcs/{vpc_id}/zetagateway
 |VPC's GatewayInfo ID
-<<vpc_gw_post,[sample]>>
+<<vpc_zgw_register,[sample]>>
+
+|Update VPC's Zeta gateway
+|PUT
+|/project/{projectid}/vpcs/{vpc_id}/zetagateway
+|Gateway state
+<<vpc_zgw_update,[sample]>>
+
+|Update a gateway by ID
+|PUT
+|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|Gateway state
+<<vpc_gw_update_id,[sample]>>
 
 |Query gateway's state
 |GET
@@ -109,17 +116,11 @@ Therefore, Option A is the design choice for GM.
 |Gateway state
 <<gw_get,[sample]>>
 
-|Update a gateway
-|PUT
-|/project/{projectid}/vpcs/{vpc_id}/gateway
-|Gateway state
-<<gw_put,[sample]>>
-
-|Update a gateway by ID
-|PUT
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
-|Gateway state
-<<gw_put_id,[sample]>>
+|List VPC's Available Gateways
+|GET
+|/project/{projectid}/vpcs/{vpc_id}/gateways
+|All gateways' state
+<<gws_get_all,[sample]>>
 
 |Delete a gateway
 |DELETE
@@ -129,88 +130,69 @@ Therefore, Option A is the design choice for GM.
 |===
 
 === API Specification
-anchor:gws_get_all[]
-**(1) List VPC's Available Gateways**
 
-* Method: `GET`
-* Request: `/project/{projectid}/vpcs/{vpc_id}/gateways`
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
-* Action: Lists all gateway resources for a VPC.
-* Response: All gateways' state
-* Normal response codes: 200
-* Error response codes: 400, 401, 404, 500
-* Example
-....
-Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/gateways
-
-Response:
-{
-    "gateways": [
-        {
-            "gateway_id": true,
-            "gateway_type": "zeta",
-            "name": "",
-            "description": "",
-            "status": "ACTIVE",
-            "created_at": "2018-03-19T19:17:04Z",
-            "updated_at": "2018-03-19T19:17:22Z",
-            "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-            "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
-            "tags": ["tag1,tag2"],
-            "ips": [
-                {
-                    "ip": "10.1.0.1",
-                    "mac": "aa:bb:cc:dd:00:01"
-                },
-                {
-                    "ip": "10.1.0.2",
-                    "mac": "aa:bb:cc:dd:00:02"
-                }
-            ],
-            "routetables": [
-                {
-                    "id": "f8a44de0-fc8e-45df-93c7-f79bf3b01c95",
-                    "type" : "propagated",
-                    "name" : "",
-                    "description" : "",
-                    "routes": [
-                        {
-                            "destination": "179.24.1.0/24",
-                            "nexthop": "172.24.3.99"
-                        }
-                    ]
-                }
-            ],
-            "external_id": "zeta-gateway_id",
-            "external_port": "zeta_ibo_port"
-        }
-    ]
-}
-....
-
-anchor:vpc_gw_post[]
-**(2) Register a VPC**
+anchor:vpc_zgw_register[]
+**(1) Register a VPC for Zeta Gateway**
 
 * Method: `POST`
-* Request: `/project/{projectid}/vpcs/{vpc_id}/gateway`
+* Request: `/project/{projectid}/vpcs/{vpc_id}/zetagateway`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
-* Action: Create a GatewayInfo entity
-* Response: VPC's GatewayInfo ID
+* Operation: Create a GatewayInfo entity in Gateway Manager's database.
+If the project is a zeta-gateway enabled (by admin or tenant), perform following actions:
+1. Create a *GatewayEntity* with "zeta" type and set its status to _PENDING_
+2. Create a *GWAttachment* with *VpcInfo* for the VPC and attach it to the gateway entity.
+3. Send a *GatewayInfo* to Data Plane Manager and save the entity to DPM's cache
+** If DPM returns failed, retry three times
+** If the retry still failed, rollback GM's DB transaction and notify Zeta Management Plane to release the created gateway resource
+4. Request Zeta Management Plane to create a gateway resource for the VPC (step 3 and step 4 can be paralleled)
+** If step 4 returns success, set zeta gateway status to READY and Update DPM’s cache
+** If step 4 returns failed, set zeta gateway status to FAILED and Update DPM’s cache
+* Response: VPC ID
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
 * Example
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/gateway
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/zetagateway
 
 Body:
 {
-    "vpcinfo": [
-        {
-            "vpc_vni": 1233,
-            "owner": 3dda2801-d675-4688-a63f-dcda8d327f50
-        }
-    ]
+    "vpcinfo": {
+        "vpc_vni": 1233,
+        "owner": "3dda2801-d675-4688-a63f-dcda8d327f50"
+    }
+}
+....
+
+anchor:vpc_zgw_update[]
+**(2) Update VPC's Zeta gateway**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/vpcs/{vpc_id}/zetagateway`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
+* Operation: Update a VPC's Zeta Gateway status.
+If the request body contains a zeta gateway entity, perform following actions:
+1. Retrieve the GWAttachment entity with _vpc_id_.
+2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
+3. Update GatewayEntity's status
+* Response: VPC ID
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/zetagateway
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "failed"
+            }
+        ]
+    }
 }
 ....
