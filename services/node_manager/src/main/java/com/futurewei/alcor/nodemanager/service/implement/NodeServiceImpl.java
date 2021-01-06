@@ -17,15 +17,15 @@ package com.futurewei.alcor.nodemanager.service.implement;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
-import com.futurewei.alcor.nodemanager.processor.IProcessor;
-import com.futurewei.alcor.nodemanager.processor.NodeContext;
-import com.futurewei.alcor.nodemanager.processor.ProcessorManager;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
+import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +47,12 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private NodeRepository nodeRepository;
 
+    private DataPlaneManagerRestClient dataPlaneManagerRestClient = SpringContextUtil.getBean(DataPlaneManagerRestClient.class);
+
+
     private void handleCreateNodeRequest(NodeInfo nodeInfo) {
-        NodeContext nodeContext = new NodeContext(nodeInfo);
-        IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
-            processorChain.createNode(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
+            dataPlaneManagerRestClient.createNodeInfo(new NodeInfoJson(nodeInfo));
         } catch (Exception e) {
             logger.error("Catch exception: ", e);
         }
@@ -60,33 +60,24 @@ public class NodeServiceImpl implements NodeService {
     }
 
     private void handleUpdateNodeRequest(NodeInfo nodeInfo) {
-        NodeContext nodeContext = new NodeContext(nodeInfo);
-        IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
-            processorChain.updateNode(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
+            dataPlaneManagerRestClient.updateNodeInfo(new NodeInfoJson(nodeInfo));
         } catch (Exception e) {
             logger.error("Catch exception: ", e);
         }
     }
 
     private void handleDeleteNodeRequest(String nodeId) {
-        NodeContext nodeContext = new NodeContext(nodeId);
-        IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
-            processorChain.deleteNode(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
+            dataPlaneManagerRestClient.deleteNodeInfo(nodeId);
         } catch (Exception e) {
             logger.error("Catch exception: ", e);
         }
     }
 
     private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfos) {
-        NodeContext nodeContext = new NodeContext(nodeInfos);
-        IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
-            processorChain.createNodeBulk(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
+            dataPlaneManagerRestClient.bulkCreatNodeInfo(new BulkNodeInfoJson(nodeInfos));
         } catch (Exception e) {
             logger.error("Catch exception: ", e);
         }
