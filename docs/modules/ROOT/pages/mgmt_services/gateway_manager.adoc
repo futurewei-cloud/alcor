@@ -92,52 +92,142 @@ Therefore, Option A is the design choice for GM.
 |===
 |*API Name* |*Method* |*Request*|*Response*
 
-|Register a VPC for Zeta Gateway
+|Create a GatewayInfo (for zeta gateway)
 |POST
-|/project/{projectid}/vpcs/{vpc_id}/zetagateway
-|VPC's GatewayInfo ID
-<<vpc_zgw_register,[sample]>>
+|/project/{projectid}/gatewayinfo
+|ResponseId
+<<gatewayinfo_post,[sample]>>
 
-|Update VPC's Zeta gateway
+|Update a GatewayInfo (for zeta gateway)
 |PUT
-|/project/{projectid}/vpcs/{vpc_id}/zetagateway
+|/project/{projectid}/gatewayinfo/{resource_id}
+|ResponseId
+<<gatewayinfo_put,[sample]>>
+
+|Delete a GatewayInfo (for zeta gateway)
+|DELETE
+|/project/{projectid}/gatewayinfo/{resource_id}
+|ResponseId
+<<gatewayinfo_del,[sample]>>
+
+|Create a gateway
+|POST
+|/project/{projectid}/gateways
 |Gateway state
-<<vpc_zgw_update,[sample]>>
+<<gw_post,[sample]>>
+
+|Update a gateway
+|PUT
+|/project/{projectid}/gateways
+|Gateway state
+<<gw_put,[sample]>>
 
 |Update a gateway by ID
 |PUT
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|/project/{projectid}/gateways/{gateway_id}
 |Gateway state
-<<vpc_gw_update_id,[sample]>>
+<<gw_put_id,[sample]>>
 
-|Query gateway's state
+|Query a gateway's state
 |GET
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|/project/{projectid}/gateways/{gateway_id}
 |Gateway state
 <<gw_get,[sample]>>
 
-|List VPC's Available Gateways
+|List All Available Gateways
 |GET
-|/project/{projectid}/vpcs/{vpc_id}/gateways
+|/project/{projectid}/gateways
 |All gateways' state
-<<gws_get_all,[sample]>>
+<<gw_get_all,[sample]>>
 
 |Delete a gateway
 |DELETE
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|/project/{projectid}/gateways/{gateway_id}
 |ResponseId
 <<gw_del,[sample]>>
+
+|Create an attachment
+|POST
+|/project/{projectid}/gateways/{gateway_id}/attachments
+|Attachment state
+<<attach_post,[sample]>>
+
+|Update an attachment
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|Attachment state
+<<attach_put,[sample]>>
+
+|Remove an attachment
+|DELETE
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|ResponseId
+<<attach_del,[sample]>>
+
+|List all attachments
+|GET
+|/project/{projectid}/gateways/{gateway_id}/attachments
+|All attachments' state
+<<attach_get_all,[sample]>>
+
+|Query an attachment
+|GET
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|Attachment's state
+<<attach_get,[sample]>>
+
+|Create a routing table
+|POST
+|/project/{projectid}/gateways/{gateway_id}/routetables
+|Routetable's state
+<<routeable_post,[sample]>>
+
+|List all routing tables
+|GET
+|/project/{projectid}/gateways/{gateway_id}/routetables
+|All routetables' state
+<<routeable_get_all,[sample]>>
+
+|List a routing table
+|GET
+|/project/{projectid}/gateways/{gateway_id}/routetables/{routetable_id}
+|Routetable's state
+<<routeable_get,[sample]>>
+
+|Update a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}
+|Routetable's state
+<<routeable_put,[sample]>>
+
+|Delete a routing table
+|DELETE
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}
+|ResponseId
+<<routeable_del,[sample]>>
+
+|Associate a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/associate
+|Routetable's state
+<<routeable_associate,[sample]>>
+
+|De-associate a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/de-associate
+|Routetable's state
+<<routeable_associate,[sample]>>
 |===
 
 === API Specification
 
-anchor:vpc_zgw_register[]
-**(1) Register a VPC for Zeta Gateway**
+anchor:gatewayinfo_post[]
+**(1) Create a GatewayInfo (for zeta gateway)**
 
 * Method: `POST`
-* Request: `/project/{projectid}/vpcs/{vpc_id}/zetagateway`
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
-* Operation: Create a GatewayInfo entity in Gateway Manager's database.
+* Request: `/project/{projectid}/gatewayinfo`
+* Request Parameter: `@PathVariable String projectid`
+* Operation: Create Gateway and Attachment entities for an input GatewayInfo.
 If the project is a zeta-gateway enabled (by admin or tenant), perform following actions:
 1. Create a *GatewayEntity* with "zeta" type and set its status to _PENDING_
 2. Create a *GWAttachment* with *VpcInfo* for the VPC and attach it to the gateway entity.
@@ -147,17 +237,18 @@ If the project is a zeta-gateway enabled (by admin or tenant), perform following
 4. Request Zeta Management Plane to create a gateway resource for the VPC (step 3 and step 4 can be paralleled)
 ** If step 4 returns success, set zeta gateway status to READY and Update DPM’s cache
 ** If step 4 returns failed, set zeta gateway status to FAILED and Update DPM’s cache
-* Response: VPC ID
+* Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
 * Example
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/zetagateway
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
 
 Body:
 {
     "vpcinfo": {
+        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
         "vpc_vni": 1233,
         "owner": "3dda2801-d675-4688-a63f-dcda8d327f50"
     }
@@ -165,23 +256,23 @@ Body:
 ....
 
 anchor:vpc_zgw_update[]
-**(2) Update VPC's Zeta gateway**
+**(2) Update gatewayInfo (for zeta gateway)**
 
 * Method: `PUT`
-* Request: `/project/{projectid}/vpcs/{vpc_id}/zetagateway`
+* Request: `/project/{projectid}/gatewayinfo/{resource_id}`
 * Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
 * Operation: Update a VPC's Zeta Gateway status.
 If the request body contains a zeta gateway entity, perform following actions:
 1. Retrieve the GWAttachment entity with _vpc_id_.
 2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
 3. Update GatewayEntity's status
-* Response: VPC ID
+* Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
 * Example
 ....
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3/zetagateway
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{resource_id}
 
 Body:
 {
