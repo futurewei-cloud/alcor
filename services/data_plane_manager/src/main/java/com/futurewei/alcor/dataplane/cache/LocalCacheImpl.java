@@ -20,6 +20,7 @@ import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
@@ -40,6 +41,9 @@ public class LocalCacheImpl implements LocalCache {
 
     @Autowired
     private SubnetPortsCache subnetPortsCache;
+
+    @Autowired
+    private NodeInfoCache nodeInfoCache;
 
     @Override
     public void addSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
@@ -134,5 +138,25 @@ public class LocalCacheImpl implements LocalCache {
             default:
                 LOG.error("Update SubnetPorts failed: Unknown operation type");
         }
+    }
+
+    @Override
+    public void addNodeInfo(NodeInfo nodeInfo) throws Exception {
+        nodeInfoCache.addNodeInfo(nodeInfo);
+    }
+
+    @Override
+    public void updateNodeInfo(NodeInfo nodeInfo) throws Exception {
+        nodeInfoCache.updateNodeInfo(nodeInfo);
+    }
+
+    @Override
+    public void deleteNodeInfo(String nodeId) throws Exception {
+        nodeInfoCache.deleteNodeInfo(nodeId);
+    }
+
+    @Override
+    public NodeInfo getNodeInfo(String nodeId) throws Exception {
+        return nodeInfoCache.getNodeInfo(nodeId);
     }
 }

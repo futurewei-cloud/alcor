@@ -95,9 +95,10 @@ public class NodeFileLoader {
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         String unicastTopic = (String) nodeJson.get(NodeManagerConstant.UNICAST_TOPIC);
+        String multicastTopic = (String) nodeJson.get(NodeManagerConstant.MULTICAST_TOPIC);
         String groupTopic = (String) nodeJson.get(NodeManagerConstant.GROUP_TOPIC);
         try {
-            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort, unicastTopic, groupTopic);
+            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;

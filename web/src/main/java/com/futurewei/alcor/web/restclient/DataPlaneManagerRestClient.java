@@ -58,5 +58,16 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
         restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
     }
 
+    @DurationStatistics
+    public void updateNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void deleteNodeInfo(String nodeId) throws Exception {
+        HttpEntity<String> request = new HttpEntity<>(nodeId);
+        restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
+    }
 
 }

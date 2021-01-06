@@ -19,7 +19,9 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
-import com.futurewei.alcor.nodemanager.proxy.DataPlaneManagerProxy;
+import com.futurewei.alcor.nodemanager.processor.IProcessor;
+import com.futurewei.alcor.nodemanager.processor.NodeContext;
+import com.futurewei.alcor.nodemanager.processor.ProcessorManager;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
@@ -44,6 +46,30 @@ public class NodeServiceImpl implements NodeService {
 
     @Autowired
     private NodeRepository nodeRepository;
+
+    private void handleCreateNodeRequest(NodeInfo nodeInfo) {
+        NodeContext nodeContext = new NodeContext(nodeInfo);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.createNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    private void handleUpdateNodeRequest(NodeInfo nodeInfo) {
+
+    }
+
+    private void handleDeleteNodeRequest(String nodeId) {
+
+    }
+
+    private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfo) {
+
+    }
 
     /**
      * read bulk nodes' information from file
@@ -167,10 +193,8 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
+                handleCreateNodeRequest(nodeInfo);
 
-                NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
-                DataPlaneManagerProxy dataPlaneManagerProxy = new DataPlaneManagerProxy();
-                dataPlaneManagerProxy.creatNodeInfo(nodeInfoJson);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -186,7 +210,7 @@ public class NodeServiceImpl implements NodeService {
     /**
      * create new nodes information in bulk
      *
-     * @param nodeInfos new node's information in bulk
+     * @param nodeInfo new node's information in bulk
      * @return List of new node's information
      */
     @Override
@@ -197,6 +221,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItemBulkTransaction(nodeInfo);
+                handleCreateNodeBulkRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -231,6 +256,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
+                handleUpdateNodeRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -263,6 +289,7 @@ public class NodeServiceImpl implements NodeService {
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
             nodeRepository.deleteItem(nodeId);
+            handleDeleteNodeRequest(nodeId);
         } catch (CacheException e) {
             logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);

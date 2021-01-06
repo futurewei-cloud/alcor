@@ -51,6 +51,9 @@ public class NodeInfo implements Serializable {
     @JsonProperty("unicast_topic")
     private String unicastTopic;
 
+    @JsonProperty("multicast_topic")
+    private String multicastTopic;
+
     @JsonProperty("group_topic")
     private String groupTopic;
 
@@ -59,22 +62,22 @@ public class NodeInfo implements Serializable {
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
-        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac, nodeInfo.unicastTopic, nodeInfo.groupTopic);
+        this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac, nodeInfo.unicastTopic, nodeInfo.multicastTopic, nodeInfo.groupTopic);
     }
 
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String unicastTopic, String groupTopic) {
-        this(id, name, localIp, macAddress, unicastTopic, groupTopic);
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(id, name, localIp, macAddress, unicastTopic, multicastTopic, groupTopic);
         this.veth = veth;
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort, String unicastTopic, String groupTopic) {
-        this(nodeId, nodeName, ipAddress, macAddress, unicastTopic, groupTopic);
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(nodeId, nodeName, ipAddress, macAddress, unicastTopic, multicastTopic, groupTopic);
         this.veth = "";
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String unicastTopic, String groupTopic) {
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String unicastTopic, String multicastTopic, String groupTopic) {
         this.id = nodeId;
         this.name = nodeName;
         if (this.validateIp(ipAddress)) {
@@ -91,11 +94,12 @@ public class NodeInfo implements Serializable {
         this.veth = "";
         this.gRPCServerPort = 0;
         this.unicastTopic = unicastTopic;
+        this.multicastTopic = multicastTopic;
         this.groupTopic = groupTopic;
     }
 
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac, String unicastTopic, String groupTopic) {
-        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, groupTopic);
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
         this.hostDvrMac = host_dvr_mac;
     }
 
@@ -174,6 +178,10 @@ public class NodeInfo implements Serializable {
     public String getUnicastTopic() { return unicastTopic; }
 
     public void setUnicastTopic(String unicastTopic) { this.unicastTopic = unicastTopic; }
+
+    public String getMulticastTopic() { return multicastTopic; }
+
+    public void setMulticastTopic(String multicastTopic) { this.multicastTopic = multicastTopic; }
 
     public String getGroupTopic() { return groupTopic; }
 

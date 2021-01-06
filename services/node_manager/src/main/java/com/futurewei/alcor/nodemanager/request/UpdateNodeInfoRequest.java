@@ -8,13 +8,13 @@ import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateNodeInfoRequest extends AbstractRequest{
-    private static final Logger LOG = LoggerFactory.getLogger(CreateNodeInfoRequest.class);
+public class UpdateNodeInfoRequest extends AbstractRequest{
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateNodeInfoRequest.class);
 
     private NodeInfo nodeInfo;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
 
-    public CreateNodeInfoRequest(NodeContext context, NodeInfo nodeInfo) {
+    public UpdateNodeInfoRequest(NodeContext context, NodeInfo nodeInfo) {
         super(context);
         this.nodeInfo = nodeInfo;
         this.dataPlaneManagerRestClient = SpringContextUtil.getBean(DataPlaneManagerRestClient.class);
@@ -22,6 +22,6 @@ public class CreateNodeInfoRequest extends AbstractRequest{
 
     @Override
     public void send() throws Exception {
-        dataPlaneManagerRestClient.createNodeInfo(new NodeInfoJson(nodeInfo));
+        dataPlaneManagerRestClient.updateNodeInfo(new NodeInfoJson(nodeInfo));
     }
 }
