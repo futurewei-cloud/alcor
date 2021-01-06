@@ -59,12 +59,12 @@ public class AlcorApiGatewayApplicationTest {
 //                        .withBody("no fallback")
 //                        .withFixedDelay(3000)));
 
-        webClient
-                .get().uri("/get")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.headers.Hello").isEqualTo("Alcor");
+//        webClient
+//                .get().uri("/get")
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody()
+//                .jsonPath("$.headers.Hello").isEqualTo("Alcor");
 
 //        webClient
 //                .get().uri("/delay/3")
