@@ -14,6 +14,8 @@ public abstract class AbstractProcessor implements IProcessor{
 
     abstract void deleteProcess(NodeContext context) throws Exception;
 
+    abstract void bulkCreateProcess(NodeContext context) throws Exception;
+
     public IProcessor getNextProcessor() {
         return nextProcessor;
     }
@@ -37,7 +39,7 @@ public abstract class AbstractProcessor implements IProcessor{
     public void createNodeBulk(NodeContext context) throws Exception {
         LOG.debug("createNodeBulk() processor: {}", this);
 
-        createProcess(context);
+        bulkCreateProcess(context);
         if (getNextProcessor() != null) {
             getNextProcessor().createNodeBulk(context);
         }

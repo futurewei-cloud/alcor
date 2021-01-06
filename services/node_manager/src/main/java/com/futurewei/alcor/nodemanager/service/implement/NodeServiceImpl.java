@@ -81,8 +81,15 @@ public class NodeServiceImpl implements NodeService {
         }
     }
 
-    private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfo) {
-
+    private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfos) {
+        NodeContext nodeContext = new NodeContext(nodeInfos);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.createNodeBulk(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
     }
 
     /**
@@ -207,7 +214,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
-                handleCreateNodeRequest(nodeInfo);
+                this.handleCreateNodeRequest(nodeInfo);
 
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
@@ -235,7 +242,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItemBulkTransaction(nodeInfo);
-                handleCreateNodeBulkRequest(nodeInfo);
+                this.handleCreateNodeBulkRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -270,7 +277,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
-                handleUpdateNodeRequest(nodeInfo);
+                this.handleUpdateNodeRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -303,7 +310,7 @@ public class NodeServiceImpl implements NodeService {
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
             nodeRepository.deleteItem(nodeId);
-            handleDeleteNodeRequest(nodeId);
+            this.handleDeleteNodeRequest(nodeId);
         } catch (CacheException e) {
             logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);

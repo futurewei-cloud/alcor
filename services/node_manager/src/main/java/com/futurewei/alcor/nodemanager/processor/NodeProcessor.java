@@ -1,9 +1,6 @@
 package com.futurewei.alcor.nodemanager.processor;
 
-import com.futurewei.alcor.nodemanager.request.CreateNodeInfoRequest;
-import com.futurewei.alcor.nodemanager.request.DeleteNodeInfoRequest;
-import com.futurewei.alcor.nodemanager.request.IRestRequest;
-import com.futurewei.alcor.nodemanager.request.UpdateNodeInfoRequest;
+import com.futurewei.alcor.nodemanager.request.*;
 
 public class NodeProcessor extends AbstractProcessor{
     @Override
@@ -22,5 +19,11 @@ public class NodeProcessor extends AbstractProcessor{
     void deleteProcess(NodeContext context) throws Exception {
         IRestRequest deleteNodeRequest = new DeleteNodeInfoRequest(context, context.getNodeInfo().getId());
         context.getRequestManager().sendRequestAsync(deleteNodeRequest);
+    }
+
+    @Override
+    void bulkCreateProcess(NodeContext context) throws Exception {
+        IRestRequest bulkCreateNodeInfoRequest = new BulkCreateNodeInfoRequest(context, context.getNodeInfos());
+        context.getRequestManager().sendRequestAsync(bulkCreateNodeInfoRequest);
     }
 }
