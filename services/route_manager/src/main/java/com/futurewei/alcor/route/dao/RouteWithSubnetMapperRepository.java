@@ -24,12 +24,14 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.SubnetToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouteWithSubnetMapperRepository implements ICacheRepository<SubnetToRouteMapper> {
@@ -75,6 +77,14 @@ public class RouteWithSubnetMapperRepository implements ICacheRepository<SubnetT
     public void addItem(SubnetToRouteMapper subnetToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add routeWithSubnetMapper, mapper Id:" + subnetToRouteMapper.getSubnetId());
         cache.put(subnetToRouteMapper.getSubnetId(), subnetToRouteMapper);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<SubnetToRouteMapper> items) throws CacheException {
+        logger.log(Level.INFO, "Add routeWithSubnetMapper Batch: {}",items);
+        Map<String, SubnetToRouteMapper> subnetToRouteMapperMap = items.stream().collect(Collectors.toMap(SubnetToRouteMapper::getSubnetId, Function.identity()));
+        cache.putAll(subnetToRouteMapperMap);
     }
 
     @Override

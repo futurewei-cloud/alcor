@@ -24,12 +24,14 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.VpcToRouteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRouteMapper> {
@@ -74,6 +76,14 @@ public class RouteWithVpcMapperRepository implements ICacheRepository<VpcToRoute
     public void addItem(VpcToRouteMapper vpcToRouteMapper) throws CacheException {
         logger.log(Level.INFO, "Add RouteWithVpcMapper, mapper Id:" + vpcToRouteMapper.getVpcId());
         cache.put(vpcToRouteMapper.getVpcId(), vpcToRouteMapper);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<VpcToRouteMapper> items) throws CacheException {
+        logger.log(Level.INFO, "Add RouteWithVpcMapper Batch: {}",items);
+        Map<String, VpcToRouteMapper> vpcToRouteMapperMap = items.stream().collect(Collectors.toMap(VpcToRouteMapper::getVpcId, Function.identity()));
+        cache.putAll(vpcToRouteMapperMap);
     }
 
     @Override

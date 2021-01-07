@@ -9,12 +9,14 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.entity.NetworkGREType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class GreRepository implements ICacheRepository<NetworkGREType> {
@@ -60,6 +62,14 @@ public class GreRepository implements ICacheRepository<NetworkGREType> {
     public void addItem(NetworkGREType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Gre, Gre Id:" + newItem.getGreId());
         cache.put(newItem.getGreId(), newItem);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<NetworkGREType> items) throws CacheException {
+        logger.log(Level.INFO, "Add Gre Batch:" + items);
+        Map<String, NetworkGREType> networkGRETypeMap = items.stream().collect(Collectors.toMap(NetworkGREType::getGreId, Function.identity()));
+        cache.putAll(networkGRETypeMap);
     }
 
     @Override

@@ -9,12 +9,14 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.entity.NetworkVxlanType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class VxlanRepository implements ICacheRepository<NetworkVxlanType> {
@@ -60,6 +62,14 @@ public class VxlanRepository implements ICacheRepository<NetworkVxlanType> {
     public void addItem(NetworkVxlanType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Vxlan, Vxlan Id:" + newItem.getVxlanId());
         cache.put(newItem.getVxlanId(), newItem);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<NetworkVxlanType> items) throws CacheException {
+        logger.log(Level.INFO, "Add Vxlan Batch: {}",items);
+        Map<String, NetworkVxlanType> networkVxlanTypeMap = items.stream().collect(Collectors.toMap(NetworkVxlanType::getVxlanId, Function.identity()));
+        cache.putAll(networkVxlanTypeMap);
     }
 
     @Override

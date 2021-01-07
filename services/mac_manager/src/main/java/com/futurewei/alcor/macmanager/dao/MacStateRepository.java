@@ -24,13 +24,14 @@ import com.futurewei.alcor.web.entity.mac.MacState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class MacStateRepository implements ICacheRepositoryEx<MacState> {
@@ -92,6 +93,13 @@ public class MacStateRepository implements ICacheRepositoryEx<MacState> {
     @DurationStatistics
     public void addItem(MacState macState) throws CacheException {
         cache.put(macState.getMacAddress(), macState);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<MacState> items) throws CacheException {
+        Map<String, MacState> macStateMap = items.stream().collect(Collectors.toMap(MacState::getMacAddress, Function.identity()));
+        cache.putAll(macStateMap);
     }
 
     /**
