@@ -18,11 +18,9 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.SecurityGroupNotFound;
 import com.futurewei.alcor.dataplane.exception.SecurityGroupRuleNotFound;
-import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -77,20 +75,20 @@ public class SecurityGroupService extends ResourceService {
                 throw new SecurityGroupRuleNotFound();
             }
 
-            for (SecurityGroupRule securityGroupRule: securityGroup.getSecurityGroupRules()) {
-                com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
-                        com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
-                securityGroupRuleBuilder.setSecurityGroupId(securityGroup.getId());
-                securityGroupRuleBuilder.setId(securityGroupRule.getId());
-                securityGroupRuleBuilder.setDirection(com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction.valueOf(securityGroupRule.getDirection()));
-                securityGroupRuleBuilder.setEthertype(Common.EtherType.valueOf(securityGroupRule.getEtherType()));
-                securityGroupRuleBuilder.setProtocol(Common.Protocol.valueOf(securityGroupRule.getProtocol()));
-                securityGroupRuleBuilder.setPortRangeMin(securityGroupRule.getPortRangeMin());
-                securityGroupRuleBuilder.setPortRangeMax(securityGroupRule.getPortRangeMax());
-                securityGroupRuleBuilder.setRemoteIpPrefix(securityGroupRule.getRemoteIpPrefix());
-                securityGroupRuleBuilder.setRemoteGroupId(securityGroupRule.getRemoteGroupId());
-                securityGroupConfigBuilder.addSecurityGroupRules(securityGroupRuleBuilder.build());
-            }
+//            for (SecurityGroupRule securityGroupRule: securityGroup.getSecurityGroupRules()) {
+//                com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
+//                        com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
+//                securityGroupRuleBuilder.setSecurityGroupId(securityGroup.getId());
+//                securityGroupRuleBuilder.setId(securityGroupRule.getId());
+//                securityGroupRuleBuilder.setDirection(com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction.valueOf(securityGroupRule.getDirection().toUpperCase()));
+//                securityGroupRuleBuilder.setEthertype(Common.EtherType.valueOf(securityGroupRule.getEtherType().toUpperCase()));
+//                securityGroupRuleBuilder.setProtocol(Common.Protocol.valueOf(securityGroupRule.getProtocol()));
+//                securityGroupRuleBuilder.setPortRangeMin(securityGroupRule.getPortRangeMin());
+//                securityGroupRuleBuilder.setPortRangeMax(securityGroupRule.getPortRangeMax());
+//                securityGroupRuleBuilder.setRemoteIpPrefix(securityGroupRule.getRemoteIpPrefix());
+//                securityGroupRuleBuilder.setRemoteGroupId(securityGroupRule.getRemoteGroupId());
+//                securityGroupConfigBuilder.addSecurityGroupRules(securityGroupRuleBuilder.build());
+//            }
 
             com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.Builder securityGroupStateBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.newBuilder();
             securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
