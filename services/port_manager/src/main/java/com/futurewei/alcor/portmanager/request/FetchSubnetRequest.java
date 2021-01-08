@@ -50,6 +50,9 @@ public class FetchSubnetRequest extends AbstractRequest {
 
     @Override
     public void send() throws Exception {
+        if (subnetIds.size() == 0){
+            return;
+        }
         String projectId = context.getProjectId();
         if (subnetIds.size() == 1) {
             SubnetWebJson subnetWebJson = subnetManagerRestClient.getSubnet(projectId, subnetIds.get(0));

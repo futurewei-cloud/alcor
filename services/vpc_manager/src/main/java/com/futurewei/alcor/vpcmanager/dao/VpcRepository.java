@@ -16,21 +16,23 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.vpcmanager.dao;
 
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.common.db.CacheFactory;
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class VpcRepository implements ICacheRepository<VpcEntity> {
@@ -75,6 +77,14 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     public void addItem(VpcEntity vpcState) throws CacheException {
         logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
         cache.put(vpcState.getId(), vpcState);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<VpcEntity> items) throws CacheException {
+        logger.log(Level.INFO, "Add vpc batch: {}",items);
+        Map<String, VpcEntity> vpcEntityMap = items.stream().collect(Collectors.toMap(VpcEntity::getId, Function.identity()));
+        cache.putAll(vpcEntityMap);
     }
 
     @Override

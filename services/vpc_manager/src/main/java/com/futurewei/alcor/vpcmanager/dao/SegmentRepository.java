@@ -6,15 +6,17 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
-import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class SegmentRepository implements ICacheRepository<SegmentEntity> {
@@ -60,6 +62,14 @@ public class SegmentRepository implements ICacheRepository<SegmentEntity> {
     public void addItem(SegmentEntity newItem) throws CacheException {
         logger.log(Level.INFO, "Add segment, Segment Id:" + newItem.getId());
         cache.put(newItem.getId(), newItem);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<SegmentEntity> items) throws CacheException {
+        logger.log(Level.INFO, "Add segment batch: {}",items);
+        Map<String, SegmentEntity> segmentEntityMap = items.stream().collect(Collectors.toMap(SegmentEntity::getId, Function.identity()));
+        cache.putAll(segmentEntityMap);
     }
 
     @Override

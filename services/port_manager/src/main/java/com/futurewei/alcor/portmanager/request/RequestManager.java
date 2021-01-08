@@ -44,8 +44,17 @@ public class RequestManager {
      * Guarantee that multiple threads cannot visit futures at the same time
      */
     private void addFuture(IRestRequest request, CompletableFuture future) {
-        requests.add(request);
-        futures.add(future);
+        if(request != null){
+            requests.add(request);
+        }
+        if(future != null){
+            futures.add(future);
+        }
+    }
+
+    public void sendRequest(IRestRequest request) throws Exception {
+        addFuture(request, null);
+        sendRequest(request, null);
     }
 
     public void sendRequestAsync(IRestRequest request, CallbackFunction callback) {
