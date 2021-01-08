@@ -12,7 +12,7 @@ public class GatewayInfo {
     private String resourceId;
 
     @JsonProperty("gateways")
-    private List<GatewayEntity> gateways;
+    private List<GatewayEntity> gatewayEntities;
 
     @JsonProperty("routetables")
     private List<RoutingTable> routeTables;

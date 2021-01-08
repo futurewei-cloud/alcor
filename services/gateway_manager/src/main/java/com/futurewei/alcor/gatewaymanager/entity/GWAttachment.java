@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 public class GWAttachment {
@@ -39,6 +40,22 @@ public class GWAttachment {
     @JsonProperty("subnets")
     private List<String> subnets; //for VPC only
 
+    @JsonProperty("source_vni")
+    private Integer source_vni;
+
+    @JsonProperty("destination_encap")
+    private Integer destinationEncap;
+
     @JsonProperty("tags")
     private List<String> tags;
+
+    public GWAttachment(String name, ResourceType type, String resourceId, String gatewayId, String state, Integer source_vni) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.type = type;
+        this.resourceId = resourceId;
+        this.gatewayId = gatewayId;
+        this.state = state;
+        this.source_vni = source_vni;
+    }
 }
