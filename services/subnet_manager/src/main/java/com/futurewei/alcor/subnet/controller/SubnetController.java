@@ -16,16 +16,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.subnet.controller;
 
-import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.entity.ResponseId;
-
+import com.futurewei.alcor.common.exception.*;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.exception.*;
-import com.futurewei.alcor.subnet.exception.GatewayIpUnsupported;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.service.SubnetToPortManagerService;
@@ -33,14 +31,11 @@ import com.futurewei.alcor.subnet.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.subnet.utils.ThreadPoolExecutorUtils;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import com.google.common.base.Preconditions;
@@ -245,21 +240,21 @@ public class SubnetController {
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
 
             //Prepare Route Rule(IPv4/6) for Subnet
-            SubnetEntity subnet = new SubnetEntity();
-            BeanUtils.copyProperties(inSubnetEntity, subnet);
-            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return this.subnetService.createRouteRules(subnetId, subnet);
-                } catch (Exception e) {
-                    throw new CompletionException(e);
-                }
-            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
-                routeResponseAtomic.set(s);
-                if (e != null) {
-                    throw new CompletionException(e);
-                }
-                return s;
-            });
+//            SubnetEntity subnet = new SubnetEntity();
+//            BeanUtils.copyProperties(inSubnetEntity, subnet);
+//            CompletableFuture<RouteWebJson> routeFuture = CompletableFuture.supplyAsync(() -> {
+//                try {
+//                    return this.subnetService.createRouteRules(subnetId, subnet);
+//                } catch (Exception e) {
+//                    throw new CompletionException(e);
+//                }
+//            }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
+//                routeResponseAtomic.set(s);
+//                if (e != null) {
+//                    throw new CompletionException(e);
+//                }
+//                return s;
+//            });
 
             // Verify/Allocate Gateway IP
             CompletableFuture<IpAddrRequest> ipFuture = CompletableFuture.supplyAsync(() -> {
@@ -278,19 +273,19 @@ public class SubnetController {
 
             // Synchronous blocking
             //CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, macFuture, routeFuture, ipFuture);
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, routeFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture);
             allFuture.join();
 
             //macResponse = macFuture.join();
-            routeResponse = routeFuture.join();
+            //routeResponse = routeFuture.join();
             ipResponse = ipFuture.join();
 
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
 
             // set up value of properties for subnetState
-            List<RouteEntity> routeEntities = new ArrayList<>();
-            routeEntities.add(routeResponse.getRoute());
-            inSubnetEntity.setRouteEntities(routeEntities);
+//            List<RouteEntity> routeEntities = new ArrayList<>();
+//            routeEntities.add(routeResponse.getRoute());
+//            inSubnetEntity.setRouteEntities(routeEntities);
 
 //            MacState macState = macResponse.getMacState();
 //            if (macState != null) {

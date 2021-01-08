@@ -46,7 +46,7 @@ public class PortContext {
     private List<PortEntity.FixedIp> newFixedIps;
     private List<PortEntity.FixedIp> oldFixedIps;
     private List<IpAddrUpdateRequest> fixedIpsresult;
-
+    private String defaultSgId;
 
     public PortContext() {
 
@@ -216,5 +216,13 @@ public class PortContext {
 
     public void setFixedIpsresult(List<IpAddrUpdateRequest> fixedIpsresult) {
         this.fixedIpsresult = fixedIpsresult;
+    }
+
+    public String getDefaultSgId() {
+        return defaultSgId;
+    }
+
+    public void setDefaultSgId(String defaultSgId) {
+        this.defaultSgId = defaultSgId;
     }
 }

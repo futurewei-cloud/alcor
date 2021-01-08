@@ -20,6 +20,7 @@ data:
     quota.defaults.security_group_rule=-1
     quota.defaults.subnet=-1
     quota.defaults.subnetpool=-1
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,7 +47,7 @@ spec:
                 path: application.properties
       containers:
         - image: quota_manager:v1.0
-          #- image: fwnetworking/controller:vpc_manager-v0.3.0
+        #- image: fwnetworking/controller:vpc_manager-v0.3.0
           name: quotamanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorQuotaManager-0.1.0.jar", "--spring.config.location=/opt/jboss/application.properties"]
@@ -73,3 +74,4 @@ spec:
       nodePort: 30012
   selector:
     app: quotamanager
+

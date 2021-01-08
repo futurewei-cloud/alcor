@@ -43,6 +43,7 @@ import java.util.UUID;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@Deprecated
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class RouteController {
 

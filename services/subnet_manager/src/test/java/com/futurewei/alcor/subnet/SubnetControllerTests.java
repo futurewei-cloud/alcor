@@ -1,14 +1,7 @@
 package com.futurewei.alcor.subnet;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.Assert.*;
-
 import com.futurewei.alcor.common.exception.FallbackException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
-import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.config.UnitTestConfig;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
@@ -21,7 +14,8 @@ import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
-import com.futurewei.alcor.web.entity.vpc.*;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +35,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ComponentScan(value = "com.futurewei.alcor.common.test.config")
 @RunWith(SpringRunner.class)
@@ -131,7 +131,7 @@ public class SubnetControllerTests {
     public void createSubnetState_canNotFindVpcState_notPass () throws Exception {
         SubnetEntity subnetEntity = new SubnetEntity(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-                UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
+                UnitTestConfig.name, UnitTestConfig.cidr);
         VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
                 UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
         MacState macState = new MacState();
@@ -164,82 +164,6 @@ public class SubnetControllerTests {
         }
 
     }
-
-    @Test
-    public void createSubnetState_canNotFindRoute_notPass () throws Exception {
-        SubnetEntity subnetEntity = new SubnetEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-                UnitTestConfig.name, UnitTestConfig.cidr);
-        VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
-
-        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
-        MacStateJson macResponse = new MacStateJson();
-        MacState macState = new MacState();
-        macResponse.setMacState(macState);
-        IpAddrRequest ipAddrRequest = new IpAddrRequest();
-
-        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
-                .thenReturn(subnetEntity);
-        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-                .thenReturn(vpcWebJson);
-        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetEntity.class)))
-                .thenThrow(new FallbackException("fallback request"));
-        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
-                .thenReturn(macResponse);
-        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr, UnitTestConfig.vpcId, UnitTestConfig.gatewayIp,true))
-                .thenReturn(ipAddrRequest);
-        try {
-            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
-                    .content(UnitTestConfig.resource))
-                    .andDo(print())
-                    .andExpect(status().is(201))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
-        }catch (Exception ex) {
-            //System.out.println(ex.getMessage());
-            assertEquals(UnitTestConfig.createFallbackException, ex.getMessage());
-        }
-
-    }
-
-//    @Test
-//    public void createSubnetState_canNotFindMac_notPass () throws Exception {
-//        SubnetEntity subnetEntity = new SubnetEntity(UnitTestConfig.projectId,
-//                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-//                UnitTestConfig.name, UnitTestConfig.cidr);
-//        VpcEntity vpcState = new VpcEntity(UnitTestConfig.projectId,
-//                UnitTestConfig.vpcId, UnitTestConfig.name, UnitTestConfig.cidr, new ArrayList<RouteEntity>(){{add(new RouteEntity());}});
-//
-//        RouteWebJson routeWebJson = new RouteWebJson();
-//        RouteEntity routeEntity = new RouteEntity();
-//        routeWebJson.setRoute(routeEntity);
-//        VpcWebJson vpcWebJson = new VpcWebJson(vpcState);
-//        IpAddrRequest ipAddrRequest = new IpAddrRequest();
-//
-//        Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
-//                .thenReturn(subnetEntity);
-//        Mockito.when(subnetService.verifyVpcId(UnitTestConfig.projectId, UnitTestConfig.vpcId))
-//                .thenReturn(vpcWebJson);
-//        Mockito.when(subnetService.createRouteRules(eq(UnitTestConfig.subnetId), any(SubnetEntity.class)))
-//                .thenReturn(routeWebJson);
-//        Mockito.when(subnetService.allocateMacAddressForGatewayPort(anyString(), anyString(), anyString()))
-//                .thenThrow(new FallbackException("fallback request"));
-//        Mockito.when(subnetService.allocateIpAddressForGatewayPort(UnitTestConfig.subnetId, UnitTestConfig.cidr, UnitTestConfig.vpcId, UnitTestConfig.gatewayIp,true))
-//                .thenReturn(ipAddrRequest);
-//        Mockito.when(subnetToPortManagerService.createGatewayPort(anyString(), any(PortEntity.class)))
-//                .thenReturn(new GatewayPortDetail(UnitTestConfig.macAddress, UnitTestConfig.gatewayPortId));
-//        try {
-//            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON)
-//                    .content(UnitTestConfig.resource))
-//                    .andDo(print())
-//                    .andExpect(status().is(201))
-//                    .andExpect(MockMvcResultMatchers.jsonPath("$.subnet.id").value(UnitTestConfig.subnetId));
-//        }catch (Exception ex) {
-//            //System.out.println(ex.getMessage());
-//            assertEquals(UnitTestConfig.createFallbackException, ex.getMessage());
-//        }
-//
-//    }
 
     @Test
     public void createSubnetState_canNotFindIP_notPass () throws Exception {

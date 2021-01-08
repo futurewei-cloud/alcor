@@ -8,6 +8,7 @@ data:
     ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
     ignite.port=10801
     logging.level.root=DEBUG
+
 ---
 apiVersion: apps/v1
 kind: Deployment
