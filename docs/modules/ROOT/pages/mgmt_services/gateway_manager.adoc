@@ -343,14 +343,14 @@ Response Code: 204 (updated); Error: 400, 404, 500, 503
 ....
 
 anchor:vpc_zgw_update[]
-**(2) Update gatewayInfo (for zeta gateway)**
+**(2) Update GatewayInfo (for zeta gateway)**
 
 * Method: `PUT`
 * Request: `/project/{projectid}/gatewayinfo/{resource_id}`
-* Request Parameter: `@PathVariable String projectid, @PathVariable String vpc_id`
-* Operation: Update a VPC's Zeta Gateway status.
+* Request Parameter: `@PathVariable String projectid, @PathVariable String resource_id`
+* Operation: Update a GatewayEntity's status based on a GatewayInfo.
 If the request body contains a zeta gateway entity, perform following actions:
-1. Retrieve the GWAttachment entity with _vpc_id_.
+1. Retrieve the GWAttachment entity with _resource_id_.
 2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
 3. Update GatewayEntity's status
 * Response: ResponseId
@@ -373,4 +373,23 @@ Body:
         ]
     }
 }
+....
+
+anchor:gatewayinfo_del[]
+**(3) Delete a GatewayInfo (for zeta gateway)**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/gatewayinfo/{resource_id}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String resource_id`
+* Operation: Delete a GatewayEntity (zeta).
+1. Retrieve the GWAttachment entity with _resource_id_.
+2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
+3. If the GatewayEntity's type is "zeta", delete both GWAttachment and GatewayEntity
+* Response: ResponseId
+* Normal response codes: 204
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{resource_id}
 ....
