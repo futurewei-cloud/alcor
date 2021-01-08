@@ -297,12 +297,6 @@ Response Code: 201 (created); Error: 400, 404, 500, 503
 Method: DELETE
 Request:
 http://localhost:8080/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
-
-Body:
-{
-    "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
-    "vpc_vni": "1233",
-}
 Response Code: 204 (deleted); Error: 400, 404, 500, 503
 ....
 
