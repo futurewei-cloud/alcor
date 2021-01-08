@@ -184,6 +184,10 @@ public class DataPlaneProcessor extends AbstractProcessor {
                 internalPortEntity.setMacAddress(portEntity.getMacAddress());
             }
 
+            if (internalPortEntity.getSecurityGroups() == null) {
+                internalPortEntity.setSecurityGroups(portEntity.getSecurityGroups());
+            }
+
             setNeighborInfos(context, internalPortEntity);
         }
 
