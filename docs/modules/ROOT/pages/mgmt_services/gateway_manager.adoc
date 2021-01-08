@@ -231,12 +231,12 @@ anchor:gatewayinfo_post[]
 If the project is a zeta-gateway enabled (by admin or tenant), perform following actions:
 1. Create a *GatewayEntity* with "zeta" type and set its status to _PENDING_
 2. Create a *GWAttachment* with *VpcInfo* for the VPC and attach it to the gateway entity.
-3. Send a *GatewayInfo* to Data Plane Manager and save the entity to DPM's cache
-** If DPM returns failed, retry three times
-** If the retry still failed, rollback GM's DB transaction and notify Zeta Management Plane to release the created gateway resource
-4. Request Zeta Management Plane to create a gateway resource for the VPC (step 3 and step 4 can be paralleled)
-** If step 4 returns success, set zeta gateway status to READY and Update DPM’s cache
-** If step 4 returns failed, set zeta gateway status to FAILED and Update DPM’s cache
+3. Send a *GatewayInfo* to Data Plane Manager and save the entity to DPM's cache via DPM's _POST_ method API _http://localhost:8080/project/{projectid}/gatewayinfo_ with *GatewayInfo* entity as its request body.
+** If DPM returns failed, retry three times (response codes 400, 401, 404, or 500)
+** If the retry still failed, rollback GM's DB transaction and notify Zeta Management Plane to release the created gateway resource via Zeta Management Plane's DELETE method API _http://localhost:8080/vpcs/{vpc_id}_.
+4. Request Zeta Management Plane to create a gateway resource for the VPC (step 3 and step 4 can be paralleled) via Zeta Management Plane's _POST_ method API _http://localhost:8080/vpcs_ with a json object request body containing _vpc_id_ and _vni_ data.
+** If step 4 returns success, set zeta gateway status to _READY_, update gateway entity with the returned data, and update DPM’s cache via DPM's PUT method API _http://localhost:8080/project/{projectid}/gatewayinfo/{vpc_id}_ with *GatewayInfo* entity as its request body.
+** If step 4 returns failed, set zeta gateway status to _FAILED_ and Update DPM’s cache via DPM's PUT method API.
 * Response: ResponseId
 * Normal response codes: 200
 * Error response codes: 400, 401, 404, 500
@@ -255,6 +255,99 @@ Body:
 }
 ....
 
+* Zeta Management Plan's VPC creation example:
+....
+Method: POST
+Request:
+http://localhost:8080/vpcs
+
+Body:
+    {
+        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        "vpc_vni": "1233",
+    }
+Response:
+    {
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "vni": "12345",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "name": "ZGC_test1",
+        "gws":
+        [
+          {
+            "ip": "192.168.0.87",
+            "mac": "37.02.ff.cc.65.87"
+          },
+          {
+            "ip": "192.168.0.88",
+            "mac": "37.02.ff.cc.65.88"
+          },
+          {
+            "ip": "192.168.0.89",
+            "mac": "37.02.ff.cc.65.89"
+          }
+        ],
+        "port_ibo": "8300"
+    }
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+* Zeta Management Plan's VPC deletion example:
+....
+Method: DELETE
+Request:
+http://localhost:8080/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
+
+Body:
+{
+    "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+    "vpc_vni": "1233",
+}
+Response Code: 204 (deleted); Error: 400, 404, 500, 503
+....
+
+* DPM's GatewayInfo entry creation example:
+....
+Method: POST
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "ready"
+            }
+        ]
+    }
+}
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+* DPM's GatewayInfo update example:
+....
+Method: PUT
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "failed"
+            }
+        ]
+    }
+}
+Response Code: 204 (updated); Error: 400, 404, 500, 503
+....
+
 anchor:vpc_zgw_update[]
 **(2) Update gatewayInfo (for zeta gateway)**
 
@@ -267,7 +360,7 @@ If the request body contains a zeta gateway entity, perform following actions:
 2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
 3. Update GatewayEntity's status
 * Response: ResponseId
-* Normal response codes: 200
+* Normal response codes: 204
 * Error response codes: 400, 401, 404, 500
 * Example
 ....
