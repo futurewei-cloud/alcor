@@ -73,7 +73,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
     private void allocateFixedIpAddress(PortContext context, List<IpAddrRequest> ipAddresses) throws Exception {
         AllocateIpAddressRequest allocateIpAddressRequest = new AllocateIpAddressRequest(context, ipAddresses);
-        allocateIpAddressRequest.send();
+        context.getRequestManager().sendRequest(allocateIpAddressRequest);
 
         List<IpAddrRequest> result = allocateIpAddressRequest.getResult();
         Iterator<IpAddrRequest> iterator = result.iterator();
@@ -110,7 +110,7 @@ public class FixedIpsProcessor extends AbstractProcessor {
 
         if (ipAddresses.size() > 0) {
             IRestRequest releaseIpRequest = new ReleaseIpAddressRequest(context, ipAddresses);
-            releaseIpRequest.send();
+            context.getRequestManager().sendRequest(releaseIpRequest);
         }
     }
 
@@ -378,13 +378,13 @@ public class FixedIpsProcessor extends AbstractProcessor {
         //Get subnet route
         IRestRequest fetchSubnetRouteRequest =
                 new FetchSubnetRouteRequest(context, new ArrayList<>(subnetIds));
-        fetchSubnetRouteRequest.send();
+        context.getRequestManager().sendRequest(fetchSubnetRouteRequest);
         fetchSubnetRouteCallback(fetchSubnetRouteRequest);
 
         //Get subnet
         IRestRequest fetchSubnetRequest =
                 new FetchSubnetRequest(context, new ArrayList<>(subnetIds), false);
-        fetchSubnetRequest.send();
+        context.getRequestManager().sendRequest(fetchSubnetRequest);
         fetchSubnetForAddCallBack(fetchSubnetRequest);
     }
 
