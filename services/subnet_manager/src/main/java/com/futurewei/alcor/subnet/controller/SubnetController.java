@@ -546,6 +546,8 @@ public class SubnetController {
                 this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
             }
 
+            this.subnetService.deleteIpRange(projectId, subnetEntity.getIpV4RangeId());
+
             this.subnetDatabaseService.deleteSubnet(subnetId);
 
         } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRoutes e) {
