@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.networkaclmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
+import com.futurewei.alcor.common.executor.AsyncFunctionWithTwoArgs;
 import com.futurewei.alcor.networkaclmanager.exception.NetworkAclNotFound;
 import com.futurewei.alcor.networkaclmanager.exception.VerifySubnetIdFailed;
 import com.futurewei.alcor.networkaclmanager.exception.VerifyVpcIdFailed;
@@ -84,7 +85,12 @@ public class NetworkAclServiceImpl implements NetworkAclService {
         }
 
         //Verify vpc id
-        asyncExecutor.runAsync(this::verifyVpcId, projectId, networkAclEntity.getVpcId());
+        asyncExecutor.runAsync(new AsyncFunctionWithTwoArgs<Object, Object, VpcEntity>() {
+            @Override
+            public VpcEntity apply(Object arg1, Object arg2) throws Exception {
+                return NetworkAclServiceImpl.this.verifyVpcId(arg1, arg2);
+            }
+        }, projectId, networkAclEntity.getVpcId());
 
         //Verify subnet id list
         List<String> subnetIds = networkAclEntity.getAssociatedSubnets();

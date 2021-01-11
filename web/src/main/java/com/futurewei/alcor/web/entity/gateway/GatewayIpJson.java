@@ -7,6 +7,22 @@ import java.util.List;
 
 @Data
 public class GatewayIpJson {
+
+    @JsonProperty("vpc_id")
+    private String vpcId;
+
+    @JsonProperty("vni")
+    private String vni;
+
+    @JsonProperty("zgc_id")
+    private String zgcId;
+
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("port_ibo")
+    private String portIbo;
+
     @JsonProperty("gws")
     private List<GatewayIp> gatewayIps;
 }

@@ -1,4 +1,4 @@
-package com.futurewei.alcor.gatewaymanager.entity;
+package com.futurewei.alcor.web.entity.gateway;
 
 public enum RouteType {
 

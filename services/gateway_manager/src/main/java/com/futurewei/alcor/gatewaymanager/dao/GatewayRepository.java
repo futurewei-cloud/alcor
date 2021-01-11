@@ -3,9 +3,12 @@ package com.futurewei.alcor.gatewaymanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.gatewaymanager.entity.GatewayEntity;
-import com.futurewei.alcor.gatewaymanager.entity.GatewayInfo;
+import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
+import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -20,12 +23,15 @@ import java.util.stream.Collectors;
 public class GatewayRepository implements ICacheRepository<GatewayInfo> {
 
     private final ICache<String,GatewayInfo> cache;
-    private final ICache<String, GatewayEntity> entityCache;
+    private final ICache<String, GatewayEntity> gatewayEntityCache;
+    private final ICache<String, GWAttachment> attachmentCache;
+
 
     @Autowired
     public GatewayRepository(CacheFactory cacheFactory) {
         this.cache = cacheFactory.getCache(GatewayInfo.class);
-        this.entityCache = cacheFactory.getCache(GatewayEntity.class);
+        this.gatewayEntityCache = cacheFactory.getCache(GatewayEntity.class);
+        this.attachmentCache = cacheFactory.getCache(GWAttachment.class);
     }
 
     @Override
@@ -63,6 +69,28 @@ public class GatewayRepository implements ICacheRepository<GatewayInfo> {
 
     public void deleteGatewayEntity(String gatewayId) throws CacheException {
         log.debug("Delete GatewayEntity, gatewayId is: {}",gatewayId);
-        entityCache.remove(gatewayId);
+        gatewayEntityCache.remove(gatewayId);
+    }
+
+    public void deleteGatewayInfoForZeta(String vpcId, GatewayInfo gatewayInfo, Map<String, GWAttachment> attachmentsMap) throws Exception {
+        try (Transaction tx = cache.getTransaction().start()) {
+            boolean flag;
+            List<GatewayEntity> gatewayEntities = gatewayInfo.getGatewayEntities();
+            for (GatewayEntity gatewayEntity : gatewayEntities) {
+                flag = false;
+                for (GWAttachment attachment : attachmentsMap.values()) {
+                    if (attachment.getResourceId().equals(vpcId) && attachment.getGatewayId().equals(gatewayEntity.getId())
+                            && gatewayEntity.getType().equals(GatewayType.ZETA)) {
+                        flag = true;
+                        attachmentCache.remove(attachment.getId());
+                    }
+                }
+                if (flag) {
+                    gatewayEntities.remove(gatewayEntity);
+                }
+            }
+            cache.put(gatewayInfo.getResourceId(),gatewayInfo);
+            tx.commit();
+        }
     }
 }

@@ -1,8 +1,7 @@
-package com.futurewei.alcor.gatewaymanager.entity;
+package com.futurewei.alcor.web.entity.gateway;
 
 
 import com.futurewei.alcor.common.entity.CustomerResource;
-import com.futurewei.alcor.web.entity.gateway.GatewayIp;
 import lombok.Data;
 
 import java.util.List;

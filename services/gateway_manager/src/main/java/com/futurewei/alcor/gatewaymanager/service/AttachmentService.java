@@ -5,7 +5,7 @@ import com.futurewei.alcor.gatewaymanager.config.ExceptionMsgConfig;
 import com.futurewei.alcor.gatewaymanager.dao.GWAttachmentRepository;
 import com.futurewei.alcor.gatewaymanager.dao.GatewayRepository;
 import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
-import com.futurewei.alcor.gatewaymanager.entity.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
