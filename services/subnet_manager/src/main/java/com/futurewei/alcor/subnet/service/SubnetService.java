@@ -63,10 +63,10 @@ public interface SubnetService {
     public void deleteSubnetIdInVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
     // check if there is any port in this subnet
-    public boolean checkIfAnyPortInSubnet (String rangeId) throws RangeIdIsNullOrEmpty;
+    public boolean checkIfAnyPortInSubnet (String projectId, String subnetId) throws SubnetIdIsNull;
 
     // check if subnet bind any routes
-    public boolean checkIfSubnetBindAnyRoutes (SubnetEntity subnetEntity);
+    public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity);
 
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
@@ -86,6 +86,6 @@ public interface SubnetService {
     // construct port entity passed in PM
     public PortEntity constructPortEntity (String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner);
 
-    //Delete ip range from subnet
-    void deleteIpRange(String projectId, String rangeId);
+    // delete ip range in Private IP Manager
+    public void deleteIPRangeInPIM (String rangeId);
 }

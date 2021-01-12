@@ -19,5 +19,5 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code= HttpStatus.CONFLICT, reason="Subnet bind routes, we can Not delete subnet")
-public class SubnetBindRoutes extends Exception {
+public class SubnetBindRouter extends Exception {
 }

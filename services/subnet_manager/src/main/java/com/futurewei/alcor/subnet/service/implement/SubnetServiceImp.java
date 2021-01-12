@@ -60,6 +60,9 @@ public class SubnetServiceImp implements SubnetService {
     @Value("${microservices.ip.service.url}")
     private String ipUrl;
 
+    @Value("${microservices.port.service.url}")
+    private String portUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
 
     @Async
@@ -365,27 +368,21 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public boolean checkIfAnyPortInSubnet(String rangeId) throws RangeIdIsNullOrEmpty {
-        if (rangeId == null) {
-            throw new RangeIdIsNullOrEmpty();
+    public boolean checkIfAnyPortInSubnet(String projectId, String subnetId) throws SubnetIdIsNull {
+        if (subnetId == null) {
+            throw new SubnetIdIsNull();
         }
-        String ipManagerServiceUrl = ipUrl + "range/" + rangeId;
-        IpAddrRangeRequest ipAddrRangeRequest = restTemplate.getForObject(ipManagerServiceUrl, IpAddrRangeRequest.class);
-        if (ipAddrRangeRequest == null) {
+        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-count/" + subnetId;
+        int  portCount = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
+        if (portCount == 0) {
             return false;
         }
 
-        // check usedIps
-        long usedIps = ipAddrRangeRequest.getUsedIps();
-        if (usedIps > ConstantsConfig.UsedIpThreshold) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     @Override
-    public boolean checkIfSubnetBindAnyRoutes(SubnetEntity subnetEntity) {
+    public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity) {
 
         String attachedRouterId = subnetEntity.getAttachedRouterId();
         if (attachedRouterId == null || attachedRouterId.equals("")){
@@ -615,9 +612,13 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public void deleteIpRange(String projectId, String rangeId) {
-        String ipRangeUrl = ipUrl + "range/" + rangeId;
-        restTemplate.delete(ipRangeUrl);
+    public void deleteIPRangeInPIM(String rangeId) {
+        if (rangeId == null) {
+            return;
+        }
+
+        String ipManagerCreateRangeUrl = ipUrl + "range/"+ rangeId;
+        restTemplate.delete(ipManagerCreateRangeUrl);
     }
 
 }
