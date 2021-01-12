@@ -26,7 +26,7 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-   <bean class="org.apache.ignite.configuration.IgniteConfiguration">
+   <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
 
       <!-- Explicitly enable peer class loading. -->
       <property name="peerClassLoadingEnabled" value="true" />
@@ -39,6 +39,9 @@
                   <property name="persistenceEnabled" value="true"/>
                </bean>
             </property>
+            <property name="storagePath" value="/opt/storage"/>
+            <property name="walPath" value="/db/wal"/>
+            <property name="walArchivePath" value="/db/wal/archive"/>
          </bean>
       </property>
 

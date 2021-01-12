@@ -28,8 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
@@ -81,6 +84,13 @@ public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
         } catch (Exception e) {
             throw new CacheException();
         }
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<RouteEntry> items) throws CacheException {
+        Map<String, RouteEntry> routeEntryMap = items.stream().collect(Collectors.toMap(RouteEntry::getId, Function.identity()));
+        cache.putAll(routeEntryMap);
     }
 
     @Override

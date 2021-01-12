@@ -22,9 +22,11 @@ import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -58,12 +60,50 @@ public class NeighborService extends ResourceService {
         return neighborStateBuilder.build();
     }
 
+    private List<NeighborInfo> buildNeighborInfosByPortEntities(NetworkConfiguration networkConfig) {
+        List<NeighborInfo> neighborInfos = new ArrayList<>();
+
+        List<InternalPortEntity> internalPortEntities = networkConfig.getPortEntities();
+        if (internalPortEntities != null) {
+            for (InternalPortEntity internalPortEntity: internalPortEntities) {
+                String bindingHostIP = internalPortEntity.getBindingHostIP();
+                if (bindingHostIP == null) {
+                    continue;
+                }
+
+                for (PortEntity.FixedIp fixedIp: internalPortEntity.getFixedIps()) {
+                    NeighborInfo neighborInfo = new NeighborInfo(bindingHostIP,
+                            internalPortEntity.getBindingHostId(),
+                            internalPortEntity.getId(),
+                            internalPortEntity.getMacAddress(),
+                            fixedIp.getIpAddress(),
+                            internalPortEntity.getVpcId(),
+                            fixedIp.getSubnetId());
+                    neighborInfos.add(neighborInfo);
+                }
+            }
+        }
+
+        return neighborInfos;
+    }
+
     public void buildNeighborStates(NetworkConfiguration networkConfig, String hostIp,
                                      UnicastGoalState unicastGoalState,
                                      MulticastGoalState multicastGoalState) throws Exception {
         Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         if (neighborInfos == null || neighborInfos.size() == 0) {
             return;
+        }
+
+        /**
+         * PortEntities themselves are not included in neighborInfos, build neighborInfos
+         * for them and add them to neighborInfo map before building neighborStates
+         */
+        List<NeighborInfo> neighborInfoList = buildNeighborInfosByPortEntities(networkConfig);
+        for (NeighborInfo neighborInfo: neighborInfoList) {
+            if (!neighborInfos.containsKey(neighborInfo.getPortIp())) {
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
+            }
         }
 
         Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
@@ -101,9 +141,9 @@ public class NeighborService extends ResourceService {
 
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
-                }
 
-                multicastNeighborEntries.addAll(neighborEntries);
+                    multicastNeighborEntries.add(neighborEntry);
+                }
             }
         }
 

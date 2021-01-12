@@ -29,4 +29,6 @@ public interface IpAddrService {
     IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception;
 
     List<IpAddrRangeRequest> listIpAddrRange();
+
+    List<IpAddrRequest> updateIpAddr(IpAddrUpdateRequest request) throws Exception;
 }

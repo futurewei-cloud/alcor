@@ -23,13 +23,14 @@ import com.futurewei.alcor.web.entity.mac.MacRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
@@ -121,6 +122,13 @@ public class MacRangeRepository implements ICacheRepositoryEx<MacRange> {
     @DurationStatistics
     public void addItem(MacRange macRange) throws CacheException {
         cache.put(macRange.getRangeId(), macRange);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<MacRange> items) throws CacheException {
+        Map<String, MacRange> macRangeMap = items.stream().collect(Collectors.toMap(MacRange::getRangeId, Function.identity()));
+        cache.putAll(macRangeMap);
     }
 
     /**

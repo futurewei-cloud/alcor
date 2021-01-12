@@ -15,6 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.portmanager.exception.GetSecurityGroupException;
+import com.futurewei.alcor.portmanager.exception.SecurityGroupEntityNotFound;
 import com.futurewei.alcor.portmanager.request.BindSecurityGroupRequest;
 import com.futurewei.alcor.portmanager.request.FetchSecurityGroupRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
@@ -28,7 +30,9 @@ import java.util.*;
 
 @AfterProcessor(PortProcessor.class)
 public class SecurityGroupProcessor extends AbstractProcessor {
-    public void fetchSecurityGroupCallback(IRestRequest request) {
+    private static final String defaultSgName = "default";
+
+    public void fetchSecurityGroupCallback(IRestRequest request) throws Exception {
         List<SecurityGroup> securityGroups = ((FetchSecurityGroupRequest) request)
                 .getSecurityGroups();
 
@@ -38,6 +42,30 @@ public class SecurityGroupProcessor extends AbstractProcessor {
             request.getContext().getNetworkConfig().setSecurityGroups(securityGroups);
         } else {
             existSecurityGroups.addAll(securityGroups);
+        }
+
+        PortContext context = request.getContext();
+        for (SecurityGroup securityGroup: securityGroups) {
+            if (defaultSgName.equals(securityGroup.getName())) {
+                context.setDefaultSgId(securityGroup.getId());
+                break;
+            }
+        }
+
+        List<PortEntity> portEntities = context.getPortEntities();
+        if (portEntities == null) {
+            portEntities = Collections.singletonList(context.getNewPortEntity());
+        }
+
+        for (PortEntity portEntity: portEntities) {
+            List<String> securityGroupList = portEntity.getSecurityGroups();
+            if (securityGroupList == null || securityGroupList.size() == 0) {
+                if (context.getDefaultSgId() == null) {
+                    throw new GetSecurityGroupException();
+                }
+
+                portEntity.setSecurityGroups(Collections.singletonList(context.getDefaultSgId()));
+            }
         }
     }
 

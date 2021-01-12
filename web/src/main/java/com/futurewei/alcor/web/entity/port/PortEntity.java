@@ -255,6 +255,9 @@ public class PortEntity extends CustomerResource {
         @JsonProperty("subnet_id")
         private String subnetId;
 
+        @JsonProperty(value = "ipV4_rangeId",access = JsonProperty.Access.WRITE_ONLY)
+        private String ipV4RangeId;
+
         @JsonProperty("ip_address")
         private String ipAddress;
 
@@ -264,6 +267,12 @@ public class PortEntity extends CustomerResource {
 
         public FixedIp(String subnetId, String ipAddress) {
             this.subnetId = subnetId;
+            this.ipAddress = ipAddress;
+        }
+
+        public FixedIp(String subnetId, String ipV4RangeId, String ipAddress) {
+            this.subnetId = subnetId;
+            this.ipV4RangeId = ipV4RangeId;
             this.ipAddress = ipAddress;
         }
 
@@ -281,6 +290,14 @@ public class PortEntity extends CustomerResource {
 
         public void setIpAddress(String ipAddress) {
             this.ipAddress = ipAddress;
+        }
+
+        public String getIpV4RangeId() {
+            return ipV4RangeId;
+        }
+
+        public void setIpV4RangeId(String ipV4RangeId) {
+            this.ipV4RangeId = ipV4RangeId;
         }
 
         @Override
@@ -303,7 +320,11 @@ public class PortEntity extends CustomerResource {
 
             FixedIp fixedIp = (FixedIp)object;
 
-            return this.subnetId == fixedIp.getSubnetId() && this.ipAddress == fixedIp.getIpAddress();
+            if(this.subnetId == null || this.ipAddress == null){
+                return false;
+            }
+
+            return this.subnetId.equals(fixedIp.getSubnetId()) && this.ipAddress.equals(fixedIp.getIpAddress());
         }
     }
 
