@@ -614,4 +614,10 @@ public class SubnetServiceImp implements SubnetService {
         return portEntity;
     }
 
+    @Override
+    public void deleteIpRange(String projectId, String rangeId) {
+        String ipRangeUrl = ipUrl + "range/" + rangeId;
+        restTemplate.delete(ipRangeUrl);
+    }
+
 }

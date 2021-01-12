@@ -85,4 +85,7 @@ public interface SubnetService {
 
     // construct port entity passed in PM
     public PortEntity constructPortEntity (String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner);
+
+    //Delete ip range from subnet
+    void deleteIpRange(String projectId, String rangeId);
 }
