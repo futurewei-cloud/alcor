@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Repository
 public class GatewayRepository implements ICacheRepository<GatewayInfo> {
 
-    private final ICache<String,GatewayInfo> cache;
+    private final ICache<String, GatewayInfo> cache;
     private final ICache<String, GatewayEntity> gatewayEntityCache;
     private final ICache<String, GWAttachment> attachmentCache;
 
@@ -51,8 +52,8 @@ public class GatewayRepository implements ICacheRepository<GatewayInfo> {
 
     @Override
     public void addItem(GatewayInfo gatewayInfo) throws CacheException {
-        log.debug("Add GatewayInfo, GatewayInfo : {}",gatewayInfo);
-        cache.put(gatewayInfo.getResourceId(),gatewayInfo);
+        log.debug("Add GatewayInfo, GatewayInfo : {}", gatewayInfo);
+        cache.put(gatewayInfo.getResourceId(), gatewayInfo);
     }
 
     @Override
@@ -63,12 +64,12 @@ public class GatewayRepository implements ICacheRepository<GatewayInfo> {
 
     @Override
     public void deleteItem(String id) throws CacheException {
-        log.debug("Delete GatewayInfo, resource_id is: {}",id);
+        log.debug("Delete GatewayInfo, resource_id is: {}", id);
         cache.remove(id);
     }
 
     public void deleteGatewayEntity(String gatewayId) throws CacheException {
-        log.debug("Delete GatewayEntity, gatewayId is: {}",gatewayId);
+        log.debug("Delete GatewayEntity, gatewayId is: {}", gatewayId);
         gatewayEntityCache.remove(gatewayId);
     }
 
@@ -76,7 +77,9 @@ public class GatewayRepository implements ICacheRepository<GatewayInfo> {
         try (Transaction tx = cache.getTransaction().start()) {
             boolean flag;
             List<GatewayEntity> gatewayEntities = gatewayInfo.getGatewayEntities();
-            for (GatewayEntity gatewayEntity : gatewayEntities) {
+            Iterator<GatewayEntity> iterator = gatewayEntities.iterator();
+            while (iterator.hasNext()) {
+                GatewayEntity gatewayEntity = iterator.next();
                 flag = false;
                 for (GWAttachment attachment : attachmentsMap.values()) {
                     if (attachment.getResourceId().equals(vpcId) && attachment.getGatewayId().equals(gatewayEntity.getId())
@@ -86,10 +89,10 @@ public class GatewayRepository implements ICacheRepository<GatewayInfo> {
                     }
                 }
                 if (flag) {
-                    gatewayEntities.remove(gatewayEntity);
+                    iterator.remove();
                 }
             }
-            cache.put(gatewayInfo.getResourceId(),gatewayInfo);
+            cache.put(gatewayInfo.getResourceId(), gatewayInfo);
             tx.commit();
         }
     }

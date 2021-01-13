@@ -6,15 +6,19 @@ import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.gatewaymanager.config.ExceptionMsgConfig;
 import com.futurewei.alcor.gatewaymanager.entity.GatewayWebJson;
 import com.futurewei.alcor.gatewaymanager.service.GatewayService;
+import com.futurewei.alcor.gatewaymanager.utils.VerifyParameterUtils;
 import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
-import com.futurewei.alcor.web.entity.gateway.VpcInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
+import com.futurewei.alcor.web.entity.gateway.VpcInfoJson;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 public class GatewayController {
 
@@ -43,13 +47,16 @@ public class GatewayController {
      */
     @PostMapping("/project/{projectid}/gatewayinfo")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createGatewayInfo(@PathVariable("projectid") String projectId, @RequestBody VpcInfo vpcInfo) throws Exception {
+    public ResponseId createGatewayInfo(@PathVariable("projectid") String projectId, @RequestBody VpcInfoJson vpcInfoJson) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        gatewayService.createGatewayInfo(projectId, vpcInfo);
+        VerifyParameterUtils.checkVpcInfo(vpcInfoJson.getVpcInfo());
+        GatewayInfo gatewayInfo = gatewayService.createGatewayInfo(projectId, vpcInfoJson.getVpcInfo());
+        log.info("GatewayInfo created success,GatewayInfo is: {}", gatewayInfo);
+        return new ResponseId(vpcInfoJson.getVpcInfo().getVpcId());
     }
 
     /**
-     * Query gateway’s state
+     * Query gateway’s status
      *
      * @param projectId
      * @param vpcId
@@ -78,10 +85,12 @@ public class GatewayController {
      */
     @PutMapping("/project/{projectid}/gatewayinfo/{resource_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseId updateGatewayInfoForZeta(@PathVariable("projectid") String projectId, @PathVariable("resource_id") String vpcId, @RequestBody GatewayInfo gatewayInfo) throws Exception {
+    public ResponseId updateGatewayInfoForZeta(@PathVariable("projectid") String projectId, @PathVariable("resource_id") String vpcId, @RequestBody GatewayInfoJson gatewayInfoJson) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-        gatewayService.updateGatewayInfoForZeta(projectId, gatewayInfo);
+        VerifyParameterUtils.checkGatewayInfo(gatewayInfoJson.getGatewayInfo());
+        gatewayService.updateGatewayInfoForZeta(projectId, gatewayInfoJson.getGatewayInfo());
+        log.info("GatewayInfo updated success,GatewayInfo is: {}", gatewayInfoJson.getGatewayInfo());
         return new ResponseId(vpcId);
     }
 
@@ -99,6 +108,7 @@ public class GatewayController {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
         gatewayService.deleteGatewayInfoForZeta(projectId, vpcId);
+        log.info("GatewayInfo deleted success,the resource_id is: {}", vpcId);
         return new ResponseId(vpcId);
     }
 

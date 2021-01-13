@@ -12,7 +12,7 @@ public class GatewayIpJson {
     private String vpcId;
 
     @JsonProperty("vni")
-    private String vni;
+    private Integer vni;
 
     @JsonProperty("zgc_id")
     private String zgcId;

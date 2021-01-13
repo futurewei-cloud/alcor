@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -34,12 +36,12 @@ public class GWAttachmentRepository implements ICacheRepository<GWAttachment> {
 
     @Override
     public Map<String, GWAttachment> findAllItems() throws CacheException {
-        return null;
+        return cache.getAll();
     }
 
     @Override
     public Map<String, GWAttachment> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        return null;
+        return cache.getAll(queryParams);
     }
 
     @Override
@@ -50,7 +52,8 @@ public class GWAttachmentRepository implements ICacheRepository<GWAttachment> {
 
     @Override
     public void addItems(List<GWAttachment> items) throws CacheException {
-
+        Map<String, GWAttachment> gwAttachmentMap = items.stream().collect(Collectors.toMap(GWAttachment::getId, Function.identity()));
+        cache.putAll(gwAttachmentMap);
     }
 
     @Override

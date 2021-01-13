@@ -1,6 +1,7 @@
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
 import com.futurewei.alcor.web.entity.gateway.GatewayIpJson;
 import com.futurewei.alcor.web.entity.gateway.VpcInfoSub;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
         return restTemplate.postForObject(url, request, GatewayIpJson.class);
     }
 
-    public void deleteVPCInZetaGateway(String vpcId) {
+    public void deleteVPCInZetaGateway(String vpcId) throws Exception {
         String url = zetaManagerUrl + "/vpcs/" + vpcId;
         restTemplate.delete(url);
     }
@@ -32,13 +33,13 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
         String projectId = (String) args1;
         GatewayInfo gatewayInfo = (GatewayInfo) args2;
         String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo";
-        HttpEntity<GatewayInfo> request = new HttpEntity<>(gatewayInfo);
+        HttpEntity<GatewayInfoJson> request = new HttpEntity<>(new GatewayInfoJson(gatewayInfo));
         return restTemplate.postForObject(url, request, String.class);
     }
 
-    public void updateDPMCacheGateway(String projectId, GatewayInfo gatewayInfo) {
-        String url = dpmManagerUrl + "/project/" + projectId + "gatewayinfo/" + gatewayInfo.getResourceId();
-        HttpEntity<GatewayInfo> request = new HttpEntity<>(gatewayInfo);
+    public void updateDPMCacheGateway(String projectId, GatewayInfo gatewayInfo) throws Exception {
+        String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo/" + gatewayInfo.getResourceId();
+        HttpEntity<GatewayInfoJson> request = new HttpEntity<>(new GatewayInfoJson(gatewayInfo));
         restTemplate.put(url, request);
     }
 }

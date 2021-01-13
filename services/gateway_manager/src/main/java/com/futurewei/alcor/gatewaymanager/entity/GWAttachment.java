@@ -28,7 +28,7 @@ public class GWAttachment {
     @JsonProperty("options")
     private Map<String, String> options;
 
-    @JsonProperty("state")
+    @JsonProperty("status")
     private String state; // (available | pending | associating)
 
     @JsonProperty("association_state")
