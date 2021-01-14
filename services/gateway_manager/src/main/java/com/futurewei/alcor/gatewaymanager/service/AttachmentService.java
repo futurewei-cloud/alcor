@@ -5,7 +5,7 @@ import com.futurewei.alcor.gatewaymanager.config.ExceptionMsgConfig;
 import com.futurewei.alcor.gatewaymanager.dao.GWAttachmentRepository;
 import com.futurewei.alcor.gatewaymanager.dao.GatewayRepository;
 import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
-import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +35,17 @@ public class AttachmentService {
         if (attachment == null) {
             throw new Exception(ExceptionMsgConfig.ATTACHMENT_NOT_FOUND.getMsg());
         }
+        GatewayEntity gatewayEntity = gatewayRepository.findItem(gatewayId);
+        if (gatewayEntity == null) {
+            throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
+        }
         if (!gatewayId.equals(attachment.getGatewayId())) {
             throw new Exception(ExceptionMsgConfig.GATEWAY_NOT_ASSOCIATED_ATTACHMENT.getMsg());
         }
-        String resourceId = attachment.getResourceId();
-        GatewayInfo gatewayInfo = gatewayRepository.findItem(resourceId);
-        gatewayInfo.getGatewayEntities().stream().filter(gatewayEntity -> gatewayId.equals(gatewayEntity.getId()))
-                .forEach(gatewayEntity -> gatewayEntity.getAttachments().removeIf(attachId::equals));
-        //delete attachment and update GatewayInfo in the DB
-        gwAttachmentRepository.deleteItem(attachId,gatewayInfo);
+        gatewayEntity.getAttachments().removeIf(attachId::equals);
+
+        //delete attachment and update GatewayEntity in the DB
+        gwAttachmentRepository.deleteItem(attachId,gatewayEntity);
     }
 
 

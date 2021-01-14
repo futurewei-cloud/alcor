@@ -6,7 +6,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
-import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 public class GWAttachmentRepository implements ICacheRepository<GWAttachment> {
 
     private final ICache<String, GWAttachment> cache;
-    private final ICache<String, GatewayInfo> gatewayInfoCache;
+    private final ICache<String, GatewayEntity> gatewayEntityICache;
 
     @Autowired
     public GWAttachmentRepository(CacheFactory cacheFactory) {
         this.cache = cacheFactory.getCache(GWAttachment.class);
-        this.gatewayInfoCache = cacheFactory.getCache(GatewayInfo.class);
+        this.gatewayEntityICache = cacheFactory.getCache(GatewayEntity.class);
     }
 
     @Override
@@ -62,10 +62,10 @@ public class GWAttachmentRepository implements ICacheRepository<GWAttachment> {
         cache.remove(id);
     }
 
-    public void deleteItem(String attachId, GatewayInfo gatewayInfo) throws Exception {
+    public void deleteItem(String attachId, GatewayEntity gatewayEntity) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
-            gatewayInfoCache.put(gatewayInfo.getResourceId(),gatewayInfo);
             cache.remove(attachId);
+            gatewayEntityICache.put(gatewayEntity.getId(),gatewayEntity);
             tx.commit();
         }
     }

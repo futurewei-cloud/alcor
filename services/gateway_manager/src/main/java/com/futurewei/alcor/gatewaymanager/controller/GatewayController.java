@@ -3,8 +3,6 @@ package com.futurewei.alcor.gatewaymanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.gatewaymanager.config.ExceptionMsgConfig;
-import com.futurewei.alcor.gatewaymanager.entity.GatewayWebJson;
 import com.futurewei.alcor.gatewaymanager.service.GatewayService;
 import com.futurewei.alcor.gatewaymanager.utils.VerifyParameterUtils;
 import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
@@ -16,29 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 public class GatewayController {
 
     @Autowired
     private GatewayService gatewayService;
-
-    /**
-     * List VPC’s Available Gateways
-     *
-     * @param projectId
-     * @param vpcId
-     * @return
-     */
-    @GetMapping("/project/{projectid}/vpcs/{vpc_id}/gateways")
-    public GatewayWebJson getGatewaysByVpcId(@PathVariable("projectid") String projectId, @PathVariable("vpc_id") String vpcId) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-        List<GatewayEntity> gateways = gatewayService.getGateways(vpcId);
-        return new GatewayWebJson(gateways);
-    }
 
     /**
      * Create a GatewayInfo (for zeta gateway)
@@ -52,28 +33,7 @@ public class GatewayController {
         VerifyParameterUtils.checkVpcInfo(vpcInfoJson.getVpcInfo());
         GatewayInfo gatewayInfo = gatewayService.createGatewayInfo(projectId, vpcInfoJson.getVpcInfo());
         log.info("GatewayInfo created success,GatewayInfo is: {}", gatewayInfo);
-        return new ResponseId(vpcInfoJson.getVpcInfo().getVpcId());
-    }
-
-    /**
-     * Query gateway’s status
-     *
-     * @param projectId
-     * @param vpcId
-     * @param gatewayId
-     * @return
-     */
-    @GetMapping("/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}")
-    public GatewayEntity getGatewayStateById(@PathVariable("projectid") String projectId, @PathVariable("vpc_id") String vpcId, @PathVariable("gateway_id") String gatewayId) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
-        List<GatewayEntity> gateways = gatewayService.getGateways(vpcId);
-        GatewayEntity gateway = gateways.stream().filter(gatewayEntity -> gatewayEntity.getId().equals(gatewayId)).findFirst().orElse(null);
-        if (gateway == null) {
-            throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
-        }
-        return gateway;
+        return new ResponseId(gatewayInfo.getResourceId());
     }
 
     /**
@@ -112,31 +72,78 @@ public class GatewayController {
         return new ResponseId(vpcId);
     }
 
+
+    /**
+     * Create a gateway
+     *
+     * @param projectId
+     */
+    @PostMapping("/project/{projectid}/gateways")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createGateway(@PathVariable("projectid") String projectId) {
+
+    }
+
+    /**
+     * Update a gateway
+     *
+     * @param projectId
+     */
+    @PutMapping("/project/{projectid}/gateways")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateGateway(@PathVariable("projectid") String projectId) {
+
+    }
+
     /**
      * Update a gateway by ID
      *
      * @param projectId
-     * @param vpcId
      * @param gatewayId
      * @return
      */
-    @PutMapping("/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}")
-    public GatewayWebJson updateGatewayById(@PathVariable("projectid") String projectId, @PathVariable("vpc_id") String vpcId, @PathVariable("gateway_id") String gatewayId) {
-        return null;
+    @PutMapping("/project/{projectid}/gateways/{gateway_id}")
+    public void updateGatewayById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) {
+
+    }
+
+    /**
+     * Query a gateway’s state
+     *
+     * @param projectId
+     * @param gatewayId
+     * @return
+     */
+    @GetMapping("/project/{projectid}/gateways/{gateway_id}")
+    public GatewayEntity getGatewayStateById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
+        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+        RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
+        return gatewayService.getGatewayEntityById(gatewayId);
+    }
+
+    /**
+     * List All Available Gateways
+     *
+     * @param projectId
+     * @return
+     */
+    @GetMapping("/project/{projectid}/gateways")
+    public void getGatewaysByVpcId(@PathVariable("projectid") String projectId) {
+
     }
 
     /**
      * Delete a gateway
      *
      * @param projectId
-     * @param vpcId
      * @param gatewayId
      */
-    @DeleteMapping("/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}")
-    public void deleteGatewayById(@PathVariable("projectid") String projectId, @PathVariable("vpc_id") String vpcId, @PathVariable("gateway_id") String gatewayId) throws Exception {
+    @DeleteMapping("/project/{projectid}/gateways/{gateway_id}")
+    public void deleteGatewayById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
-        gatewayService.deleteGateway(vpcId, gatewayId);
+        gatewayService.deleteGatewayById(gatewayId);
     }
+
+
 }

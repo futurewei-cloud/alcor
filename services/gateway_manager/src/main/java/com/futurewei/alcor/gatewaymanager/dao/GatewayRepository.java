@@ -7,13 +7,11 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
 import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
-import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.GatewayType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -21,78 +19,73 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
-public class GatewayRepository implements ICacheRepository<GatewayInfo> {
+public class GatewayRepository implements ICacheRepository<GatewayEntity> {
 
-    private final ICache<String, GatewayInfo> cache;
     private final ICache<String, GatewayEntity> gatewayEntityCache;
     private final ICache<String, GWAttachment> attachmentCache;
 
 
     @Autowired
     public GatewayRepository(CacheFactory cacheFactory) {
-        this.cache = cacheFactory.getCache(GatewayInfo.class);
         this.gatewayEntityCache = cacheFactory.getCache(GatewayEntity.class);
         this.attachmentCache = cacheFactory.getCache(GWAttachment.class);
     }
 
     @Override
-    public GatewayInfo findItem(String id) throws CacheException {
-        return cache.get(id);
+    public GatewayEntity findItem(String id) throws CacheException {
+        return gatewayEntityCache.get(id);
     }
 
     @Override
-    public Map<String, GatewayInfo> findAllItems() throws CacheException {
-        return cache.getAll();
+    public Map<String, GatewayEntity> findAllItems() throws CacheException {
+        return gatewayEntityCache.getAll();
     }
 
     @Override
-    public Map<String, GatewayInfo> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        return cache.getAll(queryParams);
+    public Map<String, GatewayEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
+        return gatewayEntityCache.getAll(queryParams);
     }
 
     @Override
-    public void addItem(GatewayInfo gatewayInfo) throws CacheException {
-        log.debug("Add GatewayInfo, GatewayInfo : {}", gatewayInfo);
-        cache.put(gatewayInfo.getResourceId(), gatewayInfo);
+    public void addItem(GatewayEntity gatewayEntity) throws CacheException {
+        log.debug("Add GatewayEntity, gatewayEntity : {}", gatewayEntity);
+        gatewayEntityCache.put(gatewayEntity.getId(), gatewayEntity);
     }
 
     @Override
-    public void addItems(List<GatewayInfo> items) throws CacheException {
-        Map<String, GatewayInfo> gatewayInfoMap = items.stream().collect(Collectors.toMap(GatewayInfo::getResourceId, Function.identity()));
-        cache.putAll(gatewayInfoMap);
+    public void addItems(List<GatewayEntity> items) throws CacheException {
+        Map<String, GatewayEntity> gatewayEntityMap = items.stream().collect(Collectors.toMap(GatewayEntity::getId, Function.identity()));
+        gatewayEntityCache.putAll(gatewayEntityMap);
     }
 
     @Override
     public void deleteItem(String id) throws CacheException {
-        log.debug("Delete GatewayInfo, resource_id is: {}", id);
-        cache.remove(id);
+        log.debug("Delete GatewayEntity, GatewayEntity id is: {}", id);
+        gatewayEntityCache.remove(id);
     }
 
-    public void deleteGatewayEntity(String gatewayId) throws CacheException {
-        log.debug("Delete GatewayEntity, gatewayId is: {}", gatewayId);
-        gatewayEntityCache.remove(gatewayId);
-    }
-
-    public void deleteGatewayInfoForZeta(String vpcId, GatewayInfo gatewayInfo, Map<String, GWAttachment> attachmentsMap) throws Exception {
-        try (Transaction tx = cache.getTransaction().start()) {
-            boolean flag;
-            List<GatewayEntity> gatewayEntities = gatewayInfo.getGatewayEntities();
-            Iterator<GatewayEntity> iterator = gatewayEntities.iterator();
-            while (iterator.hasNext()) {
-                GatewayEntity gatewayEntity = iterator.next();
-                flag = false;
-                for (GWAttachment attachment : attachmentsMap.values()) {
-                    if (attachment.getResourceId().equals(vpcId) && attachment.getGatewayId().equals(gatewayEntity.getId())
-                            && gatewayEntity.getType().equals(GatewayType.ZETA)) {
-                        flag = true;
+    public void deleteGatewayInfoForZeta(String vpcId, Map<String, GWAttachment> attachmentsMap) throws Exception {
+        try (Transaction tx = gatewayEntityCache.getTransaction().start()) {
+            for (GWAttachment attachment : attachmentsMap.values()) {
+                if (attachment.getResourceId().equals(vpcId)) {
+                    GatewayEntity gatewayEntity = gatewayEntityCache.get(attachment.getGatewayId());
+                    if (gatewayEntity == null) {
                         attachmentCache.remove(attachment.getId());
+                        continue;
+                    }
+                    if (GatewayType.ZETA.equals(gatewayEntity.getType())) {
+                        gatewayEntityCache.remove(gatewayEntity.getId());
                     }
                 }
-                if (flag) {
-                    iterator.remove();
-                }
             }
-            cache.put(gatewayInfo.getResourceId(), gatewayInfo);
+            tx.commit();
+        }
+    }
+
+    public void addGatewayAndAttachment(GatewayEntity gatewayEntity, GWAttachment attachment) throws Exception {
+        try (Transaction tx = gatewayEntityCache.getTransaction().start()) {
+            gatewayEntityCache.put(gatewayEntity.getId(), gatewayEntity);
+            attachmentCache.put(attachment.getId(), attachment);
             tx.commit();
         }
     }

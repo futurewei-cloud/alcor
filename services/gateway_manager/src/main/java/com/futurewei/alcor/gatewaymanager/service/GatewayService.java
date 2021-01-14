@@ -47,15 +47,14 @@ public class GatewayService {
 
     public GatewayInfo createGatewayInfo(String projectId, VpcInfo vpcInfo) throws Exception {
 
-        // check whether the project type is zeta
+        //TODO check whether the project type is zeta by projectId
 
         // create GatewayInfo entity in the DB
         GatewayInfo gatewayInfo = new GatewayInfo();
         GatewayEntity gatewayEntity = new GatewayEntity();
-        createGatewayAndAttachment(vpcInfo, gatewayInfo, gatewayEntity);
 
-        //store in the GM's DB
-        gatewayRepository.addItem(gatewayInfo);
+        // construct the GatewayEntity and Attachment
+        createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
         AsyncExecutor executor = new AsyncExecutor();
         createDPMCacheGateway(executor, gatewayInfo, gatewayEntity, projectId);
@@ -64,6 +63,7 @@ public class GatewayService {
         } catch (CompletionException e) {
             log.info("failed to create vpc in the Gateway, Exception detail: {}", e.getMessage());
             rollback(executor, gatewayInfo, gatewayEntity, projectId);
+            //TODO if rollback failed,how we should handle it?
         }
         executor.runAsync((Supplier<Void>) () -> {
             try {
@@ -78,42 +78,38 @@ public class GatewayService {
     }
 
     public void updateGatewayInfoForZeta(String projectId, GatewayInfo newGatewayInfo) throws Exception {
-        GatewayInfo oldGatewayInfo = gatewayRepository.findItem(newGatewayInfo.getResourceId());
-        if (oldGatewayInfo == null) {
-            throw new Exception(ExceptionMsgConfig.GATEWAYINFO_NOT_FOUND.getMsg());
-        }
-        List<GatewayEntity> gatewayEntities = oldGatewayInfo.getGatewayEntities();
-        if (gatewayEntities == null || gatewayEntities.size() == 0) {
-            throw new Exception(ExceptionMsgConfig.GATEWAYS_IS_NULL.getMsg());
-        }
+        //TODO check whether the project type is zeta by projectId
 
+        GatewayEntity gatewayEntity = null;
         Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems();
         for (GatewayEntity newGatewayEntity : newGatewayInfo.getGatewayEntities()) {
             for (GWAttachment attachment : attachmentsMap.values()) {
                 if (attachment.getResourceId().equals(newGatewayInfo.getResourceId())) {
-                    for (GatewayEntity oldGatewayEntity : gatewayEntities) {
-                        if (oldGatewayEntity.getId().equals(attachment.getGatewayId()) && oldGatewayEntity.getType().equals(newGatewayEntity.getType())) {
-                            oldGatewayEntity.setStatus(newGatewayEntity.getStatus());
-                        }
+                    gatewayEntity = gatewayRepository.findItem(attachment.getGatewayId());
+                    if (gatewayEntity == null) {
+                        throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
+                    }
+                    if (gatewayEntity.getType().equals(newGatewayEntity.getType())) {
+                        gatewayEntity.setStatus(newGatewayEntity.getStatus());
                     }
                 }
             }
         }
-
-        gatewayRepository.addItem(oldGatewayInfo);
+        if (gatewayEntity != null) {
+            gatewayRepository.addItem(gatewayEntity);
+        }
     }
 
     public void deleteGatewayInfoForZeta(String projectId, String vpcId) throws Exception {
-        GatewayInfo gatewayInfo = gatewayRepository.findItem(vpcId);
-        if (gatewayInfo == null) {
-            throw new Exception(ExceptionMsgConfig.GATEWAYINFO_NOT_FOUND.getMsg());
-        }
+        //TODO check whether the project type is zeta by projectId
+
         Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems();
-        gatewayRepository.deleteGatewayInfoForZeta(vpcId, gatewayInfo, attachmentsMap);
+        gatewayRepository.deleteGatewayInfoForZeta(vpcId, attachmentsMap);
     }
 
 
-    private void createGatewayAndAttachment(VpcInfo vpcInfo, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity) throws CacheException {
+    private void createGatewayAndAttachment(String projectId, VpcInfo vpcInfo, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity) throws Exception {
+        gatewayEntity.setProjectId(projectId);
         gatewayEntity.setId(UUID.randomUUID().toString());
         gatewayEntity.setDescription(GATEWAY_DESCRIPTION);
         gatewayEntity.setType(GatewayType.ZETA);
@@ -124,34 +120,28 @@ public class GatewayService {
         gatewayEntities.add(gatewayEntity);
         gatewayInfo.setGatewayEntities(gatewayEntities);
         gatewayInfo.setStatus(StatusEnum.AVAILABLE.getStatus());
-        // create attachment and attach it to the GatewayEntity
+        // create attachment and associated to the GatewayEntity
         GWAttachment attachment = new GWAttachment(GatewayType.ZETA.getGatewayType() + ATTACHMENT_NAME_PREFIX + ResourceType.VPC.name(),
                 ResourceType.VPC, vpcInfo.getVpcId(), gatewayEntity.getId(), StatusEnum.AVAILABLE.getStatus(), vpcInfo.getVpcVni());
         ArrayList<String> attachmentIds = new ArrayList<>();
         attachmentIds.add(attachment.getId());
         gatewayEntity.setAttachments(attachmentIds);
 
-        gwAttachmentRepository.addItem(attachment);
+        // store in the GM's DB Cache
+        gatewayRepository.addGatewayAndAttachment(gatewayEntity, attachment);
     }
 
-    public void deleteGateway(String vpcId, String gatewayId) throws Exception {
-        GatewayInfo gatewayInfo = gatewayRepository.findItem(vpcId);
-        List<GatewayEntity> gateways = gatewayInfo.getGatewayEntities();
-        //Verify that GatewayId exists
-        GatewayEntity gateway = gateways.stream().filter(gatewayEntity -> gatewayEntity.getId().equals(gatewayId)).findFirst().orElse(null);
-        if (gateway == null) {
+    public void deleteGatewayById(String gatewayId) throws Exception {
+        GatewayEntity gatewayEntity = gatewayRepository.findItem(gatewayId);
+        if (gatewayEntity == null) {
             throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
-        } else {
-            gateways.remove(gateway);
         }
-        //update the cache of gatewayInfo after remove gatewayId
-        gatewayRepository.addItem(gatewayInfo);
+        gatewayRepository.deleteItem(gatewayId);
     }
 
 
-    public List<GatewayEntity> getGateways(String resourceId) throws CacheException {
-        GatewayInfo gatewayInfo = gatewayRepository.findItem(resourceId);
-        return gatewayInfo.getGatewayEntities();
+    public GatewayEntity getGatewayEntityById(String gatewayId) throws CacheException {
+        return gatewayRepository.findItem(gatewayId);
     }
 
     private void updateDPMCacheGateway(AsyncExecutor executor, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
@@ -165,7 +155,7 @@ public class GatewayService {
                     gatewayEntity.setIps(gatewayIps);
                     gatewayEntity.setStatus(StatusEnum.READY.getStatus());
                     restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
-                    gatewayRepository.addItem(gatewayInfo);
+                    gatewayRepository.addItem(gatewayEntity);
                 }
             }
         }
