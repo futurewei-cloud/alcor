@@ -17,6 +17,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Vpc;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
@@ -79,7 +80,7 @@ public class VpcService extends ResourceService {
             //set routes here
 
             Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
-            vpcStateBuilder.setOperationType(networkConfig.getOpType());
+            vpcStateBuilder.setOperationType(Common.OperationType.INFO); // networkConfig.getOpType()
             vpcStateBuilder.setConfiguration(vpcConfigBuilder.build());
 
             unicastGoalState.getGoalStateBuilder().addVpcStates(vpcStateBuilder.build());

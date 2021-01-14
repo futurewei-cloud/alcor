@@ -12,13 +12,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.service.DpmService;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
@@ -84,6 +85,10 @@ public class DpmServiceImpl implements DpmService {
         unicastGoalState.setHostIp(hostIp);
 
         unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
+
+        Common.OperationType opType = networkConfig.getOpType();
+        Common.ResourceType rsType = networkConfig.getRsType();
+
 
         if (portEntities != null && portEntities.size() > 0) {
             portService.buildPortState(networkConfig, portEntities, unicastGoalState);
