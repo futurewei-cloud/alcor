@@ -54,12 +54,4 @@ public class DpmController {
         checkNetworkConfiguration(networkConfiguration);
         return dpmService.deleteNetworkConfiguration(networkConfiguration);
     }
-
-    @PostMapping({"/gatewayinfo", "v4/gatewayinfo"})
-    @ResponseStatus(HttpStatus.CREATED)
-    @DurationStatistics
-    public InternalDPMResultList createNetworkInfo(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
-        checkNetworkConfiguration(networkConfiguration);
-        return dpmService.createNetworkConfiguration(networkConfiguration);
-    }
 }
