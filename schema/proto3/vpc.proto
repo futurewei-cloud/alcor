@@ -34,7 +34,11 @@ message VpcConfiguration {
     string name = 6;
     string cidr = 7;
     uint32 tunnel_id = 8;
-
+/*
+    message SubnetId {
+        string id = 1;
+    }
+*/
     repeated string auxiliary_gateway_ids = 9;
 }
 

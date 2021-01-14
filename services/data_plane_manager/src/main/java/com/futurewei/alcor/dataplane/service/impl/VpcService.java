@@ -20,7 +20,6 @@ import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Vpc;
-import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.stereotype.Service;
@@ -67,16 +66,16 @@ public class VpcService extends ResourceService {
 
             //vpcConfigBuilder.setTunnelId();
 
-            if (networkConfig.getSubnets() != null) {
-                networkConfig.getSubnets().stream()
-                        .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
-                        .map(InternalSubnetEntity::getId)
-                        .forEach(id -> {
-                            Vpc.VpcConfiguration.SubnetId.Builder subnetIdBuilder = Vpc.VpcConfiguration.SubnetId.newBuilder();
-                            subnetIdBuilder.setId(id);
-                            vpcConfigBuilder.addSubnetIds(subnetIdBuilder.build());
-                        });
-            }
+//            if (networkConfig.getSubnets() != null) {
+//                networkConfig.getSubnets().stream()
+//                        .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
+//                        .map(InternalSubnetEntity::getId)
+//                        .forEach(id -> {
+//                            Vpc.VpcConfiguration.SubnetId.Builder subnetIdBuilder = Vpc.VpcConfiguration.SubnetId.newBuilder();
+//                            subnetIdBuilder.setId(id);
+//                            vpcConfigBuilder.addSubnetIds(subnetIdBuilder.build());
+//                        });
+//            }
             //set routes here
 
             Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();

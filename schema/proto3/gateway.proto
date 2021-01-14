@@ -29,7 +29,7 @@ enum GatewayType {
     NGW = 4;
 }
 
-message Gateway {
+message GatewayConfiguration {
     GatewayType gateway_type = 1;
 
     // if aux_gateway_type == NONE, then id = empty string 
