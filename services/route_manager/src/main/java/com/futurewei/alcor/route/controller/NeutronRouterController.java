@@ -291,9 +291,14 @@ public class NeutronRouterController {
 
         // TODO: return all connected subnet-ids to Port Manager. The algorithm as follow:
         //1. get ports array from the router.
-        //2. get subnet-ids from the mapping table of port-subnet for all ports.
-        //3. call Port Manager's /project/{project_id}/update-l3-neighbors/{new_subnet_id} with BODY {operation_type, vpcid, [old_subnet_ids]}.
+        Router router = this.routerDatabaseService.getByRouterId(routerid);
+        List<String> gatewayPorts = router.getGatewayPorts();
+        //2. call Port Manager's /project/{project_id}/update-l3-neighbors/{new_subnet_id} with BODY {operation_type, vpcid, [old_subnet_ids]}.
         //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
+        if (gatewayPorts != null && gatewayPorts.size() > 1) {
+            // TODO: waiting for PM new API
+            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts);
+        }
 
         return routerInterfaceResponse;
 
@@ -313,6 +318,17 @@ public class NeutronRouterController {
         String subnetId = resource.getSubnetId();
 
         RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.removeAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
+
+        // TODO: return all connected subnet-ids to Port Manager. The algorithm as follow:
+        //1. get ports array from the router.
+        Router router = this.routerDatabaseService.getByRouterId(routerid);
+        List<String> gatewayPorts = router.getGatewayPorts();
+        //2. call Port Manager's /project/{project_id}/update-l3-neighbors/{new_subnet_id} with BODY {operation_type, vpcid, [old_subnet_ids]}.
+        //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
+        if (gatewayPorts != null && gatewayPorts.size() > 1) {
+            // TODO: waiting for PM new API
+            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts);
+        }
 
         return routerInterfaceResponse;
 

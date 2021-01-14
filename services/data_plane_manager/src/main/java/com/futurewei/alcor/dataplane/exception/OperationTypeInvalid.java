@@ -13,17 +13,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.route.service;
+package com.futurewei.alcor.dataplane.exception;
 
-import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
-import com.futurewei.alcor.web.entity.port.PortEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-
-public interface RouterToPMService {
-
-    public List<String> getSubnetIdsFromPM (String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull;
-    public void updatePort (String projectid, String portId, PortEntity portEntity);
-    public void updateL3Neighbors (String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts);
-
+@ResponseStatus(code= HttpStatus.PRECONDITION_FAILED, reason="Operation type invalid")
+public class OperationTypeInvalid extends Exception {
 }

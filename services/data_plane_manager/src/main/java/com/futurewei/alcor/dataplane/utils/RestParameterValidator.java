@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.utils;
 
 import com.futurewei.alcor.dataplane.exception.*;
+import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -23,7 +24,10 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RestParameterValidator {
 
@@ -119,7 +123,19 @@ public class RestParameterValidator {
         }
     }
 
+    public static void checkOperationType(OperationType opType) throws OperationTypeInvalid {
+        Set<OperationType> operationTypes = new HashSet<>(Arrays.asList(OperationType.values()));
+        for (OperationType operationType: operationTypes) {
+            if (operationType.equals(opType)) {
+                return;
+            }
+        }
+
+        throw new OperationTypeInvalid();
+    }
+
     public static void checkNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        checkOperationType(networkConfig.getOpType());
         checkVpcEntities(networkConfig.getVpcs());
         checkSubnetEntities(networkConfig.getSubnets());
         checkPortEntities(networkConfig.getPortEntities());
