@@ -74,6 +74,7 @@ public class GatewayRepository implements ICacheRepository<GatewayEntity> {
                         continue;
                     }
                     if (GatewayType.ZETA.equals(gatewayEntity.getType())) {
+                        attachmentCache.remove(attachment.getId());
                         gatewayEntityCache.remove(gatewayEntity.getId());
                     }
                 }
@@ -84,7 +85,9 @@ public class GatewayRepository implements ICacheRepository<GatewayEntity> {
 
     public void addGatewayAndAttachment(GatewayEntity gatewayEntity, GWAttachment attachment) throws Exception {
         try (Transaction tx = gatewayEntityCache.getTransaction().start()) {
+            log.info("Add GatewayEntity, gatewayEntity's id is: {}", gatewayEntity.getId());
             gatewayEntityCache.put(gatewayEntity.getId(), gatewayEntity);
+            log.info("Add Attachment, attachment's id is : {}", attachment.getId());
             attachmentCache.put(attachment.getId(), attachment);
             tx.commit();
         }

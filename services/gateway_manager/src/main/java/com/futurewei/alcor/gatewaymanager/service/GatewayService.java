@@ -12,20 +12,15 @@ import com.futurewei.alcor.web.entity.gateway.*;
 import com.futurewei.alcor.web.restclient.GatewayManagerRestClinet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
 @Slf4j
-@EnableRetry
 @Service
-@Component("com.futurewei.alcor.web.restclient")
+@ComponentScan("com.futurewei.alcor.web.restclient")
 public class GatewayService {
 
     @Autowired
@@ -57,20 +52,24 @@ public class GatewayService {
         createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
         AsyncExecutor executor = new AsyncExecutor();
-        createDPMCacheGateway(executor, gatewayInfo, gatewayEntity, projectId);
-        try {
-            executor.runAsync(restClinet::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
-        } catch (CompletionException e) {
-            log.info("failed to create vpc in the Gateway, Exception detail: {}", e.getMessage());
-            rollback(executor, gatewayInfo, gatewayEntity, projectId);
-            //TODO if rollback failed,how we should handle it?
-        }
+        executor.runAsync(restClinet::createDPMCacheGateway, projectId, gatewayInfo);
+        executor.runAsync(restClinet::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
         executor.runAsync((Supplier<Void>) () -> {
+            // wait result of all async
+            List<Object> result = executor.joinAllAsync();
+            // whether to rollback by checking result's size is 2
             try {
-                updateDPMCacheGateway(executor, gatewayInfo, gatewayEntity, projectId);
+                updateDPMCacheGateway(result, gatewayInfo, gatewayEntity, projectId);
             } catch (Exception e) {
                 log.info("update GatewayEntity status to READY failed, detail message: {}", e.getMessage());
                 //TODO how to handle this exception? rollback all?
+            }
+
+            try {
+                rollback(result, gatewayInfo, gatewayEntity, projectId);
+            } catch (Exception e) {
+                log.info("rollback failed, detail message: {}", e.getMessage());
+                //TODO if rollback failed,how we should handle it?
             }
             return null;
         });
@@ -144,10 +143,9 @@ public class GatewayService {
         return gatewayRepository.findItem(gatewayId);
     }
 
-    private void updateDPMCacheGateway(AsyncExecutor executor, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
-        List<Object> result = executor.joinAll();
-        log.info("wait for all future result, result: {}", result);
-        if (result.size() > 0) {
+    private void updateDPMCacheGateway(List<Object> result, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
+        if (result != null && result.size() == 2) {
+            log.info("wait for all future result, result: {}", result);
             for (Object o : result) {
                 if (o.getClass().equals(GatewayIpJson.class)) {
                     GatewayIpJson gatewayIpJson = (GatewayIpJson) o;
@@ -156,43 +154,34 @@ public class GatewayService {
                     gatewayEntity.setStatus(StatusEnum.READY.getStatus());
                     restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
                     gatewayRepository.addItem(gatewayEntity);
+                    log.info("update GatewayEntity status to READY success");
                 }
             }
         }
     }
 
-
-    @Retryable(maxAttempts = 4)
-    private void createDPMCacheGateway(AsyncExecutor executor, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) {
-        executor.runAsync(restClinet::createDPMCacheGateway, projectId, gatewayInfo);
-    }
-
-
-    @Recover
-    private void workAfterRetryFailed(AsyncExecutor executor, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
-        rollback(executor, gatewayInfo, gatewayEntity, projectId);
-    }
-
     /**
      * rollback if async call failed
      *
-     * @param executor
+     * @param result
      * @param projectId
      */
-    private void rollback(AsyncExecutor executor, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
-        List<Object> result = executor.joinAll();
+    private void rollback(List<Object> result, GatewayInfo gatewayInfo, GatewayEntity gatewayEntity, String projectId) throws Exception {
         log.info("start rollback and update the status for GatewayEntity, the executor's result is: {}", result);
-        Iterator<Object> iterator = result.iterator();
-        while (iterator.hasNext()) {
-            Object ob = iterator.next();
-            if (ob.getClass().equals(GatewayIpJson.class)) {
-                restClinet.deleteVPCInZetaGateway(((GatewayIpJson) ob).getVpcId());
-                iterator.remove();
-            }
-            if (ob.getClass().equals(String.class)) {
-                gatewayEntity.setStatus(StatusEnum.FAILED.getStatus());
-                restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
-                iterator.remove();
+        if (result != null && result.size() != 2) {
+            Iterator<Object> iterator = result.iterator();
+            while (iterator.hasNext()) {
+                Object ob = iterator.next();
+                if (ob.getClass().equals(GatewayIpJson.class)) {
+                    restClinet.deleteVPCInZetaGateway(((GatewayIpJson) ob).getVpcId());
+                    iterator.remove();
+                }
+                if (ob.getClass().equals(String.class)) {
+                    gatewayEntity.setStatus(StatusEnum.FAILED.getStatus());
+                    restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
+                    gatewayRepository.addItem(gatewayEntity);
+                    iterator.remove();
+                }
             }
         }
     }
