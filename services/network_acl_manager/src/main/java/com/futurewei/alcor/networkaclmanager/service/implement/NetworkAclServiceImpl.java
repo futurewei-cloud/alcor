@@ -16,13 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.networkaclmanager.service.implement;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
-import com.futurewei.alcor.common.executor.AsyncFunctionWithTwoArgs;
 import com.futurewei.alcor.networkaclmanager.exception.NetworkAclNotFound;
 import com.futurewei.alcor.networkaclmanager.exception.VerifySubnetIdFailed;
 import com.futurewei.alcor.networkaclmanager.exception.VerifyVpcIdFailed;
 import com.futurewei.alcor.networkaclmanager.repo.NetworkAclRepository;
 import com.futurewei.alcor.networkaclmanager.service.NetworkAclService;
-import com.futurewei.alcor.web.entity.networkacl.*;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -35,7 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @ComponentScan(value="com.futurewei.alcor.web.restclient")
@@ -85,12 +88,7 @@ public class NetworkAclServiceImpl implements NetworkAclService {
         }
 
         //Verify vpc id
-        asyncExecutor.runAsync(new AsyncFunctionWithTwoArgs<Object, Object, VpcEntity>() {
-            @Override
-            public VpcEntity apply(Object arg1, Object arg2) throws Exception {
-                return NetworkAclServiceImpl.this.verifyVpcId(arg1, arg2);
-            }
-        }, projectId, networkAclEntity.getVpcId());
+        asyncExecutor.runAsync(this::verifyVpcId, projectId, networkAclEntity.getVpcId());
 
         //Verify subnet id list
         List<String> subnetIds = networkAclEntity.getAssociatedSubnets();
