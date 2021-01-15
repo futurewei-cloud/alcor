@@ -12,7 +12,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 #  mvn compile
 #  mvn install
 
-  cd ..
+  cd /root/alcor
 
   echo "Clean build schema project"
   cd schema
@@ -28,6 +28,8 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   mvn compile
   mvn package
   mvn install
+  docker rmi ignite_alcor:lib8
+  docker build -t ignite_alcor:lib8 .
   cd ..
 
   echo "Clean build web project"
@@ -47,6 +49,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
       mvn clean
       mvn compile
       mvn package
+      docker rmi $d:v1.0
       docker build -t $d:v1.0 .
       cd ..
       echo "Build service -  $d completed"

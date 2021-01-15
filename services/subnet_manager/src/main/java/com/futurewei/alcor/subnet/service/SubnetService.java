@@ -2,18 +2,15 @@ package com.futurewei.alcor.subnet.service;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.*;
-
 import com.futurewei.alcor.subnet.exception.*;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
+import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.subnet.NewHostRoutes;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.mac.MacStateJson;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -63,10 +60,10 @@ public interface SubnetService {
     public void deleteSubnetIdInVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
     // check if there is any port in this subnet
-    public boolean checkIfAnyPortInSubnet (String rangeId) throws RangeIdIsNullOrEmpty;
+    public boolean checkIfAnyPortInSubnet (String projectId, String subnetId) throws SubnetIdIsNull;
 
     // check if subnet bind any routes
-    public boolean checkIfSubnetBindAnyRoutes (SubnetEntity subnetEntity);
+    public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity);
 
     // check if cidr overlap
     public boolean checkIfCidrOverlap (String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets;
@@ -85,4 +82,7 @@ public interface SubnetService {
 
     // construct port entity passed in PM
     public PortEntity constructPortEntity (String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner);
+
+    // delete ip range in Private IP Manager
+    public void deleteIPRangeInPIM (String rangeId);
 }

@@ -16,7 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.dataplane.exception.OperationTypeInvalid;
 import com.futurewei.alcor.dataplane.service.DpmService;
+import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,14 @@ public class DpmController {
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         checkNetworkConfiguration(networkConfiguration);
-        return dpmService.updateNetworkConfiguration(networkConfiguration);
+        OperationType opType = networkConfiguration.getOpType();
+        if (OperationType.UPDATE.equals(opType)) {
+            return dpmService.updateNetworkConfiguration(networkConfiguration);
+        } else if (OperationType.DELETE.equals(opType)) {
+            return this.deleteNetworkConfiguration(networkConfiguration);
+        }
+
+        throw new OperationTypeInvalid();
     }
 
     @DeleteMapping({"/network-configuration", "v4/network-configuration"})

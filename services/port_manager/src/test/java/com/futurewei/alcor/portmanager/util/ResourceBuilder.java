@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
+import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -90,6 +91,15 @@ public class ResourceBuilder {
         ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
 
         return ipAddrRequest;
+    }
+
+    public static IpAddrUpdateRequest buildIpAddrUpdateRequest(String ipAddress) {
+        IpAddrUpdateRequest ipAddrUpdateRequest = new IpAddrUpdateRequest();
+        IpAddrRequest ipAddrRequest = buildIpv4AddrRequest(ipAddress);
+        ipAddrUpdateRequest.setOldIpAddrRequests(Collections.singletonList(ipAddrRequest));
+        ipAddrUpdateRequest.setNewIpAddrRequests(Collections.singletonList(ipAddrRequest));
+
+        return ipAddrUpdateRequest;
     }
 
     public static IpAddrRequestBulk buildIpAddrRequestBulk() {

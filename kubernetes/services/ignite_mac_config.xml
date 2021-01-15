@@ -39,6 +39,7 @@
                   <property name="persistenceEnabled" value="true"/>
                </bean>
             </property>
+            <property name="storagePath" value="/opt/mac"/>
          </bean>
       </property>
 

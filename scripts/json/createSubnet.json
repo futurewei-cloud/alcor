@@ -1,0 +1,15 @@
+{
+  "subnet": {
+    "cidr": "10.0.0.0/24",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88000",
+    "ip_version": 4,
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88038",
+    "name": "subnet1",
+    "host_routes": [
+      {
+        "destination": "10.0.5.0/24",
+        "nexthop": "10.0.4.1"
+      }
+    ]
+  }
+}
