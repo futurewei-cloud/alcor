@@ -295,4 +295,20 @@ public class AsyncExecutor {
             }
         }
     }
+
+    public List<Object> joinAllAsync() {
+        Iterator<CompletableFuture> iterator = futures.iterator();
+        List<Object> results = new ArrayList<>();
+        while (iterator.hasNext()) {
+            CompletableFuture future = iterator.next();
+            iterator.remove();
+
+            try {
+                results.add(future.join());
+            } catch (Exception e) {
+                LOG.error("{} join exception: {}", future, e);
+            }
+        }
+        return results;
+    }
 }

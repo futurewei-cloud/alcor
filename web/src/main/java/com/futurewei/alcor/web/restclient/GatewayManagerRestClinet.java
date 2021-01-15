@@ -4,11 +4,16 @@ import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
 import com.futurewei.alcor.web.entity.gateway.GatewayIpJson;
 import com.futurewei.alcor.web.entity.gateway.VpcInfoSub;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 
 @Configuration
+@EnableRetry
+@Slf4j
 public class GatewayManagerRestClinet extends AbstractRestClient {
 
     @Value("${microservices.zeta.service.url:\"\"}")
@@ -29,7 +34,9 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
         restTemplate.delete(url);
     }
 
+    @Retryable(maxAttempts = 4)
     public String createDPMCacheGateway(Object args1, Object args2) throws Exception {
+        log.info("send request to create DPM GatewayInfo cache");
         String projectId = (String) args1;
         GatewayInfo gatewayInfo = (GatewayInfo) args2;
         String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo";
