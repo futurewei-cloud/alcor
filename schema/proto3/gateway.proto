@@ -51,6 +51,6 @@ message GatewayConfiguration {
     }
 
     oneof extra_info {
-        zeta zeta_info = 4;
+        zeta zeta_info = 6;
     }
 }
