@@ -85,7 +85,7 @@ public class SubnetService extends ResourceService {
             }
 
             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
-            subnetStateBuilder.setOperationType(Common.OperationType.INFO); // networkConfig.getOpType()
+            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
             unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
         }

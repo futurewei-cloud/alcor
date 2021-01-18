@@ -39,7 +39,7 @@ message VpcConfiguration {
         string id = 1;
     }
 */
-    repeated string auxiliary_gateway_ids = 9;
+    repeated string gateway_ids = 9;
 }
 
 message VpcState {

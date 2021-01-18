@@ -370,15 +370,6 @@ public class DataPlaneManagerUtil {
             vpcConfigBuilder.setCidr(vpcEntity.getCidr());
             //vpcConfigBuilder.setTunnelId(Long.parseLong());
 
-//            networkConfig.getSubnets().stream()
-//                    .filter(s -> s.getVpcId().equals(vpcEntity.getId()))
-//                    .map(InternalSubnetEntity::getId)
-//                    .forEach(id -> {
-//                        Vpc.VpcConfiguration.SubnetId.Builder subnetIdBuilder = Vpc.VpcConfiguration.SubnetId.newBuilder();
-//                        subnetIdBuilder.setId(id);
-//                        vpcConfigBuilder.addSubnetIds(subnetIdBuilder.build());
-//                    });
-
             //set routes here
 
             Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
