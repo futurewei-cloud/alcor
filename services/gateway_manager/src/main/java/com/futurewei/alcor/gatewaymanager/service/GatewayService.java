@@ -33,7 +33,7 @@ public class GatewayService {
     private GatewayManagerRestClinet restClinet;
 
     private static final String GATEWAY_DESCRIPTION = "internal gateway";
-    private static final String GATEWAY_SUFFIX_NAME = " name";
+    private static final String GATEWAY_SUFFIX_NAME = " gateway";
     private static final String ATTACHMENT_NAME_PREFIX = "attachment - ";
 
 
@@ -44,11 +44,9 @@ public class GatewayService {
 
         //TODO check whether the project type is zeta by projectId
 
-        // create GatewayInfo entity in the DB
+        // construct the GatewayEntity and Attachment
         GatewayInfo gatewayInfo = new GatewayInfo();
         GatewayEntity gatewayEntity = new GatewayEntity();
-
-        // construct the GatewayEntity and Attachment
         createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
         AsyncExecutor executor = new AsyncExecutor();
@@ -62,48 +60,49 @@ public class GatewayService {
                 updateDPMCacheGateway(result, gatewayInfo, gatewayEntity, projectId);
             } catch (Exception e) {
                 log.info("update GatewayEntity status to READY failed, detail message: {}", e.getMessage());
-                //TODO how to handle this exception? rollback all?
+                // rollback GM's DB and ask Zeta to remove the corresponding gateway resources
             }
 
             try {
                 rollback(result, gatewayInfo, gatewayEntity, projectId);
             } catch (Exception e) {
                 log.info("rollback failed, detail message: {}", e.getMessage());
-                //TODO if rollback failed,how we should handle it?
+                // If rollback failed, we should raise an alarm or error.
             }
             return null;
         });
         return gatewayInfo;
     }
 
-    public void updateGatewayInfoForZeta(String projectId, GatewayInfo newGatewayInfo) throws Exception {
+    public void updateGatewayInfoForZeta(String projectId, String vpcId, GatewayInfo newGatewayInfo) throws Exception {
         //TODO check whether the project type is zeta by projectId
 
         GatewayEntity gatewayEntity = null;
-        Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems();
+        Map<String, Object[]> queryParams = new HashMap<>();
+        queryParams.put("resourceId", new String[]{vpcId});
+        Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems(queryParams);
+
         for (GatewayEntity newGatewayEntity : newGatewayInfo.getGatewayEntities()) {
             for (GWAttachment attachment : attachmentsMap.values()) {
-                if (attachment.getResourceId().equals(newGatewayInfo.getResourceId())) {
-                    gatewayEntity = gatewayRepository.findItem(attachment.getGatewayId());
-                    if (gatewayEntity == null) {
-                        throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
-                    }
-                    if (gatewayEntity.getType().equals(newGatewayEntity.getType())) {
-                        gatewayEntity.setStatus(newGatewayEntity.getStatus());
-                    }
+                gatewayEntity = gatewayRepository.findItem(attachment.getGatewayId());
+                if (gatewayEntity == null) {
+                    throw new Exception(ExceptionMsgConfig.GATEWAY_ENTITY_NOT_FOUND.getMsg());
+                }
+                if (gatewayEntity.getType().equals(newGatewayEntity.getType())) {
+                    gatewayEntity.setStatus(newGatewayEntity.getStatus());
+                    gatewayRepository.addItem(gatewayEntity);
                 }
             }
-        }
-        if (gatewayEntity != null) {
-            gatewayRepository.addItem(gatewayEntity);
         }
     }
 
     public void deleteGatewayInfoForZeta(String projectId, String vpcId) throws Exception {
         //TODO check whether the project type is zeta by projectId
 
-        Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems();
-        gatewayRepository.deleteGatewayInfoForZeta(vpcId, attachmentsMap);
+        Map<String, Object[]> queryParams = new HashMap<>();
+        queryParams.put("resourceId", new String[]{vpcId});
+        Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems(queryParams);
+        gatewayRepository.deleteGatewayInfoForZeta(attachmentsMap);
     }
 
 
@@ -147,8 +146,8 @@ public class GatewayService {
         if (result != null && result.size() == 2) {
             log.info("wait for all future result, result: {}", result);
             for (Object o : result) {
-                if (o.getClass().equals(GatewayIpJson.class)) {
-                    GatewayIpJson gatewayIpJson = (GatewayIpJson) o;
+                if (o.getClass().equals(ZetaGatewayIpJson.class)) {
+                    ZetaGatewayIpJson gatewayIpJson = (ZetaGatewayIpJson) o;
                     List<GatewayIp> gatewayIps = gatewayIpJson.getGatewayIps();
                     gatewayEntity.setIps(gatewayIps);
                     gatewayEntity.setStatus(StatusEnum.READY.getStatus());
@@ -172,8 +171,8 @@ public class GatewayService {
             Iterator<Object> iterator = result.iterator();
             while (iterator.hasNext()) {
                 Object ob = iterator.next();
-                if (ob.getClass().equals(GatewayIpJson.class)) {
-                    restClinet.deleteVPCInZetaGateway(((GatewayIpJson) ob).getVpcId());
+                if (ob.getClass().equals(ZetaGatewayIpJson.class)) {
+                    restClinet.deleteVPCInZetaGateway(((ZetaGatewayIpJson) ob).getVpcId());
                     iterator.remove();
                 }
                 if (ob.getClass().equals(String.class)) {

@@ -62,7 +62,7 @@ public class GWAttachmentRepository implements ICacheRepository<GWAttachment> {
         cache.remove(id);
     }
 
-    public void deleteItem(String attachId, GatewayEntity gatewayEntity) throws Exception {
+    public void deleteAndUpdateItem(String attachId, GatewayEntity gatewayEntity) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(attachId);
             gatewayEntityICache.put(gatewayEntity.getId(),gatewayEntity);

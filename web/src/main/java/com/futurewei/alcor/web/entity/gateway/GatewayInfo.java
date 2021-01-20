@@ -19,4 +19,14 @@ public class GatewayInfo {
 
     @JsonProperty("status")
     private String status;
+
+    public GatewayInfo() {
+    }
+
+    public GatewayInfo(String resourceId, List<GatewayEntity> gatewayEntities, List<RoutingTable> routeTables, String status) {
+        this.resourceId = resourceId;
+        this.gatewayEntities = gatewayEntities;
+        this.routeTables = routeTables;
+        this.status = status;
+    }
 }

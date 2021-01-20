@@ -22,8 +22,8 @@ public class AttachmentController {
      * @param gatewayId
      * @param gwAttachment
      */
-    @PostMapping("/project/{projectid}/gateways/{gateway_id}/attachments")
-    public void createAttachments(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @RequestBody GWAttachment gwAttachment) {
+    @PostMapping("/project/{project_id}/gateways/{gateway_id}/attachments")
+    public void createAttachments(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @RequestBody GWAttachment gwAttachment) {
         attachmentService.createAttachments();
     }
 
@@ -34,8 +34,8 @@ public class AttachmentController {
      * @param gatewayId
      * @param attachId
      */
-    @PutMapping("/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}")
-    public void updateAttachments(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) {
+    @PutMapping("/project/{project_id}/gateways/{gateway_id}/attachments/{attach_id}")
+    public void updateAttachments(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) {
         attachmentService.updateAttachments();
     }
 
@@ -46,8 +46,8 @@ public class AttachmentController {
      * @param gatewayId
      * @param attachId
      */
-    @DeleteMapping("/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}")
-    public void removeAttachments(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) throws Exception {
+    @DeleteMapping("/project/{project_id}/gateways/{gateway_id}/attachments/{attach_id}")
+    public void removeAttachments(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(attachId);
@@ -60,8 +60,8 @@ public class AttachmentController {
      * @param projectId
      * @param gatewayId
      */
-    @GetMapping("/project/{projectid}/gateways/{gateway_id}/attachments")
-    public List<GWAttachment> getAllAttachments(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
+    @GetMapping("/project/{project_id}/gateways/{gateway_id}/attachments")
+    public List<GWAttachment> getAllAttachments(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
         return attachmentService.getAllAttachments(gatewayId);
@@ -74,8 +74,8 @@ public class AttachmentController {
      * @param gatewayId
      * @param attachId
      */
-    @GetMapping("/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}")
-    public GWAttachment queryAttachments(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) throws Exception {
+    @GetMapping("/project/{project_id}/gateways/{gateway_id}/attachments/{attach_id}")
+    public GWAttachment queryAttachments(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("attach_id") String attachId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(attachId);

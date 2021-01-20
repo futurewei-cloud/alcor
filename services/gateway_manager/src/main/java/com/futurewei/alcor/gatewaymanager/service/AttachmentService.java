@@ -9,10 +9,7 @@ import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class AttachmentService {
@@ -45,14 +42,15 @@ public class AttachmentService {
         gatewayEntity.getAttachments().removeIf(attachId::equals);
 
         //delete attachment and update GatewayEntity in the DB
-        gwAttachmentRepository.deleteItem(attachId,gatewayEntity);
+        gwAttachmentRepository.deleteAndUpdateItem(attachId,gatewayEntity);
     }
 
 
     public List<GWAttachment> getAllAttachments(String gatewayId) throws CacheException {
-        Map<String, GWAttachment> attachmentMap = gwAttachmentRepository.findAllItems();
-        return attachmentMap.values().stream().filter(attachment -> gatewayId.equals(attachment.getGatewayId()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        Map<String, Object[]> queryParams = new HashMap<>();
+        queryParams.put("gatewayId", new String[]{gatewayId});
+        Map<String, GWAttachment> attachmentMap = gwAttachmentRepository.findAllItems(queryParams);
+        return (List<GWAttachment>) attachmentMap.values();
     }
 
 

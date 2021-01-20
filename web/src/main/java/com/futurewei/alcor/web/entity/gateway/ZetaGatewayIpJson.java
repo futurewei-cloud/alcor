@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GatewayIpJson {
+public class ZetaGatewayIpJson {
 
     @JsonProperty("vpc_id")
     private String vpcId;

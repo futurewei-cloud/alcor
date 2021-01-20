@@ -17,4 +17,19 @@ public class GatewayEntity extends CustomerResource {
     private List<String> tags;
     private String owner;
     private Map<String, String> options;
+
+    public GatewayEntity() {
+    }
+
+    public GatewayEntity(String projectId, String id, String name, String description, GatewayType type, String status, List<GatewayIp> ips, List<String> attachments, List<String> routetables, List<String> tags, String owner, Map<String, String> options) {
+        super(projectId, id, name, description);
+        this.type = type;
+        this.status = status;
+        this.ips = ips;
+        this.attachments = attachments;
+        this.routetables = routetables;
+        this.tags = tags;
+        this.owner = owner;
+        this.options = options;
+    }
 }

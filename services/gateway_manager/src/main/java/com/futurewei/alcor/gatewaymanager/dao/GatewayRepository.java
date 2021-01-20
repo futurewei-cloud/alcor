@@ -64,19 +64,17 @@ public class GatewayRepository implements ICacheRepository<GatewayEntity> {
         gatewayEntityCache.remove(id);
     }
 
-    public void deleteGatewayInfoForZeta(String vpcId, Map<String, GWAttachment> attachmentsMap) throws Exception {
+    public void deleteGatewayInfoForZeta(Map<String, GWAttachment> attachmentsMap) throws Exception {
         try (Transaction tx = gatewayEntityCache.getTransaction().start()) {
             for (GWAttachment attachment : attachmentsMap.values()) {
-                if (attachment.getResourceId().equals(vpcId)) {
-                    GatewayEntity gatewayEntity = gatewayEntityCache.get(attachment.getGatewayId());
-                    if (gatewayEntity == null) {
-                        attachmentCache.remove(attachment.getId());
-                        continue;
-                    }
-                    if (GatewayType.ZETA.equals(gatewayEntity.getType())) {
-                        attachmentCache.remove(attachment.getId());
-                        gatewayEntityCache.remove(gatewayEntity.getId());
-                    }
+                GatewayEntity gatewayEntity = gatewayEntityCache.get(attachment.getGatewayId());
+                if (gatewayEntity == null) {
+                    attachmentCache.remove(attachment.getId());
+                    continue;
+                }
+                if (GatewayType.ZETA.equals(gatewayEntity.getType())) {
+                    attachmentCache.remove(attachment.getId());
+                    gatewayEntityCache.remove(gatewayEntity.getId());
                 }
             }
             tx.commit();

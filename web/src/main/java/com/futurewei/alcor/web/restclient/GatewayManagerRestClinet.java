@@ -2,7 +2,7 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
-import com.futurewei.alcor.web.entity.gateway.GatewayIpJson;
+import com.futurewei.alcor.web.entity.gateway.ZetaGatewayIpJson;
 import com.futurewei.alcor.web.entity.gateway.VpcInfoSub;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,11 +22,11 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
     @Value("${microservices.dpm.service.url:\"\"}")
     private String dpmManagerUrl;
 
-    public GatewayIpJson createVPCInZetaGateway(Object args) throws Exception {
+    public ZetaGatewayIpJson createVPCInZetaGateway(Object args) throws Exception {
         String url = zetaManagerUrl + "/vpcs";
         VpcInfoSub vpcInfoSub = (VpcInfoSub) args;
         HttpEntity<VpcInfoSub> request = new HttpEntity<>(vpcInfoSub);
-        return restTemplate.postForObject(url, request, GatewayIpJson.class);
+        return restTemplate.postForObject(url, request, ZetaGatewayIpJson.class);
     }
 
     public void deleteVPCInZetaGateway(String vpcId) throws Exception {

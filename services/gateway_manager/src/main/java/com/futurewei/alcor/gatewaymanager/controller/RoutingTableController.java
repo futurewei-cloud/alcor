@@ -18,8 +18,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routeTable
      */
-    @PostMapping("/project/{projectid}/gateways/{gateway_id}/routetables")
-    public void createRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @RequestBody RouteTable routeTable) {
+    @PostMapping("/project/{project_id}/gateways/{gateway_id}/routetables")
+    public void createRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @RequestBody RouteTable routeTable) {
         routeTableService.createRouteTable();
     }
 
@@ -29,8 +29,8 @@ public class RoutingTableController {
      * @param projectId
      * @param gatewayId
      */
-    @GetMapping("/project/{projectid}/gateways/{gateway_id}/routetables")
-    public void getAllRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) {
+    @GetMapping("/project/{project_id}/gateways/{gateway_id}/routetables")
+    public void getAllRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId) {
         routeTableService.getAllRouteTable();
     }
 
@@ -41,8 +41,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routetableId
      */
-    @GetMapping("/project/{projectid}/gateways/{gateway_id}/routetables/{routetable_id}")
-    public void queryRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
+    @GetMapping("/project/{project_id}/gateways/{gateway_id}/routetables/{routetable_id}")
+    public void queryRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
         routeTableService.queryRouteTable();
     }
 
@@ -53,8 +53,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routetableId
      */
-    @PutMapping("/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}")
-    public void updateRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
+    @PutMapping("/project/{project_id}/gateways/{gateway_id}/routetable/{routetable_id}")
+    public void updateRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
         routeTableService.updateRouteTable();
     }
 
@@ -65,8 +65,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routetableId
      */
-    @DeleteMapping("/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}")
-    public void deleteRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
+    @DeleteMapping("/project/{project_id}/gateways/{gateway_id}/routetable/{routetable_id}")
+    public void deleteRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
         routeTableService.deleteRouteTable();
     }
 
@@ -77,8 +77,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routetableId
      */
-    @PutMapping("/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/associate")
-    public void associateRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
+    @PutMapping("/project/{project_id}/gateways/{gateway_id}/routetable/{routetable_id}/associate")
+    public void associateRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
         routeTableService.associateRouteTable();
     }
 
@@ -89,8 +89,8 @@ public class RoutingTableController {
      * @param gatewayId
      * @param routetableId
      */
-    @PutMapping("/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/de-associate")
-    public void deAssociateRouteTable(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
+    @PutMapping("/project/{project_id}/gateways/{gateway_id}/routetable/{routetable_id}/de-associate")
+    public void deAssociateRouteTable(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId, @PathVariable("routetable_id") String routetableId) {
         routeTableService.deleteAssociateRouteTable();
     }
 }

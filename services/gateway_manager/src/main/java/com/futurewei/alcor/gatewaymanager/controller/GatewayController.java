@@ -3,6 +3,7 @@ package com.futurewei.alcor.gatewaymanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.gatewaymanager.entity.GatewaysWebJson;
 import com.futurewei.alcor.gatewaymanager.service.GatewayService;
 import com.futurewei.alcor.gatewaymanager.utils.VerifyParameterUtils;
 import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
@@ -26,9 +27,9 @@ public class GatewayController {
      *
      * @param projectId
      */
-    @PostMapping("/project/{projectid}/gatewayinfo")
+    @PostMapping("/project/{project_id}/gatewayinfo")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseId createGatewayInfo(@PathVariable("projectid") String projectId, @RequestBody VpcInfoJson vpcInfoJson) throws Exception {
+    public ResponseId createGatewayInfo(@PathVariable("project_id") String projectId, @RequestBody VpcInfoJson vpcInfoJson) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         VerifyParameterUtils.checkVpcInfo(vpcInfoJson.getVpcInfo());
         GatewayInfo gatewayInfo = gatewayService.createGatewayInfo(projectId, vpcInfoJson.getVpcInfo());
@@ -43,13 +44,13 @@ public class GatewayController {
      * @param vpcId
      * @return
      */
-    @PutMapping("/project/{projectid}/gatewayinfo/{resource_id}")
+    @PutMapping("/project/{project_id}/gatewayinfo/{resource_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseId updateGatewayInfoForZeta(@PathVariable("projectid") String projectId, @PathVariable("resource_id") String vpcId, @RequestBody GatewayInfoJson gatewayInfoJson) throws Exception {
+    public ResponseId updateGatewayInfoForZeta(@PathVariable("project_id") String projectId, @PathVariable("resource_id") String vpcId, @RequestBody GatewayInfoJson gatewayInfoJson) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
         VerifyParameterUtils.checkGatewayInfo(gatewayInfoJson.getGatewayInfo());
-        gatewayService.updateGatewayInfoForZeta(projectId, gatewayInfoJson.getGatewayInfo());
+        gatewayService.updateGatewayInfoForZeta(projectId, vpcId, gatewayInfoJson.getGatewayInfo());
         log.info("GatewayInfo updated success,GatewayInfo is: {}", gatewayInfoJson.getGatewayInfo());
         return new ResponseId(vpcId);
     }
@@ -62,9 +63,9 @@ public class GatewayController {
      * @return
      * @throws Exception
      */
-    @DeleteMapping("/project/{projectid}/gatewayinfo/{resource_id}")
+    @DeleteMapping("/project/{project_id}/gatewayinfo/{resource_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseId deleteGatewayInfoForZeta(@PathVariable("projectid") String projectId, @PathVariable("resource_id") String vpcId) throws Exception {
+    public ResponseId deleteGatewayInfoForZeta(@PathVariable("project_id") String projectId, @PathVariable("resource_id") String vpcId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcId);
         gatewayService.deleteGatewayInfoForZeta(projectId, vpcId);
@@ -78,9 +79,9 @@ public class GatewayController {
      *
      * @param projectId
      */
-    @PostMapping("/project/{projectid}/gateways")
+    @PostMapping("/project/{project_id}/gateways")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createGateway(@PathVariable("projectid") String projectId) {
+    public void createGateway(@PathVariable("project_id") String projectId) {
 
     }
 
@@ -89,9 +90,9 @@ public class GatewayController {
      *
      * @param projectId
      */
-    @PutMapping("/project/{projectid}/gateways")
+    @PutMapping("/project/{project_id}/gateways")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateGateway(@PathVariable("projectid") String projectId) {
+    public void updateGateway(@PathVariable("project_id") String projectId) {
 
     }
 
@@ -102,8 +103,8 @@ public class GatewayController {
      * @param gatewayId
      * @return
      */
-    @PutMapping("/project/{projectid}/gateways/{gateway_id}")
-    public void updateGatewayById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) {
+    @PutMapping("/project/{project_id}/gateways/{gateway_id}")
+    public void updateGatewayById(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId) {
 
     }
 
@@ -114,8 +115,8 @@ public class GatewayController {
      * @param gatewayId
      * @return
      */
-    @GetMapping("/project/{projectid}/gateways/{gateway_id}")
-    public GatewayEntity getGatewayStateById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
+    @GetMapping("/project/{project_id}/gateways/{gateway_id}")
+    public GatewayEntity getGatewayStateById(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
         return gatewayService.getGatewayEntityById(gatewayId);
@@ -127,9 +128,9 @@ public class GatewayController {
      * @param projectId
      * @return
      */
-    @GetMapping("/project/{projectid}/gateways")
-    public void getGatewaysByVpcId(@PathVariable("projectid") String projectId) {
-
+    @GetMapping("/project/{project_id}/gateways")
+    public GatewaysWebJson getGatewaysByVpcId(@PathVariable("project_id") String projectId) {
+        return null;
     }
 
     /**
@@ -138,8 +139,8 @@ public class GatewayController {
      * @param projectId
      * @param gatewayId
      */
-    @DeleteMapping("/project/{projectid}/gateways/{gateway_id}")
-    public void deleteGatewayById(@PathVariable("projectid") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
+    @DeleteMapping("/project/{project_id}/gateways/{gateway_id}")
+    public void deleteGatewayById(@PathVariable("project_id") String projectId, @PathVariable("gateway_id") String gatewayId) throws Exception {
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         RestPreconditionsUtil.verifyParameterNotNullorEmpty(gatewayId);
         gatewayService.deleteGatewayById(gatewayId);

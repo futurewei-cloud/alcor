@@ -9,7 +9,8 @@ public enum ExceptionMsgConfig {
     RESOURCE_ID_IS_NULL("GatewayInfo's resource_id is null"),
     GATEWAYS_IS_NULL("GatewayInfo's gateways is null or empty"),
     GATEWAY_TYPE_OR_STATUS_IS_NULL("GatewayEntity's type or status is null"),
-    GATEWAYINFO_NOT_FOUND("GatewayInfo could not be found");
+    GATEWAYINFO_NOT_FOUND("GatewayInfo could not be found"),
+    ROLLBACK_FAILED("rollback failed");
 
     private String msg;
 

@@ -7,12 +7,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GatewayWebJson {
+public class GatewaysWebJson {
 
     @JsonProperty("gateways")
     private List<GatewayEntity> gatewayEntitys;
 
-    public GatewayWebJson(List<GatewayEntity> gatewayEntitys) {
+    public GatewaysWebJson(List<GatewayEntity> gatewayEntitys) {
         this.gatewayEntitys = gatewayEntitys;
     }
 }
