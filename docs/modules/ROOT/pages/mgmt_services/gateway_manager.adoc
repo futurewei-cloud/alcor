@@ -38,6 +38,7 @@ image::gateway_manager_data_schema.PNG[]
 *OPTION B*
 
 image::gateway_manager_data_schema_decoupled.PNG[]
+image::gateway_manager_data_schema_decoupled_2.PNG[width=80]
 
 *Zeta Gateway Example*
 
