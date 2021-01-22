@@ -38,7 +38,7 @@ image::gateway_manager_data_schema.PNG[]
 *OPTION B*
 
 image::gateway_manager_data_schema_decoupled.PNG[]
-image::gateway_manager_data_schema_decoupled_2.PNG[width=400]
+image::gateway_manager_data_schema_decoupled_2.PNG[width=450]
 
 *Zeta Gateway Example*
 
@@ -398,7 +398,7 @@ Response Code: 204 (updated); Error: 400, 404, 500, 503
 ....
 
 **(5) Zeta Management Plane's Port Creation example:**
-...
+....
 Method: POST
 Request: http://localhost:8080/ports
 
@@ -489,10 +489,10 @@ Response:
 Response:
 Normal: 201 (created)
 Error: 400, 404, 500, 503
-...
+....
 
 **(6) Zeta Management Plane's Port Query example:**
-...
+....
 Method: GET
 Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
 Response:
@@ -521,13 +521,13 @@ Body:
 Response Code:
 Normal: 200
 Error: 400, 404, 500, 503
-...
+....
 
 **(7) Zeta Management Plane's Port Delete example:**
-...
+....
 Method: DELETE
 Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
 Response Code:
 Normal: 204
 Error: 400, 404, 500, 503
-...
+....
