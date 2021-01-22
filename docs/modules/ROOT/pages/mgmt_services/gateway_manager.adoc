@@ -255,93 +255,6 @@ Body:
 }
 ....
 
-* Zeta Management Plan's VPC creation example:
-....
-Method: POST
-Request:
-http://localhost:8080/vpcs
-
-Body:
-    {
-        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
-        "vpc_vni": "1233",
-    }
-Response:
-    {
-        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
-        "vni": "12345",
-        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-        "name": "ZGC_test1",
-        "gws":
-        [
-          {
-            "ip": "192.168.0.87",
-            "mac": "37.02.ff.cc.65.87"
-          },
-          {
-            "ip": "192.168.0.88",
-            "mac": "37.02.ff.cc.65.88"
-          },
-          {
-            "ip": "192.168.0.89",
-            "mac": "37.02.ff.cc.65.89"
-          }
-        ],
-        "port_ibo": "8300"
-    }
-Response Code: 201 (created); Error: 400, 404, 500, 503
-....
-
-* Zeta Management Plan's VPC deletion example:
-....
-Method: DELETE
-Request:
-http://localhost:8080/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
-Response Code: 204 (deleted); Error: 400, 404, 500, 503
-....
-
-* DPM's GatewayInfo entry creation example:
-....
-Method: POST
-Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
-
-Body:
-{
-    "gatewayinfo": {
-        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
-        "gateways": [
-            {
-                "type": "zeta",
-                "status": "ready"
-            }
-        ]
-    }
-}
-Response Code: 201 (created); Error: 400, 404, 500, 503
-....
-
-* DPM's GatewayInfo update example:
-....
-Method: PUT
-Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
-
-Body:
-{
-    "gatewayinfo": {
-        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
-        "gateways": [
-            {
-                "type": "zeta",
-                "status": "failed"
-            }
-        ]
-    }
-}
-Response Code: 204 (updated); Error: 400, 404, 500, 503
-....
-
 anchor:vpc_zgw_update[]
 **(2) Update GatewayInfo (for zeta gateway)**
 
@@ -393,3 +306,227 @@ anchor:gatewayinfo_del[]
 Request:
 http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{resource_id}
 ....
+
+=== Data Plane Manager and Zeta Gateway Management Plane Related APIs
+
+**(1) Zeta Management Plan's VPC creation example:**
+....
+Method: POST
+Request:
+http://localhost:8080/vpcs
+
+Body:
+    {
+        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        "vpc_vni": "1233",
+    }
+Response:
+    {
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "vni": "12345",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "name": "ZGC_test1",
+        "gws":
+        [
+          {
+            "ip": "192.168.0.87",
+            "mac": "37.02.ff.cc.65.87"
+          },
+          {
+            "ip": "192.168.0.88",
+            "mac": "37.02.ff.cc.65.88"
+          },
+          {
+            "ip": "192.168.0.89",
+            "mac": "37.02.ff.cc.65.89"
+          }
+        ],
+        "port_ibo": "8300"
+    }
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+**(2) Zeta Management Plan's VPC deletion example:**
+....
+Method: DELETE
+Request:
+http://localhost:8080/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
+Response Code: 204 (deleted); Error: 400, 404, 500, 503
+....
+
+**(3) DPM's GatewayInfo entry creation example:**
+....
+Method: POST
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "ready"
+            }
+        ]
+    }
+}
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+**(4) DPM's GatewayInfo update example:**
+....
+Method: PUT
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "failed"
+            }
+        ]
+    }
+}
+Response Code: 204 (updated); Error: 400, 404, 500, 503
+....
+
+**(5) Zeta Management Plane's Port Creation example:**
+...
+Method: POST
+Request: http://localhost:8080/ports
+
+Body:
+[
+    {
+        "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": "10.10.3.100"
+            }
+        ],
+        "mac_port": "cc:dd:ee:ff:11:22",
+        "ip_node": "192.168.10.27",
+        "mac_node": "ee:dd:ee:ff:22:11",
+    },
+    {
+        "port_id": "99976feae-7dec-11d0-a765-00a0c9341111",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f55",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": ""
+            }
+        ],
+        "mac_port": "6c:dd:ee:ff:11:32",
+        "ip_node": "192.168.10.33",
+        "mac_node": "ee:dd:ee:ff:33:11",
+    }
+]
+
+Response:
+[
+    {
+        "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": "10.10.3.100"
+            }
+        ],
+        "mac_port": "cc:dd:ee:ff:11:22",
+        "ip_node": "192.168.10.27",
+        "mac_node": "ee:dd:ee:ff:22:11",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "status": "pending"
+    },
+    {
+        "port_id": "99976feae-7dec-11d0-a765-00a0c9341111",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f55",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": ""
+            }
+        ],
+        "mac_port": "6c:dd:ee:ff:11:32",
+        "ip_node": "192.168.10.33",
+        "mac_node": "ee:dd:ee:ff:33:11",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "status": "pending"
+    }
+]
+
+Response:
+Normal: 201 (created)
+Error: 400, 404, 500, 503
+...
+
+**(6) Zeta Management Plane's Port Query example:**
+...
+Method: GET
+Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Response:
+Body:
+{
+    "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+    "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "ips_port":
+    [
+        {
+            "ip": "10.10.0.3",
+            "vip": ""
+        },
+        {
+            "ip": "10.10.3.7",
+            "vip": "10.10.3.100"
+        }
+    ],
+    "mac_port": "cc:dd:ee:ff:11:22",
+    "ip_node": "192.168.10.27",
+    "mac_node": "ee:dd:ee:ff:22:11",
+    "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+    "status": "ready"
+}
+
+Response Code:
+Normal: 200
+Error: 400, 404, 500, 503
+...
+
+**(7) Zeta Management Plane's Port Delete example:**
+...
+Method: DELETE
+Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Response Code:
+Normal: 204
+Error: 400, 404, 500, 503
+...
