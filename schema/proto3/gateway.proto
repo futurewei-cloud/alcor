@@ -24,10 +24,11 @@ option java_outer_classname = "Gateway";
 import "common.proto";
 
 enum GatewayType {
-    ZETA = 0;
-    TGW = 1;    // Transit Gateway
-    IGW = 2;    // Internet Gateway
-    NGW = 3;    // NAT Gateway
+    DEFAULT = 0;
+    ZETA = 1;
+    TGW = 2;    // Transit Gateway
+    IGW = 3;    // Internet Gateway
+    NGW = 4;    // NAT Gateway
 }
 
 message GatewayConfiguration {
