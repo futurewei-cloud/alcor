@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.route.service;
 
 import com.futurewei.alcor.route.exception.PortWebBulkJsonOrPortEntitiesListIsNull;
-import com.futurewei.alcor.route.exception.PortWebJsonOrPortEntityIsNull;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 
 import java.util.List;
