@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+user -> PM: Create a port
+PM <--> SM_MACM_IPM_RM: Port status update
+PM <-> NM: Nodeinfo query by NodeID
+PM -> DPM: Send down network configuration request
+DPM ->DPM: Select chanel for this network configuration
+DPM <-> VPCM: VPC info query
+DPM <->NM: Query whether target node subscript vpc topic or not
+DPM -> targetNode: Node unsub/subscript API(MQ cluster & topicName)
+targetNode -> MQ: Unsub/Subscrpt the topic
+targetNode -> DPM: Unsub/subscript result
+DPM -> NM: Node subscription info update
+DPM -> targetNode: Send goalState with MQ/GRPC
+targetNode -> DPM: Goalstate configuration result
+DPM -> PM: Network configuration result
+
+
+
+
+@enduml
