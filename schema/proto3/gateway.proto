@@ -21,8 +21,10 @@ package alcor.schema;
 option java_package = "com.futurewei.alcor.schema";
 option java_outer_classname = "Gateway";
 
+import "common.proto";
+
 enum GatewayType {
-    NONE = 0;
+    DEFAULT = 0;
     ZETA = 1;
     TGW = 2;    // Transit Gateway
     IGW = 3;    // Internet Gateway
@@ -31,9 +33,8 @@ enum GatewayType {
 
 message GatewayConfiguration {
     uint32 revision_number = 1;
-    string request_id = 2;
 
-    // if gateway_type == NONE, then id = empty string
+    string request_id = 2;
     string id = 3;
     GatewayType gateway_type = 4;
 
@@ -42,7 +43,6 @@ message GatewayConfiguration {
         string mac_address = 2;
     }
 
-    // if gateway_type == NONE, then destinations_size = 0
     repeated destination destinations = 5;
 
     message zeta {
@@ -53,4 +53,9 @@ message GatewayConfiguration {
     oneof extra_info {
         zeta zeta_info = 6;
     }
+}
+
+message GatewayState {
+    OperationType operation_type = 1;
+    GatewayConfiguration configuration = 2;
 }
