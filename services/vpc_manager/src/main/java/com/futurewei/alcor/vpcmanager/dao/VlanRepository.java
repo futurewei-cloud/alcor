@@ -9,12 +9,14 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.entity.NetworkVlanType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class VlanRepository implements ICacheRepository<NetworkVlanType> {
@@ -61,6 +63,14 @@ public class VlanRepository implements ICacheRepository<NetworkVlanType> {
     public void addItem(NetworkVlanType newItem) throws CacheException {
         logger.log(Level.INFO, "Add Vlan, Vlan Id:" + newItem.getVlanId());
         cache.put(newItem.getVlanId(), newItem);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<NetworkVlanType> items) throws CacheException {
+        logger.log(Level.INFO, "Add Vlan Batch: {}",items);
+        Map<String, NetworkVlanType> networkVlanTypeMap = items.stream().collect(Collectors.toMap(NetworkVlanType::getVlanId, Function.identity()));
+        cache.putAll(networkVlanTypeMap);
     }
 
     @Override

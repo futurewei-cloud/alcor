@@ -20,6 +20,7 @@ import com.futurewei.alcor.route.service.RouterToPMService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -80,5 +81,18 @@ public class RouterToPMServiceImpl implements RouterToPMService {
         String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports/" + portId;
         HttpEntity<PortWebJson> request = new HttpEntity<>(new PortWebJson(portEntity));
         restTemplate.put(portManagerServiceUrl, request, PortWebJson.class);
+    }
+
+    @Override
+    public void updateL3Neighbors(String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts) {
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/update-l3-neighbors";
+        RouterUpdateInfo routerUpdateInfo = new RouterUpdateInfo();
+        routerUpdateInfo.setGatewayPortIds(gatewayPorts);
+        routerUpdateInfo.setSubnetId(subnetId);
+        routerUpdateInfo.setOperationType(operationType);
+        routerUpdateInfo.setVpcId(vpcId);
+
+        HttpEntity<RouterUpdateInfo> request = new HttpEntity<>(routerUpdateInfo);
+        restTemplate.put(portManagerServiceUrl, request, RouterUpdateInfo.class);
     }
 }

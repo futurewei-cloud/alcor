@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
@@ -79,6 +81,12 @@ public class QuotaRepository implements ICacheRepositoryEx<QuotaEntity> {
     @Override
     public void addItem(QuotaEntity newItem) throws CacheException {
         cache.put(newItem.getId(), newItem);
+    }
+
+    @Override
+    public void addItems(List<QuotaEntity> items) throws CacheException {
+        Map<String, QuotaEntity> quotaEntityMap = items.stream().collect(Collectors.toMap(QuotaEntity::getId, Function.identity()));
+        cache.putAll(quotaEntityMap);
     }
 
     @Override

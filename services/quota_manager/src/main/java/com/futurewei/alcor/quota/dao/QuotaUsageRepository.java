@@ -27,8 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class QuotaUsageRepository implements ICacheRepositoryEx<QuotaUsageEntity> {
@@ -78,6 +81,12 @@ public class QuotaUsageRepository implements ICacheRepositoryEx<QuotaUsageEntity
     @Override
     public void addItem(QuotaUsageEntity newItem) throws CacheException {
         cache.put(newItem.getId(), newItem);
+    }
+
+    @Override
+    public void addItems(List<QuotaUsageEntity> items) throws CacheException {
+        Map<String, QuotaUsageEntity> quotaUsageEntityMap = items.stream().collect(Collectors.toMap(QuotaUsageEntity::getId, Function.identity()));
+        cache.putAll(quotaUsageEntityMap);
     }
 
     @Override

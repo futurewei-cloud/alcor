@@ -22,7 +22,7 @@ option java_package = "com.futurewei.alcor.schema";
 option java_outer_classname = "Vpc";
 
 import "common.proto";
-import "auxiliarygateway.proto";
+import "gateway.proto";
 
 message VpcConfiguration {  
     uint32 revision_number = 1;
@@ -35,13 +35,7 @@ message VpcConfiguration {
     string cidr = 7;
     uint32 tunnel_id = 8;
 
-    message SubnetId {
-        string id = 1;
-    }
-
-    repeated SubnetId subnet_ids = 9;
-
-    AuxGateway auxiliary_gateway = 10;
+    repeated string gateway_ids = 9;
 }
 
 message VpcState {

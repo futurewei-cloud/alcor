@@ -16,11 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package com.futurewei.alcor.elasticipmanager.dao;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpRange;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class ElasticIpRangeRepo extends RepoResource<ElasticIpRange> {
@@ -33,5 +35,10 @@ public class ElasticIpRangeRepo extends RepoResource<ElasticIpRange> {
     @Override
     public Class<ElasticIpRange> getResourceClass() {
         return ElasticIpRange.class;
+    }
+
+    @Override
+    public void addItems(List<ElasticIpRange> items) throws CacheException {
+
     }
 }

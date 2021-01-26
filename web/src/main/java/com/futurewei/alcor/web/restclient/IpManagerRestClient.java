@@ -16,10 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
-import com.futurewei.alcor.web.entity.ip.IpAddrState;
-import com.futurewei.alcor.web.entity.ip.IpVersion;
+import com.futurewei.alcor.web.entity.ip.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -117,5 +114,17 @@ public class IpManagerRestClient extends AbstractRestClient {
         String url = ipManagerUrl + "/bulk";
         HttpEntity<IpAddrRequestBulk> request = new HttpEntity<>(ipAddrRequestBulk);
         restTemplate.exchange(url, HttpMethod.DELETE, request, IpAddrRequestBulk.class);
+    }
+
+    @DurationStatistics
+    public IpAddrUpdateRequest updateIpAddress(IpAddrUpdateRequest ipAddrUpdateRequest) throws Exception {
+        HttpEntity<IpAddrUpdateRequest> request = new HttpEntity<>(ipAddrUpdateRequest);
+        IpAddrUpdateRequest result = restTemplate.postForObject(ipManagerUrl + "/update", request, IpAddrUpdateRequest.class);
+        if(result != null && result.getNewIpAddrRequests().size() > 0){
+            for (IpAddrRequest ipAddrRequest : result.getNewIpAddrRequests()) {
+                verifyAllocatedIpAddr(ipAddrRequest);
+            }
+        }
+        return result;
     }
 }

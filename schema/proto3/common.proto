@@ -29,17 +29,15 @@ enum ResourceType {
     SECURITYGROUP = 4;
     DHCP = 5;
     ROUTER = 6;
+    GATEWAY = 7;
 }
 
 enum OperationType {
-    CREATE = 0;
-    UPDATE = 1;
-    GET = 2;
-    DELETE = 3;
-    INFO = 4;
-    NEIGHBOR_CREATE_UPDATE = 5; // To be removed after using NeighborState
-    NEIGHBOR_GET = 6;           // To be removed after using NeighborState
-    NEIGHBOR_DELETE = 7;        // To be removed after using NeighborState
+    INFO = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    GET = 3;
+    DELETE = 4;
 }
 
 enum OperationStatus {

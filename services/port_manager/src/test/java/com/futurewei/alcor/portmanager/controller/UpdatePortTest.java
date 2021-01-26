@@ -17,7 +17,6 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.ip.IpAddrState;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static com.futurewei.alcor.portmanager.util.ResourceBuilder.buildIpv4AddrRequest;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

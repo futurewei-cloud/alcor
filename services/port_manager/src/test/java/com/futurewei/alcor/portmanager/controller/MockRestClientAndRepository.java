@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacState;
@@ -87,6 +88,9 @@ public class MockRestClientAndRepository {
 
         Mockito.when(ipManagerRestClient.allocateIpAddressBulk(anyList()))
                 .thenReturn(buildIpAddrRequestBulk());
+
+        Mockito.when(ipManagerRestClient.updateIpAddress(any(IpAddrUpdateRequest.class)))
+                .thenReturn(buildIpAddrUpdateRequest(UnitTestConfig.ip1));
 
         Mockito.when(macManagerRestClient.allocateMacAddress(any(MacState.class)))
                 .thenReturn(buildMacStateJson(UnitTestConfig.portId1, UnitTestConfig.mac1));

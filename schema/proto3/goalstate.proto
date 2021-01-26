@@ -27,6 +27,7 @@ import "neighbor.proto";
 import "securitygroup.proto";
 import "dhcp.proto";
 import "router.proto";
+import "gateway.proto";
 
 message GoalState {
     uint32 format_version = 1;
@@ -38,4 +39,5 @@ message GoalState {
     repeated SecurityGroupState security_group_states = 6;
     repeated DHCPState dhcp_states = 7;
     repeated RouterState router_states = 8;
+    repeated GatewayState gateway_states = 9;
 }
