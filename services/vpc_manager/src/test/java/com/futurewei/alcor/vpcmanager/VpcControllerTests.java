@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.Assert.*;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
@@ -110,6 +111,8 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, routeEntityList));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
+
+        Mockito.when(vpcService.registerVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
 
         String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
