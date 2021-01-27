@@ -113,6 +113,8 @@ public class VpcControllerTests {
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
+        Mockito.when(vpcService.registerVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
+
         String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().is(201)).andReturn().getResponse().getContentAsString();
