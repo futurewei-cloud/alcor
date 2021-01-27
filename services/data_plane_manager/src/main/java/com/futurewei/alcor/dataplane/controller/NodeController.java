@@ -4,7 +4,10 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.dataplane.exception.InvalidDataException;
 import com.futurewei.alcor.dataplane.service.NodeService;
+import com.futurewei.alcor.dataplane.utils.DatePlaneManagerConstant;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
@@ -28,10 +31,13 @@ public class NodeController {
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public void createNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
-        if (nodeInfoJson == null) {
-            throw new ParameterNullOrEmptyException("");
-        }
         try {
+            NodeInfo inNodeInfo = nodeInfoJson.getNodeInfo();
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
+            if(inNodeInfo != null) {
+                if(inNodeInfo.validateIp(inNodeInfo.getLocalIp()) == false)
+                    throw new InvalidDataException(DatePlaneManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
+            }
             nodeService.createNodeInfo(nodeInfoJson);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
@@ -42,10 +48,9 @@ public class NodeController {
     @PutMapping({"/nodes", "v4/nodes"})
     @DurationStatistics
     public void updateNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
-        if (nodeInfoJson == null) {
-            throw new ParameterNullOrEmptyException("");
-        }
         try {
+            NodeInfo inNodeInfo = nodeInfoJson.getNodeInfo();
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
             nodeService.updateNodeInfo(nodeInfoJson);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
@@ -56,10 +61,13 @@ public class NodeController {
     @DeleteMapping({"/nodes", "v4/nodes"})
     @DurationStatistics
     public void deleteNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
-        if (nodeInfoJson == null) {
-            throw new ParameterNullOrEmptyException("");
-        }
         try {
+            NodeInfo inNodeInfo = nodeInfoJson.getNodeInfo();
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNodeInfo);
+            if(inNodeInfo != null) {
+                if(inNodeInfo.validateIp(inNodeInfo.getLocalIp()) == false)
+                    throw new InvalidDataException(DatePlaneManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
+            }
             nodeService.deleteNodeInfo(nodeInfoJson);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
@@ -72,7 +80,7 @@ public class NodeController {
     @DurationStatistics
     public void createNodesInfoBulk(@RequestBody BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         if (bulkNodeInfoJson == null) {
-            throw new ParameterNullOrEmptyException("");
+            throw new ParameterNullOrEmptyException(DatePlaneManagerConstant.NODE_EXCEPTION_JSON_EMPTY);
         }
         try {
             nodeService.createNodeInfoBulk(bulkNodeInfoJson);

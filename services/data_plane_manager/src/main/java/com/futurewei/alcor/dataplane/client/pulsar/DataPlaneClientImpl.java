@@ -53,7 +53,17 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
         for (String hostIp : hostIps) {
             String groupTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getGroupTopic();
+            if (StringUtils.isEmpty(groupTopic)) {
+                LOG.error("Can not find group topic by host ip:{}", hostIp);
+                throw new GroupTopicNotFound();
+            }
+
             String multicastTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getMulticastTopic();
+            if (StringUtils.isEmpty(multicastTopic)) {
+                LOG.error("Can not find multicast topic by host ip:{}", hostIp);
+                throw new MulticastTopicNotFound();
+            }
+
             if (!multicastTopics.containsKey(multicastTopic)) {
                 multicastTopics.put(multicastTopic, new ArrayList<>());
             }

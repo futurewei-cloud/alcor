@@ -146,6 +146,11 @@ public class LocalCacheImpl implements LocalCache {
     }
 
     @Override
+    public void addNodeInfoBulk(List<NodeInfo> nodeInfos) throws Exception {
+        nodeInfoCache.addNodeInfoBulk(nodeInfos);
+    }
+
+    @Override
     public void updateNodeInfo(NodeInfo nodeInfo) throws Exception {
         nodeInfoCache.updateNodeInfo(nodeInfo);
     }

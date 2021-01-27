@@ -33,8 +33,6 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         List<NodeInfo> nodeInfos = bulkNodeInfoJson.getNodeInfos();
-        for (NodeInfo nodeInfo : nodeInfos) {
-            localCache.addNodeInfo(nodeInfo);
-        }
+        localCache.addNodeInfoBulk(nodeInfos);
     }
 }

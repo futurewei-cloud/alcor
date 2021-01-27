@@ -14,6 +14,7 @@ public interface LocalCache {
     void updateLocalCache(NetworkConfiguration networkConfig) throws Exception;
 
     void addNodeInfo(NodeInfo nodeInfo) throws Exception;
+    void addNodeInfoBulk(List<NodeInfo> nodeInfos) throws Exception;
     void updateNodeInfo(NodeInfo nodeInfo) throws Exception;
     void deleteNodeInfo(String nodeId) throws Exception;
     NodeInfo getNodeInfo(String nodeId) throws Exception;
