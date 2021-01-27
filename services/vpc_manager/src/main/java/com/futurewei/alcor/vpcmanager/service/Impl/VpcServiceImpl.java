@@ -1,10 +1,13 @@
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
+import com.futurewei.alcor.web.entity.gateway.VpcInfo;
+import com.futurewei.alcor.web.entity.gateway.VpcInfoJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -29,6 +32,9 @@ public class VpcServiceImpl implements VpcService {
 
     @Value("${microservices.route.service.url}")
     private String routeUrl;
+
+    @Value("${microservices.gateway.service.url}")
+    private String gatewayUrl;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -101,5 +107,13 @@ public class VpcServiceImpl implements VpcService {
             throw new SubnetsNotEmptyException();
         }
         return true;
+    }
+
+    @Override
+    public ResponseId registerVpc(VpcEntity vpcEntity) {
+        String url = gatewayUrl + "project/" + vpcEntity.getProjectId() + "/gatewayinfo";
+        VpcInfo vpcInfo = new VpcInfo(vpcEntity.getId(), vpcEntity.getSegmentationId(), vpcEntity.getProjectId());
+        HttpEntity<VpcInfoJson> vpcHttpEntity = new HttpEntity<>(new VpcInfoJson(vpcInfo));
+        return restTemplate.postForObject(url, vpcHttpEntity, ResponseId.class);
     }
 }

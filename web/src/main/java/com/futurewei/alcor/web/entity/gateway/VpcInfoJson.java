@@ -9,4 +9,8 @@ import java.io.Serializable;
 public class VpcInfoJson implements Serializable {
     @JsonProperty("vpcinfo")
     private VpcInfo vpcInfo;
+
+    public VpcInfoJson(VpcInfo vpcInfo) {
+        this.vpcInfo = vpcInfo;
+    }
 }
