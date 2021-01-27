@@ -159,4 +159,9 @@ public class LocalCacheImpl implements LocalCache {
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
         return nodeInfoCache.getNodeInfo(nodeId);
     }
+
+    @Override
+    public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
+        return nodeInfoCache.getNodeInfoByNodeIp(nodeIp);
+    }
 }

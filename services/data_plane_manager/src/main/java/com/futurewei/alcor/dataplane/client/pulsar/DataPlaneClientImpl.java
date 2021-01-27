@@ -52,8 +52,8 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         Map<String, List<String>> multicastTopics = new HashMap<>();
 
         for (String hostIp : hostIps) {
-            String groupTopic = localCache.getNodeInfo(hostIp).getGroupTopic();
-            String multicastTopic = localCache.getNodeInfo(hostIp).getMulticastTopic();
+            String groupTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getGroupTopic();
+            String multicastTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getMulticastTopic();
             if (!multicastTopics.containsKey(multicastTopic)) {
                 multicastTopics.put(multicastTopic, new ArrayList<>());
             }
@@ -102,14 +102,14 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            String nextTopic = localCache.getNodeInfo(unicastGoalState.getHostIp()).getGroupTopic();
+            String nextTopic = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getGroupTopic();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
                 throw new GroupTopicNotFound();
             }
 
             String topic = nextTopic;
-            String unicastTopic = localCache.getNodeInfo(unicastGoalState.getHostIp()).getUnicastTopic();
+            String unicastTopic = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getUnicastTopic();
             if (!StringUtils.isEmpty(unicastTopic)) {
                 unicastGoalState.setNextTopic(nextTopic);
                 topic = unicastTopic;

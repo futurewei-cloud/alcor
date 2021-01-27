@@ -46,7 +46,7 @@ public class NodeController {
             throw new ParameterNullOrEmptyException("");
         }
         try {
-            nodeService.createNodeInfo(nodeInfoJson);
+            nodeService.updateNodeInfo(nodeInfoJson);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
             throw e;
@@ -60,7 +60,7 @@ public class NodeController {
             throw new ParameterNullOrEmptyException("");
         }
         try {
-            nodeService.createNodeInfo(nodeInfoJson);
+            nodeService.deleteNodeInfo(nodeInfoJson);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
             throw e;
