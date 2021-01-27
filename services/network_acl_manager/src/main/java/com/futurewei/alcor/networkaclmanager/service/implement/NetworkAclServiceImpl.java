@@ -21,7 +21,8 @@ import com.futurewei.alcor.networkaclmanager.exception.VerifySubnetIdFailed;
 import com.futurewei.alcor.networkaclmanager.exception.VerifyVpcIdFailed;
 import com.futurewei.alcor.networkaclmanager.repo.NetworkAclRepository;
 import com.futurewei.alcor.networkaclmanager.service.NetworkAclService;
-import com.futurewei.alcor.web.entity.networkacl.*;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclEntity;
+import com.futurewei.alcor.web.entity.networkacl.NetworkAclRuleEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -34,7 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @ComponentScan(value="com.futurewei.alcor.web.restclient")

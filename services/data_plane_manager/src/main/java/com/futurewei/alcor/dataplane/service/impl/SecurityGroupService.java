@@ -17,14 +17,13 @@ package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
-import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Common.EtherType;
 import com.futurewei.alcor.schema.Common.Protocol;
 import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
-import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
