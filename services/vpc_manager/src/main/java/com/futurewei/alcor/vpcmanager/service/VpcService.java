@@ -2,8 +2,6 @@ package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
-import com.futurewei.alcor.web.entity.gateway.VpcInfo;
-import com.futurewei.alcor.web.entity.gateway.VpcInfoJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
