@@ -80,7 +80,10 @@ GM is the major resource holder for gateway resources.
 
 image::gateway_manager_vpc_zetagateway_creation_B.PNG[]
 
-==== B2. Port Creation
+==== B2. Unregister VPC
+image::gateway_manager_zeta_vpc_delete_B.PNG[]
+
+==== B3. Port Creation
 image::gateway_manager_zeta_port_creation_B.PNG[]
 
 *FINAL DECISION*
