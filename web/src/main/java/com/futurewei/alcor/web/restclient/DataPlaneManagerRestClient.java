@@ -17,7 +17,8 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
-
+import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.ZetaPortsWebJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,9 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     @Value("${microservices.dataplane.service.url:#{\"\"}}")
     private String dataPlaneManagerUrl;
+
+    @Value("${microservices.zeta.service.url:#{\"\"}}")
+    private String zetaManagerUrl;
 
     @DurationStatistics
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
@@ -49,5 +53,25 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     public void updateNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);
+    }
+
+    @DurationStatistics
+    public void createGatewayInfo(GatewayInfo message) throws Exception {
+        HttpEntity<GatewayInfo> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneManagerUrl, request, String[].class);
+    }
+
+    @DurationStatistics
+    public void updateGatewayInfo(GatewayInfo message) throws Exception {
+        HttpEntity<GatewayInfo> request = new HttpEntity<>(message);
+        restTemplate.put(dataPlaneManagerUrl, request, String[].class);
+    }
+
+    @DurationStatistics
+    public ZetaPortsWebJson createPortInZetaGateway(Object args) throws Exception {
+        String url = zetaManagerUrl + "/ports";
+        ZetaPortsWebJson zetaPortEntities = (ZetaPortsWebJson) args;
+        HttpEntity<ZetaPortsWebJson> request = new HttpEntity<>(zetaPortEntities);
+        return restTemplate.postForObject(url, request, ZetaPortsWebJson.class);
     }
 }
