@@ -6,6 +6,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.dataplane.exception.NodeInfoNotFound;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import com.futurewei.alcor.web.restclient.NodeManagerRestClient;
 import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class NodeInfoCache {
             try {
                 NodeInfo newNodeInfo = nodeManagerRestClient.getNodeInfo(nodeId).getNodeInfo();
                 if (newNodeInfo == null) {
-                    throw new NodeInfoNotFound("Could not get node from NodeManager");
+                    throw new NodeInfoNotFound("Could not get corresponding node with NodeId: " + nodeId + "from NodeManager");
                 }
                 nodeInfoCache.put(newNodeInfo.getId(), newNodeInfo);
                 nodeInfo = newNodeInfo;
@@ -86,7 +87,15 @@ public class NodeInfoCache {
         queryParams.put("localIp", values);
         Map<String, NodeInfo> nodeInfoMap = nodeInfoCache.getAll(queryParams);
 
-        if (nodeInfoMap == null) {
+        if (nodeInfoMap.size() == 0) {
+            try {
+                result = nodeManagerRestClient.getNodeInfoByNodeIp(nodeIp);
+                if (result.size() == 0) {
+                    throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + "from NodeManager");
+                }
+            } catch (Exception e) {
+
+            }
             return result;
         }
 

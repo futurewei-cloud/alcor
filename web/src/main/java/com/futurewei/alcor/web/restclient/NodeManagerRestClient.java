@@ -62,4 +62,13 @@ public class NodeManagerRestClient extends AbstractRestClient {
         List<NodeInfo> list = resp.getBody();
         return list;
     }
+
+    @DurationStatistics
+    public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
+        String url = nodeManagerUrl + "?local_ip=" + nodeIp;
+        ParameterizedTypeReference<List<NodeInfo>> responseType = new ParameterizedTypeReference<List<NodeInfo>>() {};
+        ResponseEntity<List<NodeInfo>> resp = restTemplate.exchange(url, HttpMethod.GET, null,responseType);
+        List<NodeInfo> list = resp.getBody();
+        return list;
+    }
 }

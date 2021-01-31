@@ -74,7 +74,7 @@ public class ProcessorManager {
     @PostConstruct
     private void init() throws Exception {
         Set<Class<? extends AbstractProcessor>> subClasses = ReflectionUtil.getSubClassByInterface(
-                "com.futurewei.alcor.portmanager.processor", AbstractProcessor.class);
+                "com.futurewei.alcor.nodemanager.processor", AbstractProcessor.class);
 
         for (Class<? extends IProcessor> subClass: subClasses) {
             instanceProcessor(subClass);
