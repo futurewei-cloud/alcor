@@ -154,6 +154,7 @@ public class VpcControllerTests {
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
+        Mockito.when(vpcService.unRegisterVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -164,6 +165,7 @@ public class VpcControllerTests {
     public void deleteVpcStateByVpcId_deleteWhenIdNotExist_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
                 .thenReturn(null);
+        Mockito.when(vpcService.unRegisterVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())

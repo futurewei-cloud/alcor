@@ -116,4 +116,11 @@ public class VpcServiceImpl implements VpcService {
         HttpEntity<VpcInfoJson> vpcHttpEntity = new HttpEntity<>(new VpcInfoJson(vpcInfo));
         return restTemplate.postForObject(url, vpcHttpEntity, ResponseId.class);
     }
+
+    @Override
+    public ResponseId unRegisterVpc(VpcEntity vpcEntity) {
+        String url = gatewayUrl + "project/" + vpcEntity.getProjectId() + "/gatewayinfo/" + vpcEntity.getId();
+        restTemplate.delete(url);
+        return new ResponseId(vpcEntity.getId());
+    }
 }

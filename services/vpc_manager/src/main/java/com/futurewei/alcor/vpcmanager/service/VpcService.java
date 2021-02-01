@@ -15,4 +15,5 @@ public interface VpcService {
 
     public ResponseId registerVpc(VpcEntity vpcEntity);
 
+    public ResponseId unRegisterVpc(VpcEntity vpcEntity);
 }

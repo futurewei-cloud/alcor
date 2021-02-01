@@ -272,6 +272,9 @@ public class VpcController {
             this.vpcService.checkSubnetsAreEmpty(vpcState);
 
             vpcDatabaseService.deleteVpc(vpcid);
+
+            // unRegister VPC with GM
+            this.vpcService.unRegisterVpc(vpcState);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
