@@ -18,25 +18,21 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
         localCache.addNodeInfo(nodeInfoJson.getNodeInfo());
-        System.out.println("s");
     }
 
     @Override
     public void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
         localCache.updateNodeInfo(nodeInfoJson.getNodeInfo());
-        System.out.println("s");
     }
 
     @Override
     public void deleteNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
         localCache.deleteNodeInfo(nodeInfoJson.getNodeInfo().getId());
-        System.out.println("s");
     }
 
     @Override
     public void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         List<NodeInfo> nodeInfos = bulkNodeInfoJson.getNodeInfos();
         localCache.addNodeInfoBulk(nodeInfos);
-        System.out.println("s");
     }
 }

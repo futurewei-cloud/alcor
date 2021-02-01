@@ -88,13 +88,9 @@ public class NodeInfoCache {
         Map<String, NodeInfo> nodeInfoMap = nodeInfoCache.getAll(queryParams);
 
         if (nodeInfoMap.size() == 0) {
-            try {
-                result = nodeManagerRestClient.getNodeInfoByNodeIp(nodeIp);
-                if (result.size() == 0) {
-                    throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + "from NodeManager");
-                }
-            } catch (Exception e) {
-
+            result = nodeManagerRestClient.getNodeInfoByNodeIp(nodeIp);
+            if (result == null || result.size() == 0) {
+                throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + " from NodeManager");
             }
             return result;
         }
