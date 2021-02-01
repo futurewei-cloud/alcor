@@ -49,4 +49,9 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
         HttpEntity<GatewayInfoJson> request = new HttpEntity<>(new GatewayInfoJson(gatewayInfo));
         restTemplate.put(url, request);
     }
+
+    public void deleteDPMCacheGateway(String projectId, String vpcId) {
+        String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo/" + vpcId;
+        restTemplate.delete(url);
+    }
 }

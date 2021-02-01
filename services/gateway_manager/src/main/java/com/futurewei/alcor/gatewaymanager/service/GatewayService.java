@@ -103,6 +103,28 @@ public class GatewayService {
         queryParams.put("resourceId", new String[]{vpcId});
         Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems(queryParams);
         gatewayRepository.deleteGatewayInfoForZeta(attachmentsMap);
+
+        AsyncExecutor executor = new AsyncExecutor();
+        executor.runAsync((Supplier<Void>) () -> {
+            try {
+                // Notify Zeta Management Plane to delete the vpc
+                restClinet.deleteVPCInZetaGateway(vpcId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.info("delete VPC in ZetaGateway failed,error message is: {}", e.getMessage());
+            }
+            return null;
+        });
+        executor.runAsync((Supplier<Void>) () -> {
+            try {
+                // Notify DPM to delete GatewayInfo in the DPM cache
+                restClinet.deleteDPMCacheGateway(projectId,vpcId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.info("delete GatewayInfo in DPM cache failed,error message is: {}", e.getMessage());
+            }
+            return null;
+        });
     }
 
 

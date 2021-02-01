@@ -66,6 +66,11 @@ public class GatewayControllerTest extends MockIgniteServer {
 
     @Test
     public void deleteGatewayInfoForZetaTest() throws Exception {
+
+        doNothing().when(gatewayManagerRestClinet).deleteVPCInZetaGateway(UnitTestConfig.vpcId);
+
+        doNothing().when(gatewayManagerRestClinet).deleteDPMCacheGateway(UnitTestConfig.projectId, UnitTestConfig.vpcId);
+
         mockMvc.perform(delete(url_forUpdateAndDelete))
                 .andDo(print())
                 .andExpect(status().isNoContent())
