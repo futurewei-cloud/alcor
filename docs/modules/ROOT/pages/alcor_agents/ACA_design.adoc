@@ -22,13 +22,18 @@ We want to have a design that is:
 
 == Alcor Group Agent
 
-Alcor Group Agent is introduced here for meeting the ultra high scale requirement mentioned above. A set of nearby compute node (in networking term, like their TOR switch is connected to the same physical switch) will be grouped together to form an AGA cluster. There could be 1000s machines serviced by one AGA cluster if it meets the performance requirement.
+Alcor Group Agent is introduced here to meet the ultra high scale requirement mentioned above. A set of nearby compute node (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an AGA cluster. There could be 1000s machines serviced by one AGA if it meets the performance requirement.
 
-TBD: What does it do
+AGA will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers for our of order detection and handling discuss later. It will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of AGA, a lock is needed when reading/writing to a resource belongs to a compute host. It is a "small" and localized lock therefore it should not impact performance. 
 
-TBD: What does it store
+AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
 
-TBD: How is this better compare to today
+With the requirement to make ACA small, AGA will introduce new abilities that's critical for deployments:
+
+. Avoid sending duplicate configurations to ACA (e.g. neighbors/security group)
+. Configuration cache to avoid sending down configuration immediately
+. Out of order configuration detection and handling
+. ACA restart handling
 
 == Database Requirements
 
@@ -78,7 +83,15 @@ message VpcState {
 }
 ------------------------------------------------------------
 
-== ACA restart handling
+== ACA Request Configuration from AGA on demand
+
+TBD
+
+== AGA Out of Order Configuration Handling
+
+TBD
+
+== ACA Restart Handling
 
 See issue #540, ACA restart handling is described below:
 
