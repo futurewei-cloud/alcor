@@ -1,0 +1,103 @@
+= Alcor Control Agent Restart Handling
+Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
+v0.1, 2021-01-28
+:toc: right
+:sectnums:
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Architecture Overview
+
+image:AGA_overview.png[image,width=880,height=640]
+
+== Requirements
+
+We want to have a design that is:
+
+. Ultra high scale - support up to a million compute hosts in a region
+. Efficient control messaging - no chatty protocol like neutron OVS agent
+. Super fast dataplane provisioning for both small and large VPC
+. Small ACA on host - low resource, simple, can be ran on hardware
+
+== Alcor Group Agent
+
+Alcor Group Agent is introduced here for meeting the ultra high scale requirement mentioned above. A set of nearby compute node (in networking term, like their TOR switch is connected to the same physical switch) will be grouped together to form an AGA cluster. There could be 1000s machines serviced by one AGA cluster if it meets the performance requirement.
+
+TBD: What does it do
+
+TBD: What does it store
+
+TBD: How is this better compare to today
+
+== Database Requirements
+
+In order to support the Alcor Group Agent, we have the follow database requirements:
+
+. Persistent - old data should always be there and not flushed
+. Distributed - multiple instances of AGA can access it concurrently
+. Performance - less than 1 millisecond for needed data (e.g. multiple reads on around 10 tables with 10gig of configuration stored in database)
+
+== Schema Update
+
+*src/schema/proto3/vpc.proto*
+[source,java]
+------------------------------------------------------------
+enum VpcSize { // *** NEW ***
+    DEFAULT = 0;
+    SMALL = 1;
+    CHANGING_TO_LARGE = 2;  // *** DO WE NEED THIS?
+    LARGE = 3;
+    CHANGING_TO_SMALL = 4;
+}
+
+message VpcConfiguration {  
+    uint32 revision_number = 1;
+
+    string request_id = 2;
+    string id = 3;
+    UpdateType update_type = 4; // DELTA (default) or FULL *** REMOVE THIS? ***
+    VpcSize vpc_size = 5; // *** NEW ***
+    string project_id = 6;
+    string name = 7;
+    string cidr = 8;
+    uint32 tunnel_id = 9;
+
+    message SubnetId {
+        string id = 1;
+    }
+
+    repeated SubnetId subnet_ids = 10;
+
+    AuxGateway auxiliary_gateway = 11;
+}
+
+message VpcState {
+    OperationType operation_type = 1;
+    VpcConfiguration configuration = 2;
+}
+------------------------------------------------------------
+
+== ACA restart handling
+
+See issue #540, ACA restart handling is described below:
+
+=== Neutron OVS Agent Behavior
+
+Neutron OVS agent inserts a canary table during startup. In its main rpc_loop, it will always check on the ovs status by querying the canary table. ovs_status will be set of OVS_RESTARTED if the canary table is not found. 
+
+To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-tun, etc) and default flows. It will also reset the dvr if it is enabled. After that, it will rely on a background syncing to get the latest tunnels (for L2 neighbors) and DVR (for L3 neighbors) configurations.
+
+=== Alcor Group Agent Solution
+
+With Alcor Group Agent acting as configuration cache for each compute host. (TBD: LINK) When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateOperationStatus to AGA with operation_status = RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
+
+AGA will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
+
+== Work Flows
+
+image:AGA_workflow.png[image,width=880,height=640]
+
+== Detail Slides
+
+Please find the details powerpoint slides of Alcor Group Agent (AGA) in xref:AGA_design.pptx[Alcor Group Agent]
