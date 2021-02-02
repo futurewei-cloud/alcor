@@ -1,0 +1,82 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+
+collections "Data Plane Manager"
+collections "Alcor Group Agent"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \n Host"
+end box
+
+
+===Scenarios A: DPM push down configuration to AGA==
+
+autonumber 10
+"Data Plane Manager" -> "Alcor Group Agent": Push down configuration to the cluster level AGA
+"Alcor Group Agent" -> "Alcor Group Agent": Store the Full/Delta update with the corresponding version number
+"Alcor Group Agent" -> "Alcor Group Agent": Discard unneeded old versions
+
+===Scenarios B1: small/large VPC for port/router/gateway create/update/delete==
+
+autonumber 20
+"Alcor Group Agent" -> "ACA on \n Host": Push down configuration to ACA
+"Alcor Group Agent" -> "Alcor Group Agent": Update Sent = True
+
+===Scenarios B2: small VPC for neighbor and SG create/update/delete==
+
+autonumber 30
+"Alcor Group Agent" -> "ACA on \n Host": Push down configuration to ACA
+"Alcor Group Agent" -> "Alcor Group Agent": Update Sent = True
+
+===Scenarios C1: large VPC for neighbor and SG create==
+
+autonumber 40
+"Alcor Group Agent" -> "Alcor Group Agent": Don't push down configuration to ACA
+"Alcor Group Agent" -> "Alcor Group Agent": Update Sent = False
+
+===Scenarios C2: large VPC for neighbor and SG update==
+
+autonumber 50
+"Alcor Group Agent" -> "Alcor Group Agent": if sent = false, just update the database and done
+"Alcor Group Agent" -> "ACA on \n Host": if sent = true, need to send the update to ACA host
+
+===Scenarios C3: large VPC for neighbor and SG delete==
+
+autonumber 60
+"Alcor Group Agent" -> "Alcor Group Agent": if sent = false, just delete the entry in database and done
+"Alcor Group Agent" -> "ACA on \n Host": if sent = true, need to send the delete to ACA host
+
+===Scenarios D: Out of Order handling on AGA==
+
+autonumber 70
+"Data Plane Manager" -> "Alcor Group Agent": Send configuration to AGA but AGA detect a configuration is out of order
+"Alcor Group Agent" -> "Data Plane Manager": Send GoalStateOperationStatus with resource ID and operation_status = OUT_OF_ORDER
+"Data Plane Manager" -> "Data Plane Manager": Determine the latest configuration (Full+Delta) for the resource
+"Data Plane Manager" -> "Alcor Group Agent": Push down configuration to AGA using existing logic
+"Alcor Group Agent" -> "ACA on \n Host": Push down configuration to ACA using existing logic
+
+===Scenarios E: ACA Restart handling==
+
+autonumber 80
+"ACA on \n Host" -> "ACA on \n Host": ACA detects itself or dataplace has been restarted, \nclear all the internal memory and database
+"ACA on \n Host" -> "Alcor Group Agent": Send GoalStateOperationStatus with operation_status = RESTARTED
+"Alcor Group Agent" -> "Alcor Group Agent": Determine the latest configuration (Full+Delta) for all resources on host
+"Alcor Group Agent" -> "ACA on \n Host": Push down configuration to ACA using existing logic
+
+@enduml
+
