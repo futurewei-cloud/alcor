@@ -14,4 +14,13 @@ public class VpcInfo {
 
     @JsonProperty("owner")
     private String owner;
+
+    public VpcInfo() {
+    }
+
+    public VpcInfo(String vpcId, Integer vpcVni, String owner) {
+        this.vpcId = vpcId;
+        this.vpcVni = vpcVni;
+        this.owner = owner;
+    }
 }

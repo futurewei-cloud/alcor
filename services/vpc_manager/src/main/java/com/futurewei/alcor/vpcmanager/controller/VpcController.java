@@ -25,6 +25,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.web.entity.gateway.VpcInfo;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.vpc.SegmentInfoInVpc;
@@ -171,6 +172,9 @@ public class VpcController {
 
             this.vpcDatabaseService.addVpc(inVpcState);
 
+            // register VPC with GM
+            this.vpcService.registerVpc(inVpcState);
+
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         } catch (ResourceNullException e) {
@@ -268,6 +272,9 @@ public class VpcController {
             this.vpcService.checkSubnetsAreEmpty(vpcState);
 
             vpcDatabaseService.deleteVpc(vpcid);
+
+            // unRegister VPC with GM
+            this.vpcService.unRegisterVpc(vpcState);
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }

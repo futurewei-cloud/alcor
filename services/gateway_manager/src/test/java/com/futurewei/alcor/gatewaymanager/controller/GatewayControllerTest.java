@@ -3,7 +3,7 @@ package com.futurewei.alcor.gatewaymanager.controller;
 import com.futurewei.alcor.common.db.ignite.MockIgniteServer;
 import com.futurewei.alcor.gatewaymanager.config.UnitTestConfig;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
-import com.futurewei.alcor.web.restclient.GatewayManagerRestClinet;
+import com.futurewei.alcor.web.restclient.GatewayManagerRestClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -37,18 +37,18 @@ public class GatewayControllerTest extends MockIgniteServer {
     private MockMvc mockMvc;
 
     @MockBean
-    private GatewayManagerRestClinet gatewayManagerRestClinet;
+    private GatewayManagerRestClient gatewayManagerRestClient;
 
     @Test
     public void createGatewayInfoTest() throws Exception {
 
-        Mockito.when(gatewayManagerRestClinet.createDPMCacheGateway(eq(UnitTestConfig.projectId), eq(UnitTestConfig.buildResourceGatewayInfoPending())))
+        Mockito.when(gatewayManagerRestClient.createDPMCacheGateway(eq(UnitTestConfig.projectId), eq(UnitTestConfig.buildResourceGatewayInfoPending())))
                 .thenReturn("success");
 
-        Mockito.when(gatewayManagerRestClinet.createVPCInZetaGateway(UnitTestConfig.buildResourceVpcInfoSub()))
+        Mockito.when(gatewayManagerRestClient.createVPCInZetaGateway(UnitTestConfig.buildResourceVpcInfoSub()))
                 .thenReturn(UnitTestConfig.buildResourceZetaGatewayIpJson());
 
-        doNothing().when(gatewayManagerRestClinet).updateDPMCacheGateway(eq(UnitTestConfig.projectId), any(GatewayInfo.class));
+        doNothing().when(gatewayManagerRestClient).updateDPMCacheGateway(eq(UnitTestConfig.projectId), any(GatewayInfo.class));
 
         mockMvc.perform(post(url_createGatewayInfo).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcInfoJson()))
                 .andDo(print())
@@ -66,6 +66,11 @@ public class GatewayControllerTest extends MockIgniteServer {
 
     @Test
     public void deleteGatewayInfoForZetaTest() throws Exception {
+
+        doNothing().when(gatewayManagerRestClient).deleteVPCInZetaGateway(UnitTestConfig.vpcId);
+
+        doNothing().when(gatewayManagerRestClient).deleteDPMCacheGateway(UnitTestConfig.projectId, UnitTestConfig.vpcId);
+
         mockMvc.perform(delete(url_forUpdateAndDelete))
                 .andDo(print())
                 .andExpect(status().isNoContent())
