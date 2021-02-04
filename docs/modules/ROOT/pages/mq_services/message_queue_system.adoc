@@ -1,8 +1,7 @@
 = Message Queue Subsystem Design - Under Development
-Xuwei Yang, Liguang Xie <lxie@futurewei.com>
+Liguang Xie <lxie@futurewei.com>
 v0.1, 2021-01-24
 :toc: right
-:imagesdir: ../../images
 
 NOTE: This document is under development
 
@@ -43,10 +42,10 @@ image::file.png[]
 ==== Design Option: MQ (VPC Topic) + GRPC
 ===== Workflow
 image::vpcGroup.png[]
-image::MQ_portcreate.png[]
+image::MQportcreate.png[]
 
 ===== MQ topic subscription or unsubscription
-image::MqSubscrp.png[]
+image::MQsubscribe.png[]
 [#FeatureComp]
 
 
@@ -121,10 +120,10 @@ image::dataSchema2.png[]
 //* Remove cache entry then modify database (ensure atomic operation)
 
 
-[#architecture]
-== Architectural Design
-
-Based on <<system-requirements>> and <<FeatureComp>>,
+//[#architecture]
+//== Architectural Design
+//
+//Based on <<system-requirements>> and <<FeatureComp>>,
 //Apache Ignite provides a very rich feature set that matches most of our system requirements. Specifically, it offers the following features:
 //
 //* Standalone distributed database and built-in cache services

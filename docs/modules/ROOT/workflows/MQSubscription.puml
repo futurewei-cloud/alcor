@@ -4,40 +4,45 @@
 == MQ-> GRPC ==
 autonumber
 
-DPM <-> VPCM: VPC info query
-DPM ->NM: Query whether target node subscript vpc topic or not
-NM ->DPM: Yes
-DPM -> targetNode: Node unsubscript API
-targetNode -> MQ: Unsubscrpt the topic
-targetNode -> DPM: Unsubscript result
-DPM -> targetNode: Send goal state with GRPC
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: Yes
+DPM -> targetNodeACA: Node unsubscribe API
+targetNodeACA -> MQ: Unsubscrbe the topic
+targetNodeACA -> DPM: Unsubscribe result
+DPM -> targetNodeACA: Send goal state with GRPC
+targetNodeACA -> DPM: ACK
 
 == GRPC-> MQ ==
 autonumber
 
-DPM <-> VPCM: VPC info query
-DPM ->NM: Query whether target node subscript vpc topic or not
-NM ->DPM: NO
-DPM -> targetNode: Node subscript API(MQ cluster & topicName)
-targetNode -> MQ: Subscrpt the topic
-targetNode -> DPM: subscript result
-DPM -> targetNode: Send goal state with MQ
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: NO
+DPM -> targetNodeACA: Node subscri API(MQ cluster & topicName)
+targetNodeACA -> MQ: Subscrbebe the topic
+targetNodeACA -> DPM: subscribe result
+DPM -> MQ: Send goal state with MQ
+MQ -> targetNodeACA: Send goal state with MQ
+targetNodeACA -> MQ: ACK
+MQ -> DPM: ACK
 
-== keep GRPC ==
-autonumber
 
-DPM <-> VPCM: VPC info query
-DPM ->NM: Query whether target node subscript vpc topic or not
-NM ->DPM: NO
-DPM -> targetNode: Send goal state with GRPC
-
-== keep MQ ==
-autonumber
-
-DPM <-> VPCM: VPC info query
-DPM ->NM: Query whether target node subscript vpc topic or not
-NM ->DPM: Yes
-DPM -> targetNode: Send goal state with MQ
+'== keep GRPC ==
+'autonumber
+'
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: NO
+'DPM -> targetNode: Send goal state with GRPC
+'
+'== keep MQ ==
+'autonumber
+'
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: Yes
+'DPM -> targetNode: Send goal state with MQ
 
 
 @enduml

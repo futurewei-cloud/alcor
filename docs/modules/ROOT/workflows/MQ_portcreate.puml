@@ -1,23 +1,50 @@
 @startuml
 'https://plantuml.com/sequence-diagram
 
+
+== Select MQ Channel==
 autonumber
 
 user -> PM: Create a port
-PM <--> SM_MACM_IPM_RM: Port status update
-PM <-> NM: Nodeinfo query by NodeID
+PM <-> SM_MACM_IPM_RM: PortInfo update
+PM <-> VPCM: VpcInfo query by vpc_vni
+PM <-> NM: Nodeinfo query by Node_id
 PM -> DPM: Send down network configuration request
-DPM ->DPM: Select chanel for this network configuration
-DPM <-> VPCM: VPC info query
-DPM <->NM: Query whether target node subscript vpc topic or not
-DPM -> targetNode: Node unsub/subscript API(MQ cluster & topicName)
-targetNode -> MQ: Unsub/Subscrpt the topic
-targetNode -> DPM: Unsub/subscript result
-DPM -> NM: Node subscription info update
-DPM -> targetNode: Send goalState with MQ/GRPC
-targetNode -> DPM: Goalstate configuration result
+DPM ->DPM: Select chanel for this network configuration (MQ selected)\n Query vpc_subs in Nodeinfo
+'DPM <-> VPCM: VPC info query
+'DPM <->NM: Query whether target node subscript vpc topic or not
+DPM --> targetNodeACA: Node subscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
+targetNodeACA --> MQ: Subscrbe the topic
+targetNodeACA --> DPM: subscribe result
+'DPM -> NM: Node subscription info update
+DPM -> MQ: Send goalState (GoalState1) with target MQ\n Using (MQ_url) in VpcInfo
+MQ -> targetNodeACA: Send goalState (GoalState2) with MQ
+targetNodeACA -> MQ: Goalstate configuration result
+MQ -> DPM: Goalstate configuration result
+DPM -> DPM: Update NeighborAck & PortAck in cache
 DPM -> PM: Network configuration result
 
+
+
+== Select GRPC Channel==
+autonumber
+
+user -> PM: Create a port
+PM <-> SM_MACM_IPM_RM: PortInfo update
+PM <-> VPCM: VpcInfo query by vpc_vni
+PM <-> NM: Nodeinfo query by Node_id
+PM -> DPM: Send down network configuration request
+DPM ->DPM: Select chanel for this network configuration (GRPC selected)
+'DPM <-> VPCM: VPC info query
+'DPM <->NM: Query whether target node subscript vpc topic or not
+DPM --> targetNodeACA: Node unsubscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
+targetNodeACA --> MQ: Unsubscribe the topic
+targetNodeACA --> DPM: Unsubscribe result
+'DPM -> NM: Node subscription info update
+DPM -> targetNodeACA: Send goalState (GoalState2) with GRPC
+targetNodeACA -> DPM: Goalstate configuration result
+DPM -> DPM: Update NeighborAck & PortAck in cache
+DPM -> PM: Network configuration result
 
 
 
