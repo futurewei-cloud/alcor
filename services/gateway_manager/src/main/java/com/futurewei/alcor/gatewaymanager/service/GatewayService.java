@@ -9,7 +9,7 @@ import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
 import com.futurewei.alcor.gatewaymanager.entity.ResourceType;
 import com.futurewei.alcor.gatewaymanager.entity.StatusEnum;
 import com.futurewei.alcor.web.entity.gateway.*;
-import com.futurewei.alcor.web.restclient.GatewayManagerRestClinet;
+import com.futurewei.alcor.web.restclient.GatewayManagerRestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,7 +30,7 @@ public class GatewayService {
     private GWAttachmentRepository gwAttachmentRepository;
 
     @Autowired
-    private GatewayManagerRestClinet restClinet;
+    private GatewayManagerRestClient restClient;
 
     private static final String GATEWAY_DESCRIPTION = "internal gateway";
     private static final String GATEWAY_SUFFIX_NAME = " gateway";
@@ -50,8 +50,8 @@ public class GatewayService {
         createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
         AsyncExecutor executor = new AsyncExecutor();
-        executor.runAsync(restClinet::createDPMCacheGateway, projectId, gatewayInfo);
-        executor.runAsync(restClinet::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
+        executor.runAsync(restClient::createDPMCacheGateway, projectId, gatewayInfo);
+        executor.runAsync(restClient::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
         executor.runAsync((Supplier<Void>) () -> {
             // wait result of all async
             List<Object> result = executor.joinAllAsync();
@@ -103,6 +103,28 @@ public class GatewayService {
         queryParams.put("resourceId", new String[]{vpcId});
         Map<String, GWAttachment> attachmentsMap = gwAttachmentRepository.findAllItems(queryParams);
         gatewayRepository.deleteGatewayInfoForZeta(attachmentsMap);
+
+        AsyncExecutor executor = new AsyncExecutor();
+        executor.runAsync((Supplier<Void>) () -> {
+            try {
+                // Notify Zeta Management Plane to delete the vpc
+                restClient.deleteVPCInZetaGateway(vpcId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.info("delete VPC in ZetaGateway failed,error message is: {}", e.getMessage());
+            }
+            return null;
+        });
+        executor.runAsync((Supplier<Void>) () -> {
+            try {
+                // Notify DPM to delete GatewayInfo in the DPM cache
+                restClient.deleteDPMCacheGateway(projectId,vpcId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.info("delete GatewayInfo in DPM cache failed,error message is: {}", e.getMessage());
+            }
+            return null;
+        });
     }
 
 
@@ -151,7 +173,7 @@ public class GatewayService {
                     List<GatewayIp> gatewayIps = gatewayIpJson.getGatewayIps();
                     gatewayEntity.setIps(gatewayIps);
                     gatewayEntity.setStatus(StatusEnum.READY.getStatus());
-                    restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
+                    restClient.updateDPMCacheGateway(projectId, gatewayInfo);
                     gatewayRepository.addItem(gatewayEntity);
                     log.info("update GatewayEntity status to READY success");
                 }
@@ -172,12 +194,12 @@ public class GatewayService {
             while (iterator.hasNext()) {
                 Object ob = iterator.next();
                 if (ob.getClass().equals(ZetaGatewayIpJson.class)) {
-                    restClinet.deleteVPCInZetaGateway(((ZetaGatewayIpJson) ob).getVpcId());
+                    restClient.deleteVPCInZetaGateway(((ZetaGatewayIpJson) ob).getVpcId());
                     iterator.remove();
                 }
                 if (ob.getClass().equals(String.class)) {
                     gatewayEntity.setStatus(StatusEnum.FAILED.getStatus());
-                    restClinet.updateDPMCacheGateway(projectId, gatewayInfo);
+                    restClient.updateDPMCacheGateway(projectId, gatewayInfo);
                     gatewayRepository.addItem(gatewayEntity);
                     iterator.remove();
                 }
