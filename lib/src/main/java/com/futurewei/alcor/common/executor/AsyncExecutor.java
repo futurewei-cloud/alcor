@@ -38,7 +38,7 @@ public class AsyncExecutor {
     private List<CompletableFuture> futures = new ArrayList<>();
 
     public <T>CompletableFuture runAsync(Supplier<T> supplier) {
-        return CompletableFuture.supplyAsync(supplier);
+        return CompletableFuture.supplyAsync(supplier,executor);
     }
 
     /**
