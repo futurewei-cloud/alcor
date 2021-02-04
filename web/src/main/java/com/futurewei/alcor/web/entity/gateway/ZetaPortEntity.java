@@ -16,10 +16,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.gateway;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ZetaPortEntity {
+@Data
+public class ZetaPortEntity implements Serializable {
     @JsonProperty("port_id")
     private String portId;
 
@@ -32,10 +35,10 @@ public class ZetaPortEntity {
     @JsonProperty("mac_port")
     private String portMac;
 
-    @JsonProperty("node_ip")
+    @JsonProperty("ip_node")
     private String nodeIp;
 
-    @JsonProperty("node_mac")
+    @JsonProperty("mac_node")
     private String nodeMac;
 
     public ZetaPortEntity() {

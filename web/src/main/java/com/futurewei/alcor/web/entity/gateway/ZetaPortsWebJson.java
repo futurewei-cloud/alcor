@@ -23,17 +23,19 @@ import java.util.List;
 @Data
 public class ZetaPortsWebJson {
 
-    private ArrayList<ZetaPortEntity> zetaPorts;
+    private List<ZetaPortEntity> zetaPorts;
 
     public ZetaPortsWebJson() {
 
     }
 
-    public ZetaPortsWebJson(List<ZetaPortEntity> zetaPortEntities) { this.zetaPorts = new ArrayList<>(zetaPortEntities); }
+    public ZetaPortsWebJson(List<ZetaPortEntity> zetaPortEntities) {
+        zetaPorts = new ArrayList<>(zetaPortEntities);
+    }
 
-    public ArrayList<ZetaPortEntity> getZetaPorts() { return this.zetaPorts; }
+    public List<ZetaPortEntity> getZetaPorts() { return this.zetaPorts; }
 
-    public void setZetaPorts(ArrayList<ZetaPortEntity> zetaPorts) {
+    public void setZetaPorts(List<ZetaPortEntity> zetaPorts) {
         this.zetaPorts = zetaPorts;
     }
 }

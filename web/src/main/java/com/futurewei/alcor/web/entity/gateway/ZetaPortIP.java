@@ -16,7 +16,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.entity.gateway;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class ZetaPortIP {
     @JsonProperty("ip")
     private String ip;

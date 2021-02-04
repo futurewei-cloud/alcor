@@ -12,10 +12,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.StatusEnum;
-import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
@@ -25,6 +25,7 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.ZetaPortGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.service.DpmService;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
@@ -40,6 +41,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,6 +60,9 @@ public class DpmServiceImpl implements DpmService {
 
     @Value("${zetaGateway.check.interval}")
     private String zetaGatewayCheckInterval;
+
+    @Value("${microservices.zeta.service.url}")
+    private String zetaGatewayUrl;
 
     @Value("${microservices.gateway.service.url}")
     private String gatewayUrl;
@@ -142,116 +148,99 @@ public class DpmServiceImpl implements DpmService {
 
     private ZetaPortsWebJson zetaSendGoalState(Object arg1) throws Exception {
         ZetaPortGoalState zetaPortGoalState = (ZetaPortGoalState) arg1;
-        ZetaPortsWebJson zetaPortsWebJson = new ZetaPortsWebJson();
-//        if (zetaPortGoalState.getPortEntities().size() > 0) {
-//
-//            if (Common.OperationType.CREATE.equals(zetaPortGoalState.getOpType())) {
-//                zetaPortCreate.add(zetaPortGoalState.getPortEntity());
-//            } else if (Common.OperationType.DELETE.equals(zetaPortGoalState.getOpType())) {
-//                zetaPortDelete.add(zetaPortGoalState.getPortEntity());
-//            } else if (Common.OperationType.UPDATE.equals(zetaPortGoalState.getOpType())) {
-//                zetaPortUpdate.add(zetaPortGoalState.getPortEntity());
-//            }
-//        }
-        return zetaPortsWebJson;
-    }
+        String url =  zetaGatewayUrl + "/ports";
+        ZetaPortsWebJson zetaPortsWebJson = new ZetaPortsWebJson(zetaPortGoalState.getPortEntities());
+        ObjectMapper Obj = new ObjectMapper();
+        String jsonStr = Obj.writeValueAsString(zetaPortsWebJson.getZetaPorts());
 
-    private List<String> asyncRun1(Object arg1, Object arg2) throws Exception {
-        List<String> failed = new ArrayList<>();
-        failed.add("host1");
-        failed.add("host2");
-//        try {
-//            throw new NullPointerException("demo");
-//        } catch (NullPointerException e) {
-//            System.out.println("Caught inside fun().");
-//            throw e; // rethrowing the exception
-//        }
-        return failed;
-    }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> zetaHttpEntity = new HttpEntity<>(jsonStr, headers);
+        ZetaPortsWebJson result = new ZetaPortsWebJson();
 
-    @SuppressWarnings("unchecked")
-    private ZetaPortsWebJson asyncRun2(Object arg1, Object arg2) throws Exception {
-        List<ZetaPortEntity> zeta = (List<ZetaPortEntity>) arg1;
-        ZetaPortsWebJson z = new ZetaPortsWebJson();
-        if (zeta.size() > 0) {
-            ArrayList<ZetaPortEntity> listofz = new ArrayList<>(zeta.size());
-            listofz.addAll(zeta);
-            z.setZetaPorts(listofz);
+        try {
+            if (zetaPortGoalState.getPortEntities().size() > 0) {
+                if (Common.OperationType.CREATE.equals(zetaPortGoalState.getOpType())) {
+                    Object[] response = restTemplate.postForObject(url, zetaHttpEntity, Object[].class);
+                    if (response != null) {
+//                        List<ZetaPortEntity> zetaPortEntities = Arrays.asList(response).toArray(new List<ZetaPortEntity>);
+//                        result.setZetaPorts(zetaPortEntities);
+                    }
+                } else if (Common.OperationType.UPDATE.equals(zetaPortGoalState.getOpType())) {
+                    restTemplate.put(url, zetaHttpEntity, ZetaPortsWebJson.class);
+                } else if (Common.OperationType.DELETE.equals(zetaPortGoalState.getOpType())) {
+                    restTemplate.delete(url, zetaHttpEntity, ZetaPortsWebJson.class);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return z;
+        return result;
     }
 
-//    private ResponseId asyncRun3(Object arg1, Object arg2) throws Exception {
-//        String projectId = "3dda2801-d675-4688-a63f-dcda8d327f50";
-//        String vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88041";
-//        List<GatewayEntity> gatewayEntities = new ArrayList<>();
-//        gatewayEntities.add(new GatewayEntity(null, null, null, null,
-//                GatewayType.ZETA, StatusEnum.READY.getStatus(),
-//                null, null, null, null, null, null));
-//        GatewayInfo gatewayInfo = new GatewayInfo(vpcId, gatewayEntities, null, null);
-//        String url = gatewayUrl + "/gatewayinfo";
-//        HttpEntity<GatewayInfoJson> vpcHttpEntity = new HttpEntity<>(new GatewayInfoJson(gatewayInfo));
-//        return restTemplate.postForObject(url, vpcHttpEntity, ResponseId.class);
-//    }
+    private List<String> processZetaAca(List<Object> results, List<String> failedZetaPorts) {
+        List<String> failedHosts = new ArrayList<>();
+        List<ZetaPortEntity> zetaports = new ArrayList<>();
 
-//    private void rollbackZetaAca(List<Object> results) {
-//        if (results != null && results.size() < 2) {
-//
-//        } else if (results != null) {
-//            List<ZetaPortEntity> zetaports = new ArrayList<>();
-//            GatewayInfoJson gatewayInfoJson = new GatewayInfoJson();
-//            for (Object result : results) {
-//                if (result instanceof List<?>) {
-//                    for (Object obj : (List<?>) result) {
-//                        if (obj instanceof String) {
-//                            failedHosts.add((String) obj);
-//                        }
-//                    }
-//                } else if (result instanceof ZetaPortsWebJson) {
-//                    zetaports.addAll(((ZetaPortsWebJson) result).getZetaPorts());
-//                }
-//            }
-//            List<ZetaPortEntity> req_zeta = new ArrayList<>(zetaPortEntities);
-//            for (String host: failedHosts) {
-//                for (ZetaPortEntity zeta: zetaports) {
-//                    // zetaport ok, but aca failed, rollback zeta
-//                    if (zeta.getNodeIp().equals(host)) {
-//                        // rollback zeta
-//                        break;
-//                    }
-//                }
-//                fHosts.remove(host);
-//            }
-//            if (fHosts.size() > 0) {
-//                // rollback ACA
-//            }
-//        }
-//    }
+        if (results != null) {
+            for (Object result : results) {
+                if (result instanceof List<?>) {
+                    for (Object obj : (List<?>) result) {
+                        if (obj instanceof String) {
+                            failedHosts.add((String) obj);
+                        }
+                    }
+                } else if (result instanceof ZetaPortsWebJson) {
+                    zetaports.addAll(((ZetaPortsWebJson) result).getZetaPorts());
+                }
+            }
+        }
+
+        List<String> fHosts = new ArrayList<>(failedHosts);
+        for (String host: failedHosts) {
+            for (ZetaPortEntity zeta: zetaports) {
+                // zetaport ok, but aca failed, rollback zeta
+                if (zeta.getNodeIp().equals(host)) {
+                    // rollback zeta
+                    break;
+                }
+            }
+            fHosts.remove(host);
+        }
+        if (fHosts.size() > 0) {
+            failedZetaPorts.addAll(fHosts);
+            // rollback aca
+        }
+        return failedHosts;
+    }
+
+    private void rollbackZetaAca(List<Object> results) {
+
+    }
 
     private List<String> sendGoalStateToZetaAcA(List<UnicastGoalState> unicastGoalStates,
                                                  MulticastGoalState multicastGoalState,
                                                  DataPlaneClient dataPlaneClient,
                                                  ZetaPortGoalState zetaPortGoalState,
                                                  List<String> failedZetaPorts) throws Exception {
-        List<String> failedHosts = new ArrayList<>();
-        AsyncExecutor executor = new AsyncExecutor();
-        executor.runAsync(this::sendGoalStates, dataPlaneClient, unicastGoalStates, multicastGoalState);
-        executor.runAsync(this::zetaSendGoalState, zetaPortGoalState);
-        executor.runAsync(this::asyncRun1, null, null);
-        executor.runAsync(this::asyncRun2, zetaPortGoalState, null);
-        //executor.runAsync(this::asyncRun3, null, null);
-        List<Object> results = null;
-        try {
-            results = executor.joinAll();
-            //rollbackZetaAca(results);
-        } catch (Exception e) {
-            LOG.error("", e);
-            executor.waitAll();
-            //rollbackZetaAca(results);
-            throw e;
-        }
-
-        return failedHosts;
+        //List<String> failedHosts;
+        ZetaPortsWebJson failedHosts = zetaSendGoalState(zetaPortGoalState);
+//        AsyncExecutor executor = new AsyncExecutor();
+//        executor.runAsync(this::sendGoalStates, dataPlaneClient, unicastGoalStates, multicastGoalState);
+//        executor.runAsync(this::zetaSendGoalState, zetaPortGoalState);
+//
+//        List<Object> results = null;
+//        try {
+//            results = executor.joinAll();
+//            failedHosts = processZetaAca(results, failedZetaPorts);
+//        } catch (Exception e) {
+//            LOG.error("", e);
+//            executor.waitAll();
+//            rollbackZetaAca(results);
+//            throw e;
+//        }
+        return null;
+        //return failedHosts;
     }
 
     private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,

@@ -84,7 +84,7 @@ public class PortService extends ResourceService {
 
             if (portEntity.getIsZetaGatewayPort()) {
                 ZetaPortEntity zetaPortEntity = new ZetaPortEntity(portEntity.getId(), portEntity.getVpcId(), zetaPortIPs,
-                        portEntity.getMacAddress(), portEntity.getBindingHostIP(), null);
+                        portEntity.getMacAddress(), portEntity.getBindingHostIP(), "e0:97:96:02:45:53");
                 zetaPortEntities.add(zetaPortEntity);
             }
 
