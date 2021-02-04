@@ -92,6 +92,9 @@ public class NodeInfoCache {
             if (result == null || result.size() == 0) {
                 throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + " from NodeManager");
             }
+            for (NodeInfo nodeInfo : result) {
+                nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+            }
             return result;
         }
 
