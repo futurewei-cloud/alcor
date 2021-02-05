@@ -1,4 +1,4 @@
-= Alcor Control Agent Restart Handling
+= Alcor Group Agent Design
 Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
 v0.1, 2021-01-28
 :toc: right
@@ -18,30 +18,113 @@ We want to have a design that is:
 . Ultra high scale - support up to a million compute hosts in a region
 . Efficient control messaging - no chatty protocol like neutron OVS agent
 . Super fast dataplane provisioning for both small and large VPC
-. Small ACA on host - low resource, simple, can be ran on hardware
+. Small ACA on host - low resource, simple, can be ran on smart NIC
+
+== Problems to Solve
+
+Other than meeting the requirements above, there are a list of problems to be solved with this design:
+
+. Neighbor and Security Group scale - address scaling issue especially with remote security group rule
+. Duplicate configuration - don't send down duplicate configuration when compute node has it already
+. Out of Order configuration - detect and resolve out of order configuration in goal state messages
+. Alcor Control Agent restart handling - provide an efficient way to restore the configuration
 
 == Alcor Group Agent
 
-Alcor Group Agent is introduced here to meet the ultra high scale requirement mentioned above. A set of nearby compute node (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an AGA cluster. There could be 1000s machines serviced by one AGA if it meets the performance requirement.
+Alcor Group Agent is introduced here to meet the ultra high scale requirement for the next generation cloud. A set of nearby compute node (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an cluster managed by a set of AGAs. There could be 10,000 machines serviced by this set of AGAs if it meets the performance requirement.
 
-AGA will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers for our of order detection and handling discuss later. It will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of AGA, a lock is needed when reading/writing to a resource belongs to a compute host. It is a "small" and localized lock therefore it should not impact performance. 
+The set of AGAs will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers. The version numbers are used for out of order detection and handling discuss later. The database will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of AGAs, lock is needed when reading/writing to a particular resource belongs to a compute host. It is a small and localized lock therefore it should not impact performance. 
 
 AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
 
-With the requirement to make ACA small, AGA will introduce new abilities that's critical for deployments:
+== Location of AGA
 
-. Avoid sending duplicate configurations to ACA (e.g. neighbors/security group)
-. Configuration cache to avoid sending down configuration immediately
-. Out of order configuration detection and handling
-. ACA restart handling
+There are two options in where AGA could be implemented.
+
+=== Option 1: Make it part of DPM in region level
+
+[source,shell]
+------------------------------------------------------------
+   +------------------------+
+   | +------------------------+
+   | | +------------------------+         +--------------------+
+   | | |                    | | |         |                    |
+   | | |   DPM with AGA     | | |         |                    |
+   | | |   functionality    | | |         |                    |
+   | | |                    | | +-------->+      ACA           |
+   | | |                    | | |         |                    |
+   | | |                    | | |         |                    |
+   | | |                    | | |         |                    |
+   +------------------------+ | |         +--------------------+
+     +------------------------+ +--------+
+       +------------------------+        |
+                   |                     |
+                   |                     |
+         +---------v----------+          >---------------------+
+         |                    |           |                    |
+         |                    |           |                    |
+         |    ACA             |           |     ACA            |
+         |                    |           |                    |
+         |                    |           |                    |
+         |                    |           |                    |
+         +--------------------+           +--------------------+
+------------------------------------------------------------
+
+Since all the network configurations are passed down by DPM placed at the region level, it is possible to integration all the AGA functionalities into DPM and reduce the extra layer and component of AGA. However, since DPM is placed at the region level, the on demand requests from ACA may need to take a few extra hops to DPM which can introduce additional latency for the time critical on demand requests.
+
+=== Option 2: Separate AGA placed in the cluster level 
+
+[source,shell]
+------------------------------------------------------------
++------------------------+                +------------------------+
+| +------------------------+              | +------------------------+
+| | +------------------------+            | | +------------------------+         +--------------------+
+| | |                    | | |            | | |                    | | |         |                    |
+| | |   DPM              +--------------->+ | |   AGA              | | |         |                    |
+| | |                    | | |            | | |                    | | |         |                    |
+| | |                    | +------------->+ | |                    | | +-------->+      ACA           |
+| | |                    | | |            | | |                    | | |         |                    |
+| | |                    | | +----------->+ | |                    | | |         |                    |
+| | |                    | | |            | | |                    | | |         |                    |
++------------------------+ | |            +------------------------+ | |         +--------------------+
+  +------------------------+ |              +------------------------+ +--------+
+    +------------------------+                +------------------------+        |
+                                                          |                     |
+                                                          |                     |
+                                                +---------v----------+          >+--------------------+
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                |    ACA             |           |     ACA            |
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                +--------------------+           +--------------------+
+------------------------------------------------------------
+
+To meet the time critical on demand requests, AGA can be a separate component placed at the cluster level. Since AGA is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. It will be used when option 1 does not meet the latency requirement for on demand requests.
+
+
+== Security Group Improvements
+
+Security group handling is one of the biggest challenge for public cloud due to its scaling issue especially with remote SG group assoication in a rule. E.g. we have an ingress rule to allow ingress traffic only from the ports assoicated with a default SG. As ports assoication comes and goes, all the existing ports needs to know the latest set of port IPs assoicated with this default SG with the current openstack neutron solution today.  
+
+One approach to address the SG scale issue is to mark each packet with source port SG ID/label. Instead of knowing all the remote IPs on an ingress SG remote rule on the destination side, we can simply mark all egress packets with its associated SG IDs/labels. On the ingress side, it only needs match the ingress remote rule SG ID/label with the marking in the packet. Note that this will greatly help with the scale and IP updates for the ingress remote rule only, but it is an elegent solution which addresses half of the problem for SG. 
+
+One challenge is the current SG ID is a 16 bytes UUID, and each port can be assoicated with upto 5 SG IDs. With  overhead of NSH header or IP options approach, we are looking at adding close to 100 bytes to each packet ((16 bytesx5=80bytes) + overhead). SG ID labeling can be used to reduce adding so much data per packet. Alcor security group manager can generate SG ID label per VPC (or per tenant) and passes it down together with its SG configuration to ACA. Since there is a limit for how many SGs a tenant can create (e.g. 50 per tenant), 1 byte with 256 values should be big enough for the SG ID label.
+
+
+== ACA on demand request of configuration
+
+TBD
+
 
 == Database Requirements
 
-In order to support the Alcor Group Agent, we have the follow database requirements:
+In order to support the Alcor Group Agent, we have the following database requirements:
 
 . Persistent - old data should always be there and not flushed
-. Distributed - multiple instances of AGA can access it concurrently
-. Performance - less than 1 millisecond for needed data (e.g. multiple reads on around 10 tables with 10gig of configuration stored in database)
+. Distributed - multiple instances of AGAs can access it concurrently
+. Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
 
 == Schema Update
 
@@ -83,10 +166,6 @@ message VpcState {
 }
 ------------------------------------------------------------
 
-== ACA Request Configuration from AGA on demand
-
-TBD
-
 == AGA Out of Order Configuration Handling
 
 TBD
@@ -103,7 +182,7 @@ To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-
 
 === Alcor Group Agent Solution
 
-With Alcor Group Agent acting as configuration cache for each compute host. (TBD: LINK) When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateOperationStatus to AGA with operation_status = RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
+With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateOperationStatus to AGA with operation_status = RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
 
 AGA will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
 
@@ -113,4 +192,4 @@ image:AGA_workflow.png[image,width=880,height=640]
 
 == Detail Slides
 
-Please find the details powerpoint slides of Alcor Group Agent (AGA) in xref:AGA_design.pptx[Alcor Group Agent]
+Please find the highlevel powerpoint slides of Alcor Group Agent (AGA) in xref:AGA_design.pptx[Alcor Group Agent]
