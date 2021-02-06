@@ -13,7 +13,6 @@ import io.opentracing.propagation.TextMapAdapter;
 import io.opentracing.tag.Tags;
 import okhttp3.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -66,32 +65,32 @@ public final class Tracing {
         return new TracingObj(builder.start(),headers);
     }
 
-    public static TracingObj startSpan(HttpServletRequest request, Tracer tracer, String serviceName)
-    {
-
-        Map<String,String> headers=new HashMap();
-        if(request!=null) {
-            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
-            while (stringIterator.hasNext()) {
-                String name = stringIterator.next();
-                String value = request.getHeader(name);
-                headers.put(name, value);
-            }
-            Enumeration<String> headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String header = headerNames.nextElement();
-                headers.put(header, request.getHeader(header));
-            }
-        }
-        Tracer.SpanBuilder builder = null;
-        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
-        if (null == parentSpanContext) {
-            builder = tracer.buildSpan(serviceName);
-        } else {
-            builder = tracer.buildSpan(serviceName).asChildOf(parentSpanContext);
-        }
-        return new TracingObj(builder.start(),headers);
-    }
+//    public static TracingObj startSpan(HttpServletRequest request, Tracer tracer, String serviceName)
+//    {
+//
+//        Map<String,String> headers=new HashMap();
+//        if(request!=null) {
+//            Iterator<String> stringIterator = request.getHeaderNames().asIterator();
+//            while (stringIterator.hasNext()) {
+//                String name = stringIterator.next();
+//                String value = request.getHeader(name);
+//                headers.put(name, value);
+//            }
+//            Enumeration<String> headerNames = request.getHeaderNames();
+//            while (headerNames.hasMoreElements()) {
+//                String header = headerNames.nextElement();
+//                headers.put(header, request.getHeader(header));
+//            }
+//        }
+//        Tracer.SpanBuilder builder = null;
+//        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
+//        if (null == parentSpanContext) {
+//            builder = tracer.buildSpan(serviceName);
+//        } else {
+//            builder = tracer.buildSpan(serviceName).asChildOf(parentSpanContext);
+//        }
+//        return new TracingObj(builder.start(),headers);
+//    }
     public static Response StartImpl(String url, String jsonStr, Span span, Tracer tracer, String method) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request.Builder request = new Request.Builder().url(url).post(RequestBody.create(MediaType.parse("application/json;charset=utf-8"), jsonStr));

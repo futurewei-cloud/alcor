@@ -124,10 +124,10 @@ public class StrictRbacManager implements RbacManger {
     private List<String> excludeFields(String actionName, TokenEntity tokenEntity, OwnerChecker ownerChecker) {
         List<String> excludeFields = new ArrayList<>();
         Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
-        if (rbacRuleOptional.isEmpty()) {
-            // if not rbac rule return true
-            return excludeFields;
-        }
+//        if (rbacRuleOptional.isEmpty()) {
+//            // if not rbac rule return true
+//            return excludeFields;
+//        }
 
         List<String> tokenRoles = tokenEntity.getRoles();
         List<FieldRbacRule> fieldRbacRules = rbacRuleOptional.get().getFieldRbacRules();
@@ -167,10 +167,10 @@ public class StrictRbacManager implements RbacManger {
     private void checkAction(String actionName, TokenEntity tokenEntity, List<String> bodyFields,
                              OwnerChecker ownerChecker) throws Exception {
         Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
-        if (rbacRuleOptional.isEmpty()) {
-            // if not rbac rule return true
-            return;
-        }
+//        if (rbacRuleOptional.isEmpty()) {
+//            // if not rbac rule return true
+//            return;
+//        }
 
         String ruleType = rbacRuleOptional.get().getRuleType();
         List<String> tokenRoles = tokenEntity.getRoles();

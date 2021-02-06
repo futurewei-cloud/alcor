@@ -15,11 +15,26 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 
 package com.futurewei.alcor.apigateway.filter;
+import com.futurewei.alcor.apigateway.config.JaegerConfig;
+import io.jaegertracing.internal.JaegerTracer;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import okhttp3.*;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.apigateway.client.KeystoneClient;
+import com.futurewei.alcor.common.config.JaegerTracerHelper;
+import com.futurewei.alcor.common.config.Tracing;
+import com.futurewei.alcor.common.config.TracingObj;
 import com.futurewei.alcor.common.entity.TokenEntity;
+import io.jaegertracing.internal.JaegerTracer;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.log.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +49,8 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Optional;
 
 import static com.futurewei.alcor.common.utils.ControllerUtil.TOKEN_INFO_HEADER;
@@ -52,11 +69,27 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
     @Autowired
     private KeystoneClient keystoneClient;
 
+    @Autowired private JaegerConfig config;
+
     @Value("${neutron.url_prefix}")
     private String neutronUrlPrefix;
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        String serviceName = "apiGW";
+        HashMap<String,Object> ex=new HashMap<>();
+        HashMap<String,String> httpHeaders=new HashMap<>();
+        LOG.error("############## config.getJaegerHost() "+config.getJaegerHost());
+        try (JaegerTracer tracer = new JaegerTracerHelper().initTracer(serviceName, config.getJaegerHost(), config.getJaegerPort(), config.getJaegerFlush(), config.getJaegerMaxQsize())) {
+            TracingObj tracingObj = Tracing.startSpan(httpHeaders,tracer, serviceName);
+            Span span=tracingObj.getSpan();
+            try (Scope op = tracer.scopeManager().activate(span,false)) {
+
+
         LOG.debug("incoming request headers: {}", exchange.getRequest().getHeaders().toString());
         String token = exchange.getRequest().getHeaders().getFirst(AUTHORIZE_TOKEN);
         if(token == null){
@@ -97,6 +130,18 @@ public class KeystoneAuthGwFilter implements GlobalFilter, Ordered {
             );
         }
         return chain.filter(exchange.mutate().request(request).build());
+
+            }catch (Exception e)
+            {
+                logger.error("create route error, {}", e.getMessage());
+                ex.put(Fields.ERROR_OBJECT, e);
+                span.log(ex);
+                throw e;
+            }
+            finally {
+                span.finish();
+            }
+        }
     }
 
     @Override
