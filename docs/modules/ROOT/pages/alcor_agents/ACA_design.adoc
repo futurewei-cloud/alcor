@@ -15,7 +15,7 @@ image:AGA_overview.png[image,width=880,height=640]
 
 We want to have a design that is:
 
-. Ultra high scale - support up to a million compute hosts in a region
+. Ultra high scale - supports up to a million compute hosts in a region
 . Efficient control messaging - no chatty protocol like neutron OVS agent
 . Super fast dataplane provisioning for both small and large VPC
 . Small ACA on host - low resource, simple, can be ran on smart NIC
@@ -25,7 +25,7 @@ We want to have a design that is:
 Other than meeting the requirements above, there are a list of problems to be solved with this design:
 
 . Neighbor and Security Group scale - address scaling issue especially with remote security group rule
-. Duplicate configuration - don't send down duplicate configuration when compute node has it already
+. Duplicate configuration - don't send down redundant configuration when compute node has it already
 . Out of Order configuration - detect and resolve out of order configuration in goal state messages
 . Alcor Control Agent restart handling - provide an efficient way to restore the configuration
 
@@ -35,7 +35,7 @@ Alcor Group Agent is introduced here to meet the ultra high scale requirement fo
 
 The set of AGAs will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers. The version numbers are used for out of order detection and handling discuss later. The database will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of AGAs, lock is needed when reading/writing to a particular resource belongs to a compute host. It is a small and localized lock therefore it should not impact performance. 
 
-AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
+AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security group, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
 
 == Location of AGA
 
@@ -112,11 +112,28 @@ One approach to address the SG scale issue is to mark each packet with source po
 
 One challenge is the current SG ID is a 16 bytes UUID, and each port can be assoicated with upto 5 SG IDs. With  overhead of NSH header or IP options approach, we are looking at adding close to 100 bytes to each packet ((16 bytesx5=80bytes) + overhead). SG ID labeling can be used to reduce adding so much data per packet. Alcor security group manager can generate SG ID label per VPC (or per tenant) and passes it down together with its SG configuration to ACA. Since there is a limit for how many SGs a tenant can create (e.g. 50 per tenant), 1 byte with 256 values should be big enough for the SG ID label.
 
-
 == ACA on demand request of configuration
 
-TBD
+There will be situation when ACA doesn't have the needed configuration for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from AGA.
 
+We can use an existing gRPC interface for the bidirectional streaming connection between ACA and AGA:
+    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateStatus)
+
+Input: GoalStateStatus - source port ID or IP, destination IP, VNI, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
+
+AGA Workflow:
+
+. Use VNI to lookup VPC
+. If needed, find the source port ID based on IP
+.. For destination IP on the same subnet, confirm it is L2 neighbor
+.. For destination IP on the different subnet, confirm it is L3 neighbor
+.. For destination IP from routing rule or gateway, the configurations should be in ACA already
+. If confirm it is L2/L3 neighbor, look up SG rules for source port
+.. If traffic is allowed, construct and track the corresponding SG config
+... send down neighbor and corresponding constructed SG rule
+... Reply OperationStatus = SUCCESS (routable) for the rpc call
+.. Reply OperationStatus = FAILURE (not routable) for the rpc call
+. May go ahead to send down remaining neighbor and SG config for this active port
 
 == Database Requirements
 
@@ -127,6 +144,8 @@ In order to support the Alcor Group Agent, we have the following database requir
 . Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
 
 == Schema Update
+
+TBD: goal state
 
 *src/schema/proto3/vpc.proto*
 [source,java]
@@ -168,9 +187,11 @@ message VpcState {
 
 == AGA Out of Order Configuration Handling
 
-TBD
+TBD: work flow
 
 == ACA Restart Handling
+
+TBD: work flow
 
 See issue #540, ACA restart handling is described below:
 
