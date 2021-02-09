@@ -34,6 +34,7 @@ import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -46,6 +47,9 @@ public class DpmServiceImpl implements DpmService {
 
     private int goalStateMessageVersion;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
+
+    @Value("${zetaGateway.enabled}")
+    private boolean zetaGatwayEnabled;
 
     @Autowired
     private ZetaGatewayClient zetaGatewayClient;
@@ -161,7 +165,9 @@ public class DpmServiceImpl implements DpmService {
                 throw new PortBindingHostIpNotFound();
             }
 
-            zetaGatewayClient.checkZetaGateway(portEntity);
+            if (zetaGatwayEnabled) {
+                zetaGatewayClient.enableZetaGatewayForPort(portEntity);
+            }
 
             boolean fastPath = portEntity.getFastPath() == null ? false : portEntity.getFastPath();
             if (fastPath) {

@@ -59,7 +59,7 @@ public class ZetaGatewayClient {
         restTemplate.put(url, gatewayHttpEntity, ResponseId.class);
     }
 
-    public void checkZetaGateway(InternalPortEntity portEntity) throws Exception {
+    public void enableZetaGatewayForPort(InternalPortEntity portEntity) throws Exception {
         GatewayInfo gatewayInfo = gatewayInfoCache.findItem(portEntity.getVpcId());
         if (gatewayInfo == null) {
             List<GatewayEntity> newGatewayEntities = new ArrayList<>();

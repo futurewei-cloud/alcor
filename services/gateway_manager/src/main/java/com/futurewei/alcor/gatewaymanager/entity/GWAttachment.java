@@ -41,15 +41,15 @@ public class GWAttachment {
     private List<String> subnets; //for VPC only
 
     @JsonProperty("source_vni")
-    private Integer source_vni;
+    private String source_vni;
 
     @JsonProperty("destination_encap")
-    private Integer destinationEncap;
+    private String destinationEncap;
 
     @JsonProperty("tags")
     private List<String> tags;
 
-    public GWAttachment(String name, ResourceType type, String resourceId, String gatewayId, String state, Integer source_vni) {
+    public GWAttachment(String name, ResourceType type, String resourceId, String gatewayId, String state, String source_vni) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.type = type;

@@ -1,13 +1,17 @@
 package com.futurewei.alcor.web.restclient;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
-import com.futurewei.alcor.web.entity.gateway.ZetaGatewayIpJson;
 import com.futurewei.alcor.web.entity.gateway.VpcInfoSub;
+import com.futurewei.alcor.web.entity.gateway.ZetaGatewayIpJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 
@@ -25,8 +29,20 @@ public class GatewayManagerRestClient extends AbstractRestClient {
     public ZetaGatewayIpJson createVPCInZetaGateway(Object args) throws Exception {
         String url = zetaManagerUrl + "/vpcs";
         VpcInfoSub vpcInfoSub = (VpcInfoSub) args;
-        HttpEntity<VpcInfoSub> request = new HttpEntity<>(vpcInfoSub);
-        return restTemplate.postForObject(url, request, ZetaGatewayIpJson.class);
+        ObjectMapper Obj = new ObjectMapper();
+        String jsonStr = Obj.writeValueAsString(vpcInfoSub);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(jsonStr, headers);
+        Object response = restTemplate.postForObject(url, request, Object.class);
+        //return restTemplate.postForObject(url, request, ZetaGatewayIpJson.class);
+        ZetaGatewayIpJson result = new ZetaGatewayIpJson();
+        if (response != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            result = mapper.convertValue(response, new TypeReference<ZetaGatewayIpJson>() {
+            });
+        }
+        return result;
     }
 
     public void deleteVPCInZetaGateway(String vpcId) throws Exception {

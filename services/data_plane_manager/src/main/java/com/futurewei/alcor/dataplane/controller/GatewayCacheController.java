@@ -17,10 +17,11 @@ package com.futurewei.alcor.dataplane.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.dataplane.exception.GatewayInfoCacheExists;
 import com.futurewei.alcor.dataplane.exception.GatewayInfoCacheNotFound;
 import com.futurewei.alcor.dataplane.service.GatewayCacheService;
-import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,11 +36,12 @@ public class GatewayCacheController {
     @Autowired
     private GatewayCacheService gatewayCacheService;
 
-    @PostMapping({"/gatewayinfo", "v4/gatewayinfo"})
+    @PostMapping({"/project/{project_id}/gatewayinfo", "/project/{project_id}/v4/gatewayinfo"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public ResponseId createGatewayInfo(@RequestBody GatewayInfo gatewayInfo) throws Exception {
-        String response_id = gatewayCacheService.createGatewayInfo(gatewayInfo);
+    public ResponseId createGatewayInfo(@PathVariable("project_id") String projectId, @RequestBody GatewayInfoJson gatewayInfo) throws Exception {
+        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+        String response_id = gatewayCacheService.createGatewayInfo(gatewayInfo.getGatewayInfo());
         if (response_id == null) {
             throw new GatewayInfoCacheExists();
         }
@@ -47,10 +49,11 @@ public class GatewayCacheController {
         return new ResponseId(response_id);
     }
 
-    @PutMapping({"/gatewayinfo/{resource_id}", "v4/gatewayinfo/{resource_id}"})
+    @PutMapping({"/project/{project_id}/gatewayinfo/{resource_id}", "/project/{project_id}/v4/gatewayinfo/{resource_id}"})
     @DurationStatistics
-    public ResponseId updateGatewayInfo(@PathVariable String resource_id, @RequestBody GatewayInfo gatewayInfo) throws Exception {
-        String response_id = gatewayCacheService.updateGatewayInfo(resource_id, gatewayInfo);
+    public ResponseId updateGatewayInfo(@PathVariable("project_id") String projectId, @PathVariable String resource_id, @RequestBody GatewayInfoJson gatewayInfo) throws Exception {
+        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+        String response_id = gatewayCacheService.updateGatewayInfo(resource_id, gatewayInfo.getGatewayInfo());
         if (response_id == null) {
             throw new GatewayInfoCacheNotFound();
         }
@@ -58,9 +61,10 @@ public class GatewayCacheController {
         return new ResponseId(response_id);
     }
 
-    @DeleteMapping({"/gatewayinfo/{resource_id}", "v4/gatewayinfo/{resource_id}"})
+    @DeleteMapping({"/project/{project_id}/gatewayinfo/{resource_id}", "/project/{project_id}/v4/gatewayinfo/{resource_id}"})
     @DurationStatistics
-    public void deleteGatewayInfo(@PathVariable String resource_id) throws Exception {
+    public void deleteGatewayInfo(@PathVariable("project_id") String projectId, @PathVariable String resource_id) throws Exception {
+        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
         gatewayCacheService.deleteGatewayInfo(resource_id);
         log.info("GatewayInfo deleted success, resource_id is: {}", resource_id);
     }
