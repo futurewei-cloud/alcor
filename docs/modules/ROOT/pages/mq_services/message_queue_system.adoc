@@ -1,7 +1,8 @@
 = Message Queue Subsystem Design - Under Development
-Liguang Xie <lxie@futurewei.com>
+Xuwei Yang, Liguang Xie <lxie@futurewei.com>
 v0.1, 2021-01-24
 :toc: right
+:imagesdir: ../../images
 
 NOTE: This document is under development
 
@@ -62,6 +63,7 @@ image::channelType.png[]
 
 ===== Channel Selection Algorithm
 image::channelSelectionAlg.png[]
+image::algProcess.png[]
 image::channelSelection.png[]
 
 === Data schema

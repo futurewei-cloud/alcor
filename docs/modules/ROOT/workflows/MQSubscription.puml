@@ -8,7 +8,7 @@ autonumber
 'DPM ->NM: Query whether target node subscript vpc topic or not
 'NM ->DPM: Yes
 DPM -> targetNodeACA: Node unsubscribe API
-targetNodeACA -> MQ: Unsubscrbe the topic
+targetNodeACA -> MQ: Unsubscribe the topics
 targetNodeACA -> DPM: Unsubscribe result
 DPM -> targetNodeACA: Send goal state with GRPC
 targetNodeACA -> DPM: ACK
@@ -19,8 +19,9 @@ autonumber
 'DPM <-> VPCM: VPC info query
 'DPM ->NM: Query whether target node subscript vpc topic or not
 'NM ->DPM: NO
-DPM -> targetNodeACA: Node subscri API(MQ cluster & topicName)
-targetNodeACA -> MQ: Subscrbebe the topic
+DPM ->DPM: Subscribe the ack topic
+DPM -> targetNodeACA: Node subscribe API(MQ url & topics)\n send Ack topic info (MQ_url & ack_topic)
+targetNodeACA -> MQ: Subscribe the topic \n Record the ack topic
 targetNodeACA -> DPM: subscribe result
 DPM -> MQ: Send goal state with MQ
 MQ -> targetNodeACA: Send goal state with MQ

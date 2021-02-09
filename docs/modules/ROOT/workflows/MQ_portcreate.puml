@@ -10,18 +10,18 @@ PM <-> SM_MACM_IPM_RM: PortInfo update
 PM <-> VPCM: VpcInfo query by vpc_vni
 PM <-> NM: Nodeinfo query by Node_id
 PM -> DPM: Send down network configuration request
-DPM ->DPM: Select chanel for this network configuration (MQ selected)\n Query vpc_subs in Nodeinfo
+DPM ->DPM: Select chanel for this network configuration (MQ selected)\n Query vpc_subs in Nodeinfo \n subscribe the ack topic
 'DPM <-> VPCM: VPC info query
 'DPM <->NM: Query whether target node subscript vpc topic or not
-DPM --> targetNodeACA: Node subscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
-targetNodeACA --> MQ: Subscrbe the topic
-targetNodeACA --> DPM: subscribe result
+DPM --> targetNodeACA: CSA_Alg： Node subscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo \n Send the ack topic info (MQ_url & vip_topic) in VpcInfo
+targetNodeACA <--> MQ: Subscrbe the topic
+targetNodeACA --> DPM: subscribe result with GRPC
 'DPM -> NM: Node subscription info update
 DPM -> MQ: Send goalState (GoalState1) with target MQ\n Using (MQ_url) in VpcInfo
 MQ -> targetNodeACA: Send goalState (GoalState2) with MQ
 targetNodeACA -> MQ: Goalstate configuration result
 MQ -> DPM: Goalstate configuration result
-DPM -> DPM: Update NeighborAck & PortAck in cache
+DPM -> DPM: Update NeighborAck & PortAck in cache \n Start a new thread to check the NeighborAck periodicity
 DPM -> PM: Network configuration result
 
 
@@ -37,13 +37,13 @@ PM -> DPM: Send down network configuration request
 DPM ->DPM: Select chanel for this network configuration (GRPC selected)
 'DPM <-> VPCM: VPC info query
 'DPM <->NM: Query whether target node subscript vpc topic or not
-DPM --> targetNodeACA: Node unsubscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
-targetNodeACA --> MQ: Unsubscribe the topic
-targetNodeACA --> DPM: Unsubscribe result
+DPM --> targetNodeACA: CSA-Alg: Node unsubscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
+targetNodeACA <--> MQ: Unsubscribe the topic
+targetNodeACA --> DPM: Unsubscribe result with GRPC
 'DPM -> NM: Node subscription info update
 DPM -> targetNodeACA: Send goalState (GoalState2) with GRPC
 targetNodeACA -> DPM: Goalstate configuration result
-DPM -> DPM: Update NeighborAck & PortAck in cache
+DPM -> DPM: Update NeighborAck & PortAck in cache \n Start a new thread to check the NeighborAck periodicity
 DPM -> PM: Network configuration result
 
 
