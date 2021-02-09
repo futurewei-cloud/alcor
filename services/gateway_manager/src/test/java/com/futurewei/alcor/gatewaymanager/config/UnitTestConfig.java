@@ -79,7 +79,8 @@ public class UnitTestConfig {
     public static String vpcInfoJson() {
         return "{\n" +
                 "    \"vpcinfo\": {\n" +
-                "        \"vpc_id\": \"1233\",\n" +
+                "        \"vpc_id\": \"ae34051f-aa6c-4c75-abf5-50dc9ac99ef3\",\n" +
+                "        \"vni\": \"1233\",\n" +
                 "        \"owner\": \"3dda2801-d675-4688-a63f-dcda8d327f50\"\n" +
                 "    }\n" +
                 "}";
