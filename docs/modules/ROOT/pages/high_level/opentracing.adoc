@@ -1,0 +1,23 @@
+= Opentracing integration with Jaeger Flows
+Xiaodong Zhang <xzhang2@futurewei.com>
+v0.1, 2021-02-10
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Jaeger Integration
+
+These creation workflow involves multiple microservice types:
+
+. Jaeger client would report the metrics from each micro services which is managing a specific resource including VPC, subnet, port, route, IP and MAC then report the Jaeger Server
+. All services are running inside the kubernetes cluster
+
+image::opentracing2.png["Jaeger Standard Workflows", width=1024, link="jaeger_workflow.png"]
+
+image::opentracing1.jpg["Jaeger Workflows for integration with VPC, subnet and port across various microservices", width=1024, link="opentracing_workflow.jpg"]
+
+
+== Reference: Jaeger Architecture
+
+https://www.jaegertracing.io/docs/1.21/architecture
