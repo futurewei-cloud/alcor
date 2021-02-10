@@ -37,9 +37,17 @@ The set of AGAs will store both the latest full state and potential delta states
 
 AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security group, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
 
-== Location of AGA
+== Database Requirements
 
-There are two options in where AGA could be implemented.
+In order to support the Alcor Group Agent, we have the following database requirements:
+
+. Persistent - old data should always be there and not flushed
+. Distributed - multiple instances of AGAs can access it concurrently
+. Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
+
+== Where to Implement AGA
+
+There are two options in where AGA could be implemented. Prefering option 1 for the initial POC implementation.
 
 === Option 1: Make it part of DPM in region level
 
@@ -103,6 +111,36 @@ Since all the network configurations are passed down by DPM placed at the region
 
 To meet the time critical on demand requests, AGA can be a separate component placed at the cluster level. Since AGA is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. It will be used when option 1 does not meet the latency requirement for on demand requests.
 
+== gRPC Connection change
+
+We will update an existing gRPC interface for the bidirectional streaming connection between ACA and AGA:
+
+[source,shell]
+------------------------------------------------------------
+from: 
+    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateOperationReply)
+
+to: 
+    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateStatus)
+------------------------------------------------------------
+
+AGA Workflow for the gRPC connection from the client side:
+
+. Setup gRPC client connection: GoalStateProvisionerClient grpc_client(grpc::CreateChannel(
+        g_grpc_server + ":" + g_grpc_port, grpc::InsecureChannelCredentials()));
+. Create the bi-directional stream: std::shared_ptr<ClientReaderWriter<GoalState, GoalStateOperationReply> > stream(
+        stub_->PushNetworkResourceStatesStream(&context));
+. Create a new thread for the writer: std::thread writer([stream, ...]() {...} 
+    .. write and send a dummy no-op message to ACA
+    .. wait for other message to be sent to ACA
+    .. don't close this writing thread as the server side will shutdown the connection
+. In the original thread, have a while loop to keep reading for GoalStateStatus
+. Join the writer thread: writer.join();
+. Cleanup since both reader and writer are done if we reach here
+
+For reference, the above is already implemented in ACA test code: https://github.com/futurewei-cloud/alcor-control-agent/blob/master/test/func_tests/gs_tests.cpp#L289 
+
+Note: may need to send stuff periodically to keep the gRPC connection alive.
 
 == Security Group Improvements
 
@@ -110,42 +148,89 @@ Security group handling is one of the biggest challenge for public cloud due to 
 
 One approach to address the SG scale issue is to mark each packet with source port SG ID/label. Instead of knowing all the remote IPs on an ingress SG remote rule on the destination side, we can simply mark all egress packets with its associated SG IDs/labels. On the ingress side, it only needs match the ingress remote rule SG ID/label with the marking in the packet. Note that this will greatly help with the scale and IP updates for the ingress remote rule only, but it is an elegent solution which addresses half of the problem for SG. 
 
-One challenge is the current SG ID is a 16 bytes UUID, and each port can be assoicated with upto 5 SG IDs. With  overhead of NSH header or IP options approach, we are looking at adding close to 100 bytes to each packet ((16 bytesx5=80bytes) + overhead). SG ID labeling can be used to reduce adding so much data per packet. Alcor security group manager can generate SG ID label per VPC (or per tenant) and passes it down together with its SG configuration to ACA. Since there is a limit for how many SGs a tenant can create (e.g. 50 per tenant), 1 byte with 256 values should be big enough for the SG ID label.
+One challenge is the current SG ID is a 16 bytes UUID, and each port can be assoicated with upto 5 SG IDs. With the overhead of NSH header or IP options approach, we are looking at adding close to 100 bytes to each packet (16bytesx5=80bytes + overhead). SG ID labeling can be used to reduce adding so much data per packet. Alcor security group manager can generate SG ID label per VPC (or per tenant) and passes it down together with its SG configuration to ACA. Since there is a limit for how many SGs a tenant can create (e.g. 50 per tenant), 1 byte with 256 values should be big enough for the SG ID label.
 
 == ACA on demand request of configuration
 
-There will be situation when ACA doesn't have the needed configuration for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from AGA.
+There may be situations when ACA doesn't have the needed configurations for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from AGA using PushNetworkResourceStatesStream mentioned above.
 
-We can use an existing gRPC interface for the bidirectional streaming connection between ACA and AGA:
-    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateStatus)
-
-Input: GoalStateStatus - source port ID or IP, destination IP, VNI, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
+Input from ACA to AGA: GoalStateRequest - request_type=ON_DEMAND, request_id, tunnel_id, source port ID or IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
 
 AGA Workflow:
 
-. Use VNI to lookup VPC
-. If needed, find the source port ID based on IP
+. If needed, find the source port ID based on IP using tunnel ID to lookup VPC
 .. For destination IP on the same subnet, confirm it is L2 neighbor
 .. For destination IP on the different subnet, confirm it is L3 neighbor
-.. For destination IP from routing rule or gateway, the configurations should be in ACA already
-. If confirm it is L2/L3 neighbor, look up SG rules for source port
+. Once confirm it is L2/L3 neighbor, look up SG rules for source port
 .. If traffic is allowed, construct and track the corresponding SG config
-... send down neighbor and corresponding constructed SG rule
-... Reply OperationStatus = SUCCESS (routable) for the rpc call
-.. Reply OperationStatus = FAILURE (not routable) for the rpc call
-. May go ahead to send down remaining neighbor and SG config for this active port
-
-== Database Requirements
-
-In order to support the Alcor Group Agent, we have the following database requirements:
-
-. Persistent - old data should always be there and not flushed
-. Distributed - multiple instances of AGAs can access it concurrently
-. Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
+... send down neighbor and corresponding constructed SG rule (first step)
+... send down port configuration with Operation = INFO (routable) with corresponding request ID (second step)
+... May go ahead to send down remaining neighbor and SG config for this active port
+.. If traffic is not allowed
+... send down port configuration with Operation = NOT_ROUTABLE (?) with corresponding request ID
 
 == Schema Update
 
-TBD: goal state
+*src/schema/proto3/common.proto*
+[source,java]
+------------------------------------------------------------
+enum RequestType {
+    ON_DEMAND = 0;
+    OUT_OF_ORDER = 1;
+    RESTARTED = 2;
+}
+------------------------------------------------------------
+
+*src/schema/proto3/goalstateprovisioner.proto*
+[source,java]
+------------------------------------------------------------
+message GoalStateOperationReply {
+    
+    message GoalStateOperationStatus {
+        string resource_id = 1;
+        ResourceType resource_type = 2;
+        OperationType operation_type = 3;
+        OperationStatus operation_status = 4;
+        uint32 dataplane_programming_time = 5;
+        uint32 network_configuration_time = 6;
+        uint32 state_elapse_time = 7;
+    }
+
+    repeated GoalStateOperationStatus operation_statuses = 1;
+
+    // Total operation time (in nanoseconds)
+    //    1. to process the message (consisting of multiple operations)
+    //    2. to program data plane
+    // Note: The list of operation_statuses details the time spent at each operation
+    uint32 message_total_operation_time = 2;
+}
+
+message GoalStateRequest {
+
+    message ResourceStateRequest {
+        RequestType request_type = 1;
+        string request_id = 2; // UUID generated by ACA
+        uint32 tunnel_id = 3; 
+        ResourceType resource_type = 4; // should be PORT
+        string resource_id = 5;
+        string source_ip = 6; // use either port resource ID or IP
+        uint32 source_port = 7;
+        string destination_ip = 8; 
+        uint32 destination_port = 9;
+        EtherType ethertype = 10;
+        Protocol protocol = 11;
+    }
+
+    repeated ResourceStateRequest state_requests = 1;
+}
+
+message GoalStateStatus {
+    uint32 format_version = 1;
+
+    repeated GoalStateOperationReply gs_operation_replies = 2;
+    repeated GoalStateRequest gs_requests = 3;
+}
+------------------------------------------------------------
 
 *src/schema/proto3/vpc.proto*
 [source,java]
@@ -159,7 +244,7 @@ enum VpcSize { // *** NEW ***
 }
 
 message VpcConfiguration {  
-    uint32 revision_number = 1;
+    uint32 revision_number = 1; // resource manager needs to fill in
 
     string request_id = 2;
     string id = 3;
@@ -187,11 +272,20 @@ message VpcState {
 
 == AGA Out of Order Configuration Handling
 
-TBD: work flow
+Detection - all resource managers needs to fill in revision_number for a given resource (e.g. Port/Neighbor etc). It should have not problem to generate the revision_number since it already has a lock when dealing with a particular resource. Both AGA and ACA can detect out of order configuration, but it is higher priority to do it in AGA.
+
+Input from ACA to AGA: GoalStateRequest - request_type=OUT_OF_ORDER, request_id, resource ID, resource_type (needed?)
+
+AGA Workflow:
+
+. Find the resource based ID
+.. If found in cache, 
+... generate full state by combining full + delta state (if any) in cache (don't want to send down full and delta states seperately to avoid security out of order issue)
+... send down the full state to ACA with the corresponding request_id (generated by ACA)
+.. If not found in cache, 
+... send down port configuration with Operation = NOT_FOUND (?) with corresponding request ID (generate by ACA)
 
 == ACA Restart Handling
-
-TBD: work flow
 
 See issue #540, ACA restart handling is described below:
 
@@ -203,7 +297,9 @@ To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-
 
 === Alcor Group Agent Solution
 
-With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateOperationStatus to AGA with operation_status = RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
+With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to AGA with request_type=RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
+
+Input from ACA to AGA: GoalStateRequest - request_type=RESTARTED, request_id (generated by ACA)
 
 AGA will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
 
