@@ -17,6 +17,7 @@ image::opentracing2.png["Jaeger Standard Workflows", width=1024, link="jaeger_wo
 
 image::opentracing1.jpg["Jaeger Workflows for integration with VPC, subnet and port across various microservices", width=1024, link="opentracing_workflow.jpg"]
 
+image::rewrite_url1.jpg["Use URL rewritten to go across various microservices", width=1024, link="rewrite_url1.jpg"]
 
 == Reference: Jaeger Architecture
 
