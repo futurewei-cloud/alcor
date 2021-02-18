@@ -1,4 +1,4 @@
-= Alcor Group Agent Design
+= Network Configuration Manager Design
 Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
 v0.1, 2021-01-28
 :toc: right
@@ -9,7 +9,7 @@ NOTE: This document is under development
 
 == Architecture Overview
 
-image:AGA_overview.png[image,width=880,height=640]
+image:NCM_overview.png[image,width=880,height=640]
 
 == Requirements
 
@@ -18,7 +18,7 @@ We want to have a design that is:
 . Ultra high scale - supports up to a million compute hosts in a region
 . Efficient control messaging - no chatty protocol like neutron OVS agent
 . Super fast dataplane provisioning for both small and large VPC
-. Small ACA on host - low resource, simple, can be ran on smart NIC
+. Small ACA on host - low resource, simple, can be ran on smart NIC's ARM CPU
 
 == Problems to Solve
 
@@ -27,27 +27,28 @@ Other than meeting the requirements above, there are a list of problems to be so
 . Neighbor and Security Group scale - address scaling issue especially with remote security group rule
 . Duplicate configuration - don't send down redundant configuration when compute node has it already
 . Out of Order configuration - detect and resolve out of order configuration in goal state messages
-. Alcor Control Agent restart handling - provide an efficient way to restore the configuration
+. Alcor Control Agent restart/upgrade handling - provide an efficient way to restore the configuration
+. Direct Dataplane programming - reduce the logic and local data needed in ACA
 
-== Alcor Group Agent
+== Network Configuration Manager
 
-Alcor Group Agent is introduced here to meet the ultra high scale requirement for the next generation cloud. A set of nearby compute node (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an cluster managed by a set of AGAs. There could be 10,000 machines serviced by this set of AGAs if it meets the performance requirement.
+Network Configuration Manager is introduced here to meet the ultra high scale requirement for the next generation cloud. A set of nearby compute nodes (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an cluster managed by a set of NCMs. There could be 10,000 machines serviced by this set of NCMs if it meets the performance requirement.
 
-The set of AGAs will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers. The version numbers are used for out of order detection and handling discuss later. The database will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of AGAs, lock is needed when reading/writing to a particular resource belongs to a compute host. It is a small and localized lock therefore it should not impact performance. 
+The set of NCMs will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers. The version numbers are used for out of order detection and handling discuss later. The database will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of NCMs, lock is needed when reading/writing to a particular resource belongs to a compute host. It is a small and localized lock therefore it should not impact performance. 
 
-AGA will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, AGA will always pass down the configuration because the scale is bounded. For neighbor and security group, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
+NCM will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, NCM will always pass down the configuration because the scale is bounded. For neighbor and security group, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
 
 == Database Requirements
 
 In order to support the Alcor Group Agent, we have the following database requirements:
 
 . Persistent - old data should always be there and not flushed
-. Distributed - multiple instances of AGAs can access it concurrently
+. Distributed - multiple instances of NCMs can access it concurrently
 . Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
 
-== Where to Implement AGA
+== Where to Implement NCM?
 
-There are two options in where AGA could be implemented. Prefering option 1 for the initial POC implementation.
+There are two options in where NCM could be implemented. Prefering option 1 for the initial POC implementation.
 
 === Option 1: Make it part of DPM in region level
 
@@ -57,7 +58,7 @@ There are two options in where AGA could be implemented. Prefering option 1 for 
    | +------------------------+
    | | +------------------------+         +--------------------+
    | | |                    | | |         |                    |
-   | | |   DPM with AGA     | | |         |                    |
+   | | |   DPM with NCM     | | |         |                    |
    | | |   functionality    | | |         |                    |
    | | |                    | | +-------->+      ACA           |
    | | |                    | | |         |                    |
@@ -78,9 +79,9 @@ There are two options in where AGA could be implemented. Prefering option 1 for 
          +--------------------+           +--------------------+
 ------------------------------------------------------------
 
-Since all the network configurations are passed down by DPM placed at the region level, it is possible to integration all the AGA functionalities into DPM and reduce the extra layer and component of AGA. However, since DPM is placed at the region level, the on demand requests from ACA may need to take a few extra hops to DPM which can introduce additional latency for the time critical on demand requests.
+Since all the network configurations are passed down by DPM placed at the region level, it is possible to integration all the NCM functionalities into DPM and reduce the extra layer and component of NCM. However, since DPM is placed at the region level, the on demand requests from ACA may need to take a few extra hops to DPM which can introduce additional latency for the time critical on demand requests.
 
-=== Option 2: Separate AGA placed in the cluster level 
+=== Option 2: Separate NCM placed in the cluster level 
 
 [source,shell]
 ------------------------------------------------------------
@@ -88,7 +89,7 @@ Since all the network configurations are passed down by DPM placed at the region
 | +------------------------+              | +------------------------+
 | | +------------------------+            | | +------------------------+         +--------------------+
 | | |                    | | |            | | |                    | | |         |                    |
-| | |   DPM              +--------------->+ | |   AGA              | | |         |                    |
+| | |   DPM              +--------------->+ | |   NCM              | | |         |                    |
 | | |                    | | |            | | |                    | | |         |                    |
 | | |                    | +------------->+ | |                    | | +-------->+      ACA           |
 | | |                    | | |            | | |                    | | |         |                    |
@@ -109,11 +110,11 @@ Since all the network configurations are passed down by DPM placed at the region
                                                 +--------------------+           +--------------------+
 ------------------------------------------------------------
 
-To meet the time critical on demand requests, AGA can be a separate component placed at the cluster level. Since AGA is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. It will be used when option 1 does not meet the latency requirement for on demand requests.
+To meet the time critical on demand requests, NCM can be a separate component placed at the cluster level. Since NCM is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. It will be used when option 1 does not meet the latency requirement for on demand requests.
 
 == gRPC Connection change
 
-We will update an existing gRPC interface for the bidirectional streaming connection between ACA and AGA:
+We will update an existing gRPC interface for the bidirectional streaming connection between ACA and NCM:
 
 [source,shell]
 ------------------------------------------------------------
@@ -124,7 +125,7 @@ to:
     rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateStatus)
 ------------------------------------------------------------
 
-AGA Workflow for the gRPC connection from the client side:
+NCM Workflow for the gRPC connection from the client side:
 
 . Setup gRPC client connection: GoalStateProvisionerClient grpc_client(grpc::CreateChannel(
         g_grpc_server + ":" + g_grpc_port, grpc::InsecureChannelCredentials()));
@@ -144,6 +145,9 @@ Note: may need to send stuff periodically to keep the gRPC connection alive.
 
 == Security Group Improvements
 
+Question: who is going to resolve the SG remote IPs before sending down the ACA? Answer: Likely SGM
+Another option is to couple neighbor configure with SG by added the assoicated SG? But that won't work with cross VPC remote SG group
+
 Security group handling is one of the biggest challenge for public cloud due to its scaling issue especially with remote SG group assoication in a rule. E.g. we have an ingress rule to allow ingress traffic only from the ports assoicated with a default SG. As ports assoication comes and goes, all the existing ports needs to know the latest set of port IPs assoicated with this default SG with the current openstack neutron solution today.  
 
 One approach to address the SG scale issue is to mark each packet with source port SG ID/label. Instead of knowing all the remote IPs on an ingress SG remote rule on the destination side, we can simply mark all egress packets with its associated SG IDs/labels. On the ingress side, it only needs match the ingress remote rule SG ID/label with the marking in the packet. Note that this will greatly help with the scale and IP updates for the ingress remote rule only, but it is an elegent solution which addresses half of the problem for SG. 
@@ -152,13 +156,13 @@ One challenge is the current SG ID is a 16 bytes UUID, and each port can be asso
 
 == ACA on demand request of configuration
 
-There may be situations when ACA doesn't have the needed configurations for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from AGA using PushNetworkResourceStatesStream mentioned above.
+There may be situations when ACA doesn't have the needed configurations for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from NCM using PushNetworkResourceStatesStream mentioned above.
 
-Input from ACA to AGA: GoalStateRequest - request_type=ON_DEMAND, request_id, tunnel_id, source port ID or IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
+Input from ACA to NCM: GoalStateRequest - request_type=ON_DEMAND, request_id, tunnel_id, source port IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
 
-AGA Workflow:
+NCM Workflow:
 
-. If needed, find the source port ID based on IP using tunnel ID to lookup VPC
+. Find the source port ID based on IP using tunnel ID to lookup VPC
 .. For destination IP on the same subnet, confirm it is L2 neighbor
 .. For destination IP on the different subnet, confirm it is L3 neighbor
 . Once confirm it is L2/L3 neighbor, look up SG rules for source port
@@ -174,10 +178,14 @@ AGA Workflow:
 *src/schema/proto3/common.proto*
 [source,java]
 ------------------------------------------------------------
-enum RequestType {
-    ON_DEMAND = 0;
-    OUT_OF_ORDER = 1;
-    RESTARTED = 2;
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    INVALID_ARG = 2;
+    PENDING = 3;
+    ON_DEMAND = 4;
+    OUT_OF_ORDER = 5;
+    RESTARTED = 6;
 }
 ------------------------------------------------------------
 
@@ -208,7 +216,7 @@ message GoalStateOperationReply {
 message GoalStateRequest {
 
     message ResourceStateRequest {
-        RequestType request_type = 1;
+        OperationStatus operation_status = 1;
         string request_id = 2; // UUID generated by ACA
         uint32 tunnel_id = 3; 
         ResourceType resource_type = 4; // should be PORT
@@ -255,13 +263,7 @@ message VpcConfiguration {
     string cidr = 8;
     uint32 tunnel_id = 9;
 
-    message SubnetId {
-        string id = 1;
-    }
-
-    repeated SubnetId subnet_ids = 10;
-
-    AuxGateway auxiliary_gateway = 11;
+    repeated string gateway_ids = 10;
 }
 
 message VpcState {
@@ -270,20 +272,69 @@ message VpcState {
 }
 ------------------------------------------------------------
 
-== AGA Out of Order Configuration Handling
+*alcor/src/schema/proto3/common.proto*
 
-Detection - all resource managers needs to fill in revision_number for a given resource (e.g. Port/Neighbor etc). It should have not problem to generate the revision_number since it already has a lock when dealing with a particular resource. Both AGA and ACA can detect out of order configuration, but it is higher priority to do it in AGA.
+[source,java]
+------------------------------------------------------------
+message HostInfo { // NEW - moved from port.proto
+   string ip_address = 1;
+   string mac_address = 2;
+   }
+------------------------------------------------------------
 
-Input from ACA to AGA: GoalStateRequest - request_type=OUT_OF_ORDER, request_id, resource ID, resource_type (needed?)
+*alcor/src/schema/proto3/goalstate.proto*
 
-AGA Workflow:
+[source,java]
+------------------------------------------------------------
+syntax = "proto3";
 
-. Find the resource based ID
-.. If found in cache, 
-... generate full state by combining full + delta state (if any) in cache (don't want to send down full and delta states seperately to avoid security out of order issue)
-... send down the full state to ACA with the corresponding request_id (generated by ACA)
-.. If not found in cache, 
-... send down port configuration with Operation = NOT_FOUND (?) with corresponding request ID (generate by ACA)
+package alcor.schema;
+
+option java_package = "com.futurewei.alcor.schema";
+
+import "vpc.proto";
+import "subnet.proto";
+import "port.proto";
+import "neighbor.proto";
+import "securitygroup.proto";
+import "dhcp.proto";
+import "router.proto";
+
+message GoalState {
+    uint32 format_version = 1;
+
+    HostInfo targeted_host_info = 2; // NEW
+
+    repeated VpcState vpc_states = 3;
+    repeated SubnetState subnet_states = 4;
+    repeated PortState port_states = 5;
+    repeated NeighborState neighbor_states = 6;
+    repeated SecurityGroupState security_group_states = 7;
+    repeated DHCPState dhcp_states = 8;
+    repeated RouterState router_states = 9;
+    repeated GatewayState gateway_states = 10;
+}
+------------------------------------------------------------
+
+Another option is to put targeted_host_info into neighbor/SG/Gateway state:
+
+*alcor/src/schema/proto3/neighbor.proto*
+
+[source,java]
+------------------------------------------------------------
+message NeighborState {
+    repeated HostInfo targeted_host_info = 1; // NEW, host of ACA host IP
+
+    OperationType operation_type = 2;
+    NeighborConfiguration configuration = 3;
+}
+------------------------------------------------------------
+
+== NCM Out of Order Configuration Handling
+
+Detection - all resource managers needs to fill in revision_number for a given resource (e.g. Port/Neighbor etc). It should have not problem to generate the revision_number since it already has a lock when dealing with a particular resource. Both NCM and ACA can detect out of order configuration, but it is higher priority to do it in NCM.
+
+NCM already keep tracks of all resources for a particular compute host, together with its revision_number. When NCM detect there is an out of order configuration for a particular resource, NCM should respond to DPM using GoalStateOperationReply message and mark a resource's operation_status = OUT_OF_ORDER.
 
 == ACA Restart Handling
 
@@ -297,16 +348,16 @@ To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-
 
 === Alcor Group Agent Solution
 
-With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to AGA with request_type=RESTARTED. This signals AGA that a partcular ACA needs its help to bring down all the configurations. 
+With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to NCM with request_type=RESTARTED. This signals NCM that a partcular ACA needs its help to bring down all the configurations. 
 
-Input from ACA to AGA: GoalStateRequest - request_type=RESTARTED, request_id (generated by ACA)
+Input from ACA to NCM: GoalStateRequest - request_type=RESTARTED, request_id (generated by ACA)
 
-AGA will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
+NCM will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
 
 == Work Flows
 
-image:AGA_workflow.png[image,width=880,height=640]
+image:NCM_workflow.png[image,width=880,height=640]
 
 == Detail Slides
 
-Please find the highlevel powerpoint slides of Alcor Group Agent (AGA) in xref:AGA_design.pptx[Alcor Group Agent]
+Please find the highlevel powerpoint slides of Alcor Group Agent (NCM) in xref:NCM_design.pptx[Alcor Group Agent]
