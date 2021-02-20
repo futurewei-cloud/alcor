@@ -22,6 +22,9 @@ public class UnitTestConfig {
     public static String nodeMacAddress = "90:17:ac:c1:34:64";
     public static String nodeVeth = "eth0";
     public static int nodeGRPCServerPort = 0;
+    public static String nodeUnicastTopic = "unicast-topic-1";
+    public static String nodeMulticastTopic = "multicast-topic-1";
+    public static String nodeGroupTopic = "group-topic-1";
 
     public static String portId1 = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String portId2 = "3d53801c-32ce-4e97-9572-bb966f4625ba";

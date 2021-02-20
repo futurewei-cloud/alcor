@@ -14,7 +14,7 @@ import org.springframework.retry.annotation.Retryable;
 @Configuration
 @EnableRetry
 @Slf4j
-public class GatewayManagerRestClinet extends AbstractRestClient {
+public class GatewayManagerRestClient extends AbstractRestClient {
 
     @Value("${microservices.zeta.service.url:\"\"}")
     private String zetaManagerUrl;
@@ -48,5 +48,10 @@ public class GatewayManagerRestClinet extends AbstractRestClient {
         String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo/" + gatewayInfo.getResourceId();
         HttpEntity<GatewayInfoJson> request = new HttpEntity<>(new GatewayInfoJson(gatewayInfo));
         restTemplate.put(url, request);
+    }
+
+    public void deleteDPMCacheGateway(String projectId, String vpcId) {
+        String url = dpmManagerUrl + "/project/" + projectId + "/gatewayinfo/" + vpcId;
+        restTemplate.delete(url);
     }
 }
