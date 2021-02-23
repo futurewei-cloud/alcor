@@ -382,6 +382,12 @@ NCM will use existing algorthm to bring down all the configuration for ports/rou
 
 image:NCM_workflow.png[image,width=880,height=640]
 
-== Detail Slides
+== Highlevel Slides
 
 Please find the highlevel powerpoint slides of Network Configuration Manager (NCM) in xref:NCM_design.pptx[Network Configuration Manager]
+
+[bibliography]
+== References
+
+- [[[proto3-map,1]]] https://developers.google.com/protocol-buffers/docs/proto3#maps
+- [[[map.h,2]]] https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.map
