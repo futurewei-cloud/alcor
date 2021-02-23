@@ -40,7 +40,7 @@ NCM will serve as configuration cache or passthrough proxy for network configura
 
 == Database Requirements
 
-In order to support the Alcor Group Agent, we have the following database requirements:
+In order to support the Network Configuration Manager, we have the following database requirements:
 
 . Persistent - old data should always be there and not flushed
 . Distributed - multiple instances of NCMs can access it concurrently
@@ -175,6 +175,8 @@ NCM Workflow:
 
 == Schema Update
 
+=== New GRPC stream communication
+
 *src/schema/proto3/common.proto*
 [source,java]
 ------------------------------------------------------------
@@ -187,6 +189,11 @@ enum OperationStatus {
     OUT_OF_ORDER = 5;
     RESTARTED = 6;
 }
+
+message HostInfo { // NEW - moved from port.proto
+   string ip_address = 1;
+   string mac_address = 2;
+   }
 ------------------------------------------------------------
 
 *src/schema/proto3/goalstateprovisioner.proto*
@@ -272,51 +279,68 @@ message VpcState {
 }
 ------------------------------------------------------------
 
-*alcor/src/schema/proto3/common.proto*
+=== Putting in targetted host info into GS message
 
-[source,java]
-------------------------------------------------------------
-message HostInfo { // NEW - moved from port.proto
-   string ip_address = 1;
-   string mac_address = 2;
-   }
-------------------------------------------------------------
+First and suggested option is:
 
 *alcor/src/schema/proto3/goalstate.proto*
 
 [source,java]
 ------------------------------------------------------------
-syntax = "proto3";
-
-package alcor.schema;
-
-option java_package = "com.futurewei.alcor.schema";
-
-import "vpc.proto";
-import "subnet.proto";
-import "port.proto";
-import "neighbor.proto";
-import "securitygroup.proto";
-import "dhcp.proto";
-import "router.proto";
-
+...
 message GoalState {
     uint32 format_version = 1;
 
-    HostInfo targeted_host_info = 2; // NEW
+    map<string /*host ip-ResourceType enum*/, string /*resource id*/> host_to_resource_id = 2;
+    map<string /*resource id*/, VpcState> vpc_states = 3;
+    map<string /*resource id*/, SubnetState> subnet_states = 4;
 
-    repeated VpcState vpc_states = 3;
-    repeated SubnetState subnet_states = 4;
-    repeated PortState port_states = 5;
-    repeated NeighborState neighbor_states = 6;
-    repeated SecurityGroupState security_group_states = 7;
-    repeated DHCPState dhcp_states = 8;
-    repeated RouterState router_states = 9;
-    repeated GatewayState gateway_states = 10;
+    // PortState and DHCPState is applicable to one host only
+    map<string /*resource id*/, PortState> port_states = 5;
+    map<string /*resource id*/, DHCPState> dhcp_states = 6;
+
+    map<string /*resource id*/, NeighborState> neighbor_states = 7;
+    map<string /*resource id*/, SecurityGroupState> security_group_states = 8;
+    map<string /*resource id*/, RouterState> router_states = 9;
+    map<string /*resource id*/, GatewayState> gateway_states = 10;
 }
 ------------------------------------------------------------
 
-Another option is to put targeted_host_info into neighbor/SG/Gateway state:
+Second option is:
+
+*alcor/src/schema/proto3/goalstate.proto*
+
+[source,java]
+------------------------------------------------------------
+...
+message GoalState {
+    uint32 format_version = 1;
+
+    map<string /*host id*/, string /*vpc id*/> host_to_vpc_id = 2;
+    map<string /*resource id*/, VpcState> vpc_states = 3;
+
+    map<string /*host id*/, string /*subnet id*/> host_to_subnet_id = 3;
+    map<string /*resource id*/, SubnetState> subnet_states = 4;
+
+    // PortState and DHCPState is applicable to one host only
+    map<string /*resource id*/, PortState> port_states = 5;
+    map<string /*resource id*/, DHCPState> dhcp_states = 6;
+
+    map<string /*host id*/, string /*neighbor id*/> host_to_neighbor_id = 2;
+    map<string /*resource id*/, NeighborState> neighbor_states = 3;
+
+    map<string /*host id*/, sting /*security group id*/> host_to_security_group_id = 2;
+    map<string /*resource id*/, SecurityGroupState> security_group_states = 3;
+
+    map<string /*host id*/, sting /*router id*/> host_to_router_id = 2;
+    map<string /*resource id*/, RouterState> router_states = 3;
+
+    map<string /*host id*/, sting /*gateway id*/> host_to_gateway_id = 2;
+    map<string /*resource id*/, GatewayState> gateway_states = 3;
+}
+------------------------------------------------------------
+
+Third option is to put targeted_host_info into vpc/subnet/neighbor/SG/router/Gateway state:
 
 *alcor/src/schema/proto3/neighbor.proto*
 
@@ -346,9 +370,9 @@ Neutron OVS agent inserts a canary table during startup. In its main rpc_loop, i
 
 To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-tun, etc) and default flows. It will also reset the dvr if it is enabled. After that, it will rely on a background syncing to get the latest tunnels (for L2 neighbors) and DVR (for L3 neighbors) configurations.
 
-=== Alcor Group Agent Solution
+=== Network Configuration Manager Solution
 
-With Alcor Group Agent acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to NCM with request_type=RESTARTED. This signals NCM that a partcular ACA needs its help to bring down all the configurations. 
+With Network Configuration Manager acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to NCM with request_type=RESTARTED. This signals NCM that a partcular ACA needs its help to bring down all the configurations. 
 
 Input from ACA to NCM: GoalStateRequest - request_type=RESTARTED, request_id (generated by ACA)
 
@@ -360,4 +384,4 @@ image:NCM_workflow.png[image,width=880,height=640]
 
 == Detail Slides
 
-Please find the highlevel powerpoint slides of Alcor Group Agent (NCM) in xref:NCM_design.pptx[Alcor Group Agent]
+Please find the highlevel powerpoint slides of Network Configuration Manager (NCM) in xref:NCM_design.pptx[Network Configuration Manager]
