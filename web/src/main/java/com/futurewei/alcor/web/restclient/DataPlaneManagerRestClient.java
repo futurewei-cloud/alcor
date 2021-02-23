@@ -38,7 +38,7 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @Value("${microservices.dataplane.nodeservice.url:#{\"\"}}")
     private String dataPlaneNodeManagerUrl;
 
-    @Value("${microservices.zeta.service.url:#{\"\"}}")
+    @Value("${microservices.zeta.management.url:#{\"\"}}")
     private String zetaManagerUrl;
 
     @DurationStatistics

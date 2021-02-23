@@ -12,7 +12,7 @@ data:
     logging.file.path=.
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
-    microservices.zeta.service.url=http://10.213.43.90
+    microservices.zeta.management.url=http://10.213.43.90
     microservices.dpm.service.url=http://localhost:9010
     zetaGateway.enabled=false
     rbac.policy.type=Enforced

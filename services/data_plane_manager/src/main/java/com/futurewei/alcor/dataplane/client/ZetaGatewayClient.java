@@ -41,7 +41,7 @@ public class ZetaGatewayClient {
     @Value("${zetaGateway.check.interval}")
     private String zetaGatewayCheckInterval;
 
-    @Value("${microservices.zeta.service.url}")
+    @Value("${microservices.zeta.management.url}")
     private String zetaGatewayUrl;
 
     @Value("${microservices.gateway.service.url}")

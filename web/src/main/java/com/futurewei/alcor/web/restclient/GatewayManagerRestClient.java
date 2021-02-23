@@ -20,7 +20,7 @@ import org.springframework.retry.annotation.Retryable;
 @Slf4j
 public class GatewayManagerRestClient extends AbstractRestClient {
 
-    @Value("${microservices.zeta.service.url:\"\"}")
+    @Value("${microservices.zeta.management.url:\"\"}")
     private String zetaManagerUrl;
 
     @Value("${microservices.dpm.service.url:\"\"}")
@@ -35,7 +35,6 @@ public class GatewayManagerRestClient extends AbstractRestClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>(jsonStr, headers);
         Object response = restTemplate.postForObject(url, request, Object.class);
-        //return restTemplate.postForObject(url, request, ZetaGatewayIpJson.class);
         ZetaGatewayIpJson result = new ZetaGatewayIpJson();
         if (response != null) {
             ObjectMapper mapper = new ObjectMapper();
