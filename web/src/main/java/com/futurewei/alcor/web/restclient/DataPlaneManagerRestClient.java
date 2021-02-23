@@ -17,6 +17,8 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
+import com.futurewei.alcor.web.entity.gateway.ZetaPortsWebJson;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
