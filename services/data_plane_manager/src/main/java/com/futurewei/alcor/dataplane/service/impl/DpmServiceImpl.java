@@ -76,6 +76,9 @@ public class DpmServiceImpl implements DpmService {
     private PortService portService;
 
     @Autowired
+    private ZetaPortService zetaPortService;
+
+    @Autowired
     private NeighborService neighborService;
 
     @Autowired
@@ -94,15 +97,14 @@ public class DpmServiceImpl implements DpmService {
 
     private UnicastGoalState buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
                                                    List<InternalPortEntity> portEntities,
-                                                   MulticastGoalState multicastGoalState,
-                                                   ZetaPortGoalState zetaPortGoalState) throws Exception {
+                                                   MulticastGoalState multicastGoalState) throws Exception {
         UnicastGoalState unicastGoalState = new UnicastGoalState();
         unicastGoalState.setHostIp(hostIp);
 
         unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
         if (portEntities != null && portEntities.size() > 0) {
-            portService.buildPortState(networkConfig, portEntities, unicastGoalState, zetaPortGoalState);
+            portService.buildPortState(networkConfig, portEntities, unicastGoalState);
         }
 
         vpcService.buildVpcStates(networkConfig, unicastGoalState);
@@ -122,21 +124,29 @@ public class DpmServiceImpl implements DpmService {
 
     private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,
                                                    Map<String, List<InternalPortEntity>> hostPortEntities,
-                                                   DataPlaneClient dataPlaneClient,
-                                                   List<String> failedZetaPorts) throws Exception {
+                                                   DataPlaneClient dataPlaneClient) throws Exception {
         List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
         MulticastGoalState multicastGoalState = new MulticastGoalState();
+
         ZetaPortGoalState zetaPortsGoalState = new ZetaPortGoalState();
+        List<String> failedZetaPorts = new ArrayList<>();
 
         for (Map.Entry<String, List<InternalPortEntity>> entry : hostPortEntities.entrySet()) {
             String hostIp = entry.getKey();
             List<InternalPortEntity> portEntities = entry.getValue();
+
+            if (zetaGatwayEnabled) {
+                if (portEntities != null && portEntities.size() > 0) {
+                    zetaPortService.buildPortState(networkConfig, portEntities, zetaPortsGoalState);
+                }
+            }
+
             unicastGoalStates.add(buildUnicastGoalState(
-                    networkConfig, hostIp, portEntities, multicastGoalState, zetaPortsGoalState));
+                    networkConfig, hostIp, portEntities, multicastGoalState));
         }
         // portEntities in the same unicastGoalStates should have the same opType
 
-        if (zetaPortsGoalState.getPortEntities().size() > 0) {
+        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
             return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
         } else {
             return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
@@ -156,7 +166,7 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
-    private List<String> processPortConfiguration(NetworkConfiguration networkConfig, List<String> failedZetaPorts) throws Exception {
+    private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
 
@@ -187,12 +197,12 @@ public class DpmServiceImpl implements DpmService {
 
         if (grpcHostPortEntities.size() != 0) {
             statusList.addAll(doCreatePortConfiguration(
-                    networkConfig, grpcHostPortEntities, grpcDataPlaneClient, failedZetaPorts));
+                    networkConfig, grpcHostPortEntities, grpcDataPlaneClient));
         }
 
         if (pulsarHostPortEntities.size() != 0) {
             statusList.addAll(doCreatePortConfiguration(
-                    networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient, failedZetaPorts));
+                    networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
 
         localCache.updateLocalCache(networkConfig);
@@ -375,11 +385,10 @@ public class DpmServiceImpl implements DpmService {
     private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts;
-        List<String> failedZetaPorts = new ArrayList<>();
 
         switch (networkConfig.getRsType()) {
             case PORT:
-                failedHosts = processPortConfiguration(networkConfig, failedZetaPorts);
+                failedHosts = processPortConfiguration(networkConfig);
                 break;
             case NEIGHBOR:
                 failedHosts = processNeighborConfiguration(networkConfig);

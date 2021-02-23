@@ -16,24 +16,18 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.dataplane.entity.ZetaPortGoalState;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
-import com.futurewei.alcor.web.entity.gateway.ZetaPortEntity;
-import com.futurewei.alcor.web.entity.gateway.ZetaPortIP;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PortService extends ResourceService {
     public void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
-                               UnicastGoalState unicastGoalState, ZetaPortGoalState zetaPortGoalState) {
-        List<ZetaPortEntity> zetaPortEntities = new ArrayList<>();
-        zetaPortGoalState.setOpType(networkConfig.getOpType());
+                               UnicastGoalState unicastGoalState) {
         for (InternalPortEntity portEntity: portEntities) {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
             portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -54,14 +48,12 @@ public class PortService extends ResourceService {
             //TODO: Do we need mac address?
             //hostInfoBuilder.setMacAddress()
             portConfigBuilder.setHostInfo(hostInfoBuilder.build());
-            List<ZetaPortIP> zetaPortIPs = new ArrayList<>();
             if (portEntity.getFixedIps() != null) {
                 portEntity.getFixedIps().forEach(fixedIp -> {
                     Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
                     fixedIpBuilder.setSubnetId(fixedIp.getSubnetId());
                     fixedIpBuilder.setIpAddress(fixedIp.getIpAddress());
                     portConfigBuilder.addFixedIps(fixedIpBuilder.build());
-                    zetaPortIPs.add(new ZetaPortIP(fixedIp.getIpAddress(), ""));
                 });
             }
 
@@ -82,18 +74,11 @@ public class PortService extends ResourceService {
                 });
             }
 
-            if (portEntity.getIsZetaGatewayPort()) {
-                ZetaPortEntity zetaPortEntity = new ZetaPortEntity(portEntity.getId(), portEntity.getVpcId(), zetaPortIPs,
-                        portEntity.getMacAddress(), portEntity.getBindingHostIP(), "e0:97:96:02:45:53");
-                zetaPortEntities.add(zetaPortEntity);
-            }
-
             //PortState
             Port.PortState.Builder portStateBuilder = Port.PortState.newBuilder();
             portStateBuilder.setOperationType(networkConfig.getOpType());
             portStateBuilder.setConfiguration(portConfigBuilder.build());
             unicastGoalState.getGoalStateBuilder().addPortStates(portStateBuilder.build());
         }
-        zetaPortGoalState.setPortEntities(zetaPortEntities);
     }
 }
