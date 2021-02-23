@@ -17,6 +17,9 @@ package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+
+import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +33,9 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     @Value("${microservices.dataplane.service.url:#{\"\"}}")
     private String dataPlaneManagerUrl;
+
+    @Value("${microservices.dataplane.nodeservice.url:#{\"\"}}")
+    private String dataPlaneNodeManagerUrl;
 
     @DurationStatistics
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
@@ -49,4 +55,29 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);
     }
+
+    @DurationStatistics
+    public void createNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void updateNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void deleteNodeInfo(String nodeId) throws Exception {
+        HttpEntity<String> request = new HttpEntity<>(nodeId);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void bulkCreatNodeInfo(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
+        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
 }

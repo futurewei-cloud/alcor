@@ -12,18 +12,9 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.nodemanager.utils;
+package com.futurewei.alcor.dataplane.utils;
 
-public class NodeManagerConstant {
-    public static final String JSON_HOSTS = "host_infos";
-    public static final String JSON_ID1 = "node_name";
-    public static final String JSON_IP1 = "local_ip";
-    public static final String JSON_MAC1 = "mac_address";
-    public static final String JSON_VETH1 = "veth";
-    public static final int GRPC_SERVER_PORT = 50001;
-    public static final String UNICAST_TOPIC = "unicast_topic";
-    public static final String MULTICAST_TOPIC = "multicast_topic";
-    public static final String GROUP_TOPIC = "group_topic";
+public class DatePlaneManagerConstant {
 
     //Exception Messages
     public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";

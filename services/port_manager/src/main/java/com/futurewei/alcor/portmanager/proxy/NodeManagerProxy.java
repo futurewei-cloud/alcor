@@ -75,7 +75,11 @@ public class NodeManagerProxy {
                 nodeInfos.get(0).getLocalIp(),
                 nodeInfos.get(0).getMacAddress(),
                 nodeInfos.get(0).getVeth(),
-                nodeInfos.get(0).getgRPCServerPort());
+                nodeInfos.get(0).getgRPCServerPort(),
+                nodeInfos.get(0).getUnicastTopic(),
+                nodeInfos.get(0).getMulticastTopic(),
+                nodeInfos.get(0).getGroupTopic()
+        );
 
         return new PortBindingHost(portEntity.getId(), node);
     }
