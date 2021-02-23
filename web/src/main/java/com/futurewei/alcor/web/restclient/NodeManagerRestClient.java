@@ -62,4 +62,10 @@ public class NodeManagerRestClient extends AbstractRestClient {
         List<NodeInfo> list = resp.getBody();
         return list;
     }
+
+    @DurationStatistics
+    public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
+        String url = nodeManagerUrl + "?local_ip=" + nodeIp;
+        return getForObject(url, NodesWebJson.class).getNodeInfos();
+    }
 }

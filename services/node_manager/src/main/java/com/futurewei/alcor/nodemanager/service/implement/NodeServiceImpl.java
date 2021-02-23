@@ -19,12 +19,17 @@ import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
+import com.futurewei.alcor.nodemanager.processor.IProcessor;
+import com.futurewei.alcor.nodemanager.processor.NodeContext;
+import com.futurewei.alcor.nodemanager.processor.ProcessorManager;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,11 +42,58 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@ComponentScan(value = "com.futurewei.alcor.common.utils")
+@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class NodeServiceImpl implements NodeService {
     private static final Logger logger = LoggerFactory.getLogger(NodeServiceImpl.class);
 
     @Autowired
     private NodeRepository nodeRepository;
+
+    private void handleCreateNodeRequest(NodeInfo nodeInfo) {
+        NodeContext nodeContext = new NodeContext(nodeInfo);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.createNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
+
+    }
+
+    private void handleUpdateNodeRequest(NodeInfo nodeInfo) {
+        NodeContext nodeContext = new NodeContext(nodeInfo);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.updateNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
+    }
+
+    private void handleDeleteNodeRequest(String nodeId) {
+        NodeContext nodeContext = new NodeContext(nodeId);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.deleteNode(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
+    }
+
+    private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfos) {
+        NodeContext nodeContext = new NodeContext(nodeInfos);
+        IProcessor processorChain = ProcessorManager.getProcessChain();
+        try {
+            processorChain.createNodeBulk(nodeContext);
+            nodeContext.getRequestManager().waitAllRequestsFinish();
+        } catch (Exception e) {
+            logger.error("Catch exception: ", e);
+        }
+    }
 
     /**
      * read bulk nodes' information from file
@@ -165,6 +217,8 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
+                this.handleCreateNodeRequest(nodeInfo);
+
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -180,7 +234,7 @@ public class NodeServiceImpl implements NodeService {
     /**
      * create new nodes information in bulk
      *
-     * @param nodeInfos new node's information in bulk
+     * @param nodeInfo new node's information in bulk
      * @return List of new node's information
      */
     @Override
@@ -191,6 +245,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItemBulkTransaction(nodeInfo);
+                this.handleCreateNodeBulkRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -225,6 +280,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
+                this.handleUpdateNodeRequest(nodeInfo);
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -257,6 +313,7 @@ public class NodeServiceImpl implements NodeService {
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
             nodeRepository.deleteItem(nodeId);
+            this.handleDeleteNodeRequest(nodeId);
         } catch (CacheException e) {
             logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);

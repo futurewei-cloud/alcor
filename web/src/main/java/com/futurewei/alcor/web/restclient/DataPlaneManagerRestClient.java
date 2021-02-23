@@ -31,6 +31,9 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @Value("${microservices.dataplane.service.url:#{\"\"}}")
     private String dataPlaneManagerUrl;
 
+    @Value("${microservices.dataplane.nodeservice.url:#{\"\"}}")
+    private String dataPlaneNodeManagerUrl;
+
     @DurationStatistics
     public void createNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
@@ -49,4 +52,29 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         restTemplate.put(dataPlaneManagerUrl, request, String[].class);
     }
+
+    @DurationStatistics
+    public void createNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void updateNodeInfo(NodeInfoJson message) throws Exception {
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void deleteNodeInfo(String nodeId) throws Exception {
+        HttpEntity<String> request = new HttpEntity<>(nodeId);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
+    @DurationStatistics
+    public void bulkCreatNodeInfo(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
+        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson);
+        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    }
+
 }
