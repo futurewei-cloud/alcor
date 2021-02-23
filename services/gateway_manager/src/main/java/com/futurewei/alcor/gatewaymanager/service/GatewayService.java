@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 @ComponentScan("com.futurewei.alcor.web.restclient")
 public class GatewayService {
 
-    @Value("${zetaGateway.enabled}")
+    @Value("${zetaGateway.enabled:false}")
     private boolean zetaGatewayEnabled;
 
     @Autowired

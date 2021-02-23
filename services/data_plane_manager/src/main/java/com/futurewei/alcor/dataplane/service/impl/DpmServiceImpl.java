@@ -48,7 +48,7 @@ public class DpmServiceImpl implements DpmService {
     private int goalStateMessageVersion;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
 
-    @Value("${zetaGateway.enabled}")
+    @Value("${zetaGateway.enabled:false}")
     private boolean zetaGatwayEnabled;
 
     @Autowired

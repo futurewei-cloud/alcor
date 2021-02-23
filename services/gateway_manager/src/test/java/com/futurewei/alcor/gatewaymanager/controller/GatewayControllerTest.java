@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class GatewayControllerTest extends MockIgniteServer {
 
-    @Value("${zetaGateway.enabled}")
+    @Value("${zetaGateway.enabled:false}")
     private boolean zetaGatewayEnabled;
 
     private final String url_createGatewayInfo = "/project/" + UnitTestConfig.projectId + "/gatewayinfo";
