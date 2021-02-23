@@ -7,7 +7,6 @@ import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
-import com.futurewei.alcor.dataplane.client.grpc.DataPlaneClientImpl;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.ZetaPortGoalState;
@@ -30,7 +29,7 @@ import java.util.concurrent.*;
 
 @Service("zetaGatewayClient")
 public class ZetaGatewayClient {
-    private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ZetaGatewayClient.class);
 
     @Autowired
     private VpcGatewayInfoCache gatewayInfoCache;
@@ -67,6 +66,7 @@ public class ZetaGatewayClient {
                     StatusEnum.NOTAVAILABLE.getStatus(), null, null, null, null, null, null));
             GatewayInfo newGatewayInfo = new GatewayInfo(portEntity.getVpcId(), newGatewayEntities, null, "available");
             gatewayInfoCache.addItem(newGatewayInfo);
+            LOG.error("Zeta gateway is not ready for VPC {}", portEntity.getVpcId());
 
             // notify GM to update VPC’s zeta gateway status
             updateVPCZetaGateway(newGatewayInfo);
@@ -101,11 +101,13 @@ public class ZetaGatewayClient {
                             portEntity.setIsZetaGatewayPort(Boolean.FALSE);
                             gateway.setStatus(StatusEnum.FAILED.getStatus());
                             e.printStackTrace();
+                            LOG.error("Zeta gateway failed for VPC {}:{}", portEntity.getVpcId(), e.getMessage());
                             executor.shutdown();
                         }
                     } else {
                         gateway.setStatus(StatusEnum.FAILED.getStatus());
                         // something wrong for the zeta gateway, raise alarm?
+                        LOG.error("Zeta gateway failed for VPC {}", portEntity.getVpcId());
                     }
                     break;
                 }
