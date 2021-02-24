@@ -317,12 +317,12 @@ http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{
 ....
 Method: POST
 Request:
-http://localhost:8080/vpcs
+http://{zeta-cluster-ip}/vpcs
 
 Body:
     {
         "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
-        "vpc_vni": "1233",
+        "vni": "1233",
     }
 Response:
     {
@@ -354,7 +354,7 @@ Response Code: 201 (created); Error: 400, 404, 500, 503
 ....
 Method: DELETE
 Request:
-http://localhost:8080/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
+http://{zeta-cluster-ip}/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
 Response Code: 204 (deleted); Error: 400, 404, 500, 503
 ....
 
@@ -362,7 +362,7 @@ Response Code: 204 (deleted); Error: 400, 404, 500, 503
 ....
 Method: POST
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
+http://{dpm-service:port}/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
 
 Body:
 {
@@ -383,7 +383,7 @@ Response Code: 201 (created); Error: 400, 404, 500, 503
 ....
 Method: PUT
 Request:
-http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
+http://{dpm-service:port}/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
 
 Body:
 {
@@ -403,7 +403,7 @@ Response Code: 204 (updated); Error: 400, 404, 500, 503
 **(5) Zeta Management Plane's Port Creation example:**
 ....
 Method: POST
-Request: http://localhost:8080/ports
+Request: http://{zeta-cluster-ip}/ports
 
 Body:
 [
@@ -497,7 +497,7 @@ Error: 400, 404, 500, 503
 **(6) Zeta Management Plane's Port Query example:**
 ....
 Method: GET
-Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Request: http://{zeta-cluster-ip}/ports/333d4fae-7dec-11d0-a765-00a0c9342222
 Response:
 Body:
 {
@@ -529,7 +529,7 @@ Error: 400, 404, 500, 503
 **(7) Zeta Management Plane's Port Delete example:**
 ....
 Method: DELETE
-Request: http://localhost:8080/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Request: http://{zeta-cluster-ip}/ports/333d4fae-7dec-11d0-a765-00a0c9342222
 Response Code:
 Normal: 204
 Error: 400, 404, 500, 503
