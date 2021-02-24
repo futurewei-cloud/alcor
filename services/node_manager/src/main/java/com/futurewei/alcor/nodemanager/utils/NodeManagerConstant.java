@@ -21,6 +21,9 @@ public class NodeManagerConstant {
     public static final String JSON_MAC1 = "mac_address";
     public static final String JSON_VETH1 = "veth";
     public static final int GRPC_SERVER_PORT = 50001;
+    public static final String UNICAST_TOPIC = "unicast_topic";
+    public static final String MULTICAST_TOPIC = "multicast_topic";
+    public static final String GROUP_TOPIC = "group_topic";
 
     //Exception Messages
     public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";

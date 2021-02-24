@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 public class PortService extends ResourceService {
     public void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
-                                UnicastGoalState unicastGoalState) {
+                               UnicastGoalState unicastGoalState) {
         for (InternalPortEntity portEntity: portEntities) {
             Port.PortConfiguration.Builder portConfigBuilder = Port.PortConfiguration.newBuilder();
             portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);

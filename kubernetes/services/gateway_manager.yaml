@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-configmap
+data:
+  application.properties: |
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    logging.level.root=debug
+    logging.level.org.springframework.web=debug
+    logging.file.path=.
+    logging.type=file
+    apache.kafka.address=172.17.0.1:9092
+    microservices.zeta.management.url=http://10.213.43.90
+    microservices.dpm.service.url=http://localhost:9010
+    zetaGateway.enabled=false
+    rbac.policy.type=Enforced
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gatewaymanager
+  name: gatewaymanager
+spec:
+  selector:
+    matchLabels:
+      app: gatewaymanager
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: gatewaymanager
+    spec:
+      volumes:
+        - name: gateway-volume
+          configMap:
+            name: gateway-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: gateway_manager:v1.0
+        #- image: fwnetworking/controller:gateway_manager-v0.3.0
+          name: gatewaymanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorGatewayManager-0.1.0.jar", "--spring.config.location=/etc/app/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: gateway-volume
+              mountPath: /etc/app
+          envFrom:
+            - configMapRef:
+                name: gateway-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatewaymanager-service
+  labels:
+    name: gatewaymanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9015
+      targetPort: 8080
+      nodePort: 30015
+  selector:
+    app: gatewaymanager
+

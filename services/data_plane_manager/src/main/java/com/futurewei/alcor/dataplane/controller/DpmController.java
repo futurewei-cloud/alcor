@@ -30,6 +30,8 @@ import static com.futurewei.alcor.dataplane.utils.RestParameterValidator.checkNe
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
+@ComponentScan(value = "com.futurewei.alcor.common.utils")
+@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class DpmController {
 
     @Autowired

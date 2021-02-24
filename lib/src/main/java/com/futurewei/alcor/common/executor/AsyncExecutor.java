@@ -88,6 +88,20 @@ public class AsyncExecutor {
         return future;
     }
 
+    public <R>CompletableFuture runAsync(AsyncFunctionWithThreeArgs<Object,Object,Object, R> fun, Object arg1, Object arg2, Object arg3) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun.apply(arg1, arg2, arg3);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor);
+
+        futures.add(future);
+
+        return future;
+    }
+
     /**
      * Execute fun1 asynchronously, after the execution of fun1 is finished, the output of fun1
      * is used as the input parameter of fun2 to continue to execute fun2. arg1 is the input

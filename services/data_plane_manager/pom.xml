@@ -72,6 +72,18 @@
             </exclusions>
         </dependency>
 
+        <!--Swagger dependencies-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
@@ -87,6 +99,12 @@
             <artifactId>pulsar-functions-api</artifactId>
             <version>${pulsar.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-core</artifactId>
+            <version>2.6.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -97,6 +115,11 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-junit47</artifactId>
+                <version>2.19</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -118,19 +141,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-surefire-plugin</artifactId>
-		<version>2.19</version>
-		<dependencies>
-		<dependency>
-		    <groupId>org.apache.maven.surefire</groupId>
-		    <artifactId>surefire-junit47</artifactId>
-	            <version>2.19</version>
-		</dependency>
-		</dependencies>
-	    </plugin>
-	    <plugin>
+	        <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
