@@ -43,6 +43,8 @@ image::file.png[]
 ==== Design Option: MQ (VPC Topic) + GRPC
 ===== Workflow
 image::vpcGroup.png[]
+
+===== Workflow UML
 image::MQportcreate.png[]
 
 ===== MQ topic subscription or unsubscription
@@ -72,6 +74,16 @@ image::dataSchema1.png[]
 
 ==== Design Option: MQ (VPC Topic) + GRPC
 image::dataSchema2.png[]
+
+=== Task Allocation
+[width="100%",cols="<.^,^.<",options="header"]
+|====================
+|Name| Task
+|Min Chen| Interaction among managers (steps 1-5 in Workflow UML:select MQ Channel & select GRPC channel); Channel selection ALG (step 6 in Workflow UML:select MQ Channel & select GRPC channel)
+|Luyao Luo| ACA subscript/unsubscript (steps 8,9 in Workflow UML:select MQ Channel & select GRPC channel)
+|Jiawei Liu| subscript/unsubscript API (step 7 in Workflow UML:select MQ Channel & select GRPC channel); Goalstate send (steps 10,11 in Workflow UML:select MQ Channel; step 10 in Workflow UML:select GRPC channel)
+|====================
+
 
 
 //Note: * means that the feature is available only in the enterprise edition.

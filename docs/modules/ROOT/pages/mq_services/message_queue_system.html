@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="author" content="Liguang Xie">
+<meta name="author" content="Xuwei Yang, Liguang Xie &lt;lxie@futurewei.com&gt;">
 <title>Message Queue Subsystem Design - Under Development</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -442,8 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Message Queue Subsystem Design - Under Development</h1>
 <div class="details">
-<span id="author" class="author">Liguang Xie</span><br>
-<span id="email" class="email"><a href="mailto:lxie@futurewei.com">lxie@futurewei.com</a></span><br>
+<span id="author" class="author">Xuwei Yang, Liguang Xie &lt;lxie@futurewei.com&gt;</span><br>
 <span id="revnumber">version 0.1,</span>
 <span id="revdate">2021-01-24</span>
 </div>
@@ -456,6 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_architecture">Architecture</a></li>
 <li><a href="#_data_schema">Data schema</a></li>
+<li><a href="#_task_allocation">Task Allocation</a></li>
 </ul>
 </li>
 <li><a href="#_references">References</a></li>
@@ -541,9 +541,12 @@ This document is under development
 <img src="../../images/vpcGroup.png" alt="vpcGroup">
 </div>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_workflow_url">Workflow URL</h5>
 <div class="imageblock">
 <div class="content">
-<img src="../../images/MQ_portcreate.png" alt="MQ portcreate">
+<img src="../../images/MQportcreate.png" alt="MQportcreate">
 </div>
 </div>
 </div>
@@ -551,7 +554,7 @@ This document is under development
 <h5 id="_mq_topic_subscription_or_unsubscription">MQ topic subscription or unsubscription</h5>
 <div class="imageblock">
 <div class="content">
-<img src="../../images/MQsubscript.png" alt="MQsubscript">
+<img src="../../images/MQsubscribe.png" alt="MQsubscribe">
 </div>
 </div>
 </div>
@@ -603,6 +606,11 @@ This document is under development
 </div>
 <div class="imageblock">
 <div class="content">
+<img src="../../images/algProcess.png" alt="algProcess">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
 <img src="../../images/channelSelection.png" alt="channelSelection">
 </div>
 </div>
@@ -628,6 +636,35 @@ This document is under development
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_task_allocation">Task Allocation</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-center valign-top">Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Min Chen</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">unicast topic</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Luyao Luo</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">multicast topic</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Jiawei Liu</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">unicast topic &amp; multicast topic</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -649,7 +686,7 @@ This document is under development
 <div id="footer">
 <div id="footer-text">
 Version 0.1<br>
-Last updated 2021-02-02 11:45:59 +0800
+Last updated 2021-02-24 21:09:48 +0800
 </div>
 </div>
 </body>
