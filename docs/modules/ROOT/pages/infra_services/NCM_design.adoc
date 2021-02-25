@@ -180,6 +180,16 @@ NCM Workflow:
 *src/schema/proto3/common.proto*
 [source,java]
 ------------------------------------------------------------
+enum OperationType {
+    INFO = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    GET = 3;
+    DELETE = 4;
+    ROUTABLE = 7;     // NEW
+    NOT_ROUTABLE = 6; // NEW
+}
+
 enum OperationStatus {
     SUCCESS = 0;
     FAILURE = 1;
