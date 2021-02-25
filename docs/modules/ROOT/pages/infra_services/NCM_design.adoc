@@ -81,7 +81,7 @@ There are two options in where NCM could be implemented. Prefering option 1 for 
 
 Since all the network configurations are passed down by DPM placed at the region level, it is possible to integration all the NCM functionalities into DPM and reduce the extra layer and component of NCM. However, since DPM is placed at the region level, the on demand requests from ACA may need to take a few extra hops to DPM which can introduce additional latency for the time critical on demand requests.
 
-=== Option 2: Separate NCM placed in the cluster level 
+=== (preferred) Option 2: Separate NCM placed in the cluster level
 
 [source,shell]
 ------------------------------------------------------------
@@ -110,7 +110,7 @@ Since all the network configurations are passed down by DPM placed at the region
                                                 +--------------------+           +--------------------+
 ------------------------------------------------------------
 
-To meet the time critical on demand requests, NCM can be a separate component placed at the cluster level. Since NCM is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. It will be used when option 1 does not meet the latency requirement for on demand requests.
+To meet the time critical on demand requests, NCM can be a separate component placed at the cluster level. Since NCM is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. This is currently the preferred option.
 
 == gRPC Connection change
 
