@@ -9,8 +9,8 @@ public class VpcInfo {
     @JsonProperty("vpc_id")
     private String vpcId;
 
-    @JsonProperty("vpc_vni")
-    private Integer vpcVni;
+    @JsonProperty("vni")
+    private String vpcVni;
 
     @JsonProperty("owner")
     private String owner;
@@ -18,7 +18,7 @@ public class VpcInfo {
     public VpcInfo() {
     }
 
-    public VpcInfo(String vpcId, Integer vpcVni, String owner) {
+    public VpcInfo(String vpcId, String vpcVni, String owner) {
         this.vpcId = vpcId;
         this.vpcVni = vpcVni;
         this.owner = owner;

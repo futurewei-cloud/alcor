@@ -2,16 +2,17 @@ package com.futurewei.alcor.gatewaymanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.executor.AsyncExecutor;
+import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.gatewaymanager.config.ExceptionMsgConfig;
 import com.futurewei.alcor.gatewaymanager.dao.GWAttachmentRepository;
 import com.futurewei.alcor.gatewaymanager.dao.GatewayRepository;
 import com.futurewei.alcor.gatewaymanager.entity.GWAttachment;
 import com.futurewei.alcor.gatewaymanager.entity.ResourceType;
-import com.futurewei.alcor.gatewaymanager.entity.StatusEnum;
 import com.futurewei.alcor.web.entity.gateway.*;
 import com.futurewei.alcor.web.restclient.GatewayManagerRestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ import java.util.function.Supplier;
 @Service
 @ComponentScan("com.futurewei.alcor.web.restclient")
 public class GatewayService {
+
+    @Value("${zetaGateway.enabled:false}")
+    private boolean zetaGatewayEnabled;
 
     @Autowired
     private GatewayRepository gatewayRepository;
@@ -46,31 +50,34 @@ public class GatewayService {
 
         // construct the GatewayEntity and Attachment
         GatewayInfo gatewayInfo = new GatewayInfo();
-        GatewayEntity gatewayEntity = new GatewayEntity();
-        createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
-        AsyncExecutor executor = new AsyncExecutor();
-        executor.runAsync(restClient::createDPMCacheGateway, projectId, gatewayInfo);
-        executor.runAsync(restClient::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
-        executor.runAsync((Supplier<Void>) () -> {
-            // wait result of all async
-            List<Object> result = executor.joinAllAsync();
-            // whether to rollback by checking result's size is 2
-            try {
-                updateDPMCacheGateway(result, gatewayInfo, gatewayEntity, projectId);
-            } catch (Exception e) {
-                log.info("update GatewayEntity status to READY failed, detail message: {}", e.getMessage());
-                // rollback GM's DB and ask Zeta to remove the corresponding gateway resources
-            }
+        if (zetaGatewayEnabled) {
+            GatewayEntity gatewayEntity = new GatewayEntity();
+            createGatewayAndAttachment(projectId, vpcInfo, gatewayInfo, gatewayEntity);
 
-            try {
-                rollback(result, gatewayInfo, gatewayEntity, projectId);
-            } catch (Exception e) {
-                log.info("rollback failed, detail message: {}", e.getMessage());
-                // If rollback failed, we should raise an alarm or error.
-            }
-            return null;
-        });
+            AsyncExecutor executor = new AsyncExecutor();
+            executor.runAsync(restClient::createDPMCacheGateway, projectId, gatewayInfo);
+            executor.runAsync(restClient::createVPCInZetaGateway, new VpcInfoSub(vpcInfo.getVpcId(), vpcInfo.getVpcVni()));
+            executor.runAsync((Supplier<Void>) () -> {
+                // wait result of all async
+                List<Object> result = executor.joinAllAsync();
+                // whether to rollback by checking result's size is 2
+                try {
+                    updateDPMCacheGateway(result, gatewayInfo, gatewayEntity, projectId);
+                } catch (Exception e) {
+                    log.info("update GatewayEntity status to READY failed, detail message: {}", e.getMessage());
+                    // rollback GM's DB and ask Zeta to remove the corresponding gateway resources
+                }
+
+                try {
+                    rollback(result, gatewayInfo, gatewayEntity, projectId);
+                } catch (Exception e) {
+                    log.info("rollback failed, detail message: {}", e.getMessage());
+                    // If rollback failed, we should raise an alarm or error.
+                }
+                return null;
+            });
+        }
         return gatewayInfo;
     }
 

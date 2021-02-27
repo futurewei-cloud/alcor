@@ -13,10 +13,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.cache.LocalCache;
+import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
+import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.ZetaPortGoalState;
 import com.futurewei.alcor.dataplane.exception.*;
 import com.futurewei.alcor.dataplane.service.DpmService;
 import com.futurewei.alcor.schema.Neighbor;
@@ -27,9 +30,11 @@ import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,9 +46,19 @@ public class DpmServiceImpl implements DpmService {
     private static final boolean USE_PULSAR_CLIENT = false;
 
     private int goalStateMessageVersion;
+    private DataPlaneManagerRestClient dataPlaneManagerRestClient;
+
+    @Value("${zetaGateway.enabled:false}")
+    private boolean zetaGatwayEnabled;
+
+    @Autowired
+    private ZetaGatewayClient zetaGatewayClient;
 
     @Autowired
     private LocalCache localCache;
+
+    @Autowired
+    private VpcGatewayInfoCache gatewayInfoCache;
 
     @Autowired
     private DataPlaneClient grpcDataPlaneClient;
@@ -59,6 +74,9 @@ public class DpmServiceImpl implements DpmService {
 
     @Autowired
     private PortService portService;
+
+    @Autowired
+    private ZetaPortService zetaPortService;
 
     @Autowired
     private NeighborService neighborService;
@@ -110,14 +128,29 @@ public class DpmServiceImpl implements DpmService {
         List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
         MulticastGoalState multicastGoalState = new MulticastGoalState();
 
+        ZetaPortGoalState zetaPortsGoalState = new ZetaPortGoalState();
+        List<String> failedZetaPorts = new ArrayList<>();
+
         for (Map.Entry<String, List<InternalPortEntity>> entry : hostPortEntities.entrySet()) {
             String hostIp = entry.getKey();
             List<InternalPortEntity> portEntities = entry.getValue();
+
+            if (zetaGatwayEnabled) {
+                if (portEntities != null && portEntities.size() > 0) {
+                    zetaPortService.buildPortState(networkConfig, portEntities, zetaPortsGoalState);
+                }
+            }
+
             unicastGoalStates.add(buildUnicastGoalState(
                     networkConfig, hostIp, portEntities, multicastGoalState));
         }
+        // portEntities in the same unicastGoalStates should have the same opType
 
-        return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
+            return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
+        } else {
+            return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        }
     }
 
     /**
@@ -140,6 +173,10 @@ public class DpmServiceImpl implements DpmService {
         for (InternalPortEntity portEntity : networkConfig.getPortEntities()) {
             if (portEntity.getBindingHostIP() == null) {
                 throw new PortBindingHostIpNotFound();
+            }
+
+            if (zetaGatwayEnabled) {
+                zetaGatewayClient.enableZetaGatewayForPort(portEntity);
             }
 
             boolean fastPath = portEntity.getFastPath() == null ? false : portEntity.getFastPath();
