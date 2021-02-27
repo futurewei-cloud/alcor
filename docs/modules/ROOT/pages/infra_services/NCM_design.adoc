@@ -112,6 +112,10 @@ Since all the network configurations are passed down by DPM placed at the region
 
 To meet the time critical on demand requests, NCM can be a separate component placed at the cluster level. Since NCM is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. This is currently the preferred option.
 
+== Compute/ACA Node Metadata
+
+Each NCM needs to know the list of compute/ACA nodes under it. The Node Metadata manager will push down that information to the corresponding NCM during compute/ACA nodes bring up. In the error situation when there is a goal state message targetting to a compute/ACA node that's not known to NCM, NCM will query Node Metadata manager to get the information directly.
+
 == gRPC Connection change
 
 We will update an existing gRPC interface for the bidirectional streaming connection between ACA and NCM:
@@ -400,4 +404,5 @@ Please find the highlevel powerpoint slides of Network Configuration Manager (NC
 == References
 
 - [[[proto3-map,1]]] https://developers.google.com/protocol-buffers/docs/proto3#maps
-- [[[map.h,2]]] https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.map
+- [[[map.h-java,2]]] https://developers.google.com/protocol-buffers/docs/reference/java-generated#map-fields
+- [[[map.h,3]]] https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.map
