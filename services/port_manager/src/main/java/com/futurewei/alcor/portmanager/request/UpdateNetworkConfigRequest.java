@@ -17,6 +17,7 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.processor.PortContext;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class UpdateNetworkConfigRequest extends AbstractRequest {
 
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
     private NetworkConfiguration networkConfig;
+    private InternalDPMResultList resultList;
 
     public UpdateNetworkConfigRequest(PortContext context, NetworkConfiguration networkConfig) {
         super(context);
@@ -34,9 +36,13 @@ public class UpdateNetworkConfigRequest extends AbstractRequest {
         this.dataPlaneManagerRestClient = SpringContextUtil.getBean(DataPlaneManagerRestClient.class);
     }
 
+    public InternalDPMResultList getResultList() {
+        return resultList;
+    }
+
     @Override
     public void send() throws Exception {
-        dataPlaneManagerRestClient.updateNetworkConfig(networkConfig);
+        resultList = dataPlaneManagerRestClient.updateNetworkConfig(networkConfig);
     }
 
     @Override
