@@ -1,5 +1,5 @@
 = Gateway Manager Design Specification
-v0.1, 2020-11-30
+v0.1, 2020-12-20
 :toc: right
 :imagesdir: ../../images
 
@@ -26,55 +26,511 @@ It interacts with VPC Manager, Port Manager, Data Plane Manager, and Gateway Clu
 image::gateway_manager_service_architecture.PNG[]
 
 === Data Schema
+Two options for gateway data schema design: coupled and de-coupled.
+Option A is a coupled design, gateway entity is coupled with a VPC. Option B is a de-coupled design.
+Gateway, VPC and routing table resources are all de-coupled.
+Option B is more flexible design, it fits to all different types of gateways.
+
+*OPTION A*
+
 image::gateway_manager_data_schema.PNG[]
 
-==== VPC and Zeta Gateway Creation
-image::gateway_manager_vpc_zetagateway_creation.PNG[]
+*OPTION B*
 
-==== Port Creation
-image::gateway_manager_zeta_port_creation.PNG[]
+image::gateway_manager_data_schema_decoupled.PNG[]
+image::gateway_manager_data_schema_decoupled_2.PNG[width=450]
+
+*Zeta Gateway Example*
+
+image::gateway_manager_zeta_gateway_example_schema.PNG[]
+
+*Transit Gateway Example 1*
+
+image::gateway_manager_transit_gateway_example1_figure.PNG[]
+image::gateway_manager_transit_gateway_example1_schema.PNG[]
+
+*Transit Gateway Example 2*
+
+image::gateway_manager_transit_gateway_example2_figure.PNG[]
+image::gateway_manager_transit_gateway_example2_schema.PNG[]
 
 === Key Workflow
+We have two options here for VPC and gateway resource creation.
+The major difference of these two option is in A1 and B1.
+The VPC registration for gateway resource in A1 is going through DPM
+while the same process in B1 is going through GM. Both A2 and B2 workflows are pretty much the same.
+The detail workflows of two options are below:
+
+*OPTION A*
+
+==== A1. VPC and Zeta Gateway Creation
+1. The benefit of A1: GM can be decoupled from major components of Alcor, we can consider GM is a non-major component.
+2. The drawback of A1: DPM becomes a proactive component, and it needs to update GM actively.
+
+image::gateway_manager_vpc_zetagateway_creation_A.PNG[]
+
+==== A2. Port Creation
+image::gateway_manager_zeta_port_creation_A.PNG[]
+
+*OPTION B*
+
+==== B1. VPC and Zeta Gateway Creation
+1. The benefit of B1: DPM becomes a passive component, it just needs to wait for the status update of gateway resources from GM.
+GM is the major resource holder for gateway resources.
+
+image::gateway_manager_vpc_zetagateway_creation_B.PNG[]
+
+==== B2. Unregister VPC
+image::gateway_manager_zeta_vpc_delete_B.PNG[]
+
+==== B3. Port Creation
+image::gateway_manager_zeta_port_creation_B.PNG[]
+
+*FINAL DECISION*
+Option A has more benefit for managing gateway resources.
+GM will become an important microservice in Alcor to manage all types of gateways in the future.
+Therefore, Option A is the design choice for GM.
 
 == REST APIs
 [width="100%",cols="32%,12%,40%,17%"]
 |===
 |*API Name* |*Method* |*Request*|*Response*
-|List VPC's Available Gateway
-|GET
-|/project/{projectid}/vpcs/{vpc_id}/gateways
-|All gateways' state
-<<gws_get_all,[sample]>>
 
-|Register a VPC
+|Create a GatewayInfo (for zeta gateway)
 |POST
-|/project/{projectid}/vpcs/{vpc_id}/gateway
-|VPC's gateway state
-<<vpc_gw_post,[sample]>>
+|/project/{projectid}/gatewayinfo
+|ResponseId
+<<gatewayinfo_post,[sample]>>
 
-|Query gateway's state
-|GET
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|Update a GatewayInfo (for zeta gateway)
+|PUT
+|/project/{projectid}/gatewayinfo/{resource_id}
+|ResponseId
+<<gatewayinfo_put,[sample]>>
+
+|Delete a GatewayInfo (for zeta gateway)
+|DELETE
+|/project/{projectid}/gatewayinfo/{resource_id}
+|ResponseId
+<<gatewayinfo_del,[sample]>>
+
+|Create a gateway
+|POST
+|/project/{projectid}/gateways
 |Gateway state
-<<gw_get,[sample]>>
+<<gw_post,[sample]>>
 
 |Update a gateway
 |PUT
-|/project/{projectid}/vpcs/{vpc_id}/gateway
+|/project/{projectid}/gateways
 |Gateway state
 <<gw_put,[sample]>>
 
 |Update a gateway by ID
 |PUT
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|/project/{projectid}/gateways/{gateway_id}
 |Gateway state
 <<gw_put_id,[sample]>>
 
+|Query a gateway's state
+|GET
+|/project/{projectid}/gateways/{gateway_id}
+|Gateway state
+<<gw_get,[sample]>>
+
+|List All Available Gateways
+|GET
+|/project/{projectid}/gateways
+|All gateways' state
+<<gw_get_all,[sample]>>
+
 |Delete a gateway
 |DELETE
-|/project/{projectid}/vpcs/{vpc_id}/gateway/{gateway_id}
+|/project/{projectid}/gateways/{gateway_id}
 |ResponseId
 <<gw_del,[sample]>>
+
+|Create an attachment
+|POST
+|/project/{projectid}/gateways/{gateway_id}/attachments
+|Attachment state
+<<attach_post,[sample]>>
+
+|Update an attachment
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|Attachment state
+<<attach_put,[sample]>>
+
+|Remove an attachment
+|DELETE
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|ResponseId
+<<attach_del,[sample]>>
+
+|List all attachments
+|GET
+|/project/{projectid}/gateways/{gateway_id}/attachments
+|All attachments' state
+<<attach_get_all,[sample]>>
+
+|Query an attachment
+|GET
+|/project/{projectid}/gateways/{gateway_id}/attachments/{attach_id}
+|Attachment's state
+<<attach_get,[sample]>>
+
+|Create a routing table
+|POST
+|/project/{projectid}/gateways/{gateway_id}/routetables
+|Routetable's state
+<<routeable_post,[sample]>>
+
+|List all routing tables
+|GET
+|/project/{projectid}/gateways/{gateway_id}/routetables
+|All routetables' state
+<<routeable_get_all,[sample]>>
+
+|List a routing table
+|GET
+|/project/{projectid}/gateways/{gateway_id}/routetables/{routetable_id}
+|Routetable's state
+<<routeable_get,[sample]>>
+
+|Update a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}
+|Routetable's state
+<<routeable_put,[sample]>>
+
+|Delete a routing table
+|DELETE
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}
+|ResponseId
+<<routeable_del,[sample]>>
+
+|Associate a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/associate
+|Routetable's state
+<<routeable_associate,[sample]>>
+
+|De-associate a routing table
+|PUT
+|/project/{projectid}/gateways/{gateway_id}/routetable/{routetable_id}/de-associate
+|Routetable's state
+<<routeable_associate,[sample]>>
 |===
 
 === API Specification
+
+anchor:gatewayinfo_post[]
+**(1) Create a GatewayInfo (for zeta gateway)**
+
+* Method: `POST`
+* Request: `/project/{projectid}/gatewayinfo`
+* Request Parameter: `@PathVariable String projectid`
+* Operation: Create Gateway and Attachment entities for an input GatewayInfo.
+If the project is a zeta-gateway enabled (by admin or tenant), perform following actions:
+1. Create a *GatewayEntity* with "zeta" type and set its status to _PENDING_
+2. Create a *GWAttachment* with *VpcInfo* for the VPC and attach it to the gateway entity.
+3. Send a *GatewayInfo* to Data Plane Manager and save the entity to DPM's cache via DPM's _POST_ method API _http://localhost:8080/project/{projectid}/gatewayinfo_ with *GatewayInfo* entity as its request body.
+** If DPM returns failed, retry three times (response codes 400, 401, 404, or 500)
+** If the retry still failed, rollback GM's DB transaction and notify Zeta Management Plane to release the created gateway resource via Zeta Management Plane's DELETE method API _http://localhost:8080/vpcs/{vpc_id}_.
+4. Request Zeta Management Plane to create a gateway resource for the VPC (step 3 and step 4 can be paralleled) via Zeta Management Plane's _POST_ method API _http://localhost:8080/vpcs_ with a json object request body containing _vpc_id_ and _vni_ data.
+** If step 4 returns success, set zeta gateway status to _READY_, update gateway entity with the returned data, and update DPM’s cache via DPM's PUT method API _http://localhost:8080/project/{projectid}/gatewayinfo/{vpc_id}_ with *GatewayInfo* entity as its request body.
+** If step 4 returns failed, set zeta gateway status to _FAILED_ and Update DPM’s cache via DPM's PUT method API.
+* Response: ResponseId
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
+
+Body:
+{
+    "vpcinfo": {
+        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        "vpc_vni": 1233,
+        "owner": "3dda2801-d675-4688-a63f-dcda8d327f50"
+    }
+}
+....
+
+anchor:vpc_zgw_update[]
+**(2) Update GatewayInfo (for zeta gateway)**
+
+* Method: `PUT`
+* Request: `/project/{projectid}/gatewayinfo/{resource_id}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String resource_id`
+* Operation: Update a GatewayEntity's status based on a GatewayInfo.
+If the request body contains a zeta gateway entity, perform following actions:
+1. Retrieve the GWAttachment entity with _resource_id_.
+2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
+3. Update GatewayEntity's status
+* Response: ResponseId
+* Normal response codes: 204
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{resource_id}
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "failed"
+            }
+        ]
+    }
+}
+....
+
+anchor:gatewayinfo_del[]
+**(3) Delete a GatewayInfo (for zeta gateway)**
+
+* Method: `DELETE`
+* Request: `/project/{projectid}/gatewayinfo/{resource_id}`
+* Request Parameter: `@PathVariable String projectid, @PathVariable String resource_id`
+* Operation: Delete a GatewayEntity (zeta).
+1. Retrieve the GWAttachment entity with _resource_id_.
+2. Retrieve the GatewayEntity with the _gateway_id_ in the GWAttachment.
+3. If the GatewayEntity's type is "zeta", delete both GWAttachment and GatewayEntity
+* Response: ResponseId
+* Normal response codes: 204
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:8080/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{resource_id}
+....
+
+=== Data Plane Manager and Zeta Gateway Management Plane Related APIs
+
+**(1) Zeta Management Plan's VPC creation example:**
+....
+Method: POST
+Request:
+http://{zeta-cluster-ip}/vpcs
+
+Body:
+    {
+        "vpc_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3"
+        "vni": "1233",
+    }
+Response:
+    {
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "vni": "12345",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "name": "ZGC_test1",
+        "gws":
+        [
+          {
+            "ip": "192.168.0.87",
+            "mac": "37.02.ff.cc.65.87"
+          },
+          {
+            "ip": "192.168.0.88",
+            "mac": "37.02.ff.cc.65.88"
+          },
+          {
+            "ip": "192.168.0.89",
+            "mac": "37.02.ff.cc.65.89"
+          }
+        ],
+        "port_ibo": "8300"
+    }
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+**(2) Zeta Management Plan's VPC deletion example:**
+....
+Method: DELETE
+Request:
+http://{zeta-cluster-ip}/vpcs/ae34051f-aa6c-4c75-abf5-50dc9ac99ef3
+Response Code: 204 (deleted); Error: 400, 404, 500, 503
+....
+
+**(3) DPM's GatewayInfo entry creation example:**
+....
+Method: POST
+Request:
+http://{dpm-service:port}/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "ready"
+            }
+        ]
+    }
+}
+Response Code: 201 (created); Error: 400, 404, 500, 503
+....
+
+**(4) DPM's GatewayInfo update example:**
+....
+Method: PUT
+Request:
+http://{dpm-service:port}/project/3dda2801-d675-4688-a63f-dcda8d327f50/gatewayinfo/{vpc_id}
+
+Body:
+{
+    "gatewayinfo": {
+        "resource_id": "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+        "gateways": [
+            {
+                "type": "zeta",
+                "status": "failed"
+            }
+        ]
+    }
+}
+Response Code: 204 (updated); Error: 400, 404, 500, 503
+....
+
+**(5) Zeta Management Plane's Port Creation example:**
+....
+Method: POST
+Request: http://{zeta-cluster-ip}/ports
+
+Body:
+[
+    {
+        "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": "10.10.3.100"
+            }
+        ],
+        "mac_port": "cc:dd:ee:ff:11:22",
+        "ip_node": "192.168.10.27",
+        "mac_node": "ee:dd:ee:ff:22:11",
+    },
+    {
+        "port_id": "99976feae-7dec-11d0-a765-00a0c9341111",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f55",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": ""
+            }
+        ],
+        "mac_port": "6c:dd:ee:ff:11:32",
+        "ip_node": "192.168.10.33",
+        "mac_node": "ee:dd:ee:ff:33:11",
+    }
+]
+
+Response:
+[
+    {
+        "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": "10.10.3.100"
+            }
+        ],
+        "mac_port": "cc:dd:ee:ff:11:22",
+        "ip_node": "192.168.10.27",
+        "mac_node": "ee:dd:ee:ff:22:11",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "status": "pending"
+    },
+    {
+        "port_id": "99976feae-7dec-11d0-a765-00a0c9341111",
+        "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f55",
+        "ips_port":
+        [
+            {
+                "ip": "10.10.0.3",
+                "vip": ""
+            },
+            {
+                "ip": "10.10.3.7",
+                "vip": ""
+            }
+        ],
+        "mac_port": "6c:dd:ee:ff:11:32",
+        "ip_node": "192.168.10.33",
+        "mac_node": "ee:dd:ee:ff:33:11",
+        "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "status": "pending"
+    }
+]
+
+Response:
+Normal: 201 (created)
+Error: 400, 404, 500, 503
+....
+
+**(6) Zeta Management Plane's Port Query example:**
+....
+Method: GET
+Request: http://{zeta-cluster-ip}/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Response:
+Body:
+{
+    "port_id": "333d4fae-7dec-11d0-a765-00a0c9342222",
+    "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f50",
+    "ips_port":
+    [
+        {
+            "ip": "10.10.0.3",
+            "vip": ""
+        },
+        {
+            "ip": "10.10.3.7",
+            "vip": "10.10.3.100"
+        }
+    ],
+    "mac_port": "cc:dd:ee:ff:11:22",
+    "ip_node": "192.168.10.27",
+    "mac_node": "ee:dd:ee:ff:22:11",
+    "zgc_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+    "status": "ready"
+}
+
+Response Code:
+Normal: 200
+Error: 400, 404, 500, 503
+....
+
+**(7) Zeta Management Plane's Port Delete example:**
+....
+Method: DELETE
+Request: http://{zeta-cluster-ip}/ports/333d4fae-7dec-11d0-a765-00a0c9342222
+Response Code:
+Normal: 204
+Error: 400, 404, 500, 503
+....

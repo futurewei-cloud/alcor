@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.entity.PortStatusEnum;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.exception.NodeInfoNotFound;
@@ -23,7 +24,7 @@ import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.DeleteNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
-import com.futurewei.alcor.portmanager.service.PortServiceImpl;
+import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.*;
@@ -34,20 +35,14 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @AfterProcessor({FixedIpsProcessor.class, MacProcessor.class,
         NeighborProcessor.class, NodeProcessor.class, PortProcessor.class,
         RouterProcessor.class, SecurityGroupProcessor.class, VpcProcessor.class})
-@Component
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);
-
-    @Autowired
-    private PortServiceImpl portServiceImpl;
 
     private PortEntity getPortEntity(List<PortEntity> portEntities, String portId) {
         for (PortEntity portEntity : portEntities) {
@@ -267,22 +262,24 @@ public class DataPlaneProcessor extends AbstractProcessor {
     }
 
     private void createNetworkConfig(PortContext context, NetworkConfiguration networkConfig) throws Exception {
+        PortService portService = SpringContextUtil.getBean(PortService.class);
         if (networkConfig != null) {
             networkConfig.setOpType(Common.OperationType.CREATE);
             IRestRequest createNetworkConfigRequest =
                     new CreateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portServiceImpl.updatePortStatus(request,networkConfig,null));
-            portServiceImpl.updatePortStatus(createNetworkConfigRequest,networkConfig, PortStatusEnum.CREATED.getStatus());
+            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
+            portService.updatePortStatus(createNetworkConfigRequest,networkConfig, PortStatusEnum.CREATED.getStatus());
         }
     }
 
     private void updateNetworkConfig(PortContext context, NetworkConfiguration networkConfig) throws Exception {
+        PortService portService = SpringContextUtil.getBean(PortService.class);
         if (networkConfig != null) {
             networkConfig.setOpType(Common.OperationType.UPDATE);
             IRestRequest updateNetworkConfigRequest =
                     new UpdateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portServiceImpl.updatePortStatus(request,networkConfig,null));
-            portServiceImpl.updatePortStatus(updateNetworkConfigRequest,networkConfig, PortStatusEnum.PENDING.getStatus());
+            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
+            portService.updatePortStatus(updateNetworkConfigRequest,networkConfig, PortStatusEnum.PENDING.getStatus());
         }
     }
 

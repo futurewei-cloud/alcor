@@ -30,6 +30,9 @@ public class InternalPortEntity extends PortEntity {
     @JsonProperty("binding_host_ip")
     private String bindingHostIP;
 
+    @JsonProperty("is_zeta_gateway_port")
+    private Boolean isZetaGatewayPort;
+
     public List<RouteEntity> getRoutes() {
         return routes;
     }
@@ -83,5 +86,17 @@ public class InternalPortEntity extends PortEntity {
         super(portEntity);
         this.routes = routeEntities;
         this.bindingHostIP = bindingHostIP;
+        this.isZetaGatewayPort = false;
+    }
+
+    public InternalPortEntity(
+            PortEntity portEntity,
+            List<RouteEntity> routeEntities,
+            String bindingHostIP,
+            Boolean isZetaGatewayPort) {
+        super(portEntity);
+        this.routes = routeEntities;
+        this.bindingHostIP = bindingHostIP;
+        this.isZetaGatewayPort = isZetaGatewayPort;
     }
 }

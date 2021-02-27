@@ -303,6 +303,7 @@ public class PortServiceImpl implements PortService {
     }
 
     @DurationStatistics
+    @Override
     public void updatePortStatus(IRestRequest request,NetworkConfiguration configuration,String status) throws Exception {
         List<InternalPortEntity> internalPortEntities = configuration.getPortEntities();
         List<PortEntity> portEntities = new ArrayList<>();

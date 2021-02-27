@@ -23,6 +23,9 @@ public class InternalDPMResult {
   @JsonProperty("failed_hosts")
   private List<String> failedHosts;
 
+  @JsonProperty("failed_zeta_ports")
+  private List<String> failedZetaPorts;
+
   public InternalDPMResult() {
 
   }

@@ -10,6 +10,8 @@ public class GatewayIp implements Serializable {
     private String ip;
     private String mac;
 
+    public GatewayIp() { }
+
     public GatewayIp(String ip, String mac) {
         this.ip = ip;
         this.mac = mac;

@@ -9,10 +9,10 @@ public class VpcInfoSub {
     @JsonProperty("vpc_id")
     private String vpcId;
 
-    @JsonProperty("vpc_vni")
-    private Integer vpcVni;
+    @JsonProperty("vni")
+    private String vpcVni;
 
-    public VpcInfoSub(String vpcId, Integer vpcVni) {
+    public VpcInfoSub(String vpcId, String vpcVni) {
         this.vpcId = vpcId;
         this.vpcVni = vpcVni;
     }
