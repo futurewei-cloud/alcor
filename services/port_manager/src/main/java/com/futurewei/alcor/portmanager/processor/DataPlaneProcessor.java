@@ -15,8 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.portmanager.entity.PortStatusEnum;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.exception.NodeInfoNotFound;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
@@ -268,7 +268,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
             IRestRequest createNetworkConfigRequest =
                     new CreateNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(createNetworkConfigRequest,networkConfig, PortStatusEnum.CREATED.getStatus());
+            portService.updatePortStatus(createNetworkConfigRequest,networkConfig, StatusEnum.CREATED.getStatus());
         }
     }
 
@@ -279,7 +279,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
             IRestRequest updateNetworkConfigRequest =
                     new UpdateNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(updateNetworkConfigRequest,networkConfig, PortStatusEnum.PENDING.getStatus());
+            portService.updatePortStatus(updateNetworkConfigRequest,networkConfig, StatusEnum.PENDING.getStatus());
         }
     }
 
