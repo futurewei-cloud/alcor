@@ -21,6 +21,7 @@ import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
@@ -796,5 +797,10 @@ public class PortServiceImpl implements PortService {
     @Override
     public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
         return 0;
+    }
+
+    @Override
+    public void updatePortStatus(IRestRequest request, com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration configuration, String status) throws Exception {
+
     }
 }
