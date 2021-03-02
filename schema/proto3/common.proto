@@ -38,18 +38,19 @@ enum OperationType {
     UPDATE = 2;
     GET = 3;
     DELETE = 4;
-    ROUTABLE = 5;
-    NOT_ROUTABLE = 6;
 }
 
 enum OperationStatus {
-    SUCCESS = 0;
-    FAILURE = 1;
+    SUCCESS = 0; // also means ROUTABLE for ON_DEMAND request
+    FAILURE = 1; // also means NOT_ROUTABLE for ON_DEMAND request
     INVALID_ARG = 2;
     PENDING = 3;
-    ON_DEMAND = 4;
-    OUT_OF_ORDER = 5;
-    RESTARTED = 6;
+    OUT_OF_ORDER = 4;
+}
+
+enum RequestType {
+    ON_DEMAND = 0;
+    RESTARTED = 1;
 }
 
 enum EtherType {
