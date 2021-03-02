@@ -41,3 +41,20 @@ message GoalState {
     repeated RouterState router_states = 8;
     repeated GatewayState gateway_states = 9;
 }
+
+message GoalStateV2 {
+    uint32 format_version = 1;
+
+    map<string /*host ip-ResourceType enum*/, string /*resource id*/> host_to_resource_id = 2;
+    map<string /*resource id*/, VpcState> vpc_states = 3;
+    map<string /*resource id*/, SubnetState> subnet_states = 4;
+
+    // PortState and DHCPState is applicable to one host only
+    map<string /*resource id*/, PortState> port_states = 5;
+    map<string /*resource id*/, DHCPState> dhcp_states = 6;
+
+    map<string /*resource id*/, NeighborState> neighbor_states = 7;
+    map<string /*resource id*/, SecurityGroupState> security_group_states = 8;
+    map<string /*resource id*/, RouterState> router_states = 9;
+    map<string /*resource id*/, GatewayState> gateway_states = 10;
+}

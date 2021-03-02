@@ -38,6 +38,8 @@ enum OperationType {
     UPDATE = 2;
     GET = 3;
     DELETE = 4;
+    ROUTABLE = 5;
+    NOT_ROUTABLE = 6;
 }
 
 enum OperationStatus {
@@ -45,6 +47,9 @@ enum OperationStatus {
     FAILURE = 1;
     INVALID_ARG = 2;
     PENDING = 3;
+    ON_DEMAND = 4;
+    OUT_OF_ORDER = 5;
+    RESTARTED = 6;
 }
 
 enum EtherType {
