@@ -7,13 +7,13 @@ autonumber
 
 user -> PM: Create a port
 PM <-> SM_MACM_IPM_RM: PortInfo update
-PM <-> VPCM: VpcInfo query by vpc_vni
 PM <-> NM: Nodeinfo query by Node_id
 PM -> DPM: Send down network configuration request
-DPM ->DPM: Select chanel for this network configuration (MQ selected)\n Query vpc_subs in Nodeinfo \n subscribe the ack topic
+DPM <-> VPCM: VpcInfo query by vpc_vni
+DPM ->DPM: CSA-Alg: Select chanel for this network configuration (MQ selected)\n Query (MQ_url & unicast_topic & multicast_topic & vip_topic) in Vpcinfo \n create these topics if no topics \n subscribe the ack topic (MQ_url & ack_topic)
 'DPM <-> VPCM: VPC info query
 'DPM <->NM: Query whether target node subscript vpc topic or not
-DPM --> targetNodeACA: CSA_Alg： Node subscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo \n Send the ack topic info (MQ_url & vip_topic) in VpcInfo
+DPM --> targetNodeACA: Query vpc_subs in Nodeinfo \n If target node doesn't subscribe topic, \n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo \n to call subscribe API with GRPC  \n Send the ack topic info (MQ_url & ack_topic) in VpcInfo
 targetNodeACA <--> MQ: Subscrbe the topic
 targetNodeACA --> DPM: subscribe result with GRPC
 'DPM -> NM: Node subscription info update
@@ -31,13 +31,13 @@ autonumber
 
 user -> PM: Create a port
 PM <-> SM_MACM_IPM_RM: PortInfo update
-PM <-> VPCM: VpcInfo query by vpc_vni
 PM <-> NM: Nodeinfo query by Node_id
 PM -> DPM: Send down network configuration request
-DPM ->DPM: Select chanel for this network configuration (GRPC selected)
+DPM <-> VPCM: VpcInfo query by vpc_vni
+DPM ->DPM: CSA-Alg: Select chanel for this network configuration (GRPC selected)
 'DPM <-> VPCM: VPC info query
 'DPM <->NM: Query whether target node subscript vpc topic or not
-DPM --> targetNodeACA: CSA-Alg: Node unsubscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
+DPM --> targetNodeACA: call node unsubscribe API with GRPC\n Using (MQ_url & unicast_topic & multicast_topic & vip_topic) in VpcInfo
 targetNodeACA <--> MQ: Unsubscribe the topic
 targetNodeACA --> DPM: Unsubscribe result with GRPC
 'DPM -> NM: Node subscription info update

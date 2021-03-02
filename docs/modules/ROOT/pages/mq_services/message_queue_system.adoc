@@ -38,7 +38,10 @@ image::MessageArchitecture.png[]
 We have two architectural design options.
 
 ==== Design Option: MQ (Node Group Topic)
+===== Workflow
 image::file.png[]
+===== Data Schema for Design Option: MQ (Node Group Topic)
+image::dataSchema1.png[]
 
 ==== Design Option: MQ (VPC Topic) + GRPC
 ===== Workflow
@@ -68,11 +71,9 @@ image::channelSelectionAlg.png[]
 image::algProcess.png[]
 image::channelSelection.png[]
 
-=== Data schema
-==== Design Option: MQ (Node Group Topic)
-image::dataSchema1.png[]
 
-==== Design Option: MQ (VPC Topic) + GRPC
+
+===== Data Schema for Design Option: MQ (VPC Topic) + GRPC
 image::dataSchema2.png[]
 
 === Task Allocation
