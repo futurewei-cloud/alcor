@@ -50,7 +50,7 @@ enum OperationStatus {
 
 enum RequestType {
     ON_DEMAND = 0;
-    RESTARTED = 1;
+    AGENT_RESTARTED = 1;
 }
 
 enum EtherType {
