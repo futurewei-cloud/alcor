@@ -41,10 +41,16 @@ enum OperationType {
 }
 
 enum OperationStatus {
-    SUCCESS = 0;
-    FAILURE = 1;
+    SUCCESS = 0; // also means ROUTABLE for ON_DEMAND request
+    FAILURE = 1; // also means NOT_ROUTABLE for ON_DEMAND request
     INVALID_ARG = 2;
     PENDING = 3;
+    OUT_OF_ORDER = 4;
+}
+
+enum RequestType {
+    ON_DEMAND = 0;
+    AGENT_RESTARTED = 1;
 }
 
 enum EtherType {
