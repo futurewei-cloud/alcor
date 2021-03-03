@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+== MQ-> GRPC ==
+autonumber
+
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: Yes
+DPM -> targetNodeACA: Node unsubscribe API
+targetNodeACA -> MQ: Unsubscribe the topics
+targetNodeACA -> DPM: Unsubscribe result
+DPM -> targetNodeACA: Send goal state with GRPC
+targetNodeACA -> DPM: ACK
+
+== GRPC-> MQ ==
+autonumber
+
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: NO
+DPM ->DPM: Subscribe the ack topic
+DPM -> targetNodeACA: Node subscribe API(MQ url & topics)\n send Ack topic info (MQ_url & ack_topic)
+targetNodeACA -> MQ: Subscribe the topic \n Record the ack topic
+targetNodeACA -> DPM: subscribe result
+DPM -> MQ: Send goal state with MQ
+MQ -> targetNodeACA: Send goal state with MQ
+targetNodeACA -> MQ: ACK
+MQ -> DPM: ACK
+
+
+'== keep GRPC ==
+'autonumber
+'
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: NO
+'DPM -> targetNode: Send goal state with GRPC
+'
+'== keep MQ ==
+'autonumber
+'
+'DPM <-> VPCM: VPC info query
+'DPM ->NM: Query whether target node subscript vpc topic or not
+'NM ->DPM: Yes
+'DPM -> targetNode: Send goal state with MQ
+
+
+@enduml

@@ -45,7 +45,7 @@ public class DpmController {
         return dpmService.createNetworkConfiguration(networkConfiguration);
     }
 
-    @PutMapping({"/network-configuration", "v4/network-configuration"})
+    @PostMapping({"/network-configuration", "v4/network-configuration"})
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfiguration(@RequestBody NetworkConfiguration networkConfiguration) throws Exception {
         checkNetworkConfiguration(networkConfiguration);

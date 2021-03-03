@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.ZetaPortsWebJson;
@@ -42,10 +43,10 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     private String zetaManagerUrl;
 
     @DurationStatistics
-    public void createNetworkConfig(NetworkConfiguration message) throws Exception {
+    public InternalDPMResultList createNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
         //logger.info(new ObjectMapper().writeValueAsString(request));
-        restTemplate.postForObject(dataPlaneManagerUrl, request, Object.class);
+        return restTemplate.postForObject(dataPlaneManagerUrl, request, InternalDPMResultList.class);
     }
 
     @DurationStatistics
@@ -55,9 +56,9 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
-    public void updateNetworkConfig(NetworkConfiguration message) throws Exception {
+    public InternalDPMResultList updateNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
-        restTemplate.put(dataPlaneManagerUrl, request, String[].class);
+        return restTemplate.postForObject(dataPlaneManagerUrl, request, InternalDPMResultList.class);
     }
 
     @DurationStatistics
