@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 public class DataPlaneManagerRestClient extends AbstractRestClient {
@@ -58,7 +59,7 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
-        return restTemplate.postForObject(dataPlaneManagerUrl, request, InternalDPMResultList.class);
+        return restTemplate.exchange(dataPlaneManagerUrl, HttpMethod.PUT, request, InternalDPMResultList.class).getBody();
     }
 
     @DurationStatistics
