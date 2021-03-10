@@ -78,7 +78,9 @@ public class NodeManagerProxy {
                 nodeInfos.get(0).getgRPCServerPort(),
                 nodeInfos.get(0).getUnicastTopic(),
                 nodeInfos.get(0).getMulticastTopic(),
-                nodeInfos.get(0).getGroupTopic()
+                nodeInfos.get(0).getGroupTopic(),
+                nodeInfos.get(0).getNcm_uri(),
+                nodeInfos.get(0).getNcm_id()
         );
 
         return new PortBindingHost(portEntity.getId(), node);
