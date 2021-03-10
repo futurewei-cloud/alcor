@@ -25,6 +25,8 @@ public class UnitTestConfig {
     public static String nodeUnicastTopic = "unicast-topic-1";
     public static String nodeMulticastTopic = "multicast-topic-1";
     public static String nodeGroupTopic = "group-topic-1";
+    public static String nodeNcmUri = "ncm/" + nodeLocalIp + "/" + String.valueOf(nodeGRPCServerPort);
+    public static String nodeNcmId = "ncm_" + nodeLocalIp + "_" + String.valueOf(nodeGRPCServerPort);
 
     public static String portId1 = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String portId2 = "3d53801c-32ce-4e97-9572-bb966f4625ba";
