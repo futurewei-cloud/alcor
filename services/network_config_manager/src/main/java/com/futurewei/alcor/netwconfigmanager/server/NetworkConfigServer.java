@@ -15,7 +15,7 @@ public interface NetworkConfigServer {
     /**
      * Stop current server
      */
-    void stop();
+    void stop() throws InterruptedException;
 
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
