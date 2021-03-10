@@ -20,6 +20,7 @@ package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
 
+import "common.proto";
 import "vpc.proto";
 import "subnet.proto";
 import "port.proto";
