@@ -86,9 +86,9 @@ public class pseudo_controller {
 
         new_port_states.setConfiguration(config.build());
         System.out.println("Port config builder content for port 1: \n" + new_port_states.getConfiguration().getMacAddress() + "\n");
-
-        GoalState_builder.putPortStates(aca_node_one_ip+"-2",new_port_states.build());
-
+        Port.PortState port_state_one = new_port_states.build();
+        GoalState_builder.putPortStates(port_state_one.getConfiguration().getId(),port_state_one);
+        GoalState_builder.putHostToResourceId(aca_node_one_ip + "-2",port_state_one.getConfiguration().getId());
         System.out.println("Finished port state for port 1.");
 
         // fill in subnet state structs
@@ -109,8 +109,10 @@ public class pseudo_controller {
         Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
         // put the new subnet state of subnet 1 into the goalstatev2
 
-        GoalState_builder.putSubnetStates(aca_node_one_ip+"-1", subnet_state_for_both_nodes);
-        GoalState_builder.putSubnetStates(aca_node_two_ip+"-1", subnet_state_for_both_nodes);
+        GoalState_builder.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+        GoalState_builder.putHostToResourceId(aca_node_one_ip+"-1", subnet_state_for_both_nodes.getConfiguration().getId());
+        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-1", subnet_state_for_both_nodes.getConfiguration().getId());
+//        GoalState_builder.putSubnetStates(aca_node_two_ip+"-1", subnet_state_for_both_nodes);
 
         System.out.println("Subnet state is finished, content: \n" + subnet_state_for_both_nodes.getConfiguration().getCidr());
 
@@ -134,8 +136,9 @@ public class pseudo_controller {
         NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
         new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
-
-        GoalState_builder.putNeighborStates(aca_node_one_ip+"-3", new_neighborState_builder.build());
+        Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+        GoalState_builder.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+        GoalState_builder.putHostToResourceId(aca_node_one_ip+"-3", neighborState_node_one.getConfiguration().getId());
 
         // end of setting up port 1 on aca node 1
 
@@ -161,10 +164,11 @@ public class pseudo_controller {
         Port.PortConfiguration.SecurityGroupId securityGroupId_port_2 = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
         config.addSecurityGroupIds(securityGroupId_port_2);
 
-        new_port_states.setConfiguration(config_2.build());
+        new_port_states_port_2.setConfiguration(config_2.build());
         System.out.println("Port config builder content for port 2: \n" + new_port_states_port_2.getConfiguration().getMacAddress() + "\n");
-
-        GoalState_builder.putPortStates(aca_node_two_ip+"-2",new_port_states.build());
+        Port.PortState port_state_two = new_port_states_port_2.build();
+        GoalState_builder.putPortStates(port_state_two.getConfiguration().getId(),port_state_two);
+        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-2", port_state_two.getConfiguration().getId());
 
         System.out.println("Finished port state for port 2.");
 
@@ -190,8 +194,9 @@ public class pseudo_controller {
         NeighborConfiguration_builder_node_2.addFixedIps(neighbor_fixed_ip_builder_node_2.build());
 
         new_neighborState_builder_port_2.setConfiguration(NeighborConfiguration_builder_node_2.build());
-
-        GoalState_builder.putNeighborStates(aca_node_two_ip+"-3", new_neighborState_builder_port_2.build());
+        Neighbor.NeighborState neighborState_two = new_neighborState_builder_port_2.build();
+        GoalState_builder.putNeighborStates(neighborState_two.getConfiguration().getId(), neighborState_two);
+        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-3", neighborState_two.getConfiguration().getId());
         // end of setting neighbor state of port 1 on node 2
 
 
