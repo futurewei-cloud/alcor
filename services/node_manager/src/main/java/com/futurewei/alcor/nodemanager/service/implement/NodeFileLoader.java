@@ -18,6 +18,7 @@ package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
+import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import org.json.simple.JSONArray;
@@ -97,8 +98,14 @@ public class NodeFileLoader {
         String unicastTopic = (String) nodeJson.get(NodeManagerConstant.UNICAST_TOPIC);
         String multicastTopic = (String) nodeJson.get(NodeManagerConstant.MULTICAST_TOPIC);
         String groupTopic = (String) nodeJson.get(NodeManagerConstant.GROUP_TOPIC);
+        String ncm_uri = (String)nodeJson.get(NodeManagerConstant.JSON_NCM_URI);
+        String ncm_id = (String)nodeJson.get(NodeManagerConstant.JSON_NCM_ID);
+        if (ncm_uri == null)
+            ncm_uri = NodeService.makeUpNcmUri(ip, NodeManagerConstant.GRPC_SERVER_PORT); // What does this port mean here?
+        if (ncm_id == null)
+            ncm_id = NodeService.makeUpNcmId(ip, NodeManagerConstant.GRPC_SERVER_PORT); // What does this port mean here?
         try {
-            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
+            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic, ncm_uri, ncm_id);
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
