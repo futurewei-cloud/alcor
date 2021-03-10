@@ -14,7 +14,11 @@ import java.util.logging.Level;
 public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
-    private Server server;
+
+    private final int port;
+    private final Server server;
+
+    public GoalStateProvisionerServer
 
     @Override
     public void start(int port) throws IOException {
