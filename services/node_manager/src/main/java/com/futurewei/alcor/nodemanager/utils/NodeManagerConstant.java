@@ -24,6 +24,8 @@ public class NodeManagerConstant {
     public static final String UNICAST_TOPIC = "unicast_topic";
     public static final String MULTICAST_TOPIC = "multicast_topic";
     public static final String GROUP_TOPIC = "group_topic";
+    public static final String JSON_NCM_URI = "ncm_uri";
+    public static final String JSON_NCM_ID = "ncm_id";
 
     //Exception Messages
     public static final String NODE_EXCEPTION_PARAMETER_NULL_EMPTY = "Parameter is null or empty";

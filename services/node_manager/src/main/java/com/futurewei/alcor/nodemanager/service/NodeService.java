@@ -26,4 +26,7 @@ public interface NodeService {
     NodeInfo updateNodeInfo(String nodeId, NodeInfo nodeInfo) throws ParameterNullOrEmptyException, InvalidDataException, Exception;
 
     String deleteNodeInfo(String nodeId) throws ParameterNullOrEmptyException, Exception;
+
+    static String makeUpNcmUri(String hostIP, int localPort) { return "ncm/" + hostIP + "/" + String.valueOf(localPort); }
+    static String makeUpNcmId(String hostIP, int localPort) { return "ncm_" + hostIP + "_" + String.valueOf(localPort); }
 }
