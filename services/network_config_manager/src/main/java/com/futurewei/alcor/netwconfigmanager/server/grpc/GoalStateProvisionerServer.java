@@ -104,11 +104,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
                     //group resource based on host id
-                    Map<String, String> hostToResourceIdMap = value.getHostToResourceIdMap();
-                    for (String hostResourceTypeKey : hostToResourceIdMap.keySet()) {
-
-                    }
                     //store the goal state in cache
+                    //prepare GS message based on host
+                    Map<String, Goalstate.HostResources> hostResources = value.getHostResourcesMap();
+                    for (String hostId : hostResources.keySet()) {
+                        Goalstate.HostResources resources = hostResources.get(hostId);
+                    }
 
                     //send them down to target ACA
 
