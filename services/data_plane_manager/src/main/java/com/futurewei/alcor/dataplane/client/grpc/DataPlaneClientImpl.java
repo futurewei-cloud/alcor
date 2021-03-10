@@ -102,7 +102,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
                     return unicastGoalState;
                 }
 
-                return null;
+                return new UnicastGoalState();
             });
 
             futures.add(future);
