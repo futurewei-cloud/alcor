@@ -9,6 +9,9 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class GoalStateProvisionerServer implements NetworkConfigServer {
@@ -18,39 +21,43 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private final int port;
     private final Server server;
 
-    public GoalStateProvisionerServer
+    public GoalStateProvisionerServer(int port){
+        this.port = port;
+        this.server = ServerBuilder.forPort(port)
+                .addService(new GoalStateProvisionerImpl())
+                .build();
+    }
 
     @Override
     public void start(int port) throws IOException {
-        /* The port on which the server should run */
-        server = ServerBuilder.forPort(port)
-                .addService(new GoalStateProvisionerImpl())
-                .build()
-                .start();
-        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on ");
-        logger.log(Level.INFO, "Server started, listening on " + port);
+        this.server.start();
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                logger.log(Level.SEVERE, "*** shutting down gRPC server since JVM is shutting down");
-                GoalStateProvisionerServer.this.stop();
-                logger.log(Level.SEVERE, "*** server shut down");
+                logger.log(Level.INFO, "*** shutting down gRPC server since JVM is shutting down");
+                try {
+                    GoalStateProvisionerServer.this.stop();
+                } catch (InterruptedException e){
+                    logger.log(Level.WARNING, "*** gRPC server shut down error");
+                }
+                logger.log(Level.INFO, "*** server shut down");
             }
         });
     }
 
     @Override
-    public void stop() {
-        if (server != null) {
-            server.shutdown();
+    public void stop() throws InterruptedException{
+        if (this.server != null) {
+            this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public void blockUntilShutdown() throws InterruptedException {
-        if (server != null) {
-            server.awaitTermination();
+        if (this.server != null) {
+            this.server.awaitTermination();
         }
     }
 
@@ -89,6 +96,36 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             }
             responseObserver.onNext(reply.build());
             responseObserver.onCompleted();
+        }
+
+        @Override
+        public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver){
+            return new StreamObserver<Goalstate.GoalStateV2>() {
+                @Override
+                public void onNext(Goalstate.GoalStateV2 value) {
+                    //group resource based on host id
+                    Map<String, String> hostToResourceIdMap = value.getHostToResourceIdMap();
+                    for (String hostResourceTypeKey : hostToResourceIdMap.keySet()) {
+
+                    }
+                    //store the goal state in cache
+
+                    //send them down to target ACA
+
+                    //consolidate response from ACA and send response to DPM
+
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    logger.log(Level.WARNING, "*** pushGoalStatesStream cancelled");
+                }
+
+                @Override
+                public void onCompleted() {
+                    responseObserver.onCompleted();
+                }
+            };
         }
     }
 }
