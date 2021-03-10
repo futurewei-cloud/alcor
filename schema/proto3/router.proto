@@ -39,7 +39,7 @@ message RouterConfiguration {
     message RoutingRuleExtraInfo{
         DestinationType destination_type = 1;
         string next_hop_mac = 2;
-        }
+    }
 
     message RoutingRule {
         OperationType operation_type = 1;

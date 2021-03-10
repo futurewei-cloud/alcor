@@ -45,7 +45,16 @@ message GoalState {
 message GoalStateV2 {
     uint32 format_version = 1;
 
-    map<string /*host ip-ResourceType enum*/, string /*resource id*/> host_to_resource_id = 2;
+    message ResourceIdType{
+        ResourceType type = 1;
+        string id = 2;
+    }
+
+    message HostResources{
+        repeated ResourceIdType resources = 1;
+    }
+
+    map<string /*host ip*/, HostResources /*list of resources deployed to a target host*/> host_resources = 2;
     map<string /*resource id*/, VpcState> vpc_states = 3;
     map<string /*resource id*/, SubnetState> subnet_states = 4;
 
