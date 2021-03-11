@@ -2,18 +2,25 @@ package com.futurewei.alcor.netwconfigmanager.server.grpc;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
+import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
+import com.futurewei.alcor.netwconfigmanager.config.Config;
+import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+@Service
 public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
@@ -21,8 +28,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private final int port;
     private final Server server;
 
-    public GoalStateProvisionerServer(int port){
-        this.port = port;
+    @Autowired
+    private GoalStateClient grpcGoalStateClient;
+
+    @Autowired
+    public GoalStateProvisionerServer(Config globalConfig){
+        this.port = globalConfig.servicePort;
         this.server = ServerBuilder.forPort(port)
                 .addService(new GoalStateProvisionerImpl())
                 .build();
@@ -61,7 +72,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
     }
 
-    static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+    class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         @Override
         public void pushNetworkResourceStates(Goalstate.GoalState state, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
@@ -103,15 +114,18 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
-                    //group resource based on host id
-                    //store the goal state in cache
+
                     //prepare GS message based on host
-                    Map<String, Goalstate.HostResources> hostResources = value.getHostResourcesMap();
-                    for (String hostId : hostResources.keySet()) {
-                        Goalstate.HostResources resources = hostResources.get(hostId);
-                    }
+                    Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
+
+                    //store the goal state in cache
 
                     //send them down to target ACA
+                    try {
+                        grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     //consolidate response from ACA and send response to DPM
 
