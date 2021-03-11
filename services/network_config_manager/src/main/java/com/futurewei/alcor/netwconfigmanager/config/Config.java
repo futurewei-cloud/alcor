@@ -13,10 +13,10 @@ public class Config {
 
     public static final int SHUTDOWN_TIMEOUT = 5;
 
-    @Value("9014")
+    @Value("${server.port: 9014}")
     public int servicePort;
 
-    @Value("${dataplane.grpc.port: 5001}")
+    @Value("${dataplane.grpc.port: 50001}")
     public int targetHostPort;
 
     @Value("${grpc.min-threads: 100}")
