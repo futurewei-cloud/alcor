@@ -17,20 +17,16 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 
 public class pseudo_controller {
 
     static String aca_node_one_ip = "ip_one";
     static String aca_node_two_ip = "ip_two";
-    static String grpc_ip = "ip_three";
-    static int grpc_port = 123;
+    static String ncm_ip = "ip_three";
+    static int ncp_port = 123;
     static String user_name = "root";
     static String password = "abcdefg";
     static int ports_to_generate_on_each_aca_node = 1;
@@ -45,8 +41,8 @@ public class pseudo_controller {
             ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
             aca_node_one_ip = args[1];
             aca_node_two_ip = args[2];
-            grpc_ip = args[3];
-            grpc_port = Integer.parseInt(args[4]);
+            ncm_ip = args[3];
+            ncp_port = Integer.parseInt(args[4]);
             user_name = args[5];
             password = args[6];
 
@@ -54,12 +50,12 @@ public class pseudo_controller {
 
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: "+user_name+"\npassword: "+password);
 //        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02 && ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
-//
+//        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
 //        execute_ssh_commands("docker ps", aca_node_one_ip, user_name, password);
 //        execute_ssh_commands("docker run -itd --name test2 --net=none busybox sh", aca_node_two_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03 && ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
-//
+//        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker ps", aca_node_two_ip, user_name, password);
 
 
