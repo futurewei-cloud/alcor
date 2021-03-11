@@ -58,11 +58,12 @@ public class pseudo_controller {
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
 
-        System.out.println("Trying to build the goalstatev2");
+        System.out.println("Trying to build the GoalStateV2");
 
 
         Goalstate.GoalStateV2.Builder GoalState_builder = Goalstate.GoalStateV2.newBuilder();
-        Goalstate.HostResources.Builder hostResources_builder = Goalstate.HostResources.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
 
         // start of setting up port 1 on aca node 1
         Port.PortState.Builder new_port_states = Port.PortState.newBuilder();
@@ -92,11 +93,11 @@ public class pseudo_controller {
         Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = Goalstate.ResourceIdType.newBuilder();
         port_one_resource_Id_builder.setType(Common.ResourceType.PORT).setId(port_state_one.getConfiguration().getId());
         Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
-        Goalstate.HostResources.Builder port_one_host_resource_builder = Goalstate.HostResources.newBuilder();
-        port_one_host_resource_builder.addResources(port_one_resource_id);
-        Goalstate.HostResources port_one_host_resource = port_one_host_resource_builder.build();
-        GoalState_builder.putHostResources(aca_node_one_ip, port_one_host_resource);
-//        GoalState_builder.putHostToResourceId(aca_node_one_ip + "-2",port_state_one.getConfiguration().getId());
+//        Goalstate.HostResources.Builder port_one_host_resource_builder = Goalstate.HostResources.newBuilder();
+        host_resource_builder_node_one.addResources(port_one_resource_id);
+//        Goalstate.HostResources port_one_host_resource = port_one_host_resource_builder.build();
+//        GoalState_builder.putHostResources(aca_node_one_ip, port_one_host_resource);
+
         System.out.println("Finished port state for port 1.");
 
         // fill in subnet state structs
@@ -120,12 +121,12 @@ public class pseudo_controller {
         GoalState_builder.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
-        Goalstate.HostResources subnet_host_resource = Goalstate.HostResources.newBuilder().addResources(subnet_resource_id_type).build();
-        GoalState_builder.putHostResources(aca_node_one_ip, subnet_host_resource);
-        GoalState_builder.putHostResources(aca_node_two_ip, subnet_host_resource);
-//        GoalState_builder.putHostToResourceId(aca_node_one_ip+"-1", subnet_state_for_both_nodes.getConfiguration().getId());
-//        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-1", subnet_state_for_both_nodes.getConfiguration().getId());
-//        GoalState_builder.putSubnetStates(aca_node_two_ip+"-1", subnet_state_for_both_nodes);
+        host_resource_builder_node_one.addResources(subnet_resource_id_type);
+        host_resource_builder_node_two.addResources(subnet_resource_id_type);
+//        Goalstate.HostResources subnet_host_resource = Goalstate.HostResources.newBuilder().addResources(subnet_resource_id_type).build();
+//        GoalState_builder.putHostResources(aca_node_one_ip, subnet_host_resource);
+//        GoalState_builder.putHostResources(aca_node_two_ip, subnet_host_resource);
+
 
         System.out.println("Subnet state is finished, content: \n" + subnet_state_for_both_nodes.getConfiguration().getCidr());
 
@@ -153,10 +154,10 @@ public class pseudo_controller {
         GoalState_builder.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
         Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
                 setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-        Goalstate.HostResources host_resource_neighbor_node_one = Goalstate.HostResources.newBuilder()
-                .addResources(resource_id_type_neighbor_node_one).build();
-        GoalState_builder.putHostResources(aca_node_one_ip, host_resource_neighbor_node_one);
-//        GoalState_builder.putHostToResourceId(aca_node_one_ip+"-3", neighborState_node_one.getConfiguration().getId());
+        host_resource_builder_node_one.addResources(resource_id_type_neighbor_node_one);
+//        Goalstate.HostResources host_resource_neighbor_node_one = Goalstate.HostResources.newBuilder()
+//                .addResources(resource_id_type_neighbor_node_one).build();
+//        GoalState_builder.putHostResources(aca_node_one_ip, host_resource_neighbor_node_one);
 
         // end of setting up port 1 on aca node 1
 
@@ -188,10 +189,10 @@ public class pseudo_controller {
         GoalState_builder.putPortStates(port_state_two.getConfiguration().getId(),port_state_two);
         Goalstate.ResourceIdType resource_id_type_port_two = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.PORT).setId(port_state_two.getConfiguration().getId()).build();
-        Goalstate.HostResources host_resources_port_two = Goalstate.HostResources.newBuilder()
-                .addResources(resource_id_type_port_two).build();
-        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_port_two);
-//        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-2", port_state_two.getConfiguration().getId());
+        host_resource_builder_node_two.addResources(resource_id_type_port_two);
+//        Goalstate.HostResources host_resources_port_two = Goalstate.HostResources.newBuilder()
+//                .addResources(resource_id_type_port_two).build();
+//        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_port_two);
 
         System.out.println("Finished port state for port 2.");
 
@@ -221,18 +222,20 @@ public class pseudo_controller {
         GoalState_builder.putNeighborStates(neighborState_two.getConfiguration().getId(), neighborState_two);
         Goalstate.ResourceIdType resource_id_type_neighbor_two = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.NEIGHBOR).setId(neighborState_two.getConfiguration().getId()).build();
-        Goalstate.HostResources host_resources_neighbor_two = Goalstate.HostResources.newBuilder()
-                .addResources(resource_id_type_neighbor_two).build();
-        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_neighbor_two);
-//        GoalState_builder.putHostToResourceId(aca_node_two_ip+"-3", neighborState_two.getConfiguration().getId());
+        host_resource_builder_node_two.addResources(resource_id_type_neighbor_two);
+//        Goalstate.HostResources host_resources_neighbor_two = Goalstate.HostResources.newBuilder()
+//                .addResources(resource_id_type_neighbor_two).build();
+//        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_neighbor_two);
+
         // end of setting neighbor state of port 1 on node 2
 
 
         // end of setting up port 2 on aca node 2
-
+        GoalState_builder.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
+        GoalState_builder.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
         Goalstate.GoalStateV2 message = GoalState_builder.build();
         System.out.println("Built GoalState successfully, GoalStateV2 content: \n"+message.toString()+"\n");
-
+        System.out.println("Host resources count: " + message.getHostResourcesCount());
         System.out.println("Time to call the GRPC functions");
 
 //        ManagedChannel channel = ManagedChannelBuilder.forAddress(aca_node_one_ip, 123).usePlaintext().build();
