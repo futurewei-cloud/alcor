@@ -58,7 +58,7 @@ public class NodeInfo implements Serializable {
     private String groupTopic;
 
     public NodeInfo() {
-
+        // comment
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
