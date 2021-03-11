@@ -71,19 +71,19 @@ public class NodeInfo implements Serializable {
         this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac, nodeInfo.unicastTopic, nodeInfo.multicastTopic, nodeInfo.groupTopic, nodeInfo.ncm_uri, nodeInfo.ncm_id);
     }
 
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
-        this(id, name, localIp, macAddress, unicastTopic, multicastTopic, groupTopic, ncm_uri, ncm_id);
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(id, name, localIp, macAddress, unicastTopic, multicastTopic, groupTopic);
         this.veth = veth;
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
-        this(nodeId, nodeName, ipAddress, macAddress, unicastTopic, multicastTopic, groupTopic, ncm_uri, ncm_id);
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(nodeId, nodeName, ipAddress, macAddress, unicastTopic, multicastTopic, groupTopic);
         this.veth = "";
         this.gRPCServerPort = gRPCServerPort;
     }
 
-    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
+    public NodeInfo(String nodeId, String nodeName, String ipAddress, String macAddress, String unicastTopic, String multicastTopic, String groupTopic) {
         this.id = nodeId;
         this.name = nodeName;
         if (this.validateIp(ipAddress)) {
@@ -102,15 +102,27 @@ public class NodeInfo implements Serializable {
         this.unicastTopic = unicastTopic;
         this.multicastTopic = multicastTopic;
         this.groupTopic = groupTopic;
-        this.ncm_uri = ncm_uri;
-        this.ncm_id = ncm_id;
     }
 
-    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac, String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
-        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic, ncm_uri, ncm_id);
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac, String unicastTopic, String multicastTopic, String groupTopic) {
+        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
         this.hostDvrMac = host_dvr_mac;
     }
 
+    public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String host_dvr_mac, String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
+        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
+        this.hostDvrMac = host_dvr_mac;
+        this.ncm_uri = ncm_uri;
+        this.ncm_id = ncm_id;
+
+    }
+
+    public  NodeInfo(String id, String name, String localIp, String macAddress, String veth, int  gRPCServerPort,  String unicastTopic, String multicastTopic, String groupTopic, String ncm_uri, String ncm_id) {
+        this(id, name, localIp, macAddress, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
+        this.hostDvrMac = "";
+        this.ncm_uri = ncm_uri;
+        this.ncm_id = ncm_id;
+    }
     public boolean validateMac(String mac) {
         Pattern p = Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$");
         Matcher m = p.matcher(mac);
