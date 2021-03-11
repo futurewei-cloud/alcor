@@ -1,64 +1,55 @@
-#prepare build
-#apt install openjdk-11-jdk telnet bridge-utils maven -y
-#git clone https://github.com/futurewei-cloud/alcor.git
-#cd alcor
+#!/bin/bash
 
 MY_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ALCOR_ROOT_DIR=$(dirname $MY_PATH)
 
+# Function to build alcor images
 function build_alcor_images()
 {
     cd $ALCOR_ROOT_DIR
-    cp $ALCOR_ROOT_DIR/scripts/Dockerfile $ALCOR_ROOT_DIR/lib/ignite.Dockerfile
     mvn -Dmaven.test.skip=true -DskipTests clean package install
-
     #build images
-    echo "Creating vpc_manager image with port 9001"
-    docker build -t vpm $ALCOR_ROOT_DIR/services/vpc_manager/
-
-    echo "Creating subnet_manager image with port 9002"
-    docker build -t snm $ALCOR_ROOT_DIR/services/subnet_manager/
-
-    echo "Creating route_manager image with port 9003"
-    docker build -t rm $ALCOR_ROOT_DIR/services/route_manager/
-
-    echo "Creating private_ip_manager image with port 9004"
-    docker build -t pim $ALCOR_ROOT_DIR/services/private_ip_manager/
-
-    echo "Creating mac_manager image with port 9005"
-    docker build -t mm $ALCOR_ROOT_DIR/services/mac_manager/
-
-    echo "Creating port_manger image with port 9006"
-    docker build -t pm $ALCOR_ROOT_DIR/services/port_manager/
-
-    echo "Creating node_manager image with port 9007"
-    docker build -t nm $ALCOR_ROOT_DIR/services/node_manager/
-
-    echo "Creating security_group_manager image with port 9008"
-    docker build -t sgm $ALCOR_ROOT_DIR/services/security_group_manager/
-
-    echo "Creating api_gateway image with port 9009"
-    docker build -t ag $ALCOR_ROOT_DIR/services/api_gateway/
-
-    echo "Creating data_plane_manager image with port 9010"
-    docker build -t dpm $ALCOR_ROOT_DIR/services/data_plane_manager/
-
-    echo "Creating elastic_ip_manager image with port 9011"
-    docker build -t eim $ALCOR_ROOT_DIR/services/elastic_ip_manager/
-
-    echo "Creating quoto_manager image with port 9012"
-    docker build -t qm $ALCOR_ROOT_DIR/services/quota_manager/
-
-    echo "Creating network_acl_manager image with port 9013"
-    docker build -t nam $ALCOR_ROOT_DIR/services/network_acl_manager/
-
-    echo "Creating gateway_manager image with port 9015"
-    docker build -t gm $ALCOR_ROOT_DIR/services/gateway_manager/
-
     echo "Creating ignite-11 image with ports 10800 10081 47100 47500"
     docker build -t ignite-11 -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
+    echo "Creating vpc_manager image with port 9001"
+    docker build -t vpm $ALCOR_ROOT_DIR/services/vpc_manager/
+    echo "Creating subnet_manager image with port 9002"
+    docker build -t snm $ALCOR_ROOT_DIR/services/subnet_manager/
+    echo "Creating route_manager image with port 9003"
+    docker build -t rm $ALCOR_ROOT_DIR/services/route_manager/
+    echo "Creating private_ip_manager image with port 9004"
+    docker build -t pim $ALCOR_ROOT_DIR/services/private_ip_manager/
+    echo "Creating mac_manager image with port 9005"
+    docker build -t mm $ALCOR_ROOT_DIR/services/mac_manager/
+    echo "Creating port_manger image with port 9006"
+    docker build -t pm $ALCOR_ROOT_DIR/services/port_manager/
+    echo "Creating node_manager image with port 9007"
+    docker build -t nm $ALCOR_ROOT_DIR/services/node_manager/
+    echo "Creating security_group_manager image with port 9008"
+    docker build -t sgm $ALCOR_ROOT_DIR/services/security_group_manager/
+    echo "Creating api_gateway image with port 9009"
+    docker build -t ag $ALCOR_ROOT_DIR/services/api_gateway/
+    echo "Creating data_plane_manager image with port 9010"
+    docker build -t dpm $ALCOR_ROOT_DIR/services/data_plane_manager/
+    echo "Creating elastic_ip_manager image with port 9011"
+    docker build -t eim $ALCOR_ROOT_DIR/services/elastic_ip_manager/
+    echo "Creating quoto_manager image with port 9012"
+    docker build -t qm $ALCOR_ROOT_DIR/services/quota_manager/
+    echo "Creating network_acl_manager image with port 9013"
+    docker build -t nam $ALCOR_ROOT_DIR/services/network_acl_manager/
+    echo "Creating gateway_manager image with port 9015"
+    docker build -t gm $ALCOR_ROOT_DIR/services/gateway_manager/
 }
 
+#Function stops and removes and then starts alcor container services
+function stop_remove_start_alcor_containers()
+{
+    stop_alcor_containers
+    remove_alcor_containers
+    start_alcor_containers
+}
+
+#Function to start alcor container services
 function start_alcor_containers()
 {
     echo "Starting Alcor services "
@@ -78,7 +69,7 @@ function start_alcor_containers()
     docker run --net=host --name nam -p 9013:9013 -v /tmp:/tmp -itd nam
     docker run --net=host --name gm  -p 9015:9015 -v /tmp:/tmp -itd gm
 }
-
+# Function to stop alcor container services
 function stop_alcor_containers()
 {
     echo "Stopping all alcor services"
@@ -98,7 +89,7 @@ function stop_alcor_containers()
     docker container stop nam
     docker container stop gm
 }
-
+#Function to remove alcor containers
 function remove_alcor_containers()
 {
     echo "Removing Alcor containers"
@@ -127,17 +118,18 @@ function command_help()
     echo "  -a For running Alcor microservices containers"
     echo "  -o For stopping Alcor microservices containers"
     echo "  -r For removing Alcor microservice containers"
-    echo "   please pick one from [b], [a], [o] or [r]"
+    echo "  -s For stopping,removing and starting Alcor microservice containers"
+    echo "   please pick one from [b], [a], [o] [r] or [s] "
     echo
 }
 
 # Check for arguments
-if [[ ! ( "$1" == "-b" || "$1" == "-a" || "$1" == "-o" || "$1" == "-r" ) ]] ; then
+if [[ ! ( "$1" == "-b" || "$1" == "-a" || "$1" == "-o" || "$1" == "-r" || "$1" == "-s" ) ]] ; then
     command_help
     exit 1
 fi
 
-while getopts ":baor" opt; do
+while getopts ":baors" opt; do
 case $opt in
   b)
     build_alcor_images
@@ -150,6 +142,9 @@ case $opt in
     ;;
   r)
     remove_alcor_containers
+    ;;
+  s)
+    stop_remove_start_alcor_containers
     ;;
   \?)
     command_help
