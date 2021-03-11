@@ -6,8 +6,10 @@ Params:
 1. Number of ports to generate to each aca node
 2. IP of aca_node_one
 3. IP of aca_node_two
-4. User name of aca_nodes
-5. Password of aca_nodes
+4. IP of the GRPC call
+5. Port of the GRPC call
+6. User name of aca_nodes
+7. Password of aca_nodes
 */
 package com.futurewei.alcor.pseudo_controller;
 import com.futurewei.alcor.schema.*;
@@ -27,6 +29,8 @@ public class pseudo_controller {
 
     static String aca_node_one_ip = "ip_one";
     static String aca_node_two_ip = "ip_two";
+    static String grpc_ip = "ip_three";
+    static int grpc_port = 123;
     static String user_name = "root";
     static String password = "abcdefg";
     static int ports_to_generate_on_each_aca_node = 1;
@@ -36,13 +40,16 @@ public class pseudo_controller {
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     public static void main(String[] args){
         System.out.println("Start of the test controller");
-        if(args.length == 5){
+        if(args.length == 7){
             System.out.println("User passed in params and we need to read them.");
             ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
             aca_node_one_ip = args[1];
             aca_node_two_ip = args[2];
-            user_name = args[3];
-            password = args[4];
+            grpc_ip = args[3];
+            grpc_port = Integer.parseInt(args[4]);
+            user_name = args[5];
+            password = args[6];
+
         }
 
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: "+user_name+"\npassword: "+password);
@@ -238,7 +245,7 @@ public class pseudo_controller {
         System.out.println("Host resources count: " + message.getHostResourcesCount());
         System.out.println("Time to call the GRPC functions");
 
-//        ManagedChannel channel = ManagedChannelBuilder.forAddress(aca_node_one_ip, 123).usePlaintext().build();
+//        ManagedChannel channel = ManagedChannelBuilder.forAddress(grpc_ip, grpc_port).usePlaintext().build();
 //
 //        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
 ////        boolean execute_ping = false;
@@ -263,7 +270,9 @@ public class pseudo_controller {
 //
 //        response_observer.onNext(message);
 //        response_observer.onCompleted();
-
+//        System.out.println("After the GRPC call, it's time to do the ping test");
+//        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_two_ip, user_name, password);
 
 
         System.out.println("End of the test controller");
@@ -271,7 +280,7 @@ public class pseudo_controller {
 
     public static void execute_ssh_commands(String command, String host_ip, String host_user_name, String host_password){
         try{
-
+            System.out.println("Start of executing command ["+command+"] on host: "+host_ip);
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             JSch jsch = new JSch();
@@ -308,6 +317,6 @@ public class pseudo_controller {
             System.err.println("Got this error: " + e.getMessage());
             e.printStackTrace();
         }
-
+        System.out.println("End of executing command ["+command+"] on host: "+host_ip);
     }
 }
