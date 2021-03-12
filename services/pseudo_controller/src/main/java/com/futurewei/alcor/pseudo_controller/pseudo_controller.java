@@ -248,9 +248,10 @@ public class pseudo_controller {
         System.out.println("Time to call the GRPC functions");
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
-
+        System.out.println("Constructed channel");
         GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
 //        boolean execute_ping = false;
+        System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
@@ -268,9 +269,11 @@ public class pseudo_controller {
                 System.out.println("onCompleted");
             }
         };
+        System.out.println("Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
-
+        System.out.println("Connected the observers");
         response_observer.onNext(message);
+        System.out.println("After calling onNext");
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
         execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
