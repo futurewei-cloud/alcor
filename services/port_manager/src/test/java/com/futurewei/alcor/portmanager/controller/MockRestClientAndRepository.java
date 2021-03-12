@@ -133,6 +133,7 @@ public class MockRestClientAndRepository {
                 UnitTestConfig.nodeMulticastTopic,
                 UnitTestConfig.nodeGroupTopic
         );
+        nodeInfo.setNcmId(UnitTestConfig.nodeNcmId);
         nodeInfos.add(nodeInfo);
         Mockito.when(nodeManagerRestClient.getNodeInfoByNodeName(anyString())).thenReturn(nodeInfos);
 

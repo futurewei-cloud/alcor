@@ -150,6 +150,8 @@ public class NodeControllerTest extends MockIgniteServer {
         String strMulticastTopic = "multicast-topic-1";
         String strGroupTopic = "group-topic-1";
         NodeInfo nodeInfo = new NodeInfo(strId, strName, strIp, strMac, strVeth, nServerPort, strUnicastTopic, strMulticastTopic, strGroupTopic);
+        String ncm_id = NodeService.makeUpNcmId(strIp, nServerPort);
+        nodeInfo.setNcmId(ncm_id);
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
