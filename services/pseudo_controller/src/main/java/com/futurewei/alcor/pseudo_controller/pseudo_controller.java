@@ -17,6 +17,9 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 
 import java.io.InputStream;
 
@@ -26,7 +29,7 @@ public class pseudo_controller {
     static String aca_node_one_ip = "ip_one";
     static String aca_node_two_ip = "ip_two";
     static String ncm_ip = "ip_three";
-    static int ncp_port = 123;
+    static int ncm_port = 123;
     static String user_name = "root";
     static String password = "abcdefg";
     static int ports_to_generate_on_each_aca_node = 1;
@@ -42,21 +45,21 @@ public class pseudo_controller {
             aca_node_one_ip = args[1];
             aca_node_two_ip = args[2];
             ncm_ip = args[3];
-            ncp_port = Integer.parseInt(args[4]);
+            ncm_port = Integer.parseInt(args[4]);
             user_name = args[5];
             password = args[6];
 
         }
 
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: "+user_name+"\npassword: "+password);
-        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
-        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
-        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
+//        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
         execute_ssh_commands("docker ps", aca_node_one_ip, user_name, password);
         execute_ssh_commands("docker exec test1 ifconfig", aca_node_one_ip, user_name, password);
-        execute_ssh_commands("docker run -itd --name test2 --net=none busybox sh", aca_node_two_ip, user_name, password);
-        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03", aca_node_two_ip, user_name, password);
-        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("docker run -itd --name test2 --net=none busybox sh", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
         execute_ssh_commands("docker ps", aca_node_two_ip, user_name, password);
         execute_ssh_commands("docker exec test2 ifconfig", aca_node_two_ip, user_name, password);
 
@@ -244,34 +247,34 @@ public class pseudo_controller {
         System.out.println("Host resources count: " + message.getHostResourcesCount());
         System.out.println("Time to call the GRPC functions");
 
-//        ManagedChannel channel = ManagedChannelBuilder.forAddress(grpc_ip, grpc_port).usePlaintext().build();
-//
-//        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
-////        boolean execute_ping = false;
-//        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
-//            @Override
-//            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
-//                System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() +"\n");
-////                final boolean grpc_call_successful = value.getOperationStatuses(0).getOperationStatus().equals(Common.OperationStatus.SUCCESS);
-//            }
-//
-//            @Override
-//            public void onError(Throwable t) {
-//                System.out.println("onError function with this GoalStateOperationReply: \n" + t.getMessage() +"\n");
-//            }
-//
-//            @Override
-//            public void onCompleted() {
-//                System.out.println("onCompleted");
-//            }
-//        };
-//        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
-//
-//        response_observer.onNext(message);
-//        response_observer.onCompleted();
-//        System.out.println("After the GRPC call, it's time to do the ping test");
-//        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
-//        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_two_ip, user_name, password);
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
+
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
+//        boolean execute_ping = false;
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() +"\n");
+//                final boolean grpc_call_successful = value.getOperationStatuses(0).getOperationStatus().equals(Common.OperationStatus.SUCCESS);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("onError function with this GoalStateOperationReply: \n" + t.getMessage() +"\n");
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("onCompleted");
+            }
+        };
+        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
+
+        response_observer.onNext(message);
+        response_observer.onCompleted();
+        System.out.println("After the GRPC call, it's time to do the ping test");
+        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
+        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_two_ip, user_name, password);
         System.out.println("Ping test finished, clean up the containers and the ovs-docker commands");
 //        execute_ssh_commands("ovs-docker del-port br-int eth0 test2", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker rm -f test2", aca_node_two_ip, user_name, password);
