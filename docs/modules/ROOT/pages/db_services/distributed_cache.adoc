@@ -1,0 +1,39 @@
+= Data Store and Cache Subsystem Design
+Liguang Xie <lxie@futurewei.com>, Chun-Jen Chung <cchung@futurewei.com>
+v0.1, 2021-03-11
+:toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Architectural Overview
+
+image::cache_design.PNG["Migration Phase1", width=1024, link="neutron_migration_phase1.png"]
+
+== Cache Pattern
+* Write-back/write-behind cache (w/ Ignite native persistence)
+. Data is written to cache along, and completion is immediately confirmed to the client. The write to the permanent storage is performed asynchronously after specified intervals or under certain conditions.
+. This results in low-latency and high-throughput for write-intensive applications; however, this speed comes with the risk of data loss in case of a crash or other adverse event because the only copy of the written data is in the cache.
+. The key concept of this approach is to accumulate updates and asynchronously flush them to the underlying database as a bulk operation.
+* Read/Write-through (w/ external storage) or Write-behind mode
+. Read-through means that the data is read from the underlying persistent store if it is not available in the cache.
+. Write-through means that the data is automatically persisted when it is updated in the cache. All read-through and write-through operations participate in cache transactions and are committed or rolled back as a whole.
+* All-in-Cache (no eviction)
+
+== Cache Configuration
+* Cache Mode (describe how data is set is divided into partitions and all partitions are split between participating nodes in a balanced manner)
+. _PARTITIONED_ mode is the most scalable distributed cache mode, write is cheaper and suitable for write-intensive caches
+. REPLICATED mode offers the highest availability (as it replicates all the data of every partition to every node in the cluster) and suitable for read-intensive caches (80% read)
+* Leverage affinity colocation
+* Use ACID-compliant transaction to group multiple cache operations (across cache and on multiple keys)
+
+== Memory Configuration
+* Stored in unit of pages in managed off-heap RAM region
+* Eviction Policy: Random LRU
+
+== Persistence Configuration
+* Requirement: capable of surviving crashes or restarts
+** Option 1: Ignite native persistence
+** Option 2: external database (MySQL, Postgre SQL, SQL Server)
+
+

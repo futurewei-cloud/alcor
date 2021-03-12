@@ -4,6 +4,8 @@ v0.1, 2020-04-30
 :toc: right
 :imagesdir: ../../images
 
+NOTE: This document is under development
+
 == Overview
 
 The Data-Plane Manager (DPM) is a control plane service responsible of driving network configuration down to alcor control agents deployed on compute nodes or network gateway services.
