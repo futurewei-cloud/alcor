@@ -1,4 +1,4 @@
-= Data Store and Cache Subsystem Design
+= Distributed Cache Design
 Liguang Xie <lxie@futurewei.com>, Chun-Jen Chung <cchung@futurewei.com>
 v0.1, 2021-03-11
 :toc: right
@@ -8,7 +8,10 @@ NOTE: This document is under development
 
 == Architectural Overview
 
-image::cache_design.PNG["Migration Phase1", width=1024, link="neutron_migration_phase1.png"]
+The following diagram details the design of in-memory distributed cache in xref:infra_services/data_plane_manager.adoc[Data-Plane Manager] and xref:infra_services/network_config_manager.adoc[Network Configuration Manager].
+In this design, we consider various cache patterns, different configurations for caching, memory and persistence, and their pros and cons.
+
+image::cache_design.PNG["Cache Design", width=1024, link="cache_design.png"]
 
 == Cache Pattern
 * Write-back/write-behind cache (w/ Ignite native persistence)
@@ -20,7 +23,7 @@ image::cache_design.PNG["Migration Phase1", width=1024, link="neutron_migration_
 . Write-through means that the data is automatically persisted when it is updated in the cache. All read-through and write-through operations participate in cache transactions and are committed or rolled back as a whole.
 * All-in-Cache (no eviction)
 
-== Cache Configuration
+== Caching Configuration
 * Cache Mode (describe how data is set is divided into partitions and all partitions are split between participating nodes in a balanced manner)
 . _PARTITIONED_ mode is the most scalable distributed cache mode, write is cheaper and suitable for write-intensive caches
 . REPLICATED mode offers the highest availability (as it replicates all the data of every partition to every node in the cluster) and suitable for read-intensive caches (80% read)
