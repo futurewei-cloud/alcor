@@ -87,6 +87,7 @@ public class pseudo_controller {
                 setId(port_id_1).
                 setVpcId(vpc_id_1).
                 setName(("tap" + port_id_1).substring(0, 14)).
+                setAdminStateUp(true).
                 setMacAddress("6c:dd:ee:00:00:02");
         Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
         fixedIpBuilder.setSubnetId(subnet_id_1);
@@ -184,6 +185,7 @@ public class pseudo_controller {
                 setId(port_id_2).
                 setVpcId(vpc_id_1).
                 setName(("tap" + port_id_2).substring(0, 14)).
+                setAdminStateUp(true).
                 setMacAddress("6c:dd:ee:00:00:03");
         Port.PortConfiguration.FixedIp.Builder fixedIpBuilder_port_2 = Port.PortConfiguration.FixedIp.newBuilder();
         fixedIpBuilder_port_2.setSubnetId(subnet_id_1);
