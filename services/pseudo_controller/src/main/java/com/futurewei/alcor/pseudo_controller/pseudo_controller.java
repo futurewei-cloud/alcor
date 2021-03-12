@@ -279,7 +279,7 @@ public class pseudo_controller {
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
         execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
-        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_two_ip, user_name, password);
+        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_one_ip, user_name, password);
         System.out.println("Ping test finished, clean up the containers and the ovs-docker commands");
 //        execute_ssh_commands("ovs-docker del-port br-int eth0 test2", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker rm -f test2", aca_node_two_ip, user_name, password);
