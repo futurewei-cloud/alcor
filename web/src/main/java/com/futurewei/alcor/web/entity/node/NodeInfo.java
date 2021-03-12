@@ -57,6 +57,8 @@ public class NodeInfo implements Serializable {
     @JsonProperty("group_topic")
     private String groupTopic;
 
+    // add ncm here
+
     public NodeInfo() {
 
     }
