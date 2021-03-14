@@ -82,3 +82,9 @@ ignite/
 
 # mac system file
 .DS_Store
+
+# vs code files
+*.classpath
+*.project
+*.prefs
+*.factorypath

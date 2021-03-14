@@ -6,7 +6,9 @@ public enum StatusEnum {
     READY("ready"),
     FAILED("failed"),
     AVAILABLE("available"),
-    NOTAVAILABLE("not-available");
+    NOTAVAILABLE("not-available"),
+    CREATED("created"),
+    SUCCESS("success");
 
     private final String status;
 

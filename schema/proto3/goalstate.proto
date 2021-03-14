@@ -20,6 +20,7 @@ package alcor.schema;
 
 option java_package = "com.futurewei.alcor.schema";
 
+import "common.proto";
 import "vpc.proto";
 import "subnet.proto";
 import "port.proto";
@@ -40,4 +41,30 @@ message GoalState {
     repeated DHCPState dhcp_states = 7;
     repeated RouterState router_states = 8;
     repeated GatewayState gateway_states = 9;
+}
+
+message ResourceIdType{
+    ResourceType type = 1;
+    string id = 2;
+}
+
+message HostResources{
+    repeated ResourceIdType resources = 1;
+}
+
+message GoalStateV2 {
+    uint32 format_version = 1;
+
+    map<string /*host ip*/, HostResources /*list of resources deployed to a target host*/> host_resources = 2;
+    map<string /*resource id*/, VpcState> vpc_states = 3;
+    map<string /*resource id*/, SubnetState> subnet_states = 4;
+
+    // PortState and DHCPState is applicable to one host only
+    map<string /*resource id*/, PortState> port_states = 5;
+    map<string /*resource id*/, DHCPState> dhcp_states = 6;
+
+    map<string /*resource id*/, NeighborState> neighbor_states = 7;
+    map<string /*resource id*/, SecurityGroupState> security_group_states = 8;
+    map<string /*resource id*/, RouterState> router_states = 9;
+    map<string /*resource id*/, GatewayState> gateway_states = 10;
 }

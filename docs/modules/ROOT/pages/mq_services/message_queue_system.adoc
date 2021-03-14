@@ -38,10 +38,14 @@ image::MessageArchitecture.png[]
 We have two architectural design options.
 
 ==== Design Option: MQ (Node Group Topic)
+<<<<<<< HEAD
 ===== Workflow
 image::file.png[]
 ===== Data Schema for Design Option: MQ (Node Group Topic)
 image::dataSchema1.png[]
+=======
+image::file.png[]
+>>>>>>> c7baf54731aabf851f79b69b96d539ab1eb3c24b
 
 ==== Design Option: MQ (VPC Topic) + GRPC
 ===== Workflow
@@ -71,13 +75,29 @@ image::channelSelectionAlg.png[]
 image::algProcess.png[]
 image::channelSelection.png[]
 
+<<<<<<< HEAD
 
 
 ===== Data Schema for Design Option: MQ (VPC Topic) + GRPC
+=======
+=== Data schema
+==== Design Option: MQ (Node Group Topic)
+image::dataSchema1.png[]
+
+==== Design Option: MQ (VPC Topic) + GRPC
+>>>>>>> c7baf54731aabf851f79b69b96d539ab1eb3c24b
 image::dataSchema2.png[]
 
 === Task Allocation
 [width="100%",cols="<.^,^.<",options="header"]
+<<<<<<< HEAD
+=======
+|====================
+|Name| Task
+|Min Chen| Interaction among managers (steps 1-5 in Workflow UML:select MQ Channel & select GRPC channel); Channel selection ALG (step 6 in Workflow UML:select MQ Channel & select GRPC channel)
+|Luyao Luo| ACA subscript/unsubscript (steps 8,9 in Workflow UML:select MQ Channel & select GRPC channel)
+|Jiawei Liu| subscript/unsubscript API (step 7 in Workflow UML:select MQ Channel & select GRPC channel); Goalstate send (steps 10,11 in Workflow UML:select MQ Channel; step 10 in Workflow UML:select GRPC channel)
+>>>>>>> c7baf54731aabf851f79b69b96d539ab1eb3c24b
 |====================
 |Name| Task
 |Min Chen| Interaction among managers (steps 1-5 in Workflow UML:select MQ Channel & select GRPC channel); Channel selection ALG (step 6 in Workflow UML:select MQ Channel & select GRPC channel)
@@ -87,6 +107,10 @@ image::dataSchema2.png[]
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c7baf54731aabf851f79b69b96d539ab1eb3c24b
 //Note: * means that the feature is available only in the enterprise edition.
 
 //=== Review of Cache Store

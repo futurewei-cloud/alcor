@@ -16,14 +16,16 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
-import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
@@ -298,5 +300,40 @@ public class PortServiceImpl implements PortService {
     @Override
     public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
         return portRepository.getSubnetPortCount(subnetId);
+    }
+
+    @DurationStatistics
+    @Override
+    public void updatePortStatus(IRestRequest request,NetworkConfiguration configuration,String status) throws Exception {
+        List<InternalPortEntity> internalPortEntities = configuration.getPortEntities();
+        List<PortEntity> portEntities = new ArrayList<>();
+        String name = request.getClass().getName();
+        InternalDPMResultList result = null;
+        if (CreateNetworkConfigRequest.class.getName().equals(name)) {
+            CreateNetworkConfigRequest createRequest = (CreateNetworkConfigRequest)request;
+            result = createRequest.getResultList();
+        }
+        if (UpdateNetworkConfigRequest.class.getName().equals(name)) {
+            UpdateNetworkConfigRequest updateRequest = (UpdateNetworkConfigRequest)request;
+            result = updateRequest.getResultList();
+        }
+        if(result == null){
+            return;
+        }
+        for (InternalDPMResult internalDPMResult : result.getResultList()) {
+            List<String> failedHosts = internalDPMResult.getFailedHosts();
+            for (InternalPortEntity internalPortEntity : internalPortEntities) {
+                PortEntity portEntity = portRepository.findPortEntity(internalPortEntity.getId());
+                if (status != null) {
+                    portEntity.setStatus(status);
+                }else if (failedHosts.contains(internalPortEntity.getBindingHostIP())){
+                    portEntity.setStatus(StatusEnum.FAILED.getStatus());
+                }else {
+                    portEntity.setStatus(StatusEnum.SUCCESS.getStatus());
+                }
+                portEntities.add(portEntity);
+            }
+        }
+        portRepository.addPortEntities(portEntities);
     }
 }
