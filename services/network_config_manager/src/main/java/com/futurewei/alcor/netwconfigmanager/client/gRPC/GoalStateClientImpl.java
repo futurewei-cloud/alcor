@@ -8,10 +8,10 @@ import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,19 +22,26 @@ import java.util.stream.Collectors;
 public class GoalStateClientImpl implements GoalStateClient {
     private static final Logger LOG = LoggerFactory.getLogger(GoalStateClientImpl.class);
 
-    private int grpcPort;
+    private int hostAgentPort;
 
     private final ExecutorService executor;
 
-    @Autowired
-    public GoalStateClientImpl(Config globalConfig) {
-        this.grpcPort = globalConfig.targetHostPort;
-        this.executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
-                globalConfig.grpcMaxThreads,
+    //    @Autowired
+    public GoalStateClientImpl() {
+//        this.grpcPort = globalConfig.targetHostPort;
+//        this.executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
+//                globalConfig.grpcMaxThreads,
+//                50,
+//                TimeUnit.SECONDS,
+//                new LinkedBlockingDeque<>(),
+//                new DefaultThreadFactory(globalConfig.grpThreadsName));
+        this.hostAgentPort = 50001;
+        this.executor = new ThreadPoolExecutor(100,
+                200,
                 50,
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
-                new DefaultThreadFactory(globalConfig.grpThreadsName));
+                new DefaultThreadFactory("grpc-thread-pool"));
     }
 
     @Override
@@ -42,7 +49,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         List<Future<HostGoalState>>
                 futures = new ArrayList<>(hostGoalStates.size());
 
-        for (HostGoalState hostGoalState: hostGoalStates.values()) {
+        for (HostGoalState hostGoalState : hostGoalStates.values()) {
             Future<HostGoalState> future =
                     executor.submit(() -> {
                         try {
@@ -70,25 +77,38 @@ public class GoalStateClientImpl implements GoalStateClient {
         }).collect(Collectors.toList());
     }
 
-    private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException{
+    private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
         Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
 
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.grpcPort)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .build();
-        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub =
-                GoalStateProvisionerGrpc.newBlockingStub(channel);
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
 
-        Goalstateprovisioner.GoalStateOperationReply reply = null;
-//            = blockingStub.pushNetworkResourceStates();
-        List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> statuses =
-                reply.getOperationStatusesList();
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> observer = new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+//                stub.pushGoalStatesStream(value);
+//                List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> statuses =
+//                        reply.getOperationStatusesList();
+            }
 
-        result.put(hostIp, statuses);
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        };
+
+//        result.put(hostIp, statuses);
 
         shutdown(channel);
     }

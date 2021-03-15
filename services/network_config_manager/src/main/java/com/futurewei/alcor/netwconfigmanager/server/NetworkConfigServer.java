@@ -10,7 +10,7 @@ public interface NetworkConfigServer {
     /**
      * Start a server with given port
      */
-    void start(int port) throws IOException;
+    void start() throws IOException;
 
     /**
      * Stop current server

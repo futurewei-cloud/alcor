@@ -28,21 +28,21 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private final int port;
     private final Server server;
 
-    @Autowired
-    private GoalStateClient grpcGoalStateClient;
+//    @Autowired
+//    private GoalStateClient grpcGoalStateClient;
 
-    @Autowired
-    public GoalStateProvisionerServer(Config globalConfig){
-        this.port = globalConfig.servicePort;
-        this.server = ServerBuilder.forPort(port)
+    public GoalStateProvisionerServer() {
+        this.port = 50010;
+        this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl())
                 .build();
     }
 
     @Override
-    public void start(int port) throws IOException {
+    public void start() throws IOException {
         this.server.start();
-        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + port);
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + this.port);
+        System.out.println("GoalStateProvisionerServer : Server started, listening on " + this.port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -50,7 +50,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.INFO, "*** shutting down gRPC server since JVM is shutting down");
                 try {
                     GoalStateProvisionerServer.this.stop();
-                } catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     logger.log(Level.WARNING, "*** gRPC server shut down error");
                 }
                 logger.log(Level.INFO, "*** server shut down");
@@ -59,7 +59,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     }
 
     @Override
-    public void stop() throws InterruptedException{
+    public void stop() throws InterruptedException {
+        System.out.println("GoalStateProvisionerServer : Server stop, was listening on " + this.port);
         if (this.server != null) {
             this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
@@ -67,12 +68,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void blockUntilShutdown() throws InterruptedException {
+        System.out.println("GoalStateProvisionerServer : Server blockUntilShutdown, was listening on " + this.port);
         if (this.server != null) {
             this.server.awaitTermination();
         }
     }
 
-    class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+    private class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+
+        GoalStateProvisionerImpl() {
+        }
 
         @Override
         public void pushNetworkResourceStates(Goalstate.GoalState state, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
@@ -110,10 +115,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
 
         @Override
-        public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver){
+        public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
+
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
+
+                    System.out.println("pushGoalStatesStream : receiving GS V2 message " + value.getHostResourcesCount());
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -122,22 +130,30 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     //send them down to target ACA
                     try {
+                        GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     //consolidate response from ACA and send response to DPM
-
+                    Goalstateprovisioner.GoalStateOperationReply reply =
+                            Goalstateprovisioner.GoalStateOperationReply.newBuilder()
+                                    .setFormatVersion(100)
+                                    .build();
+                    responseObserver.onNext(reply);
                 }
 
                 @Override
                 public void onError(Throwable t) {
+                    t.printStackTrace();
                     logger.log(Level.WARNING, "*** pushGoalStatesStream cancelled");
+                    responseObserver.onCompleted();
                 }
 
                 @Override
                 public void onCompleted() {
+                    System.out.println("pushGoalStatesStream : onCompleted() ");
                     responseObserver.onCompleted();
                 }
             };
