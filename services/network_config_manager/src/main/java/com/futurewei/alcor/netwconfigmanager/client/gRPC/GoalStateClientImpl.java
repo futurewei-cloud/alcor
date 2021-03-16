@@ -43,6 +43,8 @@ public class GoalStateClientImpl implements GoalStateClient {
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
                 new DefaultThreadFactory("grpc-thread-pool"));
+
+        //TODO: Setup a connection pool. one ACA, one client.
     }
 
     @Override
@@ -81,18 +83,17 @@ public class GoalStateClientImpl implements GoalStateClient {
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
-
-        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
-
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .build();
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
 
+        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString() );
+                result.put(hostIp, reply.getOperationStatusesList());
             }
 
             @Override
@@ -106,7 +107,6 @@ public class GoalStateClientImpl implements GoalStateClient {
             }
         };
 
-//        result.put(hostIp, statuses);
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
                 Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
