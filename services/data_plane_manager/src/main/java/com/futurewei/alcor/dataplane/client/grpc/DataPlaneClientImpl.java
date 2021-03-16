@@ -96,6 +96,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
             Future<UnicastGoalState> future =
                     executor.submit(() -> {
                 try {
+                    LOG.debug(unicastGoalState.getGoalState().toString());
                     sendGoalState(unicastGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
