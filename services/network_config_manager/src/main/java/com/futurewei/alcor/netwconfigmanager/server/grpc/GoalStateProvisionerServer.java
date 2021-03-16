@@ -32,7 +32,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 //    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
-        this.port = 50010;
+        this.port = 9016;
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl())
                 .build();
