@@ -110,8 +110,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
                 Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-                logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows:");
-                logger.log(Level.INFO, goalState.toString());
+                logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
 
                 requestObserver.onNext(goalState);
         } catch (RuntimeException e) {

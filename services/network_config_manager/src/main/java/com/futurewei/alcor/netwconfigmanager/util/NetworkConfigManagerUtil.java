@@ -23,6 +23,7 @@ public class NetworkConfigManagerUtil {
         for (String hostId : hostResourcesMap.keySet()) {
             Goalstate.HostResources hostResourceMetadata = hostResourcesMap.get(hostId);
             HostGoalState hostGoalState = new HostGoalState();
+            hostGoalState.getGoalStateBuilder().putHostResources(hostId, hostResourceMetadata);
 
             for (Goalstate.ResourceIdType resource : hostResourceMetadata.getResourcesList()) {
                 String resourceId = resource.getId();
