@@ -119,6 +119,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             throw e;
         }
         // Mark the end of requests
+        logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
         requestObserver.onCompleted();
 
         shutdown(channel);
