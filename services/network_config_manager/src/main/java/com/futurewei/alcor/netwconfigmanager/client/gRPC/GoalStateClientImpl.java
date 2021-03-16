@@ -98,7 +98,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
             @Override
             public void onError(Throwable t) {
-
+                logger.log(Level.WARNING, "Receive error from ACA@" + hostIp + " |  " + t.getMessage() );
             }
 
             @Override
