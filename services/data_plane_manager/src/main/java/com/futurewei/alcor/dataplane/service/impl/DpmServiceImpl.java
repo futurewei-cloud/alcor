@@ -108,7 +108,7 @@ public class DpmServiceImpl implements DpmService {
         }
 
         vpcService.buildVpcStates(networkConfig, unicastGoalState);
-        subnetService.buildSubnetStates(networkConfig, unicastGoalState);
+        subnetService.buildSubnetStates(networkConfig, unicastGoalState, multicastGoalState);
         neighborService.buildNeighborStates(networkConfig, hostIp, unicastGoalState, multicastGoalState);
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
