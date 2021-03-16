@@ -437,7 +437,7 @@ public class DataPlaneManagerUtil {
             }
             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
             subnetStateBuilder.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
-            subnetStateBuilder.setConfiguration(subnetConfigBuilder);
+            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
             goalStateBuilder.addSubnetStates(subnetStateBuilder.build());
         }
     }
@@ -715,7 +715,7 @@ public class DataPlaneManagerUtil {
 
         }
         securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
-        securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder);
+        securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder.build());
         goalStateBuilder.addSecurityGroupStates(securityGroupStateBuilder.build());
     }
 
@@ -757,9 +757,8 @@ public class DataPlaneManagerUtil {
 
             DHCP.DHCPState.Builder dhcpStateBuilder = DHCP.DHCPState.newBuilder();
             dhcpStateBuilder.setOperationType(networkConfig.getOpType());
-            dhcpStateBuilder.setConfiguration(dhcpConfigBuilder);
+            dhcpStateBuilder.setConfiguration(dhcpConfigBuilder.build());
             goalStateBuilder.addDhcpStates(dhcpStateBuilder.build());
-
         }
     }
 
