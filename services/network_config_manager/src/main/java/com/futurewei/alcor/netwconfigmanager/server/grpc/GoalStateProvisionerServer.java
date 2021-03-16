@@ -42,7 +42,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     public void start() throws IOException {
         this.server.start();
         logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + this.port);
-        System.out.println("GoalStateProvisionerServer : Server started, listening on " + this.port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -60,7 +59,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void stop() throws InterruptedException {
-        System.out.println("GoalStateProvisionerServer : Server stop, was listening on " + this.port);
+        logger.log(Level.INFO,"GoalStateProvisionerServer : Server stop, was listening on " + this.port);
         if (this.server != null) {
             this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
@@ -68,51 +67,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void blockUntilShutdown() throws InterruptedException {
-        System.out.println("GoalStateProvisionerServer : Server blockUntilShutdown, was listening on " + this.port);
+        logger.log(Level.INFO,"GoalStateProvisionerServer : Server blockUntilShutdown, listening on " + this.port);
         if (this.server != null) {
             this.server.awaitTermination();
         }
     }
 
-    private class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+    private static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-        GoalStateProvisionerImpl() {
-        }
-
-        @Override
-        public void pushNetworkResourceStates(Goalstate.GoalState state, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
-            Goalstateprovisioner.GoalStateOperationReply.Builder reply = Goalstateprovisioner.GoalStateOperationReply.newBuilder();
-            for (Vpc.VpcState vpcState : state.getVpcStatesList()) {
-                reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
-                        .setResourceId(vpcState.getConfiguration().getId())
-                        .setOperationStatusValue(Common.ResourceType.VPC_VALUE)
-                        .setOperationType(vpcState.getOperationType())
-                        .setOperationStatus(Common.OperationStatus.SUCCESS));
-            }
-            for (Subnet.SubnetState subnetState : state.getSubnetStatesList()) {
-                reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
-                        .setResourceId(subnetState.getConfiguration().getId())
-                        .setOperationStatusValue(Common.ResourceType.SUBNET_VALUE)
-                        .setOperationType(subnetState.getOperationType())
-                        .setOperationStatus(Common.OperationStatus.SUCCESS));
-            }
-            for (Port.PortState portState : state.getPortStatesList()) {
-                reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
-                        .setResourceId(portState.getConfiguration().getId())
-                        .setOperationStatusValue(Common.ResourceType.PORT_VALUE)
-                        .setOperationType(portState.getOperationType())
-                        .setOperationStatus(Common.OperationStatus.SUCCESS));
-            }
-            for (SecurityGroup.SecurityGroupState securityGroupState : state.getSecurityGroupStatesList()) {
-                reply.addOperationStatuses(Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus.newBuilder()
-                        .setResourceId(securityGroupState.getConfiguration().getName())
-                        .setOperationStatusValue(Common.ResourceType.SECURITYGROUP_VALUE)
-                        .setOperationType(securityGroupState.getOperationType())
-                        .setOperationStatus(Common.OperationStatus.SUCCESS));
-            }
-            responseObserver.onNext(reply.build());
-            responseObserver.onCompleted();
-        }
+        GoalStateProvisionerImpl() { }
 
         @Override
         public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
@@ -121,7 +84,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
 
-                    System.out.println("pushGoalStatesStream : receiving GS V2 message " + value.getHostResourcesCount());
+                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.getHostResourcesCount());
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -153,7 +116,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                 @Override
                 public void onCompleted() {
-                    System.out.println("pushGoalStatesStream : onCompleted() ");
+                    logger.log(Level.INFO, "pushGoalStatesStream : onCompleted() ");
                     responseObserver.onCompleted();
                 }
             };
