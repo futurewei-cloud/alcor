@@ -15,6 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.schema.Common;
@@ -44,7 +45,7 @@ public class SubnetService extends ResourceService {
         return result;
     }
 
-    public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws Exception {
+    public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) throws Exception {
         List<Port.PortState> portStates = unicastGoalState.getGoalStateBuilder().getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -88,6 +89,7 @@ public class SubnetService extends ResourceService {
             subnetStateBuilder.setOperationType(Common.OperationType.INFO);
             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
             unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+            multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
         }
     }
 }
