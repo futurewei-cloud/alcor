@@ -1,19 +1,40 @@
 = Node Metadata Manager Design Specification
-Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+Eunju Kim <eunju.kim@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Prasad Kommoju <pkommoju@futurewei.com>
 v0.1, 2020-04-30
+v.02, 2021-03-15
 :toc: right
 
-NOTE: This document is under development
+NOTE: This revision includes only the new API.
 
 == Overview
 
-The node manager is a control plane component responsible of managing and configurating physical servers/nodes/hosts inside a data center.
+The node manager is a control plane component responsible for managing and configuring physical servers/nodes/hosts inside a data center. This is referred to as NMM in this and other documents.
+
 It maintains the detailed configuration for each node and collect its health state continuously in a configurable interval.
-The node health states could be used collectively in many user scenarios, for example, determine if a deployment of network resource (for example, port) is successful, or if a load balancing backend is reachable.
+The node health states could be used collectively in many user scenarios, for example, to determine if a deployment of network resource (for example, port) is successful, or if a load balancing backend is reachable.
+
+A user with administrator privileges is assumed to exist (Admin user or just Admin). The Admin interacts with Alcor controller (NodeController/NMM) through an API to register, un-register, query, and update node metadata entries.
+
+NMM API is being extended to interface with the new service called NCM. The new API allow creation, deletion, updating and querying of metadata about NCM entities. An NCM is identified by an ID and a URI. The administrator is responsible to provide a URI for the new NCM being added. There is a provision to specify the maximum number of nodes an NCM is expected to handle, also provided by the Admin.
 
 === User Cases
 
 * Port manager talks to node manager to pull node details from a node id (UUID).
+* Register a new NCM: This request is only valid if the NCM is not already up and running. It is an error to try to register more than one NCM with same URI.
+
+NMM will validate the request, update it's NCM entries (ncm_id, ncm_uri pair), and send the same to DPM. The newly generated unique NCM ID will be returned to the caller.
+
+* Query about an NCM: Given an NCM ID, return all information about it. Presently, just the URI and Capacity. In the future, there may be information about how many nodes are assigned to it, and other interesting pieces of information as part of the results.
+
+* Delete an NCM: Given an NCM ID, delete its entries from Alcor system. It may not be an error if the given NCM doesn't exist, or already being deleted.
+
+** Questions:
+. How to handle deletion of an NCM if there are come nodes still associated with it?
+. How to tell if the given NCM is still processing some network operation when trying to delete it?
+
+There was a design discussion (2021/03/21) about these questions and while there may be a need to provide further clarifications, it was concluded that the reader/writer locks would ensure internal consistency of relevant metadata but the operation may raise an error.
+
+* Update NCM: At present the only property of an NCM which can be updated is it's URI. NMM will have to make sure the new URI is not a duplicate of existing NCM before making the change. NPM will send the change to DPM (so that DPM can update it's own mappings)
 
 == Service Requirements
 
@@ -35,9 +56,222 @@ The node health states could be used collectively in many user scenarios, for ex
 
 == Node Manager Microservice Design
 
+=== NCM Information
+Information required to implement the action may depend on the type fo the request but will include either a URI, or ID or both.
+
+* Create/Register operations will require a URI and will return the corresponding ID.
+* Delete and query requests will need the ID of the target NCM.
+* Update request will need the ID and the new URI.
+* Add a new node to an existing NCM will include the node information and the NCM ID.
+* List all members of the NCM cluster will need no other information.
+
 === Architecture Overview
+This is an overview of the design and implmentation of the proposed API extensions.
+
+NMM already supports creation and management of nodes. The extension adds NCM information to the node information. Node creation will procede as usual but the association between a node and the NCM is the new addition.
+
+Presently NMM has a repository called NodeRepository which maps nodeid to the information about it (NodeId -> NodeInfo). Since operations on and interactions with NCM are tied to NCM Id, it will be necessary to maintain a second repository. The new repository is called NmmNcmRepository and will map NcmId to NodeInfo and Ncm URI.
+[source,]
+----
+
+class NmmNcmRepository {
+   String ncmId;    // KEY
+   NcmInfo  ncmInfo;
+   NodeInfo nodeInfo;
+}
+----
+
+==== NMM algorithms
+These outline actions in NMM which are related to NCM only.
+
+===== Node Creation
+** NMM will extract NCM information from the NodeInfo object.
+** Verify that such an NCM exists and adding this node will not exceed the declared capacity of the NCM.
+** Notify the NCM about the node being added to its pool of node.
+** Update the NmmNcmRepository in NMM if NCM operation is success.
+
+===== Node deletion
+** NMM will notify the NCM from which the node is being removed.
+** If NCM successfully deleted the node, update NmmNcmRepository.
+
 
 == Database Data Schema
+
+== REST APIs
+The NcmUri in the examples below appear to be derived from the nodeid and some port number but this is not the case. NcmUri, as noted earlier, is going to be provided by the Admin and NcmId may be a UUID, generated by NMM.
+
+=== API Snapshot
+
+[width="100%",cols="32%,12%,40%,17%"]
+|===
+|*API Name* |*Method* |*Request*|*Response*
+|List NCM cluster members
+|GET
+|/nodes/ncms
+|List of registered NCM
+<<ncm_cluster_list,[sample]>>
+
+|Get information about the given NCM
+|GET
+|/nodes/ncms/{ncm_id}
+|Get the detailed information about the given NCM if it exists.
+<<ncm_member_info,[sample]>>
+
+|Create/Register an NCM
+|POST
+|/nodes/ncms
+|NCM information
+<<ncm_cluster_post,[sample]>>
+
+|Delete an NCM
+|DELETE
+|/nodes/ncms/{ncm_id}
+| Status
+<<ncm_member_delete,[sample]>>
+
+|Update an NCM
+|PUT
+|/nodes/ncms/
+|Status
+<<ncm_member_update,[sample]>>
+|===
+
+=== API Specification
+
+anchor:ncm_cluster_list[]
+**(1) List NCM Cluster members **
+
+* Method: `GET`
+* Request: `/nodes/ncms`
+* Request Parameter: None
+* Action: Provide list of currently registered NCM in the project to users with sufficient access privilege.
+* Response: List of NCM
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:9007/nodes/ncms
+
+Response:
+{
+    "ncms": [
+        {
+            "ncm_id" : "ncm_id_001",
+            "ncm_uri" : "/ncm/uri/ncm_id_001",
+            "ncm_capacity" : "1001"
+        },
+        {
+            "ncm_id" : "ncm_id_002",
+            "ncm_uri" : "/ncm/uri/ncm_id_002",
+            "ncm_capacity" : "1001"
+        },
+        {
+            "ncm_id" : "ncm_id_003",
+            "ncm_uri" : "/ncm/uri/ncm_id_003",
+            "ncm_capacity" : "1001"
+        },
+    ]
+}
+....
+
+anchor:ncm_member_info[]
+**(2) Get details about given NCM **
+
+* Method: `GET`
+* Request: `/nodes/ncms/{ncm_id}`
+* Request Parameter: `@PathVariable String ncm_id`.
+* Response: Information about the given NCM if it exists.
+* Normal response codes: 200
+* Error response codes: 400, 401, 404, 500
+* Example
+....
+Request:
+http://localhost:9007/nodes/ncms/1001
+
+Response:
+{
+    "ncms": [
+        {
+            "ncm_id" : "ncm_id_001",
+            "ncm_uri" : "/ncm/uri/ncm_id_001",
+            "ncm_capacity" : "1001"
+        }
+    ]
+}
+....
+
+anchor:ncm_cluster_post[]
+**(3) Create a new NCM **
+
+* Method: `POST`
+* Request: `/nodes/ncms`
+* Request Parameter: `@RequestBody NcmCreateWebRequestJson resource`
+* Operation: Creates an NCM
+* Response: Success/Failure
+* Normal response codes: 201
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:9007/nodes/ncms
+
+Body:
+{
+    "ncm": {
+        "ncm_uri": "/ncm_node_01/service/01",
+        "ncm_capacity": "1001"
+    }
+}
+
+Response:
+{
+    "ncm": {
+        "ncm_uri": "/ncm_node_01/service/01",
+        "ncm_id" : "ncm_id_098134"
+    }
+}
+....
+
+anchor:ncm_member_delete[]
+**(4) Delete the given NCM from the cluster **
+
+* Method: `DELETE`
+* Request: `/nodes/ncms/{ncm_id}`
+* Request Parameter: `@PathVariable String ncm_id`
+* Operation: Deletes the given NCM if it exists, otherwise it is a NOOP.
+* Response: Success/Failure
+* Normal response codes: 201
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:9007/nodes/ncms/1001
+
+....
+
+anchor:ncm_member_update[]
+**(5) Update information about the given NCM
+
+* Method: `PUT`
+* Request: `/nodes/ncms/{ncm_id}/{ncm_info}`
+* Request Parameter: `@RequestBode NcmUpdateWebRequestJson`
+* Operation: Update information the given NCM.
+* Response: Success/Failure
+* Normal response codes: 201
+* Error response codes: 400, 401, 404, 500, 503
+* Example
+....
+Request:
+http://localhost:9007/nodes/ncms/1001
+
+Body:
+{
+    "ncm": {
+        "ncm_uri": "/ncm_node_01/service/02"
+    }
+}
+...
 
 Comparison with OpenStack Neutron
 References
