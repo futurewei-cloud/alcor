@@ -1,12 +1,21 @@
 = Data-Plane Manager Design Specification
-Xiaodong Zhang <xzhang2@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+Liguang Xie <lxie@futurewei.com>, Chun-Jen Chung <cchung@futurewei.com>, Xiaodong Zhang <xzhang2@futurewei.com>
 v0.1, 2020-04-30
 :toc: right
+:imagesdir: ../../images
+
+NOTE: This document is under development
 
 == Overview
 
-The Data-plane manager is a control plane component responsible of driving network configuration down to the control agents installed on the physical hosts.
-It provides a flexible plugin framework which allows different data-plane extension.
+The Data-Plane Manager (DPM) is a control plane service responsible of driving network configuration down to alcor control agents deployed on compute nodes or network gateway services.
+As the entry point of infrastructure services, DPM has the following major functionalities
+
+. Expose a generic interface that supports all types of customer-assigned network configurations including vpc, subnet, port, security group, routing info, to various resource management microservices, e.g., Port Manager, Route Manager, Security Group Manager.
+. Translate network configuration to goal state that were understood by infrastructure
+. Deliver goal state to compute nodes
+It provides a flexible plugin framework which allows different data-plane extension each for specific data-plane implementation, e.g., on-host OVS, centralized gateway.
+
 
 === User Cases
 
@@ -33,7 +42,7 @@ Fall back mechanism from one path to the other, for example, from fast path to n
 
 === Architecture
 
-image:../../images/dpm.png[image,width=660,height=384]
+image:dpm.png[image,width=660,height=384]
 
 [Figure 1] Data Plane Manager Structure
 
@@ -48,11 +57,11 @@ Upstream microservices doesn't need to know about the actual data-plane implemen
 
 . Create first port in a subnet
 
-image:../../images/dpm2.png[image,width=660,height=384]
+image:dpm2.png[image,width=660,height=384]
 
 [Figure 2] create first port
 
-image:../../images/dpm3.png[image,width=660,height=384]
+image:dpm3.png[image,width=660,height=384]
 
 [Figure 3] create first port
 
@@ -92,21 +101,21 @@ Logic:
 . We need to identify the detail scenario for peak scenario of 3GB deployment
 
 . Since Kafka would drop lots of performance when topic number is higher, RocketMQ is stable
-image:../../images/dpm-mq3.png[image,width=550,height=270]
+image:dpm-mq3.png[image,width=550,height=270]
 
 [Figure 4] Performance drop when topics nubmer is greater
 
-image:../../images/dpm-mq1.png[image,width=400,height=240]
+image:dpm-mq1.png[image,width=400,height=240]
 
 [Figure 5] Performance drop when topics nubmer is greater
 
 . When message body is greater than 4k , the performance would drop greatly
-image:../../images/dpm-mq2.png[image,width=400,height=240]
+image:dpm-mq2.png[image,width=400,height=240]
 
 [Figure 6] Message size and the performance drop
 
 . Here is the Neutron way to start ovs and do processing
-image:../../images/neutron-dpm.png[image,width=660,height=384]
+image:neutron-dpm.png[image,width=660,height=384]
 
 [Figure 7] Neutron way to start ovs and do processing
 
