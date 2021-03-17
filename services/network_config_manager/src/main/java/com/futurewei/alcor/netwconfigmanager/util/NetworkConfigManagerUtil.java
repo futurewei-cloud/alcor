@@ -68,7 +68,8 @@ public class NetworkConfigManagerUtil {
         return result;
     }
 
-    public static void filterNeighbors(Map<String, HostGoalState> hostGoalStates) throws UnexpectedHostNumException {
+    public static Map<String, HostGoalState> filterNeighbors(Map<String, HostGoalState> hostGoalStates) throws UnexpectedHostNumException {
+        Map<String, HostGoalState> filteredGoalStates = new HashMap<>();
         for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
             String hostId = entry.getKey();
             HostGoalState hostGoalState = entry.getValue();
@@ -87,9 +88,11 @@ public class NetworkConfigManagerUtil {
                 }
             }
 
-            if (filter) {
-                hostGoalStates.remove(hostId);
+            if (!filter) {
+                filteredGoalStates.put(hostId,hostGoalState);
             }
         }
+
+        return filteredGoalStates;
     }
 }

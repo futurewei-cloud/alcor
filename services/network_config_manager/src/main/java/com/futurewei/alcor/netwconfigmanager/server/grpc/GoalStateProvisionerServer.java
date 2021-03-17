@@ -85,7 +85,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
 
-                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.getHostResourcesCount());
+                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -94,10 +94,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
-                        NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
+                        Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
                         GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
-                        grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                        grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
