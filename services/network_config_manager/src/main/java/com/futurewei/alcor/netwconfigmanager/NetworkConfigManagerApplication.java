@@ -14,18 +14,18 @@ public class NetworkConfigManagerApplication {
     public static void main(String[] args) {
         SpringApplication.run(NetworkConfigManagerApplication.class, args);
 
-        NetworkConfigServer networkConfigServer = new GoalStateProvisionerServer();
-        try {
-            networkConfigServer.start();
-            networkConfigServer.blockUntilShutdown();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         OnDemandServer onDemandServer = new OnDemandServer();
         try {
             onDemandServer.start();
             onDemandServer.blockUntilShutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        NetworkConfigServer networkConfigServer = new GoalStateProvisionerServer();
+        try {
+            networkConfigServer.start();
+            networkConfigServer.blockUntilShutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
