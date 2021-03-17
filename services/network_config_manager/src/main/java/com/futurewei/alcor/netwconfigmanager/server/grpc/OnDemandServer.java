@@ -22,9 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-
-@Service
+//@Service
 public class OnDemandServer implements NetworkConfigServer {
 
 

@@ -4,7 +4,7 @@ FROM jboss/base-jdk:11
 
 MAINTAINER Liguang Xie <lxie@futurewei.com>
 
-EXPOSE 9014 9016 9017
+EXPOSE 9014 9016
 
 # Generate container image and run container
 COPY ./target/networkconfigmanager-0.1.0-SNAPSHOT.jar /app/AlcorNetworkConfigManager-0.1.0.jar
