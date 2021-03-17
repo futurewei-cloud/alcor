@@ -74,6 +74,7 @@ public class pseudo_controller {
         Goalstate.GoalStateV2.Builder GoalState_builder_two = Goalstate.GoalStateV2.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
         // start of setting up port 1 on aca node 1
         Port.PortState.Builder new_port_states = Port.PortState.newBuilder();
@@ -138,30 +139,30 @@ public class pseudo_controller {
         System.out.println("Subnet state is finished, content: \n" + subnet_state_for_both_nodes.getConfiguration().getCidr());
 
         // add a new neighbor state with CREATE
-//        Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
-//        new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
+        Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
+        new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
 
         // fill in neighbor state structs of port 3
-//        Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
-//        NeighborConfiguration_builder.setRevisionNumber(2);
-//        NeighborConfiguration_builder.setVpcId(vpc_id_1);
-//        NeighborConfiguration_builder.setId(port_id_2);
-//        NeighborConfiguration_builder.setMacAddress("6c:dd:ee:00:00:03");
-//        NeighborConfiguration_builder.setHostIpAddress(aca_node_two_ip);
-//
-//        Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
-//        neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
-//        neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
-//        neighbor_fixed_ip_builder.setIpAddress("10.0.0.3");
-//
-//        NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
-//
-//        new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
-//        Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
-//        GoalState_builder.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-//        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-//                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-//        host_resource_builder_node_one.addResources(resource_id_type_neighbor_node_one);
+        Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
+        NeighborConfiguration_builder.setRevisionNumber(2);
+        NeighborConfiguration_builder.setVpcId(vpc_id_1);
+        NeighborConfiguration_builder.setId(port_id_2);
+        NeighborConfiguration_builder.setMacAddress("6c:dd:ee:00:00:03");
+        NeighborConfiguration_builder.setHostIpAddress(aca_node_two_ip);
+
+        Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
+        neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
+        neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
+        neighbor_fixed_ip_builder.setIpAddress("10.0.0.3");
+
+        NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
+
+        new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
+        Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+        GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+        host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
 
         // end of setting up port 1 on aca node 1
 
@@ -232,17 +233,18 @@ public class pseudo_controller {
         // end of setting up port 2 on aca node 2
         GoalState_builder.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
+        GoalState_builder_two.putHostResources(aca_node_one_ip, host_resource_builder_node_one_port_one_neighbor.build());
         Goalstate.GoalStateV2 message_one = GoalState_builder.build();
-        Goalstate.GoalStateV2 message_two = GoalState_builder.build();
+        Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n"+message_one.toString()+"\n");
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n"+message_two.toString()+"\n");
 
         System.out.println("Time to call the GRPC functions");
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
-        System.out.println("Constructed channel");
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
+//        ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
+//        System.out.println("Constructed channel");
+//        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
 //        boolean execute_ping = false;
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
@@ -262,18 +264,18 @@ public class pseudo_controller {
                 System.out.println("onCompleted");
             }
         };
-        System.out.println("Created GoalStateOperationReply observer class");
-        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
-        System.out.println("Connected the observers");
-        response_observer.onNext(message_one);
-        response_observer.onNext(message_two);
-
-        System.out.println("After calling onNext");
-        response_observer.onCompleted();
-        System.out.println("After the GRPC call, it's time to do the ping test");
-        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
-        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_one_ip, user_name, password);
-        System.out.println("Ping test finished, clean up the containers and the ovs-docker commands");
+//        System.out.println("Created GoalStateOperationReply observer class");
+//        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
+//        System.out.println("Connected the observers");
+//        response_observer.onNext(message_one);
+//        response_observer.onNext(message_two);
+//
+//        System.out.println("After calling onNext");
+//        response_observer.onCompleted();
+//        System.out.println("After the GRPC call, it's time to do the ping test");
+//        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
+//        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_one_ip, user_name, password);
+//        System.out.println("Ping test finished, clean up the containers and the ovs-docker commands");
 //        execute_ssh_commands("ovs-docker del-port br-int eth0 test2", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker rm -f test2", aca_node_two_ip, user_name, password);
 
