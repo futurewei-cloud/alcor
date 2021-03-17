@@ -52,14 +52,14 @@ public class pseudo_controller {
         }
 
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: "+user_name+"\npassword: "+password);
-//        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
+        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
+        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
+        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test1 1", aca_node_one_ip, user_name, password);
         execute_ssh_commands("docker ps", aca_node_one_ip, user_name, password);
         execute_ssh_commands("docker exec test1 ifconfig", aca_node_one_ip, user_name, password);
-//        execute_ssh_commands("docker run -itd --name test2 --net=none busybox sh", aca_node_two_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03", aca_node_two_ip, user_name, password);
-//        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
+        execute_ssh_commands("docker run -itd --name test2 --net=none busybox sh", aca_node_two_ip, user_name, password);
+        execute_ssh_commands("ovs-docker add-port br-int eth0 test2 --ipaddress=10.0.0.3/16 --macaddress=6c:dd:ee:00:00:03", aca_node_two_ip, user_name, password);
+        execute_ssh_commands("ovs-docker set-vlan br-int eth0 test2 1", aca_node_two_ip, user_name, password);
         execute_ssh_commands("docker ps", aca_node_two_ip, user_name, password);
         execute_ssh_commands("docker exec test2 ifconfig", aca_node_two_ip, user_name, password);
 
@@ -71,6 +71,7 @@ public class pseudo_controller {
 
 
         Goalstate.GoalStateV2.Builder GoalState_builder = Goalstate.GoalStateV2.newBuilder();
+        Goalstate.GoalStateV2.Builder GoalState_builder_two = Goalstate.GoalStateV2.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
 
@@ -103,10 +104,8 @@ public class pseudo_controller {
         Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = Goalstate.ResourceIdType.newBuilder();
         port_one_resource_Id_builder.setType(Common.ResourceType.PORT).setId(port_state_one.getConfiguration().getId());
         Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
-//        Goalstate.HostResources.Builder port_one_host_resource_builder = Goalstate.HostResources.newBuilder();
         host_resource_builder_node_one.addResources(port_one_resource_id);
-//        Goalstate.HostResources port_one_host_resource = port_one_host_resource_builder.build();
-//        GoalState_builder.putHostResources(aca_node_one_ip, port_one_host_resource);
+
 
         System.out.println("Finished port state for port 1.");
 
@@ -129,45 +128,40 @@ public class pseudo_controller {
         // put the new subnet state of subnet 1 into the goalstatev2
 
         GoalState_builder.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
         host_resource_builder_node_one.addResources(subnet_resource_id_type);
         host_resource_builder_node_two.addResources(subnet_resource_id_type);
-//        Goalstate.HostResources subnet_host_resource = Goalstate.HostResources.newBuilder().addResources(subnet_resource_id_type).build();
-//        GoalState_builder.putHostResources(aca_node_one_ip, subnet_host_resource);
-//        GoalState_builder.putHostResources(aca_node_two_ip, subnet_host_resource);
 
 
         System.out.println("Subnet state is finished, content: \n" + subnet_state_for_both_nodes.getConfiguration().getCidr());
 
         // add a new neighbor state with CREATE
-        Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
-        new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
+//        Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
+//        new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
 
         // fill in neighbor state structs of port 3
-        Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
-        NeighborConfiguration_builder.setRevisionNumber(2);
-        NeighborConfiguration_builder.setVpcId(vpc_id_1);
-        NeighborConfiguration_builder.setId(port_id_2);
-        NeighborConfiguration_builder.setMacAddress("6c:dd:ee:00:00:03");
-        NeighborConfiguration_builder.setHostIpAddress(aca_node_two_ip);
-
-        Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
-        neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
-        neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
-        neighbor_fixed_ip_builder.setIpAddress("10.0.0.3");
-
-        NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
-
-        new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
-        Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
-        GoalState_builder.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-        host_resource_builder_node_one.addResources(resource_id_type_neighbor_node_one);
-//        Goalstate.HostResources host_resource_neighbor_node_one = Goalstate.HostResources.newBuilder()
-//                .addResources(resource_id_type_neighbor_node_one).build();
-//        GoalState_builder.putHostResources(aca_node_one_ip, host_resource_neighbor_node_one);
+//        Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
+//        NeighborConfiguration_builder.setRevisionNumber(2);
+//        NeighborConfiguration_builder.setVpcId(vpc_id_1);
+//        NeighborConfiguration_builder.setId(port_id_2);
+//        NeighborConfiguration_builder.setMacAddress("6c:dd:ee:00:00:03");
+//        NeighborConfiguration_builder.setHostIpAddress(aca_node_two_ip);
+//
+//        Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
+//        neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
+//        neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
+//        neighbor_fixed_ip_builder.setIpAddress("10.0.0.3");
+//
+//        NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
+//
+//        new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
+//        Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+//        GoalState_builder.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+//        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+//                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+//        host_resource_builder_node_one.addResources(resource_id_type_neighbor_node_one);
 
         // end of setting up port 1 on aca node 1
 
@@ -192,18 +186,15 @@ public class pseudo_controller {
         fixedIpBuilder_port_2.setIpAddress("10.10.0.3");
         config_2.addFixedIps(fixedIpBuilder_port_2.build());
         Port.PortConfiguration.SecurityGroupId securityGroupId_port_2 = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
-        config.addSecurityGroupIds(securityGroupId_port_2);
+        config_2.addSecurityGroupIds(securityGroupId_port_2);
 
         new_port_states_port_2.setConfiguration(config_2.build());
         System.out.println("Port config builder content for port 2: \n" + new_port_states_port_2.getConfiguration().getMacAddress() + "\n");
         Port.PortState port_state_two = new_port_states_port_2.build();
-        GoalState_builder.putPortStates(port_state_two.getConfiguration().getId(),port_state_two);
+        GoalState_builder_two.putPortStates(port_state_two.getConfiguration().getId(),port_state_two);
         Goalstate.ResourceIdType resource_id_type_port_two = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.PORT).setId(port_state_two.getConfiguration().getId()).build();
         host_resource_builder_node_two.addResources(resource_id_type_port_two);
-//        Goalstate.HostResources host_resources_port_two = Goalstate.HostResources.newBuilder()
-//                .addResources(resource_id_type_port_two).build();
-//        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_port_two);
 
         System.out.println("Finished port state for port 2.");
 
@@ -230,23 +221,23 @@ public class pseudo_controller {
 
         new_neighborState_builder_port_2.setConfiguration(NeighborConfiguration_builder_node_2.build());
         Neighbor.NeighborState neighborState_two = new_neighborState_builder_port_2.build();
-        GoalState_builder.putNeighborStates(neighborState_two.getConfiguration().getId(), neighborState_two);
+        GoalState_builder_two.putNeighborStates(neighborState_two.getConfiguration().getId(), neighborState_two);
         Goalstate.ResourceIdType resource_id_type_neighbor_two = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.NEIGHBOR).setId(neighborState_two.getConfiguration().getId()).build();
         host_resource_builder_node_two.addResources(resource_id_type_neighbor_two);
-//        Goalstate.HostResources host_resources_neighbor_two = Goalstate.HostResources.newBuilder()
-//                .addResources(resource_id_type_neighbor_two).build();
-//        GoalState_builder.putHostResources(aca_node_two_ip, host_resources_neighbor_two);
 
         // end of setting neighbor state of port 1 on node 2
 
 
         // end of setting up port 2 on aca node 2
         GoalState_builder.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
-        GoalState_builder.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
-        Goalstate.GoalStateV2 message = GoalState_builder.build();
-        System.out.println("Built GoalState successfully, GoalStateV2 content: \n"+message.toString()+"\n");
-        System.out.println("Host resources count: " + message.getHostResourcesCount());
+        GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
+        Goalstate.GoalStateV2 message_one = GoalState_builder.build();
+        Goalstate.GoalStateV2 message_two = GoalState_builder.build();
+
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n"+message_one.toString()+"\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n"+message_two.toString()+"\n");
+
         System.out.println("Time to call the GRPC functions");
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
@@ -274,7 +265,9 @@ public class pseudo_controller {
         System.out.println("Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
-        response_observer.onNext(message);
+        response_observer.onNext(message_one);
+        response_observer.onNext(message_two);
+
         System.out.println("After calling onNext");
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
@@ -330,5 +323,17 @@ public class pseudo_controller {
             e.printStackTrace();
         }
         System.out.println("End of executing command ["+command+"] on host: "+host_ip);
+    }
+
+    public class fake_grpc_server implements Runnable{
+
+        @Override
+        public void run() {
+            System.out.println("Running GRPC server in a different thread.");
+        }
+
+        public void start_grpc_server(){
+
+        }
     }
 }
