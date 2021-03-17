@@ -187,6 +187,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 3: Send response to target ACA
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
+            logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",
+                    reply.toString());
         }
     }
 }
