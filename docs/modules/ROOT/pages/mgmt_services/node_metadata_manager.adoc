@@ -92,7 +92,7 @@ Some operations here list NMM interactions with DPM but not all. They will be in
 ** NMM will extract NCM information from the NodeInfo object.
 ** Verify that such an NCM exists and adding this node will not exceed the declared capacity of the NCM.
 ** Notify DPM about the node creation.
-** Notify the NCM about the node being added to its pool of node.
+** Notify the NCM about the node being added to its pool of nodes.
 ** Update the NmmNcmRepository in NMM if NCM operation is success.
 
 ===== Node deletion
