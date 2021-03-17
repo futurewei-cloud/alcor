@@ -36,7 +36,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.port = 9016;
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl())
-                .addService(new OnDemandServerImpl())
+//                .addService(new OnDemandServerImpl())
                 .build();
     }
 
@@ -123,9 +123,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 }
             };
         }
-    }
-
-    private static class OnDemandServerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         @Override
         public void requestGoalStates(Goalstateprovisioner.HostRequest request, StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
@@ -189,4 +186,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             responseObserver.onCompleted();
         }
     }
+//    private static class OnDemandServerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+//
+//    }
 }
