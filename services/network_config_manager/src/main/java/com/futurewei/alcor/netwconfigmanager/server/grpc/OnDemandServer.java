@@ -118,6 +118,8 @@ public class OnDemandServer implements NetworkConfigServer {
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources and go to Step 2
             // otherwise, set it to FAILURE and go to Step 3
+
+            //TODO: Implement on-demand algorithm and support setOperationStatus==Failure
             int ind = 0;
             HostRequestReply.Builder replyBuilder = HostRequestReply.newBuilder();
             for (HostRequest.ResourceStateRequest resourceStateRequest: request.getStateRequestsList()) {
@@ -134,6 +136,7 @@ public class OnDemandServer implements NetworkConfigServer {
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.getOperationStatusesCount());
 
             // Step 2: Send GS down to target ACA
+            //TODO: Populate hostGoalStates based on M2 and M3
             Map<String, HostGoalState> hostGoalStates = new HashMap<>();
 
             try {
