@@ -5,17 +5,18 @@ v.02, 2021-03-15
 :toc: right
 
 NOTE: This revision includes only the new API.
+NOTE: The Network Control Manager (NCM) design doc is under review and has not been merged to master. Once it is merged, the link to that document will be active.
 
 == Overview
 
-The node manager is a control plane component responsible for managing and configuring physical servers/nodes/hosts inside a data center. This is referred to as NMM in this and other documents.
+The Node Metadata Manager is a control plane component responsible for managing and configuring physical servers/nodes/hosts inside a data center. NMM also acts as an interface to register, unregister the new service Network Configuration Manager (NCM). NMM also interacts with Data Plane Manager (DPM) service. Node Metadata Manager is referred to as NMM in this and other documents.
 
 It maintains the detailed configuration for each node and collect its health state continuously in a configurable interval.
 The node health states could be used collectively in many user scenarios, for example, to determine if a deployment of network resource (for example, port) is successful, or if a load balancing backend is reachable.
 
 A user with administrator privileges is assumed to exist (Admin user or just Admin). The Admin interacts with Alcor controller (NodeController/NMM) through an API to register, un-register, query, and update node metadata entries.
 
-NMM API is being extended to interface with the new service called NCM. The new API allow creation, deletion, updating and querying of metadata about NCM entities. An NCM is identified by an ID and a URI. The administrator is responsible to provide a URI for the new NCM being added. There is a provision to specify the maximum number of nodes an NCM is expected to handle, also provided by the Admin.
+NMM API is being extended to manage the registration of a new service xref:network_config_manager.adoc[Network Configuration Manager] (NCM). The new API allow creation, deletion, updating and querying of metadata about NCM entities. An NCM is identified by an ID and a URI. The administrator is responsible to provide a URI for the new NCM being added. There is a provision to specify the maximum number of nodes an NCM is expected to handle, also provided by the Admin.
 
 === User Cases
 
@@ -30,9 +31,12 @@ NMM will validate the request, update it's NCM entries (ncm_id, ncm_uri pair), a
 
 ** Questions:
 . How to handle deletion of an NCM if there are come nodes still associated with it?
+
 . How to tell if the given NCM is still processing some network operation when trying to delete it?
 
-There was a design discussion (2021/03/21) about these questions and while there may be a need to provide further clarifications, it was concluded that the reader/writer locks would ensure internal consistency of relevant metadata but the operation may raise an error.
+..  NMM could maintain currently active node for each NCM to detect this condition. Another possiblity is to let NCM return an error if the NCM has active nodes. NCM may need to maintain some kind of status information apart from active node count, such as ACTIVE/INACTIVE/MAINTAINANCE/REPAIRING.
+
+There was a design discussion (2021/03/21) about these questions and while there may be a need to provide further clarifications, it was concluded that the reader/writer locks would ensure internal consistency of relevant metadata but the operation may raise an error. Locks here do not mean actual locks but the transactional facilities supported by the underlying data store.
 
 * Update NCM: At present the only property of an NCM which can be updated is it's URI. NMM will have to make sure the new URI is not a duplicate of existing NCM before making the change. NPM will send the change to DPM (so that DPM can update it's own mappings)
 
@@ -63,7 +67,7 @@ Information required to implement the action may depend on the type fo the reque
 * Delete and query requests will need the ID of the target NCM.
 * Update request will need the ID and the new URI.
 * Add a new node to an existing NCM will include the node information and the NCM ID.
-* List all members of the NCM cluster will need no other information.
+* List all members of the NCM partition will need no other information.
 
 === Architecture Overview
 This is an overview of the design and implmentation of the proposed API extensions.
@@ -82,18 +86,26 @@ class NmmNcmRepository {
 ----
 
 ==== NMM algorithms
-These outline actions in NMM which are related to NCM only.
+Some operations here list NMM interactions with DPM but not all. They will be included later. In all of it's operations, if part of the operation failks, NMM will effectively undo any changes made as part of the operation. Rollback doen't mean actully undoing some changes but to depend on the underlying data store facilities. It is possible that NMM will have an internal status information to track the progress of the operation to help it undo any local (in memory) changes and undo them in case of a failure.
 
 ===== Node Creation
 ** NMM will extract NCM information from the NodeInfo object.
 ** Verify that such an NCM exists and adding this node will not exceed the declared capacity of the NCM.
+** Notify DPM about the node creation.
 ** Notify the NCM about the node being added to its pool of node.
 ** Update the NmmNcmRepository in NMM if NCM operation is success.
 
 ===== Node deletion
 ** NMM will notify the NCM from which the node is being removed.
-** If NCM successfully deleted the node, update NmmNcmRepository.
+** Notify DPM of the node deletion.
+** If NCM and DPM successfully delete the node, update NmmNcmRepository.
 
+===== Node update
+At this time the only update supported is chamging the URI. Again the question of how to handle an active URI being changed comes up and it will have to be managed with the help of the underlying data store and internal status information.
+
+** NMM will notify NCM of the URI change and update it's metadata.
+
+DPM may not be invloved in this operation.
 
 == Database Data Schema
 
@@ -105,7 +117,7 @@ The NcmUri in the examples below appear to be derived from the nodeid and some p
 [width="100%",cols="32%,12%,40%,17%"]
 |===
 |*API Name* |*Method* |*Request*|*Response*
-|List NCM cluster members
+|List NCM patition members
 |GET
 |/nodes/ncms
 |List of registered NCM
@@ -139,7 +151,7 @@ The NcmUri in the examples below appear to be derived from the nodeid and some p
 === API Specification
 
 anchor:ncm_cluster_list[]
-**(1) List NCM Cluster members **
+**(1) List NCM partition members **
 
 * Method: `GET`
 * Request: `/nodes/ncms`
