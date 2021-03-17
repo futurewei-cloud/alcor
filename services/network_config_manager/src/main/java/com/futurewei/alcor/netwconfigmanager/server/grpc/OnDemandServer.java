@@ -87,5 +87,13 @@ public class OnDemandServer implements NetworkConfigServer {
 
     private static class OnDemandServerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
+        @Override
+        public void requestGoalStates(Goalstateprovisioner.HostRequest request,
+                                      StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
+
+
+
+        }
+
     }
 }
