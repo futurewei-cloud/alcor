@@ -4,10 +4,8 @@ import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.exception.UnexpectedHostNumException;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
-import org.slf4j.Logger;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class NetworkConfigManagerUtil {
@@ -75,7 +73,7 @@ public class NetworkConfigManagerUtil {
             HostGoalState hostGoalState = entry.getValue();
 
             if (hostGoalState.getGoalState().getHostResourcesMap().size() != 1) throw new UnexpectedHostNumException();
-            Boolean filter = true;
+            boolean filter = true;
 
             for (Goalstate.HostResources resources : hostGoalState.getGoalState().getHostResourcesMap().values()) {
                 for (Goalstate.ResourceIdType resourceIdType : resources.getResourcesList()) {
