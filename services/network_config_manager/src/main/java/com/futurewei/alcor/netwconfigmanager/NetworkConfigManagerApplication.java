@@ -1,17 +1,11 @@
 package com.futurewei.alcor.netwconfigmanager;
 
-import com.futurewei.alcor.common.db.DbBaseConfiguration;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
 import com.futurewei.alcor.netwconfigmanager.server.grpc.GoalStateProvisionerServer;
-import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
-import com.futurewei.alcor.web.rbac.aspect.RbacConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.futurewei.alcor.netwconfigmanager.server.grpc.OnDemandServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.io.IOException;
 
 @SpringBootApplication
 @EnableAsync
@@ -24,7 +18,15 @@ public class NetworkConfigManagerApplication {
         try {
             networkConfigServer.start();
             networkConfigServer.blockUntilShutdown();
-        }catch(Exception e){
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        OnDemandServer onDemandServer = new OnDemandServer();
+        try {
+            onDemandServer.start();
+            onDemandServer.blockUntilShutdown();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

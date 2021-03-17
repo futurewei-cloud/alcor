@@ -70,7 +70,7 @@ public class OnDemandServer implements NetworkConfigServer {
      */
     @Override
     public void stop() throws InterruptedException {
-        logger.log(Level.INFO,"OnDemandServer : Server stop, was listening on " + this.port);
+        logger.log(Level.INFO,"OnDemandServer : Server stop, was listening on port " + this.port);
         if (this.server != null) {
             this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
