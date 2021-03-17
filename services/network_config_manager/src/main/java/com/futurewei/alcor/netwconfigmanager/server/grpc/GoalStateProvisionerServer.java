@@ -36,7 +36,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.port = 9016;
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl())
-//                .addService(new OnDemandServerImpl())
                 .build();
     }
 
@@ -93,8 +92,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     //store the goal state in cache
 
-                    //send them down to target ACA
+                    // filter neighbor/SG update, and send them down to target ACA
                     try {
+                        NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
+
                         GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
@@ -186,7 +187,4 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             responseObserver.onCompleted();
         }
     }
-//    private static class OnDemandServerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
-//
-//    }
 }

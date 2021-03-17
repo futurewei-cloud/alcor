@@ -2,7 +2,6 @@ package com.futurewei.alcor.netwconfigmanager;
 
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
 import com.futurewei.alcor.netwconfigmanager.server.grpc.GoalStateProvisionerServer;
-import com.futurewei.alcor.netwconfigmanager.server.grpc.OnDemandServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
