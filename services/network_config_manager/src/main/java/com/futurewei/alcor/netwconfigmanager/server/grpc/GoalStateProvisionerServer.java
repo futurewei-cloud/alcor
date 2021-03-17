@@ -4,15 +4,14 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
-import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -128,7 +127,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @Override
         public void requestGoalStates(Goalstateprovisioner.HostRequest request, StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
 
-            logger.log(Level.INFO, "requestGoalStates : receiving request " + request.getStateRequestsCount());
+            logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
 
             /////////////////////////////////////////////////////////////////////////////////////////
             //                  On-Demand Algorithm
@@ -169,11 +168,14 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         .buildPartial();
             }
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
-            logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.getOperationStatusesCount());
+            logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
             // Step 2: Send GS down to target ACA
             //TODO: Populate hostGoalStates based on M2 and M3
             Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+            DemoUtil.populateHostGoalState(hostGoalStates);
+            logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
+                    hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
 
             try {
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
