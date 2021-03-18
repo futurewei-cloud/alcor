@@ -118,34 +118,14 @@ Each NCM needs to know the list of compute/ACA nodes it manages. The Node Metada
 
 == gRPC Connection change
 
-We will update an existing gRPC interface for the bidirectional streaming connection between ACA and NCM:
+We will update an add a new gRPC interface for connection from ACA to NCM:
 
 [source,shell]
 ------------------------------------------------------------
-from: 
-    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateOperationReply)
-
-to: 
-    rpc PushNetworkResourceStatesStream (stream GoalState) returns (stream GoalStateStatus)
+rpc RequestGoalStates (HostRequest) returns (HostRequestReply)
 ------------------------------------------------------------
 
-NCM Workflow for the gRPC connection from the client side:
-
-. Setup gRPC client connection: GoalStateProvisionerClient grpc_client(grpc::CreateChannel(
-        g_grpc_server + ":" + g_grpc_port, grpc::InsecureChannelCredentials()));
-. Create the bi-directional stream: std::shared_ptr<ClientReaderWriter<GoalState, GoalStateOperationReply> > stream(
-        stub_->PushNetworkResourceStatesStream(&context));
-. Create a new thread for the writer: std::thread writer([stream, ...]() {...} 
-    .. write and send a dummy no-op message to ACA
-    .. wait for other message to be sent to ACA
-    .. don't close this writing thread as the server side will shutdown the connection
-. In the original thread, have a while loop to keep reading for GoalStateStatus
-. Join the writer thread: writer.join();
-. Cleanup since both reader and writer are done if we reach here
-
-For reference, the above is already implemented in ACA test code: https://github.com/futurewei-cloud/alcor-control-agent/blob/master/test/func_tests/gs_tests.cpp#L289 
-
-Note: may need to send stuff periodically to keep the gRPC connection alive.
+Since NCM will be the gRPC server to handle HostRequest, gRPC client code has been added to ACA. See this for detail: https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/high_level_design_v2.adoc
 
 == Security Group Improvements
 
@@ -162,7 +142,7 @@ One challenge is the current SG ID is a 16 bytes UUID, and each port can be asso
 
 There may be situations when ACA doesn't have the needed configurations for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from NCM using PushNetworkResourceStatesStream mentioned above.
 
-Input from ACA to NCM: GoalStateRequest - request_type=ON_DEMAND, request_id, tunnel_id, source port IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
+Input from ACA to NCM: RequestGoalStates - request_type=ON_DEMAND, request_id, tunnel_id, source port IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
 
 NCM Workflow:
 
@@ -263,7 +243,7 @@ message HostRequestReply {
 enum VpcSize { // *** NEW ***
     DEFAULT = 0;
     SMALL = 1;
-    CHANGING_TO_LARGE = 2;  // *** DO WE NEED THIS?
+    CHANGING_TO_LARGE = 2;  // *** NOT ADDED YET
     LARGE = 3;
     CHANGING_TO_SMALL = 4;
 }
@@ -291,8 +271,6 @@ message VpcState {
 
 === Putting in targetted host info into GS message
 
-First and POC implementation is:
-
 *alcor/src/schema/proto3/goalstate.proto*
 
 [source,java]
@@ -313,54 +291,6 @@ message GoalStateV2 {
     map<string /*resource id*/, SecurityGroupState> security_group_states = 8;
     map<string /*resource id*/, RouterState> router_states = 9;
     map<string /*resource id*/, GatewayState> gateway_states = 10;
-}
-------------------------------------------------------------
-
-Second option is:
-
-*alcor/src/schema/proto3/goalstate.proto*
-
-[source,java]
-------------------------------------------------------------
-...
-message GoalState {
-    uint32 format_version = 1;
-
-    map<string /*host id*/, string /*vpc id*/> host_to_vpc_id = 2;
-    map<string /*resource id*/, VpcState> vpc_states = 3;
-
-    map<string /*host id*/, string /*subnet id*/> host_to_subnet_id = 3;
-    map<string /*resource id*/, SubnetState> subnet_states = 4;
-
-    // PortState and DHCPState is applicable to one host only
-    map<string /*resource id*/, PortState> port_states = 5;
-    map<string /*resource id*/, DHCPState> dhcp_states = 6;
-
-    map<string /*host id*/, string /*neighbor id*/> host_to_neighbor_id = 2;
-    map<string /*resource id*/, NeighborState> neighbor_states = 3;
-
-    map<string /*host id*/, sting /*security group id*/> host_to_security_group_id = 2;
-    map<string /*resource id*/, SecurityGroupState> security_group_states = 3;
-
-    map<string /*host id*/, sting /*router id*/> host_to_router_id = 2;
-    map<string /*resource id*/, RouterState> router_states = 3;
-
-    map<string /*host id*/, sting /*gateway id*/> host_to_gateway_id = 2;
-    map<string /*resource id*/, GatewayState> gateway_states = 3;
-}
-------------------------------------------------------------
-
-Third option is to put targeted_host_info into vpc/subnet/neighbor/SG/router/Gateway state:
-
-*alcor/src/schema/proto3/neighbor.proto*
-
-[source,java]
-------------------------------------------------------------
-message NeighborState {
-    repeated HostInfo targeted_host_info = 1; // NEW, host of ACA host IP
-
-    OperationType operation_type = 2;
-    NeighborConfiguration configuration = 3;
 }
 ------------------------------------------------------------
 
@@ -394,7 +324,7 @@ image:network_config_manager_workflow.png[image,width=880,height=640]
 
 == Highlevel Slides
 
-Please find the highlevel powerpoint slides of Network Configuration Manager (NCM) in xref:NCM_design.pptx[Network Configuration Manager]
+Please find the highlevel powerpoint slides of Network Configuration Manager (NCM) in xref:network_config_manager.pptx[Network Configuration Manager]
 
 [bibliography]
 == References
