@@ -93,7 +93,6 @@ public class NetworkConfigController {
         }
     }
 
-
     @RequestMapping(
             method = GET,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
