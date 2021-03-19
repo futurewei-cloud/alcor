@@ -15,6 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -26,8 +28,11 @@ public class NetworkConfigController {
 
     @Autowired
     private NodeService nodeService;
-
-    @PostMapping({"/nodes", "v4/nodes"})
+    @Autowired
+    private HttpServletRequest request;
+    @RequestMapping(
+            method = POST,
+            value = {"/nodes", "/v4/nodes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public void createNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
@@ -41,9 +46,9 @@ public class NetworkConfigController {
         }
     }
 
-    @PostMapping({"/nodes/bulk","v4/nodes/bulk"})
-    @ResponseStatus(HttpStatus.CREATED)
-    @DurationStatistics
+    @RequestMapping(
+            method = POST,
+            value = {"/nodes/bulk", "/v4/nodes/bulk"})
     public void createNodesInfoBulk(@RequestBody BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         if (bulkNodeInfoJson == null) {
             // Is it alright to lift this const from another package?
@@ -58,7 +63,9 @@ public class NetworkConfigController {
         }
     }
 
-    @PutMapping({"/nodes", "v4/nodes"})
+    @RequestMapping(
+            method = PUT,
+            value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
     public void updateNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
         try {
@@ -71,7 +78,9 @@ public class NetworkConfigController {
         }
     }
 
-    @DeleteMapping({"/nodes", "v4/nodes"})
+    @RequestMapping(
+            method = DELETE,
+            value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
     public void deleteNodeInfo(@RequestBody String nodeId) throws Exception {
         try {
@@ -80,5 +89,24 @@ public class NetworkConfigController {
             LOG.log(Level.SEVERE,e.getMessage());
             throw e;
         }
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
+    @DurationStatistics
+    public NodeInfoJson getNodeInfoById(@PathVariable String nodeid) throws Exception {
+        NodeInfo hostInfo = null;
+        LOG.log(Level.INFO, "NCM getNodeInfo " + nodeid);
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
+            hostInfo = nodeService.getNodeInfo(nodeid);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+        if (hostInfo == null) {
+            return new NodeInfoJson();
+        }
+        return new NodeInfoJson(hostInfo);
     }
 }
