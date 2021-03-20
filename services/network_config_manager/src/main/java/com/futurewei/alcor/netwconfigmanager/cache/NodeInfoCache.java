@@ -32,7 +32,11 @@ public class NodeInfoCache {
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
+        if (cacheFactory == null)
+            LOG.log(Level.INFO, "NodeInfoCache cacheFactory is NULL");
         nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        LOG.log(Level.INFO, "NodeInfoCache cacheFactory : " + cacheFactory);
+        LOG.log(Level.INFO, "NodeInfoCache STR(cacheFactory) : " + cacheFactory.toString());
     }
 
     @DurationStatistics
