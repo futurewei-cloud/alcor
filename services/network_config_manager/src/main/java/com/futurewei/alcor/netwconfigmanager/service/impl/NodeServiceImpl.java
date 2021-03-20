@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * DPM, NMM and now NCM all are holding onto NodeInfo, by making copy of the code
@@ -19,7 +20,8 @@ import java.util.List;
  */
 @Service
 public class NodeServiceImpl implements NodeService {
-    // private static final Logger logger = LoggerFactory.getLogger(NodeServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger();
+    @Autowired
     private NodeInfoCache nodeInfoCache;
     @Override
     public void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
@@ -44,6 +46,8 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
+        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache);
+        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache.toString());
         return nodeInfoCache.getNodeInfo(nodeId);
     }
 }
