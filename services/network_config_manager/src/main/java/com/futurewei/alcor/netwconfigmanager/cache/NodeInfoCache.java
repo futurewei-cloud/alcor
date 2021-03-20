@@ -3,6 +3,8 @@ package com.futurewei.alcor.netwconfigmanager.cache;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -25,16 +28,28 @@ import java.util.stream.Collectors;
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeInfoCache {
     private ICache<String, NodeInfo> nodeInfoCache;
+    private static final Logger LOG = LoggerFactory.getLogger();
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
+        if (cacheFactory == null)
+            LOG.log(Level.INFO, "NodeInfoCache cacheFactory is NULL");
         nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        LOG.log(Level.INFO, "NodeInfoCache cacheFactory : " + cacheFactory);
+        LOG.log(Level.INFO, "NodeInfoCache STR(cacheFactory) : " + cacheFactory.toString());
     }
 
     @DurationStatistics
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
+        if (nodeInfoCache == null)
+            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache is null");
+        else {
+            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache : " + nodeInfoCache);
+            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache : " + nodeInfoCache.toString());
+        }
 
         NodeInfo nodeInfo = nodeInfoCache.get(nodeId);
+        LOG.log(Level.INFO, "NCM: getNodeInfo - returning : " + nodeInfo);
 
         return nodeInfo;
     }

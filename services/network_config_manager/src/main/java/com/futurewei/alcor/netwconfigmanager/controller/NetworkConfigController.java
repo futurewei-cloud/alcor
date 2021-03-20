@@ -67,7 +67,7 @@ public class NetworkConfigController {
             method = PUT,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
-    public void updateNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
+    public void updateNodeInfo(String nodeId, @RequestBody NodeInfoJson nodeInfoJson) throws Exception {
         try {
             NodeInfo nodeInfo = nodeInfoJson.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeInfo);
@@ -98,6 +98,8 @@ public class NetworkConfigController {
     public NodeInfoJson getNodeInfoById(@PathVariable String nodeid) throws Exception {
         NodeInfo hostInfo = null;
         LOG.log(Level.INFO, "NCM getNodeInfo " + nodeid);
+        if (nodeService == null)
+            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeService is null");
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
             hostInfo = nodeService.getNodeInfo(nodeid);
