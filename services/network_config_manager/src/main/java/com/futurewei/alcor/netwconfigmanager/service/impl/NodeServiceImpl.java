@@ -46,8 +46,6 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
-        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache);
-        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache.toString());
         return nodeInfoCache.getNodeInfo(nodeId);
     }
 }
