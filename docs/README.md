@@ -64,7 +64,7 @@ $  mvn clean install
 
 You could expect to see _BUILD SUCCESS_ at the end of the build console.
 
-![Alcor Build](modules/ROOT/images/alcor_build.JPG)
+![Alcor Build](modules/ROOT/images/alcor_build.png)
 
 Deploy an Ignite database for local testing and run unit tests.
 If this step passes, then you have everything needed to develop, test, and run Alcor.
