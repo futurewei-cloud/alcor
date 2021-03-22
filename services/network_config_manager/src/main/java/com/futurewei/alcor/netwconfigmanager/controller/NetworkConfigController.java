@@ -66,7 +66,7 @@ public class NetworkConfigController {
             method = PUT,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
-    public void updateNodeInfo(String nodeId, @RequestBody NodeInfoJson nodeInfoJson) throws Exception {
+    public void updateNodeInfo(@PathVariable String nodeId, @RequestBody NodeInfoJson nodeInfoJson) throws Exception {
         try {
             NodeInfo nodeInfo = nodeInfoJson.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeInfo);
@@ -81,7 +81,7 @@ public class NetworkConfigController {
             method = DELETE,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
-    public void deleteNodeInfo(@RequestBody String nodeId) throws Exception {
+    public void deleteNodeInfo(@PathVariable String nodeId) throws Exception {
         try {
             nodeService.deleteNodeInfo(nodeId);
         } catch (Exception e) {
