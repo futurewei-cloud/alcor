@@ -16,7 +16,7 @@ import java.util.logging.Level;
 /**
  * DPM, NMM and now NCM all are holding onto NodeInfo, by making copy of the code
  * instead of sharing. Let this get working first and the re-factor as much as possible into
- * common as shared module/package. I wish Java had templates!
+ * common as shared module/package.
  */
 @Service
 public class NodeServiceImpl implements NodeService {
@@ -46,8 +46,6 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
-        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache);
-        LOG.log(Level.ALL, "NdeServiceImpl: " + nodeInfoCache.toString());
         return nodeInfoCache.getNodeInfo(nodeId);
     }
 }

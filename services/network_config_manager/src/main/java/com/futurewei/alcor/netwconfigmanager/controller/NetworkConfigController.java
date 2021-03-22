@@ -51,8 +51,7 @@ public class NetworkConfigController {
             value = {"/nodes/bulk", "/v4/nodes/bulk"})
     public void createNodesInfoBulk(@RequestBody BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         if (bulkNodeInfoJson == null) {
-            // Is it alright to lift this const from another package?
-            // Perhaps, such constants belong the common.
+            // Perhaps, this belongs in the common.
             throw new ParameterNullOrEmptyException(NetworkConfigManagerConstants.NODE_EXCEPTION_JSON_EMPTY);
         }
         try {
@@ -97,9 +96,6 @@ public class NetworkConfigController {
     @DurationStatistics
     public NodeInfoJson getNodeInfoById(@PathVariable String nodeid) throws Exception {
         NodeInfo hostInfo = null;
-        LOG.log(Level.INFO, "NCM getNodeInfo " + nodeid);
-        if (nodeService == null)
-            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeService is null");
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeid);
             hostInfo = nodeService.getNodeInfo(nodeid);
