@@ -32,24 +32,12 @@ public class NodeInfoCache {
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
-        if (cacheFactory == null)
-            LOG.log(Level.INFO, "NodeInfoCache cacheFactory is NULL");
         nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
-        LOG.log(Level.INFO, "NodeInfoCache cacheFactory : " + cacheFactory);
-        LOG.log(Level.INFO, "NodeInfoCache STR(cacheFactory) : " + cacheFactory.toString());
     }
 
     @DurationStatistics
     public NodeInfo getNodeInfo(String nodeId) throws Exception {
-        if (nodeInfoCache == null)
-            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache is null");
-        else {
-            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache : " + nodeInfoCache);
-            LOG.log(Level.INFO, "NCM: getNodeInfo - nodeInfoCache : " + nodeInfoCache.toString());
-        }
-
         NodeInfo nodeInfo = nodeInfoCache.get(nodeId);
-        LOG.log(Level.INFO, "NCM: getNodeInfo - returning : " + nodeInfo);
 
         return nodeInfo;
     }
