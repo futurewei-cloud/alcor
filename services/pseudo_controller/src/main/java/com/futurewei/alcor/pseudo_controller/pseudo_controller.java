@@ -399,12 +399,12 @@ public class pseudo_controller {
             String port_mac = ip_mac_map.get(port_ip);
 //            String create_port_on_host = (i % 2 == 0) ? aca_node_one_ip : aca_node_two_ip;
             if (i % 2 == 0){
-                aca_node_one_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none busybox sh --label test=ACA");
+                aca_node_one_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none --label test=ACA busybox sh");
                 aca_node_one_commands.add("ovs-docker add-port br-int eth0 test"+Integer.toString(i) +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac);
                 aca_node_one_commands.add("ovs-docker set-vlan br-int eth0 test"+Integer.toString(i)+" 1");
                 port_ip_to_host_ip_map.put(port_ip , aca_node_one_ip);
             }else{
-                aca_node_two_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none busybox sh --label test=ACA");
+                aca_node_two_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none --label test=ACA busybox sh");
                 aca_node_two_commands.add("ovs-docker add-port br-int eth0 test"+Integer.toString(i) +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac);
                 aca_node_one_commands.add("ovs-docker set-vlan br-int eth0 test"+Integer.toString(i)+" 1");
                 port_ip_to_host_ip_map.put(port_ip , aca_node_two_ip);
