@@ -39,8 +39,8 @@ public class pseudo_controller {
     static int ports_to_generate_on_each_aca_node = 1;
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
-    static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
-    static String port_id_2 = "13333333-b718-11ea-b3de-111111111114";
+//    static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
+//    static String port_id_2 = "13333333-b718-11ea-b3de-111111111114";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     static String ips_ports_ip_prefix = "123";
     static String mac_port_prefix = "6c:dd:ee:";
@@ -414,8 +414,8 @@ public class pseudo_controller {
         aca_node_one_commands.add("docker ps");
         aca_node_two_commands.add("docker ps");
 
-//        execute_ssh_commands(aca_node_one_commands, aca_node_one_ip, user_name, password);
-//        execute_ssh_commands(aca_node_two_commands, aca_node_two_ip, user_name, password);
+        execute_ssh_commands(aca_node_one_commands, aca_node_one_ip, user_name, password);
+        execute_ssh_commands(aca_node_two_commands, aca_node_two_ip, user_name, password);
         System.out.println("DONE creating containers on both hosts");
 
     }
@@ -490,7 +490,9 @@ public class pseudo_controller {
         @Override
         public void run() {
 //            System.out.println("Running GRPC server in a different thread.");
-//            execute_ssh_commands(command_to_run, host, user_name, password);
+            Vector<String> cmd_list = new Vector<>();
+            cmd_list.add(this.command_to_run);
+            execute_ssh_commands(cmd_list, host, user_name, password);
         }
 
         public concurrent_run_cmd(String cmd, String host, String user_name, String password){
