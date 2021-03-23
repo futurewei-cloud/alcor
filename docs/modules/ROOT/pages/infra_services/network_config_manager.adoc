@@ -1,0 +1,334 @@
+= Network Configuration Manager Design
+Eric Li <sze.li@futurewei.com>, Liguang Xie <lxie@futurewei.com>, Chun-Jen (James) Chung<cchung@futurewei.com>
+v0.1, 2021-01-28
+:toc: right
+:sectnums:
+:imagesdir: ../../images
+
+NOTE: This document is under development
+
+== Architecture Overview
+
+image:network_config_manager_overview.png[image,width=880,height=640]
+
+== Requirements
+
+We want to have a design that is:
+
+. Ultra high scale - supports up to a million compute hosts in a region
+. Efficient control messaging - no chatty protocol like neutron OVS agent
+. Super fast dataplane provisioning for both small and large VPC
+. Small ACA on host - low resource, simple, can be ran on smart NIC's ARM CPU
+
+== Problems to Solve
+
+Other than meeting the requirements above, there are a list of problems to be solved with this design:
+
+. Neighbor and Security Group scale - address scaling issue especially with remote security group rule
+. Duplicate configuration - don't send down redundant configuration when compute node has it already
+. Out of Order configuration - detect and resolve out of order configuration in goal state messages
+. Alcor Control Agent restart/upgrade handling - provide an efficient way to restore the configuration
+. Direct Dataplane programming - reduce the logic and local data needed in ACA
+
+== Network Configuration Manager
+
+Network Configuration Manager is introduced here to meet the ultra high scale requirement for the next generation cloud. A set of nearby compute nodes (in networking term, like their TOR switch is connected to adjacent physical switchs) will be grouped together to form an cluster managed by a set of NCMs. There could be 10,000 machines serviced by this set of NCMs if it meets the performance requirement.
+
+The set of NCMs will store both the latest full state and potential delta states for a resource belongs to a particular compute node, together with the corresponding version numbers. The version numbers are used for out of order detection and handling discuss later. The database will track whether a resource has been sent down to ACA or not. Since the database will be shared with multiple instances of NCMs, lock is needed when reading/writing to a particular resource belongs to a compute host. It is a small and localized lock therefore it should not impact performance. 
+
+NCM will serve as configuration cache or passthrough proxy for network configurations. For port/router/gateway, NCM will always pass down the configuration because the scale is bounded. For neighbor and security group, a hybrid model will be used based on VPC size. That is to pass down to ACA for small VPC, and don't pass down to ACA for large VPC. 
+
+== Database Requirements
+
+In order to support the Network Configuration Manager, we have the following database requirements:
+
+. Persistent - old data should always be there and not flushed
+. Distributed - multiple instances of NCMs can access it concurrently
+. Performance - less than 1 millisecond for needed data (e.g. 1000 request per second, each request has multiple reads on around 10 tables with 100gig of configuration stored in database)
+
+== Where to Implement NCM?
+
+There are two options in where NCM could be implemented. Prefering option 1 for the initial POC implementation.
+
+=== Option 1: Make it part of DPM in region level
+
+[source,shell]
+------------------------------------------------------------
+   +------------------------+
+   | +------------------------+
+   | | +------------------------+         +--------------------+
+   | | |                    | | |         |                    |
+   | | |   DPM with NCM     | | |         |                    |
+   | | |   functionality    | | |         |                    |
+   | | |                    | | +-------->+      ACA           |
+   | | |                    | | |         |                    |
+   | | |                    | | |         |                    |
+   | | |                    | | |         |                    |
+   +------------------------+ | |         +--------------------+
+     +------------------------+ +--------+
+       +------------------------+        |
+                   |                     |
+                   |                     |
+         +---------v----------+          >---------------------+
+         |                    |           |                    |
+         |                    |           |                    |
+         |    ACA             |           |     ACA            |
+         |                    |           |                    |
+         |                    |           |                    |
+         |                    |           |                    |
+         +--------------------+           +--------------------+
+------------------------------------------------------------
+
+Since all the network configurations are passed down by DPM placed at the region level, it is possible to integration all the NCM functionalities into DPM and reduce the extra layer and component of NCM. However, since DPM is placed at the region level, the on demand requests from ACA may need to take a few extra hops to DPM which can introduce additional latency for the time critical on demand requests.
+
+=== (preferred) Option 2: Separate NCM placed in the cluster level
+
+[source,shell]
+------------------------------------------------------------
++------------------------+                +------------------------+
+| +------------------------+              | +------------------------+
+| | +------------------------+            | | +------------------------+         +--------------------+
+| | |                    | | |            | | |                    | | |         |                    |
+| | |   DPM              +--------------->+ | |   NCM              | | |         |                    |
+| | |                    | | |            | | |                    | | |         |                    |
+| | |                    | +------------->+ | |                    | | +-------->+      ACA           |
+| | |                    | | |            | | |                    | | |         |                    |
+| | |                    | | +----------->+ | |                    | | |         |                    |
+| | |                    | | |            | | |                    | | |         |                    |
++------------------------+ | |            +------------------------+ | |         +--------------------+
+  +------------------------+ |              +------------------------+ +--------+
+    +------------------------+                +------------------------+        |
+                                                          |                     |
+                                                          |                     |
+                                                +---------v----------+          >+--------------------+
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                |    ACA             |           |     ACA            |
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                |                    |           |                    |
+                                                +--------------------+           +--------------------+
+------------------------------------------------------------
+
+To meet the time critical on demand requests, NCM can be a separate component placed at the cluster level. Since NCM is in close network proximity with its ACA compute nodes, network latency should be lower. This model also partition the database to store only the clustered ACA compute nodes. This is currently the preferred option.
+
+== Compute/ACA Node Metadata
+
+Each NCM needs to know the list of compute/ACA nodes it manages. The Node Metadata manager will have that data as nodes build up in the datacenter. It will push down that information to the corresponding NCM. In the error situation when there is a goal state message targetting to a compute/ACA node that's not known to NCM, NCM will query Node Metadata manager to get the information directly.
+
+== gRPC Connection change
+
+We will update an add a new gRPC interface for connection from ACA to NCM:
+
+[source,shell]
+------------------------------------------------------------
+rpc RequestGoalStates (HostRequest) returns (HostRequestReply)
+------------------------------------------------------------
+
+Since NCM will be the gRPC server to handle HostRequest, gRPC client code has been added to ACA. See this for detail: https://github.com/futurewei-cloud/alcor-control-agent/blob/master/docs/high_level_design_v2.adoc
+
+== Security Group Improvements
+
+Question: who is going to resolve the SG remote IPs before sending down the ACA? Answer: Likely SGM
+Another option is to couple neighbor configure with SG by added the assoicated SG? But that won't work with cross VPC remote SG group
+
+Security group handling is one of the biggest challenge for public cloud due to its scaling issue especially with remote SG group assoication in a rule. E.g. we have an ingress rule to allow ingress traffic only from the ports assoicated with a default SG. As ports assoication comes and goes, all the existing ports needs to know the latest set of port IPs assoicated with this default SG with the current openstack neutron solution today.  
+
+One approach to address the SG scale issue is to mark each packet with source port SG ID/label. Instead of knowing all the remote IPs on an ingress SG remote rule on the destination side, we can simply mark all egress packets with its associated SG IDs/labels. On the ingress side, it only needs match the ingress remote rule SG ID/label with the marking in the packet. Note that this will greatly help with the scale and IP updates for the ingress remote rule only, but it is an elegent solution which addresses half of the problem for SG. 
+
+One challenge is the current SG ID is a 16 bytes UUID, and each port can be assoicated with upto 5 SG IDs. With the overhead of NSH header or IP options approach, we are looking at adding close to 100 bytes to each packet (16bytesx5=80bytes + overhead). SG ID labeling can be used to reduce adding so much data per packet. Alcor security group manager can generate SG ID label per VPC (or per tenant) and passes it down together with its SG configuration to ACA. Since there is a limit for how many SGs a tenant can create (e.g. 50 per tenant), 1 byte with 256 values should be big enough for the SG ID label.
+
+== ACA on demand request of configuration
+
+There may be situations when ACA doesn't have the needed configurations for a new packet inflight. When that happens, the packet will be punt to ACA and ACA will request info from NCM using PushNetworkResourceStatesStream mentioned above.
+
+Input from ACA to NCM: RequestGoalStates - request_type=ON_DEMAND, request_id, tunnel_id, source port IP, destination IP, source/destination port, protocol - TCP/UDP/Other(ARP/ICMP) 
+
+NCM Workflow:
+
+. Find the source port ID based on IP using tunnel ID to lookup VPC
+.. For destination IP on the same subnet, confirm it is L2 neighbor
+.. For destination IP on the different subnet, confirm it is L3 neighbor
+. Once confirm it is L2/L3 neighbor, look up SG rules for source port
+.. If traffic is allowed, construct and track the corresponding SG config
+... send down neighbor and corresponding constructed SG rule (first step)
+... send down port configuration with Operation = INFO (routable) with corresponding request ID (second step)
+... May go ahead to send down remaining neighbor and SG config for this active port
+.. If traffic is not allowed
+... send down port configuration with Operation = NOT_ROUTABLE (?) with corresponding request ID
+
+== Schema Update
+
+=== New GRPC stream communication
+
+*src/schema/proto3/common.proto*
+[source,java]
+------------------------------------------------------------
+enum OperationStatus {
+    SUCCESS = 0; // also means ROUTABLE for ON_DEMAND request
+    FAILURE = 1; // also means NOT_ROUTABLE for ON_DEMAND request
+    INVALID_ARG = 2;
+    PENDING = 3;
+    OUT_OF_ORDER = 4;
+}
+------------------------------------------------------------
+
+*src/schema/proto3/goalstateprovisioner.proto*
+[source,java]
+------------------------------------------------------------
+service GoalStateProvisioner {
+
+    // Push a group of network resource states
+    //
+    // Input: a GoalState object consists of a list of operation requests, and each request contains an operation type and a resource configuration
+    // Results consist of a list of operation statuses, and each status is a response to one operation request in the input
+    //
+    // Note: It is a NoOps for Control Agents when the operation type is INFO or GET.
+    //       Use RetrieveNetworkResourceStates for state query.
+    // this is for DPM->ACA
+    rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
+    }
+
+    // similar to PushGoalStatesStream with streaming GoalStateV2 and streaming GoalStateOperationReply
+    // this is for DPM->NCM, and NCM->ACA
+    rpc PushGoalStatesStream (stream GoalStateV2) returns (stream GoalStateOperationReply) {
+    }
+
+    // Request goal states for ACA on-demand processing and also agent restart handling
+    //
+    // Input: a HostRequest object consists of a list of ResourceStateRequest, and each request contains a RequestType
+    // Results consist of a list of HostRequestOperationStatus, and each status is a reply to each request in the input
+    // this is for ACA->NCM
+    rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
+    }
+
+}
+
+message HostRequest {
+    uint32 format_version = 1;
+
+    message ResourceStateRequest {
+        RequestType request_type = 1;
+        string request_id = 2; // UUID generated by ACA
+        uint32 tunnel_id = 3; 
+        string source_ip = 4;
+        uint32 source_port = 5;
+        string destination_ip = 6; 
+        uint32 destination_port = 7;
+        EtherType ethertype = 8;
+        Protocol protocol = 9;
+    }
+
+    repeated ResourceStateRequest state_requests = 2;
+}
+
+message HostRequestReply {
+    uint32 format_version = 1;
+
+    message HostRequestOperationStatus {
+        string request_id = 1; // UUID previously generated by ACA
+        OperationStatus operation_status = 2;
+    }
+
+    repeated HostRequestOperationStatus operation_statuses = 2;
+
+    // Total operation time (in microseconds)
+    uint32 total_operation_time = 3;
+}
+------------------------------------------------------------
+
+*src/schema/proto3/vpc.proto*
+[source,java]
+------------------------------------------------------------
+enum VpcSize { // *** NEW ***
+    DEFAULT = 0;
+    SMALL = 1;
+    CHANGING_TO_LARGE = 2;  // *** NOT ADDED YET
+    LARGE = 3;
+    CHANGING_TO_SMALL = 4;
+}
+
+message VpcConfiguration {  
+    uint32 revision_number = 1; // resource manager needs to fill in
+
+    string request_id = 2;
+    string id = 3;
+    UpdateType update_type = 4; // DELTA (default) or FULL *** REMOVE THIS? ***
+    VpcSize vpc_size = 5; // *** NEW *** to be used after POC
+    string project_id = 6;
+    string name = 7;
+    string cidr = 8;
+    uint32 tunnel_id = 9;
+
+    repeated string gateway_ids = 10;
+}
+
+message VpcState {
+    OperationType operation_type = 1;
+    VpcConfiguration configuration = 2;
+}
+------------------------------------------------------------
+
+=== Putting in targetted host info into GS message
+
+*alcor/src/schema/proto3/goalstate.proto*
+
+[source,java]
+------------------------------------------------------------
+...
+message GoalStateV2 {
+    uint32 format_version = 1;
+
+    map<string /*host ip*/, HostResources /*list of resources deployed to a target host*/> host_resources = 2;
+    map<string /*resource id*/, VpcState> vpc_states = 3;
+    map<string /*resource id*/, SubnetState> subnet_states = 4;
+
+    // PortState and DHCPState is applicable to one host only
+    map<string /*resource id*/, PortState> port_states = 5;
+    map<string /*resource id*/, DHCPState> dhcp_states = 6;
+
+    map<string /*resource id*/, NeighborState> neighbor_states = 7;
+    map<string /*resource id*/, SecurityGroupState> security_group_states = 8;
+    map<string /*resource id*/, RouterState> router_states = 9;
+    map<string /*resource id*/, GatewayState> gateway_states = 10;
+}
+------------------------------------------------------------
+
+== NCM Out of Order Configuration Handling
+
+Detection - all resource managers needs to fill in revision_number for a given resource (e.g. Port/Neighbor etc). It should have not problem to generate the revision_number since it already has a lock when dealing with a particular resource. Both NCM and ACA can detect out of order configuration, but it is higher priority to do it in NCM.
+
+NCM already keep tracks of all resources for a particular compute host, together with its revision_number. When NCM detect there is an out of order configuration for a particular resource, NCM should respond to DPM using GoalStateOperationReply message and mark a resource's operation_status = OUT_OF_ORDER.
+
+== ACA Restart Handling
+
+See issue #540, ACA restart handling is described below:
+
+=== Neutron OVS Agent Behavior
+
+Neutron OVS agent inserts a canary table during startup. In its main rpc_loop, it will always check on the ovs status by querying the canary table. ovs_status will be set of OVS_RESTARTED if the canary table is not found. 
+
+To handle the OVS_RESTARTED situation, it will re-setup the bridges (br-int, br-tun, etc) and default flows. It will also reset the dvr if it is enabled. After that, it will rely on a background syncing to get the latest tunnels (for L2 neighbors) and DVR (for L3 neighbors) configurations.
+
+=== Network Configuration Manager Solution
+
+With Network Configuration Manager acting as configuration cache for each compute host. When ACA has detected the dataplane (e.g. OVS) has been restarted, ACA will send GoalStateRequest to NCM with request_type=RESTARTED. This signals NCM that a partcular ACA needs its help to bring down all the configurations. 
+
+Input from ACA to NCM: GoalStateRequest - request_type=RESTARTED, request_id (generated by ACA)
+
+NCM will use existing algorthm to bring down all the configuration for ports/routers/gateways (small or big VPC), and neighbor + security group configuration according to VPC size.
+
+== Work Flows
+
+image:network_config_manager_workflow.png[image,width=880,height=640]
+
+== Highlevel Slides
+
+Please find the highlevel powerpoint slides of Network Configuration Manager (NCM) in xref:network_config_manager.pptx[Network Configuration Manager]
+
+[bibliography]
+== References
+
+- [[[proto3-map,1]]] https://developers.google.com/protocol-buffers/docs/proto3#maps
+- [[[map.h-java,2]]] https://developers.google.com/protocol-buffers/docs/reference/java-generated#map-fields
+- [[[map.h,3]]] https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.map

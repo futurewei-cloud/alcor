@@ -1,0 +1,82 @@
+' Copyright 2019 The Alcor Authors.
+
+' Licensed under the Apache License, Version 2.0 (the "License");
+'        you may not use this file except in compliance with the License.
+'        You may obtain a copy of the License at
+
+'        http://www.apache.org/licenses/LICENSE-2.0
+
+'        Unless required by applicable law or agreed to in writing, software
+'        distributed under the License is distributed on an "AS IS" BASIS,
+'        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+'        See the License for the specific language governing permissions and
+'        limitations under the License.
+
+@startuml
+
+skinparam monochrome true
+
+collections "Data Plane Manager"
+collections "Network Configuration Manager"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \n Host"
+end box
+
+
+===Scenarios A: DPM push down configuration to NCM==
+
+autonumber 10
+"Data Plane Manager" -> "Network Configuration Manager": Push down configuration to the cluster level NCM
+"Network Configuration Manager" -> "Network Configuration Manager": Store the Full/Delta update with the corresponding version number
+"Network Configuration Manager" -> "Network Configuration Manager": Discard unneeded old versions
+
+===Scenarios B1: small/large VPC for port/router/gateway create/update/delete==
+
+autonumber 20
+"Network Configuration Manager" -> "ACA on \n Host": Push down configuration to ACA
+"Network Configuration Manager" -> "Network Configuration Manager": Update Sent = True
+
+===Scenarios B2: small VPC for neighbor and SG create/update/delete==
+
+autonumber 30
+"Network Configuration Manager" -> "ACA on \n Host": Push down configuration to ACA
+"Network Configuration Manager" -> "Network Configuration Manager": Update Sent = True
+
+===Scenarios C1: large VPC for neighbor and SG create==
+
+autonumber 40
+"Network Configuration Manager" -> "Network Configuration Manager": Don't push down configuration to ACA
+"Network Configuration Manager" -> "Network Configuration Manager": Update Sent = False
+
+===Scenarios C2: large VPC for neighbor and SG update==
+
+autonumber 50
+"Network Configuration Manager" -> "Network Configuration Manager": if sent = false, just update the database and done
+"Network Configuration Manager" -> "ACA on \n Host": if sent = true, need to send the update to ACA host
+
+===Scenarios C3: large VPC for neighbor and SG delete==
+
+autonumber 60
+"Network Configuration Manager" -> "Network Configuration Manager": if sent = false, just delete the entry in database and done
+"Network Configuration Manager" -> "ACA on \n Host": if sent = true, need to send the delete to ACA host
+
+===Scenarios D: Out of Order handling on NCM==
+
+autonumber 70
+"Data Plane Manager" -> "Network Configuration Manager": Send configuration to NCM but NCM detect a configuration is out of order
+"Network Configuration Manager" -> "Data Plane Manager": Send GoalStateOperationStatus with resource ID and operation_status = OUT_OF_ORDER
+"Data Plane Manager" -> "Data Plane Manager": Determine the latest configuration (Full+Delta) for the resource
+"Data Plane Manager" -> "Network Configuration Manager": Push down configuration to NCM using existing logic
+"Network Configuration Manager" -> "ACA on \n Host": Push down configuration to ACA using existing logic
+
+===Scenarios E: ACA Restart handling==
+
+autonumber 80
+"ACA on \n Host" -> "ACA on \n Host": ACA detects itself or dataplace has been restarted, \nclear all the internal memory and database
+"ACA on \n Host" -> "Network Configuration Manager": Send GoalStateOperationStatus with operation_status = RESTARTED
+"Network Configuration Manager" -> "Network Configuration Manager": Determine the latest configuration (Full+Delta) for all resources on host
+"Network Configuration Manager" -> "ACA on \n Host": Push down configuration to ACA using existing logic
+
+@enduml
+
