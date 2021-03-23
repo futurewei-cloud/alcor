@@ -1,5 +1,7 @@
 package com.futurewei.alcor.netwconfigmanager.client.gRPC;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
@@ -10,17 +12,16 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
-    private static final Logger LOG = LoggerFactory.getLogger(GoalStateClientImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger();
 
     private int hostAgentPort;
 
@@ -42,6 +43,8 @@ public class GoalStateClientImpl implements GoalStateClient {
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
                 new DefaultThreadFactory("grpc-thread-pool"));
+
+        //TODO: Setup a connection pool. one ACA, one client.
     }
 
     @Override
@@ -80,44 +83,53 @@ public class GoalStateClientImpl implements GoalStateClient {
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
-        Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-
-        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
-
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .build();
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
 
-        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> observer = new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
-            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
-//                stub.pushGoalStatesStream(value);
-//                List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus> statuses =
-//                        reply.getOperationStatusesList();
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
+                logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString() );
+                result.put(hostIp, reply.getOperationStatusesList());
             }
 
             @Override
             public void onError(Throwable t) {
-
+                logger.log(Level.WARNING, "Receive error from ACA@" + hostIp + " |  " + t.getMessage() );
             }
 
             @Override
             public void onCompleted() {
-
+                logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
             }
         };
 
-//        result.put(hostIp, statuses);
+        StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        try {
+                Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
+                logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
 
-        shutdown(channel);
+                requestObserver.onNext(goalState);
+        } catch (RuntimeException e) {
+            // Cancel RPC
+            requestObserver.onError(e);
+            throw e;
+        }
+        // Mark the end of requests
+        logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
+        requestObserver.onCompleted();
+
+//        shutdown(channel);
     }
 
     private void shutdown(ManagedChannel channel) {
         try {
             channel.shutdown().awaitTermination(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOG.warn("Timed out forcefully shutting down connection: {}", e.getMessage());
+            logger.log(Level.WARNING,"Timed out forcefully shutting down connection: {}", e.getMessage());
         }
     }
 }
