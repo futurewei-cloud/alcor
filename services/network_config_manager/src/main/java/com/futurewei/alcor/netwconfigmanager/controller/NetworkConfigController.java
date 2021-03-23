@@ -64,16 +64,18 @@ public class NetworkConfigController {
 
     @RequestMapping(
             method = PUT,
-            value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
+            value = {"/nodes", "/v4/nodes"})
     @DurationStatistics
-    public void updateNodeInfo(@PathVariable String nodeId, @RequestBody NodeInfoJson nodeInfoJson) throws Exception {
+    public void updateNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
         try {
             NodeInfo nodeInfo = nodeInfoJson.getNodeInfo();
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(nodeInfo);
-            nodeService.updateNodeInfo(nodeInfoJson);
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE,e.getMessage());
+            nodeService.updateNodeInfo(nodeInfo);
+        } catch (ParameterNullOrEmptyException e) {
             throw e;
+        }
+        catch (Exception e) {
+            throw new Exception(e);
         }
     }
 
@@ -81,9 +83,10 @@ public class NetworkConfigController {
             method = DELETE,
             value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
-    public void deleteNodeInfo(@PathVariable String nodeId) throws Exception {
+    public void deleteNodeInfo(@PathVariable String nodeid) throws Exception {
+        String macAddress = null;
         try {
-            nodeService.deleteNodeInfo(nodeId);
+            nodeService.deleteNodeInfo(nodeid);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,e.getMessage());
             throw e;
