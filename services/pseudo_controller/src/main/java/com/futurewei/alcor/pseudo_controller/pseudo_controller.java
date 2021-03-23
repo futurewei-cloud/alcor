@@ -42,7 +42,7 @@ public class pseudo_controller {
     static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
     static String port_id_2 = "13333333-b718-11ea-b3de-111111111114";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
-    static String ips_ports_ip_prefix = "123.";
+    static String ips_ports_ip_prefix = "123";
     static String mac_port_prefix = "6c:dd:ee:";
     static Vector<Goalstate.GoalStateV2> goalState_messages = new Vector<>();
     static HashMap<String, String> ip_mac_map = new HashMap<>();
@@ -429,9 +429,9 @@ public class pseudo_controller {
                 String ip_2nd_octet = Integer.toString(i / 10000);
                 String ip_3nd_octet = Integer.toString((i % 10000) / 100);
                 String ip_4nd_octet = Integer.toString(i % 100);
-                String ip_for_port = ips_ports_ip_prefix + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
+                String ip_for_port = ips_ports_ip_prefix + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
                 String mac_for_port = mac_port_prefix + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
-                String id_for_port = port_ip_template + ips_ports_ip_prefix + ip_2nd_octet + ip_3nd_octet + ip_4nd_octet;
+                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d",(i / 10000)) + String.format("%03d",((i % 10000) / 100)) + String.format("%03d",(i % 100));
                 System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + " ], ID :[ "+id_for_port+"] and MAC: [" + mac_for_port + "]");
                 ip_mac_map.put(ip_for_port, mac_for_port);
                 port_ip_to_id_map.put(ip_for_port, id_for_port);
