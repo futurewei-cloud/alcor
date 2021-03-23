@@ -4,18 +4,18 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
-import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -32,7 +32,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 //    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
-        this.port = 50010;
+        this.port = 9016;
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl())
                 .build();
@@ -84,17 +84,19 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
 
-                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.getHostResourcesCount());
+                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
                     //store the goal state in cache
 
-                    //send them down to target ACA
+                    // filter neighbor/SG update, and send them down to target ACA
                     try {
+                        Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
+
                         GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
-                        grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                        grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -120,6 +122,73 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     responseObserver.onCompleted();
                 }
             };
+        }
+
+        @Override
+        public void requestGoalStates(Goalstateprovisioner.HostRequest request, StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
+
+            logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
+
+            /////////////////////////////////////////////////////////////////////////////////////////
+            //                  On-Demand Algorithm
+            // query cache M4 by VNI and source IP, and find all associated list of resource IDs (along with type)
+            // Based on the resource type and id, query cache M3 to find its detailed state
+            // 1. For resource type == NEIGHBOR, check if there exists resource.IP == request.destination_ip
+            //                                  => yes, go to step 2 | no, reject
+            // 2. If this port is SG enabled, go to step 3 | no, skip Step 3 and go to Step 4
+            // 3. For resource type == SECURITY_GROUP, assuming that this packet must be outbound (as inbound packet has
+            //    been handled by SG label), check if the 5-tuples (ip/port, destination ip/port, protocol) + ethertype
+            //    comply with the outbound SG rules of source port
+            // 3.1 query cache M3 based on associated SG IDs of the source port and retrieve existing SG detail
+            // 3.2 for each SG and SG rule, check if outbound rule allows the 5-tuples + ethertype,
+            //                             => yes, go to step 4 | no, go to Step 3.3
+            // 3.3 (optional) if a rule includes a remote SG id, query cache M3 and retrieve detailed membership of
+            //                remote SG, check whether destination id belongs to the remote SG
+            //                             => yes, go to Step 4 | no, reject
+            // 4. Bingo! this packet is allowed, collect port related resources (NEIGHBOR, SG etc. FULL GS) and send down
+            //    to ACA by a separate gRPC client
+            /////////////////////////////////////////////////////////////////////////////////////////
+
+            // Step 1: Generate response for each packet based on the above on-demand algorithm
+            // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
+            //                           generate GS with port related resources and go to Step 2
+            // otherwise, set it to FAILURE and go to Step 3
+
+            //TODO: Implement on-demand algorithm and support setOperationStatus==Failure
+            int ind = 0;
+            Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
+            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest: request.getStateRequestsList()) {
+                Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status =
+                        Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
+                                .setRequestId(resourceStateRequest.getRequestId())
+                                .setOperationStatus(Common.OperationStatus.SUCCESS)
+                                .build();
+                replyBuilder.setFormatVersion(1)
+                        .addOperationStatuses(ind++, status)
+                        .buildPartial();
+            }
+            Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
+            logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
+
+            // Step 2: Send GS down to target ACA
+            //TODO: Populate hostGoalStates based on M2 and M3
+            Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+            DemoUtil.populateHostGoalState(hostGoalStates);
+            logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
+                    hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
+
+            try {
+                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                grpcGoalStateClient.sendGoalStates(hostGoalStates);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Step 3: Send response to target ACA
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+            logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",
+                    reply.toString());
         }
     }
 }

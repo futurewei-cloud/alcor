@@ -1,6 +1,5 @@
 package com.futurewei.alcor.netwconfigmanager.entity;
 
-import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 
 public class HostGoalState {

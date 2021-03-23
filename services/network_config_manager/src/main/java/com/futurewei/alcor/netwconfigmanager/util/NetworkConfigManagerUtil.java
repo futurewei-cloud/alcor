@@ -1,6 +1,8 @@
 package com.futurewei.alcor.netwconfigmanager.util;
 
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.netwconfigmanager.exception.UnexpectedHostNumException;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
 
 import java.util.HashMap;
@@ -10,9 +12,8 @@ public class NetworkConfigManagerUtil {
 
     /**
      * split and build V2 GoalState in a host
-     *
      */
-    public static Map<String, HostGoalState> splitClusterToHostGoalState(Goalstate.GoalStateV2 goalState){
+    public static Map<String, HostGoalState> splitClusterToHostGoalState(Goalstate.GoalStateV2 goalState) {
 
         Map<String, HostGoalState> result = new HashMap<>();
         if (goalState == null || goalState.getHostResourcesCount() == 0) {
@@ -23,6 +24,7 @@ public class NetworkConfigManagerUtil {
         for (String hostId : hostResourcesMap.keySet()) {
             Goalstate.HostResources hostResourceMetadata = hostResourcesMap.get(hostId);
             HostGoalState hostGoalState = new HostGoalState();
+            hostGoalState.getGoalStateBuilder().putHostResources(hostId, hostResourceMetadata);
 
             for (Goalstate.ResourceIdType resource : hostResourceMetadata.getResourcesList()) {
                 String resourceId = resource.getId();
@@ -62,5 +64,33 @@ public class NetworkConfigManagerUtil {
         }
 
         return result;
+    }
+
+    public static Map<String, HostGoalState> filterNeighbors(Map<String, HostGoalState> hostGoalStates) throws UnexpectedHostNumException {
+        Map<String, HostGoalState> filteredGoalStates = new HashMap<>();
+        for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
+            String hostId = entry.getKey();
+            HostGoalState hostGoalState = entry.getValue();
+
+            if (hostGoalState.getGoalState().getHostResourcesMap().size() != 1) throw new UnexpectedHostNumException();
+            boolean filter = true;
+
+            for (Goalstate.HostResources resources : hostGoalState.getGoalState().getHostResourcesMap().values()) {
+                for (Goalstate.ResourceIdType resourceIdType : resources.getResourcesList()) {
+                    if (resourceIdType.getType() == Common.ResourceType.PORT ||
+                            resourceIdType.getType() == Common.ResourceType.DHCP ||
+                            resourceIdType.getType() == Common.ResourceType.ROUTER ||
+                            resourceIdType.getType() == Common.ResourceType.GATEWAY) {
+                        filter = false;
+                    }
+                }
+            }
+
+            if (!filter) {
+                filteredGoalStates.put(hostId,hostGoalState);
+            }
+        }
+
+        return filteredGoalStates;
     }
 }
