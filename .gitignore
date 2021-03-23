@@ -88,3 +88,7 @@ ignite/
 *.project
 *.prefs
 *.factorypath
+
+# python cache
+__pycache__/
+
