@@ -338,47 +338,47 @@ public class pseudo_controller {
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n"+message_one.toString()+"\n");
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n"+message_two.toString()+"\n");
 
-//        System.out.println("Time to call the GRPC functions");
-//
-//        ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
-//        System.out.println("Constructed channel");
-//        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
-//        boolean execute_ping = false;
-//        System.out.println("Created stub");
-//        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
-//            @Override
-//            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
-//                System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() +"\n");
-////                final boolean grpc_call_successful = value.getOperationStatuses(0).getOperationStatus().equals(Common.OperationStatus.SUCCESS);
-//            }
-//
-//            @Override
-//            public void onError(Throwable t) {
-//                System.out.println("onError function with this GoalStateOperationReply: \n" + t.getMessage() +"\n");
-//            }
-//
-//            @Override
-//            public void onCompleted() {
-//                System.out.println("onCompleted");
-//            }
-//        };
-//        System.out.println("Created GoalStateOperationReply observer class");
-//        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
-//        System.out.println("Connected the observers");
-//        response_observer.onNext(message_one);
-//        response_observer.onNext(message_two);
-//
-//        System.out.println("After calling onNext");
-//        response_observer.onCompleted();
-//        System.out.println("After the GRPC call, it's time to do the ping test");
-//        System.out.println("Sleep 1 second first");
-//        try {
-//            TimeUnit.SECONDS.sleep(1);
-//
-//        }catch (Exception e){
-//            System.out.println("I can't sleep!!!!");
-//
-//        }
+        System.out.println("Time to call the GRPC functions");
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
+        System.out.println("Constructed channel");
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
+        boolean execute_ping = false;
+        System.out.println("Created stub");
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() +"\n");
+//                final boolean grpc_call_successful = value.getOperationStatuses(0).getOperationStatus().equals(Common.OperationStatus.SUCCESS);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("onError function with this GoalStateOperationReply: \n" + t.getMessage() +"\n");
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("onCompleted");
+            }
+        };
+        System.out.println("Created GoalStateOperationReply observer class");
+        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
+        System.out.println("Connected the observers");
+        response_observer.onNext(message_one);
+        response_observer.onNext(message_two);
+
+        System.out.println("After calling onNext");
+        response_observer.onCompleted();
+        System.out.println("After the GRPC call, it's time to do the ping test");
+        System.out.println("Sleep 1 second first");
+        try {
+            TimeUnit.SECONDS.sleep(1);
+
+        }catch (Exception e){
+            System.out.println("I can't sleep!!!!");
+
+        }
 
 //        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_one_ip, user_name, password);
