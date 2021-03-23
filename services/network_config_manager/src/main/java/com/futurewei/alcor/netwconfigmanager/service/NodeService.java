@@ -10,9 +10,9 @@ public interface NodeService {
 
     void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
 
-    void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    void updateNodeInfo(NodeInfo nodeInfo) throws Exception;
 
-    void deleteNodeInfo(String noideId) throws Exception;
+    void deleteNodeInfo(String nodeId) throws Exception;
 
     void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception;
 

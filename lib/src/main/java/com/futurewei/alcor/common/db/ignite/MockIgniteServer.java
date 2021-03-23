@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.*;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -85,7 +86,11 @@ public class MockIgniteServer {
 
     public static Ignite getIgnite(){
         // if no need create a real ignite server, we return a mock Ignite client
-        return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
+        if (igniteServer == null) {
+            return new IgniteNodeClientMock();
+        }
+
+        return igniteServer;
     }
 
     /**

@@ -29,8 +29,8 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
-        nodeInfoCache.updateNodeInfo(nodeInfoJson.getNodeInfo());
+    public void updateNodeInfo(NodeInfo nodeInfo) throws Exception {
+        nodeInfoCache.updateNodeInfo(nodeInfo);
     }
 
     @Override
