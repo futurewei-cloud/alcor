@@ -451,7 +451,8 @@ public class pseudo_controller {
             session.setConfig(config);
             session.connect();
             System.out.println("Connected");
-            for (String command: commands){
+            for (int j = 0 ; j < commands.size(); j++){
+                String command = commands.get(j);
                 System.out.println("Start of executing command ["+command+"] on host: "+host_ip);
                 Channel channel=session.openChannel("exec");
                 ((ChannelExec)channel).setCommand(command);
