@@ -6,7 +6,7 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.netwconfigmanager.service.NodeService;
-import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerConstants;
+import com.futurewei.alcor.netwconfigmanager.util.Constants;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
@@ -52,7 +52,7 @@ public class NetworkConfigController {
     public void createNodesInfoBulk(@RequestBody BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         if (bulkNodeInfoJson == null) {
             // Perhaps, this belongs in the common.
-            throw new ParameterNullOrEmptyException(NetworkConfigManagerConstants.NODE_EXCEPTION_JSON_EMPTY);
+            throw new ParameterNullOrEmptyException(Constants.NODE_EXCEPTION_JSON_EMPTY);
         }
         try {
             nodeService.createNodeInfoBulk(bulkNodeInfoJson);
