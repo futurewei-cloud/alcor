@@ -80,6 +80,7 @@ public class NodeManagerProxy {
                 nodeInfos.get(0).getMulticastTopic(),
                 nodeInfos.get(0).getGroupTopic()
         );
+        node.setNcmId(nodeInfos.get(0).getNcmId());
 
         return new PortBindingHost(portEntity.getId(), node);
     }

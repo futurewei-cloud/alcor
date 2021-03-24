@@ -57,12 +57,16 @@ public class NodeInfo implements Serializable {
     @JsonProperty("group_topic")
     private String groupTopic;
 
+    @JsonProperty("ncm_id")
+    private String ncm_id;
+
     public NodeInfo() {
 
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
         this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac, nodeInfo.unicastTopic, nodeInfo.multicastTopic, nodeInfo.groupTopic);
+        this.ncm_id = nodeInfo.ncm_id;
     }
 
     public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort, String unicastTopic, String multicastTopic, String groupTopic) {
@@ -186,4 +190,8 @@ public class NodeInfo implements Serializable {
     public String getGroupTopic() { return groupTopic; }
 
     public void setGroupTopic(String groupTopic) { this.groupTopic = groupTopic;  }
+
+    public String getNcmId() { return ncm_id; }
+
+    public void setNcmId(String ncm_id) { this.ncm_id = ncm_id; }
 }
