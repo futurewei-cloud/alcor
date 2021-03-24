@@ -85,7 +85,14 @@ public class MockIgniteServer {
 
     public static Ignite getIgnite(){
         // if no need create a real ignite server, we return a mock Ignite client
-        return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
+        // Doesn't work, requires javs set to 9 and that conflicts main
+        // common and probably all the other modules.
+        // return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
+        if (igniteServer == null) {
+            return new IgniteNodeClientMock();
+        }
+
+        return igniteServer;
     }
 
     /**
