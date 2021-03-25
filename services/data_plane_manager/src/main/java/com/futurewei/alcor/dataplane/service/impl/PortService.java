@@ -39,6 +39,9 @@ public class PortService extends ResourceService {
                 portConfigBuilder.setName(portEntity.getName());
             }
 
+            portConfigBuilder.setDeviceId(portEntity.getDeviceId());
+            portConfigBuilder.setDeviceOwner(portEntity.getDeviceOwner());
+
             portConfigBuilder.setMacAddress(portEntity.getMacAddress());
             boolean adminState = portEntity.getAdminStateUp() == null ? false : portEntity.getAdminStateUp();
             portConfigBuilder.setAdminStateUp(adminState);
