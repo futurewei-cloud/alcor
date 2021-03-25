@@ -37,19 +37,21 @@ public class pseudo_controller {
     static String user_name = "root";
     static String password = "abcdefg";
     static int ports_to_generate_on_each_aca_node = 1;
+    static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
-//    static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
-//    static String port_id_2 = "13333333-b718-11ea-b3de-111111111114";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     static String ips_ports_ip_prefix = "123";
     static String mac_port_prefix = "6c:dd:ee:";
-    static Vector<Goalstate.GoalStateV2> goalState_messages = new Vector<>();
     static HashMap<String, String> ip_mac_map = new HashMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
     static HashMap<String, String> port_ip_to_host_ip_map = new HashMap<>();
     static HashMap<String, String> port_ip_to_id_map = new HashMap<>();
+    static HashMap<String, String> port_ip_to_container_name = new HashMap<>();
+    static Vector<String> node_one_port_ips = new Vector<>();
+    static Vector<String> node_two_port_ips = new Vector<>();
+
     public static void main(String[] args){
         System.out.println("Start of the test controller");
         if(args.length == 7){
@@ -379,6 +381,24 @@ public class pseudo_controller {
             System.out.println("I can't sleep!!!!");
 
         }
+        Vector<concurrent_run_cmd> concurrent_ping_cmds = new Vector<>();
+        for(int i = 0 ; i < node_one_port_ips.size() ; i ++ ){
+            if(i >= node_two_port_ips.size()){
+                return;
+            }
+            String pinger_ip = node_one_port_ips.get(i);
+            String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
+            String pingee_ip = node_two_port_ips.get(i);
+            String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
+            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
+            System.out.println("Ping command is added: ["+ ping_cmd  + "]");
+        }
+
+
+        // Concurrently execute the pings.
+        for(concurrent_run_cmd cmd : concurrent_ping_cmds){
+            cmd.run();
+        }
 
 //        execute_ssh_commands("docker exec test2 ping -I 10.0.0.3 -c1 10.0.0.2", aca_node_two_ip, user_name, password);
 //        execute_ssh_commands("docker exec test1 ping -I 10.0.0.2 -c1 10.0.0.3", aca_node_one_ip, user_name, password);
@@ -397,22 +417,40 @@ public class pseudo_controller {
         int i = 1;
         for (String port_ip : ip_mac_map.keySet()){
             String port_mac = ip_mac_map.get(port_ip);
-//            String create_port_on_host = (i % 2 == 0) ? aca_node_one_ip : aca_node_two_ip;
+            String container_name = "test"+Integer.toString(i);
+            port_ip_to_container_name.put(port_ip, container_name);
+            String create_container_cmd = "docker run -itd --name test" + container_name + " --net=none --label test=ACA busybox sh";
+            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 test"+container_name +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac;
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 test"+container_name+" 1";
             if (i % 2 == 0){
-                aca_node_one_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none --label test=ACA busybox sh");
-                aca_node_one_commands.add("ovs-docker add-port br-int eth0 test"+Integer.toString(i) +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac);
-                aca_node_one_commands.add("ovs-docker set-vlan br-int eth0 test"+Integer.toString(i)+" 1");
+                node_one_port_ips.add(port_ip);
+                aca_node_one_commands.add(create_container_cmd);
+                aca_node_one_commands.add(ovs_docker_add_port_cmd);
+                aca_node_one_commands.add(ovs_set_vlan_cmd);
                 port_ip_to_host_ip_map.put(port_ip , aca_node_one_ip);
             }else{
-                aca_node_two_commands.add("docker run -itd --name test" + Integer.toString(i) + " --net=none --label test=ACA busybox sh");
-                aca_node_two_commands.add("ovs-docker add-port br-int eth0 test"+Integer.toString(i) +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac);
-                aca_node_one_commands.add("ovs-docker set-vlan br-int eth0 test"+Integer.toString(i)+" 1");
+                node_two_port_ips.add(port_ip);
+                aca_node_two_commands.add(create_container_cmd);
+                aca_node_two_commands.add(ovs_docker_add_port_cmd);
+                aca_node_two_commands.add(ovs_set_vlan_cmd);
                 port_ip_to_host_ip_map.put(port_ip , aca_node_two_ip);
             }
             i ++ ;
         }
-        aca_node_one_commands.add("docker ps");
-        aca_node_two_commands.add("docker ps");
+        aca_node_one_commands.add(docker_ps_cmd);
+        aca_node_two_commands.add(docker_ps_cmd);
+
+        System.out.println("Outputting commands for node one:");
+
+        for (int j = 0 ; j < aca_node_one_commands.size(); j ++){
+            System.out.println(aca_node_one_commands.get(j));
+        }
+
+        System.out.println("Outputting commands for node two:");
+
+        for (int j = 0 ; j < aca_node_two_commands.size(); j ++){
+            System.out.println(aca_node_two_commands.get(j));
+        }
 
         execute_ssh_commands(aca_node_one_commands, aca_node_one_ip, user_name, password);
         execute_ssh_commands(aca_node_two_commands, aca_node_two_ip, user_name, password);
@@ -486,22 +524,22 @@ public class pseudo_controller {
         }
     }
 
-    public class concurrent_run_cmd implements Runnable{
-        String command_to_run, host, user_name, password;
-        @Override
-        public void run() {
-//            System.out.println("Running GRPC server in a different thread.");
-            Vector<String> cmd_list = new Vector<>();
-            cmd_list.add(this.command_to_run);
-            execute_ssh_commands(cmd_list, host, user_name, password);
-        }
 
-        public concurrent_run_cmd(String cmd, String host, String user_name, String password){
-            this.command_to_run = cmd;
-            this.host = host;
-            this.user_name = user_name;
-            this.password = password;
-        }
-
+}
+class concurrent_run_cmd implements Runnable{
+    String command_to_run, host, user_name, password;
+    @Override
+    public void run() {
+        Vector<String> cmd_list = new Vector<>();
+        cmd_list.add(this.command_to_run);
+        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
     }
+
+    public concurrent_run_cmd(String cmd, String host, String user_name, String password){
+        this.command_to_run = cmd;
+        this.host = host;
+        this.user_name = user_name;
+        this.password = password;
+    }
+
 }
