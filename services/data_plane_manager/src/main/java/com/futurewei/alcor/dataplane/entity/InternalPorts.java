@@ -5,14 +5,14 @@ import java.util.List;
 public class InternalPorts {
     private String subnetId;
     private String securityGroupId;
-    private List<String> ports;
+    private List<String> portIds;
 
     public InternalPorts() { };
 
-    public InternalPorts(String subnetId, String securityGroupId, List<String> ports) {
+    public InternalPorts(String subnetId, String securityGroupId, List<String> portIds) {
         this.subnetId = subnetId;
         this.securityGroupId = securityGroupId;
-        this.ports = ports;
+        this.portIds = portIds;
     }
 
     public void setSubnetId(String subnetId) { this.subnetId = subnetId; }
@@ -21,8 +21,8 @@ public class InternalPorts {
         this.securityGroupId = securityGroupId;
     }
 
-    public void setPorts(List<String> ports) {
-        this.ports = ports;
+    public void setPortIds(List<String> portIds) {
+        this.portIds = portIds;
     }
 
     public String getSubnetId() {
@@ -33,7 +33,7 @@ public class InternalPorts {
         return this.securityGroupId;
     }
 
-    public List<String>getPorts() {
-        return this.ports;
+    public List<String>getPortIds() {
+        return this.portIds;
     }
 }

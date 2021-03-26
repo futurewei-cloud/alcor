@@ -5,22 +5,22 @@ import java.util.List;
 public class InternalSubnets {
     private String vpcId;
     private String routerId;
-    private List<String> subnets;
+    private List<String> subnetIds;
 
     public InternalSubnets() { };
 
-    public InternalSubnets(String vcpId, String routerId, List<String> subnets) {
+    public InternalSubnets(String vcpId, String routerId, List<String> subnetIds) {
         this.vpcId = vcpId;
         this.routerId = routerId;
-        this.subnets = subnets;
+        this.subnetIds = subnetIds;
     }
 
     public void setVpcId(String vpcId) { this.vpcId = vpcId; }
 
     public void setRouterId(String routerId) { this.routerId = routerId; }
 
-    public void setSubnets(List<String> subnets) {
-        this.subnets = subnets;
+    public void setSubnetIds(List<String> subnetIds) {
+        this.subnetIds = subnetIds;
     }
 
     public String getVpcId() {
@@ -29,7 +29,7 @@ public class InternalSubnets {
 
     public String getRouterId() { return this.routerId; }
 
-    public List<String>getSubnets() {
-        return this.subnets;
+    public List<String>getSubnetIds() {
+        return this.subnetIds;
     }
 }

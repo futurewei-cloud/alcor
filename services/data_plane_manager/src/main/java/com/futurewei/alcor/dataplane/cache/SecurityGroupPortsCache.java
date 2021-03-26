@@ -29,6 +29,7 @@ import java.util.Map;
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class SecurityGroupPortsCache {
+    // The cache is a map(securityGroupId, portIds)
     private ICache<String, InternalPorts> securityGroupPortsCache;
 
     @Autowired

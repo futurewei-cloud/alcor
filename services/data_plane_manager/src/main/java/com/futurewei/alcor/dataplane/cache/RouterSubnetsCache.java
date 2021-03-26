@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class RouterSubnetsCache implements ICacheRepository<InternalSubnets> {
+    // The cache is a map(routerId, subnetIds)
     private final ICache<String, InternalSubnets> routerSubnetsCache;
 
     @Autowired

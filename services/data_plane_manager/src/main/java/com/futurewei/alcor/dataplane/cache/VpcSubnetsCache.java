@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class VpcSubnetsCache implements ICacheRepository<InternalSubnets> {
+    // The cache is a map(vpcId, subnetIds)
     private final ICache<String, InternalSubnets> vpcSubnetsCache;
 
     @Autowired

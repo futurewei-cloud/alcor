@@ -29,6 +29,7 @@ import java.util.Map;
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class SubnetPortsCache {
+    // The cache is a map(subnetId, subnetPorts)
     private ICache<String, InternalSubnetPorts> subnetPortsCache;
 
     @Autowired
