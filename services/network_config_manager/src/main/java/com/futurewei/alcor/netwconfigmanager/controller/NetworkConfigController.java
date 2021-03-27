@@ -22,6 +22,8 @@ import java.util.logging.Level;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
+@ComponentScan(value = "com.futurewei.alcor.common.utils")
+@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class NetworkConfigController {
     private static final Logger LOG = LoggerFactory.getLogger();
 
