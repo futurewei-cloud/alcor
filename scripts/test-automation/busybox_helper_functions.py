@@ -2,13 +2,19 @@
 import subprocess as sp
 from subprocess import *
 import sys
+import os
 
 # ok
-def make_command(*argv):
-    command =''
+def make_docker_command(*argv):
+    command ='docker '
     for arg in argv:
       command += arg
     return command
+
+def get_filelist(mypath):
+  print(mypath)
+  onlyfiles = os.listdir(mypath)
+  return onlyfiles
 
 def check_process_running(HOST, process):
     running = False
@@ -40,8 +46,8 @@ def run_command_on_remote(HOST, COMMAND):
      retcode = ssh1.returncode
      # print(retcode)
      if retcode > 0:
-       print("error",result[1])
-       # return
+       print("ERROR: ",result[1])
+       #return retcode
      else:
        return result[0]
   except:

@@ -86,65 +86,124 @@ function stop_remove_start_alcor_containers()
 #Function to start alcor container services
 function start_alcor_containers()
 {
+    count=0
     echo "Starting Alcor services "
     docker run --name=ignite -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v /tmp:/tmp -tid ignite-11 sh
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name vpm -p 9001:9001 -v /tmp:/tmp -itd vpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name snm -p 9002:9002 -v /tmp:/tmp -itd snm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name rm  -p 9003:9003 -v /tmp:/tmp -itd rm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name pim -p 9004:9004 -v /tmp:/tmp -itd pim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name mm  -p 9005:9005 -v /tmp:/tmp -itd mm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name pm  -p 9006:9006 -v /tmp:/tmp -itd pm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name nm  -p 9007:9007 -v /tmp:/tmp -itd nm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name sgm -p 9008:9008 -v /tmp:/tmp -itd sgm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name ag  -p 9009:9009 -v /tmp:/tmp -itd ag
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name dpm -p 9010:9010 -v /tmp:/tmp -itd dpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name eim -p 9011:9011 -v /tmp:/tmp -itd eim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name qm  -p 9012:9012 -v /tmp:/tmp -itd qm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name nam -p 9013:9013 -v /tmp:/tmp -itd nam
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name ncm -p 9014:9014 -v /tmp:/tmp -itd ncm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name gm  -p 9015:9015 -v /tmp:/tmp -itd gm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+
+    echo -e "\n$count services started...\n"
 }
+
 # Function to stop alcor container services
 function stop_alcor_containers()
 {
+    count=0
     echo "Stopping all alcor services"
     docker container stop ignite
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop vpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop snm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop rm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop pim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop mm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop pm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop nm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop sgm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop ag
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop dpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop eim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop qm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop nam
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop ncm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container stop gm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+
+    echo -e "\n$count services stopped...\n"
 }
+
 #Function to remove alcor containers
 function remove_alcor_containers()
 {
+    count=0
     echo "Removing Alcor containers"
     docker container rm ignite
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm vpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm rm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm pim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm qm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm nm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm mm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm sgm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm ag
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm dpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm eim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm pm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm snm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm nam
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm ncm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker container rm gm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+
+    echo -e "\n$count services removed...\n"
 }
 
 function command_help()
