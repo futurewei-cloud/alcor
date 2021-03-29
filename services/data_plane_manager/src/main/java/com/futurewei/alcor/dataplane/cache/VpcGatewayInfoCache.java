@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class VpcGatewayInfoCache implements ICacheRepository<GatewayInfo> {
+    // The cache is a map(vpcId, gatewayInfo)
     private final ICache<String, GatewayInfo> vpcGatewayInfoCache;
 
     @Autowired
