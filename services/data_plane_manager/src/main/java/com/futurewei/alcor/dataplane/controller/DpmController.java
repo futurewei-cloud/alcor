@@ -52,6 +52,8 @@ public class DpmController {
         OperationType opType = networkConfiguration.getOpType();
         if (OperationType.UPDATE.equals(opType)) {
             return dpmService.updateNetworkConfiguration(networkConfiguration);
+        } else if (OperationType.CREATE.equals(opType)) {
+            return dpmService.createNetworkConfiguration(networkConfiguration);
         } else if (OperationType.DELETE.equals(opType)) {
             return this.deleteNetworkConfiguration(networkConfiguration);
         }
