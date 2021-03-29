@@ -31,9 +31,7 @@ public class NetworkConfigController {
     private NodeService nodeService;
     @Autowired
     private HttpServletRequest request;
-    @RequestMapping(
-        method = POST,
-        value = {"/nodes", "/v4/nodes"})
+    @PostMapping({"/nodes", "/v4/nodes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
     public void createNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
@@ -47,9 +45,7 @@ public class NetworkConfigController {
         }
     }
 
-    @RequestMapping(
-        method = POST,
-        value = {"/nodes/bulk", "/v4/nodes/bulk"})
+    @PostMapping({"/nodes/bulk", "/v4/nodes/bulk"})
     @DurationStatistics
     public void createNodesInfoBulk(@RequestBody BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
         if (bulkNodeInfoJson == null) {
@@ -64,9 +60,7 @@ public class NetworkConfigController {
         }
     }
 
-    @RequestMapping(
-        method = PUT,
-        value = {"/nodes", "/v4/nodes"})
+    @PutMapping({"/nodes", "/v4/nodes"})
     @DurationStatistics
     public void updateNodeInfo(@RequestBody NodeInfoJson nodeInfoJson) throws Exception {
         try {
@@ -81,9 +75,7 @@ public class NetworkConfigController {
         }
     }
 
-    @RequestMapping(
-        method = DELETE,
-        value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
+    @DeleteMapping({"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
     public void deleteNodeInfo(@PathVariable String nodeid) throws Exception {
         try {
@@ -94,9 +86,7 @@ public class NetworkConfigController {
         }
     }
 
-    @RequestMapping(
-        method = GET,
-        value = {"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
+    @GetMapping({"/nodes/{nodeid}", "/v4/nodes/{nodeid}"})
     @DurationStatistics
     public NodeInfoJson getNodeInfoById(@PathVariable String nodeid) throws Exception {
         NodeInfo hostInfo = null;
