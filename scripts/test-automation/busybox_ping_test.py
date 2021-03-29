@@ -114,7 +114,7 @@ def check_alcoragents_running(aca):
 
 
 def main(args = None):
-    """services = read_configfile()
+    services = read_configfile()
     if args is None:
       args = sys.argv[1:]
       if("-b" in args):
@@ -122,8 +122,7 @@ def main(args = None):
 
     stop_containers()
     remove_containers()
-    start_containers(services)"""
-
+    start_containers(services)
     aca = read_aca_ips()
     ip_mac = check_alcoragents_running(aca)
     if(len(ip_mac) != len(aca)):
@@ -131,14 +130,15 @@ def main(args = None):
        print("ERROR: Test exits")
        sys.exit(1)
     print("Wait for 5 seconds until all services are started....")
-    #time.sleep(5)
+    time.sleep(20)
+
     services_list = get_services_from_conf_file()
     ip_mac_db = create_test_setup(ip_mac, services_list)
+    #ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
+    #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
 
-    #ip_mac={"10.213.43.161":"aa:bb:cc:3b:4d:02", "10.213.43.163":"aa:bb:cc:3d:b2:58"}
-    #ip_mac_db={"10.0.1.101":"aa:bb:cc:3b:4d:02", "10.0.1.102":"aa:bb:cc:3d:b2:58"}
-    #busybox_container_deploy(ip_mac, ip_mac_db)
-    #run_ping_test(ip_mac)"""
+    busybox_container_deploy(ip_mac, ip_mac_db)
+    run_ping_test(ip_mac)
 
 if __name__ == "__main__":
      main()

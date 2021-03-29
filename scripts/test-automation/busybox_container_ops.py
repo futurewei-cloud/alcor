@@ -9,8 +9,8 @@ from termcolor import colored
 
 container_names = ["con1", "con2"]
 
-def busybox_container_deploy(ip_mac,ip_mac_db):
-   for con, (aca_ip,aca_mac),(db_ip,db_mac) in zip(container_names, ip_mac.items(),ip_mac_db.items()):
+def busybox_container_deploy(ip_mac, ip_mac_db):
+   for con, (aca_ip, aca_mac), (db_ip, db_mac) in zip(container_names, ip_mac.items(), ip_mac_db.items()):
      print(con, aca_ip, db_ip, db_mac)
      command1 = "docker run -itd --name " + con + " --net=none busybox sh"
      command2 = "ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
@@ -44,8 +44,7 @@ def run_ping_test(ip_mac):
    if check_string in str(output1):
      if check_string in str(output2):
          print("SSS")
-         print (colored("PING  TEST SUCCESSFULL",'green'))
+         print (colored("PING  TEST SUCCESSFULL", 'green'))
    else:
      print(colored('PING TEST FAILED','red'))
-
 

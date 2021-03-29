@@ -125,12 +125,12 @@ def create_ports(port,ip_addrs,port_id):
 
 def get_mac_from_db():
    print("\n\n\n>>>>>>>")
-   print("ip_mac stored in ignite db", ip_mac_db)
+   print("IP & MAC stored in ignite db", ip_mac_db)
    return ip_mac_db
 
 
 def create_test_setup(ip_mac, ser_port):
-  print("IN create test setup", ip_mac, ser_port["vpm"])
+  print("In create test setup")
   create_default_segment_table(ser_port["vpm"])
   create_vpc(ser_port["vpm"])
   # get_vpcs(ser_port["vpm"])
