@@ -18,8 +18,8 @@ data:
     spring.servlet.multipart.file-size-threshold=2KB
     spring.servlet.multipart.max-file-size=200MB
     spring.servlet.multipart.max-request-size=215MB
-    microservices.dataplane.service.url=http://localhost:9010/network-configuration
-    microservices.dataplane.nodeservice.url=http://localhost:9010/nodes
+    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/network-configuration
+    microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:9010/nodes
 
 ---
 apiVersion: apps/v1
