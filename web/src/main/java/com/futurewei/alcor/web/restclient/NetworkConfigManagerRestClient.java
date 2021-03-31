@@ -45,12 +45,8 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {
-        // NMM_NCM_DEBUG
-        LOG.log(Level.ALL, "NCM create: NODE" + message.toString());
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
-        LOG.log(Level.ALL, "NCM create => POST (" + restTemplate + ")");
         restTemplate.postForObject(ncmManagerUrl, request, Object.class);
-        LOG.log(Level.ALL, "NCM create <= POST");
     }
 
     @DurationStatistics

@@ -29,9 +29,6 @@ public class CreateNodeInfoRequest extends AbstractRequest{
     public void send() throws Exception {
         NodeInfoJson jsonData = new NodeInfoJson(nodeInfo);
         dataPlaneManagerRestClient.createNodeInfo(jsonData);
-        // NMM_NCM_DEBUG
-        LOG.debug("nmm create => ncm create");
         ncmRestClient.createNodeInfo(jsonData);
-        LOG.debug("nmm create <= ncm create");
     }
 }
