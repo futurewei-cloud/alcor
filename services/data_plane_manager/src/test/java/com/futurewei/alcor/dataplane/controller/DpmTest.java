@@ -135,6 +135,8 @@ public class DpmTest {
         internalPortEntity.setName(TestConfig.portName1);
         internalPortEntity.setMacAddress(TestConfig.mac1);
         internalPortEntity.setAdminStateUp(true);
+        internalPortEntity.setDeviceOwner(TestConfig.deviceOwner);
+        internalPortEntity.setDeviceId(TestConfig.deviceId);
         List<PortEntity.FixedIp> fixedIps = new ArrayList<>();
         fixedIps.add(new PortEntity.FixedIp(TestConfig.subnetId1, TestConfig.ip11));
         internalPortEntity.setFixedIps(fixedIps);
