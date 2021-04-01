@@ -9,8 +9,8 @@ function build_alcor_images()
     cd $ALCOR_ROOT_DIR
     mvn -Dmaven.test.skip=true -DskipTests clean package install
     #build images
-    echo "#0 Creating ignite-11 image with ports 10800 10081 47100 47500"
-    docker build -t ignite-11 -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
+    echo "#0 Creating ignite image with ports 10800 10081 47100 47500"
+    docker build -t ignite -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
     echo
 
     echo "#1 Creating vpc_manager image with port 9001"
@@ -88,7 +88,7 @@ function start_alcor_containers()
 {
     count=0
     echo "Starting Alcor services "
-    docker run --name=ignite -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v /tmp:/tmp -tid ignite-11 sh
+    docker run --name=ignite -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v /tmp:/tmp -tid ignite sh
     if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name vpm -p 9001:9001 -v /tmp:/tmp -itd vpm
     if [[ $? -eq 0 ]]; then count=$((count + 1)); fi

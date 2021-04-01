@@ -1,32 +1,16 @@
 #!/usr/bin/python3
+import time
+import configparser
 import subprocess
 import os
 from busybox_helper_functions import *
 from busybox_alcor_api_calls import *
 from busybox_container_ops import *
-import time
-import configparser
 
 ALCOR_ROOT = os.path.abspath(os.path.join(__file__ , "../../../"))
 ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
-
-
-def read_configfile():
-    config = configparser.ConfigParser()
-    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
-    config.read(conf_file)
-    serv = dict(config.items('services'))
-    return serv
-
-
-def read_aca_ips():
-    config = configparser.ConfigParser()
-    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
-    config.read(conf_file)
-    aca = dict(config.items('AlcorControlAgents'))
-    return aca
 
 
 def build_containers(serv):
@@ -55,25 +39,13 @@ def start_containers(serv):
     for service_name in serv.keys():
       service_info = json.loads(serv[service_name])
       if service_name == "ignite":
-        start_cmd = make_docker_command("run ", "--name={} -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v {} -tid {} sh".format(service_info["img_name"], mount_option, service_info["name"]))
+        start_cmd = make_docker_command("run ", "--name={} -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v {} -tid {} sh".format(service_info["name"], mount_option, service_info["name"]))
       else:
         start_cmd = make_docker_command("run ", "--net=host ", "--name {} -p {}:{} -v {} -itd {}".format(service_info["name"], service_info["port"], service_info["port"],mount_option, service_info["name"]))
       start_containers.append(start_cmd)
 
     if(execute_commands("Start ", start_containers) == True):
       print("All Alcor services started successfully")
-
-
-def get_services_from_conf_file():
-    serv = read_configfile()
-    service_list = {}
-    for service_name in serv.keys():
-       service_info = json.loads(serv[service_name])
-       if "ignite-11" in service_info["name"]:
-         service_list["ignite"] = 10800
-       else:
-         service_list[service_info["name"]] = service_info["port"]
-    return service_list
 
 
 def stop_containers(name = ""):
@@ -100,19 +72,6 @@ def remove_containers(name = ""):
       command = "docker container rm " + name
 
 
-def check_alcoragents_running(aca):
-    ip_mac = {}
-    for ip_addr in aca.values():
-      if(check_process_running(ip_addr.strip(), "AlcorControlAgent") == True):
-         print("AlcorControlAgent is running on {}".format(ip_addr))
-         mac_addr = getmac_from_aca(ip_addr)
-         print("Mac_addr", mac_addr, "for host", ip_addr, "\n")
-         ip_mac[ip_addr] = mac_addr
-      else:
-         print("AlcorControlAgent is not running on {}".format(ip_addr))
-    return ip_mac
-
-
 def main(args = None):
     services = read_configfile()
     if args is None:
@@ -129,16 +88,16 @@ def main(args = None):
        print("\nERROR: Alcor Control Agent not running on some of the nodes")
        print("ERROR: Test exits")
        sys.exit(1)
-    print("Wait for 5 seconds until all services are started....")
+    print("Wait for 20 seconds until all services are started....")
     time.sleep(20)
 
     services_list = get_services_from_conf_file()
     ip_mac_db = create_test_setup(ip_mac, services_list)
     #ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
     #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
-
     busybox_container_deploy(ip_mac, ip_mac_db)
-    run_ping_test(ip_mac)
+    #run_ping_test(ip_mac,ip_mac_db)
+
 
 if __name__ == "__main__":
      main()

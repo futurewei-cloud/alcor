@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import subprocess as sp
-from subprocess import *
-import sys
-import os
+import sys, os, configparser
+import json
+from   subprocess import *
 
-# ok
+ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def make_docker_command(*argv):
     command ='docker '
     for arg in argv:
@@ -46,19 +47,18 @@ def run_command_on_remote(HOST, COMMAND):
      retcode = ssh1.returncode
      # print(retcode)
      if retcode > 0:
-       print("ERROR: ",result[1])
+       if 'Connection to' not in result[1] and 'closed' not in result[1]:
+         print("ERROR: ",result[1])
        #return retcode
      else:
        return result[0]
   except:
-     print("Exception Error:", sys.exc_info()[0])
+     print("Exception Error occured when running command {} on HOST {}:".format(COMMAND,HOST), sys.exc_info()[0])
 
 
 def run_command_forall(command, services_list):
     status = True
-    # print("SSS", len(services_list))
     for service in services_list:
-       # print("S ", service)
        if(execute_command(command + service)):
          status = False
          #print("Failed to ",repr(str(command)))
@@ -113,9 +113,6 @@ def execute_checkcommand(command):
          errorMessage = error.strerror
          print("ERROR: ", errorMessage)
 
-#execute_command("mvn -Dmaven.test.skip=true -DskipTests clean package install")
-#execute_command("docker build -t ignite-11 -f/root/pingtest/alcor/lib/ignite.Dockerfile /root/pingtest/alcor/lib")
-#execute_command("ls /usr/bin")
 
 def dict_clean(dict):
  result = {}
@@ -128,4 +125,66 @@ def dict_clean(dict):
       value = 'False'
     result[key]=value
  return(result)
+
+
+def get_projectid():
+  project_id = get_item_from_section("test_info","project_id")
+  return project_id
+
+
+def get_container_ips():
+    ip_addrs = get_item_from_section("test_info","ip_addrs")
+    return ip_addrs
+
+
+def get_item_from_section(section,item):
+   test_info = read_configfile_section(section)
+   return test_info[item]
+
+
+def read_configfile_section(section):
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
+    config.read(conf_file)
+    serv = dict(config.items(section))
+    return serv
+
+def read_configfile():
+    config = configparser.ConfigParser()
+    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
+    config.read(conf_file)
+    serv = dict(config.items('services'))
+    return serv
+
+
+def get_services_from_conf_file():
+    serv = read_configfile()
+    service_list = {}
+    for service_name in serv.keys():
+       service_info = json.loads(serv[service_name])
+       service_list[service_info["name"]] = service_info["port"]
+    return service_list
+
+
+def read_aca_ips():
+    config = configparser.ConfigParser()
+    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
+    config.read(conf_file)
+    aca = dict(config.items('AlcorControlAgents'))
+    return aca
+
+
+def check_alcoragents_running(aca):
+    ip_mac = {}
+    for ip_addr in aca.values():
+      if(check_process_running(ip_addr.strip(), "AlcorControlAgent") == True):
+         print("AlcorControlAgent is running on {}".format(ip_addr))
+         mac_addr = getmac_from_aca(ip_addr)
+         print("Mac_addr", mac_addr, "for host", ip_addr, "\n")
+         ip_mac[ip_addr] = mac_addr
+      else:
+         print("AlcorControlAgent is not running on {}".format(ip_addr))
+    return ip_mac
+
 
