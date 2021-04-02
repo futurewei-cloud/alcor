@@ -16,7 +16,8 @@ package com.futurewei.alcor.nodemanager.utils;
 
 public class NodeManagerConstant {
     public static final String JSON_HOSTS = "host_infos";
-    public static final String JSON_ID1 = "node_name";
+    public static final String JSON_ID1 = "node_id";
+    public static final String JSON_NAME = "node_name";
     public static final String JSON_IP1 = "local_ip";
     public static final String JSON_MAC1 = "mac_address";
     public static final String JSON_VETH1 = "veth";
@@ -37,4 +38,3 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
     public static final String NODE_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for service to call repository";
 }
-

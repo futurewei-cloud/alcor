@@ -15,6 +15,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
@@ -29,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * API for DPM and NMM to push NCM info into NCM.
@@ -38,6 +41,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
     @Value("${microservices.ncm.service.url:#{\"\"}}")
     private String ncmManagerUrl;
 
+    Logger LOG = LoggerFactory.getLogger();
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {
