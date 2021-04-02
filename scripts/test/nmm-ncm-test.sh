@@ -294,7 +294,11 @@ for x in $ALL_NODES; do
 done
 
 NULLS=`fgrep -c '{"host_info":null}' $GETTEMP 2> /dev/null`
-if [ $NULLS -ne 10 ]; then
+if [ -z "$NULLS" ]; then
+    true
+elif [ $NULLS -eq 10 ]; then
+    true
+else
     echo "NON EPMTY: NMM / NCM cache"
 fi
 
