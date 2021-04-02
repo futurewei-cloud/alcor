@@ -91,6 +91,7 @@ public class NodeFileLoader {
         String strMethodName = "parseNodeObject";
         NodeInfo node = null;
         String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID1);
+        String name = (String)nodeJson.get(NodeManagerConstant.JSON_NAME);
         String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP1);
         String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC1);
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
@@ -99,7 +100,7 @@ public class NodeFileLoader {
         String multicastTopic = (String) nodeJson.get(NodeManagerConstant.MULTICAST_TOPIC);
         String groupTopic = (String) nodeJson.get(NodeManagerConstant.GROUP_TOPIC);
         try {
-            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
+            node = new NodeInfo(id, name, ip, mac, veth, gRPCServerPort, unicastTopic, multicastTopic, groupTopic);
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
