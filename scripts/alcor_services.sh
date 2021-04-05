@@ -2,6 +2,7 @@
 
 MY_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ALCOR_ROOT_DIR=$(dirname $MY_PATH)
+declare -a services_list=(ignite vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
 
 # Function to build alcor images
 function build_alcor_images()
@@ -83,6 +84,24 @@ function stop_remove_start_alcor_containers()
     start_alcor_containers
 }
 
+# Function to do status check of all alcor container services
+function status_alcor_containers()
+{
+    count=0
+    echo -e "\nStatus check for all Alcor containers and ignite\n"
+    for service in ${services_list[@]}; do
+        docker container ls | grep -w $service >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            count=$((count + 1))
+            echo $service is RUNNING
+        else
+            echo $service is STOPPED
+       fi
+    done
+
+    echo -e "\n$count services running...\n"
+}
+
 #Function to start alcor container services
 function start_alcor_containers()
 {
@@ -129,39 +148,10 @@ function stop_alcor_containers()
 {
     count=0
     echo "Stopping all alcor services"
-    docker container stop ignite
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop vpm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop snm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop rm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop pim
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop mm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop pm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop nm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop sgm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop ag
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop dpm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop eim
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop qm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop nam
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop ncm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container stop gm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-
+    for service in ${services_list[@]}; do
+        docker container stop $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
     echo -e "\n$count services stopped...\n"
 }
 
@@ -170,39 +160,10 @@ function remove_alcor_containers()
 {
     count=0
     echo "Removing Alcor containers"
-    docker container rm ignite
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm vpm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm rm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm pim
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm qm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm nm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm mm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm sgm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm ag
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm dpm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm eim
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm pm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm snm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm nam
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm ncm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-    docker container rm gm
-    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
-
+    for service in ${services_list[@]}; do
+        docker container rm $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
     echo -e "\n$count services removed...\n"
 }
 
@@ -240,7 +201,7 @@ case $opt in
     remove_alcor_containers
     ;;
   s)
-    stop_remove_start_alcor_containers
+    status_alcor_containers
     ;;
   \?)
     command_help
