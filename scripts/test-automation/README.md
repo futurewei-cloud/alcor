@@ -35,11 +35,7 @@ Test configuration should be presented in the file alcor_services.ini. Configura
 1. [services]: Carries the list of alcor service folders, service names and the ports they use.
 2. [AlcorControlAgents]: New line separated list of hosts over which ACA is running and on which Busybox containers will be deployed.
 3. [test_info]: Carries the data necessary for creating the end goal states.
-4. [vpc_info]
-5. [node_info]
-6. [subnet_info]
-7. [security_groups]
-8. [port_info]: These carry the test payload that is needed to generate the end goal state.
+4. [vpc_info], [node_info], [subnet_info], [security_groups], [port_info]: These carry the test payload that is needed to generate the end goal state.
 
 ## Example
 You can configure the alcor services name, port number in the following way:
@@ -51,14 +47,14 @@ You can configure the alcor services name, port number in the following way:
 With the above configuration the ignite service will be run as name 'ignite',
 The vpc_manager is built from the Dockerfile located in services/vpc_manager folder and the container with the name vpm port 9001 is started.
 
-## Precondtions
+## Preconditions
 Ensure that your target hosts, over which you plan to deploy the Busybox containers have AlcorControl Agent running.
 
 ## Running Test
 The main file for running the test is busybox_ping_test.py. It is a python script that can be run from command prompt in either of the following two ways:
 ````
 python busybox_ping_test.py
-./busybox_ping_test.py       
+./busybox_ping_test.py
 ````
 
 You can optionally provide the paramter -b to build all the docker images of the alcor services. This step need not be followed for any subsequent tests, unless any changes are made in Alcor.
