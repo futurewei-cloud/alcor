@@ -28,11 +28,10 @@ import java.util.stream.Collectors;
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeInfoCache {
     private ICache<String, NodeInfo> nodeInfoCache;
-    private static final Logger LOG = LoggerFactory.getLogger();
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
-        nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        this.nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
     }
 
     @DurationStatistics
