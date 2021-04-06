@@ -12,7 +12,7 @@ public class VpcResourceMeta {
 
     public VpcResourceMeta(String vni, HashMap<String, List<ResourceMeta>> resourceMetas) {
         this.vni = vni;
-        this.resourceMetas = new HashMap<String, List<ResourceMeta>>(resourceMetas);
+        this.resourceMetas = new HashMap<>(resourceMetas);
     }
 
     public String getVni() {

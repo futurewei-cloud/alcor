@@ -10,12 +10,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
-public class HostResourceIdCache {
+public class HostResourceMetadataCache {
+
     // Map <HostId, List<ResoruceIDType>>
     private ICache<String, ResourceMeta> hostResourceMetas;
 
     @Autowired
-    public HostResourceIdCache(CacheFactory cacheFactory) {
+    public HostResourceMetadataCache(CacheFactory cacheFactory) {
         this.hostResourceMetas = cacheFactory.getCache(ResourceMeta.class);
     }
 

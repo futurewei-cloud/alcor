@@ -9,12 +9,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
-public class HostResourceStateCache {
+public class ResourceStateCache {
     // Map <ResourceId, ResourceState>
     private ICache<String, Object> hostResourceStates;
 
     @Autowired
-    public HostResourceStateCache(CacheFactory cacheFactory) {
+    public ResourceStateCache(CacheFactory cacheFactory) {
         this.hostResourceStates = cacheFactory.getCache(Object.class);
     }
 
