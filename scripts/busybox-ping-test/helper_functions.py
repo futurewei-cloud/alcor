@@ -23,7 +23,8 @@ def check_process_running(HOST, process):
     # print("In check process running", HOST, process)
     output = run_command_on_remote(HOST, COMMAND)
     if(output):
-      for line in output.decode(encoding='utf-8').split('\n'):
+      #for line in output.decode(encoding='utf-8').split('\n'):
+      for line in output.split('\n'):
         line = line.strip()
         if not 'grep' in line:
           # print("NOT A GREP LINE",line)
@@ -42,7 +43,7 @@ def getmac_from_aca(HOST):
 
 def run_command_on_remote(HOST, COMMAND):
   try:
-     ssh1 = sp.Popen(['ssh', '-t', '{}@{}'.format('root', HOST), COMMAND], shell=False, stdout=sp.PIPE, stderr=sp.PIPE)
+     ssh1 = sp.Popen(['ssh', '-t', '{}@{}'.format('root', HOST), COMMAND], shell=False, stdout=sp.PIPE, stderr=sp.PIPE,encoding='utf8')
      result = ssh1.communicate()
      retcode = ssh1.returncode
      # print(retcode)
@@ -52,8 +53,9 @@ def run_command_on_remote(HOST, COMMAND):
        #return retcode
      else:
        return result[0]
-  except:
-     print("Exception Error occured when running command {} on HOST {}:".format(COMMAND,HOST), sys.exc_info()[0])
+  except Exception as e:
+       print(e)
+#     print("Exception Error occured when running command {} on HOST {}:".format(COMMAND,HOST), sys.exc_info()[0])
 
 
 def run_command_forall(command, services_list):
@@ -128,18 +130,18 @@ def dict_clean(dict):
 
 
 def get_projectid():
-  project_id = get_item_from_section("test_info","project_id")
+  project_id = get_item_from_section("test_setup","project_id")
   return project_id
 
 
 def get_container_ips():
-    ip_addrs = get_item_from_section("test_info","ip_addrs")
+    ip_addrs = get_item_from_section("test_setup","ip_addrs")
     return ip_addrs
 
 
 def get_item_from_section(section,item):
-   test_info = read_configfile_section(section)
-   return test_info[item]
+   test_setup = read_configfile_section(section)
+   return test_setup[item]
 
 
 def read_configfile_section(section):
@@ -156,7 +158,6 @@ def read_configfile():
     config.read(conf_file)
     serv = dict(config.items('services'))
     return serv
-
 
 def get_services_from_conf_file():
     serv = read_configfile()
@@ -175,7 +176,7 @@ def read_aca_ips():
     return aca
 
 
-def check_alcoragents_running(aca):
+def check_alcor_agents_running(aca):
     ip_mac = {}
     for ip_addr in aca.values():
       if(check_process_running(ip_addr.strip(), "AlcorControlAgent") == True):
@@ -186,5 +187,4 @@ def check_alcoragents_running(aca):
       else:
          print("AlcorControlAgent is not running on {}".format(ip_addr))
     return ip_mac
-
 

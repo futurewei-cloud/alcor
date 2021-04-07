@@ -1,17 +1,15 @@
 #!/usr/bin/python3
-import time
-import configparser
-import subprocess
-import os
-from busybox_helper_functions import *
-from busybox_alcor_api_calls import *
-from busybox_container_ops import *
+import time,os
+from helper_functions import *
+from create_test_setup import *
+from container_ops import *
+from create_test_cases import *
+import argparse
 
 ALCOR_ROOT = os.path.abspath(os.path.join(__file__ , "../../../"))
 ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
-
 
 def build_containers(serv):
     container_list =[]
@@ -72,31 +70,49 @@ def remove_containers(name = ""):
       command = "docker container rm " + name
 
 
-def main(args = None):
+def main():
     services = read_configfile()
-    if args is None:
-      args = sys.argv[1:]
-      if("-b" in args):
-        build_containers(services)
+    parser = argparse.ArgumentParser(description='Busybox ping test', epilog='Example of use: python script_name -b')
+    parser.add_argument("-b", "--build", type=str, nargs='?', help=' to build alcor services provide :{} as an option'.format('-b build'))
+    parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
+    parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
+    args = parser.parse_args()
+
+    if args.build:
+        if(args.build == "build"):
+           build_containers(services)
+        else:
+          print("invoke  as {}".format('-b build'))
 
     stop_containers()
     remove_containers()
     start_containers(services)
     aca = read_aca_ips()
-    ip_mac = check_alcoragents_running(aca)
+    ip_mac = check_alcor_agents_running(aca)
     if(len(ip_mac) != len(aca)):
        print("\nERROR: Alcor Control Agent not running on some of the nodes")
        print("ERROR: Test exits")
        sys.exit(1)
-    print("Wait for 20 seconds until all services are started....")
+    print("Wait for 20 seconds until all services are started...")
     time.sleep(20)
 
     services_list = get_services_from_conf_file()
-    ip_mac_db = create_test_setup(ip_mac, services_list)
+    if args.testcase:
+       if (args.testcase == 1):
+         ip_mac_db = prepare_test_case_1(ip_mac,services_list)
+       elif(args.testcase == 2):
+         ip_mac_db = prepare_test_case_2(ip_mac,services_list)
+       else:
+         print("Invoke {}".format('-t <testcase number>'))
+    else:
+       ip_mac_db = create_test_setup(ip_mac, services_list)
+    '''if args.all== 'all':
+        print("Invoke both all test cases"
+        ip_mac_db = prepare_all_test_cases(ip_mac,services_list)'''
     #ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
     #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
+    print("calling container deploy",ip_mac,ip_mac_db)
     busybox_container_deploy(ip_mac, ip_mac_db)
-    #run_ping_test(ip_mac,ip_mac_db)
 
 
 if __name__ == "__main__":

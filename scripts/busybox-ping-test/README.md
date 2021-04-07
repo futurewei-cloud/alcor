@@ -79,6 +79,20 @@ You can optionally provide the paramter -b to build all the docker images of the
     This will clean ovs bridges and we need to restart the Alcor Control Agents.
     Note: The clearing of containers or ovs bridges are not part of test script.
 
+## Quick Start
+After making the necessary configuration file changes, run the script with following paramters to get started:
+1.
+./ping_test.py -b build -t 1
+./ping_test.py -b build
+Builds and runs test case 1
+2.
+./ping_test.py -t 1
+./ping_test.py
+Runs test case 1 (simple case of two computer nodes on two different hosts but on same subnets)
+3.
+./ping_test.py -t 2
+Runs test case 2 (two computer nodes on two different hosts on different subnets)
+
 ## TO DO
 1) Stop the test if one ore more Alcor services are not running.
 2) Add error handling for deploying the containers.

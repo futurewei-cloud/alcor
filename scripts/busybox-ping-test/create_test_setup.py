@@ -2,52 +2,7 @@
 import requests
 import time
 import json
-from busybox_helper_functions import *
-
-ip_mac_db = {}
-
-def post_httprequest(url, data=""):
-  try:
-     headers = {
-               'Content-Type': 'application/json',
-               'Accept': '*/*',
-              }
-     #print(url,data)
-     response = requests.post(url, data = json.dumps(data), headers=headers)
-     if(response.ok):
-       print("POST Success", url)
-       if 'ports' in url:
-         valid_response = json.loads(response.text,object_pairs_hook=dict_clean)
-         get_mac_for_ips(valid_response)
-     else:
-       response.raise_for_status()
-  except requests.exceptions.HTTPError as err:
-     print("POST Failed for {} with error".format(url, response.text))
-     print(response.json)
-     print("ERROR",err)
-     raise SystemExit(err)
-
-
-def get_mac_for_ips(valid_response):
-  ports_info = valid_response["port"]
-  key = ports_info["fixed_ips"][0]["ip_address"]
-  value =  ports_info["mac_address"]
-  ip_mac_db[key] = value
-
-
-def get_httprequest(url):
-  try:
-     response = requests.get(url)
-     if(response.ok):
-       print("GET Success", url)
-       return response.text
-     else:
-       response.raise_for_status()
-  except requests.HTTPError as exception:
-  #except:requests.exceptions.HTTPError as e:
-       print("GET failed for url", url)
-       raise SystemExit(exception)
-
+from prepare_payload import *
 
 def create_default_segment_table(port):
   url ='http://localhost:{}/segments/createDefaultTable'.format(port)
@@ -70,14 +25,27 @@ def create_node(ip_mac, port):
     data["host_info"] = node_info
     post_httprequest(url, data)
 
+def create_router_interface(port):
+  router={}
+  url = 'http://localhost:{}/project/{}/routers'.format(port, get_projectid())
+  router_info = read_configfile_section("router_info")
+  router_dict = router_info['router_info']
+  routerinfo = json.loads(router_dict)
+  route_info = {"admin_state_up": True,"availability_zone_hints": ["string"],       "availability_zones": ["string"],"conntrack_helpers": ["string"],"description": "string","distributed": True,"external_gateway_info": {"enable_snat": True,"external_fixed_ips": [ ],"network_id": routerinfo['network_id']},"flavor_id": "string","gateway_ports": [ ], "ha": True,"id":routerinfo['id'] ,"name": routerinfo['name'],"owner": "string", "project_id":routerinfo['project_id'],"revision_number": 0,"routetable": {},"service_type_id": "string","status": "BUILD","tags": ["string"],"tenant_id": routerinfo['tenant_id']}
+  router['router'] = route_info
+  post_httprequest(url, router)
+  return routerinfo['id']
 
-def create_vpc(port):
+def create_vpc(port,change={}):
   network = {}
   url = 'http://localhost:{}/project/{}/vpcs'.format(port, get_projectid())
   network_info = read_configfile_section("vpc_info")
   network_dict = network_info['vpc_info']
   networkinfo = json.loads(network_dict)
+  if('change' in change):
+     networkinfo[change['change']] = change[change['change']]
   network_info = {"admin_state_up":True, "revision_number":0, "cidr":networkinfo['cidr'], "default":True, "description":"vpc", "dns_domain":"domain", "id":networkinfo['id'], "is_default":True, "mtu":1400, "name":"sample_vpc", "port_security_enabled":True, "project_id":networkinfo['project_id']}
+  print(network_info)
   network["network"] = network_info
   post_httprequest(url, network)
 
@@ -91,7 +59,7 @@ def create_subnet(port):
   post_httprequest(url, subnet)
 
 
-def create_security_groups(port):
+def create_security_group(port):
   security_groups ={}
   url = 'http://localhost:{}/project/{}/security-groups'.format(port, get_projectid())
   sg_info = read_configfile_section("security_groups")
@@ -120,25 +88,21 @@ def get_ports(port):
 
 
 def create_ports(port):
-  url= 'http://localhost:{}/project/{}/ports'.format(port,get_projectid())
+  url= 'http://localhost:{}/project/{}/ports'.format(port, get_projectid())
   port_info = read_configfile_section("port_info")
   port_dict = port_info['port_info']
   port_dict = json.loads(port_dict, strict=False)
   port_name = port_dict['name']
-  port_id  = port_dict['id']
+  port_id   = port_dict['id']
   ip_addrs  = port_dict['fixed_ips']
-  node_name  = port_dict['binding:host_id']
+  node_name = port_dict['binding:host_id']
 
   for index in range(len(ip_addrs)):
     ports = {}
     port_info = {"admin_state_up":True,"allowed_address_pairs":[{"ip_address":"11.11.11.11","mac_address":"00-AA-BB-15-EB-3F"}],"binding:host_id":node_name[index],"binding:vif_details":{},"create_at":"string","description": "string","device_id":port_dict['device_id'],"device_owner": "compute:nova","dns_assignment": {},"dns_domain": "string","dns_name": "string","extra_dhcp_opts": [{"ip_version": "string","opt_name":"string","opt_value": "string"}],"fast_path": True,"fixed_ips":[{"ip_address": ip_addrs[index],"subnet_id":port_dict['subnet_id']}],"id": port_id[index],"mac_learning_enabled": True,"name": port_name[index],"network_id": port_dict['network_id'],"network_ns": "string","port_security_enabled": True,"project_id":port_dict['project_id'],"qos_network_policy_id": "string","qos_policy_id": "string","revision_number": 0,"security_groups": [port_dict['security_groups']],"tags": ["string"],"tenant_id":port_dict['tenant_id'],"update_at": "string","uplink_status_propagation": True,"veth_name":"string"}
     ports["port"] = port_info
-    post_httprequest(url, ports) #print(ports)
-
-def get_mac_from_db():
-  print("\n\n\n>>>>>>>")
-  print("IP & MAC stored in ignite db", ip_mac_db)
-  return ip_mac_db
+    post_httprequest(url, ports)
+    #print(ports)
 
 
 def create_test_setup(ip_mac, ser_port):
@@ -153,9 +117,9 @@ def create_test_setup(ip_mac, ser_port):
   create_subnet(ser_port["snm"])
   get_subnets(ser_port["snm"])
 
-  create_security_groups(ser_port["sgm"])
+  create_security_group(ser_port["sgm"])
   create_ports(ser_port["pm"])
-  get_ports(ser_port["pm"])
+  #get_ports(ser_port["pm"])
 
   ip_mac_db = get_mac_from_db()
   return ip_mac_db
