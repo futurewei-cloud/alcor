@@ -30,9 +30,18 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Node Manager maintains a mapping of NCM information by NcmId but since
+ * we need to know which node belongs to a given NCM, NMM actually contains
+ * NcmID, NodeInfo and the NcmInfo, which is NmmInfo.
+ * The name NmmInfoRepository may be confusing but NcmInfoRepository could
+ * be even more confusing because in this map, the value is NmmInfo and
+ * NmmInfo contains NcmInfo.
+ */
 @Repository
 public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
     private static final Logger logger = LoggerFactory.getLogger(NmmInfoRepository.class);
+    // Map of NcmId and NmmInfo
     private ICache<String, NmmInfo> cache;
 
     @Autowired
