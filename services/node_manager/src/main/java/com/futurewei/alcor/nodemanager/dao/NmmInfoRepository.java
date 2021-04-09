@@ -33,13 +33,13 @@ import java.util.Map;
 /**
  * Node Manager maintains a mapping of NCM information by NcmId but since
  * we need to know which node belongs to a given NCM, NMM actually contains
- * NcmID, NodeInfo and the NcmInfo, which is NmmInfo.
+ * NcmID, NcmInfo and a list of nodeids of nodes belonging to the given NCM.
  * The name NmmInfoRepository may be confusing but NcmInfoRepository could
  * be even more confusing because in this map, the value is NmmInfo and
  * NmmInfo contains NcmInfo.
  */
 @Repository
-public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
+public class NmmInfoRepository {
     private static final Logger logger = LoggerFactory.getLogger(NmmInfoRepository.class);
     // Map of NcmId and NmmInfo
     private ICache<String, NmmInfo> cache;
@@ -65,7 +65,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * @return NmmInfo
      * @throws CacheException exception or DbException
      */
-    @Override
     public NmmInfo findItem(String id) throws CacheException {
         return cache.get(id);
     }
@@ -76,7 +75,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * @return NmmInfo
      * @throws CacheException or DbException
      */
-    @Override
     public Map findAllItems() throws CacheException {
         return cache.getAll();
     }
@@ -87,7 +85,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * @return Map of NmmInfo items
      * @throws CacheException exception
      */
-    @Override
     public Map<String, NmmInfo> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
         String error = "NCM query by filter is invalid operation";
         logger.error(error);
@@ -100,7 +97,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * @param nmmInfo new NMM information
      * @throws CacheException or DbException
      */
-    @Override
     public void addItem(NmmInfo nmmInfo) throws CacheException {
         String ncmId = nmmInfo.getNcmId();
         logger.info("Add an NmmInfo entry, NCM Id:" + ncmId);
@@ -113,9 +109,31 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
         // and following it by a commit or rollback is very much like Two Phase Commit: tricky
         // and expensive.
         // There is also the problem of "obtaining" a "transaction context" from DPM and NCM which
-        // are physically seperate processes possibly running on different machines. This is a roadmap
+        // are physically separate processes possibly running on different machines. This is a roadmap
         // item.
         try (Transaction tx = cache.getTransaction().start()) {
+            cache.put(ncmId, nmmInfo);
+            tx.commit();
+        } catch (CacheException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Add an NmmInfo entry error: "+e.getMessage());
+        }
+    }
+
+    /**
+     * add a new NMM info to repository
+     *
+     * @param ncmId, NCM to which new nodes are being appended
+     * @param nodeIds, the new nodes
+     * @throws CacheException or DbException
+     */
+    public void appendNodes(String ncmId,  List<String> nodeIds) throws CacheException {
+        logger.info("Append an NmmInfo entry, NCM Id:" + ncmId);
+
+        try (Transaction tx = cache.getTransaction().start()) {
+            NmmInfo nmmInfo = cache.get(ncmId);
+            nmmInfo.addNodeIds(nodeIds);
             cache.put(ncmId, nmmInfo);
             tx.commit();
         } catch (CacheException e) {
@@ -129,7 +147,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * Not needed and not supported.
      * @param items List of NmmInfo to be added.
      */
-    @Override
     @DurationStatistics
     public void addItems(List<NmmInfo> items) throws CacheException {
         String error = "NMM does not support bulk inserts";
@@ -155,7 +172,6 @@ public class NmmInfoRepository implements ICacheRepository<NmmInfo> {
      * @param id NcmId
      * @throws CacheException or DbException
      */
-    @Override
     public void deleteItem(String id) throws CacheException{
         logger.info("Delete NmmInfo, NcmId:" + id);
         try (Transaction tx = cache.getTransaction().start()) {

@@ -1,21 +1,25 @@
 package com.futurewei.alcor.web.entity.node;
 
+import java.util.List;
+
 public class NmmInfo {
-    public NmmInfo(String ncmId, NcmInfo ncmInfo, NodeInfo nodeInfo) {
+    public NmmInfo(String ncmId, NcmInfo ncmInfo, List<String> nodeIds) {
         this.ncmId = ncmId;
         this.ncmInfo = ncmInfo;
-        this.nodeInfo = nodeInfo;
+        this.nodeIds = nodeIds;
     }
 
     public String getNcmId() { return ncmId; }
     public NcmInfo getNcmInfo() { return ncmInfo; }
-    public NodeInfo getNodeInfo() { return nodeInfo; }
+    public List<String> getNodeIds() { return nodeIds; }
 
     public void setNcmId(String ncmId) { this.ncmId = ncmId; }
     public void setNcmInfo(NcmInfo ncmInfo) { this.ncmInfo = ncmInfo; }
-    public void setNodeInfo(NodeInfo nodeInfo) { this.nodeInfo = nodeInfo; }
+    public void addNodeId(NodeInfo nodeInfo) { addNodeId(nodeInfo.getId()); }
+    public void addNodeId(String nodeId) { this.nodeIds.add(nodeId); }
+    public void addNodeIds(List<String> nodeIds) { this.nodeIds.addAll(nodeIds); }
 
     private String ncmId;
     private NcmInfo ncmInfo;
-    private NodeInfo nodeInfo;
+    private List<String> nodeIds;
 }

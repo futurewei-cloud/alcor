@@ -231,6 +231,7 @@ http://localhost:9007/nodes/ncms
 Body:
 {
     "ncm": {
+        "ncm_id" : "ncm_id_098134",
         "ncm_uri": "/ncm_node_01/service/01",
         "ncm_capacity": "1001"
     }
