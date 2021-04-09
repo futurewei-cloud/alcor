@@ -20,7 +20,7 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.node.NmmInfo;
+import com.futurewei.alcor.web.entity.node.NcmInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,63 +31,59 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Node Manager maintains a mapping of NCM information by NcmId but since
- * we need to know which node belongs to a given NCM, NMM actually contains
- * NcmID, NcmInfo and a list of nodeids of nodes belonging to the given NCM.
- * The name NmmInfoRepository may be confusing but NcmInfoRepository could
- * be even more confusing because in this map, the value is NmmInfo and
- * NmmInfo contains NcmInfo.
+ * Node Manager maintains a mapping of NCM information by NcmId.
+ * We need to know which node belongs to a given NCM.
  */
 @Repository
-public class NmmInfoRepository {
-    private static final Logger logger = LoggerFactory.getLogger(NmmInfoRepository.class);
-    // Map of NcmId and NmmInfo
-    private ICache<String, NmmInfo> cache;
+public class NcmInfoRepository {
+    private static final Logger logger = LoggerFactory.getLogger(NcmInfoRepository.class);
+    // Map of NcmId and NcmInfo
+    private ICache<String, NcmInfo> cache;
 
     @Autowired
-    public NmmInfoRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(NmmInfo.class);
+    public NcmInfoRepository(CacheFactory cacheFactory) {
+        cache = cacheFactory.getCache(NcmInfo.class);
     }
 
-    public ICache<String, NmmInfo> getCache() {
+    public ICache<String, NcmInfo> getCache() {
         return cache;
     }
 
     @PostConstruct
     private void init() {
-        logger.info("NmmInfoRepository init completed");
+        logger.info("NcmInfoRepository init completed");
     }
 
     /**
-     * find an NmmInfo item from the repository.
+     * find an NcmInfo item from the repository.
      *
      * @param id NcmId
-     * @return NmmInfo
+     * @return NcmInfo
      * @throws CacheException exception or DbException
      */
-    public NmmInfo findItem(String id) throws CacheException {
+    public NcmInfo findNcmInfo(String id) throws CacheException {
         return cache.get(id);
     }
 
     /**
      * find information about all NCM
      *
-     * @return NmmInfo
+     * @return NcmInfo
      * @throws CacheException or DbException
      */
-    public Map findAllItems() throws CacheException {
+    public Map findAllNcmInfo() throws CacheException {
         return cache.getAll();
     }
 
     /**
-     * add a new NMM info to repository
+     * add a new Ncm info to repository
      *
-     * @param nmmInfo new NMM information
+     * @param ncmInfo new Ncm information
      * @throws CacheException or DbException
      */
-    public void addItem(NmmInfo nmmInfo) throws CacheException {
-        String ncmId = nmmInfo.getNcmId();
-        logger.info("Add an NmmInfo entry, NCM Id:" + ncmId);
+    public void addNcmInfo(NcmInfo ncmInfo) throws CacheException {
+        String ncmId = ncmInfo.getId();
+        logger.info("Add an NcmInfo entry, NCM Id:" + ncmId);
 
         // TODO: Push Transaction out of DAO.
         // Transaction should cover DPM, NCM and local store.
@@ -100,55 +96,53 @@ public class NmmInfoRepository {
         // are physically separate processes possibly running on different machines. This is a roadmap
         // item.
         try (Transaction tx = cache.getTransaction().start()) {
-            cache.put(ncmId, nmmInfo);
+            cache.put(ncmId, ncmInfo);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Add an NmmInfo entry error: "+e.getMessage());
+            logger.error("Add an ncmInfo entry error: "+e.getMessage());
         }
     }
 
     /**
-     * add a new NMM info to repository
+     * Append a new nodes to an NCM.
      *
      * @param ncmId, NCM to which new nodes are being appended
      * @param nodeIds, the new nodes
      * @throws CacheException or DbException
      */
     public void appendNodes(String ncmId,  List<String> nodeIds) throws CacheException {
-        logger.info("Append an NmmInfo entry, NCM Id:" + ncmId);
+        logger.info("Append an nodes to NCM entry, NCM Id:" + ncmId);
 
         try (Transaction tx = cache.getTransaction().start()) {
-            NmmInfo nmmInfo = cache.get(ncmId);
-            nmmInfo.addNodeIds(nodeIds);
-            cache.put(ncmId, nmmInfo);
+            NcmInfo ncmInfo = cache.get(ncmId);
+            ncmInfo.appendNodes(nodeIds);
+            cache.put(ncmId, ncmInfo);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Add an NmmInfo entry error: "+e.getMessage());
+            logger.error("Add an NcmInfo entry error: "+e.getMessage());
         }
     }
 
     /**
-     * add a new NMM info to repository
-     *
-     * @param ncmId, NCM to which new nodes are being appended
-     * @param nodeIds, the new nodes
+     * @param ncmId
+     * @param nodeIds
      * @throws CacheException or DbException
      */
     public void removeNodes(String ncmId,  List<String> nodeIds) throws CacheException {
         logger.info("Remove nodes from NCM, NCM Id:" + ncmId);
         try (Transaction tx = cache.getTransaction().start()) {
-            NmmInfo nmmInfo = cache.get(ncmId);
-            nmmInfo.removeNodeIds(nodeIds);
-            cache.put(ncmId, nmmInfo);
+            NcmInfo ncmInfo = cache.get(ncmId);
+            ncmInfo.removeNodes(nodeIds);
+            cache.put(ncmId, ncmInfo);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Add an NmmInfo entry error: "+e.getMessage());
+            logger.error("Add an NcmInfo entry error: "+e.getMessage());
         }
     }
 
@@ -158,15 +152,15 @@ public class NmmInfoRepository {
      * @param id NcmId
      * @throws CacheException or DbException
      */
-    public void deleteItem(String id) throws CacheException{
-        logger.info("Delete NmmInfo, NcmId:" + id);
+    public void deleteNcmInfo(String id) throws CacheException{
+        logger.info("Delete NcmInfo, NcmId:" + id);
         try (Transaction tx = cache.getTransaction().start()) {
             cache.remove(id);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("delete an NmmInfo error: "+e.getMessage());
+            logger.error("delete an NcmInfo error: "+e.getMessage());
         }
     }
 }

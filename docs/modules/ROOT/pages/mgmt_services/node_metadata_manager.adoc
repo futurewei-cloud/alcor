@@ -119,31 +119,31 @@ The NcmUri in the examples below appear to be derived from the nodeid and some p
 |*API Name* |*Method* |*Request*|*Response*
 |List NCM patition members
 |GET
-|/nodes/ncms
+|/ncms
 |List of registered NCM
 <<ncm_cluster_list,[sample]>>
 
 |Get information about the given NCM
 |GET
-|/nodes/ncms/{ncm_id}
+|/ncms/{ncm_id}
 |Get the detailed information about the given NCM if it exists.
 <<ncm_member_info,[sample]>>
 
 |Create/Register an NCM
 |POST
-|/nodes/ncms
+|/ncms
 |NCM information
 <<ncm_cluster_post,[sample]>>
 
 |Delete an NCM
 |DELETE
-|/nodes/ncms/{ncm_id}
+|/ncms/{ncm_id}
 | Status
 <<ncm_member_delete,[sample]>>
 
 |Update an NCM
 |PUT
-|/nodes/ncms/
+|/ncms
 |Status
 <<ncm_member_update,[sample]>>
 |===
@@ -154,7 +154,7 @@ anchor:ncm_cluster_list[]
 **(1) List NCM partition members **
 
 * Method: `GET`
-* Request: `/nodes/ncms`
+* Request: `/ncms`
 * Request Parameter: None
 * Action: Provide list of currently registered NCM in the project to users with sufficient access privilege.
 * Response: List of NCM
@@ -163,7 +163,7 @@ anchor:ncm_cluster_list[]
 * Example
 ....
 Request:
-http://localhost:9007/nodes/ncms
+http://localhost:9007/ncms
 
 Response:
 {
@@ -191,7 +191,7 @@ anchor:ncm_member_info[]
 **(2) Get details about given NCM **
 
 * Method: `GET`
-* Request: `/nodes/ncms/{ncm_id}`
+* Request: `/ncms/{ncm_id}`
 * Request Parameter: `@PathVariable String ncm_id`.
 * Response: Information about the given NCM if it exists.
 * Normal response codes: 200
@@ -199,7 +199,7 @@ anchor:ncm_member_info[]
 * Example
 ....
 Request:
-http://localhost:9007/nodes/ncms/1001
+http://localhost:9007/ncms/1001
 
 Response:
 {
@@ -217,7 +217,7 @@ anchor:ncm_cluster_post[]
 **(3) Create a new NCM **
 
 * Method: `POST`
-* Request: `/nodes/ncms`
+* Request: `/ncms`
 * Request Parameter: `@RequestBody NcmCreateWebRequestJson resource`
 * Operation: Creates an NCM
 * Response: Success/Failure
@@ -226,7 +226,7 @@ anchor:ncm_cluster_post[]
 * Example
 ....
 Request:
-http://localhost:9007/nodes/ncms
+http://localhost:9007/ncms
 
 Body:
 {
@@ -234,6 +234,7 @@ Body:
         "ncm_id" : "ncm_id_098134",
         "ncm_uri": "/ncm_node_01/service/01",
         "ncm_capacity": "1001"
+        "nodes" : [ "node1", "node2" ...]
     }
 }
 
@@ -242,6 +243,7 @@ Response:
     "ncm": {
         "ncm_uri": "/ncm_node_01/service/01",
         "ncm_id" : "ncm_id_098134"
+        "nodes" : [ "node1", "node2" ...]
     }
 }
 ....
@@ -250,7 +252,7 @@ anchor:ncm_member_delete[]
 **(4) Delete the given NCM from the cluster **
 
 * Method: `DELETE`
-* Request: `/nodes/ncms/{ncm_id}`
+* Request: `/ncms/{ncm_id}`
 * Request Parameter: `@PathVariable String ncm_id`
 * Operation: Deletes the given NCM if it exists, otherwise it is a NOOP.
 * Response: Success/Failure
@@ -259,7 +261,7 @@ anchor:ncm_member_delete[]
 * Example
 ....
 Request:
-http://localhost:9007/nodes/ncms/1001
+http://localhost:9007/ncms/1001
 
 ....
 
@@ -267,7 +269,7 @@ anchor:ncm_member_update[]
 **(5) Update information about the given NCM
 
 * Method: `PUT`
-* Request: `/nodes/ncms/{ncm_id}/{ncm_info}`
+* Request: `/ncms/{ncm_id}/{ncm_info}`
 * Request Parameter: `@RequestBode NcmUpdateWebRequestJson`
 * Operation: Update information the given NCM.
 * Response: Success/Failure
@@ -276,12 +278,21 @@ anchor:ncm_member_update[]
 * Example
 ....
 Request:
-http://localhost:9007/nodes/ncms/1001
+http://localhost:9007/ncms/1001
 
 Body:
 {
     "ncm": {
         "ncm_uri": "/ncm_node_01/service/02"
+    }
+}
+
+Add more nodes:
+Body:
+{
+    "ncm" : {
+        "ncm_id" : "ncm001",
+        "nodes" : [ "node3", "node4" ]
     }
 }
 ...
