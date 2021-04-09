@@ -18,6 +18,7 @@ public class NmmInfo {
     public void addNodeId(NodeInfo nodeInfo) { addNodeId(nodeInfo.getId()); }
     public void addNodeId(String nodeId) { this.nodeIds.add(nodeId); }
     public void addNodeIds(List<String> nodeIds) { this.nodeIds.addAll(nodeIds); }
+    public void removeNodeIds(List<String> nodeIds) { this.nodeIds.removeAll(nodeIds); }
 
     private String ncmId;
     private NcmInfo ncmInfo;

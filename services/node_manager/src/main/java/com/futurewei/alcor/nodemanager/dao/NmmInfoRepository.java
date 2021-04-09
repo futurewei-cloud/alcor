@@ -80,18 +80,6 @@ public class NmmInfoRepository {
     }
 
     /**
-     * find all NcmInfo information by filter: Not needed and not supported.
-     * @param queryParams url request params
-     * @return Map of NmmInfo items
-     * @throws CacheException exception
-     */
-    public Map<String, NmmInfo> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        String error = "NCM query by filter is invalid operation";
-        logger.error(error);
-        throw new CacheException(error);
-    }
-
-    /**
      * add a new NMM info to repository
      *
      * @param nmmInfo new NMM information
@@ -144,26 +132,24 @@ public class NmmInfoRepository {
     }
 
     /**
-     * Not needed and not supported.
-     * @param items List of NmmInfo to be added.
-     */
-    @DurationStatistics
-    public void addItems(List<NmmInfo> items) throws CacheException {
-        String error = "NMM does not support bulk inserts";
-        throw new CacheException(error);
-    }
-
-    /**
-     * Not needed and not supported.
-     * add multiple nodes' information to node repository
+     * add a new NMM info to repository
      *
-     * @param nodes new nodes list
+     * @param ncmId, NCM to which new nodes are being appended
+     * @param nodeIds, the new nodes
      * @throws CacheException or DbException
      */
-    public void addItemBulkTransaction(List<NmmInfo> nodes) throws CacheException {
-        String error = "NMM does not support bulk transactions";
-        logger.error(error);
-        throw new CacheException(error);
+    public void removeNodes(String ncmId,  List<String> nodeIds) throws CacheException {
+        logger.info("Remove nodes from NCM, NCM Id:" + ncmId);
+        try (Transaction tx = cache.getTransaction().start()) {
+            NmmInfo nmmInfo = cache.get(ncmId);
+            nmmInfo.removeNodeIds(nodeIds);
+            cache.put(ncmId, nmmInfo);
+            tx.commit();
+        } catch (CacheException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Add an NmmInfo entry error: "+e.getMessage());
+        }
     }
 
     /**
