@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.portmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
 import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
@@ -329,7 +330,7 @@ public class PortServiceImpl implements PortService {
                 }else if (failedHosts.contains(internalPortEntity.getBindingHostIP())){
                     portEntity.setStatus(StatusEnum.FAILED.getStatus());
                 }else {
-                    portEntity.setStatus(StatusEnum.SUCCESS.getStatus());
+                    portEntity.setStatus(NetworkStatusEnum.ACTIVE.getNetworkStatus());
                 }
                 portEntities.add(portEntity);
             }

@@ -2,6 +2,7 @@
 
 MY_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ALCOR_ROOT_DIR=$(dirname $MY_PATH)
+declare -a services_list=(ignite vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
 
 # Function to build alcor images
 function build_alcor_images()
@@ -9,36 +10,70 @@ function build_alcor_images()
     cd $ALCOR_ROOT_DIR
     mvn -Dmaven.test.skip=true -DskipTests clean package install
     #build images
-    echo "Creating ignite-11 image with ports 10800 10081 47100 47500"
-    docker build -t ignite-11 -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
-    echo "Creating vpc_manager image with port 9001"
+    echo "#0 Creating ignite image with ports 10800 10081 47100 47500"
+    docker build -t ignite -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
+    echo
+
+    echo "#1 Creating vpc_manager image with port 9001"
     docker build -t vpm $ALCOR_ROOT_DIR/services/vpc_manager/
-    echo "Creating subnet_manager image with port 9002"
+    echo
+
+    echo "#2 Creating subnet_manager image with port 9002"
     docker build -t snm $ALCOR_ROOT_DIR/services/subnet_manager/
-    echo "Creating route_manager image with port 9003"
+    echo
+
+    echo "#3 Creating route_manager image with port 9003"
     docker build -t rm $ALCOR_ROOT_DIR/services/route_manager/
-    echo "Creating private_ip_manager image with port 9004"
+    echo
+
+    echo "#4 Creating private_ip_manager image with port 9004"
     docker build -t pim $ALCOR_ROOT_DIR/services/private_ip_manager/
-    echo "Creating mac_manager image with port 9005"
+    echo
+
+    echo "#5 Creating mac_manager image with port 9005"
     docker build -t mm $ALCOR_ROOT_DIR/services/mac_manager/
-    echo "Creating port_manger image with port 9006"
+    echo
+
+    echo "#6 Creating port_manger image with port 9006"
     docker build -t pm $ALCOR_ROOT_DIR/services/port_manager/
-    echo "Creating node_manager image with port 9007"
+    echo
+
+    echo "#7 Creating node_manager image with port 9007"
     docker build -t nm $ALCOR_ROOT_DIR/services/node_manager/
-    echo "Creating security_group_manager image with port 9008"
+    echo
+
+    echo "#8 Creating security_group_manager image with port 9008"
     docker build -t sgm $ALCOR_ROOT_DIR/services/security_group_manager/
-    echo "Creating api_gateway image with port 9009"
+    echo
+
+    echo "#9 Creating api_gateway image with port 9009"
     docker build -t ag $ALCOR_ROOT_DIR/services/api_gateway/
-    echo "Creating data_plane_manager image with port 9010"
+    echo
+
+    echo "#10 Creating data_plane_manager image with port 9010"
     docker build -t dpm $ALCOR_ROOT_DIR/services/data_plane_manager/
-    echo "Creating elastic_ip_manager image with port 9011"
+    echo
+
+    echo "#11 Creating elastic_ip_manager image with port 9011"
     docker build -t eim $ALCOR_ROOT_DIR/services/elastic_ip_manager/
-    echo "Creating quoto_manager image with port 9012"
+    echo
+
+    echo "#12 Creating quoto_manager image with port 9012"
     docker build -t qm $ALCOR_ROOT_DIR/services/quota_manager/
-    echo "Creating network_acl_manager image with port 9013"
+    echo
+
+    echo "#13 Creating network_acl_manager image with port 9013"
     docker build -t nam $ALCOR_ROOT_DIR/services/network_acl_manager/
-    echo "Creating gateway_manager image with port 9015"
+    echo
+
+    echo "#14 Creating network_acl_manager image with port 9014"
+    docker build -t ncm $ALCOR_ROOT_DIR/services/network_config_manager/
+    echo
+
+    echo "#15 Creating gateway_manager image with port 9015"
     docker build -t gm $ALCOR_ROOT_DIR/services/gateway_manager/
+    echo
+
 }
 
 #Function stops and removes and then starts alcor container services
@@ -49,65 +84,87 @@ function stop_remove_start_alcor_containers()
     start_alcor_containers
 }
 
+# Function to do status check of all alcor container services
+function status_alcor_containers()
+{
+    count=0
+    echo -e "\nStatus check for all Alcor containers and ignite\n"
+    for service in ${services_list[@]}; do
+        docker container ls | grep -w $service >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            count=$((count + 1))
+            echo $service is RUNNING
+        else
+            echo $service is STOPPED
+       fi
+    done
+
+    echo -e "\n$count services running...\n"
+}
+
 #Function to start alcor container services
 function start_alcor_containers()
 {
+    count=0
     echo "Starting Alcor services "
-    docker run --name=ignite -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v /tmp:/tmp -tid ignite-11 sh
+    docker run --name=ignite -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v /tmp:/tmp -tid ignite sh
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name vpm -p 9001:9001 -v /tmp:/tmp -itd vpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name snm -p 9002:9002 -v /tmp:/tmp -itd snm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name rm  -p 9003:9003 -v /tmp:/tmp -itd rm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name pim -p 9004:9004 -v /tmp:/tmp -itd pim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name mm  -p 9005:9005 -v /tmp:/tmp -itd mm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name pm  -p 9006:9006 -v /tmp:/tmp -itd pm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name nm  -p 9007:9007 -v /tmp:/tmp -itd nm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name sgm -p 9008:9008 -v /tmp:/tmp -itd sgm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name ag  -p 9009:9009 -v /tmp:/tmp -itd ag
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name dpm -p 9010:9010 -v /tmp:/tmp -itd dpm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name eim -p 9011:9011 -v /tmp:/tmp -itd eim
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name qm  -p 9012:9012 -v /tmp:/tmp -itd qm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name nam -p 9013:9013 -v /tmp:/tmp -itd nam
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    docker run --net=host --name ncm -p 9014:9014 -v /tmp:/tmp -itd ncm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     docker run --net=host --name gm  -p 9015:9015 -v /tmp:/tmp -itd gm
+    if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+
+    echo -e "\n$count services started...\n"
 }
+
 # Function to stop alcor container services
 function stop_alcor_containers()
 {
+    count=0
     echo "Stopping all alcor services"
-    docker container stop ignite
-    docker container stop vpm
-    docker container stop snm
-    docker container stop rm
-    docker container stop pim
-    docker container stop mm
-    docker container stop pm
-    docker container stop nm
-    docker container stop sgm
-    docker container stop ag
-    docker container stop dpm
-    docker container stop eim
-    docker container stop qm
-    docker container stop nam
-    docker container stop gm
+    for service in ${services_list[@]}; do
+        docker container stop $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services stopped...\n"
 }
+
 #Function to remove alcor containers
 function remove_alcor_containers()
 {
+    count=0
     echo "Removing Alcor containers"
-    docker container rm ignite
-    docker container rm vpm
-    docker container rm rm
-    docker container rm pim
-    docker container rm qm
-    docker container rm nm
-    docker container rm mm
-    docker container rm sgm
-    docker container rm ag
-    docker container rm dpm
-    docker container rm eim
-    docker container rm pm
-    docker container rm snm
-    docker container rm nam
-    docker container rm gm
+    for service in ${services_list[@]}; do
+        docker container rm $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services removed...\n"
 }
 
 function command_help()
@@ -144,7 +201,7 @@ case $opt in
     remove_alcor_containers
     ;;
   s)
-    stop_remove_start_alcor_containers
+    status_alcor_containers
     ;;
   \?)
     command_help
