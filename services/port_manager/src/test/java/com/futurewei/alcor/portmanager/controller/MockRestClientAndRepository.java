@@ -128,10 +128,7 @@ public class MockRestClientAndRepository {
                 UnitTestConfig.nodeLocalIp,
                 UnitTestConfig.nodeMacAddress,
                 UnitTestConfig.nodeVeth,
-                UnitTestConfig.nodeGRPCServerPort,
-                UnitTestConfig.nodeUnicastTopic,
-                UnitTestConfig.nodeMulticastTopic,
-                UnitTestConfig.nodeGroupTopic
+                UnitTestConfig.nodeGRPCServerPort
         );
         nodeInfos.add(nodeInfo);
         Mockito.when(nodeManagerRestClient.getNodeInfoByNodeName(anyString())).thenReturn(nodeInfos);
