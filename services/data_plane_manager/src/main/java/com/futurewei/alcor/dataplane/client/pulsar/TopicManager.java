@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 package com.futurewei.alcor.dataplane.client.pulsar;
 
 import com.futurewei.alcor.dataplane.exception.TopicParseFailureException;
+import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,5 +84,13 @@ public class TopicManager {
 
     public String getUnicastTopic() {
         return configuration.getUnicastTopic();
+    }
+
+    public String getGroupTopicByNodeId(String nodeId) {
+        return "groupTopic-" + nodeId;
+    }
+
+    public NodeTopicInfo createNodeTopicInfo(String nodeId) {
+        return new NodeTopicInfo(nodeId, getUnicastTopic(), getUnicastTopic(), getGroupTopicByNodeId(nodeId));
     }
 }

@@ -14,7 +14,7 @@ import java.util.Map;
 @Data
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
-public class TopicInfo implements Serializable {
+public class VpcTopicInfo implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(NodeInfo.class);
 
     @JsonProperty("topic_name")
@@ -24,19 +24,19 @@ public class TopicInfo implements Serializable {
 //    Mapping of <Subscribed NodeId, key for Pulsar>
     private Map<String, String> subscribeMapping;
 
-    public TopicInfo(String topicName) {
+    public VpcTopicInfo(String topicName) {
         this.topicName = topicName;
         this.subscribeMapping = new HashMap<>();
     }
 
-    public TopicInfo(String topicName, HashMap<String, String> subscribeMapping) {
+    public VpcTopicInfo(String topicName, HashMap<String, String> subscribeMapping) {
         this.topicName = topicName;
         this.subscribeMapping = subscribeMapping;
     }
 
-    public TopicInfo(TopicInfo topicInfo, HashMap<String, String> subscribeMapping) {
-        this.topicName = topicInfo.topicName;
-        this.subscribeMapping = topicInfo.subscribeMapping;
+    public VpcTopicInfo(VpcTopicInfo vpcTopicInfo, HashMap<String, String> subscribeMapping) {
+        this.topicName = vpcTopicInfo.topicName;
+        this.subscribeMapping = vpcTopicInfo.subscribeMapping;
         this.subscribeMapping.putAll(subscribeMapping);
     }
 
