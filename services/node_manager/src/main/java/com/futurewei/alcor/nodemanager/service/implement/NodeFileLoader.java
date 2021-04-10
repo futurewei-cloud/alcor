@@ -91,6 +91,7 @@ public class NodeFileLoader {
         String strMethodName = "parseNodeObject";
         NodeInfo node = null;
         String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID1);
+        String name = (String)nodeJson.get(NodeManagerConstant.JSON_NAME);
         String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP1);
         String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC1);
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);

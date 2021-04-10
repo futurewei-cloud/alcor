@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import com.futurewei.alcor.dataplane.entity.InternalPorts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -28,43 +28,43 @@ import java.util.Map;
 
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class SubnetPortsCache {
-    // The cache is a map(subnetId, subnetPorts)
-    private ICache<String, InternalSubnetPorts> subnetPortsCache;
+public class SecurityGroupPortsCache {
+    // The cache is a map(securityGroupId, portIds)
+    private ICache<String, InternalPorts> securityGroupPortsCache;
 
     @Autowired
-    public SubnetPortsCache(CacheFactory cacheFactory) {
-        subnetPortsCache = cacheFactory.getCache(InternalSubnetPorts.class);
+    public SecurityGroupPortsCache(CacheFactory cacheFactory) {
+        securityGroupPortsCache = cacheFactory.getCache(InternalPorts.class);
     }
 
     @DurationStatistics
-    public InternalSubnetPorts getSubnetPorts(String subnetId) throws CacheException {
-        return subnetPortsCache.get(subnetId);
+    public InternalPorts getSecurityGroupPorts(String sgId) throws CacheException {
+        return securityGroupPortsCache.get(sgId);
     }
 
     @DurationStatistics
-    public Map<String, InternalSubnetPorts> getAllSubnetPorts() throws CacheException {
-        return subnetPortsCache.getAll();
+    public Map<String, InternalPorts> getAllSecurityGroupPorts() throws CacheException {
+        return securityGroupPortsCache.getAll();
     }
 
     @DurationStatistics
-    public Map<String, InternalSubnetPorts> getAllSubnetPorts(Map<String, Object[]> queryParams) throws CacheException {
-        return subnetPortsCache.getAll(queryParams);
+    public Map<String, InternalPorts> getAllSecurityGroupPorts(Map<String, Object[]> queryParams) throws CacheException {
+        return securityGroupPortsCache.getAll(queryParams);
     }
 
     @DurationStatistics
-    public synchronized void addSubnetPorts(InternalSubnetPorts internalSubnetPorts) throws Exception {
-        subnetPortsCache.put(internalSubnetPorts.getSubnetId(), internalSubnetPorts);
+    public synchronized void addSecurityGroupPorts(InternalPorts internalPorts) throws Exception {
+        securityGroupPortsCache.put(internalPorts.getSecurityGroupId(), internalPorts);
     }
 
     @DurationStatistics
-    public void updateSubnetPorts(InternalSubnetPorts internalSubnetPorts) throws Exception {
-        subnetPortsCache.put(internalSubnetPorts.getSubnetId(), internalSubnetPorts);
+    public void updateSecurityGroupPorts(InternalPorts internalPorts) throws Exception {
+        securityGroupPortsCache.put(internalPorts.getSecurityGroupId(), internalPorts);
     }
 
     @DurationStatistics
-    public void deleteSubnetPorts(String subnetId) throws Exception {
-        subnetPortsCache.remove(subnetId);
+    public void deleteSecurityGroupPorts(String sgId) throws Exception {
+        securityGroupPortsCache.remove(sgId);
     }
 
 }

@@ -46,7 +46,7 @@ public class DhcpService extends ResourceService {
                 //dhcpConfigBuilder.setDnsEntryList();
 
                 DHCP.DHCPState.Builder dhcpStateBuilder = DHCP.DHCPState.newBuilder();
-                dhcpStateBuilder.setOperationType(networkConfig.getOpType());
+                dhcpStateBuilder.setOperationType(portState.getOperationType());
                 dhcpStateBuilder.setConfiguration(dhcpConfigBuilder.build());
                 unicastGoalState.getGoalStateBuilder().addDhcpStates(dhcpStateBuilder.build());
             }
