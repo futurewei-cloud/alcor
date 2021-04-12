@@ -2,61 +2,56 @@
 from helper_functions import *
 from termcolor import colored
 
-# Subnet mask can be obtained from variable
-# Error handling for docker commands
-# All global variables can be placed in a different file and be imported.
+#container_names = ["con1", "con2"]
 
-container_names = ["con1", "con2"]
-
-def busybox_container_cleanup(ip,con):
+def busybox_container_cleanup(ip, con):
+    print("Cleaning up busybox container", con)
     command = "ovs-docker del-ports br-int ".format(con)
-    output = run_command_on_remote(ip, command)
+    output = run_command_on_host(ip, command)
     command = "docker container stop ".format(con)
-    output = run_command_on_remote(ip, command)
+    output = run_command_on_host(ip, command)
     command = "docker container rm {} -f ".format(con)
-    output = run_command_on_remote(ip, command)
+    output = run_command_on_host(ip, command)
 
 
-def busybox_container_deploy(ip_mac, ip_mac_db):
-    print("in container deploy")
-    for con, (aca_ip, aca_mac), (db_ip, db_mac) in zip(container_names, ip_mac.items(), ip_mac_db.items()):
-       print(con, aca_ip, db_ip, db_mac)
-       print("cleaning containers..")
-       #busybox_container_cleanup(aca_ip,con)
+def busybox_container_deploy(target_ips, ip_mac_db, container_names):
+    print("Deploying busybox container")
+    index = 0;
+    size = len(container_names)
+    print(container_names)
+    for db_ip, db_mac in ip_mac_db.items():
+       con = container_names[index]
+       aca_ip = target_ips[index]
+       index = index + 1
        command1 = "docker run -itd --name " + con + " --net=none busybox sh"
        command2 = "ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
        command3 = "ovs-docker set-vlan br-int eth1 " + con + " 1"
        output   = "deploying busybox " + con + " on " + aca_ip
-       output = run_command_on_remote(aca_ip, command1)
-       output = run_command_on_remote(aca_ip, command2)
-       output = run_command_on_remote(aca_ip, command3)
+       output = run_command_on_host(aca_ip, command1)
+       output = run_command_on_host(aca_ip, command2)
+       output = run_command_on_host(aca_ip, command3)
        ip_addrs = list(ip_mac_db.keys())
-    run_ping_test(ip_mac,ip_addrs)
+    run_ping_test(target_ips, list(ip_mac_db.keys()), container_names)
 
 
-def run_ping_test(ip_mac,ip_addrs):
-    src_index = 0
-    dest_index = 1
+def run_ping_test(target_machines, ip_addrs, container_names):
+    index_0 = 0
+    index_1 = 1
     ping_counts = 2
-    container_name = container_names[src_index]
-    dest_bb_ip = ip_addrs[dest_index]
-    command1 = "docker exec -it " + container_name + " ping -c " + str(ping_counts) + " " + dest_bb_ip
-    container_name = container_names[dest_index]
-    dest_bb_ip = ip_addrs[src_index]
-    command2 = "docker exec -it " + container_name + " ping -c " + str(ping_counts) + " " + dest_bb_ip
-    target_machine_list = list(ip_mac.keys())
-    target_machine1 = target_machine_list[src_index]
-    target_machine2 = target_machine_list[dest_index]
-    output1 = "running command " + command1 + " on " + target_machine1
-    output1 =  run_command_on_remote(target_machine1, command1)
-    #print("PING OUTPUT",output1)
-    check_string = "2 packets transmitted, 2 packets received"
-    output2 =  run_command_on_remote(target_machine2, command2)
-    #print("PING OUTPUT",output2)
-    temp = str(output1)
-    if check_string in str(output1):
-      if check_string in str(output2):
-        print (colored("PING  TEST SUCCESSFULL", 'green'))
-    else:
-      print(colored('PING TEST FAILED','red'))
 
+    ping_0_to_1 = "docker exec -it " + container_names[index_0] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_1]
+    ping_1_to_0 = "docker exec -it " + container_names[index_1] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_0]
+
+    HOST = target_machines[index_0]
+    print("Ping test on ", HOST)
+    output1 = run_command_on_host(HOST, ping_0_to_1)
+
+    HOST = target_machines[index_1]
+    print("Ping test on ", HOST)
+    output2 = run_command_on_host(HOST, ping_1_to_0)
+
+    expected_output = "2 packets transmitted, 2 packets received"
+    if expected_output in str(output1) and expected_output in str(output2):
+        print (colored("PING TEST SUCCESSFULL", 'green'))
+    else:
+        print(colored('PING TEST FAILED', 'red'))

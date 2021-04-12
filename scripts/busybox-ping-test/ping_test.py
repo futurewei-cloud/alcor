@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import time,os
+import time, os
 from helper_functions import *
 from create_test_setup import *
 from container_ops import *
@@ -11,13 +11,15 @@ ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
 
+#This function builds the containers as configured in alcor_services.ini file
+
 def build_containers(serv):
     container_list =[]
     mvn_build = "mvn -Dmaven.test.skip=true -DskipTests clean package install"
     container_list.append(mvn_build)
 
     print("building container images")
-    services_list = get_filelist(ALCOR_SERVICES)
+    services_list = get_file_list(ALCOR_SERVICES)
     for service_name in serv.keys():
       service_path = ALCOR_SERVICES + service_name
       service_info = json.loads(serv[service_name])
@@ -44,34 +46,29 @@ def start_containers(serv):
 
     if(execute_commands("Start ", start_containers) == True):
       print("All Alcor services started successfully")
+      return True
+    else:
+      print("CCCcouldn't start all alcor services pinpinggBusyboxping test exiting..")
+      print("Error,Test Exits")
+      sys.exit(1)
 
 
-def stop_containers(name = ""):
-    services_list = get_services_from_conf_file()
+def stop_containers(service_list):
     command = "docker container stop "
-    if (name == ""):
-      print("Stopping all containers")
-      if(run_command_forall(command, services_list.keys()) == True):
-       print("All Alcor services stopped Successfully")
-    else:
-      print("Stopping container", name)
-      command = "docker container stop " + name
+    for service in service_list:
+      execute_command(command + service)
 
 
-def remove_containers(name = ""):
-    services_list = get_services_from_conf_file()
+def remove_containers(service_list):
     command = "docker container rm "
-    if (name == ""):
-      print("Removing all containers")
-      if(run_command_forall(command, services_list.keys()) == True):
-        print("All Alcor containers removed successfully")
-    else:
-      print("Removing container", name)
-      command = "docker container rm " + name
+    for service in service_list:
+      execute_command(command + service)
 
 
 def main():
-    services = read_configfile()
+    config_file_object = read_config_file()
+    services = dict(config_file_object.items("services"))
+    service_port_map = get_service_port_map(services)
     parser = argparse.ArgumentParser(description='Busybox ping test', epilog='Example of use: python script_name -b')
     parser.add_argument("-b", "--build", type=str, nargs='?', help=' to build alcor services provide :{} as an option'.format('-b build'))
     parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
@@ -82,39 +79,44 @@ def main():
         if(args.build == "build"):
            build_containers(services)
         else:
-          print("invoke  as {}".format('-b build'))
+           print("invoke  as {}".format('-b build'))
 
-    stop_containers()
-    remove_containers()
-    start_containers(services)
-    aca = read_aca_ips()
+    stop_containers(service_port_map.keys())
+    remove_containers(service_port_map.keys())
+    if(start_containers(services) == True):
+      print("All services started Sucessfully")
+    else:
+      print("Error:couldn't start all alcor services")
+      sys.exit(1)
+    aca = dict(config_file_object.items("AlcorControlAgents"))
     ip_mac = check_alcor_agents_running(aca)
     if(len(ip_mac) != len(aca)):
-       print("\nERROR: Alcor Control Agent not running on some of the nodes")
-       print("ERROR: Test exits")
-       sys.exit(1)
+      print("\nERROR: Alcor Control Agent not running on some of the nodes")
+      print("ERROR: Test exits")
+      sys.exit(1)
     print("Wait for 20 seconds until all services are started...")
     time.sleep(20)
 
-    services_list = get_services_from_conf_file()
     if args.testcase:
-       if (args.testcase == 1):
-         ip_mac_db = prepare_test_case_1(ip_mac,services_list)
-       elif(args.testcase == 2):
-         ip_mac_db = prepare_test_case_2(ip_mac,services_list)
-       else:
-         print("Invoke {}".format('-t <testcase number>'))
+      if (args.testcase == 1):
+        ip_mac_db = prepare_test_case_1(ip_mac, service_port_map)
+      elif(args.testcase == 2):
+        ip_mac_db = prepare_test_case_2(ip_mac, service_port_map)
+      else:
+        print("Invoke {}".format('-t <testcase number>'))
     else:
-       ip_mac_db = create_test_setup(ip_mac, services_list)
-    '''if args.all== 'all':
-        print("Invoke both all test cases"
-        ip_mac_db = prepare_all_test_cases(ip_mac,services_list)'''
+      ip_mac_db = create_test_setup(ip_mac, service_port_map)
+      # if args.all== 'all':
+      #  print("Invoke both all test cases"
+      # ip_mac_db = prepare_all_test_cases(ip_mac, service_port_map)'''
     #ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
     #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
-    print("calling container deploy",ip_mac,ip_mac_db)
-    busybox_container_deploy(ip_mac, ip_mac_db)
+    container_names = list(dict(config_file_object.items("test_setup"))["container_names"])
+    container_names = ["con1", "con2"]
+    print("calling container deploy", ip_mac, ip_mac_db, container_names)
+    busybox_container_deploy(list(ip_mac.keys()), ip_mac_db, container_names)
 
 
 if __name__ == "__main__":
-     main()
+    main()
 

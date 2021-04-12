@@ -11,16 +11,16 @@ def put_httprequest(url, data=""):
      headers = {
                'Content-Type': 'application/json',
                'Accept': '*/*',
-              }
-     print(url,data)
+               }
+     print(url, data)
      response = requests.put(url, data = json.dumps(data), headers=headers)
      if(response.ok):
        print("PUT Success", url)
      else:
        response.raise_for_status()
   except requests.exceptions.HTTPError as err:
-     print("POST Failed for {} with error".format(url, response.text))
-  
+     print("PUT Failed for {} with error".format(url, response.text))
+
 
 def post_httprequest(url, data=""):
   try:
@@ -28,7 +28,8 @@ def post_httprequest(url, data=""):
                'Content-Type': 'application/json',
                'Accept': '*/*',
               }
-     print(url,data)
+     print("In post http request")
+     print(url, data)
      response = requests.post(url, data = json.dumps(data), headers=headers)
      if(response.ok):
        print("POST Success", url)
