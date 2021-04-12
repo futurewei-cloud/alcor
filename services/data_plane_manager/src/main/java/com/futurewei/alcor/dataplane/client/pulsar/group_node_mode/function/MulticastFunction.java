@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.client.pulsar.function;
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode.function;
 
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;

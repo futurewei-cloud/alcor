@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -23,7 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+//@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "group-node")
 public class PulsarConfiguration {
     @Value("${pulsar.url}")
     private String pulsarUrl;

@@ -13,7 +13,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
         See the License for the specific language governing permissions and
         limitations under the License.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 
 import com.futurewei.alcor.dataplane.exception.TopicParseFailureException;
 import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;
@@ -27,7 +27,8 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Configuration
-@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+//@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "group-node")
 public class TopicManager {
     private static final Logger LOG = LoggerFactory.getLogger(TopicManager.class);
 

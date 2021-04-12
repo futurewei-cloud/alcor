@@ -3,14 +3,16 @@ package com.futurewei.alcor.dataplane.cache;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.dataplane.client.pulsar.TopicManager;
+import com.futurewei.alcor.dataplane.client.pulsar.group_node_mode.TopicManager;
 import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "group-node")
 public class NodeTopicCache {
     private ICache<String, NodeTopicInfo> nodeTopicInfoICache;
 
