@@ -108,9 +108,6 @@ public class NcmInfoRepository {
 
     /**
      * Append a new nodes to an NCM.
-     *
-     * @param ncmId, NCM to which new nodes are being appended
-     * @param nodeIds, the new nodes
      * @throws CacheException or DbException
      */
     public void appendNodes(String ncmId,  List<String> nodeIds) throws CacheException {
