@@ -12,7 +12,7 @@ def create_default_segment_table(port):
   print("SUCCESS: Created default segment table\n")
 
 
-def create_node(ip_mac, port):
+def create_node(port, ip_mac):
   print("Creating nodes")
   url= 'http://localhost:{}/nodes'.format(port)
   data = {}
@@ -43,7 +43,7 @@ def create_router_interface(port):
   print("SUCCESS: Created router interface\n")
   return routerinfo['id']
 
-
+# Second parameter is to indicate if the call is made for base test case or any other test case.
 def create_vpc(port, change={}):
   print("Creating VPC")
   network = {}
@@ -125,20 +125,29 @@ def create_ports(port):
   print("SUCCESS: Created Goal State Ports\n")
 
 
-def create_test_setup(ip_mac, service_port_map):
+def create_test_setup(ip_mac, config_file_object):
   print("Calling Alcor APIs to generate Goal States")
+  services = dict(config_file_object.items("services"))
+  service_port_map = get_service_port_map(services)
+
   create_default_segment_table(service_port_map["vpm"])
+
+  #network_info = dict(config_file_object.items("vpc_info"))
   create_vpc(service_port_map["vpm"])
   #get_vpcs(service_port_map["vpm"])
 
-  create_node(ip_mac, service_port_map["nm"])
+  #node_info = dict(config_file_object.items("node_info"))
+  create_node(service_port_map["nm"], ip_mac)
   #get_nodes(service_port_map["nm"])
 
+  #subnet_info = dict(config_file_object.items("subnet_info"))
   create_subnet(service_port_map["snm"])
   #get_subnets(service_port_map["snm"])
 
+  #sg_info = dict(config_file_object.items("security_groups"))
   create_security_group(service_port_map["sgm"])
 
+  #port_info = dict(config_file_object.items("port_info"))
   create_ports(service_port_map["pm"])
   #get_ports(service_port_map["pm"])
 

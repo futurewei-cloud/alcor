@@ -20,7 +20,7 @@ def get_file_list(mypath):
 
 
 # Check on a given HOST if a given process is running
-# Return True/False accordingly 
+# Return True/False accordingly
 def check_process_running(HOST, process):
     running = False
     COMMAND = 'ps -ef | grep -I {}'.format(process)
@@ -134,7 +134,7 @@ def read_config_file():
     conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
     config.read(conf_file)
     return config
-    
+
 
 def get_service_port_map(serv):
     service_list = {}
@@ -142,14 +142,6 @@ def get_service_port_map(serv):
        service_info = json.loads(serv[service_name])
        service_list[service_info["name"]] = service_info["port"]
     return service_list
-
-"""
-def read_aca_ips():
-    config = configparser.ConfigParser()
-    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
-    config.read(conf_file)
-    aca = dict(config.items('AlcorControlAgents'))
-    return aca """
 
 
 #This function checks the 'AlcorControlAgent' running on a host and returns its mac address

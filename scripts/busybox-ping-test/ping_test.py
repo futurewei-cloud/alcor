@@ -1,18 +1,18 @@
 #!/usr/bin/python3
 import time, os
+import argparse
+import json
 from helper_functions import *
 from create_test_setup import *
 from container_ops import *
 from create_test_cases import *
-import argparse
 
 ALCOR_ROOT = os.path.abspath(os.path.join(__file__ , "../../../"))
 ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
 
-#This function builds the containers as configured in alcor_services.ini file
-
+# Builds the containers as configured in alcor_services.ini file
 def build_containers(serv):
     container_list =[]
     mvn_build = "mvn -Dmaven.test.skip=true -DskipTests clean package install"
@@ -48,8 +48,8 @@ def start_containers(serv):
       print("All Alcor services started successfully")
       return True
     else:
-      print("CCCcouldn't start all alcor services pinpinggBusyboxping test exiting..")
-      print("Error,Test Exits")
+      print("Couldn not start all alcor services.")
+      print("Error! Test Exits")
       sys.exit(1)
 
 
@@ -88,9 +88,10 @@ def main():
     else:
       print("Error:couldn't start all alcor services")
       sys.exit(1)
+
     aca = dict(config_file_object.items("AlcorControlAgents"))
-    ip_mac = check_alcor_agents_running(aca)
-    if(len(ip_mac) != len(aca)):
+    aca_nodes_ip_mac = check_alcor_agents_running(aca)
+    if(len(aca_nodes_ip_mac) != len(aca)):
       print("\nERROR: Alcor Control Agent not running on some of the nodes")
       print("ERROR: Test exits")
       sys.exit(1)
@@ -99,22 +100,25 @@ def main():
 
     if args.testcase:
       if (args.testcase == 1):
-        ip_mac_db = prepare_test_case_1(ip_mac, service_port_map)
+        ip_mac_db = prepare_test_case_1(aca_nodes_ip_mac, service_port_map)
       elif(args.testcase == 2):
-        ip_mac_db = prepare_test_case_2(ip_mac, service_port_map)
+        ip_mac_db = prepare_test_case_2(aca_nodes_ip_mac, service_port_map)
       else:
         print("Invoke {}".format('-t <testcase number>'))
     else:
-      ip_mac_db = create_test_setup(ip_mac, service_port_map)
+      ip_mac_db = create_test_setup(aca_nodes_ip_mac, config_file_object)
       # if args.all== 'all':
       #  print("Invoke both all test cases"
-      # ip_mac_db = prepare_all_test_cases(ip_mac, service_port_map)'''
-    #ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
+      # ip_mac_db = prepare_all_test_cases(aca_nodes_ip_mac, service_port_map)'''
+
+    #aca_nodes_ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
     #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
-    container_names = list(dict(config_file_object.items("test_setup"))["container_names"])
-    container_names = ["con1", "con2"]
-    print("calling container deploy", ip_mac, ip_mac_db, container_names)
-    busybox_container_deploy(list(ip_mac.keys()), ip_mac_db, container_names)
+    container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
+    container_names = json.loads(container_names_dict)
+    print(container_names)
+    #container_names = ["con1", "con2"]
+    print("calling container deploy", aca_nodes_ip_mac, ip_mac_db, container_names)
+    busybox_container_deploy(list(aca_nodes_ip_mac.keys()), ip_mac_db, container_names)
 
 
 if __name__ == "__main__":
