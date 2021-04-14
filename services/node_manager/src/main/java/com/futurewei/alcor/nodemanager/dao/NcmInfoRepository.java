@@ -77,6 +77,15 @@ public class NcmInfoRepository {
     }
 
     /**
+     * find information about all NCM.
+     * @return list of NcmInfo
+     * @throws Exception;
+     */
+    public NcmInfo getNcmInfoById(String ncmId) throws Exception {
+        return cache.get(ncmId);
+    }
+
+    /**
      * add a new Ncm info to repository
      *
      * @param ncmInfo new Ncm information
@@ -107,40 +116,22 @@ public class NcmInfoRepository {
     }
 
     /**
-     * Append a new nodes to an NCM.
+     * add a new Ncm info to repository
+     *
+     * @param ncmInfo new Ncm information
      * @throws CacheException or DbException
      */
-    public void appendNodes(String ncmId,  List<String> nodeIds) throws CacheException {
-        logger.info("Append an nodes to NCM entry, NCM Id:" + ncmId);
+    public void updateNcmInfo(NcmInfo ncmInfo) throws CacheException {
+        String ncmId = ncmInfo.getId();
+        logger.info("Update an NcmInfo entry, NCM Id:" + ncmId);
 
         try (Transaction tx = cache.getTransaction().start()) {
-            NcmInfo ncmInfo = cache.get(ncmId);
-            ncmInfo.appendNodes(nodeIds);
             cache.put(ncmId, ncmInfo);
             tx.commit();
         } catch (CacheException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Add an NcmInfo entry error: "+e.getMessage());
-        }
-    }
-
-    /**
-     * @param ncmId
-     * @param nodeIds
-     * @throws CacheException or DbException
-     */
-    public void removeNodes(String ncmId,  List<String> nodeIds) throws CacheException {
-        logger.info("Remove nodes from NCM, NCM Id:" + ncmId);
-        try (Transaction tx = cache.getTransaction().start()) {
-            NcmInfo ncmInfo = cache.get(ncmId);
-            ncmInfo.removeNodes(nodeIds);
-            cache.put(ncmId, ncmInfo);
-            tx.commit();
-        } catch (CacheException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Add an NcmInfo entry error: "+e.getMessage());
+            logger.error("Update an ncmInfo entry error: "+e.getMessage());
         }
     }
 

@@ -15,33 +15,29 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.entity.node;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.futurewei.alcor.web.entity.node.NcmInfo;
+import lombok.Data;
 
-/**
- * This is the information about an NCM maintained in NMM.
- */
-public class NcmInfo {
-    public NcmInfo(String ncmId, String ncmUri, int ncmCap) {
-        id = ncmId;
-        uri = ncmUri;
-        cap = ncmCap;
+@Data
+public class NcmInfoJson {
+
+    @JsonProperty("ncm_info")
+    private NcmInfo ncmInfo;
+
+    public NcmInfoJson() {
+
     }
 
-    public NcmInfo(NcmInfo other) {
-        id = other.id;
-        uri = other.uri;
-        cap = other.cap;
+    public NcmInfoJson(NcmInfo ncmInfo) {
+        this.ncmInfo = ncmInfo;
     }
 
-    public String getId() { return id; }
-    public String getUri() { return uri; }
-    public int    getCap() { return cap; }
+    public NcmInfo getNcmInfo() {
+        return ncmInfo;
+    }
 
-    public void setId(String ncmId) { id = ncmId; }
-    public void setUri(String ncmUri) { uri = ncmUri; }
-    public void setCap(int ncmCap) { cap = ncmCap; }
-
-    private String id;
-    private String uri;
-    private int    cap;
+    public void setNcmInfo(NcmInfo ncmInfo) {
+        this.ncmInfo = ncmInfo;
+    }
 }

@@ -17,31 +17,22 @@ package com.futurewei.alcor.web.entity.node;
 
 import java.util.List;
 
-/**
- * This is the information about an NCM maintained in NMM.
- */
-public class NcmInfo {
-    public NcmInfo(String ncmId, String ncmUri, int ncmCap) {
-        id = ncmId;
-        uri = ncmUri;
-        cap = ncmCap;
+public class NcmsWebJson {
+    private List<NcmInfo> ncmInfos;
+
+    public NcmsWebJson() {
+
     }
 
-    public NcmInfo(NcmInfo other) {
-        id = other.id;
-        uri = other.uri;
-        cap = other.cap;
+    public NcmsWebJson(List<NcmInfo> ncmInfos) {
+        this.ncmInfos = ncmInfos;
     }
 
-    public String getId() { return id; }
-    public String getUri() { return uri; }
-    public int    getCap() { return cap; }
+    public List<NcmInfo> getNcmInfos() {
+        return ncmInfos;
+    }
 
-    public void setId(String ncmId) { id = ncmId; }
-    public void setUri(String ncmUri) { uri = ncmUri; }
-    public void setCap(int ncmCap) { cap = ncmCap; }
-
-    private String id;
-    private String uri;
-    private int    cap;
+    public void setNcmInfos(List<NcmInfo> ncmInfos) {
+        this.ncmInfos = ncmInfos;
+    }
 }
