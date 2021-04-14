@@ -44,8 +44,8 @@ public class SwaggerConfig{
         return new ApiInfoBuilder()
             .title("Elastic IP Manager")
             .description("VPC Elastic IP lifecycle management(IPv4/6)")
-            .license("Apache 2.0")
-            .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+            .license("MIT")
+            .licenseUrl("https://opensource.org/licenses/MIT")
             .build();
     }
 }
