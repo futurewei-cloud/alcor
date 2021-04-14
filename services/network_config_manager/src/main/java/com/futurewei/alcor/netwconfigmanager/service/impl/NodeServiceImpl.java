@@ -19,9 +19,7 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.cache.NodeInfoCache;
 import com.futurewei.alcor.netwconfigmanager.service.NodeService;
-import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
-import com.futurewei.alcor.web.entity.node.NodeInfo;
-import com.futurewei.alcor.web.entity.node.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

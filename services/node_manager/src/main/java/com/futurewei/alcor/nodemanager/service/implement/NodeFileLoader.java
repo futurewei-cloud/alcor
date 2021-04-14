@@ -114,8 +114,6 @@ public class NodeFileLoader {
                 throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
             }
             String ncm_id = (String)nodeJson.get(NodeManagerConstant.JSON_NCM_ID);
-            if (ncm_id == null)
-                ncm_id = NodeService.makeUpNcmId(ip, NodeManagerConstant.GRPC_SERVER_PORT);
             node.setNcmId(ncm_id);
         } catch (Exception e) {
             logger.error(strMethodName+e.getMessage());
