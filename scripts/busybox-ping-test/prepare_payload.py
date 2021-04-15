@@ -12,6 +12,7 @@ def put_httprequest(url, data=""):
                'Content-Type': 'application/json',
                'Accept': '*/*',
                }
+     print("PUTing http request")
      print(url, data)
      response = requests.put(url, data=json.dumps(data), headers=headers)
      if(response.ok):
@@ -28,7 +29,7 @@ def post_httprequest(url, data=""):
                'Content-Type': 'application/json',
                'Accept': '*/*',
                }
-     print("In post http request")
+     print("POSTing http request")
      print(url, data)
      response = requests.post(url, data=json.dumps(data), headers=headers)
      if(response.ok):

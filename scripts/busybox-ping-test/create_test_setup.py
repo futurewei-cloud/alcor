@@ -18,9 +18,9 @@ def create_node(port, ip_mac):
   data = {}
   node_info = read_config_file_section("node_info")
   node_dict = node_info['node_info']
-  nodeinfo = json.loads(node_dict)
+  nodeinfo  = json.loads(node_dict)
   node_name = nodeinfo['node_name']
-  node_id  = nodeinfo['node_id']
+  node_id   = nodeinfo['node_id']
 
   for key, value in ip_mac.items():
     key_index = list(ip_mac).index(key) if key in ip_mac else None
@@ -37,7 +37,7 @@ def create_router_interface(port):
   router_info = read_config_file_section("router_info")
   router_dict = router_info['router_info']
   routerinfo = json.loads(router_dict)
-  route_info = {"admin_state_up": True,"availability_zone_hints": ["string"],       "availability_zones": ["string"],"conntrack_helpers": ["string"],"description": "string","distributed": True,"external_gateway_info": {"enable_snat": True,"external_fixed_ips": [ ],"network_id": routerinfo['network_id']},"flavor_id": "string","gateway_ports": [ ], "ha": True,"id":routerinfo['id'] ,"name": routerinfo['name'],"owner": "string", "project_id":routerinfo['project_id'],"revision_number": 0,"routetable": {},"service_type_id": "string","status": "BUILD","tags": ["string"],"tenant_id": routerinfo['tenant_id']}
+  route_info = {"admin_state_up": True,"availability_zone_hints": ["string"], "availability_zones": ["string"],"conntrack_helpers": ["string"],"description": "string","distributed": True,"external_gateway_info": {"enable_snat": True,"external_fixed_ips": [ ],"network_id": routerinfo['network_id']},"flavor_id": "string","gateway_ports": [ ], "ha": True,"id":routerinfo['id'] ,"name": routerinfo['name'],"owner": routerinfo['owner'], "project_id":routerinfo['project_id'],"revision_number": 0,"routetable": {},"service_type_id": "string","status": "BUILD","tags": ["string"],"tenant_id": routerinfo['tenant_id']}
   router['router'] = route_info
   post_httprequest(url, router)
   print("SUCCESS: Created router interface\n")

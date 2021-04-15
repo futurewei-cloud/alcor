@@ -74,7 +74,7 @@ def main():
     parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
     parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
     args = parser.parse_args()
-
+    """
     if args.build:
         if(args.build == "build"):
            build_containers(services)
@@ -88,7 +88,7 @@ def main():
     else:
       print("Error:couldn't start all alcor services")
       sys.exit(1)
-
+    """
     aca = dict(config_file_object.items("AlcorControlAgents"))
     aca_nodes_ip_mac = check_alcor_agents_running(aca)
     if(len(aca_nodes_ip_mac) != len(aca)):
@@ -96,7 +96,7 @@ def main():
       print("ERROR: Test exits")
       sys.exit(1)
     print("Wait for 20 seconds until all services are started...")
-    time.sleep(20)
+    #time.sleep(20)
 
     if args.testcase:
       if (args.testcase == 1):
