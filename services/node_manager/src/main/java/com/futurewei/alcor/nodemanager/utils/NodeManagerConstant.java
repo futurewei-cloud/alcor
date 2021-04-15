@@ -38,4 +38,8 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_IP_FORMAT_INVALID = "Invalid IP address format";
     public static final String NODE_EXCEPTION_MAC_FORMAT_INVALID = "Invalid MAC address format";
     public static final String NODE_EXCEPTION_REPOSITORY_EXCEPTION = "There is an error for service to call repository";
+    public static final String NODE_EXCEPTION_REPOSITORY_EMPTY = "The repository is empty";
+    public static final String NODE_EXCEPTION_ENTRY_EXIST = "The entry being added already exists.";
+    public static final String NODE_EXCEPTION_ENTRY_NOT_FOUND = "The entry being queried, deleted or updated does not exist.";
+    public static final String NODE_EXCEPTION_NCM_NOT_FOUND = "Network Configuration Manager is not registered";
 }

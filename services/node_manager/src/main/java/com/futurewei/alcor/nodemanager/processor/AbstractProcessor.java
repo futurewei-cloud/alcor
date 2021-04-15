@@ -18,7 +18,7 @@ package com.futurewei.alcor.nodemanager.processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractProcessor implements IProcessor{
+public abstract class AbstractProcessor implements IProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractProcessor.class);
 
     private IProcessor nextProcessor;

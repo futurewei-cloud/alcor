@@ -14,19 +14,28 @@ Copyright(c) 2020 Futurewei Cloud
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.futurewei.alcor.dataplane.service;
+package com.futurewei.alcor.netwconfigmanager.entity;
 
-import com.futurewei.alcor.web.entity.node.*;
-
+import java.util.HashMap;
 import java.util.List;
 
-public interface NodeService {
+public class VpcResourceMeta {
 
-    void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    private String vni;
 
-    void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    // Private IP => List<ResourceMetadata>
+    private HashMap<String, List<ResourceMeta>> resourceMetas;
 
-    void deleteNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    public VpcResourceMeta(String vni, HashMap<String, List<ResourceMeta>> resourceMetas) {
+        this.vni = vni;
+        this.resourceMetas = new HashMap<>(resourceMetas);
+    }
 
-    void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception;
+    public String getVni() {
+        return this.vni;
+    }
+
+    public HashMap<String, List<ResourceMeta>> getResourceMetas() {
+        return this.resourceMetas;
+    }
 }

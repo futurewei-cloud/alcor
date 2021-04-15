@@ -15,9 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager.service;
 
-import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
-import com.futurewei.alcor.web.entity.node.NodeInfo;
-import com.futurewei.alcor.web.entity.node.NodeInfoJson;
+import com.futurewei.alcor.web.entity.node.*;
 
 import java.util.List;
 

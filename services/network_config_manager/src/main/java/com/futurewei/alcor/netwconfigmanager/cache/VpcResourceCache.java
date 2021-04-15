@@ -13,68 +13,48 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 package com.futurewei.alcor.netwconfigmanager.cache;
 
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
-import com.futurewei.alcor.common.db.repo.ICacheRepository;
-import com.futurewei.alcor.common.logging.Logger;
-import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.common.utils.SpringContextUtil;
-import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
-/**
- * NodeInfo maintained by NCM. Validation is not necessary since NMM/DPM will have
- * already done all the validation
- */
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
-public class NodeInfoCache {
-    private ICache<String, NodeInfo> nodeInfoCache;
+public class VpcResourceCache {
+
+    // Map <VNI, Map<PIP, List<ResoruceIDType>>
+    private ICache<String, VpcResourceMeta> vpcResourceMetas;
 
     @Autowired
-    public NodeInfoCache(CacheFactory cacheFactory) {
-        this.nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+    public VpcResourceCache(CacheFactory cacheFactory) {
+        this.vpcResourceMetas = cacheFactory.getCache(VpcResourceMeta.class);
     }
 
     @DurationStatistics
-    public NodeInfo getNodeInfo(String nodeId) throws Exception {
-        NodeInfo nodeInfo = nodeInfoCache.get(nodeId);
+    public VpcResourceMeta getResourceMeta(String vni) throws Exception {
+        VpcResourceMeta resourceMeta = this.vpcResourceMetas.get(vni);
 
-        return nodeInfo;
-    }
-
-
-    @DurationStatistics
-    public void addNodeInfo(NodeInfo nodeInfo) throws Exception {
-        nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+        return resourceMeta;
     }
 
     @DurationStatistics
-    public void addNodeInfoBulk(List<NodeInfo> nodeInfos) throws Exception {
-        Map<String, NodeInfo> nodeInfoMap = nodeInfos.stream().collect(Collectors.toMap(NodeInfo::getId, Function.identity()));
-        nodeInfoCache.putAll(nodeInfoMap);
+    public void addResourceMeta(VpcResourceMeta resourceMeta) throws Exception {
+        this.vpcResourceMetas.put(resourceMeta.getVni(), resourceMeta);
     }
 
     @DurationStatistics
-    public void updateNodeInfo(NodeInfo nodeInfo) throws Exception {
-        nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+    public void updateResourceMeta(VpcResourceMeta resourceMeta) throws Exception {
+        this.vpcResourceMetas.put(resourceMeta.getVni(), resourceMeta);
     }
 
     @DurationStatistics
-    public void deleteNodeInfo(String nodeId) throws Exception {
-        nodeInfoCache.remove(nodeId);
+    public void deleteResourceMeta(String vni) throws Exception {
+        this.vpcResourceMetas.remove(vni);
     }
 }

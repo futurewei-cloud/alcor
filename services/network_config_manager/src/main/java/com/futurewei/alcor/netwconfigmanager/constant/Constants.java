@@ -14,19 +14,8 @@ Copyright(c) 2020 Futurewei Cloud
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.futurewei.alcor.dataplane.service;
+package com.futurewei.alcor.netwconfigmanager.constant;
 
-import com.futurewei.alcor.web.entity.node.*;
-
-import java.util.List;
-
-public interface NodeService {
-
-    void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
-
-    void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
-
-    void deleteNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
-
-    void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception;
+public class Constants {
+    public static String UNEXPECTED_RESOURCE_ID = "ALCOR-XXX-YYY-ZZZ";
 }

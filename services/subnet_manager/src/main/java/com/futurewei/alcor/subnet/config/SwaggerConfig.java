@@ -45,8 +45,8 @@ public class SwaggerConfig{
         return new ApiInfoBuilder()
             .title("Subnet Manager")
             .description("Subnet lifecycle management")
-            .license("Apache 2.0")
-            .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+            .license("MIT")
+            .licenseUrl("https://opensource.org/licenses/MIT")
             .build();
     }
 }

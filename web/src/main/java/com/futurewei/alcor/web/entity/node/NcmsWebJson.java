@@ -13,20 +13,26 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-package com.futurewei.alcor.dataplane.service;
-
-import com.futurewei.alcor.web.entity.node.*;
+package com.futurewei.alcor.web.entity.node;
 
 import java.util.List;
 
-public interface NodeService {
+public class NcmsWebJson {
+    private List<NcmInfo> ncmInfos;
 
-    void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    public NcmsWebJson() {
 
-    void updateNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    }
 
-    void deleteNodeInfo(NodeInfoJson nodeInfoJson) throws Exception;
+    public NcmsWebJson(List<NcmInfo> ncmInfos) {
+        this.ncmInfos = ncmInfos;
+    }
 
-    void createNodeInfoBulk(BulkNodeInfoJson bulkNodeInfoJson) throws Exception;
+    public List<NcmInfo> getNcmInfos() {
+        return ncmInfos;
+    }
+
+    public void setNcmInfos(List<NcmInfo> ncmInfos) {
+        this.ncmInfos = ncmInfos;
+    }
 }
