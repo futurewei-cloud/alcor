@@ -45,18 +45,33 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {
+        String ncmUrl = message.getNodeInfo().getNcmUri();
+        if (ncmUrl == null)
+            throw new Exception("NetworkConfigManagerClient: Required ncm_uri is NULL");
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
         restTemplate.postForObject(ncmManagerUrl, request, Object.class);
     }
 
     @DurationStatistics
     public void updateNodeInfo(NodeInfoJson message) throws Exception {
+        String ncmUrl = message.getNodeInfo().getNcmUri();
+        if (ncmUrl == null)
+            throw new Exception("NetworkConfigManagerClient: Required ncm_uri is NULL");
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
         restTemplate.postForObject(ncmManagerUrl, request, Object.class);
     }
 
     @DurationStatistics
     public void deleteNodeInfo(String nodeId) throws Exception {
+        /*
+         * PROBLEM: To dispatch node deletion to the correct NCM, we need it's
+         * URI but we can't get it here.
+         * FIX: Change the API to pass in NodeInfo.
+         * String ncmUrl = message.getNodeInfo().getNcmUri();
+         *
+            if (ncmUrl == null)
+                throw new Exception("NetworkConfigManagerClient: Required ncm_uri is NULL");
+         */
         HttpEntity<String> request = new HttpEntity<>(nodeId);
         restTemplate.postForObject(ncmManagerUrl, request, Object.class);
     }

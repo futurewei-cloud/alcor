@@ -122,10 +122,14 @@ public class StrictRbacManager implements RbacManger {
     private List<String> excludeFields(String actionName, TokenEntity tokenEntity, OwnerChecker ownerChecker) {
         List<String> excludeFields = new ArrayList<>();
         Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
+        // NOT_JAVA_11_COMPATIBLE: doesn't work in IntelliJ IDE
         if (rbacRuleOptional.isEmpty()) {
-            // if not rbac rule return true
-            return excludeFields;
+        // if not rbac rule return true
+        return excludeFields;
         }
+        // JAVA_11_COMPATIBLE: works in IntelliJ IDE
+        // if (rbacRuleOptional == null)
+        //     return excludeFields;
 
         List<String> tokenRoles = tokenEntity.getRoles();
         List<FieldRbacRule> fieldRbacRules = rbacRuleOptional.get().getFieldRbacRules();
@@ -165,10 +169,17 @@ public class StrictRbacManager implements RbacManger {
     private void checkAction(String actionName, TokenEntity tokenEntity, List<String> bodyFields,
                              OwnerChecker ownerChecker) throws Exception {
         Optional<ActionRbacRule> rbacRuleOptional = serviceRbacRule.getActionRbacRule(actionName);
+        // NOT_JAVA_11_COMPATIBLE: doesn't work in IntelliJ IDE
         if (rbacRuleOptional.isEmpty()) {
             // if not rbac rule return true
             return;
         }
+
+        /*
+        // JAVA_11_COMPATIBLE: works in IntelliJ IDE
+        if (rbacRuleOptional == null)
+            return;
+        */
 
         String ruleType = rbacRuleOptional.get().getRuleType();
         List<String> tokenRoles = tokenEntity.getRoles();
