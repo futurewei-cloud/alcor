@@ -61,7 +61,7 @@ public class RouteManagerUtil {
 
         // status
         String status = neutronRouter.getStatus();
-        if (!(status == null || NetworkStatusEnum.ACTIVE.getNetworkStatus().equals(status)
+        if (!(status == null
                 || NetworkStatusEnum.ACTIVE.getNetworkStatus().equals(status)
                 || NetworkStatusEnum.DOWN.getNetworkStatus().equals(status)
                 || NetworkStatusEnum.BUILD.getNetworkStatus().equals(status)
