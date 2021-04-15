@@ -98,7 +98,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         BeanUtils.copyProperties(neutronRouter, routerExtraAttribute);
         routerExtraAttribute.setId(attachedRouterExtraAttributeId);
         RouteTable routeTable = neutronRouter.getRouteTable();
-        if (routeTable == null) {
+        if (routeTable == null || routeTable.getRouteEntities() == null) {
             routeTable = new RouteTable();
             List<RouteEntry> routeEntities = new ArrayList<>();
             String routeTableId = UUID.randomUUID().toString();
@@ -120,7 +120,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable, DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId {
+    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId)
+            throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable,
+            DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId, RouterHasMultipleVPCs {
         if (portId != null && subnetId != null) {
             throw new SpecifyBothSubnetIDAndPortID();
         }
@@ -176,6 +178,18 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new PortIsAlreadyInUse();
         }
         subnet.setAttachedRouterId(routerId);
+
+        List<String> gwPorts = router.getGatewayPorts();
+        if (gwPorts.size() == 0) {
+            router.setOwner(subnet.getVpcId());
+        } else {
+            for (String port : gwPorts) {
+                SubnetsWebJson subnet_o = this.routerToSubnetService.getSubnetsByPortId(router.getProjectId(), port);
+                if (!subnet_o.getSubnets().get(0).getVpcId().equals(subnet.getVpcId())) {
+                    throw new RouterHasMultipleVPCs();
+                }
+            }
+        }
 
         // update device_id and device_owner in PM
         PortEntity portEntity = new PortEntity();
@@ -280,13 +294,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             }
 
             List<RouteEntry> routeEntities = routeTable.getRouteEntities();
-            for (RouteEntry routeEntry : routeEntities) {
-                String nextHop = routeEntry.getNexthop();
-                if (gatewayIp.equals(nextHop)) {
-                    throw new RouterInterfaceAreUsedByRoutes();
+            if (routeEntities != null) {
+                for (RouteEntry routeEntry : routeEntities) {
+                    String nextHop = routeEntry.getNexthop();
+                    if (gatewayIp.equals(nextHop)) {
+                        throw new RouterInterfaceAreUsedByRoutes();
+                    }
                 }
             }
-
         }
 
         // remove interface
