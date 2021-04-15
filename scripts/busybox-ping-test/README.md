@@ -83,17 +83,14 @@ You can optionally provide the paramter --build to build all the docker images o
 
 ## Quick Start
 After making the necessary configuration file changes, run the script with following paramters to get started:
-1.
-./ping_test.py --build
+1. ./ping_test.py --build
 This will
  - build the alcor services and their docker images
  - and runs the simple test case of two containers under same subnet and security group pinging each other.
-2.
-./ping_test.py -t 1
+2. ./ping_test.py -t 1
 This will
  - runs the test case two busyboxy containers on two subnets and same security group
-3.
-./ping_test.py -t 2
+3. ./ping_test.py -t 2
 This will
  - runs the test case two busybox containers on one subnet and same two security group
 
