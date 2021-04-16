@@ -180,7 +180,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         subnet.setAttachedRouterId(routerId);
 
         List<String> gwPorts = router.getGatewayPorts();
-        if (gwPorts.size() == 0) {
+        if (gwPorts == null || gwPorts.size() == 0) {
             router.setOwner(subnet.getVpcId());
         } else {
             for (String port : gwPorts) {
