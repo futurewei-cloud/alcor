@@ -179,6 +179,12 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         subnet.setAttachedRouterId(routerId);
 
+        /*
+           In order to make Neutron router compatible with VPC scenario.
+           We only allow subnet's gateways from the same VPC can be attached to router.
+           We use VPC from the first attached gateway as router's owner
+           If any attaching gateway after the first one has different VPC, we will issue a warning message.
+         */
         List<String> gwPorts = router.getGatewayPorts();
         if (gwPorts == null || gwPorts.size() == 0) {
             router.setOwner(subnet.getVpcId());
@@ -301,7 +307,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                         throw new RouterInterfaceAreUsedByRoutes();
                     }
                 }
-            }
+            } // else part:
+              // the router doesn't come with a default routetable which is the OpenStack's scenario, just ignore it.
         }
 
         // remove interface
