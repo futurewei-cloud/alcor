@@ -307,8 +307,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                         throw new RouterInterfaceAreUsedByRoutes();
                     }
                 }
-            } // else part:
-              // the router doesn't come with a default routetable which is the OpenStack's scenario, just ignore it.
+            }
+            // else part:
+            // the router doesn't come with a default routetable which is the OpenStack's scenario, just ignore it.
         }
 
         // remove interface
