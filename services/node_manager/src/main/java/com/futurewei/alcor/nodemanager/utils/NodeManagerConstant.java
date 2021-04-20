@@ -42,4 +42,5 @@ public class NodeManagerConstant {
     public static final String NODE_EXCEPTION_ENTRY_EXIST = "The entry being added already exists.";
     public static final String NODE_EXCEPTION_ENTRY_NOT_FOUND = "The entry being queried, deleted or updated does not exist.";
     public static final String NODE_EXCEPTION_NCM_NOT_FOUND = "Network Configuration Manager is not registered";
+    public static final String NODE_EXCEPTION_MULTIPLE_NCM_WITH_NO_NCMID = "Multiple instances of NCM without an NCMID in NodeInfo";
 }

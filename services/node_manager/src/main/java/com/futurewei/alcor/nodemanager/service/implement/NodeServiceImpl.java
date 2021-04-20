@@ -78,8 +78,8 @@ public class NodeServiceImpl implements NodeService {
         }
     }
 
-    private void handleDeleteNodeRequest(String nodeId) {
-        NodeContext nodeContext = new NodeContext(nodeId);
+    private void handleDeleteNodeRequest(NodeInfo nodeInfo) {
+        NodeContext nodeContext = new NodeContext(nodeInfo);
         IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
             processorChain.deleteNode(nodeContext);
@@ -105,16 +105,37 @@ public class NodeServiceImpl implements NodeService {
             NodeInfo ni = nodeInfos.get(i);
             addNcmUriToNodeInfo(ni);
         }
+
+        String bulkUri = nodeInfos.get(0).getNcmUri() + "/bulk";
+        nodeInfos.get(0).setNcmUri(bulkUri);
     }
 
     private void addNcmUriToNodeInfo(NodeInfo nodeInfo) throws Exception {
-        NcmInfo ncmInfo = ncmInfoRepository.getNcmInfoById(nodeInfo.getNcmId());
+        String ncmId = nodeInfo.getNcmId();
+        NcmInfo ncmInfo;
+
+        if ((ncmId == null || ncmId == "")) {
+            if (ncmInfoRepository.ncmCount() < 1) {
+                return;
+            } else if (ncmInfoRepository.ncmCount() == 1) {
+                Map ncmInfos = ncmInfoRepository.findAllNcmInfo();
+                NcmInfo[] ncmArray = new NcmInfo[1];
+                ncmInfos.entrySet().toArray(ncmArray);
+                ncmInfo = ncmArray[0];
+            }
+            throw new Exception(NodeManagerConstant.NODE_EXCEPTION_MULTIPLE_NCM_WITH_NO_NCMID);
+        }
+        else {
+            ncmInfo = ncmInfoRepository.getNcmInfoById(nodeInfo.getNcmId());
+        }
+
         if (ncmInfo == null || ncmInfo.getUri() == null) {
             String except = NodeManagerConstant.NODE_EXCEPTION_NCM_NOT_FOUND + " ncmid = " + nodeInfo.getNcmId();
             logger.error(except);
             throw new Exception(except);
         }
-        nodeInfo.setNcmUri(ncmInfo.getUri());
+
+        nodeInfo.setNcmUri(ncmInfo.getUri() + "/nodes");
     }
 
 
@@ -337,8 +358,8 @@ public class NodeServiceImpl implements NodeService {
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
             addNcmUriToNodeInfo(node);
+            this.handleDeleteNodeRequest(node);
             nodeRepository.deleteItem(nodeId);
-            this.handleDeleteNodeRequest(nodeId);
         } catch (CacheException e) {
             logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);

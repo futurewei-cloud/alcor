@@ -85,14 +85,7 @@ public class MockIgniteServer {
 
     public static Ignite getIgnite(){
         // if no need create a real ignite server, we return a mock Ignite client
-        // NOT_JAVA_11_COMPATIBLE: doesn't work in IntelliJ IDE
         return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
-        // JAVA_11_COMPATIBLE: works in IntelliJ IDE
-        /*
-        if (igniteServer != null)
-            return igniteServer;
-        return new IgniteNodeClientMock();
-        */
     }
 
     /**
