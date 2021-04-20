@@ -25,6 +25,7 @@ import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
@@ -39,12 +40,17 @@ public class NodeTopicCache {
     @Autowired
     TopicManager topicManager;
 
+    @Autowired
+    LocalCache localCache;
+
+
     @DurationStatistics
     public void addNodeTopicInfo(String nodeId, NodeTopicInfo nodeTopicInfo) throws Exception {
         nodeTopicInfoICache.put(nodeId, nodeTopicInfo);
     }
 
     @DurationStatistics
+    @Transactional(rollbackFor = Exception.class)
     public NodeTopicInfo getNodeTopicInfo(String nodeId) throws Exception {
         NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
         if (nodeTopicInfo == null) {
@@ -57,5 +63,17 @@ public class NodeTopicCache {
     @DurationStatistics
     public void updateNodeTopicInfo(String nodeId, NodeTopicInfo nodeTopicInfo) throws Exception {
         nodeTopicInfoICache.put(nodeId, nodeTopicInfo);
+    }
+
+    @DurationStatistics
+    @Transactional(rollbackFor = Exception.class)
+    public NodeTopicInfo getNodeTopicInfoByNodeIp(String nodeIp) throws Exception {
+        String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
+        NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
+        if (nodeTopicInfo == null) {
+            nodeTopicInfo = topicManager.createNodeTopicInfo(nodeId);
+            this.addNodeTopicInfo(nodeId, nodeTopicInfo);
+        }
+        return nodeTopicInfo;
     }
 }

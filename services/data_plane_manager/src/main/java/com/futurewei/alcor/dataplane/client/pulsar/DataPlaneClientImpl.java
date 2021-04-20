@@ -47,23 +47,18 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private PulsarClient pulsarClient;
 
     @Autowired
-    LocalCache localCache;
-
-    @Autowired
     NodeTopicCache nodeTopicCache;
 
     private Map<String, List<String>> getMulticastTopics(List<String> hostIps) throws Exception {
         Map<String, List<String>> multicastTopics = new HashMap<>();
-
         for (String hostIp : hostIps) {
-            String hostId = localCache.getNodeInfoByNodeIp(hostIp).get(0).getId();
-            String groupTopic = nodeTopicCache.getNodeTopicInfo(hostId).getGroupTopic();
+            String groupTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(hostIp).getGroupTopic();
             if (StringUtils.isEmpty(groupTopic)) {
                 LOG.error("Can not find group topic by host ip:{}", hostIp);
                 throw new GroupTopicNotFound();
             }
 
-            String multicastTopic = nodeTopicCache.getNodeTopicInfo(hostId).getMulticastTopic();
+            String multicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(hostIp).getMulticastTopic();
             if (StringUtils.isEmpty(multicastTopic)) {
                 LOG.error("Can not find multicast topic by host ip:{}", hostIp);
                 throw new MulticastTopicNotFound();
@@ -117,16 +112,14 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            String unicastGoalStateHostId = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getId();
-
-            String nextTopic = nodeTopicCache.getNodeTopicInfo(unicastGoalStateHostId).getGroupTopic();
+            String nextTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getGroupTopic();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
                 throw new GroupTopicNotFound();
             }
 
             String topic = nextTopic;
-            String unicastTopic = nodeTopicCache.getNodeTopicInfo(unicastGoalStateHostId).getUnicastTopic();
+            String unicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getUnicastTopic();
             if (!StringUtils.isEmpty(unicastTopic)) {
                 unicastGoalState.setNextTopic(nextTopic);
                 topic = unicastTopic;

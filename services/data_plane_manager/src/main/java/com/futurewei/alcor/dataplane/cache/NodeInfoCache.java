@@ -28,6 +28,7 @@ import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,6 +95,7 @@ public class NodeInfoCache {
     }
 
     @DurationStatistics
+    @Transactional(rollbackFor = Exception.class)
     public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
         List<NodeInfo> result = new ArrayList<>();
 
