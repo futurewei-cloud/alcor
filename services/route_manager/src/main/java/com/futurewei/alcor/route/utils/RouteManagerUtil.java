@@ -16,16 +16,18 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.route.utils;
 
 import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
-import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
-import com.futurewei.alcor.common.enumClass.RouteTableType;
-import com.futurewei.alcor.common.utils.DateUtil;
-import com.futurewei.alcor.web.entity.route.*;
+import com.futurewei.alcor.web.entity.route.NeutronRouterWebJson;
+import com.futurewei.alcor.web.entity.route.NeutronRouterWebRequestObject;
+import com.futurewei.alcor.web.entity.route.RouteTable;
+import com.futurewei.alcor.web.entity.route.RouteTableWebJson;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RouteManagerUtil {
 
@@ -59,7 +61,7 @@ public class RouteManagerUtil {
 
         // status
         String status = neutronRouter.getStatus();
-        if (!(status == null || NetworkStatusEnum.ACTIVE.getNetworkStatus().equals(status)
+        if (!(status == null
                 || NetworkStatusEnum.ACTIVE.getNetworkStatus().equals(status)
                 || NetworkStatusEnum.DOWN.getNetworkStatus().equals(status)
                 || NetworkStatusEnum.BUILD.getNetworkStatus().equals(status)
@@ -103,7 +105,7 @@ public class RouteManagerUtil {
 
         // status
         String status = response.getStatus();
-        if (status == null) {
+        if (!NetworkStatusEnum.ACTIVE.getNetworkStatus().equals(status)) {
             response.setStatus(NetworkStatusEnum.ACTIVE.getNetworkStatus());
         }
 

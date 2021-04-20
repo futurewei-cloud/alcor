@@ -281,6 +281,9 @@ public class PortServiceImpl implements PortService {
         Map<String, NeighborInfo> neighborInfos = new HashMap<>();
         Map<String, List<NeighborEntry>> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
 
+        for (String privateIp: neighborTable.keySet()) {
+            LOG.info("NeighborTable- key: {}, size: {}", privateIp, neighborTable.get(privateIp).size());
+        }
         if (neighborTable.size() > 0) {
             NetworkConfiguration networkConfiguration = new NetworkConfiguration();
             networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);

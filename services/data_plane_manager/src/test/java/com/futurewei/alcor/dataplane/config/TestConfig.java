@@ -57,4 +57,6 @@ public class TestConfig {
     public static String availabilityZone = "az1";
     public static String primaryDns = "1.1.1.1";
     public static String secondaryDns = "2.2.2.2";
+    public static String deviceId = "device-id-0";
+    public static String deviceOwner = "device-owner-0";
 }

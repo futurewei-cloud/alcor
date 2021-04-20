@@ -289,6 +289,10 @@ public class NeutronRouterController {
 
         RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.addAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
 
+        if (subnetId == null) {
+            subnetId = routerInterfaceResponse.getSubnetId();
+        }
+
         // TODO: return all connected subnet-ids to Port Manager. The algorithm as follow:
         //1. get ports array from the router.
         Router router = this.routerDatabaseService.getByRouterId(routerid);
@@ -318,6 +322,10 @@ public class NeutronRouterController {
         String subnetId = resource.getSubnetId();
 
         RouterInterfaceResponse routerInterfaceResponse = this.neutronRouterService.removeAnInterfaceToNeutronRouter(projectid, portId, subnetId, routerid);
+
+        if (subnetId == null) {
+            subnetId = routerInterfaceResponse.getSubnetId();
+        }
 
         // TODO: return all connected subnet-ids to Port Manager. The algorithm as follow:
         //1. get ports array from the router.
