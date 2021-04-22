@@ -39,7 +39,7 @@ import java.util.logging.Level;
 @Configuration
 public class NetworkConfigManagerRestClient extends AbstractRestClient {
     @Value("${microservices.ncm.service.url:#{\"\"}}")
-    private String ncmManagerUrl;
+    private String defaultNcmUrl;
 
     Logger LOG = LoggerFactory.getLogger();
 
@@ -47,7 +47,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
     public void createNodeInfo(NodeInfoJson message) throws Exception {
         String ncmUri = message.getNodeInfo().getNcmUri();
         if (ncmUri == null)
-            ncmUri = ncmManagerUrl;
+            ncmUri = defaultNcmUrl;
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
         restTemplate.postForObject(ncmUri, request, Object.class);
     }
@@ -56,7 +56,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
     public void updateNodeInfo(NodeInfoJson message) throws Exception {
         String ncmUri = message.getNodeInfo().getNcmUri();
         if (ncmUri == null)
-            ncmUri = ncmManagerUrl;
+            ncmUri = defaultNcmUrl;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message, headers);
@@ -66,7 +66,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
     @DurationStatistics
     public void deleteNodeInfo(String nodeId, String ncmUri) throws Exception {
         if (ncmUri == null)
-            ncmUri = ncmManagerUrl;
+            ncmUri = defaultNcmUrl;
         String delUrl = ncmUri + "/" + nodeId;
 
         HttpHeaders headers = new HttpHeaders();
@@ -84,7 +84,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
         // here again.
         String ncmUri = bulkNodeInfoJson.getNodeInfos().get(0).getNcmUri();
         if (ncmUri == null)
-            ncmUri = ncmManagerUrl;
+            ncmUri = defaultNcmUrl;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson, headers);
