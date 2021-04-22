@@ -19,13 +19,13 @@ package com.futurewei.alcor.dataplane.cache;
 
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.client.pulsar.TopicManager;
 import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
@@ -50,14 +50,18 @@ public class NodeTopicCache {
     }
 
     @DurationStatistics
-    @Transactional(rollbackFor = Exception.class)
     public NodeTopicInfo getNodeTopicInfo(String nodeId) throws Exception {
-        NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
-        if (nodeTopicInfo == null) {
-            nodeTopicInfo = topicManager.createNodeTopicInfo(nodeId);
-            this.addNodeTopicInfo(nodeId, nodeTopicInfo);
+        try (Transaction tx = nodeTopicInfoICache.getTransaction().start()) {
+            NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
+            if (nodeTopicInfo == null) {
+                nodeTopicInfo = topicManager.createNodeTopicInfo(nodeId);
+                this.addNodeTopicInfo(nodeId, nodeTopicInfo);
+            }
+
+            tx.commit();
+            return nodeTopicInfo;
         }
-        return nodeTopicInfo;
+
     }
 
     @DurationStatistics
@@ -66,14 +70,17 @@ public class NodeTopicCache {
     }
 
     @DurationStatistics
-    @Transactional(rollbackFor = Exception.class)
     public NodeTopicInfo getNodeTopicInfoByNodeIp(String nodeIp) throws Exception {
-        String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
-        NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
-        if (nodeTopicInfo == null) {
-            nodeTopicInfo = topicManager.createNodeTopicInfo(nodeId);
-            this.addNodeTopicInfo(nodeId, nodeTopicInfo);
+        try (Transaction tx = nodeTopicInfoICache.getTransaction().start()) {
+            String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
+            NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
+            if (nodeTopicInfo == null) {
+                nodeTopicInfo = topicManager.createNodeTopicInfo(nodeId);
+                this.addNodeTopicInfo(nodeId, nodeTopicInfo);
+            }
+
+            tx.commit();
+            return nodeTopicInfo;
         }
-        return nodeTopicInfo;
     }
 }
