@@ -12,6 +12,7 @@ Params:
 7. Password of aca_nodes
 */
 package com.futurewei.alcor.pseudo_controller;
+
 import com.futurewei.alcor.schema.*;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -50,9 +51,9 @@ public class pseudo_controller {
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         System.out.println("Start of the test controller");
-        if(args.length == 7){
+        if (args.length == 7) {
             System.out.println("User passed in params and we need to read them.");
             ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
             aca_node_one_ip = args[1];
@@ -65,7 +66,7 @@ public class pseudo_controller {
         }
         generate_ip_macs(ports_to_generate_on_each_aca_node * 2);
         create_containers_on_both_hosts();
-        System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: "+user_name+"\npassword: "+password);
+        System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
 
 //        execute_ssh_commands("docker run -itd --name test1 --net=none busybox sh", aca_node_one_ip, user_name, password);
 //        execute_ssh_commands("ovs-docker add-port br-int eth0 test1 --ipaddress=10.0.0.2/16 --macaddress=6c:dd:ee:00:00:02", aca_node_one_ip, user_name, password);
@@ -79,11 +80,9 @@ public class pseudo_controller {
 //        execute_ssh_commands("docker exec test2 ifconfig", aca_node_two_ip, user_name, password);
 
 
-
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
 
         System.out.println("Trying to build the GoalStateV2 for " + ports_to_generate_on_each_aca_node + " VPCs");
-
 
 
         Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
@@ -92,7 +91,7 @@ public class pseudo_controller {
         Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
-        for (String port_ip : ip_mac_map.keySet()){
+        for (String port_ip : ip_mac_map.keySet()) {
             String host_ip = port_ip_to_host_ip_map.get(port_ip);
             String port_id = port_ip_to_id_map.get(port_ip);
             String port_mac = ip_mac_map.get(port_ip);
@@ -149,9 +148,9 @@ public class pseudo_controller {
             Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
 
 
-            if (host_ip.equals(aca_node_one_ip)){
+            if (host_ip.equals(aca_node_one_ip)) {
 
-                GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(),port_state_one);
+                GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
                 host_resource_builder_node_one.addResources(port_one_resource_id);
                 // if this port is on host_one, then it is a neighbor for ports on host_two
@@ -159,8 +158,8 @@ public class pseudo_controller {
                 Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
                         setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
                 host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
-            }else{
-                GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(),port_state_one);
+            } else {
+                GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
                 host_resource_builder_node_two.addResources(port_one_resource_id);
                 // if this port is on host_two, then it is a neighbor for ports on host_one
@@ -169,7 +168,7 @@ public class pseudo_controller {
                         setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
                 host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
             }
-            System.out.println("Finished port state for port ["+ port_ip + "] on host: [" + host_ip + "]");
+            System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
 
         }
 
@@ -335,8 +334,8 @@ public class pseudo_controller {
         Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
         Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n"+message_one.toString()+"\n");
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n"+message_two.toString()+"\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
 
 //        System.out.println("Time to call the GRPC functions");
 //
@@ -380,8 +379,8 @@ public class pseudo_controller {
 //
 //        }
         Vector<concurrent_run_cmd> concurrent_ping_cmds = new Vector<>();
-        for(int i = 0 ; i < node_one_port_ips.size() ; i ++ ){
-            if(i >= node_two_port_ips.size()){
+        for (int i = 0; i < node_one_port_ips.size(); i++) {
+            if (i >= node_two_port_ips.size()) {
                 return;
             }
             String pinger_ip = node_one_port_ips.get(i);
@@ -389,12 +388,12 @@ public class pseudo_controller {
             String pingee_ip = node_two_port_ips.get(i);
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
             concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
-            System.out.println("Ping command is added: ["+ ping_cmd  + "]");
+            System.out.println("Ping command is added: [" + ping_cmd + "]");
         }
 
         System.out.println("Time to execute these ping commands concurrently");
         // Concurrently execute the pings.
-        for(concurrent_run_cmd cmd : concurrent_ping_cmds){
+        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
             cmd.run();
         }
 
@@ -413,40 +412,42 @@ public class pseudo_controller {
     private static void create_containers_on_both_hosts() {
         System.out.println("Creating containers on both hosts");
         int i = 1;
-        for (String port_ip : ip_mac_map.keySet()){
+        for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
-            String container_name = "test"+Integer.toString(i);
+            String container_name = "test" + Integer.toString(i);
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name test" + container_name + " --net=none --label test=ACA busybox sh";
-            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 test"+container_name +" --ipaddress="+port_ip+"/16 --macaddress="+port_mac;
-            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 test"+container_name+" 1";
-            if (i % 2 == 0){
+            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 test" + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 test" + container_name + " 1";
+            if (i % 2 == 0) {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 aca_node_one_commands.add(create_container_cmd);
                 aca_node_one_commands.add(ovs_docker_add_port_cmd);
                 aca_node_one_commands.add(ovs_set_vlan_cmd);
-                port_ip_to_host_ip_map.put(port_ip , aca_node_one_ip);
-            }else{
+                port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
+            } else {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 aca_node_two_commands.add(create_container_cmd);
                 aca_node_two_commands.add(ovs_docker_add_port_cmd);
                 aca_node_two_commands.add(ovs_set_vlan_cmd);
-                port_ip_to_host_ip_map.put(port_ip , aca_node_two_ip);
+                port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
             }
-            i ++ ;
+            i++;
         }
         aca_node_one_commands.add(docker_ps_cmd);
         aca_node_two_commands.add(docker_ps_cmd);
 
         System.out.println("Outputting commands for node one:");
 
-        for (int j = 0 ; j < aca_node_one_commands.size(); j ++){
+        for (int j = 0; j < aca_node_one_commands.size(); j++) {
             System.out.println(aca_node_one_commands.get(j));
         }
 
         System.out.println("Outputting commands for node two:");
 
-        for (int j = 0 ; j < aca_node_two_commands.size(); j ++){
+        for (int j = 0; j < aca_node_two_commands.size(); j++) {
             System.out.println(aca_node_two_commands.get(j));
         }
 
@@ -458,65 +459,68 @@ public class pseudo_controller {
 
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
-    public static void generate_ip_macs(int amount_of_ports_to_generate){
+    public static void generate_ip_macs(int amount_of_ports_to_generate) {
         int i = 2;
-        while (ip_mac_map.size() != amount_of_ports_to_generate){
-            if (i % 100 != 0){
+        while (ip_mac_map.size() != amount_of_ports_to_generate) {
+            if (i % 100 != 0) {
                 String ip_2nd_octet = Integer.toString(i / 10000);
                 String ip_3nd_octet = Integer.toString((i % 10000) / 100);
                 String ip_4nd_octet = Integer.toString(i % 100);
                 String ip_for_port = ips_ports_ip_prefix + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
                 String mac_for_port = mac_port_prefix + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
-                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d",(i / 10000)) + String.format("%03d",((i % 10000) / 100)) + String.format("%03d",(i % 100));
-                System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + " ], ID :[ "+id_for_port+"] and MAC: [" + mac_for_port + "]");
+                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
+                System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
                 ip_mac_map.put(ip_for_port, mac_for_port);
                 port_ip_to_id_map.put(ip_for_port, id_for_port);
             }
-            i++ ;
+            i++;
         }
     }
 
 
-    public static void execute_ssh_commands(Vector<String> commands, String host_ip, String host_user_name, String host_password){
-        try{
+    public static void execute_ssh_commands(Vector<String> commands, String host_ip, String host_user_name, String host_password) {
+        try {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             JSch jsch = new JSch();
-            Session session=jsch.getSession(host_user_name, host_ip, 22);
+            Session session = jsch.getSession(host_user_name, host_ip, 22);
             session.setPassword(host_password);
             session.setConfig(config);
             session.connect();
             System.out.println("Connected");
-            for (int j = 0 ; j < commands.size(); j++){
+            for (int j = 0; j < commands.size(); j++) {
                 String command = commands.get(j);
-                System.out.println("Start of executing command ["+command+"] on host: "+host_ip);
-                Channel channel=session.openChannel("exec");
-                ((ChannelExec)channel).setCommand(command);
+                System.out.println("Start of executing command [" + command + "] on host: " + host_ip);
+                Channel channel = session.openChannel("exec");
+                ((ChannelExec) channel).setCommand(command);
                 channel.setInputStream(null);
-                ((ChannelExec)channel).setErrStream(System.err);
+                ((ChannelExec) channel).setErrStream(System.err);
 
-                InputStream in=channel.getInputStream();
+                InputStream in = channel.getInputStream();
                 channel.connect();
-                byte[] tmp=new byte[1024];
-                while(true){
-                    while(in.available()>0){
-                        int i=in.read(tmp, 0, 1024);
-                        if(i<0)break;
+                byte[] tmp = new byte[1024];
+                while (true) {
+                    while (in.available() > 0) {
+                        int i = in.read(tmp, 0, 1024);
+                        if (i < 0) break;
                         System.out.print(new String(tmp, 0, i));
                     }
-                    if(channel.isClosed()){
-                        System.out.println("exit-status: "+channel.getExitStatus());
+                    if (channel.isClosed()) {
+                        System.out.println("exit-status: " + channel.getExitStatus());
                         break;
                     }
-                    try{Thread.sleep(1000);}catch(Exception ee){}
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception ee) {
+                    }
                 }
-                System.out.println("End of executing command ["+command+"] on host: "+host_ip);
+                System.out.println("End of executing command [" + command + "] on host: " + host_ip);
                 channel.disconnect();
             }
 
             session.disconnect();
             System.out.println("DONE");
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Got this error: " + e.getMessage());
             e.printStackTrace();
         }
@@ -524,17 +528,19 @@ public class pseudo_controller {
 
 
 }
-class concurrent_run_cmd implements Runnable{
+
+class concurrent_run_cmd implements Runnable {
     String command_to_run, host, user_name, password;
+
     @Override
     public void run() {
         Vector<String> cmd_list = new Vector<>();
-        System.out.println("Need to execute this command concurrently: ["+this.command_to_run+"]");
+        System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
         cmd_list.add(this.command_to_run);
 //        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
     }
 
-    public concurrent_run_cmd(String cmd, String host, String user_name, String password){
+    public concurrent_run_cmd(String cmd, String host, String user_name, String password) {
         this.command_to_run = cmd;
         this.host = host;
         this.user_name = user_name;
