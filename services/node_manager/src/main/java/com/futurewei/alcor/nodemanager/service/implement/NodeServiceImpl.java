@@ -112,26 +112,15 @@ public class NodeServiceImpl implements NodeService {
 
     private void addNcmUriToNodeInfo(NodeInfo nodeInfo) throws Exception {
         String ncmId = nodeInfo.getNcmId();
-        NcmInfo ncmInfo;
 
         if ((ncmId == null || ncmId == "")) {
-            if (ncmInfoRepository.ncmCount() < 1) {
-                return;
-            } else if (ncmInfoRepository.ncmCount() == 1) {
-                Map ncmInfos = ncmInfoRepository.findAllNcmInfo();
-                NcmInfo[] ncmArray = new NcmInfo[1];
-                ncmInfos.entrySet().toArray(ncmArray);
-                ncmInfo = ncmArray[0];
-            }
-            throw new Exception(NodeManagerConstant.NODE_EXCEPTION_MULTIPLE_NCM_WITH_NO_NCMID);
-        }
-        else {
-            ncmInfo = ncmInfoRepository.getNcmInfoById(nodeInfo.getNcmId());
+            return;
         }
 
-        if (ncmInfo == null || ncmInfo.getUri() == null) {
+        /* there is an ncmid, so it must be a registered one */
+        NcmInfo ncmInfo = ncmInfoRepository.getNcmInfoById(ncmId);
+        if (ncmInfo == null) {
             String except = NodeManagerConstant.NODE_EXCEPTION_NCM_NOT_FOUND + " ncmid = " + nodeInfo.getNcmId();
-            logger.error(except);
             throw new Exception(except);
         }
 

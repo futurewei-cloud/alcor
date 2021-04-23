@@ -38,16 +38,15 @@ import java.util.logging.Level;
  */
 @Configuration
 public class NetworkConfigManagerRestClient extends AbstractRestClient {
-    @Value("${microservices.ncm.service.url:#{\"\"}}")
-    private String defaultNcmUrl;
-
     Logger LOG = LoggerFactory.getLogger();
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {
         String ncmUri = message.getNodeInfo().getNcmUri();
-        if (ncmUri == null)
-            ncmUri = defaultNcmUrl;
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "node with id " + message.getNodeInfo().getId() + " is getting created without an NCM");
+            return;
+        }
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
         restTemplate.postForObject(ncmUri, request, Object.class);
     }
@@ -55,8 +54,10 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
     @DurationStatistics
     public void updateNodeInfo(NodeInfoJson message) throws Exception {
         String ncmUri = message.getNodeInfo().getNcmUri();
-        if (ncmUri == null)
-            ncmUri = defaultNcmUrl;
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "creating node with id " + message.getNodeInfo().getId() + " without an NCM");
+            return;
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message, headers);
@@ -65,8 +66,10 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public void deleteNodeInfo(String nodeId, String ncmUri) throws Exception {
-        if (ncmUri == null)
-            ncmUri = defaultNcmUrl;
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "deleting node with id " + nodeId + " without an NCM");
+            return;
+        }
         String delUrl = ncmUri + "/" + nodeId;
 
         HttpHeaders headers = new HttpHeaders();
@@ -83,8 +86,10 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
         // NOTE: ncmUri already has been decorated with /bulk, so don't add
         // here again.
         String ncmUri = bulkNodeInfoJson.getNodeInfos().get(0).getNcmUri();
-        if (ncmUri == null)
-            ncmUri = defaultNcmUrl;
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "uploading nodes without an NCM");
+            return;
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson, headers);

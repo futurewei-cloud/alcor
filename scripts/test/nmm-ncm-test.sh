@@ -155,6 +155,15 @@ N5N='
          "ncm_id" : "test_ncm_001"
 }'
 
+N6='
+{
+         "local_ip": "11.213.43.15",
+         "node_id": "d609465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "F5:A0:C9:34:C8:29",
+         "node_name": "ncm009035",
+         "server_port": 50001,
+         "veth": "eth0"
+}'
 
 setnodeids() {
     for node in "$N1" "$N2" "$N3" "$N4" "$N5"; do
@@ -174,7 +183,7 @@ getnodeid() {
 
 getnmm() {
     RET=0
-    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -X GET -o $CURLTEMP "http://localhost:9007/nodes/$1"
+    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -o $CURLTEMP -X GET "http://localhost:9007/nodes/$1"
     fgrep $1 $CURLTEMP > /dev/null 2>&1
     return $?
 }
@@ -356,6 +365,32 @@ NCM_EOF
     fi
 }
 
+create_without_ncm()
+{
+    NODEID=`getnodeid "$N6"`
+    echo "NMM POST NONCM $NODEID"
+        PAY='{
+        "host_info" : '
+        PAY="$PAY $N6
+    }"
+    echo "$PAY" > $PAYTEMP
+    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -o $CURLTEMP -d@${PAYTEMP} -X POST http://localhost:9007/nodes
+    if [ $? -ne 0 ]; then
+        echo "FAILED: NONCM POST"
+        return 1
+    fi
+    echo "NMM GET $NODEID"
+    getnmm $NODEID
+    fgrep $NODEID $CURLTEMP > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAILED: NONCM GET"
+        return 1
+    else
+        curl  --no-progress-meter --header 'Content-Type: application/json' -X DELETE   -o $CURLTEMP http://localhost:9007/nodes/$NODEID
+    fi
+    echo "PASSED: NONCM POST"
+}
+
 # Change N5 ip and check (N5N)
 verifyupd() {
     PAY='{
@@ -405,7 +440,6 @@ verifyupd() {
 setnodeids
 
 check_create_ncm
-
 
 echo "CLEAR caches"
 for x in $ALL_NODES; do
@@ -500,6 +534,8 @@ else
     echo "PASSED: UPDATE"
 fi
 
+#verify node creation without NCMID
+create_without_ncm
 
 echo "DELETE all"
 verifydel
