@@ -59,7 +59,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void stop() throws InterruptedException {
-        logger.log(Level.INFO,"GoalStateProvisionerServer : Server stop, was listening on " + this.port);
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server stop, was listening on " + this.port);
         if (this.server != null) {
             this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
@@ -67,7 +67,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void blockUntilShutdown() throws InterruptedException {
-        logger.log(Level.INFO,"GoalStateProvisionerServer : Server blockUntilShutdown, listening on " + this.port);
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server blockUntilShutdown, listening on " + this.port);
         if (this.server != null) {
             this.server.awaitTermination();
         }
@@ -75,7 +75,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-        GoalStateProvisionerImpl() { }
+        GoalStateProvisionerImpl() {
+        }
 
         @Override
         public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
@@ -90,6 +91,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
                     //store the goal state in cache
+                    for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
+                        String hostId = entry.getKey();
+                        HostGoalState hostGoalState = entry.getValue();
+
+
+                    }
 
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
@@ -157,7 +164,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //TODO: Implement on-demand algorithm and support setOperationStatus==Failure
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
-            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest: request.getStateRequestsList()) {
+            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
                 Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status =
                         Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
                                 .setRequestId(resourceStateRequest.getRequestId())
