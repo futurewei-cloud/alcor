@@ -22,9 +22,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -41,14 +39,14 @@ public class pseudo_controller {
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
-    static String ips_ports_ip_prefix = "123";
+    static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
     static HashMap<String, String> ip_mac_map = new HashMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
-    static HashMap<String, String> port_ip_to_host_ip_map = new HashMap<>();
-    static HashMap<String, String> port_ip_to_id_map = new HashMap<>();
-    static HashMap<String, String> port_ip_to_container_name = new HashMap<>();
+    static SortedMap<String, String> port_ip_to_host_ip_map = new TreeMap<>();
+    static SortedMap<String, String> port_ip_to_id_map = new TreeMap<>();
+    static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
 
@@ -461,7 +459,7 @@ public class pseudo_controller {
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
     public static void generate_ip_macs(int amount_of_ports_to_generate){
-        int i = 0;
+        int i = 2;
         while (ip_mac_map.size() != amount_of_ports_to_generate){
             if (i % 100 != 0){
                 String ip_2nd_octet = Integer.toString(i / 10000);
