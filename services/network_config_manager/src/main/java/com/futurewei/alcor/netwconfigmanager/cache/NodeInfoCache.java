@@ -46,7 +46,7 @@ public class NodeInfoCache {
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
-        this.nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        this.nodeInfoCache = cacheFactory.getCache(NodeInfo.class, "ncm_nodeinfo_cache");
     }
 
     @DurationStatistics

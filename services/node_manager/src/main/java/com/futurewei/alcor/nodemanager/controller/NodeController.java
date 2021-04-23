@@ -131,7 +131,7 @@ public class NodeController {
             }
 
             if (ncm_id != null)
-                queryParams.put("ncmId", new String[]{ncm_id});
+                queryParams.put("ncm_id", new String[]{ncm_id});
 
             nodes = service.getAllNodes(queryParams);
         } catch (ParameterNullOrEmptyException e) {

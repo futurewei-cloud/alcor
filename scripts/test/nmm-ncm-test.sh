@@ -18,7 +18,12 @@ PAYTEMP="payload-tmp-$$.json"
 GETTEMP="gettemp-tmp-$$.out"
 CURLTEMP="curl-out-tmp.$$.out"
 NODEIDS=
-ALLNODES=
+ALL_NODES=
+
+DEF_NMMURI="http://localhost:9007"
+DEF_NCMURI="http://localhost:9014"
+DEF_NCMID="test_ncm_001"
+DEF_NCMCAP=10
 
 UPLOAD_FILE=../json/nodes-upload.json
 
@@ -38,7 +43,8 @@ BULK='{
          "mac_address": "C1:A0:C9:34:C8:29",
          "node_name": "blk909030",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
       },
       {
          "local_ip": "20.213.43.11",
@@ -46,7 +52,8 @@ BULK='{
          "mac_address": "C2:A0:C9:34:C8:29",
          "node_name": "blk909031",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
       },
       {
          "local_ip": "20.213.43.13",
@@ -54,7 +61,8 @@ BULK='{
          "mac_address": "C3:A0:C9:34:C8:29",
          "node_name": "blk909032",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
       },
       {
          "local_ip": "20.213.43.14",
@@ -62,7 +70,8 @@ BULK='{
          "mac_address": "C4:A0:C9:34:C8:29",
          "node_name": "blk909033",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
       },
       {
          "local_ip": "20.213.43.15",
@@ -70,7 +79,8 @@ BULK='{
          "mac_address": "C5:A0:C9:34:C8:29",
          "node_name": "blk909034",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
       }
    ]
 }'
@@ -82,7 +92,8 @@ N1='
          "mac_address": "A1:A0:C9:34:C8:29",
          "node_name": "ncm009030",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
 }'
 
 N2='
@@ -92,7 +103,8 @@ N2='
          "mac_address": "A2:A0:C9:34:C8:29",
          "node_name": "ncm009031",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
 }'
 
 N3='
@@ -102,7 +114,8 @@ N3='
          "mac_address": "A3:A0:C9:34:C8:29",
          "node_name": "ncm009032",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
 }'
 
 N4='
@@ -112,7 +125,8 @@ N4='
          "mac_address": "A4:A0:C9:34:C8:29",
          "node_name": "ncm009033",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
 }'
 
 N5='
@@ -122,9 +136,34 @@ N5='
          "mac_address": "A5:A0:C9:34:C8:29",
          "node_name": "ncm009034",
          "server_port": 50001,
-         "veth": "eth0"
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
 }'
 
+N5ID="d509465c-5ed6-400e-806d-fbefd12f94a9"
+N5OIP="10.213.43.15"
+N5NIP="101.213.43.151"
+
+N5N='
+{
+         "local_ip": "101.213.43.151",
+         "node_id": "d509465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "A5:A0:C9:34:C8:29",
+         "node_name": "ncm009034",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+}'
+
+N6='
+{
+         "local_ip": "11.213.43.15",
+         "node_id": "d609465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "F5:A0:C9:34:C8:29",
+         "node_name": "ncm009035",
+         "server_port": 50001,
+         "veth": "eth0"
+}'
 
 setnodeids() {
     for node in "$N1" "$N2" "$N3" "$N4" "$N5"; do
@@ -144,28 +183,16 @@ getnodeid() {
 
 getnmm() {
     RET=0
-    curl -X GET --no-progress-meter -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" http://localhost:9007/nodes/$1
+    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -o $CURLTEMP -X GET "http://localhost:9007/nodes/$1"
     fgrep $1 $CURLTEMP > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        RET=0
-    else
-        RET=1
-    fi
-
-    return $RET
+    return $?
 }
 
 getncm() {
     RET=1
-    curl -X GET --no-progress-meter -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" http://localhost:9014/nodes/$1
+    curl --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -o $CURLTEMP -X GET "http://localhost:9014/nodes/$1"
     fgrep $1 $CURLTEMP > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        RET=0
-    else
-        RET=1
-    fi
-
-    return $RET
+    return $?
 }
 
 doget() {
@@ -202,7 +229,7 @@ dopost() {
         NODEID=`getnodeid "$PAY"`
         echo "NMM POST $NODEID"
         echo "$PAY" > $PAYTEMP
-        curl -X POST --no-progress-meter -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" -d@${PAYTEMP} http://localhost:9007/nodes
+        curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -X POST -o $CURLTEMP -d@${PAYTEMP} http://localhost:9007/nodes
         if [ $? -ne 0 ]; then
             POK=0
         fi
@@ -237,62 +264,200 @@ verifyget() {
     done
 }
 
+isupload() {
+    echo "$UPLOAD_NODES" | fgrep $1 > /dev/null 2>&1
+    return $?
+}
+
+
 verifydel() {
     DOK=1
-    getncm $1
-    if fgrep $1 $CURLTEMP > /dev/null 2>&1; then
-        true
-    else
-        echo "verifydel: NCM not found $1"
-    fi
+    for n in $ALL_NODES; do
+        getnmm $n
+        if [ $? -eq 1 ]; then
+            echo "verifydel: NMM MISSING TO DELETE $n"
+        fi
+        # skip file upload nodes in NCM
+        isupload $n
+        if [ $? -eq 0 ]; then
+            true
+        else
+            getncm $n
+            if [ $? -eq 1 ]; then
+                echo "verifydel: NCM MISSING TO DELETE $n"
+            fi
+        fi
 
-    curl -X DELETE  -o $CURLTEMP --no-progress-meter http://localhost:9007/nodes/$1
-    if [ $? -ne 0 ]; then
-        DOK=0
-    fi
+        echo "DELETE NMM $n"
+        curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*'  -X DELETE  -o $CURLTEMP "http://localhost:9007/nodes/$n"
+        if [ $? -ne 0 ]; then
+            DOK=0
+        fi
 
-    getncm $1
-    if fgrep $1 $CURLTEMP > /dev/null 2>&1; then
-        echo "verifydel: NCM not deleted $1"
-        DOK=0
-    fi
+        getnmm $n
+        if [ $? -eq 0 ]; then
+            echo "verifydel: NMM not deleted $n"
+            DOK=0
+        fi
+
+        isupload $n
+        if [ $? -eq 0 ]; then
+            true
+        else
+            getncm $n
+            if [ $? -eq 0 ]; then
+                echo "verifydel: NCM not deleted $n"
+                DOK=0
+            fi
+        fi
+    done
 }
 
 
 verifybulk() {
     BOK=1
     for b in `awk -F: '/node_id/ {print $2}' $1 | sed 's/[", \t]//g'`; do
-        getncm $b
+        getnmm $b
         if fgrep $b $CURLTEMP > /dev/null 2>&1; then
             true
         else
-            echo "verifybulk: NCM not found $b"
+            echo "verifybulk: NMM not found $b"
             BOK=0
+        fi
+        # skip file upload nodes in NCM
+        isupload $b
+        if [ $? -eq 0 ]; then
+            true
+        else
+            getncm $b
+            if fgrep $b $CURLTEMP > /dev/null 2>&1; then
+                true
+            else
+                echo "verifybulk: NCM not found $b"
+                BOK=0
+            fi
         fi
     done
     return $RET
+}
+
+check_create_ncm() {
+    # check if an NCM with id test_ncm_001 exists,
+    # if not register one with http://localhost:9014 as URI
+    curl --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -X GET -o $CURLTEMP ${DEF_NMMURI}/ncms/${DEF_NCMID}
+    fgrep ' does not exist' $CURLTEMP > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        cat << NCM_EOF > $PAYTEMP
+            {
+                "ncm_info": {
+                    "cap": $DEF_NCMCAP,
+                    "id": "${DEF_NCMID}",
+                    "uri": "${DEF_NCMURI}"
+                }
+        }
+NCM_EOF
+        curl  --no-progress-meter --header 'Content-Type: application/json' -X POST -o $CURLTEMP -d@${PAYTEMP} "${DEF_NMMURI}/ncms"
+        if [ -s $CURLTEMP ]; then
+            echo "Could not register NCM"
+            cat $CURLTEMP
+        fi
+        echo "NCM ${DEF_NCMID} created"
+    fi
+}
+
+create_without_ncm()
+{
+    NODEID=`getnodeid "$N6"`
+    echo "NMM POST NONCM $NODEID"
+        PAY='{
+        "host_info" : '
+        PAY="$PAY $N6
+    }"
+    echo "$PAY" > $PAYTEMP
+    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -o $CURLTEMP -d@${PAYTEMP} -X POST http://localhost:9007/nodes
+    if [ $? -ne 0 ]; then
+        echo "FAILED: NONCM POST"
+        return 1
+    fi
+    echo "NMM GET $NODEID"
+    getnmm $NODEID
+    fgrep $NODEID $CURLTEMP > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAILED: NONCM GET"
+        return 1
+    else
+        curl  --no-progress-meter --header 'Content-Type: application/json' -X DELETE   -o $CURLTEMP http://localhost:9007/nodes/$NODEID
+    fi
+    echo "PASSED: NONCM POST"
+}
+
+# Change N5 ip and check (N5N)
+verifyupd() {
+    PAY='{
+        "host_info" : '
+        PAY="$PAY $N5N
+    }"
+    echo "NMM PUT $N5ID"
+    echo "$PAY" > $PAYTEMP
+    curl  --no-progress-meter --header 'Content-Type: application/json' --header 'Accept: */*' -X PUT -o $CURLTEMP -d@${PAYTEMP} http://localhost:9007/nodes/$N5ID
+    RET=$?
+    echo
+    if [ $RET -ne 0 ]; then
+        return 1
+    fi
+    echo "NMM GET $N5ID"
+    getnmm $N5ID
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+
+    fgrep "$N5NIP" $CURLTEMP > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAILED: UPDATE NMM $N5ID IP"
+        cat $CURLTEMP
+        return 1
+    fi
+
+    echo "NCM GET $N5ID"
+    getncm $N5ID
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    fgrep $N5ID $CURLTEMP > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    fgrep "$N5NIP" $CURLTEMP > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAILED: UPDATE NCM $N5ID IP"
+        return 1
+    fi
+    return 0
 }
 
 # main
 
 setnodeids
 
+check_create_ncm
+
 echo "CLEAR caches"
 for x in $ALL_NODES; do
-    curl -X DELETE  --no-progress-meter  -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" http://localhost:9007/nodes/$x
+    curl  --no-progress-meter --header 'Content-Type: application/json' -X DELETE   -o $CURLTEMP http://localhost:9007/nodes/$x
     if fgrep "The node to update or delete is not existing" $CURLTEMP > /dev/null 2>&1; then
         true
     else
         echo "CLEAR: $x not cleared in NMM"
     fi
 
-    curl -X DELETE  --no-progress-meter -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" http://localhost:9014/nodes/$x
+    curl  --no-progress-meter --header 'Content-Type: application/json' -X DELETE  -o $CURLTEMP http://localhost:9014/nodes/$x
     if [ ! -s $CURLTEMP ]; then
         true
     else
         echo "CLEAR: $x not cleared in NCM"
     fi
 done
+
 
 echo "Querying empty caches"
 for x in $ALL_NODES; do
@@ -307,7 +472,7 @@ for x in $ALL_NODES; do
     fi
 done
 
-NULLS=`fgrep -c '{"host_info":null}' $GETTEMP 2> /dev/null`
+NULLS=`fgrep -c '{"host_info":null}' $CURLTEMP 2> /dev/null`
 if [ -z "$NULLS" ]; then
     true
 elif [ $NULLS -eq 10 ]; then
@@ -334,26 +499,10 @@ else
 fi
 
 echo
-echo "DELETE all"
-for node in $NODEIDS; do
-    verifydel $node
-    echo "DELETED $node"
-done
-
-echo
-echo "Verify DELETE"
-doget
-verifyget
-if [ $DOK -eq 1 -a $GOK -eq 0 ]; then
-    echo "PASSED: DELETE"
-else
-    echo "FAILED: DELETE"
-fi
-echo
 
 echo "Bulk POST"
 echo "$BULK" > $PAYTEMP
-curl -X POST --no-progress-meter -o $CURLTEMP --header "Content-Type: application/json" --header "Accept: */*" -d@${PAYTEMP} http://localhost:9007/nodes/bulk
+curl  --no-progress-meter --header 'Content-Type: application/json' -X POST -o $CURLTEMP -d@${PAYTEMP} http://localhost:9007/nodes/bulk
 echo "Verify bulk POST"
 verifybulk $PAYTEMP
 
@@ -365,7 +514,7 @@ fi
 
 echo
 echo "Verify file upload"
-curl -X POST --no-progress-meter -o $CURLTEMP -H 'Content-Type: multipart/form-data' -H 'application-type:REST' --form file=@../json/nodes-upload.json http://localhost:9007/nodes/upload
+curl  --no-progress-meter -X POST -o $CURLTEMP -H 'Content-Type: multipart/form-data' -H 'application-type:REST' --form file=@../json/nodes-upload.json http://localhost:9007/nodes/upload
 if [ $? -ne 0 ]; then
     FOK=0
 fi
@@ -377,4 +526,22 @@ else
     echo "FAILED: UPLOAD"
 fi
 
+# verify update
+verifyupd
+if [ $? -ne 0 ]; then
+    echo "FAILED: UPDATE"
+else
+    echo "PASSED: UPDATE"
+fi
+
+#verify node creation without NCMID
+create_without_ncm
+
+echo "DELETE all"
+verifydel
+if [ $DOK -eq 1 ]; then
+    echo "PASSED: DELETE"
+else
+    echo "FAILED: DELETE"
+fi
 exit 0
