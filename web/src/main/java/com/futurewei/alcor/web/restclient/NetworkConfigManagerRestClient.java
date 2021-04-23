@@ -22,13 +22,13 @@ import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodesWebJson;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,32 +38,61 @@ import java.util.logging.Level;
  */
 @Configuration
 public class NetworkConfigManagerRestClient extends AbstractRestClient {
-    @Value("${microservices.ncm.service.url:#{\"\"}}")
-    private String ncmManagerUrl;
-
     Logger LOG = LoggerFactory.getLogger();
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {
+        String ncmUri = message.getNodeInfo().getNcmUri();
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "node with id " + message.getNodeInfo().getId() + " is getting created without an NCM");
+            return;
+        }
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
-        restTemplate.postForObject(ncmManagerUrl, request, Object.class);
+        restTemplate.postForObject(ncmUri, request, Object.class);
     }
 
     @DurationStatistics
     public void updateNodeInfo(NodeInfoJson message) throws Exception {
-        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
-        restTemplate.postForObject(ncmManagerUrl, request, Object.class);
+        String ncmUri = message.getNodeInfo().getNcmUri();
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "creating node with id " + message.getNodeInfo().getId() + " without an NCM");
+            return;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message, headers);
+        restTemplate.exchange(ncmUri, HttpMethod.PUT, request, NodeInfoJson.class).getBody();
     }
 
     @DurationStatistics
-    public void deleteNodeInfo(String nodeId) throws Exception {
-        HttpEntity<String> request = new HttpEntity<>(nodeId);
-        restTemplate.postForObject(ncmManagerUrl, request, Object.class);
+    public void deleteNodeInfo(String nodeId, String ncmUri) throws Exception {
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "deleting node with id " + nodeId + " without an NCM");
+            return;
+        }
+        String delUrl = ncmUri + "/" + nodeId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        restTemplate.exchange(delUrl, HttpMethod.DELETE, request, String.class).getBody();
     }
+
 
     @DurationStatistics
     public void bulkCreatNodeInfo(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
-        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson);
-        restTemplate.postForObject(ncmManagerUrl, request, Object.class);
+        // This is assuming/requiring that bulk operations go to/must go to
+        // single NCM.
+        // NOTE: ncmUri already has been decorated with /bulk, so don't add
+        // here again.
+        String ncmUri = bulkNodeInfoJson.getNodeInfos().get(0).getNcmUri();
+        if (ncmUri == null) {
+            LOG.log(Level.INFO, "uploading nodes without an NCM");
+            return;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson, headers);
+        restTemplate.postForObject(ncmUri, request, Object.class);
     }
 }
