@@ -42,7 +42,7 @@ public class pseudo_controller {
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
-    static HashMap<String, String> ip_mac_map = new HashMap<>();
+    static SortedMap<String, String> ip_mac_map = new TreeMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
     static SortedMap<String, String> port_ip_to_host_ip_map = new TreeMap<>();
@@ -216,7 +216,7 @@ public class pseudo_controller {
         subnet_configuration_builder.setRevisionNumber(2);
         subnet_configuration_builder.setVpcId(vpc_id_1);
         subnet_configuration_builder.setId(subnet_id_1);
-        subnet_configuration_builder.setCidr("123.0.0.0/24");
+        subnet_configuration_builder.setCidr("10.0.0.0/24");
         subnet_configuration_builder.setTunnelId(21);
 
         new_subnet_states.setConfiguration(subnet_configuration_builder.build());
@@ -419,7 +419,7 @@ public class pseudo_controller {
             String create_container_cmd = "docker run -itd --name test" + container_name + " --net=none --label test=ACA busybox sh";
             String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 test" + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
             String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 test" + container_name + " 1";
-            if (i % 2 == 0) {
+            if (i % 2 != 0) {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 aca_node_one_commands.add(create_container_cmd);
