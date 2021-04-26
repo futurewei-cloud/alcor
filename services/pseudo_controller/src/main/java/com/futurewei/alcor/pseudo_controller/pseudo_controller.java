@@ -250,7 +250,8 @@ public class pseudo_controller {
         System.out.println("Time to execute these ping commands concurrently");
         // Concurrently execute the pings.
         for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            cmd.run();
+            Thread t = new Thread(cmd);
+            t.start();
         }
 
         System.out.println("End of the test controller");
