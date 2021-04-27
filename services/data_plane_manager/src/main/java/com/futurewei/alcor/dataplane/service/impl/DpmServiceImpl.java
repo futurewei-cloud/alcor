@@ -387,25 +387,27 @@ public class DpmServiceImpl implements DpmService {
 
     private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
-        List<String> failedHosts;
+        List<String> failedHosts = new ArrayList<>();
+        List<ResourceOperation> rsopTypes = networkConfig.getRsOpTypes();
 
-        switch (networkConfig.getRsType()) {
-            case PORT:
-                failedHosts = processPortConfiguration(networkConfig);
-                break;
-            case NEIGHBOR:
-                failedHosts = processNeighborConfiguration(networkConfig);
-                break;
-            case SECURITYGROUP:
-                failedHosts = processSecurityGroupConfiguration(networkConfig);
-                break;
-            case ROUTER:
-                failedHosts = processRouterConfiguration(networkConfig);
-                break;
-            default:
-                throw new UnknownResourceType();
+        for (ResourceOperation rsopType : rsopTypes) {
+            switch (rsopType.getRsType()) {
+                case PORT:
+                    failedHosts.addAll(processPortConfiguration(networkConfig));
+                    break;
+                case NEIGHBOR:
+                    failedHosts.addAll(processNeighborConfiguration(networkConfig));
+                    break;
+                case SECURITYGROUP:
+                    failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
+                    break;
+                case ROUTER:
+                    failedHosts.addAll(processRouterConfiguration(networkConfig));
+                    break;
+                default:
+                    throw new UnknownResourceType();
+            }
         }
-
         return buildResult(networkConfig, failedHosts, startTime);
     }
 
