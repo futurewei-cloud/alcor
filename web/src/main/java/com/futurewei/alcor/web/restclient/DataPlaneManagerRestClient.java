@@ -27,7 +27,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+
+import java.util.Arrays;
 
 @Configuration
 public class DataPlaneManagerRestClient extends AbstractRestClient {
@@ -70,20 +74,27 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public void updateNodeInfo(NodeInfoJson message) throws Exception {
-        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
-        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message, headers);
+        restTemplate.exchange(dataPlaneNodeManagerUrl, HttpMethod.PUT, request, NodeInfoJson.class).getBody();
     }
 
     @DurationStatistics
-    public void deleteNodeInfo(String nodeId) throws Exception {
-        HttpEntity<String> request = new HttpEntity<>(nodeId);
-        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+    public void deleteNodeInfo(NodeInfoJson message) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<NodeInfoJson> request = new HttpEntity<>(message, headers);
+        restTemplate.exchange(dataPlaneNodeManagerUrl, HttpMethod.DELETE, request, NodeInfoJson.class).getBody();
     }
 
     @DurationStatistics
     public void bulkCreatNodeInfo(BulkNodeInfoJson bulkNodeInfoJson) throws Exception {
-        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson);
-        restTemplate.postForObject(dataPlaneNodeManagerUrl, request, Object.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<BulkNodeInfoJson> request = new HttpEntity<>(bulkNodeInfoJson, headers);
+        String bulkUri = dataPlaneNodeManagerUrl + "/bulk";
+        restTemplate.postForObject(bulkUri, request, Object.class);
     }
 
 

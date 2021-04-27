@@ -64,8 +64,10 @@ public class NodeInfo implements Serializable {
     @JsonProperty("ncm_id")
     private String ncm_id;
 
-    public NodeInfo() {
+    // doesn't come in the Json version
+    private String ncm_uri;
 
+    public NodeInfo() {
     }
 
     public NodeInfo(NodeInfo nodeInfo) {
@@ -198,4 +200,8 @@ public class NodeInfo implements Serializable {
     public String getNcmId() { return ncm_id; }
 
     public void setNcmId(String ncm_id) { this.ncm_id = ncm_id; }
+
+    public String getNcmUri() { return ncm_uri; }
+
+    public void setNcmUri(String uri) { ncm_uri = uri; }
 }

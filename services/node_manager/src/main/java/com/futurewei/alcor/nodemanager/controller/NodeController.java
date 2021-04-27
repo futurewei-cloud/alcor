@@ -26,10 +26,7 @@ import com.futurewei.alcor.common.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
-import com.futurewei.alcor.web.entity.node.NodeInfo;
-import com.futurewei.alcor.web.entity.node.NodeInfoJson;
-import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
-import com.futurewei.alcor.web.entity.node.NodesWebJson;
+import com.futurewei.alcor.web.entity.node.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +111,8 @@ public class NodeController {
     public NodesWebJson getAllNodes(@ApiParam(value = "node_name") @RequestParam(required = false) String name,
                                     @ApiParam(value = "node_id") @RequestParam(required = false) String id,
                                     @ApiParam(value = "mac_address") @RequestParam(required = false) String mac_address,
-                                    @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip) throws ParameterNullOrEmptyException, Exception {
+                                    @ApiParam(value = "local_Ip") @RequestParam(required = false) String local_ip,
+                                    @ApiParam(value = "ncm_id") @RequestParam(required = false) String ncm_id) throws ParameterNullOrEmptyException, Exception {
         List<NodeInfo> nodes = null;
         try {
             Map<String, Object[]> queryParams =
@@ -131,6 +129,9 @@ public class NodeController {
             if (local_ip != null) {
                 queryParams.put("localIp", new String[]{local_ip});
             }
+
+            if (ncm_id != null)
+                queryParams.put("ncm_id", new String[]{ncm_id});
 
             nodes = service.getAllNodes(queryParams);
         } catch (ParameterNullOrEmptyException e) {
@@ -208,5 +209,102 @@ public class NodeController {
             throw e;
         }
         return "{Node(Node) Id: " + nodeid + "}";
+    }
+
+    /**
+     * /ncms end-points: NCM metadata management methods
+     */
+
+    @RequestMapping(
+            method = GET,
+            value = {"/ncms/{ncmId}", "/v4/ncms/{ncmId}"})
+    @DurationStatistics
+    public NcmInfoJson getNcmMetaData(@PathVariable String ncmId) throws Exception {
+        NcmInfo ncmInfo = null;
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(ncmId);
+            ncmInfo = service.getNcmMetaData(ncmId);
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+        if (ncmInfo == null) {
+            return new NcmInfoJson();
+        }
+
+        return new NcmInfoJson(ncmInfo);
+    }
+
+    @RequestMapping(
+            method = GET,
+            value = {"/ncms", "/v4/ncms"})
+    @DurationStatistics
+    public NcmsWebJson getAllNcmMetaData() throws Exception {
+        List<NcmInfo> ncmInfos = null;
+        try {
+            ncmInfos = service.getAllNcmMetaData();
+        } catch (ParameterNullOrEmptyException e) {
+            throw new Exception(e);
+        }
+        if (ncmInfos == null) {
+            return new NcmsWebJson();
+        }
+
+        return new NcmsWebJson(ncmInfos);
+    }
+
+
+    /**
+     *
+     * @param resource
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = POST,
+            value = {"/ncms", "/v4/ncms"})
+    public void registerNcmMetaData(@RequestBody NcmInfoJson resource) throws Exception {
+        if (resource == null) {
+            throw new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_JSON_EMPTY);
+        }
+        try {
+            service.registerNcmMetaData(resource.getNcmInfo());
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,e.getMessage());
+            throw e;
+        }
+    }
+
+    @RequestMapping(
+            method = DELETE,
+            value = {"/ncms/{ncmId}", "/v4/ncms/{ncmId}"})
+    @DurationStatistics
+    public void unRegisterNcmMetaData(@PathVariable String ncmId) throws Exception {
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(ncmId);
+            service.unRegisterNcmMetaData(ncmId);
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        }
+    }
+
+    @RequestMapping(
+            method = PUT,
+            value = {"/ncms/{ncmId}", "/v4/ncms/{ncmId}"})
+    @DurationStatistics
+    public void updateNcmMetaData(@PathVariable String ncmId, @RequestBody NcmInfoJson resource) throws Exception {
+        NcmInfo ncmInfo = null;
+        try {
+            NcmInfo inNcmInfo = resource.getNcmInfo();
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(inNcmInfo);
+            RestPreconditionsUtil.verifyParameterValid(ncmId, inNcmInfo.getId());
+            service.updateNcmMetaData(ncmId, inNcmInfo);
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        } catch (ParameterUnexpectedValueException e){
+            throw e;
+        }
+        catch (Exception e) {
+            throw new Exception(e);
+        }
     }
 }

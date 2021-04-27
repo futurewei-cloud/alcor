@@ -48,7 +48,9 @@ With the above configuration the ignite service will be run as name 'ignite',
 The vpc_manager is built from the Dockerfile located in services/vpc_manager folder and the container with the name vpm port 9001 is started.
 
 ## Preconditions
-Ensure that your target hosts, over which you plan to deploy the Busybox containers have AlcorControl Agent running.
+Ensure that your target hosts, over which you plan to deploy the Busybox containers 
+1. have AlcorControl Agent running.
+2. No busy box containers with names like con1, con2 etc. are present (Delete them if they are).
 
 ## Running Test
 The main file for running the test is busybox_ping_test.py. It is a python script that can be run from command prompt in either of the following two ways:
@@ -57,7 +59,7 @@ python busybox_ping_test.py
 ./busybox_ping_test.py
 ````
 
-You can optionally provide the paramter -b to build all the docker images of the alcor services. This step need not be followed for any subsequent tests, unless any changes are made in Alcor.
+You can optionally provide the paramter --build to build all the docker images of the alcor services. This step need not be followed for any subsequent tests, unless any changes are made in Alcor.
 	
 ## After Test Starts
 1. It will stop, remove existing Alcor services (if present) and start them all (as listed in alcor_services.ini file)
@@ -79,7 +81,23 @@ You can optionally provide the paramter -b to build all the docker images of the
     This will clean ovs bridges and we need to restart the Alcor Control Agents.
     Note: The clearing of containers or ovs bridges are not part of test script.
 
+## Quick Start
+After making the necessary configuration file changes, run the script with following paramters to get started:
+1. ./ping_test.py --build
+This will
+ - build the alcor services and their docker images
+ - and runs the simple test case of two containers under same subnet and security group pinging each other.
+2. ./ping_test.py -t 1
+This will
+ - runs the test case two busyboxy containers on two subnets and same security group
+3. ./ping_test.py -t 2
+This will
+ - runs the test case two busybox containers on one subnet and same two security group
+
 ## TO DO
 1) Stop the test if one ore more Alcor services are not running.
 2) Add error handling for deploying the containers.
+3) Jenkins pipeline to be added.
+4) Add the feature to start alcor agent on the target hosts (if not already started).
+5) Check for the presence of any abandoned busybox containers on target hosts and delete them if needed.
 

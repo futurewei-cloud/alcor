@@ -42,8 +42,8 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("Security Group Manager")
                 .description("Security Group lifecycle management")
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+                .license("MIT")
+                .licenseUrl("https://opensource.org/licenses/MIT")
                 .build();
     }
 }

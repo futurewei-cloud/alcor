@@ -18,6 +18,7 @@ package com.futurewei.alcor.nodemanager.service.implement;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.nodemanager.dao.NcmInfoRepository;
 import com.futurewei.alcor.nodemanager.dao.NodeRepository;
 import com.futurewei.alcor.nodemanager.exception.NodeRepositoryException;
 import com.futurewei.alcor.nodemanager.processor.IProcessor;
@@ -25,8 +26,11 @@ import com.futurewei.alcor.nodemanager.processor.NodeContext;
 import com.futurewei.alcor.nodemanager.processor.ProcessorManager;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
+import com.futurewei.alcor.web.entity.node.NcmInfo;
+import com.futurewei.alcor.web.entity.node.NcmInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @ComponentScan(value = "com.futurewei.alcor.common.utils")
@@ -50,17 +52,19 @@ public class NodeServiceImpl implements NodeService {
 
     @Autowired
     private NodeRepository nodeRepository;
+    @Autowired
+    private NcmInfoRepository ncmInfoRepository;
 
     private void handleCreateNodeRequest(NodeInfo nodeInfo) {
         NodeContext nodeContext = new NodeContext(nodeInfo);
         IProcessor processorChain = ProcessorManager.getProcessChain();
+
         try {
-            processorChain.createNode(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
+                processorChain.createNode(nodeContext);
+                nodeContext.getRequestManager().waitAllRequestsFinish();
         } catch (Exception e) {
             logger.error("Catch exception: ", e);
         }
-
     }
 
     private void handleUpdateNodeRequest(NodeInfo nodeInfo) {
@@ -74,8 +78,8 @@ public class NodeServiceImpl implements NodeService {
         }
     }
 
-    private void handleDeleteNodeRequest(String nodeId) {
-        NodeContext nodeContext = new NodeContext(nodeId);
+    private void handleDeleteNodeRequest(NodeInfo nodeInfo) {
+        NodeContext nodeContext = new NodeContext(nodeInfo);
         IProcessor processorChain = ProcessorManager.getProcessChain();
         try {
             processorChain.deleteNode(nodeContext);
@@ -96,6 +100,34 @@ public class NodeServiceImpl implements NodeService {
         }
     }
 
+    private void augmentNodeInfosWithNcmUri(List<NodeInfo> nodeInfos) throws Exception {
+        for (int i = 0; i < nodeInfos.size(); ++i) {
+            NodeInfo ni = nodeInfos.get(i);
+            addNcmUriToNodeInfo(ni);
+        }
+
+        String bulkUri = nodeInfos.get(0).getNcmUri() + "/bulk";
+        nodeInfos.get(0).setNcmUri(bulkUri);
+    }
+
+    private void addNcmUriToNodeInfo(NodeInfo nodeInfo) throws Exception {
+        String ncmId = nodeInfo.getNcmId();
+
+        if ((ncmId == null || ncmId == "")) {
+            return;
+        }
+
+        /* there is an ncmid, so it must be a registered one */
+        NcmInfo ncmInfo = ncmInfoRepository.getNcmInfoById(ncmId);
+        if (ncmInfo == null) {
+            String except = NodeManagerConstant.NODE_EXCEPTION_NCM_NOT_FOUND + " ncmid = " + nodeInfo.getNcmId();
+            throw new Exception(except);
+        }
+
+        nodeInfo.setNcmUri(ncmInfo.getUri() + "/nodes");
+    }
+
+
     /**
      * read bulk nodes' information from file
      *
@@ -112,10 +144,9 @@ public class NodeServiceImpl implements NodeService {
             Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
             NodeFileLoader dataCenterConfigLoader = new NodeFileLoader();
             nodeList = dataCenterConfigLoader.getHostNodeListFromUpload(reader);
-            if (nodeList != null) {
-                nodeRepository.addItemBulkTransaction(nodeList);
-                nReturn = nodeList.size();
-            }
+            augmentNodeInfosWithNcmUri(nodeList);
+            nodeRepository.addItemBulkTransaction(nodeList);
+            nReturn = nodeList.size();
         } catch (IOException e) {
             logger.error(strMethodName+e.getMessage());
             throw e;
@@ -214,12 +245,12 @@ public class NodeServiceImpl implements NodeService {
         String strMethodName = "createNodeInfo";
         if (nodeInfo == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        addNcmUriToNodeInfo(nodeInfo);
         NodeInfo node = getNodeInfoById(nodeInfo.getId());
         if (nodeInfo != null) {
             try {
                 nodeRepository.addItem(nodeInfo);
                 this.handleCreateNodeRequest(nodeInfo);
-
             } catch (CacheException e) {
                 logger.error(strMethodName+e.getMessage());
                 throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -244,6 +275,7 @@ public class NodeServiceImpl implements NodeService {
         if (nodeInfo == null)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
         if (nodeInfo != null) {
+            augmentNodeInfosWithNcmUri(nodeInfo);
             try {
                 nodeRepository.addItemBulkTransaction(nodeInfo);
                 this.handleCreateNodeBulkRequest(nodeInfo);
@@ -280,6 +312,7 @@ public class NodeServiceImpl implements NodeService {
         }
         if (nodeInfo != null) {
             try {
+                addNcmUriToNodeInfo(nodeInfo);
                 nodeRepository.addItem(nodeInfo);
                 this.handleUpdateNodeRequest(nodeInfo);
             } catch (CacheException e) {
@@ -313,8 +346,9 @@ public class NodeServiceImpl implements NodeService {
         else if (nodeId.equals(node.getId()) == false)
             throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_NODE_NOT_EXISTING));
         try {
+            addNcmUriToNodeInfo(node);
+            this.handleDeleteNodeRequest(node);
             nodeRepository.deleteItem(nodeId);
-            this.handleDeleteNodeRequest(nodeId);
         } catch (CacheException e) {
             logger.error(strMethodName+e.getMessage());
             throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
@@ -324,5 +358,102 @@ public class NodeServiceImpl implements NodeService {
             throw e;
         }
         return nodeId;
+    }
+
+
+    /**
+     * /ncms end-point handlers
+     */
+    @Override
+    public void registerNcmMetaData(NcmInfo ncmInfo) throws Exception {
+        String strMethodName = "registerNcmMetaData";
+        if (ncmInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        NcmInfo oldEntry = ncmInfoRepository.getNcmInfoById(ncmInfo.getId());
+        if (oldEntry != null) {
+            logger.error(strMethodName + NodeManagerConstant.NODE_EXCEPTION_ENTRY_EXIST);
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_ENTRY_EXIST);
+        }
+        addOrUpdateNcmData(ncmInfo, strMethodName);
+    }
+
+    @Override
+    public void unRegisterNcmMetaData(String ncmId) throws Exception {
+        String strMethodName = "unRegisterNcmMetaData";
+        if (ncmId == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        NcmInfo oldEntry = ncmInfoRepository.getNcmInfoById(ncmId);
+        if (oldEntry == null) {
+            logger.error(strMethodName + NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+        }
+        try {
+            ncmInfoRepository.deleteNcmInfo(ncmId);
+        } catch (CacheException e) {
+            logger.error(strMethodName+e.getMessage());
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
+        } catch (Exception e) {
+            logger.error(strMethodName+e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public NcmInfo getNcmMetaData(String ncmId) throws Exception {
+        NcmInfo ncmInfo = null;
+
+        String strMethodName = "getNcmMetaData";
+        if (ncmId == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        ncmInfo = ncmInfoRepository.getNcmInfoById(ncmId);
+        if (ncmInfo == null) {
+            logger.error(strMethodName + NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+        }
+        return ncmInfo;
+    }
+
+    @Override
+    public List<NcmInfo> getAllNcmMetaData() throws Exception {
+        String strMethodName = "getAllNcmMetaData";
+        Map<String, NcmInfo> ncmInfoMap = ncmInfoRepository.findAllNcmInfo();
+        if (ncmInfoMap == null) {
+            logger.error(strMethodName + NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EMPTY);
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EMPTY);
+        }
+
+        List<NcmInfo> ncmInfoList = new ArrayList<>();
+        for (Map.Entry<String, NcmInfo> entry: ncmInfoMap.entrySet()) {
+            ncmInfoList.add(new NcmInfo(entry.getValue()));
+        }
+
+        return ncmInfoList;
+    }
+
+    @Override
+    public void updateNcmMetaData(String ncmId, NcmInfo ncmInfo) throws Exception {
+        NcmInfo oldNcmInfo = null;
+
+        String strMethodName = "getNcmMetaData";
+        if (ncmId == null || ncmInfo == null)
+            throw (new ParameterNullOrEmptyException(NodeManagerConstant.NODE_EXCEPTION_PARAMETER_NULL_EMPTY));
+        oldNcmInfo = ncmInfoRepository.getNcmInfoById(ncmId);
+        if (oldNcmInfo == null) {
+            logger.error(strMethodName + NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_ENTRY_NOT_FOUND);
+        }
+        addOrUpdateNcmData(ncmInfo, strMethodName);
+    }
+
+    private void addOrUpdateNcmData(NcmInfo ncmInfo, String strMethodName) throws NodeRepositoryException {
+        try {
+            ncmInfoRepository.addNcmInfo(ncmInfo);
+        } catch (CacheException e) {
+            logger.error(strMethodName+e.getMessage());
+            throw new NodeRepositoryException(NodeManagerConstant.NODE_EXCEPTION_REPOSITORY_EXCEPTION, e);
+        } catch (Exception e) {
+            logger.error(strMethodName+e.getMessage());
+            throw e;
+        }
     }
 }
