@@ -43,7 +43,7 @@ public class NcmInfoRepository {
 
     @Autowired
     public NcmInfoRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(NcmInfo.class);
+        cache = cacheFactory.getCache(NcmInfo.class, "nmm_ncminfo_cache");
     }
 
     public ICache<String, NcmInfo> getCache() {
@@ -151,5 +151,10 @@ public class NcmInfoRepository {
         } catch (Exception e) {
             logger.error("delete an NcmInfo error: "+e.getMessage());
         }
+    }
+
+    public long ncmCount()
+    {
+        return cache.size();
     }
 }
