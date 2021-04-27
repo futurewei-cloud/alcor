@@ -18,18 +18,44 @@ package com.futurewei.alcor.netwconfigmanager.util;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.schema.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DemoUtil {
 
-    final public static String aca_node_one_ip = "10.213.43.92";
-    final public static String aca_node_two_ip = "10.213.43.93";
+    final public static String aca_node_one_ip = "192.168.20.92";
+    final public static String aca_node_two_ip = "192.168.20.93";
+    // only considering the 4 ports in total, two ports on each host's scenario.
+    final public static String mac_prefix = "6c:dd:ee:00:00:0";
     final public static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
-    final public static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
-    final public static String port_id_2 = "13333333-b718-11ea-b3de-111111111114";
-    final public static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
+    final public static String port_ip_1 = "10.0.0.2";
+    final public static String port_ip_2 = "10.0.0.3";
+    final public static String port_ip_3 = "10.0.0.4";
+    final public static String port_ip_4 = "10.0.0.5";
+    final public static String port_mac_1 = "6c:dd:ee:0:0:2";
+    final public static String port_mac_2 = "6c:dd:ee:0:0:3";
+    final public static String port_mac_3 = "6c:dd:ee:0:0:4";
+    final public static String port_mac_4 = "6c:dd:ee:0:0:5";
 
-    public static void populateHostGoalState(Map<String, HostGoalState> hostGoalStates){
+    final public static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
+    final public static String port_id_2 = "11111111-b718-11ea-b3de-111111111113";
+    final public static String port_id_3 = "11111111-b718-11ea-b3de-111111111114";
+    final public static String port_id_4 = "11111111-b718-11ea-b3de-111111111115";
+    final public static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
+    final public static Map<String, String> port_ip_port_id_map = new HashMap<>();
+    final public static Map<String, String> port_ip_port_mac_map = new HashMap<>();
+
+
+    public static void populateHostGoalState(Map<String, HostGoalState> hostGoalStates, String source_ip, String destination_ip){
+        port_ip_port_id_map.put(port_ip_1, port_id_1);
+        port_ip_port_id_map.put(port_ip_2, port_id_2);
+        port_ip_port_id_map.put(port_ip_3, port_id_3);
+        port_ip_port_id_map.put(port_ip_4, port_id_4);
+
+        port_ip_port_mac_map.put(port_ip_1, port_mac_1);
+        port_ip_port_mac_map.put(port_ip_2, port_mac_2);
+        port_ip_port_mac_map.put(port_ip_3, port_mac_3);
+        port_ip_port_mac_map.put(port_ip_4, port_mac_4);
 
         System.out.println("Trying to build the GoalStateV2");
 
@@ -49,14 +75,15 @@ public class DemoUtil {
         config.
                 setRevisionNumber(2).
                 setUpdateType(Common.UpdateType.FULL).
-                setId(port_id_1).
+                setId(port_ip_port_id_map.get(source_ip)).
                 setVpcId(vpc_id_1).
-                setName(("tap" + port_id_1).substring(0, 14)).
+                setName(("tap" + port_ip_port_id_map.get
+                        (source_ip)).substring(0, 14)).
                 setAdminStateUp(true).
-                setMacAddress("6c:dd:ee:00:00:02");
+                setMacAddress(port_ip_port_mac_map.get(source_ip));
         Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
         fixedIpBuilder.setSubnetId(subnet_id_1);
-        fixedIpBuilder.setIpAddress("10.10.0.2");
+        fixedIpBuilder.setIpAddress(source_ip);
         config.addFixedIps(fixedIpBuilder.build());
         Port.PortConfiguration.SecurityGroupId securityGroupId = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
         config.addSecurityGroupIds(securityGroupId);
@@ -111,14 +138,14 @@ public class DemoUtil {
         Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
         NeighborConfiguration_builder.setRevisionNumber(2);
         NeighborConfiguration_builder.setVpcId(vpc_id_1);
-        NeighborConfiguration_builder.setId(port_id_2);
-        NeighborConfiguration_builder.setMacAddress("6c:dd:ee:00:00:03");
+        NeighborConfiguration_builder.setId(port_ip_port_id_map.get(destination_ip));
+        NeighborConfiguration_builder.setMacAddress(port_ip_port_mac_map.get(destination_ip));
         NeighborConfiguration_builder.setHostIpAddress(aca_node_two_ip);
 
         Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
         neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
         neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
-        neighbor_fixed_ip_builder.setIpAddress("10.0.0.3");
+        neighbor_fixed_ip_builder.setIpAddress(destination_ip);
 
         NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
@@ -143,14 +170,14 @@ public class DemoUtil {
         config_2.
                 setRevisionNumber(2).
                 setUpdateType(Common.UpdateType.FULL).
-                setId(port_id_2).
+                setId(port_ip_port_id_map.get(destination_ip)).
                 setVpcId(vpc_id_1).
-                setName(("tap" + port_id_2).substring(0, 14)).
+                setName(("tap" + port_ip_port_id_map.get(destination_ip)).substring(0, 14)).
                 setAdminStateUp(true).
-                setMacAddress("6c:dd:ee:00:00:03");
+                setMacAddress(port_ip_port_mac_map.get(destination_ip));
         Port.PortConfiguration.FixedIp.Builder fixedIpBuilder_port_2 = Port.PortConfiguration.FixedIp.newBuilder();
         fixedIpBuilder_port_2.setSubnetId(subnet_id_1);
-        fixedIpBuilder_port_2.setIpAddress("10.10.0.3");
+        fixedIpBuilder_port_2.setIpAddress(destination_ip);
         config_2.addFixedIps(fixedIpBuilder_port_2.build());
         Port.PortConfiguration.SecurityGroupId securityGroupId_port_2 = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
         config_2.addSecurityGroupIds(securityGroupId_port_2);
@@ -175,14 +202,14 @@ public class DemoUtil {
         Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder_node_2 = Neighbor.NeighborConfiguration.newBuilder();
         NeighborConfiguration_builder_node_2.setRevisionNumber(2);
         NeighborConfiguration_builder_node_2.setVpcId(vpc_id_1);
-        NeighborConfiguration_builder_node_2.setId(port_id_1);
-        NeighborConfiguration_builder_node_2.setMacAddress("6c:dd:ee:00:00:02");
+        NeighborConfiguration_builder_node_2.setId(port_ip_port_id_map.get(source_ip));
+        NeighborConfiguration_builder_node_2.setMacAddress(port_ip_port_mac_map.get(source_ip));
         NeighborConfiguration_builder_node_2.setHostIpAddress(aca_node_one_ip);
 
         Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder_node_2 = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
         neighbor_fixed_ip_builder_node_2.setNeighborType(Neighbor.NeighborType.L2);
         neighbor_fixed_ip_builder_node_2.setSubnetId(subnet_id_1);
-        neighbor_fixed_ip_builder_node_2.setIpAddress("10.0.0.2");
+        neighbor_fixed_ip_builder_node_2.setIpAddress(source_ip);
 
         NeighborConfiguration_builder_node_2.addFixedIps(neighbor_fixed_ip_builder_node_2.build());
 
