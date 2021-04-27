@@ -18,13 +18,9 @@ package com.futurewei.alcor.web.entity.dataplane.v2;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.schema.Common.OperationType;
 import com.futurewei.alcor.schema.Common.ResourceType;
-import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
-import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
-import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
-import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
+import com.futurewei.alcor.web.entity.dataplane.*;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
-import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import lombok.Data;
 
@@ -35,6 +31,7 @@ import java.util.Map;
 @Data
 public class NetworkConfiguration {
 
+  private List<ResourceOperation> rsopTypes;
   private ResourceType rsType;
   private OperationType opType;
 
@@ -98,6 +95,10 @@ public class NetworkConfiguration {
 
     this.securityGroups.add(securityGroup);
   }
+
+  public List<ResourceOperation> getRsOpTypes() { return rsopTypes; }
+
+  public void setRsOpTypes(List<ResourceOperation> rsopTypes) { this.rsopTypes = rsopTypes; }
 
   public ResourceType getRsType() {
     return rsType;
