@@ -38,7 +38,7 @@ public class DemoUtil {
     final public static String port_mac_4 = "6c:dd:ee:0:0:5";
 
     final public static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
-    final public static String port_id_2 = "13333333-b718-11ea-b3de-111111111113";
+    final public static String port_id_2 = "11111111-b718-11ea-b3de-111111111113";
     final public static String port_id_3 = "11111111-b718-11ea-b3de-111111111114";
     final public static String port_id_4 = "11111111-b718-11ea-b3de-111111111115";
     final public static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
