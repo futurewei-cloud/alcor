@@ -47,7 +47,7 @@ public class NodeInfoCache {
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
-        nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        nodeInfoCache = cacheFactory.getCache(NodeInfo.class, "dpm_nodeinfo_cache");
     }
 
 

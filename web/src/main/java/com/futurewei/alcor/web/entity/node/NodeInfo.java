@@ -59,7 +59,6 @@ public class NodeInfo implements Serializable {
     private String ncm_uri;
 
     public NodeInfo() {
-
     }
 
     public NodeInfo(NodeInfo nodeInfo) {

@@ -148,8 +148,6 @@ public class NodeControllerTest extends MockIgniteServer {
         String strVeth = "eth0";
         int nServerPort = 50001;
         NodeInfo nodeInfo = new NodeInfo(strId, strName, strIp, strMac, strVeth, nServerPort);
-        String ncm_id = "ncm_001";
-        nodeInfo.setNcmId(ncm_id);
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
