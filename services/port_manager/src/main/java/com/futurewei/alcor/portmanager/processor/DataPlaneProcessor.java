@@ -229,6 +229,16 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     }
 
+    private List<ResourceOperation> setResourceOperationTypes() {
+        List<ResourceOperation> resourceOperationTypes = new ArrayList<>();
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.PORT, Common.OperationType.CREATE));
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.NEIGHBOR, Common.OperationType.CREATE));
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.SECURITYGROUP, Common.OperationType.CREATE));
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.ROUTER, Common.OperationType.CREATE));
+
+        return resourceOperationTypes;
+    }
+
     private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {
         /**
          DataPlaneProcessor needs to wait for all previous Processor runs to
@@ -245,9 +255,11 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         setTheMissingFields(context, portEntities);
+        List<ResourceOperation> resourceOperationTypes = setResourceOperationTypes();
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setRsType(Common.ResourceType.PORT);
+        networkConfiguration.setRsOpTypes(resourceOperationTypes);
         networkConfiguration.setVpcs(networkConfig.getVpcEntities());
         networkConfiguration.setSubnets(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
@@ -267,8 +279,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
             networkConfig.setOpType(Common.OperationType.CREATE);
             IRestRequest createNetworkConfigRequest =
                     new CreateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(createNetworkConfigRequest,networkConfig, StatusEnum.CREATED.getStatus());
+            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request, networkConfig, null));
+            portService.updatePortStatus(createNetworkConfigRequest, networkConfig, StatusEnum.CREATED.getStatus());
         }
     }
 
@@ -278,8 +290,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
             networkConfig.setOpType(Common.OperationType.UPDATE);
             IRestRequest updateNetworkConfigRequest =
                     new UpdateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(updateNetworkConfigRequest,networkConfig, StatusEnum.PENDING.getStatus());
+            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request, networkConfig, null));
+            portService.updatePortStatus(updateNetworkConfigRequest, networkConfig, StatusEnum.PENDING.getStatus());
         }
     }
 
