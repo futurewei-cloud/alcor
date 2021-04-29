@@ -42,7 +42,8 @@ public class DeleteNodeInfoRequest extends AbstractRequest{
 
     @Override
     public void send() throws Exception {
-        dataPlaneManagerRestClient.deleteNodeInfo(nodeId);
-        ncmRestClient.deleteNodeInfo(nodeId);
+        NodeInfoJson jsonData = new NodeInfoJson(context.getNodeInfo());
+        ncmRestClient.deleteNodeInfo(nodeId, context.getNodeInfo().getNcmUri());
+        dataPlaneManagerRestClient.deleteNodeInfo(jsonData);
     }
 }
