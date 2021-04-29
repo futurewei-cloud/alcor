@@ -175,6 +175,14 @@ public class PortContext {
         return (this.routers != null) ? this.routers.get(vpcOrSubnetId) : null;
     }
 
+    public boolean containRouters() {
+        if (this.routers == null || this.routers.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public void setRouters(Map<String, InternalRouterInfo> routers) {
         this.routers = routers;
     }

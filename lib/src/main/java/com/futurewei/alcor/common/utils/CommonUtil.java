@@ -90,4 +90,13 @@ public class CommonUtil {
                     }
                 }).toArray(String[]::new);
     }
+
+    /**
+     * Determine if a given string is empty or null
+     * @param an input string
+     * @return a boolean value, true if null or empty
+     */
+    public static boolean isNullOrEmpty(String string) {
+        return string == null || string.trim().isEmpty();
+    }
 }
