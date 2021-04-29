@@ -31,6 +31,11 @@ public class ResourceOperation {
     public ResourceOperation() {
     }
 
+    public ResourceOperation(ResourceType rsType, OperationType opType) {
+        this.rsType = rsType;
+        this.opType = opType;
+    }
+
     public ResourceType getRsType() {
         return this.rsType;
     }
@@ -43,12 +48,7 @@ public class ResourceOperation {
         return this.opType;
     }
 
-    public void setHostId(OperationType opType) {
-        this.opType = opType;
-    }
-
-    public ResourceOperation(ResourceType rsType, OperationType opType) {
-        this.rsType = rsType;
+    public void setOpType(OperationType opType) {
         this.opType = opType;
     }
 }
