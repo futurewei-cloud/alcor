@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.common.enumClass.StatusEnum;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.exception.NodeInfoNotFound;
@@ -229,15 +230,37 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     }
 
-    private List<ResourceOperation> setResourceOperationTypes() {
+    private List<ResourceOperation> initializeResourceOperationTypes(PortContext context, List<PortEntity> portEntities) {
         List<ResourceOperation> resourceOperationTypes = new ArrayList<>();
         resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.PORT, Common.OperationType.CREATE));
         resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.NEIGHBOR, Common.OperationType.CREATE));
-        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.SECURITYGROUP, Common.OperationType.CREATE));
-        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.ROUTER, Common.OperationType.CREATE));
+
+        // TODO: to enable full sg support, we will need to add full security group entities to context and check context here
+        for (PortEntity port : portEntities) {
+            if (!CommonUtil.isNullOrEmpty(context.getDefaultSgId()) && port.getPortSecurityEnabled()) {
+                resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.SECURITYGROUP, Common.OperationType.CREATE));
+                break;
+            }
+        }
+
+        if (context.containRouters()) {
+            resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.NEIGHBOR, Common.OperationType.CREATE));
+        }
 
         return resourceOperationTypes;
     }
+
+    private void markOperationTypes(NetworkConfiguration networkConfig, Common.OperationType operationType) {
+        if (networkConfig == null || networkConfig.getRsOpTypes() == null) {
+            return;
+        }
+
+        List<ResourceOperation> resourceOperationTypes = networkConfig.getRsOpTypes();
+        for (ResourceOperation type : resourceOperationTypes) {
+            type.setOpType(operationType);
+        }
+    }
+
 
     private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {
         /**
@@ -255,7 +278,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         setTheMissingFields(context, portEntities);
-        List<ResourceOperation> resourceOperationTypes = setResourceOperationTypes();
+        List<ResourceOperation> resourceOperationTypes = initializeResourceOperationTypes(context, portEntities);
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setRsType(Common.ResourceType.PORT);
@@ -298,6 +321,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
     private void deleteNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
         if (networkConfig != null) {
             networkConfig.setOpType(Common.OperationType.DELETE);
+            markOperationTypes(networkConfig, Common.OperationType.DELETE);
             IRestRequest deleteNetworkConfigRequest =
                     new DeleteNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);
