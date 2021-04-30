@@ -32,30 +32,114 @@ public class DemoUtil {
     final public static String port_ip_2 = "10.0.0.3";
     final public static String port_ip_3 = "10.0.0.4";
     final public static String port_ip_4 = "10.0.0.5";
+    final public static String port_ip_5 = "10.0.0.6";
+    final public static String port_ip_6 = "10.0.0.7";
+    final public static String port_ip_7 = "10.0.0.8";
+    final public static String port_ip_8 = "10.0.0.9";
+    final public static String port_ip_9 = "10.0.0.10";
+    final public static String port_ip_10 = "10.0.0.11";
+    final public static String port_ip_11 = "10.0.0.12";
+    final public static String port_ip_12 = "10.0.0.13";
+    final public static String port_ip_13 = "10.0.0.14";
+    final public static String port_ip_14 = "10.0.0.15";
+    final public static String port_ip_15 = "10.0.0.16";
+    final public static String port_ip_16 = "10.0.0.17";
+    final public static String port_ip_17 = "10.0.0.18";
+    final public static String port_ip_18 = "10.0.0.19";
+    final public static String port_ip_19 = "10.0.0.20";
+    final public static String port_ip_20 = "10.0.0.21";
+
     final public static String port_mac_1 = "6c:dd:ee:0:0:2";
     final public static String port_mac_2 = "6c:dd:ee:0:0:3";
     final public static String port_mac_3 = "6c:dd:ee:0:0:4";
     final public static String port_mac_4 = "6c:dd:ee:0:0:5";
+    final public static String port_mac_5 = "6c:dd:ee:0:0:6";
+    final public static String port_mac_6 = "6c:dd:ee:0:0:7";
+    final public static String port_mac_7 = "6c:dd:ee:0:0:8";
+    final public static String port_mac_8 = "6c:dd:ee:0:0:9";
+    final public static String port_mac_9 = "6c:dd:ee:0:0:10";
+    final public static String port_mac_10 = "6c:dd:ee:0:0:11";
+    final public static String port_mac_11= "6c:dd:ee:0:0:12";
+    final public static String port_mac_12 = "6c:dd:ee:0:0:13";
+    final public static String port_mac_13 = "6c:dd:ee:0:0:14";
+    final public static String port_mac_14 = "6c:dd:ee:0:0:15";
+    final public static String port_mac_15 = "6c:dd:ee:0:0:16";
+    final public static String port_mac_16 = "6c:dd:ee:0:0:17";
+    final public static String port_mac_17 = "6c:dd:ee:0:0:18";
+    final public static String port_mac_18 = "6c:dd:ee:0:0:19";
+    final public static String port_mac_19 = "6c:dd:ee:0:0:20";
+    final public static String port_mac_20 = "6c:dd:ee:0:0:21";
 
     final public static String port_id_1 = "11111111-b718-11ea-b3de-111111111112";
     final public static String port_id_2 = "11111111-b718-11ea-b3de-111111111113";
     final public static String port_id_3 = "11111111-b718-11ea-b3de-111111111114";
     final public static String port_id_4 = "11111111-b718-11ea-b3de-111111111115";
+    final public static String port_id_5 = "11111111-b718-11ea-b3de-111111111116";
+    final public static String port_id_6 = "11111111-b718-11ea-b3de-111111111117";
+    final public static String port_id_7 = "11111111-b718-11ea-b3de-111111111118";
+    final public static String port_id_8 = "11111111-b718-11ea-b3de-111111111119";
+    final public static String port_id_9 = "11111111-b718-11ea-b3de-1111111111110";
+    final public static String port_id_10 = "11111111-b718-11ea-b3de-1111111111111";
+    final public static String port_id_11 = "11111111-b718-11ea-b3de-1111111111112";
+    final public static String port_id_12 = "11111111-b718-11ea-b3de-1111111111113";
+    final public static String port_id_13 = "11111111-b718-11ea-b3de-1111111111114";
+    final public static String port_id_14 = "11111111-b718-11ea-b3de-1111111111115";
+    final public static String port_id_15 = "11111111-b718-11ea-b3de-1111111111116";
+    final public static String port_id_16 = "11111111-b718-11ea-b3de-1111111111117";
+    final public static String port_id_17 = "11111111-b718-11ea-b3de-1111111111118";
+    final public static String port_id_18 = "11111111-b718-11ea-b3de-1111111111119";
+    final public static String port_id_19 = "11111111-b718-11ea-b3de-1111111111120";
+    final public static String port_id_20 = "11111111-b718-11ea-b3de-1111111111121";
+
     final public static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     final public static Map<String, String> port_ip_port_id_map = new HashMap<>();
     final public static Map<String, String> port_ip_port_mac_map = new HashMap<>();
 
 
     public static void populateHostGoalState(Map<String, HostGoalState> hostGoalStates, String source_ip, String destination_ip){
+        // port IP - ID pairs
         port_ip_port_id_map.put(port_ip_1, port_id_1);
         port_ip_port_id_map.put(port_ip_2, port_id_2);
         port_ip_port_id_map.put(port_ip_3, port_id_3);
         port_ip_port_id_map.put(port_ip_4, port_id_4);
+        port_ip_port_id_map.put(port_ip_5, port_id_5);
+        port_ip_port_id_map.put(port_ip_6, port_id_6);
+        port_ip_port_id_map.put(port_ip_7, port_id_7);
+        port_ip_port_id_map.put(port_ip_8, port_id_8);
+        port_ip_port_id_map.put(port_ip_9, port_id_9);
+        port_ip_port_id_map.put(port_ip_10, port_id_10);
+        port_ip_port_id_map.put(port_ip_11, port_id_11);
+        port_ip_port_id_map.put(port_ip_12, port_id_12);
+        port_ip_port_id_map.put(port_ip_13, port_id_13);
+        port_ip_port_id_map.put(port_ip_14, port_id_14);
+        port_ip_port_id_map.put(port_ip_15, port_id_15);
+        port_ip_port_id_map.put(port_ip_16, port_id_16);
+        port_ip_port_id_map.put(port_ip_17, port_id_17);
+        port_ip_port_id_map.put(port_ip_18, port_id_18);
+        port_ip_port_id_map.put(port_ip_19, port_id_19);
+        port_ip_port_id_map.put(port_ip_20, port_id_20);
 
+        // port IP - MAC pairs
         port_ip_port_mac_map.put(port_ip_1, port_mac_1);
         port_ip_port_mac_map.put(port_ip_2, port_mac_2);
         port_ip_port_mac_map.put(port_ip_3, port_mac_3);
         port_ip_port_mac_map.put(port_ip_4, port_mac_4);
+        port_ip_port_mac_map.put(port_ip_5, port_mac_5);
+        port_ip_port_mac_map.put(port_ip_6, port_mac_6);
+        port_ip_port_mac_map.put(port_ip_7, port_mac_7);
+        port_ip_port_mac_map.put(port_ip_8, port_mac_8);
+        port_ip_port_mac_map.put(port_ip_9, port_mac_9);
+        port_ip_port_mac_map.put(port_ip_10, port_mac_10);
+        port_ip_port_mac_map.put(port_ip_11, port_mac_11);
+        port_ip_port_mac_map.put(port_ip_12, port_mac_12);
+        port_ip_port_mac_map.put(port_ip_13, port_mac_13);
+        port_ip_port_mac_map.put(port_ip_14, port_mac_14);
+        port_ip_port_mac_map.put(port_ip_15, port_mac_15);
+        port_ip_port_mac_map.put(port_ip_16, port_mac_16);
+        port_ip_port_mac_map.put(port_ip_17, port_mac_17);
+        port_ip_port_mac_map.put(port_ip_18, port_mac_18);
+        port_ip_port_mac_map.put(port_ip_19, port_mac_19);
+        port_ip_port_mac_map.put(port_ip_20, port_mac_20);
 
         System.out.println("Trying to build the GoalStateV2");
 
