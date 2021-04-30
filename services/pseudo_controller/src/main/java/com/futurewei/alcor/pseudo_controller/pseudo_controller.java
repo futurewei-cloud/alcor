@@ -267,7 +267,9 @@ public class pseudo_controller {
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
             String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
             String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
-            if (i % 2 != 0) {
+
+            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
+            if (ip_last_octet % 2 != 0) {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 aca_node_one_commands.add(create_container_cmd);
