@@ -23,9 +23,11 @@ import java.util.Map;
 
 public class DemoUtil {
 
-    final public static String aca_node_one_ip = "192.168.20.92";
-    final public static String aca_node_two_ip = "192.168.20.93";
-    // only considering the 4 ports in total, two ports on each host's scenario.
+    //final public static String aca_node_one_ip = "192.168.20.92";
+    //final public static String aca_node_two_ip = "192.168.20.93";
+    final public static String aca_node_one_ip = "10.213.43.92";
+    final public static String aca_node_two_ip = "10.213.43.93";
+    // only considering the 20 ports in total, 10 ports on each host's scenario.
     final public static String mac_prefix = "6c:dd:ee:00:00:0";
     final public static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     final public static String port_ip_1 = "10.0.0.2";
