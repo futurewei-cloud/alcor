@@ -45,6 +45,7 @@ public class IgniteCache<K, V> implements ICache<K, V> {
 
         try {
             cache = igniteClient.getOrCreateCache(name);
+            logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for vpc failed:" + e.getMessage());
         } catch (Exception e) {

@@ -36,5 +36,28 @@ Copyright(c) 2020 Futurewei Cloud
       </property>
     </bean>
   </property>
+
+  <property name="cacheConfiguration">
+    <list>
+      <bean class="org.apache.ignite.configuration.CacheConfiguration">
+        <!-- Set the cache name. -->
+        <property name="name" value="dpm_nodeinfo_cache"/>
+        <!-- Set the cache mode. -->
+        <property name="atomicityMode" value="TRANSACTIONAL"/>
+        <!-- Other cache parameters. -->
+        <property name="cacheMode" value="PARTITIONED"/>
+      </bean>
+
+      <bean class="org.apache.ignite.configuration.CacheConfiguration">
+        <!-- Set the cache name. -->
+        <property name="name" value="ncm_nodeinfo_cache"/>
+        <!-- Set the cache mode. -->
+        <property name="atomicityMode" value="TRANSACTIONAL"/>
+        <!-- Other cache parameters. -->
+        <property name="cacheMode" value="PARTITIONED"/>
+      </bean>
+    </list>
+  </property>
+
 </bean>
 </beans>

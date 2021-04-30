@@ -50,6 +50,7 @@ public class IgniteClientDistributedLock implements IDistributedLock {
             cfg.setName(name);
             cfg.setExpiryPolicy(ep);
             cache = igniteClient.getOrCreateCache(cfg);
+            logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + cache.getConfiguration().getAtomicityMode());
             this.tryInterval = tryInterval;
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create distributed lock cache failed:" + e.getMessage());
