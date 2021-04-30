@@ -45,10 +45,6 @@ public class BulkCreateNodeInfoRequest extends AbstractRequest{
     public void send() throws Exception {
         BulkNodeInfoJson jsonData = new BulkNodeInfoJson(nodeInfos);
         dataPlaneManagerRestClient.bulkCreatNodeInfo(jsonData);
-        /**
-         * TEMP: After NcmInfo is integrated into NMM, NCM client will be located
-         * by the NCM URI corresponding to this nodeId.
-         */
         ncmRestClient.bulkCreatNodeInfo(jsonData);
     }
 }
