@@ -92,7 +92,7 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_config.xml
+              value: /opt/ignite/config/ignite-config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
