@@ -107,18 +107,18 @@ def main():
     else:
       print("Error:couldn't start all alcor services")
       sys.exit(1)
-    
+
     container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
     container_names = json.loads(container_names_dict)
     aca = dict(config_file_object.items("AlcorControlAgents"))
-    for aca_node,con in zip(aca.values(),container_names): 
-       print(" BBB busybox xontainer cleanup ...",aca_node,con)
+    for aca_node,con in zip(aca.values(),container_names):
+       print("Busybox container cleanup...", aca_node, con)
        busybox_container_cleanup(aca_node,con)
-    time.sleep(10) 
+    time.sleep(10)
     check_alcor_agents_running(aca)
     time.sleep(30)
     if(restart_alcor_agents(aca,ALCOR_AGENTS_BINARY_PATH)== False):
-      print("Couldn't start AlcorControlAgent successfully")      
+      print("Couldn't start AlcorControlAgent successfully")
       print("ERROR: Test exits")
       sys.exit(1)
     time.sleep(10)

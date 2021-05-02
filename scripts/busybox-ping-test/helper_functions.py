@@ -114,9 +114,9 @@ def get_username():
 def run_command_on_host(HOST, COMMAND):
     try:
       ssh1 = sp.Popen(['ssh',
-                      # '-o StrictHostKeyChecking=no',
-                      # '-o UserKnownHostsFile=/dev/null',
-                       '-t',
+                       '-o StrictHostKeyChecking=no',
+                       '-o UserKnownHostsFile=/dev/null',
+                       '-tt',
                        '{}@{}'.format(get_username(), HOST), COMMAND],
                        shell=False,
                        stdout=sp.PIPE,
