@@ -244,7 +244,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         if (context.containRouters()) {
-            resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.NEIGHBOR, Common.OperationType.CREATE));
+            resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.ROUTER, Common.OperationType.CREATE));
         }
 
         return resourceOperationTypes;
