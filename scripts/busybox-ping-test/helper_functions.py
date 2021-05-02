@@ -106,7 +106,8 @@ def get_mac_id(HOST):
     return mac_addr
 
 def get_username():
-   return pwd.getpwuid( os.getuid() )[ 0 ]
+   #return pwd.getpwuid( os.getuid() )[ 0 ]
+   return 'ubuntu'
 
 
 # Function to run a given command on a given host
