@@ -22,14 +22,25 @@ from termcolor import colored
 
 def busybox_container_cleanup(ip, con):
     print("Cleaning up busybox container", con)
-    command = "ovs-docker del-ports br-int ".format(con)
+    command = "sudo ovs-docker del-ports br-int ".format(con)
     output = run_command_on_host(ip, command)
-    command = "docker container stop ".format(con)
+    print("CCC",command,output)
+    command = "sudo docker container stop {}".format(con)
     output = run_command_on_host(ip, command)
-    command = "docker container rm {} -f ".format(con)
+    print("CCC",command,output)
+    command = "sudo docker container rm {} -f ".format(con)
     output = run_command_on_host(ip, command)
-
-
+    print("CCC",command,output)    
+    command = "sudo ovs-vsctl del-br br-tun"
+    output = run_command_on_host(ip,command)
+    print("CCC",command,output)    
+    command = "sudo ovs-vsctl del-br br-int"
+    output = run_command_on_host(ip,command)
+    print("CCC",command,output)
+    command = "sudo /usr/local/share/openvswitch/scripts/ovs-ctl start"
+    output = run_command_on_host(ip,command)
+    print("CCC",command,output)
+    
 def busybox_container_deploy(target_ips, ip_mac_db, container_names):
     print("Deploying busybox container")
     index = 0;
@@ -39,13 +50,19 @@ def busybox_container_deploy(target_ips, ip_mac_db, container_names):
        con = container_names[index]
        aca_ip = target_ips[index]
        index = index + 1
-       command1 = "docker run -itd --name " + con + " --net=none busybox sh"
-       command2 = "ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
-       command3 = "ovs-docker set-vlan br-int eth1 " + con + " 1"
+       #busybox_container_cleanup(aca_ip,con)
+       command1 = "sudo docker run -itd --name " + con + " --net=none busybox sh"
+       command2 = "sudo ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
+       command3 = "sudo ovs-docker set-vlan br-int eth1 " + con + " 1"
        output   = "deploying busybox " + con + " on " + aca_ip
        output = run_command_on_host(aca_ip, command1)
+       print("Output1",output)
        output = run_command_on_host(aca_ip, command2)
+
+       print("Output2",output)
        output = run_command_on_host(aca_ip, command3)
+
+       print("Output3",output)
        ip_addrs = list(ip_mac_db.keys())
     run_ping_test(target_ips, list(ip_mac_db.keys()), container_names)
 
@@ -55,8 +72,8 @@ def run_ping_test(target_machines, ip_addrs, container_names):
     index_1 = 1
     ping_counts = 2
 
-    ping_0_to_1 = "docker exec -it " + container_names[index_0] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_1]
-    ping_1_to_0 = "docker exec -it " + container_names[index_1] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_0]
+    ping_0_to_1 = "sudo docker exec -it " + container_names[index_0] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_1]
+    ping_1_to_0 = "sudo docker exec -it " + container_names[index_1] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_0]
 
     HOST = target_machines[index_0]
     print("Ping test on ", HOST)

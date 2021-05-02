@@ -138,7 +138,6 @@ def create_ports(port):
     port_info = {"admin_state_up":True,"allowed_address_pairs":[{"ip_address":"11.11.11.1","mac_address":"00-AA-BB-15-EB-3F"}],"binding:host_id":node_name[index],"binding:vif_details":{},"create_at":"string","description":"string","device_id":device_id[index],"device_owner":"compute:nova","dns_assignment":{},"dns_domain":"string","dns_name":"string","extra_dhcp_opts":[{"ip_version":"string","opt_name":"string","opt_value":"string"}],"fast_path": True,"fixed_ips":[{"ip_address":ip_addrs[index],"subnet_id":port_dict['subnet_id']}],"id":port_id[index],"mac_learning_enabled":True,"name":port_name[index],"network_id":port_dict['network_id'],"network_ns": "string","port_security_enabled":True,"project_id":port_dict['project_id'],"qos_network_policy_id":"string","qos_policy_id":"string","revision_number":0,"security_groups":[port_dict['security_groups']],"tags":["string"],"tenant_id":port_dict['tenant_id'],"update_at":"string","uplink_status_propagation":True,"veth_name":"string"}
     ports["port"] = port_info
     post_httprequest(url, ports)
-    print("after AAA posting  ports")
 
   print("SUCCESS: Created Goal State Ports\n")
 

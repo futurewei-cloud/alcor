@@ -29,6 +29,7 @@ ALCOR_ROOT = os.path.abspath(os.path.join(__file__ , "../../../"))
 ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
+ALCOR_AGENTS_BINARY_PATH = "./repos/aca/build/bin/AlcorControlAgent"
 
 # Builds the containers as configured in alcor_services.ini file
 def build_containers(serv):
@@ -66,19 +67,19 @@ def start_containers(serv):
       print("All Alcor services started successfully")
       return True
     else:
-      print("Couldn not start all alcor services.")
+      print("Could not start all alcor services.")
       print("Error! Test Exits")
       sys.exit(1)
 
 
 def stop_containers(service_list):
-    command = "docker container stop "
+    command = "sudo docker container stop "
     for service in service_list:
       execute_command(command + service)
 
 
 def remove_containers(service_list):
-    command = "docker container rm "
+    command = "sudo docker container rm "
     for service in service_list:
       execute_command(command + service)
 
@@ -92,7 +93,7 @@ def main():
     parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
     parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
     args = parser.parse_args()
-    """
+
     if args.build:
         if(args.build == "build"):
            build_containers(services)
@@ -106,15 +107,32 @@ def main():
     else:
       print("Error:couldn't start all alcor services")
       sys.exit(1)
-    """
+    
+    container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
+    container_names = json.loads(container_names_dict)
     aca = dict(config_file_object.items("AlcorControlAgents"))
-    aca_nodes_ip_mac = check_alcor_agents_running(aca)
-    if(len(aca_nodes_ip_mac) != len(aca)):
-      print("\nERROR: Alcor Control Agent not running on some of the nodes")
+    for aca_node,con in zip(aca.values(),container_names): 
+       print(" BBB busybox xontainer cleanup ...",aca_node,con)
+       busybox_container_cleanup(aca_node,con)
+    time.sleep(10) 
+    check_alcor_agents_running(aca)
+    time.sleep(30)
+    if(restart_alcor_agents(aca,ALCOR_AGENTS_BINARY_PATH)== False):
+      print("Couldn't start AlcorControlAgent successfully")      
       print("ERROR: Test exits")
       sys.exit(1)
+    time.sleep(10)
+    aca_nodes_ip_mac = get_macaddr_alcor_agents(aca)
+    print("ACA MAC ::",aca_nodes_ip_mac)
+
+    '''
+    if len(aca_nodes_ip_mac) != len(aca):
+      print("\nERROR: Alcor Control Agent not running on some of the nodes")
+      print("ERROR: Test exits")
+      sys.exit(1)'''
+
     print("Wait for 20 seconds until all services are started...")
-    #time.sleep(20)
+    time.sleep(60)
 
     if args.testcase:
       if (args.testcase == 1):
@@ -127,12 +145,13 @@ def main():
       ip_mac_db = create_test_setup(aca_nodes_ip_mac, config_file_object)
       # if args.all== 'all':
       #  print("Invoke both all test cases"
-      # ip_mac_db = prepare_all_test_cases(aca_nodes_ip_mac, service_port_map)'''
+      # ip_mac_db = prepare_all_test_cases(aca_nodes_ip_mac, service_port_map)
 
     #aca_nodes_ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
     #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
-    container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
-    container_names = json.loads(container_names_dict)
+    #container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
+    #container_names = json.loads(container_names_dict)
+
     print(container_names)
     #container_names = ["con1", "con2"]
     print("calling container deploy", aca_nodes_ip_mac, ip_mac_db, container_names)
