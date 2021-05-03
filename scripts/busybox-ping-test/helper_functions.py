@@ -1,21 +1,21 @@
 #!/usr/bin/python3
 
-#MIT License
-#Copyright(c) 2020 Futurewei Cloud
-#Permission is hereby granted, free of charge, to any person obtaining a copy 
-#of this software and associated documentation files(the "Software"), to deal 
-#in the Software without restriction, including without limitation the rights 
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-#copies of the Software, and to permit persons to whom the Software is 
-#furnished to do so, subject to the following conditions:
-#The above copyright notice and this permission notice shall be included in 
-#all copies or substantial portions of the Software.
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# MIT License
+# Copyright(c) 2020 Futurewei Cloud
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess as sp
 import sys, os, pwd, configparser
@@ -156,7 +156,7 @@ def execute_command(command):
         print("Failed to execute command", repr(str(command)))
         print_output(res[1])
       else:
-        print("SUCCESS for command", command)
+        print("SUCCESS for: ", command, "\n")
         # print output of the command when debugging
         # print_output(res[0])
       return retcode
@@ -165,10 +165,10 @@ def execute_command(command):
 
 
 def execute_commands(cmd, command_list):
-    print("execute commands ")
+    print("Executing commands in given list\n")
     status = True
     for command in command_list:
-      print(cmd, " ..", str(command))
+      print(cmd, ":    ", str(command))
       if(execute_command(command)):
         print("Failed to ", cmd, command)
         status = False
@@ -210,10 +210,9 @@ def read_config_file_section(section):
     return serv
 
 
-def read_config_file():
+def read_config_file(config_file):
     config = configparser.ConfigParser()
-    conf_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
-    config.read(conf_file)
+    config.read(config_file)
     return config
 
 
