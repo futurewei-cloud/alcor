@@ -152,10 +152,14 @@ def main():
     #container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
     #container_names = json.loads(container_names_dict)
 
-    print(container_names)
-    #container_names = ["con1", "con2"]
-    print("calling container deploy", aca_nodes_ip_mac, ip_mac_db, container_names)
-    busybox_container_deploy(list(aca_nodes_ip_mac.keys()), ip_mac_db, container_names)
+    aca_node_ips = list(aca_nodes_ip_mac.keys())
+    goal_state_ips = list(ip_mac_db.keys())
+    print("Deploying containers on target nodes")
+    print("ACA nodes: ", aca_node_ips)
+    print("Goal states: ", ip_mac_db)
+    print("Container names: ", container_names)
+    busybox_container_deploy(aca_node_ips, ip_mac_db, container_names)
+    run_ping_test(aca_node_ips, goal_state_ips, container_names)
 
 
 if __name__ == "__main__":
