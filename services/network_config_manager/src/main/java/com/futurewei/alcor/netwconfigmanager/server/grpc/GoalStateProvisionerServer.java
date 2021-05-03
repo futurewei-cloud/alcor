@@ -21,12 +21,15 @@ import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.service.NodeService;
+import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,6 +45,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private final int port;
     private final Server server;
+
+    @Autowired
+    private OnDemandService onDemandService;
 
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
@@ -88,7 +94,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
     }
 
-    private static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+    private class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
         GoalStateProvisionerImpl() {
         }
@@ -171,7 +177,25 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //    to ACA by a separate gRPC client
             /////////////////////////////////////////////////////////////////////////////////////////
 
-            // Step 1: Generate response for each packet based on the above on-demand algorithm
+            // Step 1: Send GS down to target ACA
+            //TODO: Populate hostGoalStates based on M2 and M3
+            Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
+                HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
+                String hostIp = hostGoalState.getHostIp();
+                hostGoalStates.put(hostIp, hostGoalState);
+                logger.log(Level.INFO, "[requestGoalStates] Sending GS to ACA " + hostIp + " | ",
+                        hostGoalState.toString());
+            }
+
+            try {
+                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                grpcGoalStateClient.sendGoalStates(hostGoalStates);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Step 2: Generate response for each packet based on the above on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources and go to Step 2
             // otherwise, set it to FAILURE and go to Step 3
@@ -191,20 +215,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             }
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
-
-            // Step 2: Send GS down to target ACA
-            //TODO: Populate hostGoalStates based on M2 and M3
-            Map<String, HostGoalState> hostGoalStates = new HashMap<>();
-            DemoUtil.populateHostGoalState(hostGoalStates);
-            logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
-                    hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
-
-            try {
-                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
-                grpcGoalStateClient.sendGoalStates(hostGoalStates);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
             // Step 3: Send response to target ACA
             responseObserver.onNext(reply);
