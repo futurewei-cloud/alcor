@@ -25,16 +25,16 @@ from create_test_setup import *
 from container_ops import *
 from create_test_cases import *
 
-ALCOR_ROOT = os.path.abspath(os.path.join(__file__ , "../../../"))
+ACA_BIN_PATH   = "./repos/aca/build/bin/AlcorControlAgent"
+ALCOR_ROOT     = os.path.abspath(os.path.join(__file__, "../../../"))
 ALCOR_SERVICES = ALCOR_ROOT + "/services/"
 ALCOR_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir("../../")
-ALCOR_AGENTS_BINARY_PATH = "./repos/aca/build/bin/AlcorControlAgent"
 
 # Builds the Ignite and all Alcor images as configured in
 # alcor_services.ini file
 def build_containers(services_dict):
-    container_list =[]
+    container_list = []
     mvn_build = "mvn -Dmaven.test.skip=true -DskipTests clean package install"
     container_list.append(mvn_build)
 
@@ -53,6 +53,25 @@ def build_containers(services_dict):
 
     if(execute_commands("Build ", container_list) == True):
        print("All Alcor services built successfully")
+
+
+def start_containers_(serv):
+    start_containers= []
+    for service_name in serv.keys():
+        service_info = json.loads(serv[service_name])
+        run_container = "sudo docker run --name={} ".format(service_info["name"])
+        mnt_and_image = "-v /tmp:/tmp -tid {} sh".format(service_info["name"])
+        if service_name == "ignite":
+            ports = "-p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 "
+        else:
+            ports = "--net=host -p {}:{} ".format(service_info["port"], service_info["port"])
+            start_cmd = run_container + ports + mnt_and_image
+            start_containers.append(start_cmd)
+
+        if (True == execute_commands("Start ", start_containers)):
+            return True
+        else:
+            return False
 
 
 def start_containers(serv):
@@ -119,16 +138,20 @@ def main():
     container_names = json.loads(container_names_dict)
     aca = dict(config_file_object.items("AlcorControlAgents"))
     for aca_node,con in zip(aca.values(),container_names):
-       print("Busybox container cleanup...", aca_node, con)
-       busybox_container_cleanup(aca_node,con)
+      print("Busybox container cleanup...", aca_node, con)
+      busybox_container_cleanup(aca_node, con)
     time.sleep(10)
+
     check_alcor_agents_running(aca)
     time.sleep(30)
-    if(restart_alcor_agents(aca,ALCOR_AGENTS_BINARY_PATH)== False):
-      print("Couldn't start AlcorControlAgent successfully")
-      print("ERROR: Test exits")
+
+    if(restart_alcor_agents(aca, ACA_BIN_PATH) == False):
+      print("AlcorControlAgent did NOT start successfully")
+      print("Check the target nodes and run again")
+      print("ERROR: Quitting test\n")
       sys.exit(1)
     time.sleep(10)
+
     aca_nodes_ip_mac = get_macaddr_alcor_agents(aca)
     print("ACA nodes IP MAC pair::", aca_nodes_ip_mac)
 
