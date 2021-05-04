@@ -72,6 +72,11 @@ public class OnDemandServiceImpl implements OnDemandService {
         String hostIp = "";
 
         ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
+        //TODO: handle resource metadata not found
+        if (resourceMetadata == null) {
+            //...
+        }
+
         List<ResourceMeta> resourceMetas = new ArrayList<>() {
             {
                 add(resourceMetadata);

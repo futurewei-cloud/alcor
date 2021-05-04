@@ -178,16 +178,26 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //    to ACA by a separate gRPC client
             /////////////////////////////////////////////////////////////////////////////////////////
 
-            // Step 1: Send GS down to target ACA
-            //TODO: Populate hostGoalStates based on M2 and M3
+            // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             try {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
                     String hostIp = hostGoalState.getHostIp();
-                    hostGoalStates.put(hostIp, hostGoalState);
-                    logger.log(Level.INFO, "[requestGoalStates] Sending GS to ACA " + hostIp + " | ",
-                            hostGoalState.toString());
+
+                    //Handle potential overwrite when more than one requests come from the same host
+                    if (hostGoalStates.containsKey(hostIp)) {
+                        HostGoalState existingHostGoalState = hostGoalStates.get(hostIp);
+                        HostGoalState updatedHostGoalState = NetworkConfigManagerUtil.consolidateHostGoalState(existingHostGoalState, hostGoalState);
+                        hostGoalStates.put(hostIp, updatedHostGoalState);
+                        logger.log(Level.INFO, "[requestGoalStates] Same Host IP detected: " + hostIp +
+                                " | existing GS: " + existingHostGoalState.toString() +
+                                " | updated GS: " + updatedHostGoalState.toString());
+                    } else {
+                        hostGoalStates.put(hostIp, hostGoalState);
+                        logger.log(Level.INFO, "[requestGoalStates] New Host IP: " + hostIp + " | GS: ",
+                                hostGoalState.toString());
+                    }
                 }
 
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
@@ -196,7 +206,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 e.printStackTrace();
             }
 
-            // Step 2: Generate response for each packet based on the above on-demand algorithm
+            // Step 2: Generate response for each packet based on the on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources and go to Step 2
             // otherwise, set it to FAILURE and go to Step 3

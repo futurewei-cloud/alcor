@@ -102,10 +102,15 @@ public class NetworkConfigManagerUtil {
             }
 
             if (!filter) {
-                filteredGoalStates.put(hostId,hostGoalState);
+                filteredGoalStates.put(hostId, hostGoalState);
             }
         }
 
         return filteredGoalStates;
+    }
+
+    public static HostGoalState consolidateHostGoalState(HostGoalState existingState, HostGoalState newState) {
+        //TODO: implement consolidation algorithm
+        return newState;
     }
 }
