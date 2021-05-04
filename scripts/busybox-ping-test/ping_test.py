@@ -55,43 +55,26 @@ def build_containers(services_dict):
        print("All Alcor services built successfully")
 
 
-def start_containers_(serv):
-    start_containers= []
+def start_containers(serv):
+    start_containers = []
     for service_name in serv.keys():
         service_info = json.loads(serv[service_name])
         run_container = "sudo docker run --name={} ".format(service_info["name"])
-        mnt_and_image = "-v /tmp:/tmp -tid {} sh".format(service_info["name"])
+        mnt_and_image = "-v /tmp:/tmp -tid {} ".format(service_info["name"])
+
         if service_name == "ignite":
             ports = "-p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 "
+            start_cmd = run_container + ports + mnt_and_image + "sh"
         else:
             ports = "--net=host -p {}:{} ".format(service_info["port"], service_info["port"])
             start_cmd = run_container + ports + mnt_and_image
-            start_containers.append(start_cmd)
 
-        if (True == execute_commands("Start ", start_containers)):
-            return True
-        else:
-            return False
+        start_containers.append(start_cmd)
 
-
-def start_containers(serv):
-    start_containers= []
-    mount_option = "/tmp:/tmp"
-    for service_name in serv.keys():
-      service_info = json.loads(serv[service_name])
-      if service_name == "ignite":
-        start_cmd = make_docker_command("run ", "--name={} -p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 -v {} -tid {} sh".format(service_info["name"], mount_option, service_info["name"]))
-      else:
-        start_cmd = make_docker_command("run ", "--net=host ", "--name {} -p {}:{} -v {} -itd {}".format(service_info["name"], service_info["port"], service_info["port"],mount_option, service_info["name"]))
-      start_containers.append(start_cmd)
-
-    if(execute_commands("Start ", start_containers) == True):
-      print("All Alcor services started successfully")
-      return True
+    if (True == execute_commands("Start ", start_containers)):
+        return True
     else:
-      print("Could not start all alcor services.")
-      print("Error! Test Exits")
-      sys.exit(1)
+        return False
 
 
 def stop_containers(service_list):
