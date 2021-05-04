@@ -348,10 +348,6 @@ public class pseudo_controller {
                         System.out.println("exit-status: " + channel.getExitStatus());
                         break;
                     }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception ee) {
-                    }
                 }
                 System.out.println("End of executing command [" + command + "] on host: " + host_ip);
                 channel.disconnect();
