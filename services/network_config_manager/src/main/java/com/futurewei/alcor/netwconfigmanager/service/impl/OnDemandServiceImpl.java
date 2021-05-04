@@ -33,9 +33,6 @@ import java.util.List;
 public class OnDemandServiceImpl implements OnDemandService {
 
     @Autowired
-    private HostResourceMetadataCache hostResourceMetadataCache;
-
-    @Autowired
     private ResourceStateCache resourceStateCache;
 
     @Autowired

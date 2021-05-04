@@ -22,7 +22,7 @@ public class VpcResourceMeta {
 
     private String vni;
 
-    // Private IP => List<ResourceMetadata>
+    // Private IP => ResourceMetadata
     private HashMap<String, ResourceMeta> resourceMetaMap;
 
     public VpcResourceMeta(String vni, HashMap<String, ResourceMeta> resourceMetaMap) {

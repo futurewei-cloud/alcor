@@ -21,6 +21,7 @@ import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.service.GoalStatePersistenceService;
 import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -49,6 +51,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Autowired
     private OnDemandService onDemandService;
+
+    @Autowired
+    private GoalStatePersistenceService goalStatePersistenceService;
 
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
@@ -119,11 +124,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
                     //store the goal state in cache
+                    Set<String> processedResourceIds = new HashSet<>();
                     for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
                         String hostId = entry.getKey();
                         HostGoalState hostGoalState = entry.getValue();
 
-
+                        try {
+                            goalStatePersistenceService.updateGoalState(hostId, hostGoalState);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     // filter neighbor/SG update, and send them down to target ACA

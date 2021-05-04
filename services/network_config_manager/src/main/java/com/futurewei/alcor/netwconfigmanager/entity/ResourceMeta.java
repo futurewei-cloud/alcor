@@ -154,4 +154,18 @@ public class ResourceMeta {
     public void deleteRouterId(String delId) {
         this.routerIds.remove(delId);
     }
+
+    ////////////////////////
+    // SG related methods
+    ////////////////////////
+    public void addSecurityGroupId(String newId) {
+        this.securityGroupIds.add(newId);
+    }
+
+    ////////////////////////
+    // Gateway related methods
+    ////////////////////////
+    public void addGatewayId(String newId) {
+        this.gatewayIds.add(newId);
+    }
 }

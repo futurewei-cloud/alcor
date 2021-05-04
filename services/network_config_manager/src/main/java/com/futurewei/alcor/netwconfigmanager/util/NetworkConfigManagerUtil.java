@@ -16,9 +16,11 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.netwconfigmanager.util;
 
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.exception.UnexpectedHostNumException;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
+import org.springframework.core.io.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +30,7 @@ public class NetworkConfigManagerUtil {
     /**
      * split and build V2 GoalState in a host
      */
-    public static Map<String, HostGoalState> splitClusterToHostGoalState(Goalstate.GoalStateV2 goalState) {
+    public static Map<String, HostGoalState> splitClusterToHostGoalState(Goalstate.GoalStateV2 goalState) throws IllegalArgumentException {
 
         Map<String, HostGoalState> result = new HashMap<>();
         if (goalState == null || goalState.getHostResourcesCount() == 0) {
@@ -111,6 +113,51 @@ public class NetworkConfigManagerUtil {
 
     public static HostGoalState consolidateHostGoalState(HostGoalState existingState, HostGoalState newState) {
         //TODO: implement consolidation algorithm
+        return newState;
+    }
+
+    public static ResourceMeta convertGoalStateToHostResourceMeta(String hostId, Goalstate.HostResources hostResourceMetadata) {
+
+        ResourceMeta hostResourceMeta = new ResourceMeta(hostId);
+
+        for (Goalstate.ResourceIdType resource : hostResourceMetadata.getResourcesList()) {
+            String resourceId = resource.getId();
+            switch (resource.getType()) {
+                case VPC:
+                    hostResourceMeta.addVpcId(resourceId);
+                    break;
+                case SUBNET:
+                    hostResourceMeta.addSubnetId(resourceId);
+                    break;
+                case PORT:
+                    hostResourceMeta.addPortId(resourceId);
+                    break;
+                case NEIGHBOR:
+                    hostResourceMeta.addNeighborEntry(resourceId, resourceId); //TODO: where is neighbor ip
+                    break;
+                case SECURITYGROUP:
+                    hostResourceMeta.addSecurityGroupId(resourceId);
+                    break;
+                case DHCP:
+                    hostResourceMeta.addDhcpId(resourceId);
+                    break;
+                case ROUTER:
+                    hostResourceMeta.addRouterId(resourceId);
+                    break;
+                case GATEWAY:
+                    hostResourceMeta.addGatewayId(resourceId);
+                    break;
+                case UNRECOGNIZED:
+                    break;
+            }
+        }
+
+        return hostResourceMeta;
+    }
+
+    public static ResourceMeta consolidateResourceMeta(ResourceMeta existingState, ResourceMeta newState) {
+        //TODO: implement consolidation algorithm
+        //TODO: Consolidation is insufficient. We will need to calculate the resource differences to support delete
         return newState;
     }
 }

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class VpcResourceCache {
 
-    // Map <VNI, Map<PIP, List<ResoruceIDType>>
+    // Map <VNI, Map<PIP, ResourceMetadata>
     private ICache<String, VpcResourceMeta> vpcResourceMetas;
 
     @Autowired
