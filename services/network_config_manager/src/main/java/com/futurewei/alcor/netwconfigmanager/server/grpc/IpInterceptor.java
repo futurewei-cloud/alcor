@@ -13,27 +13,29 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.netwconfigmanager.service;
+package com.futurewei.alcor.netwconfigmanager.server.grpc;
 
-import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
-import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
+import io.grpc.*;
 
-import java.util.List;
+import java.util.logging.Level;
 
-public interface OnDemandService {
+class IpInterceptor implements ServerInterceptor {
 
-    /**
-     * Retrieve Resource Goal State according to the received resource state request.
-     *
-     * @param resourceStateRequest
-     * @return HostGoalState
-     * @throws Exception Various exceptions that may occur during the create process
-     */
-    HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest, String hostIpAddress) throws Exception;
+    private static final Logger logger = LoggerFactory.getLogger();
 
-    ResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception;
+    private String clientIpAddress;
 
-    Goalstate.GoalStateV2 retrieveResourceState(List<ResourceMeta> resourceMetas) throws Exception;
+    public String getClientIpAddress() {
+        return this.clientIpAddress;
+    }
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        this.clientIpAddress = call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
+        logger.log(Level.INFO, "[IpInterceptor] Client IP address = {}", this.clientIpAddress);
+
+        return next.startCall(call, headers);
+    }
 }

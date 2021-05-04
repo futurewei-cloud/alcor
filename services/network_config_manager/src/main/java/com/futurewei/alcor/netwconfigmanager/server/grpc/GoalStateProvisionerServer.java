@@ -21,7 +21,6 @@ import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
-import com.futurewei.alcor.netwconfigmanager.service.NodeService;
 import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
@@ -53,9 +52,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 //    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
-        this.port = 9016;
+        this.port = 9016; // TODO: make this configurable
+
+        IpInterceptor clientIpInterceptor = new IpInterceptor();
         this.server = ServerBuilder.forPort(this.port)
-                .addService(new GoalStateProvisionerImpl())
+                .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
+                .intercept(clientIpInterceptor)
                 .build();
     }
 
@@ -96,7 +98,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-        GoalStateProvisionerImpl() {
+        private IpInterceptor ipInterceptor;
+
+        GoalStateProvisionerImpl(IpInterceptor ipInterceptor) {
+            this.ipInterceptor = ipInterceptor;
         }
 
         @Override
@@ -178,11 +183,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //    to ACA by a separate gRPC client
             /////////////////////////////////////////////////////////////////////////////////////////
 
+            // Step 0: Prepare to retrieve client IP address from gRPC transport
+            String clientIpAddress = this.ipInterceptor.getClientIpAddress();
+            logger.log(Level.INFO, "[requestGoalStates] Client IP address = {}", clientIpAddress);
+
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             try {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
-                    HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
+                    HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
                     if (hostGoalState == null) {
                         logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
                                 resourceStateRequest.toString());

@@ -47,7 +47,7 @@ public class OnDemandServiceImpl implements OnDemandService {
     private VpcResourceCache vpcResourceCache;
 
     @Override
-    public HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest) throws Exception {
+    public HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest, String hostIpAddress) throws Exception {
         /////////////////////////////////////////////////////////////////////////////////////////
         //                  On-Demand Algorithm
         // query cache M4 by VNI and source IP, and find all associated list of resource IDs (along with type)
@@ -69,7 +69,6 @@ public class OnDemandServiceImpl implements OnDemandService {
         String vni = String.valueOf(resourceStateRequest.getTunnelId());
         String sourceIp = resourceStateRequest.getSourceIp();
         String destinationIp = resourceStateRequest.getDestinationIp();
-        String hostIp = ""; //TODO: get host ip form ServerInterceptor
 
         ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
         if (resourceMetadata == null) {
@@ -82,7 +81,7 @@ public class OnDemandServiceImpl implements OnDemandService {
             }
         };
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
-        HostGoalState hostGoalState = new HostGoalState(hostIp, goalState);
+        HostGoalState hostGoalState = new HostGoalState(hostIpAddress, goalState);
 
         return hostGoalState;
     }
