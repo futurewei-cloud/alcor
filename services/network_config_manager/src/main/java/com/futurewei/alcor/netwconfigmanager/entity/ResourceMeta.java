@@ -53,6 +53,9 @@ public class ResourceMeta {
         this.ownerId = ownerId;
     }
 
+    ////////////////////////
+    // Vpc related methods
+    ////////////////////////
     public Set<String> getVpcIds() {
         return this.vpcIds;
     }
@@ -69,6 +72,9 @@ public class ResourceMeta {
         this.vpcIds.remove(delId);
     }
 
+    ////////////////////////
+    // Subnet related methods
+    ////////////////////////
     public Set<String> getSubnetIds() {
         return this.subnetIds;
     }
@@ -83,5 +89,69 @@ public class ResourceMeta {
 
     public void deleteSubnetId(String delId) {
         this.subnetIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Port related methods
+    ////////////////////////
+    public Set<String> getPortIds() {
+        return this.portIds;
+    }
+
+    public String getDefaultPortId() {
+        return this.portIds != null && this.portIds.size() > 0 ? this.portIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
+    }
+
+    public void addPortId(String newId) {
+        this.portIds.add(newId);
+    }
+
+    public void deletePortId(String delId) {
+        this.portIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Neighbor related methods
+    ////////////////////////
+    public Map<String, String> getNeighborIdMap() {
+        return this.neighborMap;
+    }
+
+    public void addNeighborEntry(String neighborIp, String neighborId) {
+        this.neighborMap.put(neighborIp, neighborId);
+    }
+
+    public void deleteNeighborEntry(String neighborIp) {
+        this.neighborMap.remove(neighborIp);
+    }
+
+    ////////////////////////
+    // Dhcp related methods
+    ////////////////////////
+    public Set<String> getDhcpIds() {
+        return this.dhcpIds;
+    }
+
+    public void addDhcpId(String newId) {
+        this.dhcpIds.add(newId);
+    }
+
+    public void deleteDhcpId(String delId) {
+        this.dhcpIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Router related methods
+    ////////////////////////
+    public Set<String> getRouterIds() {
+        return this.routerIds;
+    }
+
+    public void addRouterId(String newId) {
+        this.routerIds.add(newId);
+    }
+
+    public void deleteRouterId(String delId) {
+        this.routerIds.remove(delId);
     }
 }

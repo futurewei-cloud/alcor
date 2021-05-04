@@ -5,8 +5,10 @@ import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.cache.VpcResourceCache;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
+import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.web.entity.gateway.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -48,12 +50,46 @@ public class OnDemandServiceImpl implements OnDemandService {
     }
 
     @Override
-    public List<ResourceMeta> retrieveResourceMeta(String vni, String privateIp) {
-        return null;
+    public ResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception {
+
+        VpcResourceMeta curResourceMeta = vpcResourceCache.getResourceMeta(vni);
+        if (curResourceMeta == null)
+            return null;
+
+        return curResourceMeta.getResourceMetas(privateIp);
     }
 
     @Override
-    public List<Object> retrieveResourceState(List<String> resourceIds) {
-        return null;
+    public Goalstate.GoalStateV2 retrieveResourceState(List<ResourceMeta> resourceMetas) throws Exception {
+
+        if (resourceMetas == null) {
+            return null;
+        }
+
+        // TODO: This triggers quite a few db read access. Need to evaluate performance or rewrite with bulk access
+        Goalstate.GoalStateV2.Builder builder = Goalstate.GoalStateV2.newBuilder();
+        for (ResourceMeta resource : resourceMetas) {
+            String ownerId = resource.getOwnerId();
+            for (String vpcId : resource.getVpcIds()) {
+                builder.putVpcStates(vpcId, (Vpc.VpcState) resourceStateCache.getResourceState(vpcId));
+            }
+            for (String subnetId : resource.getSubnetIds()) {
+                builder.putSubnetStates(subnetId, (Subnet.SubnetState) resourceStateCache.getResourceState(subnetId));
+            }
+            for (String portId : resource.getPortIds()) {
+                builder.putPortStates(portId, (Port.PortState) resourceStateCache.getResourceState(portId));
+            }
+            for (String neighborId : resource.getNeighborIdMap().values()) {
+                builder.putNeighborStates(neighborId, (Neighbor.NeighborState) resourceStateCache.getResourceState(neighborId));
+            }
+            for (String dhcpId : resource.getDhcpIds()) {
+                builder.putDhcpStates(dhcpId, (DHCP.DHCPState) resourceStateCache.getResourceState(dhcpId));
+            }
+            for (String routerId : resource.getRouterIds()) {
+                builder.putRouterStates(routerId, (Router.RouterState) resourceStateCache.getResourceState(routerId));
+            }
+        }
+
+        return builder.build();
     }
 }

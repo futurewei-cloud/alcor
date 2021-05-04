@@ -23,18 +23,26 @@ public class VpcResourceMeta {
     private String vni;
 
     // Private IP => List<ResourceMetadata>
-    private HashMap<String, List<ResourceMeta>> resourceMetas;
+    private HashMap<String, ResourceMeta> resourceMetaMap;
 
-    public VpcResourceMeta(String vni, HashMap<String, List<ResourceMeta>> resourceMetas) {
+    public VpcResourceMeta(String vni, HashMap<String, ResourceMeta> resourceMetaMap) {
         this.vni = vni;
-        this.resourceMetas = new HashMap<>(resourceMetas);
+        this.resourceMetaMap = new HashMap<>(resourceMetaMap);
     }
 
     public String getVni() {
         return this.vni;
     }
 
-    public HashMap<String, List<ResourceMeta>> getResourceMetas() {
-        return this.resourceMetas;
+    public HashMap<String, ResourceMeta> getResourceMetaMap() {
+        return this.resourceMetaMap;
+    }
+
+    public ResourceMeta getResourceMetas(String privateIP) {
+        if (this.resourceMetaMap == null) {
+            return null;
+        }
+
+        return this.resourceMetaMap.get(privateIP);
     }
 }
