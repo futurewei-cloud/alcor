@@ -64,8 +64,9 @@ public class ResourceMeta {
         return this.vpcIds != null && this.vpcIds.size() > 0 ? this.vpcIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
     }
 
-    public void addVpcId(String newId) {
+    public ResourceMeta addVpcId(String newId) {
         this.vpcIds.add(newId);
+        return this;
     }
 
     public void deleteVpcId(String delId) {
@@ -83,8 +84,9 @@ public class ResourceMeta {
         return this.subnetIds != null && this.subnetIds.size() > 0 ? this.subnetIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
     }
 
-    public void addSubnetId(String newId) {
+    public ResourceMeta addSubnetId(String newId) {
         this.subnetIds.add(newId);
+        return this;
     }
 
     public void deleteSubnetId(String delId) {
@@ -102,8 +104,9 @@ public class ResourceMeta {
         return this.portIds != null && this.portIds.size() > 0 ? this.portIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
     }
 
-    public void addPortId(String newId) {
+    public ResourceMeta addPortId(String newId) {
         this.portIds.add(newId);
+        return this;
     }
 
     public void deletePortId(String delId) {
@@ -117,8 +120,9 @@ public class ResourceMeta {
         return this.neighborMap;
     }
 
-    public void addNeighborEntry(String neighborIp, String neighborId) {
+    public ResourceMeta addNeighborEntry(String neighborIp, String neighborId) {
         this.neighborMap.put(neighborIp, neighborId);
+        return this;
     }
 
     public void deleteNeighborEntry(String neighborIp) {
@@ -132,8 +136,9 @@ public class ResourceMeta {
         return this.dhcpIds;
     }
 
-    public void addDhcpId(String newId) {
+    public ResourceMeta addDhcpId(String newId) {
         this.dhcpIds.add(newId);
+        return this;
     }
 
     public void deleteDhcpId(String delId) {
@@ -147,8 +152,9 @@ public class ResourceMeta {
         return this.routerIds;
     }
 
-    public void addRouterId(String newId) {
+    public ResourceMeta addRouterId(String newId) {
         this.routerIds.add(newId);
+        return this;
     }
 
     public void deleteRouterId(String delId) {
@@ -158,14 +164,16 @@ public class ResourceMeta {
     ////////////////////////
     // SG related methods
     ////////////////////////
-    public void addSecurityGroupId(String newId) {
+    public ResourceMeta addSecurityGroupId(String newId) {
         this.securityGroupIds.add(newId);
+        return this;
     }
 
     ////////////////////////
     // Gateway related methods
     ////////////////////////
-    public void addGatewayId(String newId) {
+    public ResourceMeta addGatewayId(String newId) {
         this.gatewayIds.add(newId);
+        return this;
     }
 }
