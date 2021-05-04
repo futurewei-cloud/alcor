@@ -153,7 +153,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
 
         @Override
-        public void requestGoalStates(Goalstateprovisioner.HostRequest request, StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
+        public void requestGoalStates(Goalstateprovisioner.HostRequest request,
+                                      StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
 
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
 
@@ -179,16 +180,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
             // Step 1: Send GS down to target ACA
             //TODO: Populate hostGoalStates based on M2 and M3
-            Map<String, HostGoalState> hostGoalStates = new HashMap<>();
-            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
-                HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
-                String hostIp = hostGoalState.getHostIp();
-                hostGoalStates.put(hostIp, hostGoalState);
-                logger.log(Level.INFO, "[requestGoalStates] Sending GS to ACA " + hostIp + " | ",
-                        hostGoalState.toString());
-            }
-
             try {
+                Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+                for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
+                    HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
+                    String hostIp = hostGoalState.getHostIp();
+                    hostGoalStates.put(hostIp, hostGoalState);
+                    logger.log(Level.INFO, "[requestGoalStates] Sending GS to ACA " + hostIp + " | ",
+                            hostGoalState.toString());
+                }
+
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
             } catch (Exception e) {
