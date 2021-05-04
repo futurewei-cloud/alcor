@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -42,6 +43,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
+    private final int responseDefaultFormatVersion = 1;
     private final int port;
     private final Server server;
 
@@ -188,6 +190,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.INFO, "[requestGoalStates] Client IP address = {}", clientIpAddress);
 
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
+            HashSet<String> failedRequestIds = new HashSet<>();
             try {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
@@ -195,12 +198,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     if (hostGoalState == null) {
                         logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
                                 resourceStateRequest.toString());
+                        failedRequestIds.add(resourceStateRequest.getRequestId());
                         continue;
                     }
 
                     String hostIp = hostGoalState.getHostIp();
                     if (hostGoalStates.containsKey(hostIp)) {
-                        //Handle potential overwrite when more than one requests come from the same host
+                        //Case 1: Handle potential overwrite when more than one requests come from the same host
                         HostGoalState existingHostGoalState = hostGoalStates.get(hostIp);
                         HostGoalState updatedHostGoalState = NetworkConfigManagerUtil.consolidateHostGoalState(existingHostGoalState, hostGoalState);
                         hostGoalStates.put(hostIp, updatedHostGoalState);
@@ -208,6 +212,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                 " | existing GS: " + existingHostGoalState.toString() +
                                 " | updated GS: " + updatedHostGoalState.toString());
                     } else {
+                        //Case 2: new host
                         hostGoalStates.put(hostIp, hostGoalState);
                         logger.log(Level.INFO, "[requestGoalStates] New Host IP: " + hostIp + " | GS: ",
                                 hostGoalState.toString());
@@ -217,31 +222,40 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
             } catch (Exception e) {
+                logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = {}", clientIpAddress);
                 e.printStackTrace();
             }
 
             // Step 2: Generate response for each packet based on the on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
-            //                           generate GS with port related resources and go to Step 2
+            //                           generate GS with port related resources (completed at Step 1) and go to Step 3
             // otherwise, set it to FAILURE and go to Step 3
-
-            //TODO: Implement on-demand algorithm and support setOperationStatus==Failure
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
             for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
-                Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status =
-                        Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
-                                .setRequestId(resourceStateRequest.getRequestId())
-                                .setOperationStatus(Common.OperationStatus.SUCCESS)
-                                .build();
-                replyBuilder.setFormatVersion(1)
+                String requestId = resourceStateRequest.getRequestId();
+                Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status;
+
+                if (failedRequestIds.contains(requestId)) {
+                    status = Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
+                            .setRequestId(requestId)
+                            .setOperationStatus(Common.OperationStatus.FAILURE)
+                            .build();
+                } else {
+                    status = Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
+                            .setRequestId(requestId)
+                            .setOperationStatus(Common.OperationStatus.SUCCESS)
+                            .build();
+                }
+
+                replyBuilder.setFormatVersion(responseDefaultFormatVersion)
                         .addOperationStatuses(ind++, status)
                         .buildPartial();
             }
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
-            // Step 3: Send response to target ACA
+            // Step 3: Send response to target ACAs
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
             logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",

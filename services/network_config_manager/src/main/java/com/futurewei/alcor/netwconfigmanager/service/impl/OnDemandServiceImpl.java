@@ -23,16 +23,11 @@ import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.schema.*;
-import io.grpc.Grpc;
-import io.grpc.ServerCall;
-import io.grpc.ServerInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.grpc.Grpc.TRANSPORT_ATTR_REMOTE_ADDR;
 
 @Service
 public class OnDemandServiceImpl implements OnDemandService {
