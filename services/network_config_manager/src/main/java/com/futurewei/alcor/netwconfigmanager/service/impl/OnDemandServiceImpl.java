@@ -69,12 +69,11 @@ public class OnDemandServiceImpl implements OnDemandService {
         String vni = String.valueOf(resourceStateRequest.getTunnelId());
         String sourceIp = resourceStateRequest.getSourceIp();
         String destinationIp = resourceStateRequest.getDestinationIp();
-        String hostIp = "";
+        String hostIp = ""; //TODO: get host ip form ServerInterceptor
 
         ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
-        //TODO: handle resource metadata not found
         if (resourceMetadata == null) {
-            //...
+            return null;
         }
 
         List<ResourceMeta> resourceMetas = new ArrayList<>() {

@@ -183,10 +183,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest);
-                    String hostIp = hostGoalState.getHostIp();
+                    if (hostGoalState == null) {
+                        logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
+                                resourceStateRequest.toString());
+                        continue;
+                    }
 
-                    //Handle potential overwrite when more than one requests come from the same host
+                    String hostIp = hostGoalState.getHostIp();
                     if (hostGoalStates.containsKey(hostIp)) {
+                        //Handle potential overwrite when more than one requests come from the same host
                         HostGoalState existingHostGoalState = hostGoalStates.get(hostIp);
                         HostGoalState updatedHostGoalState = NetworkConfigManagerUtil.consolidateHostGoalState(existingHostGoalState, hostGoalState);
                         hostGoalStates.put(hostIp, updatedHostGoalState);

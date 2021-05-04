@@ -39,7 +39,7 @@ public class VpcResourceMeta {
     }
 
     public ResourceMeta getResourceMetas(String privateIP) {
-        if (this.resourceMetaMap == null) {
+        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(privateIP)) {
             return null;
         }
 
