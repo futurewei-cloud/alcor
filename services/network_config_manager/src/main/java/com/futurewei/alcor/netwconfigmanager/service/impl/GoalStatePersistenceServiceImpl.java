@@ -9,10 +9,11 @@ import com.futurewei.alcor.netwconfigmanager.service.GoalStatePersistenceService
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceService {
 
     @Autowired
@@ -39,7 +40,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         }
 
         processVpcStates(hostGoalState);
-        processSubnetStates(hostGoalState;
+        processSubnetStates(hostGoalState);
         processPortStates(hostGoalState);
         processDhcpStates(hostGoalState);
         processNeighborStates(hostGoalState);
