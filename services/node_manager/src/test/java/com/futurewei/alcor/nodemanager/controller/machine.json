@@ -6,10 +6,7 @@
         "local_ip":"10.213.43.150",
         "mac_address":"90:17:ac:c1:34:5d",
         "veth":"eth1",
-        "server_port":8080,
-        "unicast_topic":"unicast-topic-1",
-        "multicast_topic":"multicast-topic-1",
-        "group_topic": "group-topic-1"
+        "server_port":8080
      },
      {
         "node_id":"c2b79aca-316e-4ce8-a8ac-815e2de1f120",
@@ -17,10 +14,7 @@
         "local_ip":"10.213.43.151",
         "mac_address":"90:17:ac:c1:34:5e",
         "veth":"eth1",
-        "server_port":8080,
-        "unicast_topic":"unicast-topic-2",
-        "multicast_topic":"multicast-topic-2",
-        "group_topic": "group-topic-1"
+        "server_port":8080
      }
   ]
 }

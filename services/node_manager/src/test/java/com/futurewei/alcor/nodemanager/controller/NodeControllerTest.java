@@ -147,10 +147,7 @@ public class NodeControllerTest extends MockIgniteServer {
         String strMac = "AA-BB-CC-01-01-01";
         String strVeth = "eth0";
         int nServerPort = 50001;
-        String strUnicastTopic = "unicast-topic-1";
-        String strMulticastTopic = "multicast-topic-1";
-        String strGroupTopic = "group-topic-1";
-        NodeInfo nodeInfo = new NodeInfo(strId, strName, strIp, strMac, strVeth, nServerPort, strUnicastTopic, strMulticastTopic, strGroupTopic);
+        NodeInfo nodeInfo = new NodeInfo(strId, strName, strIp, strMac, strVeth, nServerPort);
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
@@ -171,7 +168,7 @@ public class NodeControllerTest extends MockIgniteServer {
     @Test
     public void test_createNodeInfo_invalidInput_ip() throws Exception {
         String ip = "10, 0, 0, 1";
-        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11", "unicast-topic-1", "multicast-topic-1", "group-topic-1");
+        NodeInfo nodeInfo = new NodeInfo("h01", "host1", ip, "AA-BB-CC-DD-EE-11");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
@@ -202,7 +199,7 @@ public class NodeControllerTest extends MockIgniteServer {
     @Test
     public void updateNodeInfo_invalidInput() throws Exception {
         String ip = "10.0.0.2";
-        NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22", "unicast-topic-1", "multicast-topic-1", "group-topic-1");
+        NodeInfo nodeInfo = new NodeInfo("h02", "host2", ip, "AA-BB-CC-DD-EE-22");
         NodeInfoJson nodeInfoJson = new NodeInfoJson(nodeInfo);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(nodeInfoJson);
@@ -244,7 +241,7 @@ public class NodeControllerTest extends MockIgniteServer {
     @Test
     public void test_getNodeInfoByNodeId_invalidId() throws Exception {
         String ip = "10.0.0.3";
-        NodeInfo nodeInfo = new NodeInfo("h03", "host3", ip, "AA-BB-CC-03-03-03", "unicast-topic-1", "multicast-topic-1", "group-topic-1");
+        NodeInfo nodeInfo = new NodeInfo("h03", "host3", ip, "AA-BB-CC-03-03-03");
         String strNodeId = "       ";
         try {
             MvcResult result = this.mockMvc.perform(get("/nodes/" + strNodeId))
