@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager.service.impl;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.cache.HostResourceMetadataCache;
 import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.cache.VpcResourceCache;
@@ -28,9 +30,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 @Service
 public class OnDemandServiceImpl implements OnDemandService {
+
+    private static final Logger logger = LoggerFactory.getLogger();
 
     @Autowired
     private ResourceStateCache resourceStateCache;
@@ -58,12 +63,20 @@ public class OnDemandServiceImpl implements OnDemandService {
         //                             => yes, go to Step 4 | no, reject
         // 4. Bingo! this packet is allowed, collect port related resources (NEIGHBOR, SG etc. FULL GS) and send down
         //    to ACA by a separate gRPC client
+
+        logger.log(Level.INFO, "[retrieveGoalState] receiving request = " + resourceStateRequest.toString());
+
         String vni = String.valueOf(resourceStateRequest.getTunnelId());
         String sourceIp = resourceStateRequest.getSourceIp();
         String destinationIp = resourceStateRequest.getDestinationIp();
 
+        logger.log(Level.INFO, "[retrieveGoalState] vni = " + vni +
+                " | sourceIp = " + sourceIp +
+                " | destinationIp = " + destinationIp);
+
         ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
         if (resourceMetadata == null) {
+            logger.log(Level.INFO, "[retrieveGoalState] retrieved resource metadata is null");
             return null;
         }
 
@@ -73,8 +86,13 @@ public class OnDemandServiceImpl implements OnDemandService {
             }
         };
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
-        HostGoalState hostGoalState = new HostGoalState(hostIpAddress, goalState);
+        if (goalState == null) {
+            logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state is null");
+            return null;
+        }
 
+        HostGoalState hostGoalState = new HostGoalState(hostIpAddress, goalState);
+        logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state = " + hostGoalState.toString());
         return hostGoalState;
     }
 

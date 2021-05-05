@@ -197,7 +197,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
-            logger.log(Level.INFO, "[requestGoalStates] Client IP address = {}", clientIpAddress);
+            logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             HashSet<String> failedRequestIds = new HashSet<>();
@@ -232,7 +232,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = {}", clientIpAddress);
+                logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
             }
 

@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager.service.impl;
 
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.netwconfigmanager.cache.HostResourceMetadataCache;
 import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.cache.VpcResourceCache;
@@ -32,6 +34,8 @@ import java.util.Map;
 
 @Service
 public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceService {
+
+    private static final Logger logger = LoggerFactory.getLogger();
 
     @Autowired
     private HostResourceMetadataCache hostResourceMetadataCache;
