@@ -30,6 +30,7 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -42,11 +43,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Component
-@ComponentScan(value = "com.futurewei.alcor.common.stats")
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
-@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
+@Service
+@Configurable
 public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
