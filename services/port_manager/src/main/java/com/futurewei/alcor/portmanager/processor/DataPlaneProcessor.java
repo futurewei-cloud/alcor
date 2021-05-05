@@ -1,21 +1,22 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.common.enumClass.StatusEnum;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
 import com.futurewei.alcor.portmanager.exception.NodeInfoNotFound;
@@ -229,6 +230,38 @@ public class DataPlaneProcessor extends AbstractProcessor {
 
     }
 
+    private List<ResourceOperation> initializeResourceOperationTypes(PortContext context, List<PortEntity> portEntities) {
+        List<ResourceOperation> resourceOperationTypes = new ArrayList<>();
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.PORT, Common.OperationType.CREATE));
+        resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.NEIGHBOR, Common.OperationType.CREATE));
+
+        // TODO: to enable full sg support, we will need to add full security group entities to context and check context here
+        for (PortEntity port : portEntities) {
+            if (!CommonUtil.isNullOrEmpty(context.getDefaultSgId()) && port.getPortSecurityEnabled()) {
+                resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.SECURITYGROUP, Common.OperationType.CREATE));
+                break;
+            }
+        }
+
+        if (context.containRouters()) {
+            resourceOperationTypes.add(new ResourceOperation(Common.ResourceType.ROUTER, Common.OperationType.CREATE));
+        }
+
+        return resourceOperationTypes;
+    }
+
+    private void markOperationTypes(NetworkConfiguration networkConfig, Common.OperationType operationType) {
+        if (networkConfig == null || networkConfig.getRsOpTypes() == null) {
+            return;
+        }
+
+        List<ResourceOperation> resourceOperationTypes = networkConfig.getRsOpTypes();
+        for (ResourceOperation type : resourceOperationTypes) {
+            type.setOpType(operationType);
+        }
+    }
+
+
     private NetworkConfiguration buildNetworkConfig(PortContext context, List<PortEntity> portEntities) throws Exception {
         /**
          DataPlaneProcessor needs to wait for all previous Processor runs to
@@ -245,9 +278,11 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
 
         setTheMissingFields(context, portEntities);
+        List<ResourceOperation> resourceOperationTypes = initializeResourceOperationTypes(context, portEntities);
 
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         networkConfiguration.setRsType(Common.ResourceType.PORT);
+        networkConfiguration.setRsOpTypes(resourceOperationTypes);
         networkConfiguration.setVpcs(networkConfig.getVpcEntities());
         networkConfiguration.setSubnets(networkConfig.getSubnetEntities());
         networkConfiguration.setSecurityGroups(networkConfig.getSecurityGroups());
@@ -267,8 +302,8 @@ public class DataPlaneProcessor extends AbstractProcessor {
             networkConfig.setOpType(Common.OperationType.CREATE);
             IRestRequest createNetworkConfigRequest =
                     new CreateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(createNetworkConfigRequest,networkConfig, StatusEnum.CREATED.getStatus());
+            context.getRequestManager().sendRequestAsync(createNetworkConfigRequest, request -> portService.updatePortStatus(request, networkConfig, null));
+            portService.updatePortStatus(createNetworkConfigRequest, networkConfig, StatusEnum.CREATED.getStatus());
         }
     }
 
@@ -278,14 +313,15 @@ public class DataPlaneProcessor extends AbstractProcessor {
             networkConfig.setOpType(Common.OperationType.UPDATE);
             IRestRequest updateNetworkConfigRequest =
                     new UpdateNetworkConfigRequest(context, networkConfig);
-            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request,networkConfig,null));
-            portService.updatePortStatus(updateNetworkConfigRequest,networkConfig, StatusEnum.PENDING.getStatus());
+            context.getRequestManager().sendRequestAsync(updateNetworkConfigRequest, request -> portService.updatePortStatus(request, networkConfig, null));
+            portService.updatePortStatus(updateNetworkConfigRequest, networkConfig, StatusEnum.PENDING.getStatus());
         }
     }
 
     private void deleteNetworkConfig(PortContext context, NetworkConfiguration networkConfig) {
         if (networkConfig != null) {
             networkConfig.setOpType(Common.OperationType.DELETE);
+            markOperationTypes(networkConfig, Common.OperationType.DELETE);
             IRestRequest deleteNetworkConfigRequest =
                     new DeleteNetworkConfigRequest(context, networkConfig);
             context.getRequestManager().sendRequestAsync(deleteNetworkConfigRequest, null);

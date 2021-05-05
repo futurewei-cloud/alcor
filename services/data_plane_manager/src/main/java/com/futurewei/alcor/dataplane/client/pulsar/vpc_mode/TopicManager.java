@@ -58,13 +58,14 @@ public class TopicManager {
     }
 
     private VpcTopicInfo getTopicInfoByNodeIp(String nodeIp) throws Exception {
-        String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
-        String vpcId = localCache.
-
-                VpcTo topicInfo = new TopicInfo(
-                localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId(),
-                new HashMap<>()
-        )
+//        String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
+//        String vpcId = localCache.
+//
+//                 topicInfo = new TopicInfo(
+//                localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId(),
+//                new HashMap<>()
+//        )
+        return null;
     }
 
     private String generateTopicByVpcId(String vpcId) {

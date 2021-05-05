@@ -1,7 +1,24 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 package com.futurewei.alcor.dataplane.cache;
 
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.dataplane.exception.NodeInfoNotFound;
@@ -30,7 +47,7 @@ public class NodeInfoCache {
 
     @Autowired
     public NodeInfoCache(CacheFactory cacheFactory) {
-        nodeInfoCache = cacheFactory.getCache(NodeInfo.class);
+        nodeInfoCache = cacheFactory.getCache(NodeInfo.class, "dpm_nodeinfo_cache");
     }
 
 
@@ -79,29 +96,32 @@ public class NodeInfoCache {
 
     @DurationStatistics
     public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
-        List<NodeInfo> result = new ArrayList<>();
+        try (Transaction tx = nodeInfoCache.getTransaction().start()) {
+            List<NodeInfo> result = new ArrayList<>();
 
-        Map<String, Object[]> queryParams = new HashMap<>();
-        Object[] values = new Object[1];
-        values[0] = nodeIp;
-        queryParams.put("localIp", values);
-        Map<String, NodeInfo> nodeInfoMap = nodeInfoCache.getAll(queryParams);
+            Map<String, Object[]> queryParams = new HashMap<>();
+            Object[] values = new Object[1];
+            values[0] = nodeIp;
+            queryParams.put("localIp", values);
+            Map<String, NodeInfo> nodeInfoMap = nodeInfoCache.getAll(queryParams);
 
-        if (nodeInfoMap.size() == 0) {
-            result = nodeManagerRestClient.getNodeInfoByNodeIp(nodeIp);
-            if (result == null || result.size() == 0) {
-                throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + " from NodeManager");
+            if (nodeInfoMap.size() == 0) {
+                result = nodeManagerRestClient.getNodeInfoByNodeIp(nodeIp);
+                if (result == null || result.size() == 0) {
+                    throw new NodeInfoNotFound("Could not get corresponding node with NodeIp: " + nodeIp + " from NodeManager");
+                }
+                for (NodeInfo nodeInfo : result) {
+                    nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+                }
+                return result;
             }
-            for (NodeInfo nodeInfo : result) {
-                nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+
+            for (Map.Entry<String, NodeInfo> entry : nodeInfoMap.entrySet()) {
+                NodeInfo nodeInfo = new NodeInfo(entry.getValue());
+                result.add(nodeInfo);
             }
+            tx.commit();
             return result;
         }
-
-        for (Map.Entry<String, NodeInfo> entry : nodeInfoMap.entrySet()) {
-            NodeInfo nodeInfo = new NodeInfo(entry.getValue());
-            result.add(nodeInfo);
-        }
-        return result;
     }
 }
