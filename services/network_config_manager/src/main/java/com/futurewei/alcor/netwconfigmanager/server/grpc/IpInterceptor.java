@@ -34,7 +34,7 @@ class IpInterceptor implements ServerInterceptor {
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         this.clientIpAddress = call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
-        logger.log(Level.INFO, "[IpInterceptor] Client IP address = {}", this.clientIpAddress);
+        logger.log(Level.INFO, "[IpInterceptor] Client IP address = " + this.clientIpAddress);
 
         return next.startCall(call, headers);
     }
