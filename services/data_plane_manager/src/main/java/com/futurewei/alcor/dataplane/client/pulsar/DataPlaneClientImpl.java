@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.client.pulsar;
 
 import com.futurewei.alcor.dataplane.cache.LocalCache;
+import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
@@ -46,19 +47,18 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private PulsarClient pulsarClient;
 
     @Autowired
-    LocalCache localCache;
+    NodeTopicCache nodeTopicCache;
 
     private Map<String, List<String>> getMulticastTopics(List<String> hostIps) throws Exception {
         Map<String, List<String>> multicastTopics = new HashMap<>();
-
         for (String hostIp : hostIps) {
-            String groupTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getGroupTopic();
+            String groupTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(hostIp).getGroupTopic();
             if (StringUtils.isEmpty(groupTopic)) {
                 LOG.error("Can not find group topic by host ip:{}", hostIp);
                 throw new GroupTopicNotFound();
             }
 
-            String multicastTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getMulticastTopic();
+            String multicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(hostIp).getMulticastTopic();
             if (StringUtils.isEmpty(multicastTopic)) {
                 LOG.error("Can not find multicast topic by host ip:{}", hostIp);
                 throw new MulticastTopicNotFound();
@@ -112,14 +112,14 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            String nextTopic = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getGroupTopic();
+            String nextTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getGroupTopic();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
                 throw new GroupTopicNotFound();
             }
 
             String topic = nextTopic;
-            String unicastTopic = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getUnicastTopic();
+            String unicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getUnicastTopic();
             if (!StringUtils.isEmpty(unicastTopic)) {
                 unicastGoalState.setNextTopic(nextTopic);
                 topic = unicastTopic;
