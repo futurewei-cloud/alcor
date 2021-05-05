@@ -174,6 +174,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
 
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
+            logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
+            logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
 
             /////////////////////////////////////////////////////////////////////////////////////////
             //                  On-Demand Algorithm
@@ -204,6 +206,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             try {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
+                    if (onDemandService == null) {
+                        logger.log(Level.WARNING, "[requestGoalStates] onDemandService is null");
+                    }
+
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
                     if (hostGoalState == null) {
                         logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
