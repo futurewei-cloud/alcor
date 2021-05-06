@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager.entity;
 
+import com.futurewei.alcor.netwconfigmanager.service.impl.OnDemandServiceImpl;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,17 +56,26 @@ public class VpcResourceMeta {
         this.resourceMetaMap.put(privateIP, portAssociatedResourceMeta);
     }
 
-    public Set<String> getNeighborIds(String sourceIp) {
+    public Set<String> getNeighborIds(String sourceIp, String destinationIp, OnDemandServiceImpl.StateProvisionAlgorithm algorithm) {
         Set<String> neighborIdSet = new HashSet<>();
 
         if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(sourceIp)) {
             return neighborIdSet;
         }
 
-        for (String portIp : this.resourceMetaMap.keySet()) {
-            if(!portIp.equalsIgnoreCase(sourceIp)){
-                String neighborId = this.resourceMetaMap.get(portIp).getOwnerId() + NEIGHBOR_POSTFIX;
+        if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_Point) {
+            if (this.resourceMetaMap.containsKey(destinationIp)) {
+                String neighborId = this.resourceMetaMap.get(destinationIp).getOwnerId() + NEIGHBOR_POSTFIX;
                 neighborIdSet.add(neighborId);
+            }
+        } else if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_Many) {
+            // TODO: implement point to many based on ML algorithm
+        } else if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_All) {
+            for (String portIp : this.resourceMetaMap.keySet()) {
+                if (!portIp.equalsIgnoreCase(sourceIp)) {
+                    String neighborId = this.resourceMetaMap.get(portIp).getOwnerId() + NEIGHBOR_POSTFIX;
+                    neighborIdSet.add(neighborId);
+                }
             }
         }
 

@@ -37,6 +37,13 @@ import java.util.logging.Level;
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
 public class OnDemandServiceImpl implements OnDemandService {
 
+    public enum StateProvisionAlgorithm {
+        Point_To_Point,
+        Point_To_Many,
+        Point_To_All
+    }
+
+    private final StateProvisionAlgorithm defaultStateProvisionAlgorithm = StateProvisionAlgorithm.Point_To_Point;
     private static final Logger logger = LoggerFactory.getLogger();
 
     @Autowired
@@ -90,10 +97,11 @@ public class OnDemandServiceImpl implements OnDemandService {
         }
 
         //populate portResourceMetadata with existing neighbors in the same VPC
-        Set<String> neighborIdSet = vpcResourceMetadata.getNeighborIds(sourceIp);
+        Set<String> neighborIdSet = vpcResourceMetadata.getNeighborIds(sourceIp, destinationIp, defaultStateProvisionAlgorithm);
         for (String neighborId : neighborIdSet) {
             portResourceMetadata.addNeighborEntry(neighborId, neighborId); //TODO: consider to store id => ip or vice versa
         }
+
         List<ResourceMeta> resourceMetas = new ArrayList<>() {
             {
                 add(portResourceMetadata);
