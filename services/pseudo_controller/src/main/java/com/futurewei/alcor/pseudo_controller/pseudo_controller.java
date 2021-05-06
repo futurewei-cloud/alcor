@@ -136,7 +136,7 @@ public class pseudo_controller {
             Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
             NeighborConfiguration_builder.setRevisionNumber(2);
             NeighborConfiguration_builder.setVpcId(vpc_id_1);
-            NeighborConfiguration_builder.setId(port_id);
+            NeighborConfiguration_builder.setId(port_id+"_n");
             NeighborConfiguration_builder.setMacAddress(port_mac);
             NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
@@ -288,11 +288,22 @@ public class pseudo_controller {
         System.out.println("Time to execute these ping commands concurrently");
         // Concurrently execute the pings.
         for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+            // concurrent
             Thread t = new Thread(cmd);
             t.start();
+            // sequential
+            // cmd.run();
         }
 
         System.out.println("End of the test controller");
+        channel.shutdown();
+        try {
+            TimeUnit.SECONDS.sleep(10);
+
+        } catch (Exception e) {
+            System.out.println("I can't sleep!!!!");
+
+        }
     }
 
     private static void create_containers_on_both_hosts() {
