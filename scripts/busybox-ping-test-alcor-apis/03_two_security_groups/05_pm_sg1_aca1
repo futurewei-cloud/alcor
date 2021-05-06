@@ -1,0 +1,59 @@
+#!/bin/bash
+# Using Port manager, create the end port:
+# Ensure your IPs are within the subnet you created (line 119)
+# IP, name and ID should be unique for eqach request
+curl -X POST --header "Content-Type: application/json" --header "Accept: */*" -d "{
+  \"port\": {
+    \"admin_state_up\": true,
+    \"allowed_address_pairs\": [
+      {
+        \"ip_address\": \"11.11.11.1\",
+        \"mac_address\": \"00-AA-BB-15-EB-3F\"
+      }
+    ],
+    \"binding:host_id\": \"node1\",
+    \"binding:vif_details\": {},
+    \"create_at\": \"string\",
+    \"description\": \"string\",
+    \"device_id\": \"8182a4d4-ffff-4ece-b3f0-8d36e3d00001\",
+    \"device_owner\": \"compute:nova\",
+    \"dns_assignment\": {},
+    \"dns_domain\": \"string\",
+    \"dns_name\": \"string\",
+    \"extra_dhcp_opts\": [
+      {
+        \"ip_version\": \"string\",
+        \"opt_name\": \"string\",
+        \"opt_value\": \"string\"
+      }
+    ],
+    \"fast_path\": true,
+    \"fixed_ips\": [
+      {
+        \"ip_address\": \"10.0.1.101\",
+        \"subnet_id\": \"8182a4d4-ffff-4ece-b3f0-8d36e3d88001\"
+      }
+    ],
+ \"id\": \"7172a4d4-ffff-4ede-b3ml0-8d36e3d00101\",
+    \"mac_learning_enabled\": true,
+    \"name\": \"port101\",
+    \"network_id\": \"9192a4d4-ffff-4ece-b3f0-8d36e3d88001\",
+    \"network_ns\": \"string\",
+    \"port_security_enabled\": true,
+    \"project_id\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",
+    \"qos_network_policy_id\": \"string\",
+    \"qos_policy_id\": \"string\",
+    \"revision_number\": 0,
+    \"security_groups\": [
+      \"3dda2801-d675-4688-a63f-dcda8d111111\"
+    ],
+    \"tags\": [
+      \"string\"
+    ],
+    \"tenant_id\": \"3dda2801-d675-4688-a63f-dcda8d327f50\",
+    \"update_at\": \"string\",
+    \"uplink_status_propagation\": true,
+    \"veth_name\": \"string\"
+  }
+}" "http://localhost:9006/project/3dda2801-d675-4688-a63f-dcda8d327f50/ports"
+
