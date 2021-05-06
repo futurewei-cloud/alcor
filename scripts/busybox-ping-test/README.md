@@ -90,9 +90,8 @@ autoconf
 libtool
 c-ares
 ```
-Now go to the ovs source and update the file 'configure.ac' and edit th line carrying LT_INIT with:
+Now go to the ovs source and update the file 'configure.ac' and edit th line carrying LT_INIT to enable shared library creation before building:
 * LT_INIT (enable_shared)
-Run
 ```
 ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 make
@@ -101,7 +100,7 @@ make install.
 
 3. After the successful installation of ovs, start the following services:
 ```
-systemctl openvswitch-switch restart
+sudo systemctl openvswitch-switch restart
 sudo /usr/local/share/openvswitch/scripts/ovs-ctl start
 ```
 The script ovs-ctsl starts following the services vsdb-server and ovs-vswitchd.
@@ -113,7 +112,7 @@ The script ovs-ctsl starts following the services vsdb-server and ovs-vswitchd.
   ovs-docker del-ports br-int <container_name>
 ```
 
-5.Following commands can be used to diagnose the target node's ovs services and bridges:
+5. Following commands can be used to diagnose the target node's ovs services and bridges:
 ```
 ovs-vsctl show
 ovs-ofctl dump-flows br-tun
@@ -123,7 +122,7 @@ ovs-ofctl dump-flows br-int
 ## Troubleshooting
 1) During the runing of test script, the user account 'ubuntu' from Alcor host will be making ssh connection to the target hosts. Ensure that user ubuntu has password less ssh access to the target hosts. Copy the contents of id_rsa.pub file of user 'ubuntu' (located at ~/.ssh) and paste into the file ~/.ssh/authorized_keys on target host.
 
-2) Often after running the tests from a terminal on the Alcor hosts leaves the stdout and stdin in an unknow state. You can fix it by running
+2) Often after running the tests from a terminal on the Alcor hosts leaves the stdout and stdin in an unknown state. You can fix it by running
 ```
 reset
 ```
