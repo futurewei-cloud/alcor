@@ -276,10 +276,10 @@ public class pseudo_controller {
             System.out.println("I can't sleep!!!!");
 
         }
-        Vector<concurrent_run_cmd> concurrent_ping_cmds = new Vector<>();
+        List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
         for (int i = 0; i < node_one_port_ips.size(); i++) {
             if (i >= node_two_port_ips.size()) {
-                return;
+                break;
             }
             String pinger_ip = node_one_port_ips.get(i);
             String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
@@ -293,26 +293,21 @@ public class pseudo_controller {
 
         // Create a thread pool to execute the pings
 
-        int MAX_THREADS = 5;  // thread pool size
-
-        ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
+//        int MAX_THREADS = 5;  // thread pool size
+//
+//        ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
 
         // Concurrently execute the pings.
-//        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-//             //concurrent
-////            Thread t = new Thread(cmd);
-////            t.start();
-//            // sequential
-//            //cmd.run()
-//            // use thread pool
+        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+             //concurrent
+            Thread t = new Thread(cmd);
+            t.start();
+            // sequential
+            //cmd.run()
+            // use thread pool
 //            pool.execute(cmd);
-//        }
-
-        for (int i = 0 ; i < concurrent_ping_cmds.size(); i ++){
-            System.out.println("Command i = " + i + ", "+ concurrent_ping_cmds.get(i).command_to_run);
-            pool.execute(concurrent_ping_cmds.get(i));
-            Thread.sleep(500);
         }
+
 
         System.out.println("End of the test controller");
         channel.shutdown();
