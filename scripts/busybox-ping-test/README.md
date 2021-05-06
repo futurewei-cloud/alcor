@@ -1,3 +1,22 @@
+# MIT License
+```
+Copyright(c) 2020 Futurewei Cloud
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files(the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
 # Busybox Ping Test
 
 # In this README:
@@ -68,10 +87,10 @@ You can optionally provide the paramter "-b build" to build all the docker image
 2. Checks the target hosts if any Alcor Control Agent (ACA) is running. If yes, it is killed and ACA restarted.
 3. Checks whether the ACAs are running on the targets. If found not running, the test stops.
 4. Using the test info and payload provided in config file, generate the end goal states for two end nodes.
-5. deploy two busy box containers con1 and con2 on the target hosts and runs a ping command from one container to another.
+5. Deploy two busy box containers con1 and con2 on the target hosts and runs a ping command from one container to another.
 
 ## ACA on target hosts
-1. Following packages are required to build and run ACA. Though not mentioned in the commands, installing these pacakges will require sudo permissions.
+1. Following packages are required to build and run ACA. Install the following packages on target hosts. Though not mentioned below, installing these pacakges will require sudo permissions.
 ```
 openvswitch-switch
 openvswitch-common
@@ -103,9 +122,9 @@ make install.
 sudo systemctl openvswitch-switch restart
 sudo /usr/local/share/openvswitch/scripts/ovs-ctl start
 ```
-The script ovs-ctsl starts following the services vsdb-server and ovs-vswitchd.
+The script ovs-ctsl starts the services vsdb-server and ovs-vswitchd.
 
-4. Clear the existing bridges for given container on target hosts if ACA or ovs services throw bridge related errors.
+4. If ACA or ovs services throw bridge related errors, clear the existing bridges for any given container on target hosts. The test script takes care of these itself. However, if you ever manually try to start ACA, following commands can be used to clear existing bridges.
 ```
   ovs-vsctl del-br br-tun
   ovs-vsctl del-br br-int
@@ -147,5 +166,6 @@ After making the necessary configuration file changes, run the script with follo
  - runs the test case of two busyboxy containers on two subnets and same security group
 3. ./ping_test.py -t 2
  - runs the test case of two busybox containers on one subnet and two security groups
+
 
 
