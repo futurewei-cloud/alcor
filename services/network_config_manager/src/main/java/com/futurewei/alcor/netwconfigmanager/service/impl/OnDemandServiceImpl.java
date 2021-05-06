@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.service.impl;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.cache.VpcResourceCache;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
@@ -53,6 +54,7 @@ public class OnDemandServiceImpl implements OnDemandService {
     private VpcResourceCache vpcResourceCache;
 
     @Override
+    @DurationStatistics
     public HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest, String hostIpAddress) throws Exception {
         /////////////////////////////////////////////////////////////////////////////////////////
         //                  On-Demand Algorithm
@@ -119,6 +121,7 @@ public class OnDemandServiceImpl implements OnDemandService {
     }
 
     @Override
+    @DurationStatistics
     public VpcResourceMeta retrieveResourceMeta(String vni) throws Exception {
         VpcResourceMeta curResourceMeta = vpcResourceCache.getResourceMeta(vni);
 
@@ -126,6 +129,7 @@ public class OnDemandServiceImpl implements OnDemandService {
     }
 
     @Override
+    @DurationStatistics
     public Goalstate.GoalStateV2 retrieveResourceState(List<ResourceMeta> resourceMetas) throws Exception {
 
         if (resourceMetas == null) {

@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.server.grpc;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import io.grpc.*;
 
 import java.util.logging.Level;
@@ -34,6 +35,7 @@ class IpInterceptor implements ServerInterceptor {
     }
 
     @Override
+    @DurationStatistics
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         String socketAddress = call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
         this.clientIpAddress = trimIpAddress(socketAddress);

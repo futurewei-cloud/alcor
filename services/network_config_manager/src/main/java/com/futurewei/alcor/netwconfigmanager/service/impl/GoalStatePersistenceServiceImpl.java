@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.service.impl;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.netwconfigmanager.cache.HostResourceMetadataCache;
 import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
@@ -50,6 +51,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     private VpcResourceCache vpcResourceCache;
 
     @Override
+    @DurationStatistics
     public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here

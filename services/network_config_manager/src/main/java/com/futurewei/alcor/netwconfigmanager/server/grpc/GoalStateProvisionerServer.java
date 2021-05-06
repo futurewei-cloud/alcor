@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.server.grpc;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
@@ -128,6 +129,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
 
         @Override
+        @DurationStatistics
         public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
 
             return new StreamObserver<Goalstate.GoalStateV2>() {
@@ -186,6 +188,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
 
         @Override
+        @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
 
