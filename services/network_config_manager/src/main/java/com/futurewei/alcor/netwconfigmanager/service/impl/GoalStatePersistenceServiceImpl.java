@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.service.impl;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.netwconfigmanager.cache.HostResourceMetadataCache;
 import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.cache.VpcResourceCache;
@@ -156,7 +157,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             String vpcId = portState.getConfiguration().getVpcId();
             String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
             String portId = portState.getConfiguration().getId();
-            String dhcpId = "";
+            String dhcpId = "";  //TODO: support dhcp etc.
             String routerId = "";
             String gatewayId = "";
             String securityGroupId = "";
@@ -179,13 +180,14 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                     //TODO: handle port metadata consolidation
                 }
 
-                portResourceMeta.addVpcId(vpcId)
-                        .addSubnetId(subnetId)
-                        .addPortId(portId)
-                        .addDhcpId(dhcpId)
-                        .addRouterId(routerId)
-                        .addGatewayId(gatewayId)
-                        .addSecurityGroupId(securityGroupId);
+                if (!CommonUtil.isNullOrEmpty(vpcId)) portResourceMeta.addVpcId(vpcId);
+                if (!CommonUtil.isNullOrEmpty(subnetId)) portResourceMeta.addSubnetId(subnetId);
+                if (!CommonUtil.isNullOrEmpty(portId)) portResourceMeta.addPortId(portId);
+                if (!CommonUtil.isNullOrEmpty(dhcpId)) portResourceMeta.addDhcpId(dhcpId);
+                if (!CommonUtil.isNullOrEmpty(routerId)) portResourceMeta.addRouterId(routerId);
+                if (!CommonUtil.isNullOrEmpty(gatewayId)) portResourceMeta.addGatewayId(gatewayId);
+                if (!CommonUtil.isNullOrEmpty(securityGroupId)) portResourceMeta.addSecurityGroupId(securityGroupId);
+
                 vpcResourceMeta.setResourceMetas(portPrivateIp, portResourceMeta);
             }
 
