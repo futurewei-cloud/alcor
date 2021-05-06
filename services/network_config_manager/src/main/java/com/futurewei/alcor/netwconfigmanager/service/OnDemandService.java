@@ -26,15 +26,30 @@ import java.util.List;
 public interface OnDemandService {
 
     /**
-     * Retrieve Resource Goal State according to the received resource state request.
+     * Retrieve Resource Goal State according to the received resource state request and the ip address of requested host
      *
      * @param resourceStateRequest
+     * @param hostIpAddress
      * @return HostGoalState
      * @throws Exception Various exceptions that may occur during the create process
      */
     HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest, String hostIpAddress) throws Exception;
 
-    VpcResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception;
+    /**
+     * Retrieve Vpc Resource metadata according to the received vni.
+     *
+     * @param vni
+     * @return VpcResourceMeta
+     * @throws Exception Various exceptions that may occur during the create process
+     */
+    VpcResourceMeta retrieveResourceMeta(String vni) throws Exception;
 
+    /**
+     * Retrieve actual Resource states based on the resource metadata.
+     *
+     * @param resourceMetas
+     * @return GoalStateV2
+     * @throws Exception Various exceptions that may occur during the create process
+     */
     Goalstate.GoalStateV2 retrieveResourceState(List<ResourceMeta> resourceMetas) throws Exception;
 }

@@ -177,7 +177,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                     // new port
                     portResourceMeta = new ResourceMeta(portId);
                 } else {
-                    //TODO: handle port metadata consolidation
+                    //TODO: handle port metadata consolidation including cleanup of legacy metadata
                 }
 
                 if (!CommonUtil.isNullOrEmpty(vpcId)) portResourceMeta.addVpcId(vpcId);

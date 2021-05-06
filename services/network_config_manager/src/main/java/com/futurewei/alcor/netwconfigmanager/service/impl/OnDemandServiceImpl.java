@@ -84,7 +84,7 @@ public class OnDemandServiceImpl implements OnDemandService {
                 " | destinationIp = " + destinationIp);
 
 //        ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
-        VpcResourceMeta vpcResourceMetadata = retrieveResourceMeta(vni, sourceIp);
+        VpcResourceMeta vpcResourceMetadata = retrieveResourceMeta(vni);
         if (vpcResourceMetadata == null) {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
             return null;
@@ -119,14 +119,10 @@ public class OnDemandServiceImpl implements OnDemandService {
     }
 
     @Override
-    public VpcResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception {
-
+    public VpcResourceMeta retrieveResourceMeta(String vni) throws Exception {
         VpcResourceMeta curResourceMeta = vpcResourceCache.getResourceMeta(vni);
+
         return curResourceMeta;
-//        if (curResourceMeta == null)
-//            return null;
-//
-//        return curResourceMeta.getResourceMetas(privateIp);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         if (onDemandService == null) {
             logger.log(Level.SEVERE, "[requestGoalStates] onDemandService is null");
         }
-        if( goalStatePersistenceService == null){
+        if (goalStatePersistenceService == null) {
             logger.log(Level.SEVERE, "[requestGoalStates] goalStatePersistenceService is null");
         }
     }
@@ -223,6 +223,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
+
                     if (hostGoalState == null) {
                         logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
                                 resourceStateRequest.toString());

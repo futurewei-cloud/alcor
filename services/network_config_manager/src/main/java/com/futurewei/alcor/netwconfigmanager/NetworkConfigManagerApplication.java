@@ -28,11 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
-//@ComponentScan(value = "com.futurewei.alcor.common.stats")
-//@ComponentScan(value = "com.futurewei.alcor.common.utils")
-//@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.server")
-//@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.server.grpc")
 @EnableAsync
 public class NetworkConfigManagerApplication {
 
@@ -51,13 +47,5 @@ public class NetworkConfigManagerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(NetworkConfigManagerApplication.class, args);
-
-//        NetworkConfigServer networkConfigServer = new GoalStateProvisionerServer();
-//        try {
-//            networkConfigServer.start();
-//            networkConfigServer.blockUntilShutdown();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 }
