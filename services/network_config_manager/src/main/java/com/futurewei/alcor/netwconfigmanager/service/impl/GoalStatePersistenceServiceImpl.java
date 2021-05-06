@@ -160,7 +160,12 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             String routerId = "";
             String gatewayId = "";
             String securityGroupId = "";
+
             VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
+            if (vpcResourceMeta == null) {
+                // This is a new VPC
+                vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
+            }
 
             for (Port.PortConfiguration.FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 String subnetId = fixedIp.getSubnetId();
@@ -170,19 +175,21 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 if (portResourceMeta == null) {
                     // new port
                     portResourceMeta = new ResourceMeta(portId);
-                    portResourceMeta.addVpcId(vpcId)
-                            .addSubnetId(subnetId)
-                            .addPortId(portId)
-                            .addDhcpId(dhcpId)
-                            .addRouterId(routerId)
-                            .addGatewayId(gatewayId)
-                            .addSecurityGroupId(securityGroupId);
-
                 } else {
                     //TODO: handle port metadata consolidation
                 }
+
+                portResourceMeta.addVpcId(vpcId)
+                        .addSubnetId(subnetId)
+                        .addPortId(portId)
+                        .addDhcpId(dhcpId)
+                        .addRouterId(routerId)
+                        .addGatewayId(gatewayId)
+                        .addSecurityGroupId(securityGroupId);
+                vpcResourceMeta.setResourceMetas(portPrivateIp, portResourceMeta);
             }
 
+            vpcResourceCache.addResourceMeta(vpcResourceMeta);
         }
     }
 

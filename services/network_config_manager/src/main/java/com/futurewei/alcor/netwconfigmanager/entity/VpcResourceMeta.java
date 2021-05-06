@@ -45,4 +45,8 @@ public class VpcResourceMeta {
 
         return this.resourceMetaMap.get(privateIP);
     }
+
+    public void setResourceMetas(String privateIP, ResourceMeta portAssociatedResourceMeta) {
+        this.resourceMetaMap.put(privateIP, portAssociatedResourceMeta);
+    }
 }
