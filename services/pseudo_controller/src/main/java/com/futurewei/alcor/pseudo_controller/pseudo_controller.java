@@ -36,7 +36,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -410,6 +412,35 @@ public class pseudo_controller {
             e.printStackTrace();
         }
     }
+    public static void executeBashCommand(String command) {
+//        boolean success = false;
+        System.out.println("Executing BASH command:\n   " + command);
+        Runtime r = Runtime.getRuntime();
+        // Use bash -c so we can handle things like multi commands separated by ; and
+        // things like quotes, $, |, and \. My tests show that command comes as
+        // one argument to bash, so we do not need to quote it to make it one thing.
+        // Also, exec may object if it does not have an executable file as the first thing,
+        // so having bash here makes it happy provided bash is installed and in path.
+        String[] commands = {"bash", "-c", command};
+        try {
+            Process p = r.exec(commands);
+
+            p.waitFor();
+            BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = "";
+
+            while ((line = b.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            b.close();
+//            success = true;
+        } catch (Exception e) {
+            System.err.println("Failed to execute bash with command: " + command);
+            e.printStackTrace();
+        }
+        //        return success;
+    }
 }
 
 class concurrent_run_cmd implements Runnable {
@@ -417,10 +448,11 @@ class concurrent_run_cmd implements Runnable {
 
     @Override
     public void run() {
-        Vector<String> cmd_list = new Vector<>();
+//        Vector<String> cmd_list = new Vector<>();
         System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
-        cmd_list.add(this.command_to_run);
-        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
+//        cmd_list.add(this.command_to_run);
+//        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
+        pseudo_controller.executeBashCommand(command_to_run);
     }
 
     public concurrent_run_cmd(String cmd, String host, String user_name, String password) {
