@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 @Service
@@ -75,15 +76,27 @@ public class OnDemandServiceImpl implements OnDemandService {
                 " | sourceIp = " + sourceIp +
                 " | destinationIp = " + destinationIp);
 
-        ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
-        if (resourceMetadata == null) {
-            logger.log(Level.INFO, "[retrieveGoalState] retrieved resource metadata is null");
+//        ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
+        VpcResourceMeta vpcResourceMetadata = retrieveResourceMeta(vni, sourceIp);
+        if (vpcResourceMetadata == null) {
+            logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
             return null;
         }
 
+        ResourceMeta portResourceMetadata = vpcResourceMetadata.getResourceMeta(sourceIp);
+        if (portResourceMetadata == null) {
+            logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata is null | sourceIp = " + sourceIp);
+            return null;
+        }
+
+        //populate portResourceMetadata with existing neighbors in the same VPC
+        Set<String> neighborIdSet = vpcResourceMetadata.getNeighborIds(sourceIp);
+        for (String neighborId : neighborIdSet) {
+            portResourceMetadata.addNeighborEntry(neighborId, neighborId); //TODO: consider to store id => ip or vice versa
+        }
         List<ResourceMeta> resourceMetas = new ArrayList<>() {
             {
-                add(resourceMetadata);
+                add(portResourceMetadata);
             }
         };
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
@@ -98,13 +111,14 @@ public class OnDemandServiceImpl implements OnDemandService {
     }
 
     @Override
-    public ResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception {
+    public VpcResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception {
 
         VpcResourceMeta curResourceMeta = vpcResourceCache.getResourceMeta(vni);
-        if (curResourceMeta == null)
-            return null;
-
-        return curResourceMeta.getResourceMetas(privateIp);
+        return curResourceMeta;
+//        if (curResourceMeta == null)
+//            return null;
+//
+//        return curResourceMeta.getResourceMetas(privateIp);
     }
 
     @Override

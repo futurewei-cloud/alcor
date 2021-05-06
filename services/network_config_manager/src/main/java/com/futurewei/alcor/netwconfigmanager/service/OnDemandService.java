@@ -17,9 +17,9 @@ package com.futurewei.alcor.netwconfigmanager.service;
 
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
+import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public interface OnDemandService {
      */
     HostGoalState retrieveGoalState(Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest, String hostIpAddress) throws Exception;
 
-    ResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception;
+    VpcResourceMeta retrieveResourceMeta(String vni, String privateIp) throws Exception;
 
     Goalstate.GoalStateV2 retrieveResourceState(List<ResourceMeta> resourceMetas) throws Exception;
 }

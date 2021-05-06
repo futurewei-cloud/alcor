@@ -172,7 +172,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 String subnetId = fixedIp.getSubnetId();
                 String portPrivateIp = fixedIp.getIpAddress();
 
-                ResourceMeta portResourceMeta = vpcResourceMeta.getResourceMetas(portPrivateIp);
+                ResourceMeta portResourceMeta = vpcResourceMeta.getResourceMeta(portPrivateIp);
                 if (portResourceMeta == null) {
                     // new port
                     portResourceMeta = new ResourceMeta(portId);
@@ -188,7 +188,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 if (!CommonUtil.isNullOrEmpty(gatewayId)) portResourceMeta.addGatewayId(gatewayId);
                 if (!CommonUtil.isNullOrEmpty(securityGroupId)) portResourceMeta.addSecurityGroupId(securityGroupId);
 
-                vpcResourceMeta.setResourceMetas(portPrivateIp, portResourceMeta);
+                vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
 
             vpcResourceCache.addResourceMeta(vpcResourceMeta);

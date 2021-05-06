@@ -16,9 +16,13 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.netwconfigmanager.entity;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VpcResourceMeta {
+
+    private final String NEIGHBOR_POSTFIX = "_n";
 
     private String vni;
 
@@ -38,15 +42,32 @@ public class VpcResourceMeta {
         return this.resourceMetaMap;
     }
 
-    public ResourceMeta getResourceMetas(String privateIP) {
-        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(privateIP)) {
+    public ResourceMeta getResourceMeta(String privateIp) {
+        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(privateIp)) {
             return null;
         }
 
-        return this.resourceMetaMap.get(privateIP);
+        return this.resourceMetaMap.get(privateIp);
     }
 
-    public void setResourceMetas(String privateIP, ResourceMeta portAssociatedResourceMeta) {
+    public void setResourceMeta(String privateIP, ResourceMeta portAssociatedResourceMeta) {
         this.resourceMetaMap.put(privateIP, portAssociatedResourceMeta);
+    }
+
+    public Set<String> getNeighborIds(String sourceIp) {
+        Set<String> neighborIdSet = new HashSet<>();
+
+        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(sourceIp)) {
+            return neighborIdSet;
+        }
+
+        for (String portIp : this.resourceMetaMap.keySet()) {
+            if(!portIp.equalsIgnoreCase(sourceIp)){
+                String neighborId = this.resourceMetaMap.get(portIp).getOwnerId() + NEIGHBOR_POSTFIX;
+                neighborIdSet.add(neighborId);
+            }
+        }
+
+        return neighborIdSet;
     }
 }
