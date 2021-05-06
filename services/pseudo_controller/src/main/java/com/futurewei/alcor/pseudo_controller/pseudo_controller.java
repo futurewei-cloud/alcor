@@ -298,15 +298,19 @@ public class pseudo_controller {
         ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
 
         // Concurrently execute the pings.
-        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            // concurrent
-//            Thread t = new Thread(cmd);
-//            t.start();
-            // sequential
-            //cmd.run();
+//        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+//             //concurrent
+////            Thread t = new Thread(cmd);
+////            t.start();
+//            // sequential
+//            //cmd.run()
+//            // use thread pool
+//            pool.execute(cmd);
+//        }
 
-            // use thread pool
-            pool.execute(cmd);
+        for (int i = 0 ; i < concurrent_ping_cmds.size(); i ++){
+            System.out.println("Command i = " + i + ", "+ concurrent_ping_cmds.get(i).command_to_run);
+            pool.execute(concurrent_ping_cmds.get(i));
         }
 
         System.out.println("End of the test controller");
@@ -433,7 +437,7 @@ public class pseudo_controller {
         // one argument to bash, so we do not need to quote it to make it one thing.
         // Also, exec may object if it does not have an executable file as the first thing,
         // so having bash here makes it happy provided bash is installed and in path.
-        String[] commands = {"bash", "-c", command};
+        String[] commands = {"bash", "-x", "-c", command};
         try {
             Process p = r.exec(commands);
 
