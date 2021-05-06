@@ -66,31 +66,87 @@ You can optionally provide the paramter "-b build" to build all the docker image
 ## After Test Starts
 1. It will stop, remove existing Alcor services (if present) and start them all (as listed in alcor_services.ini file)
 2. Checks the target hosts if any Alcor Control Agent (ACA) is running. If yes, it is killed and ACA restarted.
-2. Checks whether the ACAs are running on the targets. If found not running, the test stops.
-3. Using the test info and payload provided in config file, generate the end goal states for two end nodes.
-4. deploy two busy box containers con1 and con2 on the target hosts and runs a ping command from one container to another.
+3. Checks whether the ACAs are running on the targets. If found not running, the test stops.
+4. Using the test info and payload provided in config file, generate the end goal states for two end nodes.
+5. deploy two busy box containers con1 and con2 on the target hosts and runs a ping command from one container to another.
+
+## ACA on target hosts
+1. Following packages are required to build and run ACA. Though not mentioned in the commands, installing these pacakges will require sudo permissions.
+```
+openvswitch-switch
+openvswitch-common
+apache-pulsar-client
+apache-pulsar-client-dev
+```
+
+2. The library 'openvswitch' is also required. This library can only be installed from source. Get a clone of this library from github and checkout 2.12 branch.
+```
+https://github.com/openvswitch/ovs.git
+```
+Install the following packages before building ovs
+```
+make
+autoconf
+libtool
+c-ares
+```
+Now go to the ovs source and update the file 'configure.ac' and edit th line carrying LT_INIT with:
+* LT_INIT (enable_shared)
+Run
+```
+./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+make
+make install.
+```
+
+3. After the successful installation of ovs, start the following services:
+```
+systemctl openvswitch-switch restart
+sudo /usr/local/share/openvswitch/scripts/ovs-ctl start
+```
+The script ovs-ctsl starts following the services vsdb-server and ovs-vswitchd.
+
+4. Clear the existing bridges for given container on target hosts if ACA or ovs services throw bridge related errors.
+```
+  ovs-vsctl del-br br-tun
+  ovs-vsctl del-br br-int
+  ovs-docker del-ports br-int <container_name>
+```
+
+5.Following commands can be used to diagnose the target node's ovs services and bridges:
+```
+ovs-vsctl show
+ovs-ofctl dump-flows br-tun
+ovs-ofctl dump-flows br-int
+```
 
 ## Troubleshooting
-1) observe the output from http get request for vpcs, subnets, nodes and ports. Check whether the goal state is generated or not. If not, check the configuration in alcor_services.ini and redeploy.
+1) During the runing of test script, the user account 'ubuntu' from Alcor host will be making ssh connection to the target hosts. Ensure that user ubuntu has password less ssh access to the target hosts. Copy the contents of id_rsa.pub file of user 'ubuntu' (located at ~/.ssh) and paste into the file ~/.ssh/authorized_keys on target host.
 
-2) Run the following commands on target hosts to clear the initial stages of test:
-	````python
-       ovs-vsctl del-br br-tun
-       ovs-vsctl del-br br-int
-	````
-3)
+2) Often after running the tests from a terminal on the Alcor hosts leaves the stdout and stdin in an unknow state. You can fix it by running
+```
+reset
+```
+While typing reset command you will not be able to see it. But once run, the terminal is restored.
+
+3) While running the tests from Jenkins, it is essential that the jenkins user also has password less access to the target hosts. Easiest way to ensure that to copy the entire ~/.ssh folder of user 'ubuntu' on to the jenkins home directory, which is usually at /var/lib/jenkins. Ensure while copying that file attributes are preserved.
+```
+cp -pr /home/ubuntu/.ssh /var/lib/jenkins
+chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+```
+Go through the jenkins help file available in alcor-int repository to get addtional details on running tests through jenkins.
+
+4) If the tests ever fails due to errors from Alcor API calls then observe the output from http get request from these calls. Check the configuration in alcor_services.ini and redeploy by manaully calling these APIs.
+
 
 ## Quick Start
 After making the necessary configuration file changes, run the script with following paramters to get started:
 1. ./ping_test.py -b build
-This will
  - build the alcor services and their docker images and
  - runs the simple test case of two containers under same subnet and security group pinging each other.
 2. ./ping_test.py -t 1
-This will
  - runs the test case of two busyboxy containers on two subnets and same security group
 3. ./ping_test.py -t 2
-This will
  - runs the test case of two busybox containers on one subnet and two security groups
 
 
