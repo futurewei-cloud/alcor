@@ -56,6 +56,7 @@ public class pseudo_controller {
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
     static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
+    static String project_id = "alcor_testing_project";
     static SortedMap<String, String> ip_mac_map = new TreeMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
@@ -191,13 +192,36 @@ public class pseudo_controller {
         Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
         // put the new subnet state of subnet 1 into the goalstatev2
 
+        // fill in VPC state structs
+        Vpc.VpcState.Builder new_vpc_states = Vpc.VpcState.newBuilder();
+        new_vpc_states.setOperationType(Common.OperationType.INFO);
+
+        Vpc.VpcConfiguration.Builder vpc_configuration_builder = Vpc.VpcConfiguration.newBuilder();
+        vpc_configuration_builder.setCidr("10.0.0.0/16");
+        vpc_configuration_builder.setId(vpc_id_1);
+        vpc_configuration_builder.setName("test_vpc");
+        vpc_configuration_builder.setTunnelId(21);
+        vpc_configuration_builder.setProjectId(project_id);
+        vpc_configuration_builder.setRevisionNumber(2);
+
+        new_vpc_states.setConfiguration(vpc_configuration_builder.build());
+        Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
+
         GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
         GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+        GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
+        GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
+
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
+
+        Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
         host_resource_builder_node_one.addResources(subnet_resource_id_type);
         host_resource_builder_node_two.addResources(subnet_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
+        host_resource_builder_node_one.addResources(vpc_resource_id_type);
+        host_resource_builder_node_two.addResources(vpc_resource_id_type);
+        host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
 
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
