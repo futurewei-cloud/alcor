@@ -35,6 +35,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,8 +44,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Service
+@Component
 @Configurable
+@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
 public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
@@ -70,6 +72,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
                 .intercept(clientIpInterceptor)
                 .build();
+    }
+
+    @PostConstruct
+    public void checkServices() {
+        if (onDemandService == null) {
+            logger.log(Level.SEVERE, "[requestGoalStates] onDemandService is null");
+        }
+        if( goalStatePersistenceService == null){
+            logger.log(Level.SEVERE, "[requestGoalStates] goalStatePersistenceService is null");
+        }
     }
 
     @Override
@@ -210,10 +222,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             try {
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
-                    if (onDemandService == null) {
-                        logger.log(Level.WARNING, "[requestGoalStates] onDemandService is null");
-                    }
-
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
                     if (hostGoalState == null) {
                         logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +

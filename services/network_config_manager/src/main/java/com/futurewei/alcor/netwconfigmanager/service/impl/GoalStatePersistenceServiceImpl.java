@@ -27,12 +27,14 @@ import com.futurewei.alcor.netwconfigmanager.service.GoalStatePersistenceService
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
 public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceService {
 
     private static final Logger logger = LoggerFactory.getLogger();

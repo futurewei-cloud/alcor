@@ -20,6 +20,8 @@ import com.futurewei.alcor.common.logging.LoggerFactory;
 import io.grpc.*;
 
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class IpInterceptor implements ServerInterceptor {
 
@@ -33,9 +35,23 @@ class IpInterceptor implements ServerInterceptor {
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        this.clientIpAddress = call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
+        String socketAddress = call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR).toString();
+        this.clientIpAddress = trimIpAddress(socketAddress);
         logger.log(Level.INFO, "[IpInterceptor] Client IP address = " + this.clientIpAddress);
 
         return next.startCall(call, headers);
+    }
+
+    private String trimIpAddress(String socketAddress) {
+        String IPADDRESS_PATTERN =
+                "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+
+        Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+        Matcher matcher = pattern.matcher(socketAddress);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return "0.0.0.0";
+        }
     }
 }

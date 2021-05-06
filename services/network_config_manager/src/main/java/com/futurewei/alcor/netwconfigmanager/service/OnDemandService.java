@@ -19,6 +19,7 @@ import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 

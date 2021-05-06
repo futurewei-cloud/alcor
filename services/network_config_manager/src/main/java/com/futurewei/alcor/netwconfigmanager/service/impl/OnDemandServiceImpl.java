@@ -25,6 +25,7 @@ import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.schema.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 @Service
+@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
 public class OnDemandServiceImpl implements OnDemandService {
 
     private static final Logger logger = LoggerFactory.getLogger();
