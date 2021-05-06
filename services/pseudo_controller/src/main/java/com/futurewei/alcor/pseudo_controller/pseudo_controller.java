@@ -70,7 +70,7 @@ public class pseudo_controller {
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
         if (args.length == 7) {
             System.out.println("User passed in params and we need to read them.");
@@ -311,6 +311,7 @@ public class pseudo_controller {
         for (int i = 0 ; i < concurrent_ping_cmds.size(); i ++){
             System.out.println("Command i = " + i + ", "+ concurrent_ping_cmds.get(i).command_to_run);
             pool.execute(concurrent_ping_cmds.get(i));
+            Thread.sleep(500);
         }
 
         System.out.println("End of the test controller");
