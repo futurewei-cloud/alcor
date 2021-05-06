@@ -292,7 +292,7 @@ public class pseudo_controller {
             Thread t = new Thread(cmd);
             t.start();
             // sequential
-            // cmd.run();
+            //cmd.run();
         }
 
         System.out.println("End of the test controller");
@@ -304,6 +304,7 @@ public class pseudo_controller {
             System.out.println("I can't sleep!!!!");
 
         }
+        System.exit(0);
     }
 
     private static void create_containers_on_both_hosts() {
