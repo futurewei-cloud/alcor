@@ -40,6 +40,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
@@ -288,13 +290,23 @@ public class pseudo_controller {
         }
 
         System.out.println("Time to execute these ping commands concurrently");
+
+        // Create a thread pool to execute the pings
+
+        int MAX_THREADS = 5;  // thread pool size
+
+        ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
+
         // Concurrently execute the pings.
         for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
             // concurrent
-            Thread t = new Thread(cmd);
-            t.start();
+//            Thread t = new Thread(cmd);
+//            t.start();
             // sequential
             //cmd.run();
+
+            // use thread pool
+            pool.execute(cmd);
         }
 
         System.out.println("End of the test controller");
