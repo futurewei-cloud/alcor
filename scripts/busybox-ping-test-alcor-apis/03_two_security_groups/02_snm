@@ -1,0 +1,22 @@
+#!/bin/bash
+# Using subnet manager (9002) to create subnet
+# Subnet name: subnet1
+# Subnet ID: 8182a4d4-ffff-4ece-b3f0-8d36e3d88001
+curl -X POST --header "Content-Type: application/json" --header "Accept: */*" -d '{
+  "subnet": {
+    "cidr": "10.0.1.0/24",
+    "id": "8182a4d4-ffff-4ece-b3f0-8d36e3d88001",
+    "ip_version": 4,
+    "network_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88001",
+    "name": "subnet1",
+    "host_routes": [
+      {
+        "destination": "10.0.2.0/24",
+        "nexthop": "10.0.1.1"
+      }
+    ]
+  }
+}' "http://localhost:9002/project/3dda2801-d675-4688-a63f-dcda8d327f50/subnets"
+# Ensure the network ID is same as the one used in VPC
+# Host routes is optional
+
