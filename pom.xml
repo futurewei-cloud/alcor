@@ -61,6 +61,7 @@ Copyright(c) 2020 Futurewei Cloud
         <module>services/network_acl_manager</module>
         <module>services/network_config_manager</module>
         <module>services/gateway_manager</module>
+        <module>services/pseudo_controller</module>
     </modules>
     <packaging>pom</packaging>
 
