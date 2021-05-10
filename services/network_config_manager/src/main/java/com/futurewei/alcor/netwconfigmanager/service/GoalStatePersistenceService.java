@@ -8,31 +8,24 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.netwconfigmanager.server;
+package com.futurewei.alcor.netwconfigmanager.service;
 
-import org.springframework.stereotype.Component;
+import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 
-import java.io.IOException;
-
-public interface NetworkConfigServer {
+public interface GoalStatePersistenceService {
 
     /**
-     * Start a server with given port
+     * Update Resource Goal State in the Service distributed cache.
+     *
+     * @param hostGoalState
+     * @return boolean
+     * @throws Exception Various exceptions that may occur during the create process
      */
-    void start() throws IOException;
+    boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception;
 
-    /**
-     * Stop current server
-     */
-    void stop() throws InterruptedException;
-
-    /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
-     */
-    void blockUntilShutdown() throws InterruptedException;
 }
