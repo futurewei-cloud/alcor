@@ -92,7 +92,7 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: http://10.213.43.169:8082/ignite_config.xml
+              value: https://github.com/futurewei-cloud/alcor/blob/master/kubernetes/services/ignite_config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
