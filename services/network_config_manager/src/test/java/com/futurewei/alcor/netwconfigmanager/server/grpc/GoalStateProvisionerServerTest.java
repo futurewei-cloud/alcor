@@ -86,7 +86,7 @@ public class GoalStateProvisionerServerTest {
         logger.log(Level.INFO, "Will get host on-demand response...");
 
         Map<String, HostGoalState> hostGoalStates = new HashMap<>();
-        DemoUtil.populateHostGoalState(hostGoalStates);
+        DemoUtil.populateHostGoalState(hostGoalStates, DemoUtil.aca_node_one_ip, DemoUtil.aca_node_two_ip);
 
         logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
                 hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
