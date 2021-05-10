@@ -44,8 +44,10 @@ public class NetworkConfigController {
 
     @Autowired
     private NodeService nodeService;
+
     @Autowired
     private HttpServletRequest request;
+
     @PostMapping({"/nodes", "/v4/nodes"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics

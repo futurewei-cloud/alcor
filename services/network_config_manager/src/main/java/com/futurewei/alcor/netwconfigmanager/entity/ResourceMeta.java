@@ -13,7 +13,6 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.netwconfigmanager.entity;
 
 import com.futurewei.alcor.schema.Goalstate;
@@ -54,6 +53,9 @@ public class ResourceMeta {
         this.ownerId = ownerId;
     }
 
+    ////////////////////////
+    // Vpc related methods
+    ////////////////////////
     public Set<String> getVpcIds() {
         return this.vpcIds;
     }
@@ -62,14 +64,18 @@ public class ResourceMeta {
         return this.vpcIds != null && this.vpcIds.size() > 0 ? this.vpcIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
     }
 
-    public void addVpcId(String newId) {
+    public ResourceMeta addVpcId(String newId) {
         this.vpcIds.add(newId);
+        return this;
     }
 
     public void deleteVpcId(String delId) {
         this.vpcIds.remove(delId);
     }
 
+    ////////////////////////
+    // Subnet related methods
+    ////////////////////////
     public Set<String> getSubnetIds() {
         return this.subnetIds;
     }
@@ -78,11 +84,96 @@ public class ResourceMeta {
         return this.subnetIds != null && this.subnetIds.size() > 0 ? this.subnetIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
     }
 
-    public void addSubnetId(String newId) {
+    public ResourceMeta addSubnetId(String newId) {
         this.subnetIds.add(newId);
+        return this;
     }
 
     public void deleteSubnetId(String delId) {
         this.subnetIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Port related methods
+    ////////////////////////
+    public Set<String> getPortIds() {
+        return this.portIds;
+    }
+
+    public String getDefaultPortId() {
+        return this.portIds != null && this.portIds.size() > 0 ? this.portIds.iterator().next() : UNEXPECTED_RESOURCE_ID;
+    }
+
+    public ResourceMeta addPortId(String newId) {
+        this.portIds.add(newId);
+        return this;
+    }
+
+    public void deletePortId(String delId) {
+        this.portIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Neighbor related methods
+    ////////////////////////
+    public Map<String, String> getNeighborIdMap() {
+        return this.neighborMap;
+    }
+
+    public ResourceMeta addNeighborEntry(String neighborIp, String neighborId) {
+        this.neighborMap.put(neighborIp, neighborId);
+        return this;
+    }
+
+    public void deleteNeighborEntry(String neighborIp) {
+        this.neighborMap.remove(neighborIp);
+    }
+
+    ////////////////////////
+    // Dhcp related methods
+    ////////////////////////
+    public Set<String> getDhcpIds() {
+        return this.dhcpIds;
+    }
+
+    public ResourceMeta addDhcpId(String newId) {
+        this.dhcpIds.add(newId);
+        return this;
+    }
+
+    public void deleteDhcpId(String delId) {
+        this.dhcpIds.remove(delId);
+    }
+
+    ////////////////////////
+    // Router related methods
+    ////////////////////////
+    public Set<String> getRouterIds() {
+        return this.routerIds;
+    }
+
+    public ResourceMeta addRouterId(String newId) {
+        this.routerIds.add(newId);
+        return this;
+    }
+
+    public void deleteRouterId(String delId) {
+        this.routerIds.remove(delId);
+    }
+
+    ////////////////////////
+    // SG related methods
+    ////////////////////////
+    public ResourceMeta addSecurityGroupId(String newId) {
+        this.securityGroupIds.add(newId);
+        return this;
+    }
+
+    ////////////////////////
+    // Gateway related methods
+    ////////////////////////
+    public ResourceMeta addGatewayId(String newId) {
+        this.gatewayIds.add(newId);
+        return this;
     }
 }

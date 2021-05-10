@@ -17,40 +17,72 @@ package com.futurewei.alcor.netwconfigmanager.server.grpc;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.client.gRPC.GoalStateClientImpl;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.service.GoalStatePersistenceService;
+import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Service
+@Component
+@Configurable
+@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
 public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
+    private final int responseDefaultFormatVersion = 1;
     private final int port;
     private final Server server;
+
+    @Autowired
+    private OnDemandService onDemandService;
+
+    @Autowired
+    private GoalStatePersistenceService goalStatePersistenceService;
 
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
-        this.port = 9016;
+        this.port = 9016; // TODO: make this configurable
+
+        IpInterceptor clientIpInterceptor = new IpInterceptor();
         this.server = ServerBuilder.forPort(this.port)
-                .addService(new GoalStateProvisionerImpl())
+                .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
+                .intercept(clientIpInterceptor)
                 .build();
+    }
+
+    @PostConstruct
+    public void checkServices() {
+        if (onDemandService == null) {
+            logger.log(Level.SEVERE, "[requestGoalStates] onDemandService is null");
+        }
+        if (goalStatePersistenceService == null) {
+            logger.log(Level.SEVERE, "[requestGoalStates] goalStatePersistenceService is null");
+        }
     }
 
     @Override
@@ -74,7 +106,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void stop() throws InterruptedException {
-        logger.log(Level.INFO,"GoalStateProvisionerServer : Server stop, was listening on " + this.port);
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server stop, was listening on " + this.port);
         if (this.server != null) {
             this.server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
@@ -82,17 +114,22 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void blockUntilShutdown() throws InterruptedException {
-        logger.log(Level.INFO,"GoalStateProvisionerServer : Server blockUntilShutdown, listening on " + this.port);
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Server blockUntilShutdown, listening on " + this.port);
         if (this.server != null) {
             this.server.awaitTermination();
         }
     }
 
-    private static class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
+    private class GoalStateProvisionerImpl extends GoalStateProvisionerGrpc.GoalStateProvisionerImplBase {
 
-        GoalStateProvisionerImpl() { }
+        private IpInterceptor ipInterceptor;
+
+        GoalStateProvisionerImpl(IpInterceptor ipInterceptor) {
+            this.ipInterceptor = ipInterceptor;
+        }
 
         @Override
+        @DurationStatistics
         public StreamObserver<Goalstate.GoalStateV2> pushGoalStatesStream(final StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver) {
 
             return new StreamObserver<Goalstate.GoalStateV2>() {
@@ -105,6 +142,17 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
                     //store the goal state in cache
+                    Set<String> processedResourceIds = new HashSet<>();
+                    for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
+                        String hostId = entry.getKey();
+                        HostGoalState hostGoalState = entry.getValue();
+
+                        try {
+                            goalStatePersistenceService.updateGoalState(hostId, hostGoalState);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
@@ -140,9 +188,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         }
 
         @Override
-        public void requestGoalStates(Goalstateprovisioner.HostRequest request, StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
+        @DurationStatistics
+        public void requestGoalStates(Goalstateprovisioner.HostRequest request,
+                                      StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
 
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
+            logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
+            logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
 
             /////////////////////////////////////////////////////////////////////////////////////////
             //                  On-Demand Algorithm
@@ -164,44 +216,78 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //    to ACA by a separate gRPC client
             /////////////////////////////////////////////////////////////////////////////////////////
 
-            // Step 1: Generate response for each packet based on the above on-demand algorithm
-            // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
-            //                           generate GS with port related resources and go to Step 2
-            // otherwise, set it to FAILURE and go to Step 3
+            // Step 0: Prepare to retrieve client IP address from gRPC transport
+            String clientIpAddress = this.ipInterceptor.getClientIpAddress();
+            logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
-            //TODO: Implement on-demand algorithm and support setOperationStatus==Failure
+            // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
+            HashSet<String> failedRequestIds = new HashSet<>();
+            try {
+                Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+                for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
+                    HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
+
+                    if (hostGoalState == null) {
+                        logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
+                                resourceStateRequest.toString());
+                        failedRequestIds.add(resourceStateRequest.getRequestId());
+                        continue;
+                    }
+
+                    String hostIp = hostGoalState.getHostIp();
+                    if (hostGoalStates.containsKey(hostIp)) {
+                        //Case 1: Handle potential overwrite when more than one requests come from the same host
+                        HostGoalState existingHostGoalState = hostGoalStates.get(hostIp);
+                        HostGoalState updatedHostGoalState = NetworkConfigManagerUtil.consolidateHostGoalState(existingHostGoalState, hostGoalState);
+                        hostGoalStates.put(hostIp, updatedHostGoalState);
+                        logger.log(Level.INFO, "[requestGoalStates] Same Host IP detected: " + hostIp +
+                                " | existing GS: " + existingHostGoalState.toString() +
+                                " | updated GS: " + updatedHostGoalState.toString());
+                    } else {
+                        //Case 2: new host
+                        hostGoalStates.put(hostIp, hostGoalState);
+                        logger.log(Level.INFO, "[requestGoalStates] New Host IP: " + hostIp + " | GS: ",
+                                hostGoalState.toString());
+                    }
+                }
+
+                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                grpcGoalStateClient.sendGoalStates(hostGoalStates);
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
+                e.printStackTrace();
+            }
+
+            // Step 2: Generate response for each packet based on the on-demand algorithm
+            // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
+            //                           generate GS with port related resources (completed at Step 1) and go to Step 3
+            // otherwise, set it to FAILURE and go to Step 3
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
-            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest: request.getStateRequestsList()) {
-                Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status =
-                        Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
-                                .setRequestId(resourceStateRequest.getRequestId())
-                                .setOperationStatus(Common.OperationStatus.SUCCESS)
-                                .build();
-                replyBuilder.setFormatVersion(1)
+            for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
+                String requestId = resourceStateRequest.getRequestId();
+                Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus status;
+
+                if (failedRequestIds.contains(requestId)) {
+                    status = Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
+                            .setRequestId(requestId)
+                            .setOperationStatus(Common.OperationStatus.FAILURE)
+                            .build();
+                } else {
+                    status = Goalstateprovisioner.HostRequestReply.HostRequestOperationStatus.newBuilder()
+                            .setRequestId(requestId)
+                            .setOperationStatus(Common.OperationStatus.SUCCESS)
+                            .build();
+                }
+
+                replyBuilder.setFormatVersion(responseDefaultFormatVersion)
                         .addOperationStatuses(ind++, status)
                         .buildPartial();
             }
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
-            // Step 2: Send GS down to target ACA
-            //TODO: Populate hostGoalStates based on M2 and M3
-            Map<String, HostGoalState> hostGoalStates = new HashMap<>();
-            String destination_ip = request.getStateRequests(0).getDestinationIp();
-            String source_ip = request.getStateRequests(0).getSourceIp();
-            DemoUtil.populateHostGoalState(hostGoalStates, source_ip, destination_ip);
-            logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
-                    hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
-
-            try {
-                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
-                grpcGoalStateClient.sendGoalStates(hostGoalStates);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // Step 3: Send response to target ACA
+            // Step 3: Send response to target ACAs
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
             logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",
