@@ -76,9 +76,9 @@ metadata:
 spec:
   type: NcmPort
   ports:
-    - port: 9016
+    - port: 9014
       targetPort: 8080
-      nodePort: 30016
+      nodePort: 30014
   selector:
     app: netwconfigmanager
 
