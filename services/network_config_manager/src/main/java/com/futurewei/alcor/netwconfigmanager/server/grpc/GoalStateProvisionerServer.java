@@ -188,7 +188,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 2: Send GS down to target ACA
             //TODO: Populate hostGoalStates based on M2 and M3
             Map<String, HostGoalState> hostGoalStates = new HashMap<>();
-            DemoUtil.populateHostGoalState(hostGoalStates);
+            String destination_ip = request.getStateRequests(0).getDestinationIp();
+            String source_ip = request.getStateRequests(0).getSourceIp();
+            DemoUtil.populateHostGoalState(hostGoalStates, source_ip, destination_ip);
             logger.log(Level.INFO, "requestGoalStates : send GS to ACA " + DemoUtil.aca_node_one_ip + " | ",
                     hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
 
