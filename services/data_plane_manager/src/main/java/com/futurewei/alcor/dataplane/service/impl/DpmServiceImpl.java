@@ -228,7 +228,8 @@ public class DpmServiceImpl implements DpmService {
         MulticastGoalState multicastGoalState = new MulticastGoalState();
 
         if (neighborTable == null || neighborInfos == null) {
-            throw new NeighborInfoNotFound();
+            //throw new NeighborInfoNotFound();
+            return new ArrayList<>();
         }
 
         Map<String, List<NeighborInfo>> hostNeighbors = new HashMap<>();
@@ -251,11 +252,15 @@ public class DpmServiceImpl implements DpmService {
                 if (neighborInfo == null) {
                     throw new NeighborInfoNotFound();
                 }
-
-                hostNeighbors.get(hostIp).add(neighborInfo);
-                multicastGoalState.getHostIps().add(neighborInfo.getHostIp());
+                if (!Objects.equals(neighborEntry.getNeighborType().name(), "L2")) {
+                    hostNeighbors.get(hostIp).add(neighborInfo);
+                    multicastGoalState.getHostIps().add(neighborInfo.getHostIp());
+                }
             }
 
+            if (multicastGoalState.getHostIps().size() <= 0) {
+                return new ArrayList<>();
+            }
             //Add neighborInfo to multicastGoalState
             Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
                     NeighborType.L3, localInfo, networkConfig.getOpType());
@@ -298,7 +303,7 @@ public class DpmServiceImpl implements DpmService {
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -313,8 +318,11 @@ public class DpmServiceImpl implements DpmService {
      */
     private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
+        MulticastGoalState multicastGoalState = new MulticastGoalState();
+
         if (internalRouterInfos == null) {
-            throw new RouterInfoInvalid();
+            //throw new RouterInfoInvalid();
+            return new ArrayList<>();
         }
 
         Map<String, UnicastGoalState> unicastGoalStateMap = new HashMap<>();
@@ -329,7 +337,9 @@ public class DpmServiceImpl implements DpmService {
                 String subnetId = subnetRoutingTable.getSubnetId();
                 InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                 if (subnetPorts == null) {
-                    throw new SubnetPortsNotFound();
+                    //throw new SubnetPortsNotFound();
+                    //return new ArrayList<>();
+                    continue;
                 }
 
                 for (PortHostInfo portHostInfo: subnetPorts.getPorts()) {
@@ -357,7 +367,8 @@ public class DpmServiceImpl implements DpmService {
                 }).collect(Collectors.toList());
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
+
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
@@ -390,24 +401,29 @@ public class DpmServiceImpl implements DpmService {
         List<String> failedHosts = new ArrayList<>();
         List<ResourceOperation> rsopTypes = networkConfig.getRsOpTypes();
 
-        for (ResourceOperation rsopType : rsopTypes) {
-            switch (rsopType.getRsType()) {
+        //for (ResourceOperation rsopType : rsopTypes) {
+        //    switch (rsopType.getRsType()) {
+            switch (networkConfig.getRsType()) {
                 case PORT:
-                    failedHosts.addAll(processPortConfiguration(networkConfig));
+                    //failedHosts.addAll(processPortConfiguration(networkConfig));
+                    failedHosts = processPortConfiguration(networkConfig);
                     break;
                 case NEIGHBOR:
-                    failedHosts.addAll(processNeighborConfiguration(networkConfig));
+                    //failedHosts.addAll(processNeighborConfiguration(networkConfig));
+                    failedHosts = processNeighborConfiguration(networkConfig);
                     break;
                 case SECURITYGROUP:
-                    failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
+                    //failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
+                    failedHosts = processSecurityGroupConfiguration(networkConfig);
                     break;
                 case ROUTER:
-                    failedHosts.addAll(processRouterConfiguration(networkConfig));
+                    //failedHosts.addAll(processRouterConfiguration(networkConfig));
+                    failedHosts = processRouterConfiguration(networkConfig);
                     break;
                 default:
                     throw new UnknownResourceType();
             }
-        }
+        //}
         return buildResult(networkConfig, failedHosts, startTime);
     }
 

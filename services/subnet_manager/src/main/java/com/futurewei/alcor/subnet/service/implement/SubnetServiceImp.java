@@ -551,6 +551,7 @@ public class SubnetServiceImp implements SubnetService {
         if (subnetEntity == null) {
             return;
         }
+
         List<HostRoute> hostRoutes = subnetEntity.getHostRoutes();
         List<RouteEntry> routeEntities = new ArrayList<>();
         for (HostRoute hostRoute : hostRoutes) {
@@ -566,11 +567,9 @@ public class SubnetServiceImp implements SubnetService {
         routetable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
         routetable.setRouteEntities(routeEntities);
 
-
         String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
         HttpEntity<RouteTableWebJson> routeRequest = new HttpEntity<>(new RouteTableWebJson(routetable));
         restTemplate.put(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
-
     }
 
     @Override
