@@ -135,7 +135,7 @@ public class OnDemandServiceImpl implements OnDemandService {
         if (resourceMetas == null) {
             return null;
         }
-
+        long start = System.currentTimeMillis();
         // TODO: This triggers quite a few db read access. Need to evaluate performance or rewrite with bulk access
         Goalstate.GoalStateV2.Builder builder = Goalstate.GoalStateV2.newBuilder();
         for (ResourceMeta resource : resourceMetas) {
@@ -159,7 +159,8 @@ public class OnDemandServiceImpl implements OnDemandService {
                 builder.putRouterStates(routerId, (Router.RouterState) resourceStateCache.getResourceState(routerId));
             }
         }
-
+        long end = System.currentTimeMillis();
+        logger.log(Level.INFO, "[retrieveGoalState] Got GS from Ignite, elapsed Time in milli seconds: "+ (end-start));
         return builder.build();
     }
 }

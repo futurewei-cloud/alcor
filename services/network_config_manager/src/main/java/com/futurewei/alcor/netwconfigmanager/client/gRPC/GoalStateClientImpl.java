@@ -100,17 +100,25 @@ public class GoalStateClientImpl implements GoalStateClient {
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
+        logger.log(Level.INFO, "Setting up a channel to ACA on: " + hostIp);
+        long start = System.currentTimeMillis();
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .build();
+        long chan_established = System.currentTimeMillis();
+        logger.log(Level.INFO, "[doSendGoalState] Established channel, elapsed Time in milli seconds: "+ (chan_established-start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
-
+        long stub_established = System.currentTimeMillis();
+        logger.log(Level.INFO, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: "+ (stub_established-chan_established));
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
+            long on_next, on_completed;
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
+                on_next = System.currentTimeMillis();
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString() );
                 result.put(hostIp, reply.getOperationStatusesList());
+                logger.log(Level.INFO, "[doSendGoalState] Called onNext, elapsed Time after stub established in milli seconds: "+ (on_next-stub_established));
             }
 
             @Override
@@ -120,7 +128,9 @@ public class GoalStateClientImpl implements GoalStateClient {
 
             @Override
             public void onCompleted() {
+                on_completed = System.currentTimeMillis();
                 logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
+                logger.log(Level.INFO, "[doSendGoalState] Called onComplete, elapsed Time after onNext in milli seconds: "+ (on_completed-on_next));
             }
         };
 
