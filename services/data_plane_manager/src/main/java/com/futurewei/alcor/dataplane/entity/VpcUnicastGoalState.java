@@ -5,6 +5,10 @@ import com.futurewei.alcor.schema.Goalstate;
 public class VpcUnicastGoalState extends UnicastGoalState {
     private String vpcId;
 
+    public VpcUnicastGoalState() {
+        super();
+    }
+
     public VpcUnicastGoalState(String vpcId) {
         super();
         this.vpcId = vpcId;

@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
@@ -21,6 +21,8 @@ import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcMulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
@@ -48,9 +50,6 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
 
     @Autowired
     private PulsarClient pulsarClient;
-
-    @Autowired
-    LocalCache localCache;
 
     @Autowired
     private VpcTopicCache vpcTopicCache;
@@ -116,10 +115,10 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        for (UnicastGoalState unicastGoalState: unicastGoalStates) {
+        for (VpcUnicastGoalState unicastGoalState: unicastGoalStates) {
             String nextTopic = unicastGoalState.getVpcId();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
@@ -127,8 +126,7 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
             }
 
             String topic = nextTopic;
-//            String unicastTopic = localCache.getNodeInfoByNodeIp(unicastGoalState.getHostIp()).get(0).getUnicastTopic();
-            String unicastTopic = topicMappingCache.getTopicByVpcId(unicastGoalState.getVpcId()).getTopicName();
+            String unicastTopic = vpcTopicCache.getTopicByVpcId(unicastGoalState.getVpcId()).getTopicName();
             if (!StringUtils.isEmpty(unicastTopic)) {
                 unicastGoalState.setNextTopic(nextTopic);
                 topic = unicastTopic;
@@ -155,7 +153,7 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         failedHosts.addAll(sendGoalStates(unicastGoalStates));

@@ -17,6 +17,8 @@ package com.futurewei.alcor.dataplane.client;
 
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcMulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
 import org.springframework.stereotype.Component;
@@ -29,4 +31,6 @@ public interface DataPlaneClient {
     List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
     List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates,
                                 MulticastGoalState multicastGoalState) throws Exception;
+    List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates,
+                                VpcMulticastGoalState multicastGoalState) throws Exception;
 }

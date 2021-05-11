@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.VpcEntityNotFound;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
@@ -24,6 +25,7 @@ import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -72,5 +74,47 @@ public class VpcService extends ResourceService {
 
             unicastGoalState.getGoalStateBuilder().addVpcStates(vpcStateBuilder.build());
         }
+    }
+
+    public List<VpcUnicastGoalState> buildVpcUnicastGS(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws Exception {
+        List<Port.PortState> portStates = unicastGoalState.getGoalStateBuilder().getPortStatesList();
+        if (portStates == null || portStates.size() == 0) {
+            // TODO: How to find vpcId here
+            return null;
+        }
+
+        List<VpcUnicastGoalState> vpcUnicastGoalStates = new ArrayList<>();
+
+        for (Port.PortState portState: portStates) {
+            VpcEntity vpcEntity = getVpcEntity(networkConfig, portState.getConfiguration().getVpcId());
+            Vpc.VpcConfiguration.Builder vpcConfigBuilder = Vpc.VpcConfiguration.newBuilder();
+            vpcConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+            vpcConfigBuilder.setId(vpcEntity.getId());
+            vpcConfigBuilder.setProjectId(vpcEntity.getProjectId());
+
+            if (vpcEntity.getName() != null) {
+                vpcConfigBuilder.setName(vpcEntity.getName());
+            }
+
+            if (vpcEntity.getCidr() != null) {
+                vpcConfigBuilder.setCidr(vpcEntity.getCidr());
+            }
+
+            //set routes here
+
+            Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
+            vpcStateBuilder.setOperationType(Common.OperationType.INFO);
+            vpcStateBuilder.setConfiguration(vpcConfigBuilder.build());
+
+            VpcUnicastGoalState vpcUnicastGoalState = new VpcUnicastGoalState(
+                    vpcEntity.getId(),
+                    unicastGoalState.getHostIp(),
+                    unicastGoalState.getGoalState()
+            );
+
+            vpcUnicastGoalStates.add(vpcUnicastGoalState);
+        }
+
+        return vpcUnicastGoalStates;
     }
 }
