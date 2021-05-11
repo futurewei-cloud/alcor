@@ -325,22 +325,22 @@ public class VpcRouterTests {
         }
     }
 
-    @Test
-    public void updateSubnetRouteTable_pass () throws Exception {
-        RouteTable routetable = new RouteTable();
-        routetable.setId(UnitTestConfig.routeTableId);
-        routetable.setRouteEntities(new ArrayList<>());
-
-        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
-                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
-        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
-                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
-        this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
-                .content(UnitTestConfig.subnetRouteTableResource))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));
-    }
+//    @Test
+//    public void updateSubnetRouteTable_pass () throws Exception {
+//        RouteTable routetable = new RouteTable();
+//        routetable.setId(UnitTestConfig.routeTableId);
+//        routetable.setRouteEntities(new ArrayList<>());
+//
+//        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+//                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+//        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+//                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
+//        this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
+//                .content(UnitTestConfig.subnetRouteTableResource))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));
+//    }
 
     @Test
     public void deleteSubnetRouteTable_pass () throws Exception {
