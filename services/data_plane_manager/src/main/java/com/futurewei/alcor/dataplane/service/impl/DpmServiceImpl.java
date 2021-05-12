@@ -401,29 +401,25 @@ public class DpmServiceImpl implements DpmService {
         List<String> failedHosts = new ArrayList<>();
         List<ResourceOperation> rsopTypes = networkConfig.getRsOpTypes();
 
-        //for (ResourceOperation rsopType : rsopTypes) {
-        //    switch (rsopType.getRsType()) {
-            switch (networkConfig.getRsType()) {
+        for (ResourceOperation rsopType : rsopTypes) {
+            switch (rsopType.getRsType()) {
                 case PORT:
-                    //failedHosts.addAll(processPortConfiguration(networkConfig));
-                    failedHosts = processPortConfiguration(networkConfig);
+                    failedHosts.addAll(processPortConfiguration(networkConfig));
                     break;
                 case NEIGHBOR:
-                    //failedHosts.addAll(processNeighborConfiguration(networkConfig));
+                    failedHosts.addAll(processNeighborConfiguration(networkConfig));
                     failedHosts = processNeighborConfiguration(networkConfig);
                     break;
                 case SECURITYGROUP:
-                    //failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
-                    failedHosts = processSecurityGroupConfiguration(networkConfig);
+                    failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
                     break;
                 case ROUTER:
-                    //failedHosts.addAll(processRouterConfiguration(networkConfig));
-                    failedHosts = processRouterConfiguration(networkConfig);
+                    failedHosts.addAll(processRouterConfiguration(networkConfig));
                     break;
                 default:
                     throw new UnknownResourceType();
             }
-        //}
+        }
         return buildResult(networkConfig, failedHosts, startTime);
     }
 
