@@ -35,7 +35,7 @@ public class VpcTopicInfo implements Serializable {
     private String topicName;
 
     @JsonProperty("subscribe_mapping")
-//    Mapping of <Subscribed NodeId, key for Pulsar>
+//    Mapping of <Subscribed NodeIp, key for Pulsar>
     private Map<String, String> subscribeMapping;
 
     public VpcTopicInfo(String topicName) {

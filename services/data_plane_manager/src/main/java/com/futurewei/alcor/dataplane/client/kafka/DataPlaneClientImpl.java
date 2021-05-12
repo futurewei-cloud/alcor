@@ -18,6 +18,8 @@ package com.futurewei.alcor.dataplane.client.kafka;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcMulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 
@@ -33,6 +35,16 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
         return null;
     }
 }

@@ -36,8 +36,20 @@ public class VpcTopicCache {
     }
 
     @DurationStatistics
-    public VpcTopicInfo getTopicByVpcId(String vpcId) throws Exception {
+    public VpcTopicInfo getTopicInfoByVpcId(String vpcId) throws Exception {
         return vpcTopicInfoICache.get(vpcId);
+    }
+
+    @DurationStatistics
+    public String getTopicNameByVpcId(String vpcId) throws Exception {
+        return vpcTopicInfoICache.get(vpcId).getTopicName();
+    }
+
+    @DurationStatistics
+    public String getKeyByHostIp(String vpcId, String hostIp) throws Exception {
+        VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
+        Map<String, String> keyMap = vpcTopicInfo.getSubscribeMapping();
+        return keyMap.get(hostIp);
     }
 
     @DurationStatistics
@@ -63,9 +75,9 @@ public class VpcTopicCache {
     }
 
     @DurationStatistics
-    public void addSubscribedNodeForVpcId(String nodeId, String vpcId) throws Exception {
+    public void addSubscribedNodeForVpcId(String nodeId, String vpcId, String key) throws Exception {
         VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
-        vpcTopicInfo.getSubscribeMapping().put(nodeId, null);
+        vpcTopicInfo.getSubscribeMapping().put(nodeId, key);
         vpcTopicInfoICache.put(vpcId, vpcTopicInfo);
     }
 }

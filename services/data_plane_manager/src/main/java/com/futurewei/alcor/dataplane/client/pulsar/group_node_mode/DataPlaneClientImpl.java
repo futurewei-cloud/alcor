@@ -20,6 +20,8 @@ import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcMulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
@@ -155,5 +157,15 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         failedHosts.addAll(createGoalState(multicastGoalState));
 
         return failedHosts;
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
+        return null;
     }
 }

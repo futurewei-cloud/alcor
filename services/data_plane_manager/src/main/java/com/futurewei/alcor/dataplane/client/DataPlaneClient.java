@@ -31,6 +31,8 @@ public interface DataPlaneClient {
     List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
     List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates,
                                 MulticastGoalState multicastGoalState) throws Exception;
-    List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates,
+
+    List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception;
+    List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates,
                                 VpcMulticastGoalState multicastGoalState) throws Exception;
 }

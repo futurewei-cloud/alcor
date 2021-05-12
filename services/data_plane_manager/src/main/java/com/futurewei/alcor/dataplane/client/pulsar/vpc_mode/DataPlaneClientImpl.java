@@ -15,8 +15,6 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
-import com.futurewei.alcor.dataplane.cache.LocalCache;
-import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
@@ -27,6 +25,10 @@ import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
+import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
+import org.apache.ignite.stream.StreamAdapter;
+import org.apache.pulsar.client.api.BatcherBuilder;
+import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.impl.schema.JSONSchema;
@@ -45,7 +47,7 @@ import java.util.Map;
 //@Component
 @Service("pulsarDataPlaneClient")
 @ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
-public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pulsar.group_node_mode.DataPlaneClientImpl {
+public class DataPlaneClientImpl implements DataPlaneClient {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     @Autowired
@@ -54,52 +56,52 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
     @Autowired
     private VpcTopicCache vpcTopicCache;
 
-    private Map<String, List<String>> getMulticastTopics(List<String> hostIps) throws Exception {
-        Map<String, List<String>> multicastTopics = new HashMap<>();
-
-        for (String hostIp : hostIps) {
-//            String groupTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getGroupTopic();
-            String groupTopic = vpcTopicCache.getTopicByVpcId(unicastGoalState.getVpcId()).getTopicName();
-            if (StringUtils.isEmpty(groupTopic)) {
-                LOG.error("Can not find group topic by host ip:{}", hostIp);
-                throw new GroupTopicNotFound();
-            }
-
-            String multicastTopic = localCache.getNodeInfoByNodeIp(hostIp).get(0).getMulticastTopic();
-            if (StringUtils.isEmpty(multicastTopic)) {
-                LOG.error("Can not find multicast topic by host ip:{}", hostIp);
-                throw new MulticastTopicNotFound();
-            }
-
-            if (!multicastTopics.containsKey(multicastTopic)) {
-                multicastTopics.put(multicastTopic, new ArrayList<>());
-            }
-
-            multicastTopics.get(multicastTopic).add(groupTopic);
-        }
-
-        return multicastTopics;
-    }
-
-    private List<String> createGoalState(MulticastGoalState multicastGoalState) throws Exception {
+    private List<String> createVpcGoalState(VpcMulticastGoalState multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        Map<String, List<String>> multicastTopics = getMulticastTopics(multicastGoalState.getHostIps());
+        for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
+            if (vpcTopicInfo == null) {
+                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex)));
+                try {
+                    vpcTopicCache.addTopicMapping(
+                            multicastGoalState.getVpcIds().get(multiGsIndex),
+                            vpcTopicInfo
+                    );
+                } catch (Exception e) {
 
-        for (Map.Entry<String, List<String>> entry: multicastTopics.entrySet()) {
-            String multicastTopic = entry.getKey();
-            List<String> groupTopics = entry.getValue();
+                }
+            }
+            String multicastTopic = vpcTopicInfo.getTopicName();
 
-            multicastGoalState.setNextTopics(groupTopics);
+
+            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(multicastGoalState.getHostIps().get(multiGsIndex));
+
+            if (multicastKey == null || StringUtils.isEmpty(multicastKey)) {
+                multicastKey = TopicManager.generateKeyByNodeId(multicastGoalState.getHostIps().get(multiGsIndex));
+
+                try {
+                    vpcTopicCache.addSubscribedNodeForVpcId(
+                            multicastGoalState.getVpcIds().get(multiGsIndex),
+                            multicastGoalState.getHostIps().get(multiGsIndex),
+                            multicastKey
+                    );
+                } catch (Exception e) {
+
+                }
+            }
 
             try {
                 Producer<MulticastGoalStateByte> producer = pulsarClient
                         .newProducer(JSONSchema.of(MulticastGoalStateByte.class))
                         .topic(multicastTopic)
-                        .enableBatching(false)
+                        .batcherBuilder(BatcherBuilder.KEY_BASED)
+                        .hashingScheme(HashingScheme.Murmur3_32Hash)
                         .create();
-
-                producer.send(multicastGoalState.getMulticastGoalStateByte());
+                producer.newMessage()
+                        .key(multicastKey)
+                        .value(multicastGoalState.getMulticastGoalStateByte())
+                        .send();
             } catch (Exception e) {
                 LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
                 failedHosts.addAll(multicastGoalState.getHostIps());
@@ -107,58 +109,88 @@ public class DataPlaneClientImpl extends com.futurewei.alcor.dataplane.client.pu
             }
 
             LOG.info("Send multicastGoalState to topic:{} success, " +
-                            "groupTopics: {}, unicastGoalStates: {}",
-                    multicastTopic, groupTopics, multicastGoalState);
+                            " unicastGoalStates: {}",
+                    multicastTopic, multicastGoalState);
         }
 
         return failedHosts;
     }
 
     @Override
-    public List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        for (VpcUnicastGoalState unicastGoalState: unicastGoalStates) {
-            String nextTopic = unicastGoalState.getVpcId();
-            if (StringUtils.isEmpty(nextTopic)) {
-                LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
-                throw new GroupTopicNotFound();
-            }
+        for (VpcUnicastGoalState unicastGoalState : unicastGoalStates) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(unicastGoalState.getVpcId());
+            if (vpcTopicInfo == null) {
+                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId()));
+                try {
+                    vpcTopicCache.addTopicMapping(
+                            unicastGoalState.getVpcId(),
+                            vpcTopicInfo
+                    );
+                } catch (Exception e) {
 
-            String topic = nextTopic;
-            String unicastTopic = vpcTopicCache.getTopicByVpcId(unicastGoalState.getVpcId()).getTopicName();
-            if (!StringUtils.isEmpty(unicastTopic)) {
-                unicastGoalState.setNextTopic(nextTopic);
-                topic = unicastTopic;
+                }
+            }
+            String unicastTopic = vpcTopicInfo.getTopicName();
+
+            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
+            if (unicastKey == null || StringUtils.isEmpty(unicastKey)) {
+                unicastKey = TopicManager.generateKeyByNodeId(unicastGoalState.getHostIp());
+
+                try {
+                    vpcTopicCache.addSubscribedNodeForVpcId(
+                            unicastGoalState.getVpcId(),
+                            unicastGoalState.getHostIp(),
+                            unicastKey
+                    );
+                } catch (Exception e) {
+
+                }
             }
 
             try {
                 Producer<UnicastGoalStateByte> producer = pulsarClient
                         .newProducer(JSONSchema.of(UnicastGoalStateByte.class))
-                        .topic(topic)
-                        .enableBatching(false)
+                        .topic(unicastTopic)
+                        .batcherBuilder(BatcherBuilder.KEY_BASED)
+                        .hashingScheme(HashingScheme.Murmur3_32Hash)
                         .create();
-                producer.send(unicastGoalState.getUnicastGoalStateByte());
+                producer.newMessage()
+                        .key(unicastKey)
+                        .value(unicastGoalState.getUnicastGoalStateByte())
+                        .send();
             } catch (Exception e) {
-                LOG.error("Send unicastGoalStates to topic:{} failed: ", topic, e);
+                LOG.error("Send unicastGoalStates to topic:{} failed: ", unicastTopic, e);
                 failedHosts.add(unicastGoalState.getHostIp());
                 continue;
             }
 
             LOG.info("Send unicastGoalStates to topic:{} success, " +
-                    "unicastGoalStates: {}", nextTopic, unicastGoalState);
+                    "unicastGoalStates: {}", unicastTopic, unicastGoalState);
         }
 
         return failedHosts;
     }
 
     @Override
-    public List<String> sendGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        failedHosts.addAll(sendGoalStates(unicastGoalStates));
-        failedHosts.addAll(createGoalState(multicastGoalState));
+        failedHosts.addAll(sendVpcGoalStates(unicastGoalStates));
+        failedHosts.addAll(createVpcGoalState(multicastGoalState));
 
         return failedHosts;
+    }
+
+    @Override
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        return null;
     }
 }

@@ -19,6 +19,8 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcMulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.VpcUnicastGoalState;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
@@ -203,5 +205,15 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         } catch (InterruptedException e) {
             LOG.warn("Timed out forcefully shutting down connection: {}", e.getMessage());
         }
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendVpcGoalStates(List<VpcUnicastGoalState> unicastGoalStates, VpcMulticastGoalState multicastGoalState) throws Exception {
+        return null;
     }
 }

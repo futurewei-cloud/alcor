@@ -1,9 +1,9 @@
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.dataplane.cache.LocalCache;
-import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
+import com.futurewei.alcor.dataplane.cache.*;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
+import com.futurewei.alcor.dataplane.config.ClientConstant;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.*;
@@ -47,7 +47,16 @@ public class VpcDpmServiceImpl implements DpmService {
     private LocalCache localCache;
 
     @Autowired
+    private VpcSubnetsCache vpcSubnetsCache;
+
+    @Autowired
     private VpcGatewayInfoCache gatewayInfoCache;
+
+    @Autowired
+    private SecurityGroupPortsCache securityGroupPortsCache;
+
+    @Autowired
+    private VpcClientStatusCache vpcClientStatusCache;
 
     @Autowired
     private DataPlaneClient grpcDataPlaneClient;
@@ -84,12 +93,48 @@ public class VpcDpmServiceImpl implements DpmService {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
 
+    private boolean isFastPath(InternalPortEntity portEntity) throws Exception{
+        String correspondingVpcId = portEntity.getVpcId();
+        List<String> subnetsId = vpcSubnetsCache.getVpcSubnets(correspondingVpcId).getSubnetIds();
+
+//        Get the number of VPC's ports
+        int numberOfVpcPorts = 0;
+        for (String subnetId : subnetsId) {
+            numberOfVpcPorts += localCache.getSubnetPorts(subnetId).getPorts().size();
+        }
+
+//        Get the max number of SecurityGroup's ports
+        List<Integer> numberOfSecurityGroupPorts = new ArrayList<>();
+        for (String securityGroupId : portEntity.getSecurityGroups()) {
+            numberOfSecurityGroupPorts.add(securityGroupPortsCache.getSecurityGroupPorts(securityGroupId).getPortIds().size());
+        }
+        Collections.sort(numberOfSecurityGroupPorts);
+        int maxNumberOfSGPorts = numberOfSecurityGroupPorts.get(numberOfSecurityGroupPorts.size() - 1);
+
+//        Select client for port entity
+        String vpcCurrentClient = vpcClientStatusCache.getClientStatusByVpcId(correspondingVpcId);
+
+        if (vpcCurrentClient == ClientConstant.fastPath) {
+            if ((numberOfVpcPorts < ClientConstant.X) && (maxNumberOfSGPorts < ClientConstant.Y)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if ((numberOfVpcPorts < (0.8 * ClientConstant.X)) && (maxNumberOfSGPorts < (0.8 * ClientConstant.Y))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     private void buildUnicastGoalStates(NetworkConfiguration networkConfig, String hostIp,
                                                    VpcUnicastGoalState unicastGoalState,
                                                    VpcMulticastGoalState multicastGoalState) throws Exception {
 
         subnetService.buildSubnetStates(networkConfig, unicastGoalState, multicastGoalState);
-        neighborService.buildNeighborStates(networkConfig, hostIp, unicastGoalState, multicastGoalState);
+        neighborService.buildVpcNeighborStates(networkConfig, hostIp, unicastGoalState, multicastGoalState);
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState);
@@ -143,7 +188,7 @@ public class VpcDpmServiceImpl implements DpmService {
 //            return zetaGatewayClient.sendGoalStateToZetaAcA(vpcUnicastGoalStates, vpcMulticastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
             return null;
         } else {
-            return dataPlaneClient.sendGoalStates(vpcUnicastGoalStates, vpcMulticastGoalState);
+            return dataPlaneClient.sendVpcGoalStates(vpcUnicastGoalStates, vpcMulticastGoalState);
         }
     }
 
