@@ -443,7 +443,7 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
-            //this.routerService.updateSubnetRouteTable(projectid, subnetid, resource);
+            this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
 
             // send InternalRouterInfo contract to DPM
             //this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
@@ -455,11 +455,11 @@ public class RouterController {
             this.vpcRouterToSubnetService.updateRoutingRuleInSubnetManager(projectid, subnetid, hostRouteToSubnet);
         } catch (ParameterNullOrEmptyException | HostRoutesToSubnetIsNull e) {
             throw e;
-//        } catch (OwnMultipleSubnetRouteTablesException e) {
-//            logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
-//            throw e;
-//        } catch (DatabasePersistenceException e) {
-//            throw e;
+        } catch (OwnMultipleSubnetRouteTablesException e) {
+            logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
+            throw e;
+        } catch (DatabasePersistenceException e) {
+            throw e;
         }
 
         return new RouteTableWebJson(routetable);

@@ -20,10 +20,7 @@ import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.route.exception.*;
-import com.futurewei.alcor.web.entity.route.RouteEntry;
-import com.futurewei.alcor.web.entity.route.RouteTable;
-import com.futurewei.alcor.web.entity.route.RouteTableWebJson;
-import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.List;
@@ -38,7 +35,7 @@ public interface RouterService {
     public RouteTable updateVpcRouteTable (String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException;
     public List<RouteTable> getVpcRouteTables (String projectId, String vpcId) throws CanNotFindVpc;
     public RouteTable getSubnetRouteTable(String projectId, String subnetId) throws CanNotFindSubnet, CacheException, OwnMultipleSubnetRouteTablesException, DatabasePersistenceException, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException, CanNotFindVpc;
-    public RouteTable updateSubnetRouteTable (String projectId, String subnetId, RouteTableWebJson resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindVpc, CanNotFindSubnet, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException;
+    public RouteTable updateSubnetRouteTable (String projectId, String subnetId, UpdateRoutingRuleResponse resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindVpc, CanNotFindSubnet, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException;
     public String deleteSubnetRouteTable (String projectId, String subnetId) throws Exception;
     public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException;
 
