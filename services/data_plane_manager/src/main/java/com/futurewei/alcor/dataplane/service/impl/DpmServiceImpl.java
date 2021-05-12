@@ -408,7 +408,6 @@ public class DpmServiceImpl implements DpmService {
                     break;
                 case NEIGHBOR:
                     failedHosts.addAll(processNeighborConfiguration(networkConfig));
-                    failedHosts = processNeighborConfiguration(networkConfig);
                     break;
                 case SECURITYGROUP:
                     failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));

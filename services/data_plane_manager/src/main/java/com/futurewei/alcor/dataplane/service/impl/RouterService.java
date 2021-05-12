@@ -97,7 +97,7 @@ public class RouterService extends ResourceService {
 
         //TODO: where does the hostDvrMacAddress come from ?
         routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-
+        routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
         routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
