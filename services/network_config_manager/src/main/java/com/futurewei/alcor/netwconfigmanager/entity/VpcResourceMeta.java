@@ -13,29 +13,72 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.netwconfigmanager.entity;
 
+import com.futurewei.alcor.netwconfigmanager.service.impl.OnDemandServiceImpl;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VpcResourceMeta {
 
+    private final String NEIGHBOR_POSTFIX = "_n";
+
     private String vni;
 
-    // Private IP => List<ResourceMetadata>
-    private HashMap<String, List<ResourceMeta>> resourceMetas;
+    // Private IP => ResourceMetadata
+    private HashMap<String, ResourceMeta> resourceMetaMap;
 
-    public VpcResourceMeta(String vni, HashMap<String, List<ResourceMeta>> resourceMetas) {
+    public VpcResourceMeta(String vni, HashMap<String, ResourceMeta> resourceMetaMap) {
         this.vni = vni;
-        this.resourceMetas = new HashMap<>(resourceMetas);
+        this.resourceMetaMap = new HashMap<>(resourceMetaMap);
     }
 
     public String getVni() {
         return this.vni;
     }
 
-    public HashMap<String, List<ResourceMeta>> getResourceMetas() {
-        return this.resourceMetas;
+    public HashMap<String, ResourceMeta> getResourceMetaMap() {
+        return this.resourceMetaMap;
+    }
+
+    public ResourceMeta getResourceMeta(String privateIp) {
+        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(privateIp)) {
+            return null;
+        }
+
+        return this.resourceMetaMap.get(privateIp);
+    }
+
+    public void setResourceMeta(String privateIP, ResourceMeta portAssociatedResourceMeta) {
+        this.resourceMetaMap.put(privateIP, portAssociatedResourceMeta);
+    }
+
+    public Set<String> getNeighborIds(String sourceIp, String destinationIp, OnDemandServiceImpl.StateProvisionAlgorithm algorithm) {
+        Set<String> neighborIdSet = new HashSet<>();
+
+        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(sourceIp)) {
+            return neighborIdSet;
+        }
+
+        if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_Point) {
+            if (this.resourceMetaMap.containsKey(destinationIp)) {
+                String neighborId = this.resourceMetaMap.get(destinationIp).getOwnerId() + NEIGHBOR_POSTFIX;
+                neighborIdSet.add(neighborId);
+            }
+        } else if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_Many) {
+            // TODO: implement point to many based on ML algorithm
+        } else if (algorithm == OnDemandServiceImpl.StateProvisionAlgorithm.Point_To_All) {
+            for (String portIp : this.resourceMetaMap.keySet()) {
+                if (!portIp.equalsIgnoreCase(sourceIp)) {
+                    String neighborId = this.resourceMetaMap.get(portIp).getOwnerId() + NEIGHBOR_POSTFIX;
+                    neighborIdSet.add(neighborId);
+                }
+            }
+        }
+
+        return neighborIdSet;
     }
 }

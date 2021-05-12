@@ -13,7 +13,6 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.netwconfigmanager.cache;
 
 import com.futurewei.alcor.common.db.CacheFactory;
@@ -28,7 +27,7 @@ import org.springframework.stereotype.Repository;
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class VpcResourceCache {
 
-    // Map <VNI, Map<PIP, List<ResoruceIDType>>
+    // Map <VNI, Map<PIP, ResourceMetadata>
     private ICache<String, VpcResourceMeta> vpcResourceMetas;
 
     @Autowired

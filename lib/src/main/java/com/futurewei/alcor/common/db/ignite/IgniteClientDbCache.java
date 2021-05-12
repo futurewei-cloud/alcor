@@ -52,6 +52,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     public IgniteClientDbCache(IgniteClient igniteClient, String name) {
         try {
             this.cache = igniteClient.getOrCreateCache(name);
+            logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         }
@@ -63,6 +64,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     public IgniteClientDbCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
         try {
             this.cache = igniteClient.getOrCreateCache(name).withExpirePolicy(ep);
+            logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         }
