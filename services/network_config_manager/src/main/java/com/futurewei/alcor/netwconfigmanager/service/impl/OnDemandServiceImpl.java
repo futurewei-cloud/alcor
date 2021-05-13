@@ -84,31 +84,38 @@ public class OnDemandServiceImpl implements OnDemandService {
         logger.log(Level.INFO, "[retrieveGoalState] vni = " + vni +
                 " | sourceIp = " + sourceIp +
                 " | destinationIp = " + destinationIp);
-
+        long start = System.currentTimeMillis();
 //        ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
         VpcResourceMeta vpcResourceMetadata = retrieveResourceMeta(vni);
         if (vpcResourceMetadata == null) {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
             return null;
         }
-
+        long end = System.currentTimeMillis();
+        logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata, elapsed Time in milli seconds: "+ (end-start));
         ResourceMeta portResourceMetadata = vpcResourceMetadata.getResourceMeta(sourceIp);
         if (portResourceMetadata == null) {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata is null | sourceIp = " + sourceIp);
             return null;
         }
-
+        long end1 = System.currentTimeMillis();
+        logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata, elapsed Time in milli seconds: "+ (end1-end));
         //populate portResourceMetadata with existing neighbors in the same VPC
         Set<String> neighborIdSet = vpcResourceMetadata.getNeighborIds(sourceIp, destinationIp, defaultStateProvisionAlgorithm);
         for (String neighborId : neighborIdSet) {
             portResourceMetadata.addNeighborEntry(neighborId, neighborId); //TODO: consider to store id => ip or vice versa
         }
+        long end2 = System.currentTimeMillis();
+        logger.log(Level.INFO, "[retrieveGoalState] populated portResourceMetadata with existing neighbors in the same VPC, elapsed Time in milli seconds: "+ (end2-end1));
 
         List<ResourceMeta> resourceMetas = new ArrayList<>() {
             {
                 add(portResourceMetadata);
             }
         };
+        long end3 = System.currentTimeMillis();
+        logger.log(Level.INFO, "[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
+
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
         if (goalState == null) {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state is null");
