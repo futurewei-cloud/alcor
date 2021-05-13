@@ -115,7 +115,7 @@ public class pseudo_controller {
                     setUpdateType(Common.UpdateType.FULL).
                     setId(port_id).
                     setVpcId(vpc_id_1).
-                    setName(("tap" + port_id).substring(0, 14)).
+                    setName(("tap" + port_id.substring(port_id.length()-11, port_id.length()-1))).
                     setAdminStateUp(true).
                     setMacAddress(port_mac);
             Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
