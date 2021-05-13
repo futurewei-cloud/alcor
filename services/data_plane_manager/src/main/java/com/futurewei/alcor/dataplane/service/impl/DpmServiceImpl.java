@@ -370,7 +370,7 @@ public class DpmServiceImpl implements DpmService {
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
 
-        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
