@@ -22,10 +22,15 @@ import com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
+import java.util.logging.Level;
+
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class VpcResourceCache {
+    private static final Logger LOG = LoggerFactory.getLogger();
 
     // Map <VNI, Map<PIP, ResourceMetadata>
     private ICache<String, VpcResourceMeta> vpcResourceMetas;
@@ -37,8 +42,15 @@ public class VpcResourceCache {
 
     @DurationStatistics
     public VpcResourceMeta getResourceMeta(String vni) throws Exception {
+        Long sTime = System.currentTimeMillis();
+        Long uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        LOG.log(Level.INFO, "[getResourceMeta(vni)]GRM: time " + sTime + " usedmem1 " + uMem);
         VpcResourceMeta resourceMeta = this.vpcResourceMetas.get(vni);
+        uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
+        Long fTime = System.currentTimeMillis() - sTime;
+
+        LOG.log(Level.INFO, "[getResourceMeta(vni)]GRM: time " + fTime + " usedmem2 " + uMem);
         return resourceMeta;
     }
 
