@@ -18,10 +18,7 @@ package com.futurewei.alcor.route;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
-import com.futurewei.alcor.web.entity.route.NewRoutesWebRequest;
-import com.futurewei.alcor.web.entity.route.RouteTable;
-import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.route.UpdateRoutingRuleResponse;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -325,22 +322,22 @@ public class VpcRouterTests {
         }
     }
 
-//    @Test
-//    public void updateSubnetRouteTable_pass () throws Exception {
-//        RouteTable routetable = new RouteTable();
-//        routetable.setId(UnitTestConfig.routeTableId);
-//        routetable.setRouteEntities(new ArrayList<>());
-//
-//        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
-//                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
-//        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
-//                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
-//        this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
-//                .content(UnitTestConfig.subnetRouteTableResource))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));
-//    }
+    @Test
+    public void updateSubnetRouteTable_pass () throws Exception {
+        RouteTable routetable = new RouteTable();
+        routetable.setId(UnitTestConfig.routeTableId);
+        routetable.setRouteEntities(new ArrayList<>());
+
+        Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
+                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());setInternalSubnetRoutingTable(new InternalSubnetRoutingTable(){{setRoutingRules(new ArrayList<>());}});}});
+        this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
+                .content(UnitTestConfig.subnetRouteTableResource))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.updateRouteTableId));
+    }
 
     @Test
     public void deleteSubnetRouteTable_pass () throws Exception {

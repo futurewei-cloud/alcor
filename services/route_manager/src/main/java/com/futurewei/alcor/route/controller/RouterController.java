@@ -428,11 +428,13 @@ public class RouterController {
             List<RouteEntry> routeEntities = routetable.getRouteEntities();
             NewRoutesWebRequest newRoutes = new NewRoutesWebRequest();
             List<NewRoutesRequest> routes = new ArrayList<>();
-            for (RouteEntry routeEntry : routeEntities) {
-                String destination = routeEntry.getDestination();
-                String nexthop = routeEntry.getNexthop();
-                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
-                routes.add(newRoutesRequest);
+            if (routeEntities != null) {
+                for (RouteEntry routeEntry : routeEntities) {
+                    String destination = routeEntry.getDestination();
+                    String nexthop = routeEntry.getNexthop();
+                    NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
+                    routes.add(newRoutesRequest);
+                }
             }
             newRoutes.setRoutes(routes);
 

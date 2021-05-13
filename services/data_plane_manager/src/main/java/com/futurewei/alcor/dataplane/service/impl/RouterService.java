@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
@@ -104,7 +105,7 @@ public class RouterService extends ResourceService {
         goalStateBuilder.addRouterStates(routerStateBuilder.build());
     }
 
-    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws Exception {
+    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) throws Exception {
         List<Port.PortState> portStates = unicastGoalState.getGoalStateBuilder().getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -140,6 +141,7 @@ public class RouterService extends ResourceService {
                     }
                 }
             }
+            multicastGoalState.getGoalStateBuilder();
         }
     }
 }
