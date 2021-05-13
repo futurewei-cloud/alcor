@@ -329,35 +329,37 @@ public class DpmServiceImpl implements DpmService {
         for (InternalRouterInfo routerInfo: internalRouterInfos) {
             List<InternalSubnetRoutingTable> subnetRoutingTables =
                     routerInfo.getRouterConfiguration().getSubnetRoutingTables();
-            if (subnetRoutingTables == null) {
-                throw new RouterInfoInvalid();
-            }
-
-            for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
-                String subnetId = subnetRoutingTable.getSubnetId();
-                InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
-                if (subnetPorts == null) {
-                    //throw new SubnetPortsNotFound();
-                    //return new ArrayList<>();
-                    continue;
-                }
-
-                for (PortHostInfo portHostInfo: subnetPorts.getPorts()) {
-                    String hostIp = portHostInfo.getHostIp();
-                    UnicastGoalState unicastGoalState = unicastGoalStateMap.get(hostIp);
-                    if (unicastGoalState == null) {
-                        unicastGoalState = new UnicastGoalState();
-                        unicastGoalState.setHostIp(hostIp);
-                        unicastGoalStateMap.put(hostIp, unicastGoalState);
+            //if (subnetRoutingTables == null) {
+            //    throw new RouterInfoInvalid();
+            //}
+            if (subnetRoutingTables != null) {
+                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
+                    String subnetId = subnetRoutingTable.getSubnetId();
+                    InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
+                    if (subnetPorts == null) {
+                        //throw new SubnetPortsNotFound();
+                        //return new ArrayList<>();
+                        continue;
                     }
 
-                    routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
+                    for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
+                        String hostIp = portHostInfo.getHostIp();
+                        UnicastGoalState unicastGoalState = unicastGoalStateMap.get(hostIp);
+                        if (unicastGoalState == null) {
+                            unicastGoalState = new UnicastGoalState();
+                            unicastGoalState.setHostIp(hostIp);
+                            unicastGoalStateMap.put(hostIp, unicastGoalState);
+                        }
+
+                        routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
+                    }
                 }
             }
         }
 
         if (unicastGoalStateMap.size() == 0) {
-            throw new RouterInfoInvalid();
+            //throw new RouterInfoInvalid();
+            return new ArrayList<>();
         }
 
         List<UnicastGoalState> unicastGoalStates = unicastGoalStateMap.values()
