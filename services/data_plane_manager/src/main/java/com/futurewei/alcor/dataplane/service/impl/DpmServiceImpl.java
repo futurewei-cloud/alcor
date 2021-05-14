@@ -351,7 +351,7 @@ public class DpmServiceImpl implements DpmService {
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
                         }
 
-                        routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
+                        routerService.buildRouterState(routerInfo, subnetRoutingTables, unicastGoalState);
                     }
                 }
             }
@@ -415,7 +415,7 @@ public class DpmServiceImpl implements DpmService {
                     failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
                     break;
                 case ROUTER:
-                    failedHosts.addAll(processRouterConfiguration(networkConfig));
+                    //failedHosts.addAll(processRouterConfiguration(networkConfig));
                     break;
                 default:
                     throw new UnknownResourceType();
