@@ -44,7 +44,7 @@ public class VpcResourceCache {
     public VpcResourceMeta getResourceMeta(String vni) throws Exception {
         Long sTime = System.currentTimeMillis();
         Long uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        LOG.log(Level.INFO, "[getResourceMeta(vni)]GRM: time " + sTime + " usedmem1 " + uMem);
+        LOG.log(Level.INFO, "[getResourceMeta(vni)]GRM: time " + sTime + " usedmem1 " + uMem + " vni: " + vni);
         VpcResourceMeta resourceMeta = this.vpcResourceMetas.get(vni);
         uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
