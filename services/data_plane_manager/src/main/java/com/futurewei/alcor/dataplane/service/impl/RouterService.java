@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
@@ -50,39 +51,37 @@ public class RouterService extends ResourceService {
         }
     }
 
-    public void buildRouterState(InternalRouterInfo routerInfo, List<InternalSubnetRoutingTable> subnetRoutingTables, UnicastGoalState unicastGoalState) {
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-        for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
-            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-            String subnetId = subnetRoutingTable.getSubnetId();
-            subnetRoutingTableBuilder.setSubnetId(subnetId);
-            List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
-            if (routingRules == null || routingRules.size() == 0) {
-                return;
-            }
-
-            for (InternalRoutingRule routingRule : routingRules) {
-                Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
-                routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
-                routingRuleBuilder.setId(routingRule.getId());
-                routingRuleBuilder.setName(routingRule.getName());
-                routingRuleBuilder.setDestination(routingRule.getDestination());
-                routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-                routingRuleBuilder.setPriority(routingRule.getPriority());
-
-                if (routingRule.getRoutingRuleExtraInfo() != null) {
-                    Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-                    extraInfoBuilder.setDestinationType(getDestinationType(
-                            routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                    extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
-                    routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
-                }
-
-                subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
-            }
-
-            subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
+    public void buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) {
+        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+        String subnetId = subnetRoutingTable.getSubnetId();
+        subnetRoutingTableBuilder.setSubnetId(subnetId);
+        List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
+        if (routingRules == null || routingRules.size() == 0) {
+            return;
         }
+
+        for (InternalRoutingRule routingRule: routingRules) {
+            Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
+            routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+            routingRuleBuilder.setId(routingRule.getId());
+            routingRuleBuilder.setName(routingRule.getName());
+            routingRuleBuilder.setDestination(routingRule.getDestination());
+            routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
+            routingRuleBuilder.setPriority(routingRule.getPriority());
+
+            if (routingRule.getRoutingRuleExtraInfo() != null) {
+                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+                extraInfoBuilder.setDestinationType(getDestinationType(
+                        routingRule.getRoutingRuleExtraInfo().getDestinationType()));
+                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+            }
+
+            subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
+        }
+
+        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
         Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
         List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
@@ -104,9 +103,11 @@ public class RouterService extends ResourceService {
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
         goalStateBuilder.addRouterStates(routerStateBuilder.build());
+        Goalstate.GoalState.Builder m_goalStateBuilder = multicastGoalState.getGoalStateBuilder();
+        m_goalStateBuilder.addRouterStates(routerStateBuilder.build());
     }
 
-    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws Exception {
+    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) throws Exception {
         List<Port.PortState> portStates = unicastGoalState.getGoalStateBuilder().getPortStatesList();
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -134,13 +135,13 @@ public class RouterService extends ResourceService {
                 if (subnetRoutingTables == null) {
                     continue;
                 }
-                buildRouterState(routerInfo, subnetRoutingTables, unicastGoalState);
-//                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
-//                    if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
-//                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
-//                        break;
-//                    }
-//                }
+
+                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
+                    if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
+                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        break;
+                    }
+                }
             }
         }
     }
