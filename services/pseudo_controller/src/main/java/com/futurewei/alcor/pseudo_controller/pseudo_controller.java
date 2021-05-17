@@ -61,12 +61,14 @@ public class pseudo_controller {
     static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
     static String project_id = "alcor_testing_project";
+    static String default_container_port_interface_name = "eth0";
     static SortedMap<String, String> ip_mac_map = new TreeMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
     static SortedMap<String, String> port_ip_to_host_ip_map = new TreeMap<>();
-    static SortedMap<String, String> port_ip_to_id_map = new TreeMap<>();
+    static SortedMap<String, String> port_ip_to_id_map = new TreeMap<>();   // the id of the port should also be the ovs port name of the port, otherwise ACA will run incorrectly.
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
+//    static SortedMap<String, String> port_ip_to_ovs_port_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
 
@@ -321,6 +323,12 @@ public class pseudo_controller {
         System.exit(0);
     }
 
+//    public static void get_ovs_port_name_(String container_name){
+//        String cmd = "ovs_vsctl --data=bare --no-heading --columns=name find interface" +
+//                "external_ids:container_id=" + container_name + "\n" +
+//                "external_ids:container_iface=" + default_container_port_interface_name;
+//    }
+
     private static void create_containers_on_both_hosts() {
         System.out.println("Creating containers on both hosts");
         int i = 1;
@@ -329,8 +337,8 @@ public class pseudo_controller {
             String container_name = "test" + Integer.toString(i);
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
-            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int " + default_container_port_interface_name + " " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int " + default_container_port_interface_name + " " + container_name + " 1";
 
             int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
             if (ip_last_octet % 2 != 0) {
@@ -358,6 +366,25 @@ public class pseudo_controller {
 
         System.out.println("DONE creating containers on both hosts");
 
+//        Vector<String> aca_node_one_query_port_name_commands = new Vector<>();
+//        Vector<String> aca_node_two_query_port_name_commands = new Vector<>();
+        // adding logic to get port names created by ovs-docker
+        for( String port_ip : port_ip_to_host_ip_map.keySet()){
+            String container_name_for_port_ip = port_ip_to_container_name.get(port_ip);
+            String host_ip = port_ip_to_host_ip_map.get(port_ip);
+            String query_ovs_port_name_cmd = "ovs_vsctl --data=bare --no-heading --columns=name find interface" +
+                    "external_ids:container_id=" + container_name_for_port_ip + "\n" +
+                    "external_ids:container_iface=" + default_container_port_interface_name;
+            Vector<String> cmd_list = new Vector<String>();
+            cmd_list.add(query_ovs_port_name_cmd);
+            ArrayList<String> cmd_result;
+            if(host_ip.equals(aca_node_one_ip)){
+                cmd_result = execute_ssh_commands(cmd_list, aca_node_one_ip, user_name, password);
+            }else{
+                cmd_result = execute_ssh_commands(cmd_list, aca_node_two_ip, user_name, password);
+            }
+            System.out.println("Port ip: " + port_ip + " has ovs-port name: "+ cmd_result.get(0));
+        }
     }
 
 
@@ -374,14 +401,15 @@ public class pseudo_controller {
                 String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
                 System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
                 ip_mac_map.put(ip_for_port, mac_for_port);
-                port_ip_to_id_map.put(ip_for_port, id_for_port);
+//                port_ip_to_id_map.put(ip_for_port, id_for_port);
             }
             i++;
         }
     }
 
 
-    public static void execute_ssh_commands(Vector<String> commands, String host_ip, String host_user_name, String host_password) {
+    public static ArrayList<String> execute_ssh_commands(Vector<String> commands, String host_ip, String host_user_name, String host_password) {
+        ArrayList<String> cmd_output = new ArrayList<>();
         try {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
@@ -406,7 +434,9 @@ public class pseudo_controller {
                     while (in.available() > 0) {
                         int i = in.read(tmp, 0, 1024);
                         if (i < 0) break;
-                        System.out.print(new String(tmp, 0, i));
+                        String line_output = new String (tmp, 0 , i);
+                        System.out.print(line_output);
+                        cmd_output.add(line_output);
                     }
                     if (channel.isClosed()) {
                         System.out.println("exit-status: " + channel.getExitStatus());
@@ -423,6 +453,7 @@ public class pseudo_controller {
             System.err.println("Got this error: " + e.getMessage());
             e.printStackTrace();
         }
+        return cmd_output;
     }
     public static void executeBashCommand(String command) {
 //        boolean success = false;
