@@ -117,7 +117,7 @@ public class pseudo_controller {
                     setUpdateType(Common.UpdateType.FULL).
                     setId(port_id).
                     setVpcId(vpc_id_1).
-                    setName(("tap" + port_id.substring(port_id.length()-11, port_id.length()-1))).
+                    setName(port_id).
                     setAdminStateUp(true).
                     setMacAddress(port_mac);
             Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
@@ -372,7 +372,7 @@ public class pseudo_controller {
         for( String port_ip : port_ip_to_host_ip_map.keySet()){
             String container_name_for_port_ip = port_ip_to_container_name.get(port_ip);
             String host_ip = port_ip_to_host_ip_map.get(port_ip);
-            String query_ovs_port_name_cmd = "ovs_vsctl --data=bare --no-heading --columns=name find interface" +
+            String query_ovs_port_name_cmd = "ovs-vsctl --data=bare --no-heading --columns=name find interface " +
                     "external_ids:container_id=" + container_name_for_port_ip + "\n" +
                     "external_ids:container_iface=" + default_container_port_interface_name;
             Vector<String> cmd_list = new Vector<String>();
@@ -383,7 +383,11 @@ public class pseudo_controller {
             }else{
                 cmd_result = execute_ssh_commands(cmd_list, aca_node_two_ip, user_name, password);
             }
+            String ovs_port_name = cmd_result.get(0);
+            // putting the port name as the port ip, because this port ip, which will be put into gs, will be used
+            // by ACA as the port name, when it tries to set the port's vlan tag.
             System.out.println("Port ip: " + port_ip + " has ovs-port name: "+ cmd_result.get(0));
+            port_ip_to_id_map.put(port_ip, ovs_port_name);
         }
     }
 
