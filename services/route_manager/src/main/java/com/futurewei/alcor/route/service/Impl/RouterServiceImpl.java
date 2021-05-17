@@ -307,7 +307,13 @@ public class RouterServiceImpl implements RouterService {
                         uRoute.setDestination(inRule.getDestination());
                         uRoute.setNexthop(inRule.getNextHopIp());
                         uRoute.setPriority(inRule.getPriority());
-                        routeTable.getRouteEntities().add(route);
+                        // delete old route rule
+                        for (RouteEntry routeEntry : routeTable.getRouteEntities()) {
+                            if (routeEntry.getId().equals(route.getId())) {
+                                routeTable.getRouteEntities().remove(routeEntry);
+                                break;
+                            }
+                        }
                         routeTable.getRouteEntities().add(uRoute);
                     } else if (OperationType.DELETE.equals(inRule.getOperationType())) {
                         routeTable.getRouteEntities().remove(route);

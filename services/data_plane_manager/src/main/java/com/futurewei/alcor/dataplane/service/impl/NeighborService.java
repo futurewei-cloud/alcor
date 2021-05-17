@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
@@ -22,17 +24,23 @@ import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
+    @Autowired
+    private SubnetPortsCache subnetPortsCache;
+
     public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -142,6 +150,8 @@ public class NeighborService extends ResourceService {
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
 
+                    // add neighbor's subnet into goalstate
+                    buildSubnetStateforNeighbor(unicastGoalState, neighborInfo);
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }
@@ -167,5 +177,32 @@ public class NeighborService extends ResourceService {
                 neighborInfoSet.add(neighborInfo1);
             }
         }
+    }
+
+    private void buildSubnetStateforNeighbor(UnicastGoalState unicastGoalState, NeighborInfo neighborInfo) throws CacheException {
+        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(neighborInfo.getSubnetId());
+        Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+        subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+        subnetConfigBuilder.setId(subnetEntity.getSubnetId());
+        subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+        subnetConfigBuilder.setName(subnetEntity.getName());
+        subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+        subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+        Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+        gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+        gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+        subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+        if (subnetEntity.getDhcpEnable() != null) {
+            subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+        }
+
+        // TODO: need to set DNS based on latest contract
+
+        Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+        subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+        subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+        unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
     }
 }

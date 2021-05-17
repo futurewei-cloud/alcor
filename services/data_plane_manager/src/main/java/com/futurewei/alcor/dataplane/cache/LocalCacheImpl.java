@@ -24,7 +24,6 @@ import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +71,18 @@ public class LocalCacheImpl implements LocalCache {
 
                 InternalSubnetPorts subnetPorts = subnetPortsMap.get(subnetId);
                 if (subnetPorts == null) {
-                    SubnetEntity subnetEntity = getSubnetEntity(networkConfig, fixedIp.getSubnetId());
+                    InternalSubnetEntity subnetEntity = getSubnetEntity(networkConfig, fixedIp.getSubnetId());
+
                     subnetPorts = new InternalSubnetPorts();
                     subnetPorts.setSubnetId(subnetId);
                     subnetPorts.setGatewayPortMac(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
                     subnetPorts.setGatewayPortIp(subnetEntity.getGatewayIp());
                     subnetPorts.setGatewayPortId(subnetEntity.getGatewayPortDetail().getGatewayPortId());
+                    subnetPorts.setName(subnetEntity.getName());
+                    subnetPorts.setCidr(subnetEntity.getCidr());
+                    subnetPorts.setVpcId(subnetEntity.getVpcId());
+                    subnetPorts.setTunnelId(subnetEntity.getTunnelId());
+                    subnetPorts.setDhcpEnable(subnetEntity.getDhcpEnable());
                     subnetPorts.setPorts(new ArrayList<>());
 
                     subnetPortsMap.put(subnetId, subnetPorts);
@@ -92,13 +97,13 @@ public class LocalCacheImpl implements LocalCache {
         }
     }
 
-    private SubnetEntity getSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
+    private InternalSubnetEntity getSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
         List<InternalSubnetEntity> subnetEntities = networkConfig.getSubnets();
         if (subnetEntities == null) {
             throw new SubnetEntityNotFound();
         }
 
-        for (SubnetEntity subnetEntity: subnetEntities) {
+        for (InternalSubnetEntity subnetEntity: subnetEntities) {
             if (subnetId.equals(subnetEntity.getId())) {
                 return subnetEntity;
             }

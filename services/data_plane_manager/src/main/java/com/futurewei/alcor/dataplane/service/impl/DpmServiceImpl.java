@@ -409,13 +409,13 @@ public class DpmServiceImpl implements DpmService {
                     failedHosts.addAll(processPortConfiguration(networkConfig));
                     break;
                 case NEIGHBOR:
-                    failedHosts.addAll(processNeighborConfiguration(networkConfig));
+                    //failedHosts.addAll(processNeighborConfiguration(networkConfig));
                     break;
                 case SECURITYGROUP:
                     failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
                     break;
                 case ROUTER:
-                    failedHosts.addAll(processRouterConfiguration(networkConfig));
+                    //failedHosts.addAll(processRouterConfiguration(networkConfig));
                     break;
                 default:
                     throw new UnknownResourceType();
