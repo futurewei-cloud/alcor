@@ -383,7 +383,7 @@ public class pseudo_controller {
             }else{
                 cmd_result = execute_ssh_commands(cmd_list, aca_node_two_ip, user_name, password);
             }
-            String ovs_port_name = cmd_result.get(0);
+            String ovs_port_name = cmd_result.get(0).trim().replace("\n", "");
             // putting the port name as the port ip, because this port ip, which will be put into gs, will be used
             // by ACA as the port name, when it tries to set the port's vlan tag.
             System.out.println("Port ip: " + port_ip + " has ovs-port name: "+ cmd_result.get(0));
