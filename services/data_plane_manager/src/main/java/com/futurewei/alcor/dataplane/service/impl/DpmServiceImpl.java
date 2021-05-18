@@ -351,7 +351,7 @@ public class DpmServiceImpl implements DpmService {
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
                         }
 
-                        routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        routerService.buildRouterState(routerInfo, subnetRoutingTables, unicastGoalState, multicastGoalState);
                     }
                 }
             }
