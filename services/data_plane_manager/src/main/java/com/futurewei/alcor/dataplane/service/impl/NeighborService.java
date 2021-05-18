@@ -180,7 +180,14 @@ public class NeighborService extends ResourceService {
     }
 
     private void buildSubnetStateforNeighbor(UnicastGoalState unicastGoalState, NeighborInfo neighborInfo) throws CacheException {
+        if (neighborInfo == null) {
+            return;
+        }
+
         InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(neighborInfo.getSubnetId());
+        if (subnetEntity == null) {
+            return;
+        }
         Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
         subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         subnetConfigBuilder.setId(subnetEntity.getSubnetId());
