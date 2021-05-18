@@ -18,7 +18,9 @@ package com.futurewei.alcor.dataplane.client;
 import com.futurewei.alcor.schema.Subscribeinfoprovisioner;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public interface NodeSubscribeClient {
-    boolean sendSubscribeInfo(String nodeIp, Subscribeinfoprovisioner.NodeSubscribeInfo subscribeInfo) throws Exception;
+    Map<String, Subscribeinfoprovisioner.SubscribeOperationReply> asyncSendSubscribeInfos(Map<String, Subscribeinfoprovisioner.NodeSubscribeInfo> subscribeInfoMap) throws Exception;
 }

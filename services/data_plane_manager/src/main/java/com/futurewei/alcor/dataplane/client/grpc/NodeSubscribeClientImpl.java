@@ -21,11 +21,13 @@ import com.futurewei.alcor.schema.SubscribeInfoProvisionerGrpc;
 import com.futurewei.alcor.schema.Subscribeinfoprovisioner;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 public class NodeSubscribeClientImpl implements NodeSubscribeClient {
@@ -47,30 +49,53 @@ public class NodeSubscribeClientImpl implements NodeSubscribeClient {
     }
 
     @Override
-    public boolean sendSubscribeInfo(String nodeIp, Subscribeinfoprovisioner.NodeSubscribeInfo nodeSubscribeInfo) throws Exception {
+    public Map<String, Subscribeinfoprovisioner.SubscribeOperationReply> asyncSendSubscribeInfos(Map<String, Subscribeinfoprovisioner.NodeSubscribeInfo> subscribeInfoMap) throws Exception {
+        Map<String, Subscribeinfoprovisioner.SubscribeOperationReply> results = new HashMap<>();
 
-        ManagedChannel channel = newChannel(nodeIp, grpcPort);
-        SubscribeInfoProvisionerGrpc.SubscribeInfoProvisionerBlockingStub blockingStub =
-                SubscribeInfoProvisionerGrpc.newBlockingStub(channel);
+        CountDownLatch finished = new CountDownLatch(subscribeInfoMap.size());
 
-        Subscribeinfoprovisioner.SubscribeOperationReply reply = blockingStub.pushNodeSubscribeInfo(nodeSubscribeInfo);
-        boolean statues = reply.getIsSuccess();
+        for (Map.Entry<String, Subscribeinfoprovisioner.NodeSubscribeInfo> entry : subscribeInfoMap.entrySet()) {
+            asyncSendSubscribeInfo(entry.getKey(),
+                    entry.getValue(),
+                    new StreamObserver<Subscribeinfoprovisioner.SubscribeOperationReply>() {
+                        @Override
+                        public void onNext(Subscribeinfoprovisioner.SubscribeOperationReply subscribeOperationReply) {
+                            results.put(entry.getKey(), subscribeOperationReply);
+                        }
 
-        shutdown(channel);
-        return statues;
+                        @Override
+                        public void onError(Throwable throwable) {
+                            finished.countDown();
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            finished.countDown();
+                        }
+                    }
+            );
+        }
+
+        try {
+            finished.await(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private void asyncSendSubscribeInfo(String hostIp,
+                                        Subscribeinfoprovisioner.NodeSubscribeInfo nodeSubscribeInfo,
+                                        StreamObserver<Subscribeinfoprovisioner.SubscribeOperationReply> observer) {
+        ManagedChannel channel = newChannel(hostIp, grpcPort);
+        SubscribeInfoProvisionerGrpc.SubscribeInfoProvisionerStub asyncStub = SubscribeInfoProvisionerGrpc.newStub(channel).withExecutor(executor);
+        asyncStub.pushNodeSubscribeInfo(nodeSubscribeInfo, observer);
     }
 
     private ManagedChannel newChannel(String host, int port) {
         return ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
-    }
-
-    private void shutdown(ManagedChannel channel) {
-        try {
-            channel.shutdown().awaitTermination(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOG.warn("Timed out forcefully shutting down connection: {}", e.getMessage());
-        }
     }
 }

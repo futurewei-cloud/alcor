@@ -27,9 +27,15 @@ service SubscribeInfoProvisioner {
 
 }
 
+enum SubscribeOperation {
+  Subscribe = 0;
+  Unsubscribe = 1;
+}
+
 message NodeSubscribeInfo {
-  string topic = 1;
-  string key = 2;
+  SubscribeOperation subscribe_operation = 1;
+  string topic = 2;
+  string key = 3;
 }
 
 message SubscribeOperationReply {
