@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y \
     && echo '<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"><bean class="org.apache.ignite.configuration.IgniteConfiguration"> <property name="peerClassLoadingEnabled" value="true"/> </bean></beans>' > config.xml
 
 COPY ./target/common-0.1.0-SNAPSHOT.jar /code/apache-ignite-2.9.1-bin/libs/common-0.1.0-SNAPSHOT.jar
-COPY /home/users/ncm-ignite.sh /code/apache-ignite-2.8.1-bin/bin/ignite.sh
-COPY /home/users/ncm-config.xml  /code/apache-ignite-2.8.1-bin/bin/config.xml
+#COPY /home/users/ncm-ignite.sh /code/apache-ignite-2.8.1-bin/bin/ignite.sh
+#COPY /home/users/ncm-config.xml  /code/apache-ignite-2.8.1-bin/bin/config.xml
 
 ENTRYPOINT  /code/apache-ignite-2.9.1-bin/bin/ignite.sh /code/apache-ignite-2.9.1-bin/bin/config.xml
