@@ -191,7 +191,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-
+            Long start = System.currentTimeMillis();
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
             logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
             logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
@@ -253,6 +253,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                long end = System.currentTimeMillis();
+                logger.log(Level.INFO, "[requestGoalStates] From re, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
@@ -288,9 +290,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
             // Step 3: Send response to target ACAs
+            long end = System.currentTimeMillis();
+            logger.log(Level.INFO, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
-            logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",
+            logger.log(Level.INFO, "requestGoalStates : sent on-demand response to ACA | ",
                     reply.toString());
         }
     }

@@ -236,7 +236,10 @@ public class pseudo_controller {
         Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 size for PORT1: \n" + message_one.getSerializedSize() + "\n");
+
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 size for PORT2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
 
@@ -264,6 +267,7 @@ public class pseudo_controller {
         System.out.println("Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
+
         response_observer.onNext(message_one);
         response_observer.onNext(message_two);
 
@@ -366,29 +370,6 @@ public class pseudo_controller {
 
         System.out.println("DONE creating containers on both hosts");
 
-//        Vector<String> aca_node_one_query_port_name_commands = new Vector<>();
-//        Vector<String> aca_node_two_query_port_name_commands = new Vector<>();
-        // adding logic to get port names created by ovs-docker
-//        for( String port_ip : port_ip_to_host_ip_map.keySet()){
-//            String container_name_for_port_ip = port_ip_to_container_name.get(port_ip);
-//            String host_ip = port_ip_to_host_ip_map.get(port_ip);
-//            String query_ovs_port_name_cmd = "ovs-vsctl --data=bare --no-heading --columns=name find interface " +
-//                    "external_ids:container_id=" + container_name_for_port_ip + "\n" +
-//                    "external_ids:container_iface=" + default_container_port_interface_name;
-//            Vector<String> cmd_list = new Vector<String>();
-//            cmd_list.add(query_ovs_port_name_cmd);
-//            ArrayList<String> cmd_result;
-//            if(host_ip.equals(aca_node_one_ip)){
-//                cmd_result = execute_ssh_commands(cmd_list, aca_node_one_ip, user_name, password);
-//            }else{
-//                cmd_result = execute_ssh_commands(cmd_list, aca_node_two_ip, user_name, password);
-//            }
-//            String ovs_port_name = cmd_result.get(0);
-//            // putting the port name as the port ip, because this port ip, which will be put into gs, will be used
-//            // by ACA as the port name, when it tries to set the port's vlan tag.
-//            System.out.println("Port ip: " + port_ip + " has ovs-port name: "+ cmd_result.get(0));
-//            port_ip_to_id_map.put(port_ip, ovs_port_name);
-//        }
     }
 
 
