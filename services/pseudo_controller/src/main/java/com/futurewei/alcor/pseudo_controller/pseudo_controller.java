@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 
 public class pseudo_controller {
@@ -414,6 +415,8 @@ public class pseudo_controller {
 
                 InputStream in = channel.getInputStream();
                 channel.connect();
+                long start = System.currentTimeMillis();
+
                 byte[] tmp = new byte[1024];
                 while (true) {
                     while (in.available() > 0) {
@@ -428,7 +431,8 @@ public class pseudo_controller {
                         break;
                     }
                 }
-                System.out.println("End of executing command [" + command + "] on host: " + host_ip);
+                long end = System.currentTimeMillis();
+                System.out.println("End of executing command [" + command + "] on host: " + host_ip +  ", to took " + (end-start) + " milliseconds");
                 channel.disconnect();
             }
 
