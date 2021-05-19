@@ -377,7 +377,7 @@ public class pseudo_controller {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 aca_node_two_create_container_commands.add(create_container_cmd);
-                aca_node_one_create_container_commands.add(ovs_docker_add_port_cmd);
+                aca_node_two_create_container_commands.add(ovs_docker_add_port_cmd);
                 aca_node_two_ovs_docker_commands.add(ovs_set_vlan_cmd);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
                 background_pingee = port_ip;
