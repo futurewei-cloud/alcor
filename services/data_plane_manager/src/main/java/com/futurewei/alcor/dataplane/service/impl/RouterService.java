@@ -51,38 +51,37 @@ public class RouterService extends ResourceService {
         }
     }
 
-    public void buildRouterState(InternalRouterInfo routerInfo, List<InternalSubnetRoutingTable> subnetRoutingTables, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) {
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-        for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
-            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-            String subnetId = subnetRoutingTable.getSubnetId();
-            subnetRoutingTableBuilder.setSubnetId(subnetId);
-            List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
-            if (routingRules == null || routingRules.size() == 0) {
-                return;
-            }
-
-            for (InternalRoutingRule routingRule : routingRules) {
-                Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
-                routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
-                routingRuleBuilder.setId(routingRule.getId());
-                routingRuleBuilder.setName(routingRule.getName());
-                routingRuleBuilder.setDestination(routingRule.getDestination());
-                routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-                routingRuleBuilder.setPriority(routingRule.getPriority());
-
-                if (routingRule.getRoutingRuleExtraInfo() != null) {
-                    Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-                    extraInfoBuilder.setDestinationType(getDestinationType(
-                            routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                    extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
-                    routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
-                }
-                subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
-            }
-            //List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-            subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
+    public void buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) {
+        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+        String subnetId = subnetRoutingTable.getSubnetId();
+        subnetRoutingTableBuilder.setSubnetId(subnetId);
+        List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
+        if (routingRules == null || routingRules.size() == 0) {
+            return;
         }
+
+        for (InternalRoutingRule routingRule: routingRules) {
+            Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
+            routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+            routingRuleBuilder.setId(routingRule.getId());
+            routingRuleBuilder.setName(routingRule.getName());
+            routingRuleBuilder.setDestination(routingRule.getDestination());
+            routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
+            routingRuleBuilder.setPriority(routingRule.getPriority());
+
+            if (routingRule.getRoutingRuleExtraInfo() != null) {
+                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+                extraInfoBuilder.setDestinationType(getDestinationType(
+                        routingRule.getRoutingRuleExtraInfo().getDestinationType()));
+                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+            }
+
+            subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
+        }
+
+        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
         Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
         List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
@@ -133,17 +132,16 @@ public class RouterService extends ResourceService {
             for (InternalRouterInfo routerInfo : internalRouterInfos) {
                 List<InternalSubnetRoutingTable> subnetRoutingTables =
                         routerInfo.getRouterConfiguration().getSubnetRoutingTables();
-                buildRouterState(routerInfo, subnetRoutingTables, unicastGoalState, multicastGoalState);
-//                if (subnetRoutingTables == null) {
-//                    continue;
-//                }
-//
-//                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
-//                    if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
-//                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
-//                        break;
-//                    }
-//                }
+                if (subnetRoutingTables == null) {
+                    continue;
+                }
+
+                for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
+                    if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
+                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        break;
+                    }
+                }
             }
         }
     }

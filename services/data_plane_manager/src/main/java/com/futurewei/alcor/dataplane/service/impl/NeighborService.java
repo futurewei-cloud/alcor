@@ -21,10 +21,7 @@ import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
-import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.schema.Neighbor;
-import com.futurewei.alcor.schema.Port;
-import com.futurewei.alcor.schema.Subnet;
+import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -151,7 +148,7 @@ public class NeighborService extends ResourceService {
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
 
                     // add neighbor's subnet into goalstate
-                    buildSubnetStateforNeighbor(unicastGoalState, neighborInfo);
+                    buildSubnetStateforNeighbor(unicastGoalState, neighborInfo, multicastGoalState);
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }
@@ -179,7 +176,7 @@ public class NeighborService extends ResourceService {
         }
     }
 
-    private void buildSubnetStateforNeighbor(UnicastGoalState unicastGoalState, NeighborInfo neighborInfo) throws CacheException {
+    private void buildSubnetStateforNeighbor(UnicastGoalState unicastGoalState, NeighborInfo neighborInfo, MulticastGoalState multicastGoalState) throws CacheException {
         if (neighborInfo == null) {
             return;
         }
@@ -211,5 +208,33 @@ public class NeighborService extends ResourceService {
         subnetStateBuilder.setOperationType(Common.OperationType.INFO);
         subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
         unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+        multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+
+        // Add subnet to router_state
+        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+        String subnetId = subnetEntity.getSubnetId();
+        subnetRoutingTableBuilder.setSubnetId(subnetId);
+
+        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
+
+        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+//        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
+//        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+//            subnetRoutingTablesList.addAll(goalStateBuilder.
+//                    getRouterStatesBuilder(0).
+//                    getConfiguration().
+//                    getSubnetRoutingTablesList());
+//            goalStateBuilder.removeRouterStates(0);
+//        }
+
+        Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
+        routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
+        routerConfigBuilder.setId(subnetEntity.getRouterId());
+        routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
+        Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
+        routerStateBuilder.setConfiguration(routerConfigBuilder.build());
+        unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
     }
 }

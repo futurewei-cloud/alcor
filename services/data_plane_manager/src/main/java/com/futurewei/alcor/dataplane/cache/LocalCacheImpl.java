@@ -23,6 +23,8 @@ import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,22 @@ public class LocalCacheImpl implements LocalCache {
                     subnetPorts.setTunnelId(subnetEntity.getTunnelId());
                     subnetPorts.setDhcpEnable(subnetEntity.getDhcpEnable());
                     subnetPorts.setPorts(new ArrayList<>());
+
+                    List<InternalRouterInfo> routers = networkConfig.getInternalRouterInfos();
+                    if (routers.size() > 0) {
+                        String router_id = "";
+                        for (InternalRouterInfo router : routers) {
+                            List<InternalSubnetRoutingTable> subnetRoutingTables = router.getRouterConfiguration().getSubnetRoutingTables();
+                            for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
+                                if (subnetRoutingTable.getSubnetId().equals(subnetId)) {
+                                    router_id = router.getRouterConfiguration().getId();
+                                    subnetPorts.setRouterId(router_id);
+                                    break;
+                                }
+                            }
+                            if (!router_id.equals("")) break;
+                        }
+                    }
 
                     subnetPortsMap.put(subnetId, subnetPorts);
                 }

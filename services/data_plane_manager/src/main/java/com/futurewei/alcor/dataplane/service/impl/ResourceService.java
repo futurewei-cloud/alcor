@@ -19,6 +19,7 @@ import com.futurewei.alcor.schema.Common.OperationType;
 
 public class ResourceService {
     protected static final int FORMAT_REVISION_NUMBER = 1;
+    protected static final String HOST_DVR_MAC = "fe:16:11:00:00:00";
 
     protected OperationType getOperationType(com.futurewei.alcor.common.enumClass.OperationType operationType) {
         switch (operationType) {
