@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public interface NodeSubscribeClient {
     Map<String, Subscribeinfoprovisioner.SubscribeOperationReply> asyncSendSubscribeInfos(Map<String, Subscribeinfoprovisioner.NodeSubscribeInfo> subscribeInfoMap) throws Exception;
 }
