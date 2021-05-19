@@ -150,11 +150,12 @@ public class LocalCacheImpl implements LocalCache {
         OperationType opType = networkConfig.getOpType();
         switch (opType) {
             case CREATE:
+            case UPDATE:
                 addSubnetPorts(networkConfig);
                 break;
-            case UPDATE:
-                updateSubnetPorts(networkConfig);
-                break;
+//            case UPDATE:
+//                updateSubnetPorts(networkConfig);
+//                break;
             case DELETE:
                 deleteSubnetPorts(networkConfig);
                 break;
