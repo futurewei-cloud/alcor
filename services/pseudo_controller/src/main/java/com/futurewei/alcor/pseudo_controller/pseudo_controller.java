@@ -43,7 +43,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 
 public class pseudo_controller {
@@ -63,15 +62,21 @@ public class pseudo_controller {
     static String mac_port_prefix = "6c:dd:ee:";
     static String project_id = "alcor_testing_project";
     static String default_container_port_interface_name = "eth0";
+    static long backgroupd_ping_start_time = 0;
+    static long backgroupd_ping_end_time = 0;
     static SortedMap<String, String> ip_mac_map = new TreeMap<>();
-    static Vector<String> aca_node_one_commands = new Vector<>();
-    static Vector<String> aca_node_two_commands = new Vector<>();
+    static Vector<String> aca_node_one_create_container_commands = new Vector<>();
+    static Vector<String> aca_node_two_create_container_commands = new Vector<>();
+    static Vector<String> aca_node_one_ovs_docker_commands = new Vector<>();
+    static Vector<String> aca_node_two_ovs_docker_commands = new Vector<>();
+
     static SortedMap<String, String> port_ip_to_host_ip_map = new TreeMap<>();
     static SortedMap<String, String> port_ip_to_id_map = new TreeMap<>();   // the id of the port should also be the ovs port name of the port, otherwise ACA will run incorrectly.
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
 //    static SortedMap<String, String> port_ip_to_ovs_port_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
+    static ExecutorService taskExecutor = Executors.newFixedThreadPool(1);
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
@@ -275,9 +280,9 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
-        System.out.println("Sleep 1 second first");
+        System.out.println("Sleep 20 second first");
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(20);
 
         } catch (Exception e) {
             System.out.println("I can't sleep!!!!");
@@ -318,6 +323,17 @@ public class pseudo_controller {
 
         System.out.println("End of the test controller");
         channel.shutdown();
+        System.out.println("Calling shutdown");
+        taskExecutor.shutdown();
+
+
+        try{
+            taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }catch (InterruptedException e){
+            backgroupd_ping_end_time = System.currentTimeMillis();
+            System.out.println("Executor interrupted: "+ e.getMessage() + " time interval in milliseconds: " + (backgroupd_ping_end_time - backgroupd_ping_start_time));
+        }
+
         try {
             TimeUnit.SECONDS.sleep(10);
 
@@ -337,11 +353,14 @@ public class pseudo_controller {
     private static void create_containers_on_both_hosts() {
         System.out.println("Creating containers on both hosts");
         int i = 1;
+        String background_pinger="";
+        String background_pingee = "";
         for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
             String container_name = "test" + Integer.toString(i);
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
+            // start time
             String ovs_docker_add_port_cmd = "ovs-docker add-port br-int " + default_container_port_interface_name + " " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
             String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int " + default_container_port_interface_name + " " + container_name + " 1";
 
@@ -349,28 +368,39 @@ public class pseudo_controller {
             if (ip_last_octet % 2 != 0) {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
-                aca_node_one_commands.add(create_container_cmd);
-                aca_node_one_commands.add(ovs_docker_add_port_cmd);
-                aca_node_one_commands.add(ovs_set_vlan_cmd);
+                aca_node_one_create_container_commands.add(create_container_cmd);
+                aca_node_one_create_container_commands.add(ovs_docker_add_port_cmd);
+                aca_node_one_ovs_docker_commands.add(ovs_set_vlan_cmd);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
+                background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
-                aca_node_two_commands.add(create_container_cmd);
-                aca_node_two_commands.add(ovs_docker_add_port_cmd);
-                aca_node_two_commands.add(ovs_set_vlan_cmd);
+                aca_node_two_create_container_commands.add(create_container_cmd);
+                aca_node_one_create_container_commands.add(ovs_docker_add_port_cmd);
+                aca_node_two_ovs_docker_commands.add(ovs_set_vlan_cmd);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
+                background_pingee = port_ip;
             }
             i++;
         }
-        aca_node_one_commands.add(docker_ps_cmd);
-        aca_node_two_commands.add(docker_ps_cmd);
+        aca_node_one_create_container_commands.add(docker_ps_cmd);
+        aca_node_two_create_container_commands.add(docker_ps_cmd);
 
-        execute_ssh_commands(aca_node_one_commands, aca_node_one_ip, user_name, password);
-        execute_ssh_commands(aca_node_two_commands, aca_node_two_ip, user_name, password);
+        execute_ssh_commands(aca_node_one_create_container_commands, aca_node_one_ip, user_name, password);
+        execute_ssh_commands(aca_node_two_create_container_commands, aca_node_two_ip, user_name, password);
+        backgroupd_ping_start_time = System.currentTimeMillis();;
+        System.out.println("DONE creating containers on both hosts, need to start the background pings now.");
+        // start the background thread here doing the ping from 1 port to another, util the ping is successful.
+        // it pings every 0.001 second, or 1 millisecond
+        String background_ping_command = "ping -I " + background_pinger + " -i  0.001 " + background_pingee ;
+        System.out.println("Created background ping cmd: " + background_ping_command);
+        concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
+        taskExecutor.execute(c);
 
-        System.out.println("DONE creating containers on both hosts");
-
+        // After the ping thread was started, execute the other commands, and then keep the Test Controller going
+        execute_ssh_commands(aca_node_one_ovs_docker_commands, aca_node_one_ip, user_name, password);
+        execute_ssh_commands(aca_node_two_ovs_docker_commands, aca_node_two_ip, user_name, password);
     }
 
 
