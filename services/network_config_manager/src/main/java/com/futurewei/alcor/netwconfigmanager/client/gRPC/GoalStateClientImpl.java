@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager.client.gRPC;
 
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
@@ -63,6 +64,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
     @Override
+    @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
         List<Future<HostGoalState>>
                 futures = new ArrayList<>(hostGoalStates.size());

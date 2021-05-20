@@ -57,6 +57,7 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         try {
             this.cache = ignite.getOrCreateCache(name);
         } catch (javax.cache.CacheException e) {
+            this.cache = ignite.getOrCreateCache(name);
             logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
         } catch (Exception e) {
             logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());

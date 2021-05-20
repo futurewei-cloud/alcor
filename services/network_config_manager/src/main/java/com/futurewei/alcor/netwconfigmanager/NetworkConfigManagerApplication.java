@@ -17,23 +17,35 @@ package com.futurewei.alcor.netwconfigmanager;
 
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
 import com.futurewei.alcor.netwconfigmanager.server.grpc.GoalStateProvisionerServer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @SpringBootApplication
+@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.server")
 @EnableAsync
 public class NetworkConfigManagerApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(NetworkConfigManagerApplication.class, args);
+    @Autowired
+    private NetworkConfigServer networkConfigServer;
 
-        NetworkConfigServer networkConfigServer = new GoalStateProvisionerServer();
+    @PostConstruct
+    public void instantiateGrpcServer(){
         try {
             networkConfigServer.start();
             networkConfigServer.blockUntilShutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(NetworkConfigManagerApplication.class, args);
     }
 }

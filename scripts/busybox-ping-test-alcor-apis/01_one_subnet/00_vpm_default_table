@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Using vpc_manager (port 9001) create a default segment table for admin purposes
+curl -X POST -H "Content-Type: application/json" -H "Accept: */*" "http://localhost:9001/segments/createDefaultTable"
+
+# Using vpc_manager (port 9001), create a VPC
+# project ID: 3dda2801-d675-4688-a63f-dcda8d327f50
+# ID: 9192a4d4-ffff-4ece-b3f0-8d36e3d88001 (possibly network ID)
+curl -X POST --header "Content-Type: application/json" --header "Accept: */*" -d '{
+  "network": {
+    "admin_state_up": true,
+    "revision_number": 0,
+    "cidr": "10.0.0.0/16",
+    "default": true,
+    "description": "vpc",
+    "dns_domain": "domain",
+    "id": "9192a4d4-ffff-4ece-b3f0-8d36e3d88001",
+    "is_default": true,
+    "mtu": 1400,
+    "name": "sample_vpc",
+    "port_security_enabled": true,
+    "project_id": "3dda2801-d675-4688-a63f-dcda8d327f50"
+  }
+}' "http://localhost:9001/project/3dda2801-d675-4688-a63f-dcda8d327f50/vpcs"
+# Make sure to remember the cidr ID and Project ID. They will be used in creation of subnet and port.
+

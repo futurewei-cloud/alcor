@@ -1,0 +1,54 @@
+[vpc]
+vpc_id     : 9192a4d4-ffff-4ece-b3f0-8d36e3d88001
+project_id : 3dda2801-d675-4688-a63f-dcda8d327f50
+
+[node]
+node1 name : node1
+node_id    : 1112a4d4-ffff-4ece-b3f0-8d36e3d85001
+mac        : 02:83:7b:8c:a9:ab
+ip         : 172.31.22.156
+
+node2 name : node2
+node_id    : 1112a4d4-ffff-4ece-b3f0-8d36e3d85002
+mac        : 02:af:53:e2:70:1d
+ip         : 172.31.31.42
+
+[subnet]
+subnet name : subnet1
+subnet id: 8182a4d4-ffff-4ece-b3f0-8d36e3d88001
+cidr: 10.0.0.0/16
+destination: 10.0.2.0/24
+nexthop: 10.0.1.1
+network_id : 9192a4d4-ffff-4ece-b3f0-8d36e3d88001
+project_id : 3dda2801-d675-4688-a63f-dcda8d327f50
+
+[security group]
+sg id      : 3dda2801-d675-4688-a63f-dcda8d111111
+name       : sg1
+tenant_id  : 3dda2801-d675-4688-a63f-dcda8d327f50
+project id : 3dda2801-d675-4688-a63f-dcda8d327f50
+
+[ports]
+host_id    : node1
+device_id  : 8182a4d4-ffff-4ece-b3f0-8d36e3d00001
+subnet_id  : 8182a4d4-ffff-4ece-b3f0-8d36e3d88001
+ip_address : 10.0.1.101
+port id    : 7172a4d4-ffff-4ede-b3ml0-8d36e3d00101
+name       : port101
+network_id : 9192a4d4-ffff-4ece-b3f0-8d36e3d88001
+sg id      : 3dda2801-d675-4688-a63f-dcda8d111111
+tenant_id  : 3dda2801-d675-4688-a63f-dcda8d327f50
+project_id : 3dda2801-d675-4688-a63f-dcda8d327f50
+
+host_id    : node2
+device_id  : 8182a4d4-ffff-4ece-b3f0-8d36e3d00002
+subnet_id  : 8182a4d4-ffff-4ece-b3f0-8d36e3d88001
+ip_address : 10.0.1.102
+port id    : 7172a4d4-ffff-4ede-b3ml0-8d36e3d00102
+name       : port102
+network_id : 9192a4d4-ffff-4ece-b3f0-8d36e3d88001
+sg id      : 3dda2801-d675-4688-a63f-dcda8d111111
+tenant_id  : 3dda2801-d675-4688-a63f-dcda8d327f50
+project_id : 3dda2801-d675-4688-a63f-dcda8d327f50
+
+
