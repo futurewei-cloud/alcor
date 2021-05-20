@@ -335,7 +335,7 @@ public class pseudo_controller {
         }
 
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(20);
 
         } catch (Exception e) {
             System.out.println("I can't sleep!!!!");
@@ -392,9 +392,9 @@ public class pseudo_controller {
         backgroupd_ping_start_time = System.currentTimeMillis();;
         System.out.println("DONE creating containers on both hosts, need to start the background pings now.");
         // start the background thread here doing the ping from 1 port to another, util the ping is successful.
-        // it pings every 0.001 second, or 1 millisecond
-        String background_ping_command = "docker exec "+port_ip_to_container_name.get(background_pinger)+" ping -I " + background_pinger + " -i  0.001 " + background_pingee ;
-        System.out.println("Created background ping cmd: " + background_ping_command);
+        // it pings every 0.001 second, or 1 millisecond, for 60 seconds
+        String background_ping_command = "docker exec "+port_ip_to_container_name.get(background_pinger)+" ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee ;
+        System.out.println("Created background ping cmd: " + background_ping_command + " > /home/user/output.log");
         concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
         taskExecutor.execute(c);
 
