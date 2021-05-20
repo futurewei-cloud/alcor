@@ -88,7 +88,7 @@ public class LocalCacheImpl implements LocalCache {
                     subnetPorts.setPorts(new ArrayList<>());
 
                     List<InternalRouterInfo> routers = networkConfig.getInternalRouterInfos();
-                    if (routers.size() > 0) {
+                    if (routers != null && routers.size() > 0) {
                         String router_id = "";
                         for (InternalRouterInfo router : routers) {
                             List<InternalSubnetRoutingTable> subnetRoutingTables = router.getRouterConfiguration().getSubnetRoutingTables();
