@@ -148,7 +148,7 @@ public class NeighborService extends ResourceService {
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
 
                     // add neighbor's subnet into goalstate
-                    buildSubnetStateforNeighbor(unicastGoalState, neighborInfo, multicastGoalState);
+                    //buildSubnetStateforNeighbor(unicastGoalState, neighborInfo, multicastGoalState);
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }
