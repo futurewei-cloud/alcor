@@ -1,8 +1,6 @@
-== Transactions in Alcor
+= Transactions in Alcor
 Prasad Kommoju <pkommoju@futurewei.com>
-
 v.01, 2021-05-05
-
 :toc: right
 
 == Overview
@@ -41,7 +39,7 @@ When a cache is modified in some way and some other condition fails because of e
 === Multicache operations
 Some operations may require modifying more than one cache at the same time and in atomic manner. If a later cache operation fails, all of the previously successful cache operations will have to be reverted. Ignite requires that all caches under a transaction have the same transactional mode, either all are ATOMIC, or all are TRANSACTIONAL. Trying to mix operations on multiple caches having multiple atomicity modes will result in an exception.
 
-=== Multi microservice operations 
+=== Multi microservice operations
 Each micro service has its own data store and works independently of others but in a coordinated manner. When an operation involves atomic modification of caches owned by more than microservice, one failed operation will have to revert previously successful cache operations.
 
 === Reading a snapshot view of cache(s)
@@ -81,10 +79,10 @@ CACHE_NAME should match the name passed to getCache() method of the cache factor
 
 If CacheClass.class is passed as the name, then value property should be set to the canonical name of that class. For instance, creating a cache with getCache(PortEntity.class) will requires the value to be set to "com.futurewei.alcor.web.entity.port.PortEntity".
 
-If more than one cache is instantiated as in ICache<KType, VType> and getCache called with VType.class, all of them will be known to Ignite by the same name and represent the same physical cache store. If this is not the desired behavior, then different caches of VType instantiations should use a different name in getCache(). 
+If more than one cache is instantiated as in ICache<KType, VType> and getCache called with VType.class, all of them will be known to Ignite by the same name and represent the same physical cache store. If this is not the desired behavior, then different caches of VType instantiations should use a different name in getCache().
 
 === Basing the cache on a specific kind of base class
-This is not supported at the time at a finer granularity. The reason is that Ignite does not seem to allow changing the atomicity of a cache after it has been created.
+This is not supported at the time at a finer granularity. The reason is that Ignite does not allow changing the atomicity of a cache after it has been created.
 
 Regardless of which of the two methods is followed, if the given cache is housed in a class by it self, or along with one or more other caches, the following guidelines apply. In the first case, it is optional but in the second case it is strongly recommended.
 
@@ -99,22 +97,23 @@ This purpose of this guidelines is to minimize code changes outside the class ho
 ==== Illustration:
 ----
 public class MyCache {
-	private ICache<Ktype, Vtype>	myCache;
-	private CacheFactory	 	cacheFactory;
+   private ICache<Ktype, Vtype> myCache;
+   private CacheFactory     cacheFactory;
 
-	@Autowired
-       public MyCache(CacheFactory cacheFactory) {
-		this.cacheFactory = cacheFactory;
-		this.myCache = cacheFactory.getCache(Vtype.class);
-        }
-        
-        ...
+   @Autowired
+   public MyCache(CacheFactory cacheFactory) {
+      this.cacheFactory = cacheFactory;
+      this.myCache = cacheFactory.getCache(Vtype.class);
+}
 
-        public Transaction getTransaction() {
-        	return cacheFactory.getTransaction();
-        }
-        
-        ...
+...
+
+public Transaction getTransaction() {
+   return cacheFactory.getTransaction();
+}
+
+...
+
 }
 ----
 
