@@ -96,6 +96,10 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl delete services eipmanager-service
   kubectl delete deployment eipmanager
 
+  kubectl delete configmap ncm-configmap
+  kubectl delete services netwconfigmanager-service
+  kubectl delete deployment netwconfigmanager
+
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Install prerequisites in Mac OSX"
