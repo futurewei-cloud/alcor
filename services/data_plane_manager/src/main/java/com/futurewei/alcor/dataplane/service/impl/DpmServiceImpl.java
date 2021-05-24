@@ -197,32 +197,6 @@ public class DpmServiceImpl implements DpmService {
                             Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
                             routerStateBuilder.setConfiguration(routerConfigBuilder.build());
                             unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
-
-//                            String routerId = null;
-//                            List<InternalRouterInfo> routerInfos = networkConfig.getInternalRouterInfos();
-//                            for (InternalRouterInfo routerInfo : routerInfos) {
-//                                List<InternalSubnetRoutingTable> routingTables = routerInfo.getRouterConfiguration().getSubnetRoutingTables();
-//                                for (InternalSubnetRoutingTable routingTable : routingTables) {
-//                                    if (routingTable != null && routingTable.getSubnetId().equals(subnetId)) {
-//                                        routerId = routerInfo.getRouterConfiguration().getId();
-//                                        break;
-//                                    }
-//                                }
-//                                if (routerId != null) break;
-//                            }
-//
-//                            if (routerId != null) {
-//                                Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-//                                subnetRoutingTableBuilder.setSubnetId(subnetId);
-//                                String finalRouterId = routerId;
-//                                Router.RouterState router = unicastGoalState.getGoalStateBuilder().getRouterStatesList()
-//                                        .stream()
-//                                        .filter(e -> e.getConfiguration().getId().equals(finalRouterId))
-//                                        .findFirst()
-//                                        .orElse(null);
-//                                assert router != null;
-//                                router.toBuilder().getConfigurationBuilder().addSubnetRoutingTables(subnetRoutingTableBuilder);
-//                            }
                         }
                     }
                 }
@@ -506,31 +480,23 @@ public class DpmServiceImpl implements DpmService {
     private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts = new ArrayList<>();
-        List<ResourceOperation> rsopTypes = networkConfig.getRsOpTypes();
 
-//        for (ResourceOperation rsopType : rsopTypes) {
-//            switch (rsopType.getRsType()) {
-            switch(networkConfig.getRsType()) {
-                case PORT:
-                    //failedHosts.addAll(processPortConfiguration(networkConfig));
-                    failedHosts = processPortConfiguration(networkConfig);
-                    break;
-                case NEIGHBOR:
-                    //failedHosts.addAll(processNeighborConfiguration(networkConfig));
-                    failedHosts = processNeighborConfiguration(networkConfig);
-                    break;
-                case SECURITYGROUP:
-                    //failedHosts.addAll(processSecurityGroupConfiguration(networkConfig));
-                    failedHosts = processSecurityGroupConfiguration(networkConfig);
-                    break;
-                case ROUTER:
-                    //failedHosts.addAll(processRouterConfiguration(networkConfig));
-                    failedHosts = processRouterConfiguration(networkConfig);
-                    break;
-                default:
-                    throw new UnknownResourceType();
-            }
-//        }
+        switch(networkConfig.getRsType()) {
+            case PORT:
+                failedHosts = processPortConfiguration(networkConfig);
+                break;
+            case NEIGHBOR:
+                failedHosts = processNeighborConfiguration(networkConfig);
+                break;
+            case SECURITYGROUP:
+                failedHosts = processSecurityGroupConfiguration(networkConfig);
+                break;
+            case ROUTER:
+                failedHosts = processRouterConfiguration(networkConfig);
+                break;
+            default:
+                throw new UnknownResourceType();
+        }
         return buildResult(networkConfig, failedHosts, startTime);
     }
 

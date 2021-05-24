@@ -146,9 +146,6 @@ public class NeighborService extends ResourceService {
 
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
-
-                    // add neighbor's subnet into goalstate
-                    //buildSubnetStateforNeighbor(unicastGoalState, neighborInfo, multicastGoalState);
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }
@@ -174,71 +171,5 @@ public class NeighborService extends ResourceService {
                 neighborInfoSet.add(neighborInfo1);
             }
         }
-    }
-
-    private void buildSubnetStateforNeighbor(UnicastGoalState unicastGoalState, NeighborInfo neighborInfo, MulticastGoalState multicastGoalState) throws CacheException {
-        if (neighborInfo == null) {
-            return;
-        }
-
-        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(neighborInfo.getSubnetId());
-        if (subnetEntity == null) {
-            return;
-        }
-
-        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
-                .findFirst().orElse(null) == null) {
-            Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
-            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-            subnetConfigBuilder.setId(subnetEntity.getSubnetId());
-            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
-            subnetConfigBuilder.setName(subnetEntity.getName());
-            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
-            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
-
-            Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
-            gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
-            subnetConfigBuilder.setGateway(gatewayBuilder.build());
-
-            if (subnetEntity.getDhcpEnable() != null) {
-                subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
-            }
-
-            // TODO: need to set DNS based on latest contract
-
-            Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
-            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
-            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
-            multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
-        }
-        // Add subnet to router_state
-        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-        String subnetId = subnetEntity.getSubnetId();
-        subnetRoutingTableBuilder.setSubnetId(subnetId);
-
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-        subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
-
-        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-//        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-//        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-//            subnetRoutingTablesList.addAll(goalStateBuilder.
-//                    getRouterStatesBuilder(0).
-//                    getConfiguration().
-//                    getSubnetRoutingTablesList());
-//            goalStateBuilder.removeRouterStates(0);
-//        }
-
-        Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
-        routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
-        routerConfigBuilder.setId(subnetEntity.getRouterId());
-        routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
-        Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
-        routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-        unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
     }
 }
