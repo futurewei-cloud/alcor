@@ -274,8 +274,13 @@ public class pseudo_controller {
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
 
+        long first_gs_transfer_start_time = System.currentTimeMillis();
         response_observer.onNext(message_one);
+        long first_gs_transfer_end_time = System.currentTimeMillis();
+        System.out.println("Transfering first GS to NCM to took " + (first_gs_transfer_start_time-first_gs_transfer_end_time) + " milliseconds");
         response_observer.onNext(message_two);
+        long second_gs_transfer_end_time = System.currentTimeMillis();
+        System.out.println("Transfering second GS to NCM to took " + (first_gs_transfer_end_time-second_gs_transfer_end_time) + " milliseconds");
 
         System.out.println("After calling onNext");
         response_observer.onCompleted();

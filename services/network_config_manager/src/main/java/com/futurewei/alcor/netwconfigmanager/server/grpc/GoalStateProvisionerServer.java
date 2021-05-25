@@ -294,8 +294,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.INFO, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
+            long end1 = System.currentTimeMillis();
             logger.log(Level.INFO, "requestGoalStates : sent on-demand response to ACA | ",
-                    reply.toString());
+                    reply.toString() + " took " + (end1-end) + " milliseconds");
         }
     }
 }
