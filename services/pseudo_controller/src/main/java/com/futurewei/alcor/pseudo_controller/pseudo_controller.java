@@ -277,10 +277,10 @@ public class pseudo_controller {
         long first_gs_transfer_start_time = System.currentTimeMillis();
         response_observer.onNext(message_one);
         long first_gs_transfer_end_time = System.currentTimeMillis();
-        System.out.println("Transfering first GS to NCM to took " + (first_gs_transfer_start_time-first_gs_transfer_end_time) + " milliseconds");
+        System.out.println("Transferring first GS to NCM to took " + (first_gs_transfer_end_time-first_gs_transfer_start_time) + " milliseconds");
         response_observer.onNext(message_two);
         long second_gs_transfer_end_time = System.currentTimeMillis();
-        System.out.println("Transfering second GS to NCM to took " + (first_gs_transfer_end_time-second_gs_transfer_end_time) + " milliseconds");
+        System.out.println("Transferring second GS to NCM to took " + (second_gs_transfer_end_time-first_gs_transfer_end_time) + " milliseconds");
 
         System.out.println("After calling onNext");
         response_observer.onCompleted();
@@ -398,8 +398,8 @@ public class pseudo_controller {
         System.out.println("DONE creating containers on both hosts, need to start the background pings now.");
         // start the background thread here doing the ping from 1 port to another, util the ping is successful.
         // it pings every 0.001 second, or 1 millisecond, for 60 seconds
-        String background_ping_command = "docker exec "+port_ip_to_container_name.get(background_pinger)+" ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee ;
-        System.out.println("Created background ping cmd: " + background_ping_command + " > /home/user/output.log");
+        String background_ping_command = "docker exec "+port_ip_to_container_name.get(background_pinger)+" ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/output.log";
+        System.out.println("Created background ping cmd: " + background_ping_command );
         concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
         taskExecutor.execute(c);
 

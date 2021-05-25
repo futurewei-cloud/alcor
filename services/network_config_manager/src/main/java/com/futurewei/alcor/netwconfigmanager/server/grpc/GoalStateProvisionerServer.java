@@ -254,7 +254,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
                 long end = System.currentTimeMillis();
-                logger.log(Level.INFO, "[requestGoalStates] From re, elapsed Time in milli seconds: "+ (end-start));
+                logger.log(Level.INFO, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
