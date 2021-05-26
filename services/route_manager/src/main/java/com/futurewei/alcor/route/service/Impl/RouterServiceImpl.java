@@ -290,23 +290,15 @@ public class RouterServiceImpl implements RouterService {
 
         for (InternalRoutingRule inRule : inRoutetable.getRoutingRules()) {
             if (OperationType.CREATE.equals(inRule.getOperationType())) {
-                RouteEntry newRoute = new RouteEntry();
-                newRoute.setId(inRule.getId());
-                newRoute.setName(inRule.getName());
-                newRoute.setDestination(inRule.getDestination());
-                newRoute.setNexthop(inRule.getNextHopIp());
-                newRoute.setPriority(inRule.getPriority());
+                RouteEntry newRoute = new RouteEntry(projectId, inRule.getId(), inRule.getName(), null,
+                        inRule.getDestination(), null, inRule.getPriority(), null, inRule.getNextHopIp());
                 routeTable.getRouteEntities().add(newRoute);
             } else {
                 RouteEntry route = routeTable.getRouteEntities().stream().filter(e -> e.getId().equals(inRule.getId())).findFirst().orElse(null);
                 if (route != null) {
                     if (OperationType.UPDATE.equals(inRule.getOperationType())) {
-                        RouteEntry uRoute = new RouteEntry();
-                        uRoute.setId(route.getId());
-                        uRoute.setName(inRule.getName());
-                        uRoute.setDestination(inRule.getDestination());
-                        uRoute.setNexthop(inRule.getNextHopIp());
-                        uRoute.setPriority(inRule.getPriority());
+                        RouteEntry uRoute = new RouteEntry(projectId, route.getId(), inRule.getName(), null,
+                                inRule.getDestination(), null, inRule.getPriority(), null, inRule.getNextHopIp());
                         // delete old route rule
                         for (RouteEntry routeEntry : routeTable.getRouteEntities()) {
                             if (routeEntry.getId().equals(route.getId())) {

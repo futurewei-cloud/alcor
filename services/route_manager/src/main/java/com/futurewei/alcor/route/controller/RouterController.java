@@ -368,23 +368,11 @@ public class RouterController {
             List<RouteEntry> routeEntities = routeTable.getRouteEntities();
             List<RouteEntry> routes = new ArrayList<>();
             for (RouteEntry routeEntry : routeEntities) {
-                RouteEntry newRoute = new RouteEntry();
                 String uuid = UUID.randomUUID().toString();
-                newRoute.setId(uuid);
-                newRoute.setDestination(routeEntry.getDestination());
-                newRoute.setNexthop(routeEntry.getNexthop());
-                newRoute.setName("route-" + uuid);
-                newRoute.setPriority(100);
+                RouteEntry newRoute = new RouteEntry(projectid, uuid, "route-" + uuid, routeEntry.getDescription(),
+                        routeEntry.getDestination(), null, 100, null, routeEntry.getNexthop());
                 routes.add(newRoute);
             }
-            RouteEntry defaultRoute = new RouteEntry();
-            String uuid = UUID.randomUUID().toString();
-            defaultRoute.setId(uuid);
-            defaultRoute.setDestination("0.0.0.0/0");
-            defaultRoute.setNexthop("192.168.0.1");
-            defaultRoute.setName("default-route-" + uuid);
-            defaultRoute.setPriority(100);
-            routes.add(defaultRoute);
 
             routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource, routes);
 
