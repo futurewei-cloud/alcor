@@ -126,7 +126,7 @@ public class DpmServiceImpl implements DpmService {
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState, multicastGoalState);
-        patchGoalstateForNeighbor(networkConfig, unicastGoalState);
+        patchGoalstateForNeighbor(unicastGoalState);
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
@@ -136,7 +136,7 @@ public class DpmServiceImpl implements DpmService {
         return unicastGoalState;
     }
 
-    private void patchGoalstateForNeighbor(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws CacheException {
+    private void patchGoalstateForNeighbor(UnicastGoalState unicastGoalState) throws CacheException {
         List<Neighbor.NeighborState.Builder> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesBuilderList();
         for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
             List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborState.build().getConfiguration().getFixedIpsList();
@@ -344,6 +344,15 @@ public class DpmServiceImpl implements DpmService {
             Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
                     NeighborType.L3, localInfo, networkConfig.getOpType());
             multicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+            UnicastGoalState unicastGoalStateTemp = new UnicastGoalState();
+            unicastGoalStateTemp.getGoalStateBuilder().addNeighborStates(neighborState);
+            patchGoalstateForNeighbor(unicastGoalStateTemp);
+            if (unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList() != null &&
+                    unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList().size() > 0 )
+                multicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
+            if (unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList() != null &&
+                    unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList().size() > 0)
+                multicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
         }
 
         for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
@@ -361,8 +370,10 @@ public class DpmServiceImpl implements DpmService {
                         networkConfig.getOpType());
 
                 UnicastGoalState unicastGoalState = new UnicastGoalState();
-                unicastGoalState.setHostIp(neighborInfo.getHostIp());
+                //unicastGoalState.setHostIp(neighborInfo.getHostIp());
+                unicastGoalState.setHostIp(hostIp);
                 unicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+                patchGoalstateForNeighbor(unicastGoalState);
                 unicastGoalStates.add(unicastGoalState);
             }
         }
@@ -373,6 +384,8 @@ public class DpmServiceImpl implements DpmService {
             u.setGoalState(u.getGoalStateBuilder().build());
             u.setGoalStateBuilder(null);
         });
+
+
 
         if (USE_PULSAR_CLIENT) {
             return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);

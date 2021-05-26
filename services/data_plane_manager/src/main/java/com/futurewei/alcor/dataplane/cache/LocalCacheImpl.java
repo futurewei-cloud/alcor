@@ -47,7 +47,7 @@ public class LocalCacheImpl implements LocalCache {
     private NodeInfoCache nodeInfoCache;
 
     @Override
-    public void addSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
+    public void setSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
         List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
         if (portEntities == null) {
             return;
@@ -92,6 +92,7 @@ public class LocalCacheImpl implements LocalCache {
                         String router_id = "";
                         for (InternalRouterInfo router : routers) {
                             List<InternalSubnetRoutingTable> subnetRoutingTables = router.getRouterConfiguration().getSubnetRoutingTables();
+                            if (subnetRoutingTables == null) continue;
                             for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
                                 if (subnetRoutingTable.getSubnetId().equals(subnetId)) {
                                     router_id = router.getRouterConfiguration().getId();
@@ -151,11 +152,8 @@ public class LocalCacheImpl implements LocalCache {
         switch (opType) {
             case CREATE:
             case UPDATE:
-                addSubnetPorts(networkConfig);
+                setSubnetPorts(networkConfig);
                 break;
-//            case UPDATE:
-//                updateSubnetPorts(networkConfig);
-//                break;
             case DELETE:
                 deleteSubnetPorts(networkConfig);
                 break;

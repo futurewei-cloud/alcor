@@ -322,7 +322,6 @@ public class RouterServiceImpl implements RouterService {
             }
         }
         if (routeTable != null) {
-            //RouteManagerUtil.copyPropertiesIgnoreNull(inRoutetable, routeTable);
             this.routeTableDatabaseService.addRouteTable(routeTable);
             // TODO: notify Subnet Manager to update L3 neighbor for all ports in the same subnet
         }
@@ -362,8 +361,6 @@ public class RouterServiceImpl implements RouterService {
 
         routeTable.setRouteEntities(routes);
 
-        //RouteTable inRoutetable = resource.getRoutetable();
-        // RouteManagerUtil.copyPropertiesIgnoreNull(inRoutetable, routeTable);
         this.routeTableDatabaseService.addRouteTable(routeTable);
 
         return routeTable;
