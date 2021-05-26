@@ -8,12 +8,10 @@ data:
     dataplane.isovs=true
     spring.redis.host=localhost
     spring.redis.port=6380
-
     grpc.min-threads = 100
     grpc.max-threads = 200
     grpc.threads-pool-name = grpc-thread-pool
     protobuf.goal-state-message.version = 102
-
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true
@@ -28,23 +26,22 @@ data:
     spring.servlet.multipart.max-request-size=215MB
     microservices.netwconfigmanager.service.url=http://netwconfigmanager-service.default.svc.cluster.local:30016/network-configuration
     microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:30010/nodes
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: networkconfigmanager
-  name: networkconfigmanager
+    app: netwconfigmanager
+  name: netwconfigmanager
 spec:
   selector:
     matchLabels:
-      app: networkconfigmanager
-  replicas: 5
+      app: netwconfigmanager
+  replicas: 1
   template:
     metadata:
       labels:
-        app: networkconfigmanager
+        app: netwconfigmanager
     spec:
       volumes:
         - name: ncm-volume
@@ -74,11 +71,10 @@ metadata:
   labels:
     name: netwconfigmanager-service
 spec:
-  type: NcmPort
+  type: NodePort
   ports:
     - port: 9014
       targetPort: 8080
       nodePort: 30014
   selector:
     app: netwconfigmanager
-
