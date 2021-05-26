@@ -373,9 +373,8 @@ public class RouterController {
                         routeEntry.getDestination(), null, 100, null, routeEntry.getNexthop());
                 routes.add(newRoute);
             }
-            RouteEntry defaultRoute = new RouteEntry();
-            String uuid = UUID.randomUUID().toString();
-            new RouteEntry(projectid, uuid, "default-route-" + uuid, "Default Routing Rule",
+            String d_uuid = UUID.randomUUID().toString();
+            RouteEntry defaultRoute = new RouteEntry(projectid, d_uuid, "default-route-" + d_uuid, "Default Routing Rule",
                     "0.0.0.0/0", null, 100, null, "192.168.0.1");
             routes.add(defaultRoute);
 
