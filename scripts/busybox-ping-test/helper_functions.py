@@ -191,7 +191,8 @@ def dict_clean(dict):
 # Return project id from config file under section 'test_setup'
 def get_projectid():
     test_setup = read_config_file_section("test_setup")
-    return test_setup["project_id"]
+    proj = test_setup["project_id"]
+    return proj.replace('"', '')
 
 
 # Return container 'ip_addrs' from config file under test_setup section
