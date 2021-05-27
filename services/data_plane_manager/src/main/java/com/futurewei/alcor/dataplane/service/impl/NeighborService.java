@@ -15,19 +15,19 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
-import com.futurewei.alcor.schema.*;
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.Neighbor;
+import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -138,10 +138,6 @@ public class NeighborService extends ResourceService {
                     NeighborInfo neighborInfo = neighborInfos.get(neighborEntry.getNeighborIp());
                     if (neighborInfo == null) {
                         throw new NeighborInfoNotFound();
-                    }
-
-                    if (hostIp.equals(neighborInfo.getHostIp())) {
-                        continue;
                     }
 
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
